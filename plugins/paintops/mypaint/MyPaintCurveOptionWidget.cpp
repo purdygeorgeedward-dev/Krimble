@@ -25,7 +25,7 @@ KisPaintopLodLimitations calcGeneralMyPaintLodLimitations(const MyPaintCurveOpti
 
     return l;
 }
-} // namespace
+}
 
 struct MyPaintCurveOptionWidget::Private
 {

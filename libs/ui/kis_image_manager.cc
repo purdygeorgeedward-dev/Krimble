@@ -42,7 +42,6 @@
 
 #include "kis_signal_compressor_with_param.h"
 
-
 KisImageManager::KisImageManager(KisViewManager * view)
         : m_view(view)
 {
@@ -84,7 +83,7 @@ void KisImageManager::setup(KisActionManager *actionManager)
 static bool krimbleAutoCropPixelIsBackground(QRgb p, QRgb bg, int tol)
 {
     const int a = qAlpha(p), ba = qAlpha(bg);
-    if (ba == 0) return a <= tol;                       // transparent background
+    if (ba == 0) return a <= tol;
     if (qAbs(a - ba) > tol) return false;
     return qAbs(qRed(p) - qRed(bg)) <= tol
         && qAbs(qGreen(p) - qGreen(bg)) <= tol
@@ -143,7 +142,6 @@ void KisImageManager::slotAutoCrop()
                                     QIcon(), 3000, KisFloatingMessage::Low);
         return;
     }
-    // Treat a transparent corner as the transparent background.
     const QRgb bg = (qAlpha(c[0]) <= tol) ? qRgba(0, 0, 0, 0) : c[0];
 
     int top = h, bottom = -1, left = w, right = -1;
@@ -195,7 +193,6 @@ void KisImageManager::slotImportLayerAsSelectionMask()
 {
     importImage(QUrl(), "KisSelectionMask");
 }
-
 
 qint32 KisImageManager::importImage(const QUrl &urlArg, const QString &layerType)
 {
@@ -265,7 +262,6 @@ void KisImageManager::shearCurrentImage(double angleX, double angleY)
     m_view->image()->shear(angleX, angleY);
 }
 
-
 void KisImageManager::slotImageProperties()
 {
     KisImageWSP image = m_view->image();
@@ -322,5 +318,4 @@ void KisImageManager::slotImageColor()
         KisLayerUtils::changeImageDefaultProjectionColor(image, oldBgColor);
     }
 }
-
 

@@ -12,7 +12,6 @@
 #include <kis_global.h>
 #include <kis_dom_utils.h>
 
-
 KisScalarKeyframe::KisScalarKeyframe(qreal value, QSharedPointer<ScalarKeyframeLimits> limits)
     : KisKeyframe(),
       m_value(value),
@@ -39,7 +38,6 @@ KisKeyframeSP KisScalarKeyframe::duplicate(KisKeyframeChannel *newChannel)
     if (newChannel) {
         KisScalarKeyframeChannel *scalarChannel = dynamic_cast<KisScalarKeyframeChannel*>(newChannel);
         KIS_ASSERT(scalarChannel);
-        // When transitioning between channels, set limits to those of the new channel.
         KisScalarKeyframeSP scalarKey = toQShared(new KisScalarKeyframe(m_value, scalarChannel->limits()));
         scalarKey->setInterpolationMode(m_interpolationMode);
         scalarKey->setTangentsMode(m_tangentsMode);
@@ -133,12 +131,6 @@ void KisScalarKeyframe::setLimits(QSharedPointer<ScalarKeyframeLimits> limits)
     m_channelLimits = limits;
 }
 
-
-// ========================================================================================================
-// ==================================== KisScalarKeyframeChannel ==========================================
-// ========================================================================================================
-
-
 struct KisScalarKeyframeChannel::Private
 {
 public:
@@ -159,8 +151,6 @@ public:
     qreal defaultValue;
     KisScalarKeyframe::InterpolationMode defaultInterpolationMode;
 
-    /** Optional structure that can be added to a channel in order to
-     * limit its scalar values within a certain range. */
     QSharedPointer<ScalarKeyframeLimits> limits;
 };
 
@@ -275,7 +265,6 @@ qreal KisScalarKeyframeChannel::valueAt(int time) const
         }
     }
 
-    // Output value must be also be clamped to account for interpolation.
     if (m_d->limits) {
         return m_d->limits->clamp(result);
     } else {
@@ -342,8 +331,6 @@ KisTimeSpan KisScalarKeyframeChannel::affectedFrames(int time) const
     const KisScalarKeyframeSP prevScalarKey = keyframeAt<KisScalarKeyframe>(previousKeyTime);
 
     if(prevScalarKey) {
-        // In the case that a previous keyframe is present with a non-constant interpolation mode,
-        // the affected frames must include all the frames just after the previous keyframe.
         if (prevScalarKey->interpolationMode() == KisScalarKeyframe::Constant) {
             return normalSpan;
         } else {
@@ -360,7 +347,6 @@ KisTimeSpan KisScalarKeyframeChannel::affectedFrames(int time) const
 
 KisTimeSpan KisScalarKeyframeChannel::identicalFrames(int time) const
 {
-    //Failsafe == no keys should mean all frames are identical!
     if (allKeyframeTimes().count() == 0) {
         return KisTimeSpan::infinite(0);
     }
@@ -369,20 +355,15 @@ KisTimeSpan KisScalarKeyframeChannel::identicalFrames(int time) const
     if ( activeScalarKey &&
          activeScalarKey->interpolationMode() != KisScalarKeyframe::Constant &&
          activeScalarKey != keyframeAt(lastKeyframeTime()) ) {
-        //TODO: Two keyframes should be considered identical if linear with same value..
-        //TODO: Also, if bezier with same value AND tangents lie between points.
-        //                                          (tangenty == keyframey)
         return KisTimeSpan::fromTimeToTime(time, time);
     }
 
     const int nextKeyTime = nextKeyframeTime(time);
 
-    //Before the first frame => there's no active frame but a valid next frame.
     if (!activeScalarKey && keyframeAt(nextKeyTime)) {
         return KisTimeSpan::fromTimeToTime(0, nextKeyTime);
     }
 
-    //No next frame, all frames after are identical.
     if (!keyframeAt(nextKeyTime)) {
        return KisTimeSpan::infinite(activeKeyframeTime(time));
     }
@@ -407,7 +388,6 @@ qreal KisScalarKeyframeChannel::findCubicCurveParameter(int time0, qreal delta0,
         } else if (time_t > time + 0.05) {
             max_t = t;
         } else {
-            // Close enough
             return t;
         }
     }
@@ -423,9 +403,6 @@ qreal KisScalarKeyframeChannel::cubicBezier(qreal p0, qreal delta1, qreal delta2
 
 void KisScalarKeyframeChannel::normalizeTangents(const QPointF point1, QPointF &rightTangent, QPointF &leftTangent, const QPointF point2)
 {
-    // To ensure that the curve is monotonic wrt time,
-    // check that control points lie between the endpoints.
-    // If not, force them into range by scaling down the tangents
 
     float interval = point2.x() - point1.x();
     if (rightTangent.x() < 0) rightTangent *= 0;

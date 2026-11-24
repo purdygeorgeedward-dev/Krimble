@@ -35,5 +35,4 @@ private:
     KisUndoView *m_undoView;
 };
 
-
 #endif

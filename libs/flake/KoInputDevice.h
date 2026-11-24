@@ -15,21 +15,17 @@
 #include <QFlags>
 #include <boost/operators.hpp>
 
-/**
- * This class represents an input device.
- * A user can manipulate flake-shapes using a large variety of input devices. This ranges from
- * a mouse to a paintbrush-like tool connected to a tablet. */
 class KRITAFLAKE_EXPORT KoInputDevice : public boost::equality_comparable<KoInputDevice>
 {
 public:
 
     enum class Pointer {
         Unknown = 0,
-        Generic = 0x0001,   // mouse or similar
-        Finger = 0x0002,    // touchscreen or pad
-        Pen = 0x0004,       // stylus on a tablet
-        Eraser = 0x0008,    // eraser end of a stylus
-        Cursor = 0x0010,    // digitizer with crosshairs
+        Generic = 0x0001,
+        Finger = 0x0002,
+        Pen = 0x0004,
+        Eraser = 0x0008,
+        Cursor = 0x0010,
         AllPointerTypes = 0x7FFF
     };
 
@@ -118,8 +114,6 @@ public:
             return InputDevice::Airbrush;
         }
         case QTabletEvent::RotationStylus: {
-            // Note: Qt6 no longer has the RotationStylus device type, so we will
-            // have to stop supporting it.
             return InputDevice::Stylus;
         }
         default:
@@ -177,60 +171,29 @@ public:
 #endif
     }
 
-    /**
-     * Copy constructor.
-     */
     KoInputDevice(const KoInputDevice &other);
 
-    /**
-     * Constructor for a tablet.
-     * Create a new input device with one of the many types that the tablet can have.
-     * @param device the device as found on a QTabletEvent
-     * @param pointer the pointer as found on a QTabletEvent
-     * @param uniqueTabletId the uniqueId as found on a QTabletEvent
-     */
     explicit KoInputDevice(InputDevice device, Pointer pointer, qint64 uniqueTabletId = -1);
 
-    /**
-     * Constructor for the mouse as input device.
-     */
     KoInputDevice();
 
     ~KoInputDevice();
 
-    /**
-     * Return the tablet device used
-     */
     InputDevice device() const;
 
-    /**
-     * Return the pointer used
-     */
     Pointer pointer() const;
 
-    /**
-     * Return the unique tablet id as registered by QTabletEvents. Note that this
-     * id can change randomly, so it's not dependable.
-     *
-     * See https://bugs.kde.org/show_bug.cgi?id=407659
-     */
     qint64 uniqueTabletId() const;
 
-    /**
-     * Return if this is a mouse device.
-     */
     bool isMouse() const;
 
-    /// equal
     bool operator==(const KoInputDevice&) const;
-    /// assignment
     KoInputDevice & operator=(const KoInputDevice &);
 
-    static KoInputDevice invalid();   ///< invalid input device
-    static KoInputDevice mouse();     ///< Standard mouse
-    static KoInputDevice stylus();    ///< Wacom style/pen
-    static KoInputDevice eraser();    ///< Wacom eraser
-
+    static KoInputDevice invalid();
+    static KoInputDevice mouse();
+    static KoInputDevice stylus();
+    static KoInputDevice eraser();
 
 private:
     class Private;

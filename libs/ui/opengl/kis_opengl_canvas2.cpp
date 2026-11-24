@@ -126,8 +126,6 @@ KisOpenGLCanvas2::KisOpenGLCanvas2(KisCanvas2 *canvas,
 
     setUpdateBehavior(PartialUpdate);
 
-    // we should make sure the texture doesn't have alpha channel,
-    // otherwise blending will not work correctly.
     if (KisOpenGLModeProber::instance()->useHDRMode()) {
         setTextureFormat(GL_RGBA16F);
     } else {
@@ -140,15 +138,6 @@ KisOpenGLCanvas2::KisOpenGLCanvas2(KisCanvas2 *canvas,
             }
             setTextureFormat(GL_RGB10_A2);
         } else {
-            /**
-             * When in pure OpenGL mode, the canvas surface will have alpha
-             * channel. Therefore, if our canvas blending algorithm produces
-             * semi-transparent pixels (and it does), then Krita window itself
-             * will become transparent. Which is not good.
-             *
-             * In Angle mode, GL_RGB8 is not available (and the transparence effect
-             * doesn't exist at all).
-             */
             if (!KisOpenGL::hasOpenGLES()) {
                 setTextureFormat(GL_RGB8);
             }
@@ -168,16 +157,6 @@ KisOpenGLCanvas2::KisOpenGLCanvas2(KisCanvas2 *canvas,
 
 KisOpenGLCanvas2::~KisOpenGLCanvas2()
 {
-    /**
-     * Since we delete openGL resources, we should make sure the
-     * context is initialized properly before they are deleted.
-     * Otherwise resources from some other (current) context may be
-     * deleted due to resource id aliasing.
-     *
-     * The main symptom of resources being deleted from wrong context,
-     * the canvas being locked/backened-out after some other document
-     * is closed.
-     */
 
     makeCurrent();
 
@@ -268,11 +247,6 @@ void KisOpenGLCanvas2::paintGL()
 
     d->repaintDbg.paint(this, updateRect.isEmpty() ? rect() : updateRect);
 
-    // We create the glFenceSync object here instead of in KisOpenGLRenderer,
-    // because the glFenceSync object should be created after all render
-    // commands in a frame, not just the OpenGL canvas itself. Putting it
-    // outside of KisOpenGLRenderer allows the canvas widget to do extra
-    // rendering, which a QtQuick2-based canvas will need.
     d->glSyncObject.reset(new KisOpenGLSync());
 
     if (!OPENGL_SUCCESS) {
@@ -287,26 +261,13 @@ void KisOpenGLCanvas2::paintEvent(QPaintEvent *e)
     KIS_SAFE_ASSERT_RECOVER_RETURN(!d->updateRect);
 
     if (qFuzzyCompare(devicePixelRatioF(), qRound(devicePixelRatioF()))) {
-        /**
-         * Enable partial updates **only** for the case when we have
-         * integer scaling. There is a bug in Qt that causes artifacts
-         * otherwise:
-         *
-         * See https://bugs.kde.org/show_bug.cgi?id=441216
-         */
         d->updateRect = e->rect();
     } else {
         d->updateRect = this->rect();
     }
 
 #if KRITA_QT_HAS_UPDATE_COMPRESSION_PATCH
-    /**
-     * When using Qt with a proper update paint event compression, then we don't
-     * need to implement our own one in KisCanvas2, instead we should just skip
-     * frames in paintEvent(), when the previous frame hasn't completed yet.
-     */
     if (isBusy()) {
-        //qWarning() << "WARNING: paint event delivered with the canvas non-ready, rescheduling...";
         d->shouldSkipRenderingPass = true;
         QOpenGLWidget::paintEvent(e);
         d->shouldSkipRenderingPass = false;
@@ -329,14 +290,6 @@ void KisOpenGLCanvas2::paintEvent(QPaintEvent *e)
 
 void KisOpenGLCanvas2::paintToolOutline(const KisOptimizedBrushOutline &path, int thickness)
 {
-    /**
-     * paintToolOutline() is called from drawDecorations(), which has clipping
-     * set only for QPainter-based painting; here we paint in native mode, so we
-     * should care about clipping manually
-     *
-     * `d->updateRect` might be empty in case the fractional DPI workaround
-     * is active.
-     */
     const QRect updateRect = d->updateRect ? *d->updateRect : QRect();
 
     d->renderer->paintToolOutline(path, updateRect, thickness);
@@ -421,7 +374,6 @@ void KisOpenGLCanvas2::channelSelectionChanged(const QBitArray &channelFlags)
     d->renderer->channelSelectionChanged(channelFlags);
 }
 
-
 void KisOpenGLCanvas2::finishResizingImage(qint32 w, qint32 h)
 {
     KisOpenGLContextSwitchLockSkipOnQt5 contextLock(this);
@@ -432,7 +384,6 @@ KisUpdateInfoSP KisOpenGLCanvas2::startUpdateCanvasProjection(const QRect & rc)
 {
     return d->renderer->startUpdateCanvasProjection(rc);
 }
-
 
 QRect KisOpenGLCanvas2::updateCanvasProjection(KisUpdateInfoSP info)
 {
@@ -465,7 +416,7 @@ KisOpenGLImageTexturesSP KisOpenGLCanvas2::openGLImageTextures() const
     return d->renderer->openGLImageTextures();
 }
 
-KisOpenGLCanvas2::BitDepthMode KisOpenGLCanvas2::currentBitDepthMode() const 
+KisOpenGLCanvas2::BitDepthMode KisOpenGLCanvas2::currentBitDepthMode() const
 {
     return
         textureFormat() == GL_RGB10_A2 &&
@@ -486,30 +437,26 @@ QString KisOpenGLCanvas2::currentBitDepthUserReport() const {
         case GL_RGB10_A2:
             str << " (" << "GL_RGB10_A2" << ")";
             break;
-// not available in openGLES
 #ifdef GL_RGB10
             case GL_RGB10:
             str << " (" << "GL_RGB10" << ")";
             break;
-#endif /* GL_RGB10 */
-// not available in openGLES
+#endif
 #ifdef GL_RGB12
         case GL_RGB12:
             str << " (" << "GL_RGB12" << ")";
             break;
-#endif /* GL_RGB12 */
-// not available in openGLES
+#endif
 #ifdef GL_RGBA16
         case GL_RGBA16:
             str << " (" << "GL_RGBA16" << ")";
             break;
-#endif /* GL_RGBA16 */
-// not available in openGLES
+#endif
 #ifdef GL_RGB16
         case GL_RGB16:
             str << " (" << "GL_RGB16" << ")";
             break;
-#endif /* GL_RGB16 */
+#endif
         case GL_RGBA16F:
             str << " (" << "GL_RGBA16F" << ")";
             break;

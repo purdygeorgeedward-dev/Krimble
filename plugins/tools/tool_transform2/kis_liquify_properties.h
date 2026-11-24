@@ -14,7 +14,6 @@
 
 class QDomElement;
 
-
 class KRITATOOLTRANSFORM_EXPORT KisLiquifyProperties : boost::equality_comparable<KisLiquifyProperties>
 {
 public:
@@ -40,7 +39,6 @@ public:
           m_flow(0.2)
     {
     }
-
 
     KisLiquifyProperties(const KisLiquifyProperties &rhs);
 
@@ -142,4 +140,4 @@ private:
 
 QDebug KRITATOOLTRANSFORM_EXPORT operator<<(QDebug dbg, const KisLiquifyProperties &properties);
 
-#endif /* __KIS_LIQUIFY_PROPERTIES_H */
+#endif

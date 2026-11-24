@@ -12,7 +12,7 @@
 
 #include <KoDialog.h>
 
-#include <kis_selection.h> // For enums
+#include <kis_selection.h>
 #include <kis_pixel_selection.h>
 #include <kis_types.h>
 #include <kis_global.h>
@@ -44,10 +44,6 @@ public:
     }
 };
 
-/**
-* This dialog allows the user to create a selection mask based
-* on a (range of) colors.
-*/
 class DlgColorRange: public KoDialog
 {
 
@@ -84,5 +80,4 @@ private:
     bool m_invert;
 };
 
-
-#endif // DLG_COLORRANGE
+#endif

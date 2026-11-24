@@ -22,10 +22,9 @@ class KUndo2Command;
 
 namespace KisAutoKey {
 enum Mode {
-    NONE, // AutoKey is disabled. Keyframes must be created manually.
-    BLANK, // AutoKey creates an empty/blank frame. Acts like DUPLICATE when not
-           // applicable (i.e.: filters, transforms, etc.).
-    DUPLICATE // AutoKey will duplicate the active frame.
+    NONE,
+    BLANK,
+    DUPLICATE
 };
 
 KRITAIMAGE_EXPORT Mode activeMode();
@@ -39,11 +38,6 @@ enum AutoCreateKeyframeFlag {
 
 Q_DECLARE_FLAGS(AutoCreateKeyframeFlags, AutoCreateKeyframeFlag)
 
-/**
- * @brief create a new **duplicated** keyframe if auto-keyframe mode is on
- * @param device a paint device of the layer to be processed
- * @return an undo command if the keyframe has been duplicated
- */
 KRITAIMAGE_EXPORT
 KUndo2Command* tryAutoCreateDuplicatedFrame(KisPaintDeviceSP device, AutoCreateKeyframeFlags flags = None);
 
@@ -52,4 +46,4 @@ KUndo2Command* tryAutoCreateDuplicatedFrame(KisPaintDeviceSP device, AutoCreateK
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisAutoKey::AutoCreateKeyframeFlags)
 Q_DECLARE_METATYPE(KisAutoKey::Mode)
 
-#endif //_KIS_ANIM_AUTOKEY_H
+#endif

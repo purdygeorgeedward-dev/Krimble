@@ -16,5 +16,4 @@ namespace KisWidgetConnectionUtils
 void KRITAUI_EXPORT connectControl(KisCompositeOpListWidget *widget, QObject *source, const char *property);
 }
 
-
-#endif // KISCOMPOSITEOPLISTCONNECTIONHELPER_H
+#endif

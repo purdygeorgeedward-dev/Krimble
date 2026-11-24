@@ -18,9 +18,7 @@
 #include "kis_config_notifier.h"
 #include "KisImageConfigNotifier.h"
 
-
 Q_GLOBAL_STATIC(KisStrokeSpeedMonitor, s_instance)
-
 
 struct KisStrokeSpeedMonitor::Private
 {
@@ -109,8 +107,6 @@ void KisStrokeSpeedMonitor::notifyStrokeFinished(qreal cursorSpeed, qreal render
         m_d->lastPresetName == preset->name() &&
         qFuzzyCompare(m_d->lastPresetSize, preset->settings()->paintOpSize());
 
-    //ENTER_FUNCTION() << ppVar(isSamePreset);
-
     if (!isSamePreset) {
         resetAccumulatedValues();
         m_d->lastPresetName = preset->name();
@@ -121,10 +117,8 @@ void KisStrokeSpeedMonitor::notifyStrokeFinished(qreal cursorSpeed, qreal render
     m_d->lastRenderingSpeed = renderingSpeed;
     m_d->lastFps = fps;
 
-
-    static const qreal saturationSpeedThreshold = 0.30; // cursor speed should be at least 30% higher
+    static const qreal saturationSpeedThreshold = 0.30;
     m_d->lastStrokeSaturated = cursorSpeed / renderingSpeed > (1.0 + saturationSpeedThreshold);
-
 
     if (m_d->lastStrokeSaturated) {
         m_d->avgCursorSpeed(cursorSpeed);
@@ -137,7 +131,6 @@ void KisStrokeSpeedMonitor::notifyStrokeFinished(qreal cursorSpeed, qreal render
     }
 
     Q_EMIT sigStatsUpdated();
-
 
     ENTER_FUNCTION() <<
         QString(" CS: %1  RS: %2  FPS: %3 %4")

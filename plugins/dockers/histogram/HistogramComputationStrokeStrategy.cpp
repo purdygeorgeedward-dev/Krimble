@@ -25,7 +25,7 @@ struct HistogramComputationStrokeStrategy::Private
         {}
 
         QRect rectToCalculate;
-        int jobId; // id in the list of results
+        int jobId;
     };
 
     KisImageSP image;
@@ -33,7 +33,6 @@ struct HistogramComputationStrokeStrategy::Private
     std::vector<HistVector> resultsLog;
     float maximumValue = 0.0f;
 };
-
 
 HistogramComputationStrokeStrategy::HistogramComputationStrokeStrategy(KisImageSP image)
     : KisIdleTaskStrokeStrategy(QLatin1String("ComputeHistogram"), kundo2_i18n("Update histogram"))
@@ -82,7 +81,7 @@ void HistogramComputationStrokeStrategy::doStrokeCallback(KisStrokeJobData *data
     quint32 pixelSize = m_dev->pixelSize();
 
     int imageSize = imageBounds.width() * imageBounds.height();
-    int nSkip = 1 + (imageSize >> 20); //for speed use about 1M pixels for computing histograms
+    int nSkip = 1 + (imageSize >> 20);
 
     if (calculate.isEmpty())
         return;
@@ -114,7 +113,6 @@ void HistogramComputationStrokeStrategy::doStrokeCallback(KisStrokeJobData *data
 
     const double maximumMultiplier = 255.0/maximum;
     const double logMaxMultiplier = 255.0/(std::log10(maximum*10)*0.1);
-
 
     KisSequentialConstIterator it(m_dev, calculate);
 

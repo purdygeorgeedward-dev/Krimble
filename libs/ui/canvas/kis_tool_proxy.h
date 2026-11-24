@@ -11,15 +11,14 @@
 #include <KoToolProxy.h>
 #include <kis_tool.h>
 
-
 class KRITAUI_EXPORT KisToolProxy : public KoToolProxy
 {
     Q_OBJECT
 public:
     enum ActionState {
-        BEGIN,  /**< Beginning an action */
-        CONTINUE, /**< Continuing an action */
-        END /**< Ending an action */
+        BEGIN,
+        CONTINUE,
+        END
     };
 
 public:
@@ -28,15 +27,6 @@ public:
 
     void forwardHoverEvent(QEvent *event);
 
-    /**
-     * Forwards the event to the active tool and returns true if the
-     * event was not ignored.  That is by default the event is
-     * considered accepted, but the tool can explicitly ignore it.
-     * @param state beginning, continuing, or ending the action.
-     * @param action alternate tool action requested.
-     * @param event the event being sent to the tool by the AbstractInputAction.
-     * @param originalEvent the original event received by the AbstractInputAction.
-     */
     bool forwardEvent(ActionState state, KisTool::ToolAction action, QEvent *event, QEvent *originalEvent);
     bool primaryActionSupportsHiResEvents() const;
     bool alternateActionSupportsHiResEvents(KisTool::AlternateAction action) const;
@@ -64,4 +54,4 @@ private:
     KisTool::ToolAction m_lastAction;
 };
 
-#endif /* __KIS_TOOL_PROXY_H */
+#endif

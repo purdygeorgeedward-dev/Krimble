@@ -13,7 +13,6 @@ class KisLazyBrushTest : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
-    //void test();
     void testGraph();
     void testGraphMultilabel();
     void testGraphStandardIterators();
@@ -30,4 +29,4 @@ private Q_SLOTS:
     void multiwayCutBenchmark();
 };
 
-#endif /* __KIS_LAZY_BRUSH_TEST_H */
+#endif

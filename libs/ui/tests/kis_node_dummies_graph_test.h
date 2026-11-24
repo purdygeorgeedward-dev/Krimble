@@ -12,7 +12,6 @@
 class KisNodeDummy;
 class KisNodeDummiesGraph;
 
-
 class KisNodeDummiesGraphTest : public QObject
 {
     Q_OBJECT
@@ -38,4 +37,4 @@ private:
     KisNodeDummiesGraph *m_dummiesGraph;
 };
 
-#endif /* __KIS_NODE_DUMMIES_GRAPH_TEST_H */
+#endif

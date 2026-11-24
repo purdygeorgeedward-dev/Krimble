@@ -36,7 +36,6 @@ ComboBoxState calcApplicationSwitchState(enumBrushType brushType, bool supportsH
         }
     }
 
-
     int currentValue = std::clamp((int)application, 0, (int)values.size() - 1);
     return ComboBoxState{values, currentValue, values.size() > 1, toolTips};
 }
@@ -54,7 +53,7 @@ QString calcBrushDetails(PredefinedBrushData data)
     } else if (data.brushType == IMAGE) {
         brushTypeString = i18n("Image");
     } else if (data.brushType == PIPE_MASK ) {
-        brushTypeString = i18n("Animated mask"); // GIH brush
+        brushTypeString = i18n("Animated mask");
         animatedBrushTipSelectionMode = data.parasiteSelection;
     } else if (data.brushType == PIPE_IMAGE ) {
         brushTypeString = i18n("Animated image");
@@ -77,8 +76,6 @@ auto effectiveResourceData = lager::lenses::getset(
 
         CommonData commonData;
 
-        /// NOTE: we cannot just pass the data by value because of the
-        /// bug in lager: https://github.com/arximboldi/lager/issues/160
         PredefinedBrushData predefinedData = predefinedDataArg;
 
         auto source = KisGlobalResourcesInterface::instance()->source<KisBrush>(ResourceType::Brushes);
@@ -88,12 +85,6 @@ auto effectiveResourceData = lager::lenses::getset(
 
         KisPredefinedBrushFactory::loadFromBrushResource(commonData, predefinedData, fallbackResource);
 
-        /// NOTE: we discard `commonData` returned from the loaded brush, because
-        /// we expect spacing and size information to be shared between auto and
-        /// predefined brushes. If the user wants to load the settings embedded
-        /// into the brush itself he/she should reset it explicitly via the GUI
-        /// controls.
-
         return predefinedData;
     },
     [](const PredefinedBrushData&,
@@ -102,8 +93,7 @@ auto effectiveResourceData = lager::lenses::getset(
         return y;
     });
 
-} // namespace
-
+}
 
 KisPredefinedBrushModel::KisPredefinedBrushModel(lager::cursor<CommonData> commonData,
                                                  lager::cursor<PredefinedBrushData> predefinedBrushData,
@@ -154,7 +144,6 @@ KisPredefinedBrushModel::KisPredefinedBrushModel(lager::cursor<CommonData> commo
                   xform(kiszug::map_equal<int>(LIGHTNESSMAP))}
 {
 }
-
 
 PredefinedBrushData KisPredefinedBrushModel::bakedOptionData() const
 {

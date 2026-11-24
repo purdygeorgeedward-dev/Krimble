@@ -7,7 +7,6 @@
 #ifndef KIS_SPRAYOP_OPTION_DATA_H
 #define KIS_SPRAYOP_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 #include <kritapaintop_export.h>
@@ -17,7 +16,6 @@
 #include "KisSprayRandomDistributions.h"
 
 class KisPropertiesConfiguration;
-
 
 const QString SPRAY_DIAMETER = "Spray/diameter";
 const QString SPRAY_ASPECT = "Spray/aspect";
@@ -40,7 +38,6 @@ const QString SPRAY_RADIAL_DISTRIBUTION_CURVE_REPEAT = "Spray/radialDistribution
 const QString SPRAY_RADIAL_DISTRIBUTION_CENTER_BIASED = "Spray/radialDistributionCenterBiased";
 const QString SPRAY_GAUSS_DISTRIBUTION = "Spray/gaussianDistribution";
 
-
 struct KisSprayOpOptionData : boost::equality_comparable<KisSprayOpOptionData>
 {
 	enum ParticleDistribution
@@ -50,9 +47,9 @@ struct KisSprayOpOptionData : boost::equality_comparable<KisSprayOpOptionData>
         ParticleDistribution_ClusterBased,
         ParticleDistribution_CurveBased
     };
-	
+
     inline friend bool operator==(const KisSprayOpOptionData &lhs, const KisSprayOpOptionData &rhs) {
-        return lhs.diameter == rhs.diameter // 10 entries
+        return lhs.diameter == rhs.diameter
 			&& lhs.aspect == rhs.aspect
 			&& lhs.brushRotation == rhs.brushRotation
 			&& lhs.scale == rhs.scale
@@ -62,7 +59,6 @@ struct KisSprayOpOptionData : boost::equality_comparable<KisSprayOpOptionData>
 			&& lhs.useDensity == rhs.useDensity
 			&& lhs.particleCount == rhs.particleCount
 			&& lhs.coverage == rhs.coverage
-			// 9 entries
 			&& lhs.angularDistributionType == rhs.angularDistributionType
 			&& lhs.angularDistributionCurve == rhs.angularDistributionCurve
 			&& lhs.angularDistributionCurveRepeat == rhs.angularDistributionCurveRepeat
@@ -72,13 +68,9 @@ struct KisSprayOpOptionData : boost::equality_comparable<KisSprayOpOptionData>
 			&& lhs.radialDistributionCurve == rhs.radialDistributionCurve
 			&& lhs.radialDistributionCurveRepeat == rhs.radialDistributionCurveRepeat
 			&& lhs.radialDistributionCenterBiased == rhs.radialDistributionCenterBiased;
-			// 7 entries - but there is no need to compare functors
-			
+
     }
 
-	// sane defaults (for Coverity)
-	// NOTE: if you add any new variable, make sure it's present in all places! including == function
-	// 10 entries
     quint16 diameter {100};
     qreal aspect {1.0};
     qreal brushRotation {0.0};
@@ -89,8 +81,7 @@ struct KisSprayOpOptionData : boost::equality_comparable<KisSprayOpOptionData>
     bool useDensity {false};
     quint16 particleCount {12};
     qreal coverage {0.003};
-	
-    // 9 entries
+
     ParticleDistribution angularDistributionType {ParticleDistribution_Uniform};
     QString angularDistributionCurve {DEFAULT_CURVE_STRING};
     int angularDistributionCurveRepeat {1};
@@ -101,9 +92,8 @@ struct KisSprayOpOptionData : boost::equality_comparable<KisSprayOpOptionData>
     int radialDistributionCurveRepeat {1};
     bool radialDistributionCenterBiased {false};
 
-	// functions
     bool read(const KisPropertiesConfiguration *setting);
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_SPRAYOP_OPTION_DATA_H
+#endif

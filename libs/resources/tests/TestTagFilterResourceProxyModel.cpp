@@ -31,7 +31,6 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
 
-
 void TestTagFilterResourceProxyModel::initTestCase()
 {
     ResourceTestHelper::initTestDb();
@@ -67,7 +66,6 @@ void TestTagFilterResourceProxyModel::testWithTagModelTester()
     Q_UNUSED(tester);
 }
 
-
 void TestTagFilterResourceProxyModel::testRowCount()
 {
     QSqlQuery q;
@@ -98,7 +96,6 @@ void TestTagFilterResourceProxyModel::testData()
         QVERIFY(names.contains(v.toString()));
     }
 }
-
 
 void TestTagFilterResourceProxyModel::testResource()
 {
@@ -196,7 +193,6 @@ void TestTagFilterResourceProxyModel::testFilterByStorage()
 
 }
 
-
 void TestTagFilterResourceProxyModel::testDataWhenSwitchingBetweenTagAllAllUntagged()
 {
     KisTagFilterResourceProxyModel proxyModel(m_resourceType);
@@ -231,7 +227,6 @@ void TestTagFilterResourceProxyModel::testResourceForIndex()
 
     resource = proxyModel.resourceForIndex(idx);
     QVERIFY(resource);
-
 
     KisTagResourceModel tagResourceModel(ResourceType::PaintOpPresets);
     tagResourceModel.setResourcesFilter(QVector<KoResourceSP>() << resource);

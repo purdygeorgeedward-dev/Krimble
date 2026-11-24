@@ -30,11 +30,6 @@ using KisResourcesInterfaceSP = QSharedPointer<KisResourcesInterface>;
 
 class KoResourceLoadResult;
 
-/**
- * The paintop factory is responsible for creating paintops of the specified class.
- * If there is an optionWidget, the derived paintop itself must support settings,
- * and it's up to the factory to do that.
- */
 class KRITAIMAGE_EXPORT KisPaintOpFactory : public QObject
 {
     Q_OBJECT
@@ -47,9 +42,6 @@ public:
         NEVER
     };
 
-    /**
-     * @param whiteListedCompositeOps list of compositeops that don't work with this paintop
-     */
     KisPaintOpFactory(const QStringList & whiteListedCompositeOps = QStringList());
     ~KisPaintOpFactory() override {}
 
@@ -57,60 +49,28 @@ public:
 
 #ifdef HAVE_THREADED_TEXT_RENDERING_WORKAROUND
     virtual void preinitializePaintOpIfNeeded(const KisPaintOpSettingsSP settings);
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
-    /**
-     * Create a KisPaintOp with the given settings and painter.
-     * @param settings the settings associated with the input device
-     * @param painter the painter used to draw
-     * @param node the node used to draw
-     * @param image the image used to draw
-     */
     virtual KisPaintOp * createOp(const KisPaintOpSettingsSP settings, KisPainter * painter, KisNodeSP node, KisImageSP image) = 0;
     virtual QString id() const = 0;
     virtual QString name() const = 0;
     virtual QString category() const = 0;
     virtual bool lodSizeThresholdSupported() const = 0;
 
-    /**
-     * @return all the resources linked to \p settings.
-     */
     virtual QList<KoResourceLoadResult> prepareLinkedResources(const KisPaintOpSettingsSP settings, KisResourcesInterfaceSP resourcesInterface) = 0;
 
-    /**
-     * @return all the resources embedded into \p settings. The resources are first tried to be loaded
-     * from \p resourcesInterface, and, if it fails, loaded from the embedded data.
-     */
     virtual QList<KoResourceLoadResult> prepareEmbeddedResources(const KisPaintOpSettingsSP settings, KisResourcesInterfaceSP resourcesInterface) = 0;
 
     virtual KisInterstrokeDataFactory* createInterstrokeDataFactory(const KisPaintOpSettingsSP settings, KisResourcesInterfaceSP resourcesInterface) const;
 
-    /**
-     * List of usually hidden compositeops that are useful for this paintop.
-     */
     QStringList whiteListedCompositeOps() const;
 
-    /**
-     * @brief icon
-     * @return the icon to represent this paintop.
-     */
     virtual QIcon icon();
 
-    /**
-     * Create and return an settings object for this paintop.
-     */
     virtual KisPaintOpSettingsSP createSettings(KisResourcesInterfaceSP resourcesInterface) = 0;
 
-    /**
-     * create a widget that can display paintop settings
-     */
     virtual KisPaintOpConfigWidget* createConfigWidget(QWidget* parent, KisResourcesInterfaceSP resourcesInterface, KoCanvasResourcesInterfaceSP canvasResourcesInterface) = 0;
 
-    /**
-     * Set the priority of this paintop, as it is shown in the UI; lower number means
-     * it will be show more to the front of the list.
-     * @param newPriority the priority
-     */
     void setPriority(int newPriority);
 
     int priority() const;

@@ -35,5 +35,4 @@ struct KRITAIMAGE_EXPORT KisFillIntervalMap::Private {
     IteratorRange findFirstIntersectingInterval(const KisFillInterval &interval);
 };
 
-
-#endif /* __KIS_FILL_INTERVAL_MAP_P_H */
+#endif

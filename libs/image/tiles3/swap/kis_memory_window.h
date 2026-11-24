@@ -11,16 +11,11 @@
 
 #include "kis_chunk_allocator.h"
 
-
 #define DEFAULT_WINDOW_SIZE (16*MiB)
 
 class KRITAIMAGE_EXPORT KisMemoryWindow
 {
 public:
-    /**
-     * @param swapDir If the dir doesn't exist, it'll be created, if it's empty QDir::tempPath will be used.
-     * @param writeWindowSize write window size.
-     */
     KisMemoryWindow(const QString &swapDir, quint64 writeWindowSize = DEFAULT_WINDOW_SIZE);
     ~KisMemoryWindow();
 
@@ -53,7 +48,6 @@ private:
         const quint64 defaultSize;
     };
 
-
 private:
     bool adjustWindow(const KisChunkData &requestedChunk,
                       MappingWindow *adjustingWindow,
@@ -67,5 +61,5 @@ private:
     MappingWindow m_writeWindowEx;
 };
 
-#endif /* __KIS_MEMORY_WINDOW_H */
+#endif
 

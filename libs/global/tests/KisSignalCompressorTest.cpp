@@ -82,7 +82,6 @@ void testCompression(int timerInterval, int compressorInterval,
 
     QTest::qWait(500);
 
-
     timer.stop();
     QTest::qWait(compressorInterval * 2);
     compressor.stop();
@@ -98,7 +97,6 @@ void KisSignalCompressorTest::test()
     for (int i = 10; i < 50; i++) {
         testCompression(i, 25);
     }
-    //testCompression(10, 25);
 }
 
 void KisSignalCompressorTest::testSlowHandlerPrecise()
@@ -195,10 +193,6 @@ void KisSignalCompressorTest::testDestructionAfterEmit()
     bool somethingDelivered = false;
 
     auto signalDeliveryCheck = [&] {
-        /**
-         * The signal should be delivered only when both, the compressor
-         * and the proxy are alive
-         */
         KIS_ASSERT(objectIsValid);
         somethingDelivered = true;
     };
@@ -215,10 +209,6 @@ void KisSignalCompressorTest::testDestructionAfterEmit()
         objectIsValid = false;
         QCOMPARE(somethingDelivered, expectToDeliver);
 
-        /**
-         * We have destroyed both the compressor and the proxy, wait if
-         * Qt will deliver us something (it shouldn't actually)
-         */
         QTest::qWait(15);
     }
 

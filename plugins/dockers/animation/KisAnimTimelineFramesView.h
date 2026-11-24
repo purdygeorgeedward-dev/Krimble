@@ -7,7 +7,6 @@
 #ifndef __TIMELINE_FRAMES_VIEW_H
 #define __TIMELINE_FRAMES_VIEW_H
 
-
 #include <QScopedPointer>
 #include <QTableView>
 #include <QScroller>
@@ -47,9 +46,7 @@ public Q_SLOTS:
 
     void slotSelectionChanged();
     void slotReselectCurrentIndex();
-    
-    // This is used for keeping single selection in-sync with active layer
-    // traversal when desired.
+
     void slotTryTransferSelectionBetweenRows(int fromRow, int toRow);
 
     void slotSetStartTimeToCurrentPosition();
@@ -62,13 +59,11 @@ public Q_SLOTS:
 
     void slotColorLabelChanged(int);
 
-    // Layer
     void slotAddNewLayer();
     void slotAddExistingLayer(QAction *action);
     void slotRemoveLayer();
     void slotLayerContextMenuRequested(const QPoint &globalPos);
 
-    // New, Insert and Remove Frames
     void slotAddBlankFrame();
     void slotAddDuplicateFrame();
 
@@ -103,7 +98,6 @@ public Q_SLOTS:
     void slotMirrorColumns() {slotMirrorFrames(true);}
     void slotClearCache();
 
-    // Copy, paste & clone.
     void slotCopyFrames() {cutCopyImpl(false, true);}
     void slotCutFrames() {cutCopyImpl(false, false);}
 
@@ -115,13 +109,11 @@ public Q_SLOTS:
 
     void slotMakeClonesUnique();
 
-    // Audio
     void slotSelectAudioChannelFile();
     void slotAudioChannelMute(bool value);
     void slotAudioChannelRemove();
     void slotAudioVolumeChanged(int value);
 
-    // Zoom & Scroll
     void slotScrollerStateChanged(QScroller::State state);
     void slotZoom(qreal zoom);
     void slotUpdateDragInfiniteFramesCount();
@@ -160,13 +152,6 @@ private:
     QModelIndexList calculateSelectionSpan(bool entireColumn, bool editableOnly = true) const;
     void calculateSelectionMetrics(int &minColumn, int &maxColumn, QSet<int> &rows, bool ignoreEditability) const;
 
-    /**   Insert new keyframes/columns.
-     *
-     *   count        - Number of frames to add. If <0, use number of currently SELECTED frames.
-     *   timing       - Animation timing of frames to be added (on 1s, 2s, 3s, etc.)
-     *   direction    - Insert frames before (left) or after (right) selection scrubber.
-     *   entireColumn - Create frames on all layers (rows) instead of just the active layer?
-     */
     void insertKeyframes(int count = 1, int timing = 1,
                          TimelineDirection direction = TimelineDirection::LEFT, bool entireColumn = false);
     void insertMultipleKeyframes(bool entireColumn = false);
@@ -186,4 +171,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __TIMELINE_FRAMES_VIEW_H */
+#endif

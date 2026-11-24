@@ -34,7 +34,7 @@ struct ToolReferenceImagesWidget::Private {
     ToolReferenceImages *tool {nullptr};
 };
 
-ToolReferenceImagesWidget::ToolReferenceImagesWidget(ToolReferenceImages *tool, KisCanvasResourceProvider */*provider*/, QWidget *parent)
+ToolReferenceImagesWidget::ToolReferenceImagesWidget(ToolReferenceImages *tool, KisCanvasResourceProvider * , QWidget *parent)
     : QWidget(parent),
       d(new Private(tool))
 {
@@ -68,7 +68,7 @@ ToolReferenceImagesWidget::ToolReferenceImagesWidget(ToolReferenceImages *tool, 
     d->ui->bnAddReferenceImage->setToolTip(i18n("Add Reference Image From File"));
     d->ui->bnAddReferenceImage->setIcon(KisIconUtils::loadIcon("view-preview"));
     d->ui->bnAddReferenceImage->setIconSize(QSize(16, 16));
-    
+
     d->ui->bnPasteReferenceImage->setToolTip(i18n("Paste Reference Image From System Clipboard"));
     d->ui->bnPasteReferenceImage->setIcon(KisIconUtils::loadIcon("edit-paste-16"));
     d->ui->bnPasteReferenceImage->setIconSize(QSize(16, 16));
@@ -76,7 +76,7 @@ ToolReferenceImagesWidget::ToolReferenceImagesWidget(ToolReferenceImages *tool, 
 
     d->ui->bnAddReferenceImageFromCurrentLayer->setToolTip(i18n("Create Reference Image from Active Layer"));
     d->ui->bnAddReferenceImageFromCurrentLayer->setIcon(KisIconUtils::loadIcon("current-layer"));
-    
+
     d->ui->bnAddReferenceImageFromVisible->setToolTip(i18n("Create Reference Image from Visible Canvas"));
     d->ui->bnAddReferenceImageFromVisible->setIcon(KisIconUtils::loadIcon("all-layers"));
 
@@ -91,7 +91,6 @@ ToolReferenceImagesWidget::ToolReferenceImagesWidget(ToolReferenceImages *tool, 
     d->ui->bnSave->setToolTip(i18n("Export Reference Images Set"));
     d->ui->bnSave->setIcon(KisIconUtils::loadIcon("document-save-16"));
     d->ui->bnSave->setIconSize(QSize(16, 16));
-
 
 	connect(d->ui->bnDeleteSelectedImages, SIGNAL(clicked()), tool, SLOT(removeSelectedReferenceImages()));
     connect(d->ui->bnAddReferenceImage, SIGNAL(clicked()), tool, SLOT(addReferenceImage()));
@@ -109,7 +108,7 @@ ToolReferenceImagesWidget::ToolReferenceImagesWidget(ToolReferenceImages *tool, 
 
     connect(d->ui->chkKeepAspectRatio, SIGNAL(stateChanged(int)), this, SLOT(slotKeepAspectChanged()));
 
-    KisSignalCompressor *compressor = new KisSignalCompressor(100 /* ms */, KisSignalCompressor::POSTPONE, this);
+    KisSignalCompressor *compressor = new KisSignalCompressor(100 , KisSignalCompressor::POSTPONE, this);
     connect(compressor, SIGNAL(timeout()), this, SLOT(slotImageValuesChanged()));
 
     connect(d->ui->saturationSlider, SIGNAL(valueChanged(qreal)), compressor, SLOT(start()));
@@ -119,7 +118,7 @@ ToolReferenceImagesWidget::ToolReferenceImagesWidget(ToolReferenceImages *tool, 
     d->ui->referenceImageLocationCombobox->addItem(i18n("Link to Image"));
     connect(d->ui->referenceImageLocationCombobox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSaveLocationChanged(int)));
 
-    updateVisibility(false); // no selection when we start
+    updateVisibility(false);
 }
 
 ToolReferenceImagesWidget::~ToolReferenceImagesWidget()
@@ -139,7 +138,6 @@ void ToolReferenceImagesWidget::selectionChanged(KoSelection *selection)
     bool anyNotKeepingAspectRatio = false;
     bool anyEmbedded = false;
     bool anyLinked = false;
-    // bool anyNonLinkable = false;
     bool anySelected = selection->count() > 0;
 
     Q_FOREACH(KoShape *shape, shapes) {
@@ -151,7 +149,6 @@ void ToolReferenceImagesWidget::selectionChanged(KoSelection *selection)
         if (reference) {
             anyEmbedded |= reference->embed();
             anyLinked |= !reference->embed();
-            // anyNonLinkable |= !reference->hasLocalFile();
         }
     }
 
@@ -164,12 +161,9 @@ void ToolReferenceImagesWidget::selectionChanged(KoSelection *selection)
         (anyKeepingAspectRatio && anyNotKeepingAspectRatio) ? Qt::PartiallyChecked :
          anyKeepingAspectRatio ? Qt::Checked : Qt::Unchecked);
 
-
-    // set save location combobox
     bool imagesEmbedded = anyEmbedded && !anyLinked;
-    int comboBoxIndex = imagesEmbedded ? 0 : 1; // maps state to combobox index
+    int comboBoxIndex = imagesEmbedded ? 0 : 1;
     d->ui->referenceImageLocationCombobox->setCurrentIndex(comboBoxIndex);
-
 
     updateVisibility(anySelected);
 }
@@ -212,18 +206,16 @@ void ToolReferenceImagesWidget::slotSaveLocationChanged(int index)
     KoSelection *selection = d->tool->koSelection();
     QList<KoShape*> shapes = selection->selectedEditableShapes();
 
-
     Q_FOREACH(KoShape *shape, shapes) {
         KisReferenceImage *reference = dynamic_cast<KisReferenceImage*>(shape);
         KIS_SAFE_ASSERT_RECOVER_RETURN(reference);
 
-        if (index == 0) { // embed to KRA
+        if (index == 0) {
             reference->setEmbed(true);
-        } else { // link to file
+        } else {
             if (reference->hasLocalFile()) {
                 reference->setEmbed(false);
             } else {
-                //In the case no local file is found, switch back to embed file data.
                 d->ui->referenceImageLocationCombobox->setCurrentIndex(0);
             }
         }
@@ -238,7 +230,6 @@ void ToolReferenceImagesWidget::slotImageValuesChanged()
 
 void ToolReferenceImagesWidget::updateVisibility(bool hasSelection)
 {
-    // hide UI elements if nothing is selected.
     d->ui->referenceImageLocationCombobox->setVisible(hasSelection);
     d->ui->chkKeepAspectRatio->setVisible(hasSelection);
     d->ui->saveLocationLabel->setVisible(hasSelection);
@@ -246,7 +237,6 @@ void ToolReferenceImagesWidget::updateVisibility(bool hasSelection)
     d->ui->saturationSlider->setVisible(hasSelection);
     d->ui->bnDeleteSelectedImages->setVisible(hasSelection);
 
-    // show a label indicating that a selection is required to show options
     d->ui->referenceImageOptionsLabel->setVisible(!hasSelection);
 
     if (hasSelection) {

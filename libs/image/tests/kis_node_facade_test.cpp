@@ -8,7 +8,6 @@
 #include <simpletest.h>
 #include <limits.h>
 
-
 #include "kis_node_facade.h"
 #include "kis_types.h"
 #include "kis_global.h"
@@ -27,7 +26,6 @@ void KisNodeFacadeTest::testCreation()
     node->setGraphListener(&graphListener);
     QVERIFY(node->graphListener() != 0);
 
-    // Test contract for initial state
     QVERIFY(node->parent() == 0);
     QVERIFY(node->firstChild() == 0);
     QVERIFY(node->lastChild() == 0);
@@ -67,16 +65,6 @@ void KisNodeFacadeTest::testOrdering()
     KisNodeSP node3 = new TestNodeA();
     KisNodeSP node4 = new TestNodeA();
     KisNodeSP node5 = new TestNodeA();
-
-    /*
-     +---------+
-     | node 4  |
-     | node 2  |
-     |   node 3|
-     | node 1  |
-     |root     |
-     +---------+
-    */
 
     graphListener.resetBools();
     QVERIFY(facade.addNode(node1, root, root->childCount()) == true);
@@ -148,13 +136,6 @@ void KisNodeFacadeTest::testOrdering()
     QVERIFY(node1->nextSibling() == node2);
     QVERIFY(node3->nextSibling() == 0);
 
-    /*
-          node 4
-        node 2
-          node 3
-        node 1
-       root
-     */
     graphListener.resetBools();
     QVERIFY(facade.removeNode(node4) == true);
     QVERIFY(node4->parent() == 0);
@@ -208,15 +189,6 @@ void KisNodeFacadeTest::testOrdering()
     QVERIFY(graphListener.afterMove == true);
     graphListener.resetBools();
 
-    /*
-            node4
-          node2
-          node1
-        node 3
-      root
-
-     */
-
     QVERIFY(facade.moveNode(node1, node3, 0) == true);
     QVERIFY(facade.moveNode(node2, node3, node1) == true);
 
@@ -241,20 +213,11 @@ void KisNodeFacadeTest::testOrdering()
     QVERIFY(node3->firstChild() == node1);
     QVERIFY(node3->lastChild() == node2);
 
-    /*
-        node4
-      node2
-      node5
-      node1
-     node3
-    root
-    */
     QVERIFY(facade.addNode(node5, node3, node1) == true);
     QVERIFY(node5->parent() == node3);
     QVERIFY(node5->prevSibling() == node1);
     QVERIFY(node5->nextSibling() == node2);
 }
-
 
 void KisNodeFacadeTest::testMove()
 {

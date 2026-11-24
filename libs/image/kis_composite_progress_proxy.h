@@ -11,7 +11,6 @@
 #include <KoProgressProxy.h>
 #include "kritaimage_export.h"
 
-
 class KRITAIMAGE_EXPORT KisCompositeProgressProxy : public KoProgressProxy
 {
 public:
@@ -29,4 +28,4 @@ private:
     QList<KoProgressProxy*> m_uniqueProxies;
 };
 
-#endif /* __KIS_COMPOSITE_PROGRESS_PROXY_H */
+#endif

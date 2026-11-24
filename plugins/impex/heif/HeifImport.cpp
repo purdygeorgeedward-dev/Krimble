@@ -51,7 +51,6 @@ HeifImport::~HeifImport()
 {
 }
 
-
 class Reader_QIODevice : public heif::Context::Reader {
 public:
     Reader_QIODevice(QIODevice *device)
@@ -146,7 +145,7 @@ inline auto readPlanarLayer(const int luma,
                                                displayNits,
                                                colorSpace);
 }
-} // namespace Planar
+}
 
 namespace HDR
 {
@@ -177,7 +176,7 @@ inline auto readInterleavedLayer(const int luma,
                                                     displayNits,
                                                     colorSpace);
 }
-} // namespace HDR
+}
 
 namespace SDR
 {
@@ -206,9 +205,9 @@ inline auto readInterleavedLayer(LinearizePolicy linearizePolicy,
                                                     displayNits,
                                                     colorSpace);
 }
-} // namespace SDR
+}
 
-KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
 #if LIBHEIF_HAVE_VERSION(1, 13, 0)
     HeifLock lock;
@@ -225,19 +224,15 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
     auto heifGetPlaneMethod = std::mem_fn(qNonConstOverload<heif_channel, HeifStrideType*>(&heif::Image::get_plane));
 #endif
 
-    // Wrap input stream into heif Reader object
     Reader_QIODevice reader(io);
 
     try {
         heif::Context ctx;
         ctx.read_from_reader(reader);
 
-        // decode primary image
-
         heif::ImageHandle handle = ctx.get_primary_image_handle();
 
         heif_color_profile_type profileType = heif_image_handle_get_color_profile_type(handle.get_raw_image_handle());
-
 
         heif::Image heifimage = handle.decode_image(heif_colorspace_undefined, heif_chroma_undefined);
         heif_colorspace heifModel = heifimage.get_colorspace();
@@ -261,13 +256,9 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
         if (luma > 8) {
             colorDepth = Integer16BitsColorDepthID;
         }
-        // First, get the profile, because sometimes the image may be encoded in YCbCr and the embedded icc profile is graya.
 
         if (profileType == heif_color_profile_type_prof || profileType == heif_color_profile_type_rICC) {
             dbgFile << "profile type is icc profile";
-            // rICC are 'restricted' icc profiles, and are matrix shaper profiles
-            // that are either RGB or Grayscale, and are of the input or display types.
-            // They are from the JPEG2000 spec.
 
             int rawProfileSize = (int) heif_image_handle_get_raw_color_profile_size(handle.get_raw_image_handle());
             if (rawProfileSize > 0) {
@@ -284,9 +275,6 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
             }
         } else if (profileType == heif_color_profile_type_nclx) {
             dbgFile << "profile type is nclx coding independent code points";
-            // NCLX parameters is a colorspace description used for videofiles.
-            // We generate a color profile for most entries, except that we cannot handle
-            // PQ, HLG or 428 in an icc profile, so we convert those on the fly to linear.
 
             struct heif_color_profile_nclx *nclx = nullptr;
             err = heif_image_handle_get_nclx_color_profile(handle.get_raw_image_handle(), &nclx);
@@ -352,23 +340,19 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
             dbgFile << "no profile found";
         }
 
-        // Now, to figure out the correct chroma and color model.
         if (heifModel == heif_colorspace_monochrome || colorModel == GrayAColorModelID.id()) {
-            // Grayscale image.
             if (heifChroma != heif_chroma_monochrome && colorModel == GrayAColorModelID.id()) {
                 heifimage = handle.decode_image(heif_colorspace_YCbCr, heif_chroma_monochrome);
             }
             colorModel = GrayAColorModelID.id();
             heifChroma = heif_chroma_monochrome;
         } else if (heifModel == heif_colorspace_YCbCr) {
-            // we do not support importing YCrBr spaces directly
             heifimage = handle.decode_image(heif_colorspace_RGB, heif_chroma_444);
             colorModel = RGBAColorModelID.id();
             heifModel = heifimage.get_colorspace();
             heifChroma = heifimage.get_chroma_format();
         }
 
-        // Get the default profile if we haven't found one up till now.
         if (!profile) {
             if (colorModel == RGBAColorModelID.id()) {
                 profile = KoColorSpaceRegistry::instance()->profileFor(KoColorProfileQuery(PRIMARIES_ITU_R_BT_709_5,
@@ -385,8 +369,6 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
         int width  = handle.get_width();
 
         int height = handle.get_height();
-
-        // convert HEIF image to Krita KisDocument
 
         KisImageSP image = new KisImage(document->createUndoStore(), width, height, colorSpace,
                                         "HEIF image");
@@ -498,14 +480,11 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
         image->addNode(layer.data(), image->rootLayer().data());
         image->cropImage(QRect(0, 0, width, height));
 
-        // --- Iterate through all metadata blocks and extract Exif and XMP metadata ---
-
         std::vector<heif_item_id> metadata_IDs = handle.get_list_of_metadata_block_IDs();
 
         for (heif_item_id id : metadata_IDs) {
 
           if (handle.get_metadata_type(id) == "Exif") {
-            // Read exif information
 
             std::vector<uint8_t> exif_data = handle.get_metadata(id);
 
@@ -519,7 +498,6 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
                     KisMetaData::IOBackend *exifIO =
                         KisMetadataBackendRegistry::instance()->value("exif");
 
-                    // Copy the exif data into the byte array
                     QByteArray ba(
                         reinterpret_cast<char *>(exif_data.data() + skip),
                         static_cast<int>(exif_data.size() - skip));
@@ -531,12 +509,10 @@ KisImportExportErrorCode HeifImport::convert(KisDocument *document, QIODevice *i
 
           if (handle.get_metadata_type(id) == "mime" &&
               handle.get_metadata_content_type(id) == "application/rdf+xml") {
-            // Read XMP information
 
             std::vector<uint8_t> xmp_data = handle.get_metadata(id);
             KisMetaData::IOBackend *xmpIO = KisMetadataBackendRegistry::instance()->value("xmp");
 
-            // Copy the xmp data into the byte array
             QByteArray ba(reinterpret_cast<char *>(xmp_data.data()), static_cast<int>(xmp_data.size()));
             QBuffer buf(&ba);
             xmpIO->loadFrom(layer->metaData(), &buf);

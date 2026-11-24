@@ -33,12 +33,10 @@ QIcon loadIcon(const QString &name)
         return cached.value();
     }
 
-    // try load themed icon
     const char * const prefix = useDarkIcons() ? "dark_" : "light_";
 
     QString  realName = QLatin1String(prefix) + name;
 
-    // Dark and light, no size specified
     const QStringList names = { ":/pics/" + realName + ".png",
                                 ":/pics/" + realName + ".svg",
                                 ":/pics/" + realName + ".svgz",
@@ -62,7 +60,6 @@ QIcon loadIcon(const QString &name)
         }
     }
 
-    // Now check for icons with sizes
     QStringList sizes = QStringList() << "16_" << "22_" << "32_" << "48_" << "64_" << "128_" << "256_" << "512_" << "1024_";
     QVector<QPair<QString, QString> > icons;
     Q_FOREACH (const QString &size, sizes) {
@@ -101,14 +98,10 @@ QIcon loadIcon(const QString &name)
     }
 
     QIcon icon = QIcon::fromTheme(name);
-    //qDebug() << "falling back on QIcon::FromTheme:" << name;
     s_icons.insert(icon.cacheKey(), name);
     s_cache.insert(name, icon);
     return icon;
 }
-
-
-
 
 bool useDarkIcons() {
     QColor background = qApp->palette().window().color();
@@ -220,7 +213,6 @@ void updateIcon(QTabBar *tabBar)
 
 QStringList allUniqueLoadedIconNames()
 {
-    // Take a snapshot of current values to avoid modification during iteration
     const auto valuesCopy = s_icons.values();
 
     QSet<QString> uniq(valuesCopy.cbegin(), valuesCopy.cend());

@@ -19,7 +19,6 @@
 
 namespace KisRLE
 {
-// from gimp's psd-save.c
 int compress(const QByteArray &src, QByteArray &dst)
 {
     int length = src.size();
@@ -33,12 +32,11 @@ int compress(const QByteArray &src, QByteArray &dst)
 
     length = 0;
     while (remaining > 0) {
-        /* Look for characters matching the first */
         i = 0;
         while ((i < 128) && (remaining - i > 0) && (start[0] == start[i]))
             i++;
 
-        if (i > 1) /* Match found */
+        if (i > 1)
         {
             dst[dest_ptr++] = static_cast<char>(-(i - 1));
             dst[dest_ptr++] = *start;
@@ -46,19 +44,16 @@ int compress(const QByteArray &src, QByteArray &dst)
             start += i;
             remaining -= i;
             length += 2;
-        } else { /* Look for characters different from the previous */
+        } else {
             i = 0;
             while ((i < 128) && (remaining - (i + 1) > 0) && (start[i] != start[(i + 1)] || remaining - (i + 2) <= 0 || start[i] != start[(i + 2)]))
                 i++;
-
-            /* If there's only 1 remaining, the previous WHILE stmt doesn't
-             catch it */
 
             if (remaining == 1) {
                 i = 1;
             }
 
-            if (i > 0) /* Some distinct ones found */
+            if (i > 0)
             {
                 dst[dest_ptr++] = static_cast<char>(i - 1U);
                 for (j = 0; j < i; j++) {
@@ -93,11 +88,10 @@ QByteArray decompress(const QByteArray &input, int unpacked_len)
     auto *dst = output.begin();
 
     while (src < input.end() && dst < output.end()) {
-        // NOLINTNEXTLINE(*-reinterpret-cast,readability-identifier-length)
         const int8_t n = *reinterpret_cast<const int8_t *>(src);
         src += 1;
 
-        if (n >= 0) { // copy next n+1 chars
+        if (n >= 0) {
             const int bytes = 1 + n;
             if (src + bytes > input.cend()) {
                 errFile << "Input buffer exhausted in replicate of" << bytes << "chars, left" << (input.cend() - src);
@@ -110,7 +104,7 @@ QByteArray decompress(const QByteArray &input, int unpacked_len)
             std::copy_n(src, bytes, dst);
             src += bytes;
             dst += bytes;
-        } else if (n >= -127 && n <= -1) { // replicate next char -n+1 times
+        } else if (n >= -127 && n <= -1) {
             const int bytes = 1 - n;
             if (src >= input.cend()) {
                 errFile << "Input buffer exhausted in copy";
@@ -134,7 +128,6 @@ QByteArray decompress(const QByteArray &input, int unpacked_len)
         std::fill(dst, output.end(), 0);
     }
 
-    // If the input line was odd width, there's a padding byte
     if (src + 1 < input.cend()) {
         QByteArray leftovers;
         leftovers.resize(static_cast<int>(input.cend() - src));
@@ -144,11 +137,10 @@ QByteArray decompress(const QByteArray &input, int unpacked_len)
 
     return output;
 }
-} // namespace KisRLE
+}
 
 namespace KisZip
 {
-// Based on the reverse of psd_unzip_without_prediction
 int compress(const char *input, int unpacked_len, char *dst, int maxout)
 {
     z_stream stream{};
@@ -198,13 +190,6 @@ QByteArray compress(const QByteArray &data)
     return output;
 }
 
-/**********************************************************************/
-/* Two functions copied from the abandoned PSDParse library (GPL)     */
-/* See: http://www.telegraphics.com.au/svn/psdparse/trunk/psd_zip.c   */
-/* Created by Patrick in 2007.02.02, libpsd@graphest.com              */
-/* Modifications by Toby Thain <toby@telegraphics.com.au>             */
-/* Refactored by L. E. Segovia <amy@amyspark.me>, 2021.06.30          */
-/**********************************************************************/
 int psd_unzip_without_prediction(const char *src, int packed_len, char *dst, int unpacked_len)
 {
     z_stream stream{};
@@ -290,7 +275,6 @@ QByteArray psd_unzip_with_prediction(const QByteArray &src, int dst_len, int row
         return {};
 
     if (color_depth == 32) {
-        // Placeholded for future implementation.
         errKrita << "Unsupported bit depth for prediction";
         return {};
     } else if (color_depth == 16) {
@@ -301,10 +285,6 @@ QByteArray psd_unzip_with_prediction(const QByteArray &src, int dst_len, int row
 
     return dst_buf;
 }
-
-/**********************************************************************/
-/* End of third party block                                           */
-/**********************************************************************/
 
 template<typename T>
 inline void psd_zip_with_prediction(QByteArray &dst_buf, int row_size);
@@ -350,7 +330,6 @@ QByteArray psd_zip_with_prediction(const QByteArray &src, int row_size, int colo
 {
     QByteArray dst_buf(src);
     if (color_depth == 32) {
-        // Placeholded for future implementation.
         errKrita << "Unsupported bit depth for prediction";
         return {};
     } else if (color_depth == 16) {
@@ -371,7 +350,7 @@ QByteArray decompress(const QByteArray &data, int expected_length)
     else
         return output;
 }
-} // namespace KisZip
+}
 
 QByteArray Compression::uncompress(int unpacked_len, QByteArray bytes, psd_compression_type compressionType, int row_size, int color_depth)
 {

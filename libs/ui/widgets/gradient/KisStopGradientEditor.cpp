@@ -30,9 +30,6 @@
 #include <QApplication>
 #include <functional>
 
-// Krimble: a large box showing the gradient being edited, running top to bottom ("I want a linear preview in the editor where it shows
-// a large box with a vertical image of the selected gradient." / "Can you make me that nice preview box?"). Transparency shows over a
-// checkerboard. Square corners, as for color wells.
 class KrimbleGradientPreviewBox : public QWidget
 {
 public:
@@ -40,7 +37,7 @@ public:
     {
         setObjectName(QStringLiteral("krimbleGradientPreviewBox"));
         const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
-        setMinimumHeight(qRound(420.0 / dpr));   // 420 real pixels tall at least
+        setMinimumHeight(qRound(420.0 / dpr));
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     }
 protected:
@@ -51,8 +48,7 @@ protected:
         const int margin = qRound(12.0 / qMax<qreal>(1.0, dpr));
         const int side = qMin(width() - 2 * margin, height() - 2 * margin);
         if (side < 8) return;
-        const QRect box((width() - side) / 2, (height() - side) / 2, side, side);   // a square box in the middle
-        // checkerboard
+        const QRect box((width() - side) / 2, (height() - side) / 2, side, side);
         const int cell = qMax(4, qRound(24.0 / qMax<qreal>(1.0, dpr)));
         for (int y = box.top(); y <= box.bottom(); y += cell) {
             for (int x = box.left(); x <= box.right(); x += cell) {
@@ -60,7 +56,6 @@ protected:
                 p.fillRect(QRect(x, y, qMin(cell, box.right() - x + 1), qMin(cell, box.bottom() - y + 1)), dark ? QColor(150, 150, 150) : QColor(205, 205, 205));
             }
         }
-        // the gradient, top to bottom, one color per real pixel row
         KoStopGradientSP gradient = m_gradient ? m_gradient() : KoStopGradientSP();
         if (gradient) {
             const int rows = qMax(2, qRound(side * dpr));
@@ -110,7 +105,7 @@ KisStopGradientEditor::KisStopGradientEditor(QWidget *parent)
     QAction *sortByValueAction = new QAction(KisIconUtils::loadIcon("sort-by-value"), i18nc("Button to sort the stops by value in the stop gradient editor", "Sort stops by value"), this);
     sortByValueAction->setToolTip(sortByValueAction->text());
     connect(sortByValueAction, &QAction::triggered, this, [this]{ this->sortByValue(SORT_ASCENDING); } );
-    
+
     QAction *sortByHueAction = new QAction(KisIconUtils::loadIcon("sort-by-hue"), i18nc("Button to sort the stops by hue in the stop gradient editor", "Sort stops by hue"), this);
     sortByHueAction->setToolTip(sortByHueAction->text());
     connect(sortByHueAction, &QAction::triggered, this, [this]{ this->sortByHue(SORT_ASCENDING); } );
@@ -121,7 +116,7 @@ KisStopGradientEditor::KisStopGradientEditor(QWidget *parent)
 
     selectPreviousStopButton->setAutoRaise(true);
     selectPreviousStopButton->setDefaultAction(selectPreviousStopAction);
-    
+
     selectNextStopButton->setAutoRaise(true);
     selectNextStopButton->setDefaultAction(selectNextStopAction);
 
@@ -142,10 +137,10 @@ KisStopGradientEditor::KisStopGradientEditor(QWidget *parent)
 
     compactModeSelectPreviousStopButton->setAutoRaise(true);
     compactModeSelectPreviousStopButton->setDefaultAction(selectPreviousStopAction);
-    
+
     compactModeSelectNextStopButton->setAutoRaise(true);
     compactModeSelectNextStopButton->setDefaultAction(selectNextStopAction);
-    
+
     compactModeMiscOptionsButton->setPopupMode(QToolButton::InstantPopup);
     compactModeMiscOptionsButton->setArrowVisible(false);
     compactModeMiscOptionsButton->setAutoRaise(true);
@@ -172,7 +167,6 @@ KisStopGradientEditor::KisStopGradientEditor(QWidget *parent)
     connect(stopEditor, SIGNAL(positionChanged(qreal)), this, SLOT(positionChanged(qreal)));
 
     {
-        // the preview box, under the name and buttons, above the stop bar
         KrimbleGradientPreviewBox *preview = new KrimbleGradientPreviewBox([this]() { return m_gradient; }, this);
         if (QBoxLayout *top = qobject_cast<QBoxLayout *>(layout())) top->insertWidget(qMin(2, top->count()), preview, 1);
         connect(gradientSlider, &KisStopGradientSlider::updateRequested, preview, [preview]() { preview->update(); });
@@ -202,7 +196,7 @@ void KisStopGradientEditor::setCompactMode(bool value)
     buttonsContainer->setVisible(!value);
     stopEditorContainer->setVisible(!value);
     compactModeButtonsContainer->setVisible(value);
-    if (QWidget *preview = findChild<QWidget *>(QStringLiteral("krimbleGradientPreviewBox"))) preview->setVisible(!value);   // the full editor only
+    if (QWidget *preview = findChild<QWidget *>(QStringLiteral("krimbleGradientPreviewBox"))) preview->setVisible(!value);
 }
 
 void KisStopGradientEditor::setGradient(KoStopGradientSP gradient)
@@ -213,7 +207,6 @@ void KisStopGradientEditor::setGradient(KoStopGradientSP gradient)
     if (m_gradient) {
         nameedit->setText(gradient->name());
         gradientSlider->setGradientResource(m_gradient);
-        // stopChanged(gradientSlider->selectedStop());
     }
 
     Q_EMIT sigGradientChanged();
@@ -302,7 +295,7 @@ void KisStopGradientEditor::stopTypeChanged(KisGradientWidgetsUtils::ColorType t
     QList<KoGradientStop> stops = m_gradient->stops();
     int currentStop = gradientSlider->selectedStop();
     KoGradientStop stop = stops[currentStop];
- 
+
     if (type == KisGradientWidgetsUtils::Foreground) {
         stop.type = FOREGROUNDSTOP;
         if (m_canvasResourcesInterface) {
@@ -324,7 +317,7 @@ void KisStopGradientEditor::stopTypeChanged(KisGradientWidgetsUtils::ColorType t
     m_gradient->setStops(stops);
     stopEditor->setColor(stop.color);
     stopEditor->setOpacity(100.0);
-    Q_EMIT gradientSlider->updateRequested(); //setSelectedStopType(type);
+    Q_EMIT gradientSlider->updateRequested();
     Q_EMIT sigGradientChanged();
 }
 
@@ -335,11 +328,11 @@ void KisStopGradientEditor::colorChanged(const KoColor& color)
     QList<KoGradientStop> stops = m_gradient->stops();
     int currentStop = gradientSlider->selectedStop();
     KoGradientStop stop = stops[currentStop];
-        
+
     KoColor c(color);
     c.setOpacity(stop.color.opacityU8());
     stop.color = c;
-    
+
     stops.removeAt(currentStop);
     stops.insert(currentStop, stop);
     m_gradient->setStops(stops);
@@ -355,7 +348,7 @@ void KisStopGradientEditor::opacityChanged(qreal value)
     QList<KoGradientStop> stops = m_gradient->stops();
     int currentStop = gradientSlider->selectedStop();
     KoGradientStop stop = stops[currentStop];
-    
+
     stop.color.setOpacity(value / 100.0);
 
     stops.removeAt(currentStop);
@@ -374,7 +367,7 @@ void KisStopGradientEditor::positionChanged(qreal value)
     int currentStop = gradientSlider->selectedStop();
     KoGradientStop stop = stops[currentStop];
     stop.position = value / 100.0;
-    
+
     stops.removeAt(currentStop);
     {
         currentStop = 0;

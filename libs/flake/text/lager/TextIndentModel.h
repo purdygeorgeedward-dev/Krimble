@@ -36,4 +36,4 @@ Q_SIGNALS:
 
 };
 
-#endif // TEXTINDENTMODEL_H
+#endif

@@ -34,4 +34,4 @@ struct KRITACOMMAND_EXPORT KisCumulativeUndoData : boost::equality_comparable<Ki
 
 QDebug KRITACOMMAND_EXPORT operator<<(QDebug dbg, const KisCumulativeUndoData &data);
 
-#endif // KISCUMULATIVEUNDODATA_H
+#endif

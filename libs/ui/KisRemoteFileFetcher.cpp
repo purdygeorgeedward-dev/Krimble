@@ -83,7 +83,6 @@ bool KisRemoteFileFetcher::fetchFile(const QUrl &remote, QIODevice *io)
 
     progress.exec();
 
-    // avoid double free on manager destruction
     m_reply->setParent(nullptr);
 
     if (m_reply->error() != QNetworkReply::NoError) {

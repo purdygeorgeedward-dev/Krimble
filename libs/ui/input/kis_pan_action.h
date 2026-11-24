@@ -9,23 +9,15 @@
 
 #include "kis_abstract_input_action.h"
 
-/**
- * \brief Pan Canvas implementation of KisAbstractInputAction.
- *
- * The Pan Canvas action pans the canvas.
- */
 class KisPanAction : public KisAbstractInputAction
 {
 public:
-    /**
-     * The different behaviours for this action.
-     */
     enum Shortcut {
-        PanModeShortcut, ///< Toggle the pan mode.
-        PanLeftShortcut, ///< Pan left by a fixed amount.
-        PanRightShortcut, ///< Pan right by a fixed amount.
-        PanUpShortcut, ///< Pan up by a fixed amount.
-        PanDownShortcut ///< Pan down by a fixed amount.
+        PanModeShortcut,
+        PanLeftShortcut,
+        PanRightShortcut,
+        PanUpShortcut,
+        PanDownShortcut
     };
 
     explicit KisPanAction();
@@ -52,4 +44,4 @@ private:
     Private * const d;
 };
 
-#endif // KIS_PAN_ACTION_H
+#endif

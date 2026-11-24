@@ -12,7 +12,6 @@
 
 class QDomDocument;
 
-
 class KisExrLayersSorter
 {
 public:
@@ -24,4 +23,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_EXR_LAYERS_SORTER_H */
+#endif

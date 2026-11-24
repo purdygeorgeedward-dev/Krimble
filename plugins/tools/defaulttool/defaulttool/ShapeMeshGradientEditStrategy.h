@@ -33,4 +33,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // __SHAPEMESHGRADIENTEDITSTRATEGY_H_
+#endif

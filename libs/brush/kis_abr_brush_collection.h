@@ -19,16 +19,11 @@
 #include <brushengine/kis_paint_information.h>
 #include <kis_abr_brush.h>
 
-
 class QString;
 class QIODevice;
 
-
 struct AbrInfo;
 
-/**
- * load a collection of brushes from an abr file
- */
 class BRUSH_EXPORT KisAbrBrushCollection
 {
 
@@ -36,7 +31,6 @@ protected:
 
 public:
 
-    /// Construct brush to load filename later as brush
     KisAbrBrushCollection(const QString& filename);
 
     ~KisAbrBrushCollection() {}
@@ -51,14 +45,8 @@ public:
 
     bool isLoaded() const;
 
-    /**
-     * @return a preview of the brush
-     */
     QImage image() const;
 
-    /**
-     * @return default file extension for saving the brush
-     */
     QString defaultFileExtension() const;
 
     QList<KisAbrBrushSP> brushes() const {

@@ -56,13 +56,13 @@ struct KRITAPSD_EXPORT ChannelInfo {
     {
     }
 
-    qint16 channelId; // 0 red, 1 green, 2 blue, -1 transparency, -2 user-supplied layer mask
+    qint16 channelId;
     psd_compression_type compressionType;
     quint64 channelDataStart;
     quint64 channelDataLength;
     QVector<quint32> rleRowLengths;
-    int channelOffset; // where the channel data starts
-    int channelInfoPosition; // where the channelinfo record is saved in the file
+    int channelOffset;
+    int channelInfoPosition;
 };
 
 class KRITAPSD_EXPORT PSDLayerRecord
@@ -81,23 +81,8 @@ public:
     bool readPixelData(QIODevice &io, KisPaintDeviceSP device);
     bool readMask(QIODevice &io, KisPaintDeviceSP dev, ChannelInfo *channel);
 
-    /**
-     * @brief constructPathShape
-     * create a KoPathshape based on a psd_path struct, used in vector masks and path resources.
-     * @param path a psd path struct.
-     * @param shapeWidth the image width in points
-     * @param shapeHeight the image height in points
-     * @param vogk extra vector data from the vogk layer info block.
-     * @return a KoPathShape.
-     */
     KoPathShape *constructPathShape(psd_path path, double shapeWidth, double shapeHeight);
 
-    /**
-     * @brief addPathShapeToPSDPath
-     * add all KoPathShape subpaths to the given psd_path struct.
-     * @param shapeWidth the image width in points
-     * @param shapeHeight the image height in points
-     */
     void addPathShapeToPSDPath(psd_path &path, KoPathShape *shape, double shapeWidth, double shapeHeight);
 
     void write(QIODevice &io,
@@ -146,7 +131,7 @@ public:
         qint32 left {0};
         qint32 bottom {0};
         qint32 right {0};
-        quint8 defaultColor {255}; // 0 or 255
+        quint8 defaultColor {255};
         bool positionedRelativeToLayer {false};
         bool disabled {false};
         bool invertLayerMaskWhenBlending {false};
@@ -172,7 +157,7 @@ public:
 
     LayerBlendingRanges blendingRanges;
 
-    QString layerName {"UNINITIALIZED"}; // pascal, not unicode!
+    QString layerName {"UNINITIALIZED"};
 
     PsdAdditionalLayerInfoBlock infoBlocks;
 
@@ -217,4 +202,4 @@ inline QDebug operator<<(QDebug dbg, const PSDLayerRecord::LayerBlendingRanges::
     return dbg << data.blackValues[0] << data.blackValues[1] << data.whiteValues[0] << data.whiteValues[1];
 }
 
-#endif // PSD_LAYER_RECORD_H
+#endif

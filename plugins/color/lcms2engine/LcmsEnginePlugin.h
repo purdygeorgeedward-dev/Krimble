@@ -18,4 +18,4 @@ public:
 
 };
 
-#endif // KO_LCMS_ENGINE_PLUGIN_H
+#endif

@@ -63,8 +63,6 @@ void KisAddStoryboardCommand::updateItem()
     m_item->cloneChildrenFrom(*m_modelItem);
 }
 
-
-//remove command
 KisRemoveStoryboardCommand::KisRemoveStoryboardCommand(int position,
                                                 StoryboardItemSP item,
                                                 StoryboardModel *model,
@@ -145,7 +143,6 @@ void KisVisualizeStoryboardCommand::undo()
     m_image->animationInterface()->requestTimeSwitchNonGUI(m_fromTime, false);
 }
 
-
 KisStoryboardChildEditCommand::KisStoryboardChildEditCommand(QVariant oldValue,
                                 QVariant newValue,
                                 int parentRow,
@@ -184,7 +181,6 @@ bool KisStoryboardChildEditCommand::mergeWith(const KUndo2Command *other)
 
     return false;
 }
-
 
 KisDuplicateStoryboardCommand::KisDuplicateStoryboardCommand(int position, StoryboardModel *model, KUndo2Command *parent)
     : KUndo2Command(parent)

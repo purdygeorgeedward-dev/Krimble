@@ -21,11 +21,9 @@
 #include <kis_debug.h>
 #include <kis_pointer_utils.h>
 
-
 #include "KisFolderStorage.h"
 #include "KisBundleStorage.h"
 #include "KisMemoryStorage.h"
-
 
 namespace {
 KisResourceStorage::StorageType autoDetectStorageType(const QString &location) {
@@ -46,7 +44,7 @@ KisResourceStorage::StorageType autoDetectStorageType(const QString &location) {
 
     return KisResourceStorage::StorageType::Unknown;
 }
-} // namespace
+}
 
 const QString KisResourceStorage::s_xmlns_meta("urn:oasis:names:tc:opendocument:xmlns:meta:1.0");
 const QString KisResourceStorage::s_xmlns_dc("http://purl.org/dc/elements/1.1");
@@ -136,7 +134,6 @@ KisResourceStorage::KisResourceStorage(const QString &location, KisResourceStora
             d->name = fi.fileName();
             d->storageType = StorageType::Bundle;
             d->storagePlugin.reset(KisStoragePluginRegistry::instance()->m_storageFactoryMap[StorageType::Bundle]->create(location));
-            // XXX: should we also check whether there's a valid metadata entry? Or is this enough?
             d->valid = (fi.isReadable() && QuaZip(d->location).open(QuaZip::mdUnzip));
             break;
         }
@@ -410,7 +407,6 @@ QString KisStorageVersioningHelper::chooseUniqueName(KoResourceSP resource,
 
         QString versionString = QString("%1").arg(version, numPlaceholders, 10, QChar('0'));
 
-        // XXX: Temporary, until I've fixed the tests
         if (versionString == "0000" && qApp->applicationName() == "krita") {
             newFilename = resource->filename();
         }
@@ -495,8 +491,6 @@ bool KisStorageVersioningHelper::addVersionedResource(const QString &saveLocatio
     file.close();
 
     if (!resource->thumbnailPath().isEmpty()) {
-        // hack for MyPaint brush presets thumbnails
-        // note: for all versions of the preset, it will try to save in the same place
         if (!QFileInfo(saveLocation + "/" + resource->thumbnailPath()).exists()) {
             QImage thumbnail = resource->thumbnail();
             thumbnail.save(saveLocation + "/" + resource->thumbnailPath());
@@ -505,7 +499,6 @@ bool KisStorageVersioningHelper::addVersionedResource(const QString &saveLocatio
 
     return true;
 }
-
 
 QSharedPointer<KisResourceStorage::ResourceIterator> KisResourceStorage::ResourceIterator::versions() const
 {
@@ -583,10 +576,6 @@ KisVersionedStorageIterator::KisVersionedStorageIterator(const QVector<Versioned
     , m_end(m_entries.constEnd())
 
 {
-    //    ENTER_FUNCTION() << ppVar(std::distance(m_begin, m_end));
-    //    for (auto it = m_begin; it != m_end; ++it) {
-    //        qDebug() << ppVar(it->filename) << ppVar(it->guessedVersion);
-    //    }
 }
 
 KisVersionedStorageIterator::KisVersionedStorageIterator(const QVector<VersionedResourceEntry> &entries,
@@ -598,10 +587,6 @@ KisVersionedStorageIterator::KisVersionedStorageIterator(const QVector<Versioned
     , m_begin(begin)
     , m_end(end)
 {
-//    ENTER_FUNCTION() << ppVar(std::distance(m_begin, m_end));
-//    for (auto it = m_begin; it != m_end; ++it) {
-//        qDebug() << ppVar(it->filename) << ppVar(it->guessedVersion);
-//    }
 }
 
 bool KisVersionedStorageIterator::hasNext() const

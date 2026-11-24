@@ -11,7 +11,6 @@
 #include <QListWidget>
 #include "kis_uniform_paintop_property.h"
 
-
 class KisBrushHudPropertiesList : public QListWidget
 {
 public:
@@ -28,4 +27,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_BRUSH_HUD_PROPERTIES_LIST_H */
+#endif

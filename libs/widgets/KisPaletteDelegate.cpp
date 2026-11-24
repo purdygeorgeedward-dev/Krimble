@@ -6,7 +6,7 @@
 
 #include <QPen>
 #include <QPainter>
-#include <QtMath> // qBound
+#include <QtMath>
 
 #include <kis_global.h>
 #include <KisPaletteModel.h>
@@ -34,7 +34,6 @@ void KisPaletteDelegate::paint(QPainter *painter,
     const bool isSelected = option.state & QStyle::State_Selected;
 
     if (qvariant_cast<bool>(index.data(KisPaletteModel::IsGroupNameRole))) {
-        // Paint group header
         QString name = qvariant_cast<QString>(index.data(Qt::DisplayRole));
         if (isSelected) {
             painter->fillRect(option.rect, option.palette.highlight());
@@ -62,7 +61,6 @@ void KisPaletteDelegate::paint(QPainter *painter,
 
         QString name = qvariant_cast<QString>(index.data(Qt::DisplayRole));
         if (!m_crossedKeyword.isNull() && name.toLower().contains(m_crossedKeyword)) {
-            // paint crossed line
 
             QRect crossRect = kisGrowRect(option.rect, -qBound(2, option.rect.width() / 6, 4));
 

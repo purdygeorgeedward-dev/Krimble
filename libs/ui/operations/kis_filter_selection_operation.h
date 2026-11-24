@@ -19,4 +19,4 @@ struct KRITAUI_EXPORT KisFilterSelectionOperation : public KisOperation {
     void runFilter(KisSelectionFilter* filter, KisViewManager *view, const KisOperationConfiguration &config);
 };
 
-#endif // KIS_FILTER_SELECTION_OPERATION_H
+#endif

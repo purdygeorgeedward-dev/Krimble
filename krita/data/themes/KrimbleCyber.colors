@@ -1,5 +1,3 @@
-# Krimble 2026-11-23 (cyber-theme branch): the Krimble Cyber theme. A copy of KrimblePainted.colors with darker blue-black backgrounds and a cyan selection;
-# the look comes from KrimbleCyberTheme.h. George: "If you can save that as a cyber theme that would be cool."
 [ColorEffects:Disabled]
 Color=20,20,20
 ColorAmount=-0.5
@@ -21,11 +19,7 @@ IntensityAmount=0
 IntensityEffect=0
 
 [Colors:Button]
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=39,47,75)
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundAlternate=50,51,75
 BackgroundAlternate=16,34,64
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=34,41,65)
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundNormal=38,40,65
 BackgroundNormal=12,26,52
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
@@ -39,9 +33,7 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Complementary]
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=45,54,86)
 BackgroundAlternate=59,61,86
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=43,51,82)
 BackgroundNormal=55,57,82
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
@@ -55,15 +47,7 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Selection]
-# Krimble 2026-11-04: selection blue matches the stylesheet's selected rows and buttons (old values below)
-# BackgroundAlternate=96,126,163
-# BackgroundNormal=83,114,142
-# DecorationFocus=138,190,236
-# DecorationHover=138,190,236
-# Krimble 2026-11-13 (task 64): George: "kill the aqua everywhere first." The aqua 29,124,178 is gone: 11,135,221 (#0b87dd).
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundAlternate=11,135,221
 BackgroundAlternate=16,96,140
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundNormal=19,96,146
 BackgroundNormal=20,120,170
 DecorationFocus=67,201,255
 DecorationHover=67,201,255
@@ -77,9 +61,7 @@ ForegroundPositive=151,202,64
 ForegroundVisited=187,194,208
 
 [Colors:Tooltip]
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=29,34,55)
 BackgroundAlternate=28,30,55
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=34,41,65)
 BackgroundNormal=38,40,65
 DecorationFocus=112,154,191
 DecorationHover=83,114,142
@@ -93,11 +75,7 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:View]
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=32,38,61)
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundAlternate=34,36,61
 BackgroundAlternate=8,16,34
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=35,42,67)
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundNormal=40,42,67
 BackgroundNormal=4,10,24
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
@@ -111,11 +89,7 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Window]
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=45,54,86)
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundAlternate=59,61,86
 BackgroundAlternate=12,22,44
-# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=43,51,82)
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was BackgroundNormal=55,57,82
 BackgroundNormal=8,14,30
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
@@ -129,9 +103,7 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [General]
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was ColorScheme=Krimble Painted
 ColorScheme=Krimble Cyber
-# Krimble Cyber (cyber-theme branch, 2026-11-23): was Name=Krimble Painted
 Name=Krimble Cyber
 shadeSortColumn=true
 

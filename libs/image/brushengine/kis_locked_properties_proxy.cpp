@@ -14,7 +14,6 @@
 #include <brushengine/kis_paintop_settings.h>
 #include <brushengine/kis_paintop_preset.h>
 
-
 KisLockedPropertiesProxy::KisLockedPropertiesProxy(KisPropertiesConfiguration *p, KisLockedPropertiesSP l)
 {
     m_parent = p;
@@ -31,7 +30,6 @@ QVariant KisLockedPropertiesProxy::getProperty(const QString &name) const
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(t, m_parent->getProperty(name));
     if (!t->updateListener()) return m_parent->getProperty(name);
 
-    // restores the dirty state on returns automagically
     KisPaintOpSettings::UpdateListenerSP updateProxy = t->updateListener().toStrongRef();
     KisDirtyStateSaver<KisPaintOpSettings::UpdateListenerSP> dirtyStateSaver(updateProxy);
 
@@ -74,7 +72,6 @@ void KisLockedPropertiesProxy::setProperty(const QString & name, const QVariant 
             m_parent->setProperty(name, value);
 
             if (!m_parent->hasProperty(name + "_previous")) {
-                // restores the dirty state on returns automagically
                 KisPaintOpSettings::UpdateListenerSP updateProxy = t->updateListener().toStrongRef();
                 KisDirtyStateSaver<KisPaintOpSettings::UpdateListenerSP> dirtyStateSaver(updateProxy);
                 m_parent->setProperty(name + "_previous", m_parent->getProperty(name));
@@ -129,6 +126,4 @@ void KisLockedPropertiesProxy::dump() const
         m_lockedProperties->lockedProperties()->dump();
     }
 }
-
-
 

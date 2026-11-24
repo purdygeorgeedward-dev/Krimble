@@ -10,24 +10,6 @@
 #include <kis_signal_compressor.h>
 #include <functional>
 
-
-/**
- * A special class that converts a Qt signal into a std::function call.
- *
- * Usage:
- *
- *        \code{.cpp}
- *
- *        std::function<void ()> destinationFunctionCall(std::bind(someNiceFunc, firstParam, secondParam));
- *        SignalToFunctionProxy proxy(destinationFunctionCall);
- *        connect(srcObject, SIGNAL(sigSomethingChanged()), &proxy, SLOT(start()));
- *
- *        \endcode
- *
- * Now every time sigSomethingChanged() is emitted, someNiceFunc is
- * called. std::bind allows us to call any method of any class without
- * changing signature of the class or creating special wrappers.
- */
 class KRITAGLOBAL_EXPORT SignalToFunctionProxy : public QObject
 {
     Q_OBJECT
@@ -49,21 +31,6 @@ private:
     TrivialFunction m_function;
 };
 
-/**
- * A special class that converts a standard function call into Qt signal
- *
- * Usage:
- *
- *        \code{.cpp}
- *
- *        FunctionToSignalProxy proxy;
- *        connect(&proxy, SIGNAL(timeout()), &dstObject, SLOT(someDestinationSlot()));
- *
- *        \endcode
- *
- *        Now every time `proxy.start()` is called, the signal `timeout()` is
- *        forwarded to `someDestinationSlot()`
- */
 class KRITAGLOBAL_EXPORT FunctionToSignalProxy : public QObject
 {
     Q_OBJECT
@@ -76,36 +43,6 @@ public:
 Q_SIGNALS:
     void timeout();
 };
-
-
-
-/**
- * A special class for deferring and compressing events with one
- * parameter of type T. This works like KisSignalCompressor but can
- * handle events with one parameter. Due to limitation of the Qt this
- * doesn't allow signal/slots, so it uses std::function instead.
- *
- * In the end (after a timeout) the latest param value is returned to
- * the callback.
- *
- *        Usage:
- *
- *        \code{.cpp}
- *
- *        using namespace std::placeholders; // For _1 placeholder
- *
- *        // prepare the callback function
- *        std::function<void (qreal)> callback(
- *            std::bind(&LutDockerDock::setCurrentExposureImpl, this, _1));
- *
- *        // Create the compressor object
- *        KisSignalCompressorWithParam<qreal> compressor(40, callback);
- *
- *        // When event comes:
- *        compressor.start(0.123456);
- *
- *        \endcode
- */
 
 template <typename T>
 class KisSignalCompressorWithParam
@@ -158,4 +95,4 @@ private:
     T m_currentParamValue;
 };
 
-#endif /* __KIS_SIGNAL_COMPRESSOR_WITH_PARAM_H */
+#endif

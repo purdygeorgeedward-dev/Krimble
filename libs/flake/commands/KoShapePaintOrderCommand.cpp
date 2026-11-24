@@ -49,7 +49,6 @@ KoShapePaintOrderCommand::~KoShapePaintOrderCommand()
     delete d;
 }
 
-
 void KoShapePaintOrderCommand::redo()
 {
     KUndo2Command::redo();

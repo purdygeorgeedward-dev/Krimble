@@ -12,7 +12,6 @@
 
 #include "kritawidgets_export.h"
 
-
 class KRITAWIDGETS_EXPORT KoAnchorSelectionWidget : public QWidget
 {
     Q_OBJECT
@@ -38,4 +37,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KOANCHORSELECTIONWIDGET_H
+#endif

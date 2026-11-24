@@ -11,7 +11,6 @@
 
 #include "kis_texture_chooser.h"
 
-
 struct KisTextureOptionWidget::Private
 {
     Private(lager::cursor<KisTextureOptionData> optionData, KisResourcesInterfaceSP resourcesInterface)
@@ -21,7 +20,6 @@ struct KisTextureOptionWidget::Private
 
     KisTextureOptionModel model;
 };
-
 
 KisTextureOptionWidget::KisTextureOptionWidget(lager::cursor<KisTextureOptionData> optionData, KisResourcesInterfaceSP resourcesInterface, KisBrushTextureFlags flags)
     : KisPaintOpOption(i18n("Pattern"), KisPaintOpOption::TEXTURE, optionData[&KisTextureOptionData::isEnabled])

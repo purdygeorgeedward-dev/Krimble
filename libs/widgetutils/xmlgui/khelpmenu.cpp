@@ -6,8 +6,6 @@
  *
  */
 
-// I (espen) prefer that header files are included alphabetically
-
 #include "khelpmenu.h"
 #include "config-xmlgui.h"
 #include <QTimer>
@@ -61,7 +59,6 @@ public:
     KisKAboutKdeDialog *mAboutKDE {nullptr};
     KisKBugReport *mBugReport {nullptr};
     KisKSwitchLanguageDialog *mSwitchApplicationLanguage {nullptr};
-    // TODO evaluate if we use static_cast<QWidget*>(parent()) instead of mParent to win that bit of memory
     QWidget *mParent {nullptr};
     QString mAboutAppText;
 
@@ -123,7 +120,6 @@ void KisKHelpMenuPrivate::createActions(KisKHelpMenu *q)
     mAboutKDEAction = KStandardAction::aboutKDE(q, SLOT(aboutKDE()), q);
 }
 
-// Used in the non-xml-gui case, like kfind or ksnapshot's help button.
 QMenu *KisKHelpMenu::menu()
 {
     if (!d->mMenu) {

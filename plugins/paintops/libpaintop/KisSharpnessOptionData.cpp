@@ -9,7 +9,6 @@ const QString SHARPNESS_FACTOR = "Sharpness/factor";
 const QString SHARPNESS_ALIGN_OUTLINE_PIXELS = "Sharpness/alignoutline";
 const QString SHARPNESS_SOFTNESS  = "Sharpness/softness";
 
-
 bool KisSharpnessOptionMixInImpl::read(const KisPropertiesConfiguration *setting)
 {
     alignOutlinePixels = setting->getBool(SHARPNESS_ALIGN_OUTLINE_PIXELS);

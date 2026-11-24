@@ -83,4 +83,4 @@ private:
     bool dirty {false};
 };
 
-#endif // KODIALOG_P_H
+#endif

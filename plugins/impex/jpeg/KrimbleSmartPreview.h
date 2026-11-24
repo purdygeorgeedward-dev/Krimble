@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-13 (task 55): the SmartCompression panel's preview. Makes a JPEG of a picture in memory (the same settings as the save: quality, 1x1 color, gray, progressive) and reads a JPEG back, so the
-// panel can show how large the result will be and what it looks like, without writing a file. Only libjpeg.
 #pragma once
 
 #include <vector>
@@ -13,7 +11,6 @@
 
 namespace KrimbleSmart {
 
-// rgb: width * height * 3 bytes (R, G, B). Returns false on an error.
 inline bool encodeJpeg(const uint8_t *rgb, int width, int height, int quality, bool fullColor, bool gray, bool progressive, std::vector<uint8_t> &out)
 {
     out.clear();
@@ -42,7 +39,7 @@ inline bool encodeJpeg(const uint8_t *rgb, int width, int height, int quality, b
     jpeg_set_defaults(&cinfo);
     jpeg_set_quality(&cinfo, std::max(0, std::min(100, quality)), TRUE);
     if (!gray) {
-        cinfo.comp_info[0].h_samp_factor = fullColor ? 1 : 2;   // 2x2 (smallest) or 1x1 (best), like the Advanced tab
+        cinfo.comp_info[0].h_samp_factor = fullColor ? 1 : 2;
         cinfo.comp_info[0].v_samp_factor = fullColor ? 1 : 2;
     }
     cinfo.optimize_coding = TRUE;
@@ -67,7 +64,6 @@ inline bool encodeJpeg(const uint8_t *rgb, int width, int height, int quality, b
     return true;
 }
 
-// Reads a JPEG into 3 bytes per pixel (R, G, B; a gray JPEG becomes gray RGB).
 inline bool decodeJpeg(const std::vector<uint8_t> &jpeg, std::vector<uint8_t> &rgb, int &width, int &height)
 {
     rgb.clear();
@@ -96,4 +92,4 @@ inline bool decodeJpeg(const std::vector<uint8_t> &jpeg, std::vector<uint8_t> &r
     return true;
 }
 
-} // namespace KrimbleSmart
+}

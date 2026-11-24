@@ -27,7 +27,6 @@ ParticleBrush::~ParticleBrush()
 {
 }
 
-
 void ParticleBrush::initParticles()
 {
     m_particlePos.resize(m_properties->particleCount);
@@ -44,10 +43,8 @@ void ParticleBrush::setInitialPosition(const QPointF &pos)
     }
 }
 
-
 void ParticleBrush::paintParticle(KisRandomAccessorSP accWrite, const KoColorSpace * cs, const QPointF &pos, const KoColor& color, qreal weight, bool respectOpacity)
 {
-    // opacity top left, right, bottom left, right
     KoColor myColor(color);
     quint8 opacity = respectOpacity ? myColor.opacityU8() : OPACITY_OPAQUE_U8;
 
@@ -78,9 +75,6 @@ void ParticleBrush::paintParticle(KisRandomAccessorSP accWrite, const KoColorSpa
     memcpy(accWrite->rawData(), myColor.data(), cs->pixelSize());
 }
 
-
-
-
 void ParticleBrush::draw(KisPaintDeviceSP dab, const KoColor& color, const QPointF &pos)
 {
     KisRandomAccessorSP accessor = dab->createRandomAccessorNG();
@@ -94,23 +88,6 @@ void ParticleBrush::draw(KisPaintDeviceSP dab, const KoColor& color, const QPoin
 
     for (int i = 0; i < m_properties->particleIterations; i++) {
         for (int j = 0; j < m_properties->particleCount; j++) {
-            /*
-                m_time = 0.01;
-                QPointF temp = m_position;
-                QPointF dist = m_position - m_oldPosition;
-                m_position = m_position + (dist + (m_acceleration*m_time*m_time));
-                m_oldPosition = temp;
-            */
-
-            /*
-                QPointF dist = info.pos() - m_position;
-                dist *= 0.3; // scale
-                dist *= 10; // force
-                m_oldPosition += dist;
-                m_oldPosition *= 0.989;
-                m_position = m_position + m_oldPosition * m_time * m_time;
-            */
-
 
             QPointF dist = pos - m_particlePos[j];
             dist.setX(dist.x() * m_properties->particleScaleX);
@@ -120,20 +97,6 @@ void ParticleBrush::draw(KisPaintDeviceSP dab, const KoColor& color, const QPoin
             m_particleNextPos[j] *= m_properties->particleGravity;
             m_particlePos[j] = m_particlePos[j] + (m_particleNextPos[j] * TIME);
 
-            /**
-             * When the scale is negative the equation becomes
-             * unstable, and the point coordinates grow to infinity,
-             * so just limit them in that case.
-             *
-             * Generally, the effect of instability might be quite
-             * interesting for the painters.
-             */
-
-            // If scale is negative, position can easily jump into infinity
-            //  and then it won't be caught by contains();
-            //  and then it will be passed to the lockless hashtable
-            //  and then it will crash.
-            // Hence better to catch infinity here and just not paint anything.
             QPointF pointF = m_particlePos[j];
 
             const qint32 max = 2147483600;
@@ -145,9 +108,7 @@ void ParticleBrush::draw(KisPaintDeviceSP dab, const KoColor& color, const QPoin
                 paintParticle(accessor, cs, m_particlePos[j], color, m_properties->particleWeight, true);
             }
 
-        }//for j
-    }//for i
+        }
+    }
 }
-
-
 

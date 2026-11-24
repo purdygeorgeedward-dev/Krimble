@@ -56,6 +56,6 @@ void SvgMoveTextStrategy::cancelInteraction()
     tool()->repaintDecorations();
 }
 
-void SvgMoveTextStrategy::finishInteraction(Qt::KeyboardModifiers /*modifiers*/)
+void SvgMoveTextStrategy::finishInteraction(Qt::KeyboardModifiers )
 {
 }

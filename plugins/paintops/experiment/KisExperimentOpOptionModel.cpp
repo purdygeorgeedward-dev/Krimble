@@ -7,7 +7,6 @@
 
 #include <KisLager.h>
 
-
 KisExperimentOpOptionModel::KisExperimentOpOptionModel(lager::cursor<KisExperimentOpOptionData> _optionData)
     : optionData(_optionData)
     , LAGER_QT(isDisplacementEnabled) {_optionData[&KisExperimentOpOptionData::isDisplacementEnabled]}
@@ -19,6 +18,6 @@ KisExperimentOpOptionModel::KisExperimentOpOptionModel(lager::cursor<KisExperime
     , LAGER_QT(windingFill) {_optionData[&KisExperimentOpOptionData::windingFill]}
     , LAGER_QT(hardEdge) {_optionData[&KisExperimentOpOptionData::hardEdge]}
     , LAGER_QT(fillType) {_optionData[&KisExperimentOpOptionData::fillType].zoom(kislager::lenses::do_static_cast<ExperimentFillType, int>)}
-    
+
 {
 }

@@ -14,9 +14,6 @@ namespace KisMetaData
 {
 class Schema;
 class Value;
-/**
- * This strategy drop all meta data.
- */
 class DropMergeStrategy : public MergeStrategy
 {
 public:
@@ -57,9 +54,6 @@ public:
     QString description() const override;
     void merge(Store* dst, QList<const Store*> srcs, QList<double> score) const override;
 protected:
-    /**
-     * Merge multiple entries in one.
-     */
     void mergeEntry(Store* dst, QList<const Store*> srcs, const Schema* schema, const QString & identifier) const;
     Value election(QList<const Store*> srcs, QList<double> score, const QString & key) const;
 };

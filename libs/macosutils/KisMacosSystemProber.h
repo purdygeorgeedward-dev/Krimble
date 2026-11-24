@@ -11,18 +11,10 @@
 extern "C" {
 #endif
 
-/**
- * returns true if there is another krita instance running
- * This method is reliant on NSWorkspace information
- *
- * Use this instead of QSharedMemory to ensure only one
- * instance of krita is ever launched, this works with or
- * without sandbox sessions
- */
 bool iskritaRunningActivate(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* KisMacosSystemProber_h */
+#endif

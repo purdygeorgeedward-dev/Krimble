@@ -36,5 +36,4 @@ struct PAINTOP_EXPORT KisMirrorOptionData : KisOptionTuple<KisCurveOptionData, K
     }
 };
 
-
-#endif // KISMIRROROPTIONDATA_H
+#endif

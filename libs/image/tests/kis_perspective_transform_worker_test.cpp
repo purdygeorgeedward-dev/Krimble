@@ -16,7 +16,6 @@
 #include "kis_perspectivetransform_worker.h"
 #include "kis_transaction.h"
 
-
 class PerspectiveWorkerTester : public TestUtil::QImageBasedTest
 {
 public:
@@ -39,10 +38,8 @@ public:
         QVERIFY(checkOneLayer(image, node, testName, 3));
     }
 
-
     KisImageSP image;
 };
-
 
 void KisPerspectiveTransformWorkerTest::testSimpleTransform()
 {

@@ -279,7 +279,7 @@ void KisGradientGeneratorConfiguration::setGradient(KoAbstractGradientSP newGrad
         setProperty("gradient", "");
         return;
     }
-    
+
     QDomDocument document;
     QDomElement gradientElement = document.createElement("gradient");
     gradientElement.setAttribute("name", newGradient->name());

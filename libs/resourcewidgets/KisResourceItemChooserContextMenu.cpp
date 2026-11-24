@@ -18,13 +18,11 @@
 #include <KisTagResourceModel.h>
 #include <KisTag.h>
 
-
 #include "kis_debug.h"
 
 bool isSpecialTag(KisTagSP tag) {
     return !tag.isNull() && tag->id() < 0;
 }
-
 
 KisResourceItemChooserContextMenu::KisResourceItemChooserContextMenu(KoResourceSP resource,
                                                                      const KisTagSP currentlySelectedTag,
@@ -79,7 +77,6 @@ KisResourceItemChooserContextMenu::KisResourceItemChooserContextMenu(KoResourceS
         KisTagSP currentTag = currentlySelectedTag;
 
         if (!currentTag.isNull() && currentTagInRemovables) {
-            // remove the current tag from both "Remove from tag: " and "Assign to tag: " lists
             removableTags.erase(std::remove_if(removableTags.begin(),
                                                removableTags.end(),
                                                comparer),

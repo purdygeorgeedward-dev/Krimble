@@ -13,8 +13,6 @@
 #include "kis_painting_assistant.h"
 #include <QObject>
 #include <QLineF>
-/* Design:
- */
 class ParallelRuler;
 
 class ParallelRulerAssistant : public KisPaintingAssistant

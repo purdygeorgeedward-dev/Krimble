@@ -126,11 +126,8 @@ void TestPathShape::segmentByIndex()
     path.close();
 
     QVERIFY(KoPathSegment(point1, point2) == path.segmentByIndex(path.pathPointIndex(point1)));
-    // test last point in a open path
     QVERIFY(KoPathSegment(0, 0) == path.segmentByIndex(path.pathPointIndex(point3)));
-    // test last point in a closed path
     QVERIFY(KoPathSegment(point5, point4) == path.segmentByIndex(path.pathPointIndex(point5)));
-    // test out of bounds
     QVERIFY(KoPathSegment(0, 0) == path.segmentByIndex(KoPathPointIndex(3, 4)));
     QVERIFY(KoPathSegment(0, 0) == path.segmentByIndex(KoPathPointIndex(4, 0)));
 }
@@ -224,7 +221,6 @@ void TestPathShape::insertPoint()
     path.lineTo(QPointF(40, 40));
     path.close();
 
-    // add before the first point of a open subpath
     KoPathPoint *point1 = new KoPathPoint(&path, QPointF(5, 5), KoPathPoint::Normal);
     KoPathPointIndex p1Index(0, 0);
     QVERIFY(path.insertPoint(point1, p1Index) == true);
@@ -235,7 +231,6 @@ void TestPathShape::insertPoint()
     QVERIFY(path.insertPoint(point2, p2Index) == true);
     QVERIFY(point2->parent() == &path);
 
-    // add after last point of a open subpath
     KoPathPoint *point3 = new KoPathPoint(&path, QPointF(25, 25), KoPathPoint::Normal);
     KoPathPointIndex p3Index(0, 4);
     QVERIFY(path.insertPoint(point3, p3Index) == true);
@@ -246,24 +241,19 @@ void TestPathShape::insertPoint()
     QVERIFY(path.insertPoint(point4, p4Index) == true);
     QVERIFY(point4->parent() == &path);
 
-    // add before the first point of a closed subpath
     KoPathPoint *point5 = new KoPathPoint(&path, QPointF(30, 35), KoPathPoint::Normal);
     KoPathPointIndex p5Index(1, 0);
     QVERIFY(path.insertPoint(point5, p5Index) == true);
     QVERIFY(point5->parent() == &path);
 
-    // add after last point of a closed subpath
     KoPathPoint *point6 = new KoPathPoint(&path, QPointF(35, 40), KoPathPoint::Normal);
     KoPathPointIndex p6Index(1, 4);
     QVERIFY(path.insertPoint(point6, p6Index) == true);
     QVERIFY(point6->parent() == &path);
 
-    // test out of bounds
     KoPathPoint *point7 = new KoPathPoint(&path, QPointF(0, 0), KoPathPoint::Normal);
-    // subpath index out of bounds
     KoPathPointIndex p7Index(2, 0);
     QVERIFY(path.insertPoint(point7, p7Index) == false);
-    // position in subpath out of bounds
     p7Index.second = 6;
     QVERIFY(path.insertPoint(point7, p7Index) == false);
 
@@ -303,18 +293,12 @@ void TestPathShape::removePoint()
     KoPathPoint *point10 = path.lineTo(QPointF(30, 35));
     path.close();
 
-    // remove from beginning of a open subpath
     QVERIFY(path.removePoint(path.pathPointIndex(point1)) == point1);
-    // remove from middle of a open subpath
     QVERIFY(path.removePoint(path.pathPointIndex(point3)) == point3);
-    // remove from end of a open subpath
     QVERIFY(path.removePoint(path.pathPointIndex(point5)) == point5);
 
-    // remove from beginning of a closed subpath
     QVERIFY(path.removePoint(path.pathPointIndex(point6)) == point6);
-    // remove from middle of a closed subpath
     QVERIFY(path.removePoint(path.pathPointIndex(point8)) == point8);
-    // remove from end of a closed subpath
     QVERIFY(path.removePoint(path.pathPointIndex(point10)) == point10);
 
     QPainterPath ppath(QPointF(20, 10));
@@ -341,9 +325,7 @@ void TestPathShape::splitAfter()
     path.close();
 
     QVERIFY(path.breakAfter(KoPathPointIndex(0, 1)) == true);
-    // try to break at the last point in the subpath
     QVERIFY(path.breakAfter(KoPathPointIndex(1, 2)) == false);
-    // try to break a closed subpath
     QVERIFY(path.breakAfter(KoPathPointIndex(2, 1)) == false);
 
     QPainterPath ppath(QPointF(10, 10));
@@ -377,11 +359,8 @@ void TestPathShape::join()
     path.lineTo(QPointF(60, 60));
 
     QVERIFY(path.join(0) == true);
-    // try to join to a closed subpath
     QVERIFY(path.join(0) == false);
-    // try to join from a closed subpath
     QVERIFY(path.join(1) == false);
-    // try to join last subpath
     QVERIFY(path.join(2) == false);
 
     QPainterPath ppath(QPointF(10, 10));
@@ -458,25 +437,19 @@ void TestPathShape::openSubpath()
     KoPathPoint *point5 = path.lineTo(QPointF(140, 100));
     path.close();
 
-    // open at middle point in subpath
     QVERIFY(path.openSubpath(path.pathPointIndex(point1)) == KoPathPointIndex(0, 2));
     QVERIFY(path.pointByIndex(KoPathPointIndex(0,0))->properties() & KoPathPoint::StartSubpath);
     QVERIFY(path.pointByIndex(KoPathPointIndex(0,2))->properties() & KoPathPoint::StopSubpath);
-    // open at first point in subpath
     QVERIFY(path.openSubpath(path.pathPointIndex(point2)) == KoPathPointIndex(1, 0));
     QVERIFY(path.pointByIndex(KoPathPointIndex(1,0))->properties() & KoPathPoint::StartSubpath);
     QVERIFY(path.pointByIndex(KoPathPointIndex(1,3))->properties() & KoPathPoint::StopSubpath);
-    // open at last point in subpath
     QVERIFY(path.openSubpath(path.pathPointIndex(point3)) == KoPathPointIndex(2, 1));
     QVERIFY(path.pointByIndex(KoPathPointIndex(2,0))->properties() & KoPathPoint::StartSubpath);
     QVERIFY(path.pointByIndex(KoPathPointIndex(2,3))->properties() & KoPathPoint::StopSubpath);
-    // try to open subpath
     QVERIFY(path.openSubpath(path.pathPointIndex(point3)) == KoPathPointIndex(-1, -1));
-    // open if the first path is a curve
     QVERIFY(path.openSubpath(path.pathPointIndex(point5)) == KoPathPointIndex(3, 1));
     QVERIFY(path.pointByIndex(KoPathPointIndex(3,0))->properties() & KoPathPoint::StartSubpath);
     QVERIFY(path.pointByIndex(KoPathPointIndex(3,2))->properties() & KoPathPoint::StopSubpath);
-    // try to open none existing subpath
     QVERIFY(path.openSubpath(KoPathPointIndex(4, 1)) == KoPathPointIndex(-1, -1));
 
     QPainterPath ppath(QPointF(15, 25));
@@ -512,17 +485,11 @@ void TestPathShape::closeSubpath()
     path.lineTo(QPointF(60, 60));
     KoPathPoint *point3 = path.curveTo(QPointF(60, 65), QPointF(50, 65), QPointF(50, 60));
 
-    // open at middle point in subpath
     QVERIFY(path.closeSubpath(path.pathPointIndex(point1)) == KoPathPointIndex(0, 2));
-    // open at first point in subpath
     QVERIFY(path.closeSubpath(path.pathPointIndex(point2)) == KoPathPointIndex(1, 0));
-    // open at last point in subpath
     QVERIFY(path.closeSubpath(path.pathPointIndex(point3)) == KoPathPointIndex(2, 1));
-    // try to close a closed subpath
     QVERIFY(path.closeSubpath(path.pathPointIndex(point3)) == KoPathPointIndex(-1, -1));
-    // try to close a none existing subpath
     QVERIFY(path.closeSubpath(KoPathPointIndex(3, 1)) == KoPathPointIndex(-1, -1));
-    // try to close at a none existing position in a subpath
     QVERIFY(path.closeSubpath(KoPathPointIndex(2, 4)) == KoPathPointIndex(-1, -1));
 
     QPainterPath ppath(QPointF(15, 25));
@@ -618,7 +585,6 @@ void TestPathShape::reverseSubpath()
 void TestPathShape::removeSubpath()
 {
 #if 0
-    // enable again when point groups work
     KoPathShape path;
     path.moveTo(QPointF(10, 10));
     path.lineTo(QPointF(20, 10));
@@ -770,14 +736,11 @@ void TestPathShape::closeMerge()
     QVERIFY(path.outline() == ppath);
 }
 
-
-
 void TestPathShape::createFromPainterPath_data()
 {
     QTest::addColumn<QPainterPath>("path");
     QTest::addColumn<QString>("expected");
 
-    //QTest::addRow() << path << expected;
     QPainterPath path;
     path.addPolygon(QPolygonF({QPointF(10, 10), QPointF(100, 10), QPointF(100, 200), QPointF(10, 200)}));
     QTest::addRow("no last point") << path << "M10 10L100 10L100 200L10 200";
@@ -795,7 +758,6 @@ void TestPathShape::createFromPainterPath_data()
     QTest::addRow("no MoveTo point in the beginning (in theory, at least)") << path3 << "M0 0L100 0L100 200L0 200Z";
 }
 
-
 void TestPathShape::createFromPainterPath()
 {
     QFETCH(QPainterPath, path);
@@ -806,7 +768,5 @@ void TestPathShape::createFromPainterPath()
     QCOMPARE(result->outline(), path);
     QCOMPARE(result->toString(), expected);
 }
-
-
 
 SIMPLE_TEST_MAIN(TestPathShape)

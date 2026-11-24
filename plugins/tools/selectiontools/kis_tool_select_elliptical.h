@@ -63,5 +63,5 @@ public:
 
 };
 
-#endif //__KIS_TOOL_SELECT_ELLIPTICAL_H__
+#endif
 

@@ -18,12 +18,6 @@ KisEdgeDetectionKernel::KisEdgeDetectionKernel()
 {
 
 }
-/*
- * This code is very similar to the gaussian kernel code, except unlike the gaussian code,
- * edge-detection kernels DO use the diagonals.
- * Except for the simple mode. We implement the simple mode because it is an analog to
- * the old sobel filter.
- */
 
 Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic> KisEdgeDetectionKernel::createHorizontalMatrix(qreal radius,
                                                                                                     FilterType type,
@@ -200,7 +194,6 @@ void KisEdgeDetectionKernel::applyEdgeDetection(KisPaintDeviceSP device,
         x_denormalised->prepareClone(device);
         y_denormalised->prepareClone(device);
 
-
         KisConvolutionKernelSP kernelHorizLeftRight = KisEdgeDetectionKernel::createHorizontalKernel(xRadius, type);
         KisConvolutionKernelSP kernelVerticalTopBottom = KisEdgeDetectionKernel::createVerticalKernel(yRadius, type);
 
@@ -211,7 +204,6 @@ void KisEdgeDetectionKernel::applyEdgeDetection(KisPaintDeviceSP device,
                                    srcTopLeft,
                                    srcTopLeft,
                                    rect.size(), BORDER_REPEAT);
-
 
         KisConvolutionPainter verticalPainterTB(y_denormalised);
         verticalPainterTB.setChannelFlags(channelFlags);
@@ -242,7 +234,7 @@ void KisEdgeDetectionKernel::applyEdgeDetection(KisPaintDeviceSP device,
                 for (int c = 0; c<channels; c++) {
                     finalNorm[c] = 2 * sqrt( ((xNormalised[c]-0.5)*(xNormalised[c]-0.5)) + ((yNormalised[c]-0.5)*(yNormalised[c]-0.5)));
                 }
-            } else { //radian
+            } else {
                 for (int c = 0; c<channels; c++) {
                     finalNorm[c] = atan2(xNormalised[c]-0.5, yNormalised[c]-0.5);
                 }
@@ -276,7 +268,7 @@ void KisEdgeDetectionKernel::applyEdgeDetection(KisPaintDeviceSP device,
             kernel = KisEdgeDetectionKernel::createHorizontalKernel(xRadius, type, denormalize, true);
         } else if (output == yGrowth) {
             kernel = KisEdgeDetectionKernel::createVerticalKernel(yRadius, type, denormalize);
-        } else { //yFall
+        } else {
             kernel = KisEdgeDetectionKernel::createVerticalKernel(yRadius, type, denormalize, true);
         }
 
@@ -363,7 +355,6 @@ void KisEdgeDetectionKernel::convertToNormalMap(KisPaintDeviceSP device,
     horizPainterLR.applyMatrix(kernelHorizLeftRight, device,
                                srcTopLeft, srcTopLeft,
                                rect.size(), BORDER_REPEAT);
-
 
     KisConvolutionPainter verticalPainterTB(x_denormalised);
 

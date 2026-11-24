@@ -38,5 +38,5 @@ inline QString coordinateToString(CoordinateSystem value)
 }
 }
 
-#endif // KOFLAKECOORDINATE_SYSTEM_H
+#endif
 

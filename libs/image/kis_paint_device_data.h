@@ -19,7 +19,6 @@ struct DirectDataAccessPolicy {
         : m_dataManager(dataManager),
           m_completionListener(completionListener){}
 
-
     KisHLineConstIteratorSP createConstIterator(const QRect &rect) {
         const int xOffset = 0;
         const int yOffset = 0;
@@ -66,7 +65,6 @@ public:
           m_cacheInvalidator(this)
         {
             m_cache.setupCache();
-            // WARNING: interstroke data is **not** copied while cloning, that is expected behavior!
         }
 
     void init(const KoColorSpace *cs, KisDataManagerSP dataManager) {
@@ -111,7 +109,6 @@ public:
         const KoColorSpace *m_newCs;
     };
 
-
     class ChangeColorSpaceCommand : public ChangeProfileCommand {
     public:
         ChangeColorSpaceCommand(KisPaintDeviceData *data,
@@ -149,8 +146,6 @@ public:
                                      m_colorSpace, dstColorSpace,
                                      parentCommand);
 
-        // NOTE: first redo is skipped on a higher level,
-        //       at DeviceChangeColorSpaceCommand
         cmd->redo();
 
         if (!parentCommand) {
@@ -182,14 +177,12 @@ public:
 
         KisDataManagerSP dstDataManager = new KisDataManager(dstPixelSize, dstDefaultPixel.data());
 
-
         if (!rc.isEmpty()) {
             InternalSequentialConstIterator srcIt(DirectDataAccessPolicy(m_dataManager.data(), cacheInvalidator()), rc, updater);
             InternalSequentialIterator dstIt(DirectDataAccessPolicy(dstDataManager.data(), cacheInvalidator()), rc, updater);
 
             int nConseqPixels = srcIt.nConseqPixels();
 
-            // since we are accessing data managers directly, the columns are always aligned
             KIS_SAFE_ASSERT_RECOVER_NOOP(srcIt.nConseqPixels() == dstIt.nConseqPixels());
 
             while(srcIt.nextPixels(nConseqPixels) &&
@@ -207,15 +200,12 @@ public:
             }
         }
 
-        // becomes owned by the parent
         ChangeColorSpaceCommand *cmd =
             new ChangeColorSpaceCommand(this,
                                         m_dataManager, dstDataManager,
                                         m_colorSpace, dstColorSpace,
                                         parentCommand);
 
-        // NOTE: first redo is skipped on a higher level,
-        //       at DeviceChangeColorSpaceCommand
         cmd->redo();
 
         if (!parentCommand) {
@@ -270,8 +260,6 @@ public:
             m_dataManager = new KisDataManager(*srcData->dataManager());
         } else if (m_dataManager->pixelSize() !=
                    srcData->dataManager()->pixelSize()) {
-            // NOTE: we don't check default pixel value! it is the task of
-            //       the higher level!
 
             m_dataManager = new KisDataManager(srcData->dataManager()->pixelSize(), srcData->dataManager()->defaultPixel());
             m_cache.setupCache();
@@ -360,7 +348,6 @@ public:
         return new SwapInterstrokeDataCommand(this, value);
     }
 
-
 private:
     struct CacheInvalidator : public KisIteratorCompleteListener {
         CacheInvalidator(KisPaintDeviceData *_q) : q(_q) {}
@@ -371,7 +358,6 @@ private:
     private:
         KisPaintDeviceData *q;
     };
-
 
 private:
 
@@ -385,4 +371,4 @@ private:
     KisInterstrokeDataSP m_interstrokeData;
 };
 
-#endif /* __KIS_PAINT_DEVICE_DATA_H */
+#endif

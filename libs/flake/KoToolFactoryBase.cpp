@@ -35,7 +35,6 @@ public:
     QKeySequence shortcut;
 };
 
-
 KoToolFactoryBase::KoToolFactoryBase(const QString &id)
     : d(new Private(id))
 {
@@ -55,8 +54,6 @@ QList<QAction *> KoToolFactoryBase::createActions(KisKActionCollection *actionCo
     QAction *action = actionRegistry->makeQAction(id(), this);
     actionCollection->addAction(id(), action);
     connect(action, SIGNAL(triggered()), SLOT(activateTool()));
-    //qDebug() << action << action->shortcut();
-
 
     Q_FOREACH(QAction *action, actions) {
         if (action->objectName().isEmpty()) {
@@ -81,7 +78,6 @@ QList<QAction *> KoToolFactoryBase::createActions(KisKActionCollection *actionCo
         toolActions << action;
     }
 
-    // Enable this to easily generate action files for tools
  #if 0
     if (toolActions.size() > 0) {
 
@@ -95,7 +91,6 @@ QList<QAction *> KoToolFactoryBase::createActions(KisKActionCollection *actionCo
             QDomElement a = doc.createElement("Action");
             a.setAttribute("name", action->objectName());
 
-            // But seriously, XML is the worst format ever designed
             auto addElement = [&](QString title, QString content) {
                 QDomElement newNode = doc.createElement(title);
                 QDomText    newText = doc.createTextNode(content);
@@ -125,10 +120,6 @@ QList<QAction *> KoToolFactoryBase::createActions(KisKActionCollection *actionCo
     }
 #endif
 
-//    qDebug() << "Generated actions for tool factory" << id();
-//    Q_FOREACH(QAction *action, toolActions) {
-//        qDebug() << "\taction:" << action->objectName() << "shortcut" << action->shortcuts() << "tools" << action->property("tool_action").toStringList();
-//    }
     return toolActions;
 }
 

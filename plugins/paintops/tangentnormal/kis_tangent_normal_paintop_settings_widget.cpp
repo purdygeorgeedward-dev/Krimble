@@ -63,4 +63,3 @@ KisPropertiesConfigurationSP KisTangentNormalPaintOpSettingsWidget::configuratio
     return config;
 }
 
-

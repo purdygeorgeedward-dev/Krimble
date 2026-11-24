@@ -25,7 +25,6 @@
 #include "kis_entry_editor.h"
 #include "kis_meta_data_model.h"
 
-
 struct KisMetaDataEditor::Private {
     KisMetaData::Store *store;
     KisMetaData::Store *temporaryStorage;
@@ -73,12 +72,10 @@ KisMetaDataEditor::KisMetaDataEditor(QWidget *parent, KisMetaData::Store *store)
     d->temporaryStorage = new KisMetaData::Store(*store);
     d->store = store;
 
-    // Add the Dublin Core widget
     {
         WdgDublinCore *wdg = new WdgDublinCore(this);
 
         {
-            // copy from dublin core
             const KisMetaData::Schema *schema =
                 KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::DublinCoreSchemaUri);
 
@@ -99,18 +96,15 @@ KisMetaDataEditor::KisMetaDataEditor(QWidget *parent, KisMetaData::Store *store)
         addPage(page);
     }
 
-    // Add the Exif widget
     {
         WdgExif *wdg = new WdgExif(this);
 
         {
-            // copy from exif
             const KisMetaData::Schema *schema =
                 KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::EXIFSchemaUri);
 
             Q_ASSERT(schema);
 
-            /* exposure tab */
             GET_EXIF_VALUE(BrightnessValue, text, &QLineEdit::textEdited);
             GET_EXIF_VALUE(ExposureTime, text, &QLineEdit::textEdited);
             GET_EXIF_ARRAY_VALUE(ISOSpeedRatings, 0, value, QOverload<int>::of(&KisIntParseSpinBox::valueChanged));
@@ -121,40 +115,33 @@ KisMetaDataEditor::KisMetaDataEditor(QWidget *parent, KisMetaData::Store *store)
             GET_EXIF_VALUE(ApertureValue, text, &QLineEdit::textEdited);
             GET_EXIF_VALUE(ShutterSpeedValue, text, &QLineEdit::textEdited);
             GET_EXIF_VALUE(FNumber, text, &QLineEdit::textEdited);
-            /*  lens tab  */
             GET_EXIF_VALUE(FocalLengthIn35mmFilm, value, QOverload<int>::of(&QSpinBox::valueChanged));
             GET_EXIF_VALUE(FocalLength, value, QOverload<int>::of(&QSpinBox::valueChanged));
             GET_EXIF_VALUE(MaxApertureValue, text, &QLineEdit::textEdited);
-            /*  autofocus tab  */
             GET_EXIF_VALUE(MeteringMode, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_VALUE(SubjectDistance, text, &QLineEdit::textEdited);
             GET_EXIF_VALUE(SubjectDistanceRange, currentIndex, QOverload<int>::of(&QComboBox::activated));
-            /*  flash  */
             GET_EXIF_STRUCTURE_VALUE(Flash, Fired, isChecked, QOverload<bool>::of(&QCheckBox::toggled));
             GET_EXIF_STRUCTURE_VALUE(Flash, StrobeReturn, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_STRUCTURE_VALUE(Flash, Mode, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_STRUCTURE_VALUE(Flash, Function, isChecked, QOverload<bool>::of(&QCheckBox::toggled));
             GET_EXIF_STRUCTURE_VALUE(Flash, RedEyeMode, isChecked, QOverload<bool>::of(&QCheckBox::toggled));
             GET_EXIF_VALUE(FlashEnergy, text, &QLineEdit::textEdited);
-            /*  postprocessing tab */
             GET_EXIF_VALUE(GainControl, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_VALUE(LightSource, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_VALUE(Sharpness, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_VALUE(Contrast, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_VALUE(WhiteBalance, currentIndex, QOverload<int>::of(&QComboBox::activated));
-            /*  misc tab */
             GET_EXIF_VALUE(SceneCaptureType, currentIndex, QOverload<int>::of(&QComboBox::activated));
             GET_EXIF_VALUE(SensingMethod, currentIndex, QOverload<int>::of(&QComboBox::activated));
         }
 
         {
-            // copy from exif (tiff schema)
             const KisMetaData::Schema *schema =
                 KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::TIFFSchemaUri);
 
             Q_ASSERT(schema);
 
-            /*  misc  */
             GET_EXIF_VALUE(Make, text, &QLineEdit::textEdited);
             GET_EXIF_VALUE(Model, text, &QLineEdit::textEdited);
         }
@@ -165,7 +152,6 @@ KisMetaDataEditor::KisMetaDataEditor(QWidget *parent, KisMetaData::Store *store)
     }
 
     {
-        // Add the list page
         QTableView *tableView = new QTableView;
         KisMetaDataModel *model = new KisMetaDataModel(d->store);
         tableView->setModel(model);

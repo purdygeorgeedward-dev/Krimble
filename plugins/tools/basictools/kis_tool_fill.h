@@ -129,7 +129,7 @@ private:
     bool m_useActiveLayer {false};
 
     ContinuousFillMode m_continuousFillMode {ContinuousFillMode_FillAnyRegion};
-    
+
     KisSelectionSP m_fillMask;
     QSharedPointer<KoColor> m_referenceColor;
     KisPaintDeviceSP m_referencePaintDevice;
@@ -230,7 +230,6 @@ private Q_SLOTS:
     void slot_colorSpaceChanged(const KoColorSpace *colorSpace);
 };
 
-
 #include "KisToolPaintFactoryBase.h"
 
 #include <kis_node.h>
@@ -258,5 +257,5 @@ public:
 
 };
 
-#endif //__filltool_h__
+#endif
 

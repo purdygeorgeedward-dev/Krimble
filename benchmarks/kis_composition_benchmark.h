@@ -85,4 +85,4 @@ private Q_SLOTS:
     void benchmarkFloatIntUint();
 };
 
-#endif /* __KIS_COMPOSITION_BENCHMARK_H */
+#endif

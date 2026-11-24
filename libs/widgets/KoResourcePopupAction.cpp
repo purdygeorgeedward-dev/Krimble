@@ -80,9 +80,6 @@ KoResourcePopupAction::KoResourcePopupAction(const QString &resourceType, KoCanv
 
 KoResourcePopupAction::~KoResourcePopupAction()
 {
-    /* Removing the actions here make them be deleted together with their default widget.
-     * This happens only if the actions are QWidgetAction, and we know they are since
-     * the only ones added are in KoResourcePopupAction constructor. */
     int i = 0;
     while(d->menu->actions().size() > 0) {
         d->menu->removeAction(d->menu->actions()[i]);
@@ -168,8 +165,6 @@ void KoResourcePopupAction::updateIcon()
         iconSize = QSize(16, 16);
     }
 
-    // This must be a QImage, as drawing to a QPixmap outside the
-    // UI thread will cause sporadic crashes.
     QImage pm = QImage(iconSize, QImage::Format_ARGB32_Premultiplied);
 
     pm.fill(Qt::transparent);

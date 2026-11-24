@@ -71,7 +71,6 @@ KoColor KoDocumentResourceManager::koColorResource(int key) const
     return d->manager.koColorResource(key);
 }
 
-
 bool KoDocumentResourceManager::boolResource(int key) const
 {
     return d->manager.boolResource(key);
@@ -111,7 +110,6 @@ KUndo2Stack *KoDocumentResourceManager::undoStack() const
 
 void KoDocumentResourceManager::setGrabSensitivity(int grabSensitivity)
 {
-    // do not allow arbitrary small grab sensitivity
     if (grabSensitivity < 5)
         grabSensitivity = 5;
     setResource(GrabSensitivity, QVariant(grabSensitivity));
@@ -121,7 +119,7 @@ int KoDocumentResourceManager::grabSensitivity() const
 {
     if (hasResource(GrabSensitivity))
         return intResource(GrabSensitivity);
-    return 5; // default value (and is used just about everywhere)
+    return 5;
 }
 
 void KoDocumentResourceManager::setUndoStack(KUndo2Stack *undoStack)

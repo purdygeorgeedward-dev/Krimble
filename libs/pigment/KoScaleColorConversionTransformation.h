@@ -9,10 +9,6 @@
 
 #include <KoColorConversionTransformation.h>
 #include <KoColorConversionTransformationFactory.h>
-/**
- * This transformation allows to convert between two color spaces with the same
- * color model but different channel type.
- */
 template<typename _src_CSTraits_, typename _dst_CSTraits_>
 class KoScaleColorConversionTransformation : public KoColorConversionTransformation
 {
@@ -29,9 +25,6 @@ public:
     }
 };
 
-/**
- * Factory to create KoScaleColorConversionTransformation.
- */
 template<typename _src_CSTraits_, typename _dst_CSTraits_>
 class KoScaleColorConversionTransformationFactory : public KoColorConversionTransformationFactory
 {

@@ -12,7 +12,6 @@
 
 #include "kis_types.h"
 
-
 namespace Ui {
 class KisDlgConfigureBrushHud;
 }
@@ -41,4 +40,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_DLG_BRUSH_HUD_CONFIG_H
+#endif

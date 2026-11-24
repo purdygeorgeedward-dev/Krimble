@@ -29,4 +29,4 @@ protected:
 
 };
 
-#endif /* KISWAYLANDAPIOUTPUT_H */
+#endif

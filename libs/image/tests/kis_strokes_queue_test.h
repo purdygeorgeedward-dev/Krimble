@@ -41,4 +41,4 @@ private:
     static void checkJobsOverlapping(LodStrokesQueueTester &t, KisStrokeId id, KisStrokeJobData::Sequentiality first, KisStrokeJobData::Sequentiality second, bool allowed);
 };
 
-#endif /* __KIS_STROKES_QUEUE_TEST_H */
+#endif

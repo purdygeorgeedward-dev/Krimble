@@ -13,7 +13,6 @@
 #include <QMainWindow>
 #include <QStatusBar>
 
-
 #include <QCheckBox>
 #include <QObject>
 #include <QPainter>
@@ -47,7 +46,6 @@
 #include <kis_crop_saved_extra_data.h>
 #include <kis_display_color_converter.h>
 
-
 struct DecorationLine
 {
     QPointF start;
@@ -67,13 +65,11 @@ struct DecorationLine
 
 DecorationLine decors[20] =
 {
-    //thirds
     {QPointF(0.0, 0.3333),QPointF(1.0, 0.3333), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
     {QPointF(0.0, 0.6666),QPointF(1.0, 0.6666), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
     {QPointF(0.3333, 0.0),QPointF(0.3333, 1.0), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
     {QPointF(0.6666, 0.0),QPointF(0.6666, 1.0), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
 
-    //fifths
     {QPointF(0.0, 0.2),QPointF(1.0, 0.2), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
     {QPointF(0.0, 0.4),QPointF(1.0, 0.4), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
     {QPointF(0.0, 0.6),QPointF(1.0, 0.6), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
@@ -83,7 +79,6 @@ DecorationLine decors[20] =
     {QPointF(0.6, 0.0),QPointF(0.6, 1.0), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
     {QPointF(0.8, 0.0),QPointF(0.8, 1.0), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
 
-    // Passport photo
     {QPointF(0.0, 0.45/0.35),QPointF(1.0, 0.45/0.35), DecorationLine::Width, DecorationLine::Width, DecorationLine::Width, DecorationLine::Width},
     {QPointF(0.2, 0.05/0.35),QPointF(0.8, 0.05/0.35), DecorationLine::Width, DecorationLine::Width, DecorationLine::Width, DecorationLine::Width},
     {QPointF(0.2, 0.40/0.35),QPointF(0.8, 0.40/0.35), DecorationLine::Width, DecorationLine::Width, DecorationLine::Width, DecorationLine::Width},
@@ -91,7 +86,6 @@ DecorationLine decors[20] =
     {QPointF(0.25, 0.38/0.35),QPointF(0.75, 0.38/0.35), DecorationLine::Width, DecorationLine::Width, DecorationLine::Width, DecorationLine::Width},
     {QPointF(0.35/0.45, 0.0),QPointF(0.35/0.45, 1.0), DecorationLine::Height, DecorationLine::Height, DecorationLine::Height, DecorationLine::Height},
 
-    //Crosshair
     {QPointF(0.0, 0.5),QPointF(1.0, 0.5), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height},
     {QPointF(0.5, 0.0),QPointF(0.5, 1.0), DecorationLine::Width, DecorationLine::Height, DecorationLine::Width, DecorationLine::Height}
 };
@@ -112,22 +106,21 @@ KisToolCrop::KisToolCrop(KoCanvasBase * canvas)
     connect(&m_finalRect, SIGNAL(sigValuesChanged()), SLOT(slotRectChanged()));
     connect(&m_finalRect, SIGNAL(sigLockValuesChanged()), SLOT(slotRectChanged()));
 
-    // context menu options (mirrors tool options)
     m_contextMenu.reset(new QMenu());
     applyCrop = new KisAction(i18n("Crop"));
 
     centerToggleOption = new KisAction(i18n("Center"));
     centerToggleOption->setCheckable(true);
-    
+
     growToggleOption = new KisAction(i18nc("Grow as in crop tool", "Grow"));
     growToggleOption->setCheckable(true);
-    
+
     lockWidthToggleOption = new KisAction(i18n("Lock Width"));
     lockWidthToggleOption->setCheckable(true);
-    
+
     lockHeightToggleOption = new KisAction(i18n("Lock Height"));
     lockHeightToggleOption->setCheckable(true);
-    
+
     lockRatioToggleOption = new KisAction(i18n("Lock Ratio"));
     lockRatioToggleOption->setCheckable(true);
 
@@ -152,20 +145,16 @@ void KisToolCrop::activate(const QSet<KoShape*> &shapes)
 {
 
     KisTool::activate(shapes);
-    configGroup =  KSharedConfig::openConfig()->group(toolId()); // save settings to kritarc
+    configGroup =  KSharedConfig::openConfig()->group(toolId());
 
     KisResourcesSnapshotSP resources =
         new KisResourcesSnapshot(image(), currentNode(), this->canvas()->resourceManager());
 
-
-    // load settings from configuration
     setGrowCenter(configGroup.readEntry("growCenter", false));
     setAllowGrow(configGroup.readEntry("allowGrow", false));
 
-    // Default: thirds decoration
     setDecoration(configGroup.readEntry("decoration", 1));
 
-    // Default: crop the entire image
     setCropType(CropToolType(configGroup.readEntry("cropType", 0)));
 
     m_finalRect.setCropRect(image()->bounds());
@@ -177,11 +166,9 @@ void KisToolCrop::activate(const QSet<KoShape*> &shapes)
     }
     useCursor(cursor());
 
-    //pixel layer
     if(resources->currentNode() && resources->currentNode()->paintDevice()) {
         setCropTypeSelectable(true);
     }
-    //vector layer
     else {
         if (m_cropType != ImageCropType && m_cropType != CanvasCropType) {
             setCropType(ImageCropType);
@@ -228,11 +215,9 @@ void KisToolCrop::canvasResourceChanged(int key, const QVariant &res)
 {
     KisTool::canvasResourceChanged(key, res);
 
-    //pixel layer
     if(currentNode() && currentNode()->paintDevice()) {
         setCropTypeSelectable(true);
     }
-    //vector layer
     else {
         if (m_cropType != ImageCropType && m_cropType != CanvasCropType) {
             setCropType(ImageCropType);
@@ -250,28 +235,27 @@ void KisToolCrop::paint(QPainter &painter, const KoViewConverter &converter)
 QMenu *KisToolCrop::popupActionsMenu()
 {
     if (m_contextMenu) {
-        // Sync state of context menu toggles with state of Tool Options toggles
         centerToggleOption->setChecked(growCenter());
         growToggleOption->setChecked(allowGrow());
         lockWidthToggleOption->setChecked(lockWidth());
         lockHeightToggleOption->setChecked(lockHeight());
         lockRatioToggleOption->setChecked(lockRatio());
-      
+
         m_contextMenu->clear();
 
         m_contextMenu->addSection(i18n("Crop Tool Actions"));
         m_contextMenu->addSeparator();
 
-        if (m_haveCropSelection) {         // can't crop if there is no selection
+        if (m_haveCropSelection) {
             m_contextMenu->addAction(applyCrop);
             m_contextMenu->addSeparator();
         }
 
         m_contextMenu->addAction(centerToggleOption);
         m_contextMenu->addAction(growToggleOption);
-        
+
         m_contextMenu->addSeparator();
-        
+
         m_contextMenu->addAction(lockWidthToggleOption);
         m_contextMenu->addAction(lockHeightToggleOption);
         m_contextMenu->addAction(lockRatioToggleOption);
@@ -345,7 +329,6 @@ bool KisToolCrop::tryContinueLastCropAction()
             data->type() == KisCropSavedExtraData::CROP_LAYER &&
             currentNode() == data->cropNode();
 
-
         if (cropImageConsistent || cropLayerConsistent) {
             image()->undoAdapter()->undoLastCommand();
             image()->waitForDone();
@@ -370,7 +353,6 @@ void KisToolCrop::endPrimaryAction(KoPointerEvent *event)
         viewCropRect.width() > m_minimumCropSize &&
         viewCropRect.height() > m_minimumCropSize;
 
-
     if (!m_haveCropSelection && !haveValidRect) {
         m_finalRect.setRectInitial(image()->bounds());
         m_haveCropSelection = true;
@@ -391,13 +373,10 @@ void KisToolCrop::mouseMoveEvent(KoPointerEvent *event)
 {
     QPointF pos = convertToPixelCoordAndSnap(event);
 
-    if (m_haveCropSelection) {  //if the crop selection is set
-        //set resize cursor if we are on one of the handles
+    if (m_haveCropSelection) {
         if(mode() == KisTool::PAINT_MODE) {
-            //keep the same cursor as the one we clicked with
             setMoveResizeCursor(m_mouseOnHandleType);
         }else{
-            //hovering
             qint32 type = mouseOnHandle(pixelToView(pos));
             setMoveResizeCursor(type);
         }
@@ -408,10 +387,8 @@ void KisToolCrop::beginPrimaryDoubleClickAction(KoPointerEvent *event)
 {
     if (m_haveCropSelection) crop();
 
-    // this action will have no continuation
     event->ignore();
 }
-
 
 #define BORDER_LINE_WIDTH 0
 #define HALF_BORDER_LINE_WIDTH 0
@@ -421,7 +398,6 @@ QRectF KisToolCrop::borderLineRect()
 {
     QRectF borderRect = pixelToView(m_finalRect.rect());
 
-    // Draw the border line right next to the crop rectangle perimeter.
     borderRect.adjust(-HALF_BORDER_LINE_WIDTH, -HALF_BORDER_LINE_WIDTH, HALF_BORDER_LINE_WIDTH, HALF_BORDER_LINE_WIDTH);
 
     return borderRect;
@@ -445,7 +421,6 @@ void KisToolCrop::paintOutlineWithHandles(QPainter& gc)
         gc.setBrush(m_transparentBlack);
         gc.drawPath(path);
 
-        // Handles
         QPen pen(Qt::SolidLine);
         pen.setWidth(HANDLE_BORDER_LINE_WIDTH * decorationThickness());
         pen.setColor(m_black);
@@ -480,7 +455,6 @@ void KisToolCrop::crop()
     const bool imageCrop = m_cropType == ImageCropType || m_cropType == CanvasCropType;
 
     if (!imageCrop) {
-        //Cropping layer
         if (!nodeEditable()) {
             return;
         }
@@ -491,7 +465,6 @@ void KisToolCrop::crop()
 
     QRect cropRect = m_finalRect.rect();
 
-    // The visitor adds the undo steps to the macro
     if (imageCrop || !currentNode()->paintDevice()) {
         if (m_cropType == CanvasCropType) {
             currentImage()->resizeImage(cropRect);
@@ -544,7 +517,6 @@ int KisToolCrop::decoration() const
 
 void KisToolCrop::setDecoration(int i)
 {
-    // This shouldn't happen, but safety first
     if(i < 0 || i > DECORATION_COUNT)
         return;
     m_decoration = i;
@@ -693,7 +665,6 @@ void KisToolCrop::setAllowGrow(bool g)
     m_finalRect.setCropRect(image()->bounds());
     configGroup.writeEntry("allowGrow", g);
 
-    // Do a dummy move for the crop area to snap back to the canvas if grow is no longer allowed
     if (!g) {
         m_finalRect.moveHandle(KisConstrainedRect::HandleType::Inside, QPoint(0, 0), m_finalRect.rect());
     }
@@ -709,7 +680,6 @@ bool KisToolCrop::allowGrow() const
 void KisToolCrop::setGrowCenter(bool value)
 {
     m_finalRect.setCentered(value);
-
 
     configGroup.writeEntry("growCenter", value);
 
@@ -763,9 +733,6 @@ void KisToolCrop::showSizeOnCanvas()
         krimbleShowSizeInStatusBar(kisCanvas, i18n("X: %1\nY: %2", optionsWidget->intX->text(), optionsWidget->intY->text()));
     }
     else {
-        // kisCanvas->viewManager()->showFloatingMessage(i18n("Width: %1\nHeight: %2"
-        //                                            , optionsWidget->intWidth->text(), optionsWidget->intHeight->text())
-        //                                            , QIcon(), 1000, KisFloatingMessage::High, Qt::AlignLeft | Qt::TextWordWrap | Qt::AlignVCenter);
         krimbleShowSizeInStatusBar(kisCanvas, i18n("Width: %1\nHeight: %2", optionsWidget->intWidth->text(), optionsWidget->intHeight->text()));
     }
 }
@@ -773,7 +740,6 @@ void KisToolCrop::showSizeOnCanvas()
 QWidget* KisToolCrop::createOptionWidget()
 {
     optionsWidget = new KisToolCropConfigWidget(0, this);
-    // See https://bugs.kde.org/show_bug.cgi?id=316896
     QWidget *specialSpacer = new QWidget(optionsWidget);
     specialSpacer->setObjectName("SpecialSpacer");
     specialSpacer->setFixedSize(0, 0);
@@ -1018,7 +984,7 @@ QList<QAction *> KisToolCropFactory::createActionsImpl()
 
     KisActionRegistry *actionRegistry = KisActionRegistry::instance();
     QAction *action = actionRegistry->makeQAction("apply_crop", this);
-    action->setProperty("always_enabled", true); // so it works even if the Crop tool isn't the active tool
+    action->setProperty("always_enabled", true);
     connect(action, SIGNAL(triggered()), this, SLOT(applyCrop()));
     actions << action;
 
@@ -1038,7 +1004,7 @@ void KisToolCropFactory::applyCrop()
     if (!tool) return;
 
     KisToolCrop *cropTool = dynamic_cast<KisToolCrop*>(tool);
-    if (!cropTool) return; // Crop tool isn't active; nothing to apply
+    if (!cropTool) return;
 
     cropTool->crop();
 }

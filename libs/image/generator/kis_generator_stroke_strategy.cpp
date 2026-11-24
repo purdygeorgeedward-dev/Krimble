@@ -45,8 +45,6 @@ QVector<KisStrokeJobData *>KisGeneratorStrokeStrategy::createJobsData(const KisG
                 addJobConcurrent(jobsData, [=]() {
                     f->generate(dstCfg, tile.size(), filterConfig, helper->updater());
 
-                    // HACK ALERT!!!
-                    // this avoids cyclic loop with KisRecalculateGeneratorLayerJob::run()
                     const_cast<KisGeneratorLayerSP &>(layer)->setDirtyWithoutUpdate({tile});
 
                     const_cast<QSharedPointer<boost::none_t> &>(cookie).clear();
@@ -58,8 +56,6 @@ QVector<KisStrokeJobData *>KisGeneratorStrokeStrategy::createJobsData(const KisG
             addJobSequential(jobsData, [=]() {
                 f->generate(dstCfg, rc.size(), filterConfig, helper->updater());
 
-                // HACK ALERT!!!
-                // this avoids cyclic loop with KisRecalculateGeneratorLayerJob::run()
                 const_cast<KisGeneratorLayerSP &>(layer)->setDirtyWithoutUpdate({rc});
 
                 const_cast<QSharedPointer<boost::none_t>&>(cookie).clear();

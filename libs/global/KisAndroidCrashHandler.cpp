@@ -30,7 +30,6 @@ namespace KisAndroidCrashHandler {
 static const std::array<int, 6> signals = {SIGABRT, SIGBUS, SIGFPE, SIGSEGV, SIGSYS, SIGTERM};
 static QMap<int, struct sigaction> g_old_actions;
 
-// we need to have keep this object alive
 static const std::string path =
     QString(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/kritacrashlog.txt").toStdString();
 static const char *crashlog_path = path.c_str();
@@ -101,9 +100,7 @@ void dump_backtrace(siginfo_t *info, void *ucontext)
 
 void crash_callback(int sig, siginfo_t *info, void *ucontext)
 {
-    // to prevent second invocation of our signal handler
     if (g_handling_crash) {
-        // uninstall the handler for the signal
         sigaction(sig, &g_old_actions[sig], nullptr);
         raise(sig);
         return;
@@ -112,18 +109,13 @@ void crash_callback(int sig, siginfo_t *info, void *ucontext)
     g_handling_crash = true;
     dump_backtrace(info, ucontext);
 
-    // uninstall the handler for the signal
     sigaction(sig, &g_old_actions[sig], nullptr);
 
-    // invoke the previous handler
-    // Some other implementations tend to make call to handler functions
-    // directly, seemingly to not make another _slow_ syscall.
     raise(sig);
 }
 
 void handler_init()
 {
-    // create an alternate stack to make sure we can handle overflows
     stack_t alternate_stack;
     alternate_stack.ss_flags = 0;
     alternate_stack.ss_size = SIGSTKSZ;
@@ -142,4 +134,4 @@ void handler_init()
     }
 }
 
-} // namespace KisAndroidCrashHandler
+}

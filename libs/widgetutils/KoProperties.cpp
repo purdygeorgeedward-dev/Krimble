@@ -38,7 +38,6 @@ QMapIterator<QString, QVariant> KoProperties::propertyIterator() const
     return QMapIterator<QString, QVariant>(d->properties);
 }
 
-
 bool KoProperties::isEmpty() const
 {
     return d->properties.isEmpty();
@@ -52,7 +51,6 @@ void  KoProperties::load(const QDomElement &root)
     QDomNode n = e.firstChild();
 
     while (!n.isNull()) {
-        // We don't nest elements.
         QDomElement e = n.toElement();
         if (!e.isNull()) {
             if (e.tagName() == "property") {
@@ -111,7 +109,6 @@ QString KoProperties::store(const QString &s) const
 
 void KoProperties::setProperty(const QString & name, const QVariant & value)
 {
-    // If there's an existing value for this name already, replace it.
     d->properties.insert(name, value);
 }
 
@@ -130,7 +127,6 @@ QVariant KoProperties::property(const QString & name) const
 {
     return d->properties.value(name, QVariant());
 }
-
 
 int KoProperties::intProperty(const QString & name, int def) const
 {

@@ -8,7 +8,6 @@
 
 #include <simpletest.h>
 
-
 #include "filter/kis_filter_configuration.h"
 #include "kis_config_widget.h"
 
@@ -31,6 +30,5 @@ void KisConfigWidgetTest::testCreation()
 {
     TestWidget test;
 }
-
 
 SIMPLE_TEST_MAIN(KisConfigWidgetTest)

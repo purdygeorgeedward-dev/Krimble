@@ -53,4 +53,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_PERSPECTIVE_TRANSFORM_STRATEGY_H */
+#endif

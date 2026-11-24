@@ -319,7 +319,6 @@ QString EllipseShape::pathShapeId() const
 
 bool EllipseShape::saveSvg(SvgSavingContext &context)
 {
-    // let basic path saiving code handle our saving
     if (!isParametricShape()) return false;
 
     if (type() == EllipseShape::Arc && startAngle() == endAngle()) {
@@ -360,7 +359,6 @@ bool EllipseShape::saveSvg(SvgSavingContext &context)
 
         switch (type()) {
         case Pie:
-            // noop
             break;
         case Chord:
             context.shapeWriter().addAttribute("sodipodi:arc-type", "chord");

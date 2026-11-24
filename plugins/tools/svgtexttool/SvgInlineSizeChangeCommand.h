@@ -44,4 +44,4 @@ private:
     QPointF m_movePos;
 };
 
-#endif /* SVG_INLINE_SIZE_CHANGE_COMMAND_H */
+#endif

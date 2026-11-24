@@ -7,14 +7,12 @@
 
 #include "kis_properties_configuration.h"
 
-
 const QString TANGENT_RED = "Tangent/swizzleRed";
 const QString TANGENT_GREEN = "Tangent/swizzleGreen";
 const QString TANGENT_BLUE = "Tangent/swizzleBlue";
 const QString TANGENT_TYPE = "Tangent/directionType";
 const QString TANGENT_EV_SEN = "Tangent/elevationSensitivity";
 const QString TANGENT_MIX_VAL = "Tangent/mixValue";
-
 
 bool KisTangentTiltOptionData::read(const KisPropertiesConfiguration *setting)
 {

@@ -12,7 +12,7 @@
 #include "kis_processing_information.h"
 #include <KisGlobalResourcesInterface.h>
 
-KisColorBalanceFilter::KisColorBalanceFilter() 
+KisColorBalanceFilter::KisColorBalanceFilter()
         : KisColorTransformationFilter(id(), FiltersCategoryAdjustId, i18n("&Color Balance..."))
 {
     setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));

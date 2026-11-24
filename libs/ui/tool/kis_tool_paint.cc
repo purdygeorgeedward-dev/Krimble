@@ -70,14 +70,10 @@
 #include "kis_popup_palette.h"
 #include "kis_paintop_utils.h"
 
-
 struct KisToolPaint::Private
 {
-    // Keeps track of past cursor positions. This is used to determine the drawing angle when
-    // drawing the brush outline or starting a stroke.
     KisPaintOpUtils::PositionHistory lastCursorPos;
 };
-
 
 KisToolPaint::KisToolPaint(KoCanvasBase *canvas, const QCursor &cursor)
     : KisTool(canvas, cursor),
@@ -95,7 +91,6 @@ KisToolPaint::KisToolPaint(KoCanvasBase *canvas, const QCursor &cursor)
     connect(&m_colorSamplerHelper, SIGNAL(sigRequestCursorReset()), this, SLOT(slotColorPickerRequestedCursorReset()));
     connect(&m_colorSamplerHelper, SIGNAL(sigRequestUpdateOutline()), this, SLOT(slotColorPickerRequestedOutlineUpdate()));
 }
-
 
 KisToolPaint::~KisToolPaint()
 {
@@ -126,7 +121,7 @@ void KisToolPaint::canvasResourceChanged(int key, const QVariant& v)
         }
         break;
     }
-    default: //nothing
+    default:
         break;
     }
 
@@ -136,16 +131,6 @@ void KisToolPaint::canvasResourceChanged(int key, const QVariant& v)
 
 void KisToolPaint::tryRestoreOpacitySnapshot()
 {
-    /**
-     * Here is a weird heuristics on when to restore
-     * brush opacity and when not. Basically, we should
-     * restore opacity to its saved if the brush preset
-     * hasn't changed too much, that is, its version is
-     * the same and it hasn't been reset into a clean
-     * state since then. The latter condition is checked
-     * in a fuzzy manner by just mangling the isDirty
-     * state before and after.
-     */
 
     KisCanvasResourceProvider *provider = qobject_cast<KisCanvas2*>(canvas())->viewManager()->canvasResourceProvider();
 
@@ -158,12 +143,11 @@ void KisToolPaint::tryRestoreOpacitySnapshot()
     }
 }
 
-
 void KisToolPaint::activate(const QSet<KoShape*> &shapes)
 {
     {
         const QString me = objectName();
-        const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften")) || me.endsWith(QLatin1String("KisToolSharpen")) || me.endsWith(QLatin1String("KisToolHeal"))   /* Krimble 2026-11-13 (task 77) */
+        const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften")) || me.endsWith(QLatin1String("KisToolSharpen")) || me.endsWith(QLatin1String("KisToolHeal"))
                 || me.endsWith(QLatin1String("KisToolDodge")) || me.endsWith(QLatin1String("KisToolBurn"))
                 || me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften") || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
         KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas());
@@ -192,7 +176,7 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
         if (!retouchTool && kisCanvas && kisCanvas->viewManager()
                 && (!current || current->name().startsWith(QLatin1String("Krimble Retouch")))) {
             if (KisPaintopBox *box = kisCanvas->viewManager()->paintOpBox()) {
-                KisPaintOpPresetSP basic(new KisPaintOpPreset(QStringLiteral(":/presets/paintbrush.kpp")));   // loaded the way KisPaintopBox::defaultPreset() does
+                KisPaintOpPresetSP basic(new KisPaintOpPreset(QStringLiteral(":/presets/paintbrush.kpp")));
                 if (basic->load(KisGlobalResourcesInterface::instance())) {
                     basic->setName(QStringLiteral("Krimble Brush"));
                     box->resourceSelected(basic);
@@ -270,12 +254,6 @@ KisOptimizedBrushOutline KisToolPaint::tryFixBrushOutline(const KisOptimizedBrus
 
     const qreal minThresholdSize = cfg.outlineSizeMinimum();
 
-    /**
-     * If the brush outline is bigger than the canvas itself (which
-     * would make it invisible for a user in most of the cases) just
-     * add a cross in the center of it
-     */
-
     QSize widgetSize = canvas()->canvasWidget()->size();
     const int maxThresholdSum = widgetSize.width() + widgetSize.height();
 
@@ -321,7 +299,6 @@ void KisToolPaint::setMode(ToolMode mode)
     if(this->mode() == KisTool::PAINT_MODE &&
             mode != KisTool::PAINT_MODE) {
 
-        // Let's add history information about recently used colors
         Q_EMIT sigPaintingFinished();
     }
 
@@ -439,7 +416,6 @@ QWidget *KisToolPaint::createOptionWidget()
     verticalLayout->setContentsMargins(0,0,0,0);
     verticalLayout->setSpacing(5);
 
-    // See https://bugs.kde.org/show_bug.cgi?id=316896
     QWidget *specialSpacer = new QWidget(optionWidget);
     specialSpacer->setObjectName("SpecialSpacer");
     specialSpacer->setFixedSize(0, 0);
@@ -514,7 +490,6 @@ void KisToolPaint::addOptionWidgetLayout(QLayout *layout)
     m_optionsWidgetLayout->addLayout(layout, rowCount, 0, 1, 2);
 }
 
-
 void KisToolPaint::addOptionWidgetOption(QWidget *control, QWidget *label)
 {
     Q_ASSERT(m_optionsWidgetLayout != 0);
@@ -526,7 +501,6 @@ void KisToolPaint::addOptionWidgetOption(QWidget *control, QWidget *label)
         m_optionsWidgetLayout->addWidget(control, m_optionsWidgetLayout->rowCount(), 0, 1, 2);
     }
 }
-
 
 void KisToolPaint::slotPopupQuickHelp()
 {
@@ -644,7 +618,7 @@ void KisToolPaint::requestUpdateOutline(const QPointF &outlineDocPoint, const Ko
                 (mode() == KisTool::GESTURE_MODE ||
                     (outlineStyleIsVisible() &&
                         (mode() == HOVER_MODE ||
-                         (mode() == PAINT_MODE && shouldShowOutlineWhilePainting()))))) { // lisp forever!
+                         (mode() == PAINT_MODE && shouldShowOutlineWhilePainting()))))) {
 
             outlineMode.isVisible = true;
 
@@ -671,9 +645,6 @@ void KisToolPaint::requestUpdateOutline(const QPointF &outlineDocPoint, const Ko
         outlinePixelRect = tryFixBrushOutline(m_currentOutline).boundingRect();
         outlineDocRect = currentImage()->pixelToDocument(outlinePixelRect);
 
-        // This adjusted call is needed as we paint with a 3 pixel wide brush and the pen is outside the bounds of the path
-        // Pen uses view coordinates so we have to zoom the document value to match 2 pixel in view coordinates
-        // See BUG 275829
         qreal zoomX;
         qreal zoomY;
         canvas()->viewConverter()->zoom(&zoomX, &zoomY);
@@ -692,11 +663,6 @@ void KisToolPaint::requestUpdateOutline(const QPointF &outlineDocPoint, const Ko
 
     }
 
-    // DIRTY HACK ALERT: we should fetch the assistant's dirty rect when requesting
-    //                   the update, instead of just dumbly update the entire canvas!
-
-    // WARNING: assistants code is also duplicated in KisDelegatedSelectPathWrapper::mouseMoveEvent
-
     KisCanvas2 *kiscanvas = qobject_cast<KisCanvas2*>(canvas());
     KisPaintingAssistantsDecorationSP decoration = kiscanvas->paintingAssistantsDecoration();
     if (decoration && decoration->visible() && decoration->hasPaintableAssistants()) {
@@ -712,32 +678,9 @@ void KisToolPaint::requestUpdateOutline(const QPointF &outlineDocPoint, const Ko
     }
 
     if (!outlineDocRect.isEmpty()) {
-        /**
-         * A simple "update-ahead" implementation that issues an update a little
-         * bigger to accommodate the possible following outline.
-         *
-         * The point is that canvas rendering comes through two stages of
-         * compression and the canvas may request outline update when the
-         * outline itself has already been changed. It causes visual tearing
-         * on the screen (see https://bugs.kde.org/show_bug.cgi?id=476300).
-         *
-         * We can solve that in two ways:
-         *
-         * 1) Pass the actual outline with the update rect itself, which is
-         *    a bit complicated and may result in the outline being a bit
-         *    delayed visually. We don't implement this method (yet).
-         *
-         * 2) Just pass the update rect a bit bigger than the actual outline
-         *    to accommodate a possible change in the outline. We calculate
-         *    this bigger rect by offsetting the rect by the previous cursor
-         *    offset.
-         */
 
-        /// Don't try to update-ahead if the offset is bigger than 50%
-        /// of the brush outline
         const qreal maxUpdateAheadOutlinePortion = 0.5;
 
-        /// 10% of extra move is added to offset
         const qreal offsetFuzzyExtension = 0.1;
 
         const qreal moveDistance = KisAlgebra2D::norm(outlineMoveVector);
@@ -772,9 +715,6 @@ KisOptimizedBrushOutline KisToolPaint::getOutlinePath(const QPointF &documentPos
     const KisCoordinatesConverter *converter = canvas2->coordinatesConverter();
 
     const QPointF pixelPos = convertToPixelCoord(documentPos);
-    // When touch drawing, a "hover" event means the finger was just pressed
-    // down. The last cursor position is invalid with regards to distance and
-    // speed, since it isn't updated while the finger isn't down, so reset it.
     if (event && event->isTouchEvent() && mode() == HOVER_MODE) {
         m_d->lastCursorPos.reset(pixelPos);
     }

@@ -32,7 +32,7 @@ public:
         return image->width() >= m_maxW && image->height() >= m_maxH;
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -64,5 +64,4 @@ public:
     }
 };
 
-
-#endif // CHECKIMAGESIZE_H
+#endif

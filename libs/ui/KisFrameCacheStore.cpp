@@ -23,11 +23,8 @@ struct FrameInfo;
 typedef QSharedPointer<FrameInfo> FrameInfoSP;
 
 struct FrameInfo {
-    // full frame
     FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int levelOfDetail, KisFrameDataSerializer &serializer, const KisFrameDataSerializer::Frame &frame);
-    // diff frame
     FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int levelOfDetail, KisFrameDataSerializer &serializer, FrameInfoSP baseFrame, const KisFrameDataSerializer::Frame &frame);
-    // copy frame
     FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int levelOfDetail, KisFrameDataSerializer &serializer, FrameInfoSP baseFrame);
 
     ~FrameInfo();
@@ -65,7 +62,6 @@ struct FrameInfo {
     KisFrameDataSerializer &m_serializer;
 };
 
-// full frame
 FrameInfo::FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int levelOfDetail, KisFrameDataSerializer &serializer, const KisFrameDataSerializer::Frame &frame)
     : m_levelOfDetail(levelOfDetail),
       m_dirtyImageRect(dirtyImageRect),
@@ -77,7 +73,6 @@ FrameInfo::FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int 
     m_savedFrameDataId = m_serializer.saveFrame(frame);
 }
 
-// diff frame
 FrameInfo::FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int levelOfDetail, KisFrameDataSerializer &serializer, FrameInfoSP baseFrame, const KisFrameDataSerializer::Frame &frame)
     : m_levelOfDetail(levelOfDetail),
       m_dirtyImageRect(dirtyImageRect),
@@ -89,7 +84,6 @@ FrameInfo::FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int 
     m_savedFrameDataId = m_serializer.saveFrame(frame);
 }
 
-// copy frame
 FrameInfo::FrameInfo(const QRect &dirtyImageRect, const QRect &imageBounds, int levelOfDetail, KisFrameDataSerializer &serializer, FrameInfoSP baseFrame)
     : m_levelOfDetail(levelOfDetail),
       m_dirtyImageRect(dirtyImageRect),
@@ -112,7 +106,6 @@ FrameInfo::~FrameInfo()
 
 }
 
-
 struct KRITAUI_NO_EXPORT KisFrameCacheStore::Private
 {
     Private(const QString &frameCachePath)
@@ -120,8 +113,6 @@ struct KRITAUI_NO_EXPORT KisFrameCacheStore::Private
     {
     }
 
-    // the serializer should be killed after *all* the frame info objects
-    // got destroyed, because they use it in their own destruction
     KisFrameDataSerializer serializer;
 
     KisFrameDataSerializer::Frame lastSavedFullFrame;
@@ -142,7 +133,6 @@ KisFrameCacheStore::KisFrameCacheStore(const QString &frameCachePath)
     : m_d(new Private(frameCachePath))
 {
 }
-
 
 KisFrameCacheStore::~KisFrameCacheStore()
 {
@@ -167,14 +157,11 @@ void KisFrameCacheStore::saveFrame(int frameId, KisOpenGLUpdateInfoSP info, cons
 
     KIS_SAFE_ASSERT_RECOVER_RETURN(pixelSize);
 
-    // TODO: assert that dirty image rect is equal to the full image rect
-    // TODO: assert tile color space coincides with the destination color space
-
     KisFrameDataSerializer::Frame frame;
     frame.pixelSize = pixelSize;
 
     for (auto it = info->tileList.begin(); it != info->tileList.end(); ++it) {
-        KisFrameDataSerializer::FrameTile tile(KisTextureTileInfoPoolSP(0)); // TODO: fix the pool should never be null!
+        KisFrameDataSerializer::FrameTile tile(KisTextureTileInfoPoolSP(0));
         tile.col = (*it)->tileCol();
         tile.row = (*it)->tileRow();
         tile.rect = (*it)->realPatchRect();
@@ -190,17 +177,8 @@ void KisFrameCacheStore::saveFrame(int frameId, KisOpenGLUpdateInfoSP info, cons
     if (m_d->lastSavedFullFrame.isValid()) {
         boost::optional<qreal> uniqueness = KisFrameDataSerializer::estimateFrameUniqueness(m_d->lastSavedFullFrame, frame, 0.01);
 
-
         if (uniqueness) {
 
-            /**
-             * The full-copying code is disabled intentionally:
-             *
-             * We should never remove user-visible data on basis of statistics. On smaller
-             * images, like 32x32 pixels, there might be really subtle changes that
-             * are important for the user. So we should use difference instead of dumb
-             * copying.
-             */
 #if 0
             if (*uniqueness == 0.0) {
                 FrameInfoSP baseFrameInfo = m_d->savedFrames[m_d->lastSavedFullFrameId];
@@ -278,7 +256,6 @@ KisOpenGLUpdateInfoSP KisFrameCacheStore::loadFrame(int frameId, const KisOpenGL
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(baseFrameInfo, KisOpenGLUpdateInfoSP());
 
         if (baseFrameInfo == m_d->lastLoadedBaseFrameInfo) {
-            // noop
         } else {
             m_d->lastLoadedBaseFrame = m_d->serializer.loadFrame(baseFrameInfo->frameDataId(), builder.textureInfoPool());
             m_d->lastLoadedBaseFrameInfo = baseFrameInfo;

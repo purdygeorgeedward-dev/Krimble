@@ -62,11 +62,9 @@ void WGSelectorPopup::slotShowPopup()
     popupRect.moveTopLeft(cursorPos - offset);
     popupRect = kisEnsureInRect(popupRect, availRect);
 
-
     move(popupRect.topLeft());
 
     show();
-    //m_colorPreviewPopup->show();
 }
 
 void WGSelectorPopup::paintEvent(QPaintEvent *event)
@@ -132,5 +130,4 @@ void WGSelectorPopup::replaceCentranWidget(QWidget *widget)
     layout()->update();
     adjustSize();
 }
-
 

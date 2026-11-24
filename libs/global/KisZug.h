@@ -12,18 +12,6 @@
 #include <zug/transducer/map.hpp>
 #include <zug/reducing/last.hpp>
 
-/**
- * kiszug is a namespace extending the functionality of
- * zug library. It contains transducers, lenses and other
- * tools that are not present in zug itself.
- *
- * Naming convention exception:
- *
- * The namespace follows naming convention of zug library,
- * that is, all entities should be named in "snake_case"
- * manner.
- */
-
 namespace kiszug {
 
 template <typename T>
@@ -88,6 +76,6 @@ constexpr auto foreach_arg =
         });
     };
 
-} // namespace kiszug
+}
 
-#endif // KISZUG_H
+#endif

@@ -37,4 +37,4 @@ public:
                               KoUpdater *updater);
 };
 
-#endif /* __KIS_WAVELET_KERNEL_H */
+#endif

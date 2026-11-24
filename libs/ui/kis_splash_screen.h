@@ -66,4 +66,4 @@ private:
     QString m_versionHtml;
 };
 
-#endif // KIS_SPLASH_SCREEN_H
+#endif

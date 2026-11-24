@@ -33,8 +33,6 @@ void KoPathControlPointMoveStrategy::handleMouseMove(const QPointF &mouseLocatio
     QPointF docPoint = m_tool->canvas()->snapGuide()->snap(mouseLocation, modifiers);
     QPointF localPos = m_path->documentToShape(docPoint);
     QPointF move = localPos - m_path->documentToShape(m_lastPosition);
-    // as the last position can change when the top left is changed we have
-    // to save it in document pos and not in shape pos
     m_lastPosition = docPoint;
 
     m_move += move;

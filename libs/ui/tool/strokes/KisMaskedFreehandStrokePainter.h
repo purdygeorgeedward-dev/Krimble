@@ -26,13 +26,10 @@ class KisRunnableStrokeJobData;
 class KisPaintOpPreset;
 typedef QSharedPointer<KisPaintOpPreset> KisPaintOpPresetSP;
 
-
 class KRITAUI_EXPORT KisMaskedFreehandStrokePainter
 {
 public:
     KisMaskedFreehandStrokePainter(KisFreehandStrokeInfo *strokeData, KisFreehandStrokeInfo *maskData);
-
-    // painter overrides
 
     KisPaintOpPresetSP preset() const;
 
@@ -57,8 +54,6 @@ public:
     void drawPainterPath(const QPainterPath& path, const QPen& pen);
     void drawAndFillPainterPath(const QPainterPath& path, const QPen& pen, const KoColor &customColor);
 
-    // paintop overrides
-
     std::pair<int, bool> doAsynchronousUpdate(QVector<KisRunnableStrokeJobData*> &jobs);
     bool hasDirtyRegion() const;
     QVector<QRect> takeDirtyRegion();
@@ -74,4 +69,4 @@ private:
     KisFreehandStrokeInfo *m_mask = 0;
 };
 
-#endif // KISMASKEDPAINTINGSTROKEDATA_H
+#endif

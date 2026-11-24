@@ -38,8 +38,6 @@ private:
     void endShape() override;
 };
 
-
-
 class KisToolSelectPolygonalFactory : public KisSelectionToolFactoryBase
 {
 public:
@@ -71,8 +69,7 @@ public:
         return actions;
     }
 
-
 };
 
-#endif //__selecttoolpolygonal_h__
+#endif
 

@@ -15,9 +15,6 @@
 
 class KoGroupButton;
 
-/**
- * @brief Provides a list of consecutive tool buttons
- */
 class KRITAWIDGETUTILS_EXPORT KisOptionButtonStrip : public QWidget
 {
     Q_OBJECT

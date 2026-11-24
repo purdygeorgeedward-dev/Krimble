@@ -112,7 +112,6 @@ void KoPluginLoaderTest::testLoadAll()
         qDebug() << ppVar(expectedIds);
     }
 
-
     QCOMPARE(childrenIds, expectedIds);
 }
 

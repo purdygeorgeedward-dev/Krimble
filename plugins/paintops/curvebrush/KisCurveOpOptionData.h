@@ -7,12 +7,10 @@
 #ifndef KIS_CURVEOP_OPTION_DATA_H
 #define KIS_CURVEOP_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
 class KisPropertiesConfiguration;
-
 
 struct KisCurveOpOptionData : boost::equality_comparable<KisCurveOpOptionData>
 {
@@ -24,7 +22,6 @@ struct KisCurveOpOptionData : boost::equality_comparable<KisCurveOpOptionData>
 			&& lhs.curve_curves_opacity == rhs.curve_curves_opacity;
     }
 
-
 	bool curve_paint_connection_line {false};
     bool curve_smoothing {false};
     int curve_stroke_history_size {30};
@@ -35,4 +32,4 @@ struct KisCurveOpOptionData : boost::equality_comparable<KisCurveOpOptionData>
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_CURVEOP_OPTION_DATA_H
+#endif

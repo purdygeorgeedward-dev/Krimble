@@ -13,13 +13,10 @@
 
 namespace KoGradientHelper
 {
-/// creates default gradient
 KRITAFLAKE_EXPORT QGradient *defaultGradient(QGradient::Type type, QGradient::Spread spread, const QGradientStops &stops);
 
-/// Converts gradient type, preserving as much data as possible
 KRITAFLAKE_EXPORT QGradient *convertGradient(const QGradient *gradient, QGradient::Type newType);
 
-/// Calculates color at given position from given gradient stops
 KRITAFLAKE_EXPORT QColor colorAt(qreal position, const QGradientStops &stops);
 }
 

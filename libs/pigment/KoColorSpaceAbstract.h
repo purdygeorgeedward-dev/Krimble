@@ -24,16 +24,6 @@
 #include "KoAlphaMaskApplicatorFactory.h"
 #include "KoColorModelStandardIdsUtils.h"
 
-/**
- * This in an implementation of KoColorSpace which can be used as a base for colorspaces with as many
- * different channels of the same type.
- *
- * The template parameters must be a class which inherits KoColorSpaceTrait (or a class with the same signature).
- *
- * SOMETYPE is the type of the channel for instance (quint8, quint32...),
- * SOMENBOFCHANNELS is the number of channels including the alpha channel
- * SOMEALPHAPOS is the position of the alpha channel in the pixel (can be equal to -1 if no alpha channel).
- */
 template<class _CSTrait>
 class KoColorSpaceAbstract : public KoColorSpace
 {
@@ -61,7 +51,6 @@ public:
     quint32 alphaPos() const override {
         return _CSTrait::alpha_pos;
     }
-
 
     quint32 pixelSize() const override {
         return _CSTrait::pixelSize;
@@ -140,9 +129,6 @@ public:
         m_alphaMaskApplicator->fillGrayBrushWithColor(dst, brush, brushColor, nPixels);
     }
 
-    /**
-     * By default this does the same as toQColor
-     */
     void toQColor16(const quint8 *src, QColor *c) const override {
         this->toQColor(src, c);
     }
@@ -150,9 +136,6 @@ public:
     quint8 intensity8(const quint8 * src) const override {
         QColor c;
         const_cast<KoColorSpaceAbstract<_CSTrait> *>(this)->toQColor(src, &c);
-        // Integer version of:
-        //      static_cast<quint8>(qRound(c.red() * 0.30 + c.green() * 0.59 + c.blue() * 0.11))
-        // The "+ 50" is used for rounding
         return static_cast<quint8>((c.red() * 30 + c.green() * 59 + c.blue() * 11 + 50) / 100);
     }
 
@@ -218,4 +201,4 @@ private:
     QScopedPointer<KoAlphaMaskApplicatorBase> m_alphaMaskApplicator;
 };
 
-#endif // KOCOLORSPACEABSTRACT_H
+#endif

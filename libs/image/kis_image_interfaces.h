@@ -16,7 +16,6 @@ class KisStrokeStrategy;
 class KisStrokeJobData;
 class KisPostExecutionUndoAdapter;
 
-
 class KRITAIMAGE_EXPORT KisStrokesFacade
 {
 public:
@@ -75,4 +74,4 @@ public:
     virtual const KUndo2Command* lastExecutedCommand() const = 0;
 };
 
-#endif /* __KIS_IMAGE_INTERFACES_H */
+#endif

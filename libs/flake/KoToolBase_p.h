@@ -14,7 +14,7 @@
 #include <QHash>
 #include <QWidget>
 #include <QPointer>
-#include <string.h> // for the qt version check
+#include <string.h>
 
 class QAction;
 class KoToolBase;
@@ -45,7 +45,7 @@ public:
 
     void connectSignals()
     {
-        if (canvas) { // in the case of KoToolManagers dummy tool it can be zero :(
+        if (canvas) {
             KoCanvasResourceProvider * crp = canvas->resourceManager();
             Q_ASSERT_X(crp, "KoToolBase::KoToolBase", "No Canvas KoResourceManager");
             if (crp)
@@ -65,17 +65,17 @@ public:
         QHash<int, KoDerivedResourceConverterSP> converters;
     };
 
-    QList<QPointer<QWidget> > optionWidgets; ///< the optionwidgets associated with this tool
+    QList<QPointer<QWidget> > optionWidgets;
     bool optionWidgetsCreated {false};
     QCursor currentCursor;
     KoToolBase *q;
     KoToolFactoryBase *factory {0};
-    KoCanvasBase *canvas; ///< the canvas interface this tool will work for.
+    KoCanvasBase *canvas;
     bool isInTextMode;
-    bool maskSyntheticEvents{false}; ///< Whether this tool masks synthetic events
+    bool maskSyntheticEvents{false};
     bool isActivated;
     QRectF lastDecorationsRect;
-    bool isOpacityPresetMode{false}; ///< Whether the opacity is preset or tool
+    bool isOpacityPresetMode{false};
     ToolCanvasResources toolCanvasResources;
 
 };

@@ -9,7 +9,6 @@
 
 #include "KisColorSmudgeStrategyMask.h"
 
-
 class KisColorSmudgeStrategyMaskLegacy : public KisColorSmudgeStrategyMask
 {
 public:
@@ -30,5 +29,4 @@ public:
     qreal smearRateOpacity(qreal opacity, qreal smudgeRateValue) override;
 };
 
-
-#endif //KRITA_KISCOLORSMUDGESTRATEGYMASKLEGACY_H
+#endif

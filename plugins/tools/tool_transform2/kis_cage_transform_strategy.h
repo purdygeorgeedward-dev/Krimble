@@ -19,7 +19,6 @@ class ToolTransformArgs;
 class TransformTransactionProperties;
 class QImage;
 
-
 class KisCageTransformStrategy : public KisWarpTransformStrategy
 {
     Q_OBJECT
@@ -47,4 +46,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_CAGE_TRANSFORM_STRATEGY_H */
+#endif

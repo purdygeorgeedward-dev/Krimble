@@ -57,7 +57,6 @@ void KisLevelFilterBenchmark::cleanupTestCase()
 void KisLevelFilterBenchmark::benchmarkFilter()
 {
     KisFilterSP filter = KisFilterRegistry::instance()->value("levels");
-    //KisFilterConfigurationSP  kfc = filter->defaultConfiguration(m_device);
 
     KisColorTransformationConfiguration * kfc= new KisColorTransformationConfiguration("levels", 1, KisGlobalResourcesInterface::instance());
 
@@ -66,7 +65,6 @@ void KisLevelFilterBenchmark::benchmarkFilter()
     kfc->setProperty("gammavalue", 1.0);
     kfc->setProperty("outblackvalue", 0);
     kfc->setProperty("outwhitevalue", 255);
-    // Get the predefined configuration from a file
     QFile file(QString(FILES_DATA_DIR) + '/' + filter->id() + ".cfg");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -93,7 +91,5 @@ void KisLevelFilterBenchmark::benchmarkFilter()
         }
     }
 }
-
-
 
 SIMPLE_TEST_MAIN(KisLevelFilterBenchmark)

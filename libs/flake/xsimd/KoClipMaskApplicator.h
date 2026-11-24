@@ -69,6 +69,6 @@ struct KoClipMaskApplicator<_impl,
     }
 };
 
-#endif /* !defined(XSIMD_NO_SUPPORTED_ARCHITECTURE) && !defined(DISABLE_CLIP_MASK_PAINTER_ON_MACOS) */
+#endif
 
-#endif // KOCLIPMASKAPPLICATOR_H
+#endif

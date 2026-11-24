@@ -1,5 +1,3 @@
-// Draws the Batch Process window offscreen (upright and sideways) and runs it on the pictures given, saving the results into a folder.
-// Usage: batch_dialog OUTDIR WIDTH HEIGHT picture...   (pictures are optional)
 #include "KrimbleBatchDialog.h"
 #include <QApplication>
 #include <QDir>
@@ -38,7 +36,7 @@ int main(int argc, char **argv)
     }
     dialog.resize(w, h);
     dialog.show();
-    for (int i = 0; i < 5; ++i) app.processEvents();   // the layout settles (the scroll bar appears after the first layout)
+    for (int i = 0; i < 5; ++i) app.processEvents();
     dialog.grab().save(outDir + "/dialog.png");
     if (!pictures.isEmpty()) {
         dialog.runOn(pictures);

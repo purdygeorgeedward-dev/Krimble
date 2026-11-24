@@ -39,9 +39,9 @@ public:
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
 
-public: // KoResourceServerObserver
+public:
     void unsetResourceServer() override;
-    void resourceAdded(KoGamutMaskSP /*resource*/) override {}
+    void resourceAdded(KoGamutMaskSP ) override {}
     void removingResource(KoGamutMaskSP resource) override;
     void resourceChanged(KoGamutMaskSP resource) override;
 
@@ -103,5 +103,4 @@ private:
     KisView* m_view {nullptr};
 };
 
-
-#endif // H_GAMUT_MASK_DOCK_H
+#endif

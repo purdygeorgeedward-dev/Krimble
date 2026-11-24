@@ -42,14 +42,7 @@ static int gethostname(char *__name, size_t __len) {
 }
 #endif
 
-
 #define environ _environ
-
-/*
-#define _IFMT  0170000 // type of file
-#define _IFDIR 0040000 // directory
-#define S_ISDIR(m) (((m)&_IFMT) == _IFDIR)
-*/
 
 #define S_ISUID 0004000
 #define S_IRWXU 0000700
@@ -70,14 +63,14 @@ static int gethostname(char *__name, size_t __len) {
 #define PATH_SEPARATOR '\\'
 
 #if defined(_MSC_VER)  &&  !defined(S_IREAD)
-#   define S_IFMT   _S_IFMT                     /* File type mask */
-#   define S_IFDIR  _S_IFDIR                    /* Directory */
-#   define S_IFCHR  _S_IFCHR                    /* Character device */
-#   define S_IFFIFO _S_IFFIFO                   /* Pipe */
-#   define S_IFREG  _S_IFREG                    /* Regular file */
-#   define S_IREAD  _S_IREAD                    /* Read permission */
-#   define S_IWRITE _S_IWRITE                   /* Write permission */
-#   define S_IEXEC  _S_IEXEC                    /* Execute permission */
+#   define S_IFMT   _S_IFMT
+#   define S_IFDIR  _S_IFDIR
+#   define S_IFCHR  _S_IFCHR
+#   define S_IFFIFO _S_IFFIFO
+#   define S_IFREG  _S_IFREG
+#   define S_IREAD  _S_IREAD
+#   define S_IWRITE _S_IWRITE
+#   define S_IEXEC  _S_IEXEC
 #endif
 
 #define S_IFFIFO 0
@@ -103,7 +96,6 @@ static int gethostname(char *__name, size_t __len) {
 #define	S_ISCHR(mode)  (((mode) & S_IFMT) == S_IFCHR)
 #define	S_ISBLK(mode)  (((mode) & S_IFMT) == S_IFBLK)
 #endif
-
 
 #define	F_OK	0
 #define	R_OK	4
@@ -131,14 +123,11 @@ typedef unsigned int gid_t;
 typedef unsigned int uid_t;
 
 #if defined(__MINGW64__) && defined(_WIN64)
-/* MINGW_EXTENSION */
 typedef long long int pid_t;
-/* "long long int" is an alternative to __int64 */
 #else
 typedef int mode_t;
 typedef int pid_t;
 #endif
-
 
 #define getgroups(x,y) 0
 
@@ -162,7 +151,6 @@ static int readlink(const char *__path, char *__buf, int __buflen)
       return -1;
     }
     if (access(__path, R_OK) == 0) {
-      /* ok, copy to buf */
       strncpy(__buf,__path,__buflen);
       errno = 0;
       return 0;
@@ -170,7 +158,6 @@ static int readlink(const char *__path, char *__buf, int __buflen)
     errno = ENOENT;
     return -1;
 }
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -181,8 +168,7 @@ int unsetenv (const char *name);
 #endif
 
 }
-#endif  /* __cplusplus */
-
+#endif
 
 static int sleep(unsigned int sec) {
 	Sleep(sec*1000);

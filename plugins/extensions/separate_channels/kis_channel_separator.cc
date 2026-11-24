@@ -21,7 +21,6 @@
 #include <kis_debug.h>
 #include <kpluginfactory.h>
 
-
 #include <KisImportExportManager.h>
 #include <KoUpdater.h>
 #include <KoFileDialog.h>
@@ -60,10 +59,8 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
 
     KisPaintDeviceSP src;
 
-    // Use the flattened image, if required
     switch (sourceOps) {
     case ALL_LAYERS:
-        // the content will be locked later
         src = image->projection();
         break;
     case CURRENT_LAYER:
@@ -84,17 +81,11 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
     const QList<KoChannelInfo *> channels = srcCs->channels();
     vKisPaintDeviceSP paintDevices;
 
-    /**
-     * We should process the entire image, even when its pixels are
-     * transparent, because we might be pulling colors from under a
-     * zero-alpha channel.
-     */
     const QRect rect = image->bounds();
 
     KisImageBarrierLock lock(image);
     int i = 0;
     for (QList<KoChannelInfo *>::const_iterator it =  channels.constBegin(); it != channels.constEnd(); ++it) {
-
 
         KoChannelInfo *ch = (*it);
 
@@ -110,7 +101,6 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
 
         KisPaintDeviceSP dev;
         if (channelToColor) {
-            // We don't downscale if we separate to color channels
             dev = new KisPaintDevice(srcCs);
         } else {
             if (channelSize == 1 || downscale) {
@@ -140,12 +130,8 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
                     }
                 } else {
 
-                    // To grayscale
-
-                    // Decide whether we need downscaling
                     if (channelSize == 1 && destSize == 1) {
 
-                        // Both 8-bit channels
                         dstIt->rawData()[0] = srcIt->oldRawData()[channelPos];
 
                         if (alphaOps == COPY_ALPHA_TO_SEPARATIONS) {
@@ -155,7 +141,6 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
                         }
                     } else if (channelSize == 2 && destSize == 2) {
 
-                        // Both 16-bit
                         dstIt->rawData()[0] = srcIt->oldRawData()[channelPos];
                         dstIt->rawData()[1] = srcIt->oldRawData()[channelPos + 1];
 
@@ -165,12 +150,10 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
                             dstCs->setOpacity(dstIt->rawData(), OPACITY_OPAQUE_U8, 1);
                         }
                     } else if (channelSize != 1 && destSize == 1) {
-                        // Downscale
                         memset(dstIt->rawData(), srcCs->scaleToU8(srcIt->oldRawData(), channelPos), 1);
 
                         dstCs->setOpacity(dstIt->rawData(), OPACITY_OPAQUE_U8, 1);
                     } else if (channelSize != 2 && destSize == 2) {
-                        // Upscale
                         dstIt->rawData()[0] = srcCs->scaleToU8(srcIt->oldRawData(), channelPos);
 
                         dstCs->setOpacity(dstIt->rawData(), OPACITY_OPAQUE_U8, 1);
@@ -200,7 +183,6 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
 
             KoChannelInfo *ch = (*it);
             if (ch->channelType() == KoChannelInfo::ALPHA && alphaOps != CREATE_ALPHA_SEPARATION) {
-                // Don't make an separate separation of the alpha channel if the user didn't ask for it.
                 continue;
             }
 
@@ -224,6 +206,5 @@ void KisChannelSeparator::separate(KoUpdater * progressUpdater, enumSepAlphaOpti
     }
 
     progressUpdater->setProgress(100);
-
 
 }

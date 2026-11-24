@@ -24,4 +24,4 @@ private:
     QStringList m_families;
 };
 
-#endif // KIS_FONT_FAMILY_VALIDATOR_H
+#endif

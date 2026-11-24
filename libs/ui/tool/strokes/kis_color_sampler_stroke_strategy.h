@@ -31,7 +31,7 @@ public:
 
         KisPaintDeviceSP dev;
         QPoint pt;
-        KoColor currentColor; // Used for color sampler blending.
+        KoColor currentColor;
     };
 
     class FinalizeData : public KisStrokeJobData {
@@ -60,4 +60,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_COLOR_SAMPLER_STROKE_STRATEGY_H */
+#endif

@@ -26,7 +26,7 @@ class KisStoragePluginFactoryBase
 {
 public:
     virtual ~KisStoragePluginFactoryBase(){}
-    virtual KisStoragePlugin *create(const QString &/*location*/) { return 0; }
+    virtual KisStoragePlugin *create(const QString & ) { return 0; }
 };
 
 template<typename T>
@@ -41,18 +41,10 @@ public:
 class KisResourceStorage;
 typedef QSharedPointer<KisResourceStorage> KisResourceStorageSP;
 
-
-/**
- * The KisResourceStorage class is the base class for
- * places where resources can be stored. Examples are
- * folders, bundles or Adobe resource libraries like
- * ABR files.
- */
 class KRITARESOURCES_EXPORT KisResourceStorage
 {
 public:
 
-    /// A resource item is simply an entry in the storage,
     struct ResourceItem {
 
         virtual ~ResourceItem() {}
@@ -67,10 +59,8 @@ public:
     public:
         virtual ~TagIterator() {}
         virtual bool hasNext() const = 0;
-        /// The iterator is only valid if next() has been called at least once.
         virtual void next() = 0;
 
-        /// A tag object on which we can set properties and which we can save
         virtual KisTagSP tag() const = 0;
     };
 
@@ -81,7 +71,6 @@ public:
         virtual ~ResourceIterator() {}
 
         virtual bool hasNext() const = 0;
-        /// The iterator is only valid if next() has been called at least once.
         virtual void next() = 0;
 
         virtual QString url() const = 0;
@@ -93,7 +82,6 @@ public:
         KoResourceSP resource() const;
 
     protected:
-        /// This only loads the resource when called
         virtual KoResourceSP resourceImpl() const = 0;
 
     private:
@@ -132,7 +120,6 @@ public:
         }
     }
 
-
     static QString storageTypeToUntranslatedString(StorageType storageType) {
         switch (storageType) {
         case StorageType::Unknown:
@@ -154,7 +141,6 @@ public:
         }
     }
 
-
     KisResourceStorage(const QString &location, KisResourceStorage::StorageType storageType);
     KisResourceStorage(const QString &location);
     ~KisResourceStorage();
@@ -162,87 +148,44 @@ public:
     KisResourceStorage &operator=(const KisResourceStorage &rhs);
     KisResourceStorageSP clone() const;
 
-    /// The filename of the storage if it's a bundle or Adobe Library. This can
-    /// also be empty (for the folder storage) or "memory" for the storage for
-    /// temporary resources, a UUID for storages associated with documents.
     QString name() const;
 
-    /// The absolute location of the storage
     QString location() const;
 
-    /// true if the storage exists and can be used
     bool valid() const;
 
-    /// The type of the storage
     StorageType type() const;
 
-    /// The icond for the storage
     QImage thumbnail() const;
 
-    /// The time and date when the storage was last modified, or created
-    /// for memory storages.
     QDateTime timestamp() const;
 
-    /// The time and date when the resource was last modified
-    /// For filestorage
     QDateTime timeStampForResource(const QString &resourceType, const QString &filename) const;
 
-    /// And entry in the storage; this is not the loaded resource
     ResourceItem resourceItem(const QString &url);
 
-    /// The loaded resource for an entry in the storage
     KoResourceSP resource(const QString &url);
 
-    /// The MD5 checksum of the resource in the storage
     QString resourceMd5(const QString &url);
 
-    /// If the resource is present on the filesystem as a distinct fine,
-    /// returns the full file path of it, otherwise returns an empty string.
-    ///
-    /// Never manipulate the file in any way directly! It will destroy the
-    /// resources database. Use this file path only for informational purposes.
     QString resourceFilePath(const QString &url);
 
-    /// An iterator over all the resources in the storage
     QSharedPointer<ResourceIterator> resources(const QString &resourceType) const;
 
-    /// An iterator over all the tags in the resource
     QSharedPointer<TagIterator> tags(const QString &resourceType) const;
 
-    /// Adds a tag to the storage, however, it does not store the links between
-    /// tags and resources.
     bool addTag(const QString &resourceType, KisTagSP tag);
 
-    /// Creates a new version of the given resource.
     bool saveAsNewVersion(KoResourceSP resource);
 
-    /// Adds the given resource to the storage. If there is already a resource
-    /// with the given filename of the given type, this should return false and
-    /// saveAsNewVersion should be used.
     bool addResource(KoResourceSP resource);
 
-    /**
-     * Copies the given file into this storage. Implementations should not overwrite
-     * an existing resource with the same filename, but return false.
-     *
-     * @param url is the URL of the resource inside the storage, which is usually
-     *            resource_type/resource_filename.ext
-     */
     bool importResource(const QString &url, QIODevice *device);
 
-    /**
-     * Copies the given resource from the storage into \p device
-     *
-     * @param url is the URL of the resource inside the storage, which is usually
-     *            resource_type/resource_filename.ext
-     */
     bool exportResource(const QString &url, QIODevice *device);
 
-    /// Returns true if the storage supports versioning of the resources.
-    /// It enables loadVersionedResource() call.
     bool supportsVersioning() const;
 
-    /// Reloads the given resource from the persistent storage
     bool loadVersionedResource(KoResourceSP resource);
 
     static const QString s_xmlns_meta;
@@ -284,8 +227,6 @@ private:
     class Private;
     QScopedPointer<Private> d;
 };
-
-
 
 inline QDebug operator<<(QDebug dbg, const KisResourceStorageSP storage)
 {
@@ -350,7 +291,6 @@ public:
 
     static void detectFileVersions(QVector<VersionedResourceEntry> &allFiles);
 
-
 };
 
 class KisVersionedStorageIterator : public KisResourceStorage::ResourceIterator
@@ -385,5 +325,4 @@ protected:
     bool m_isStarted = false;
 };
 
-
-#endif // KISRESOURCESTORAGE_H
+#endif

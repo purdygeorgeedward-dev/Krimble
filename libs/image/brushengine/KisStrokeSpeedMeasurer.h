@@ -14,7 +14,6 @@
 
 class QPointF;
 
-
 class KRITAIMAGE_EXPORT KisStrokeSpeedMeasurer
 {
 public:
@@ -38,4 +37,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSTROKESPEEDMEASURER_H
+#endif

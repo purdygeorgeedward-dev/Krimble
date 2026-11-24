@@ -10,7 +10,6 @@
 #include "kis_pixel_selection.h"
 #include <testutil.h>
 
-
 #include <simpletest.h>
 
 void KisLayerStyleFilterEnvironmentTest::testRandomSelectionCaching()

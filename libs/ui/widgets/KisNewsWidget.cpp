@@ -38,13 +38,11 @@ void KisNewsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     doc.setHtml(optionCopy.text);
     doc.setTextWidth(optionCopy.rect.width());
 
-    /// Painting item without text
     optionCopy.text = QString();
     style->drawControl(QStyle::CE_ItemViewItem, &optionCopy, painter);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
 
-    // Highlighting text if item is selected
     QColor textColor;
     if (optionCopy.state & QStyle::State_Selected) {
         textColor = optionCopy.palette.color(QPalette::Active, QPalette::HighlightedText);
@@ -115,8 +113,6 @@ bool KisNewsWidget::eventFilter(QObject *watched, QEvent *event)
 
 void KisNewsWidget::toggleNewsLanguage(QString langCode, bool enabled)
 {
-    // Sanity check: Since the code is adding the language code directly into
-    // the URL, this prevents any nasty surprises with malformed URLs.
     Q_FOREACH(const char &ch, langCode.toLatin1()) {
         bool isValidChar = ((ch >= 'a' && ch <= 'z') || ch == '-' || ch == '@');
         if (!isValidChar) {
@@ -160,12 +156,10 @@ void KisNewsWidget::itemSelected(const QModelIndex &idx)
     if (idx.isValid()) {
         QString link = idx.data(KisRssReader::RssRoles::LinkRole).toString();
 
-        // append query string for analytics tracking if we set it
         if (m_analyticsTrackingParameters != "") {
 
-            // use title in analytics query string
             QString linkTitle = idx.data(KisRssReader::RssRoles::TitleRole).toString();
-            linkTitle = linkTitle.simplified(); // trims and makes 1 white space
+            linkTitle = linkTitle.simplified();
             linkTitle = linkTitle.replace(" ", "");
 
             m_analyticsTrackingParameters = m_analyticsTrackingParameters.append(linkTitle);
@@ -174,7 +168,6 @@ void KisNewsWidget::itemSelected(const QModelIndex &idx)
         } else {
             QDesktopServices::openUrl(QUrl(link));
         }
-
 
     }
 }

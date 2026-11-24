@@ -13,7 +13,6 @@
 
 #include <kundo2command.h>
 
-
 class KRITAIMAGE_EXPORT KisSimpleModifyTransformMaskCommand : public KUndo2Command
 {
 public:
@@ -42,4 +41,4 @@ private:
     std::vector<std::unique_ptr<KUndo2Command>> m_undoCommands;
 };
 
-#endif // KISSIMPLEMODIFYTRANSFORMMASKCOMMAND_H
+#endif

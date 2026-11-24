@@ -12,12 +12,6 @@
 class KUndo2Stack;
 class KUndo2MagicString;
 
-
-/**
- * KisSurrogateUndoAdapter -- saves commands directly to the
- * internal stack. Used for wrapping around legacy code into
- * a single command.
- */
 class KRITACOMMAND_EXPORT KisSurrogateUndoStore : public KisUndoStore
 {
 public:
@@ -44,10 +38,6 @@ private:
     KUndo2Stack *m_undoStack;
 };
 
-/**
- * @brief The KisDumbUndoStore class doesn't actually save commands,
- * so you cannot undo or redo!
- */
 class KRITACOMMAND_EXPORT KisDumbUndoStore : public KisUndoStore
 {
 public:
@@ -59,4 +49,4 @@ public:
     void purgeRedoState() override;
 };
 
-#endif /* __KIS_UNDO_STORES_H */
+#endif

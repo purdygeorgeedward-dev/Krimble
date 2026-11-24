@@ -16,8 +16,6 @@
 #include <QObject>
 #include <QLineF>
 
-
-
 class InfiniteRulerAssistant : public RulerAssistant
 {
 public:
@@ -31,20 +29,18 @@ public:
 
 protected:
     void drawAssistant(QPainter& gc, const QRectF& updateRect, const KisCoordinatesConverter* converter, const KoColorDisplayRendererInterface *displayRendererInterface, bool  cached = true,KisCanvas2* canvas=0, bool assistantVisible=true, bool previewVisible=true) override;
-    
+
 private:
     QPointF project(const QPointF& pt, const QPointF& strokeBegin, const bool checkForInitialMovement, qreal moveThresholdPt);
     explicit InfiniteRulerAssistant(const InfiniteRulerAssistant &rhs, QMap<KisPaintingAssistantHandleSP, KisPaintingAssistantHandleSP> &handleMap);
-  
+
     void drawSubdivisions(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface);
-    
-    // Helper struct for clipLineParametric's return type
+
     struct ClippingResult {
         bool intersects;
         qreal tmin;
         qreal tmax;
     };
-    // Like KisAlgebra2D::clipLineRect, but returns the parametric positions
     static ClippingResult clipLineParametric(QLineF line, QRectF rect, bool extendFirst=true, bool extendSecond=true);
 };
 

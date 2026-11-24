@@ -24,7 +24,6 @@ class TransformTransactionProperties;
 class KisUpdatesFacade;
 class KisDecoratedNodeInterface;
 
-
 class TransformStrokeStrategy : public QObject, public KisStrokeStrategyUndoCommandBased
 {
     Q_OBJECT
@@ -36,7 +35,6 @@ public:
 
         ToolTransformArgs config;
     };
-
 
     class TransformData : public KisStrokeJobData {
     public:
@@ -80,7 +78,7 @@ public:
     class CalculateConvexHullData : public KisStrokeJobData {
     public:
         CalculateConvexHullData()
-            : KisStrokeJobData(SEQUENTIAL, NORMAL) // Is this right?
+            : KisStrokeJobData(SEQUENTIAL, NORMAL)
         {}
     };
 
@@ -157,4 +155,4 @@ private:
     bool m_convexHullHasBeenCalculated = false;
 };
 
-#endif /* __TRANSFORM_STROKE_STRATEGY_H */
+#endif

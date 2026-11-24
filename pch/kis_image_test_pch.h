@@ -4,4 +4,4 @@
 #include "kis_image_pch.h"
 #include <QTest>
 
-#endif // KIS_IMAGE_TEST_PCH_H
+#endif

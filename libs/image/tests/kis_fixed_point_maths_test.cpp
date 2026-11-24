@@ -10,7 +10,6 @@
 
 #include "kis_fixed_point_maths.h"
 
-
 void KisFixedPointMathsTest::testOperators()
 {
     KisFixedPoint fp1(1);

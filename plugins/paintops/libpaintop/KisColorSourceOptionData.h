@@ -6,7 +6,6 @@
 #ifndef KISCOLORSOURCEOPTIONDATA_H
 #define KISCOLORSOURCEOPTIONDATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 #include <kritapaintop_export.h>
@@ -38,4 +37,4 @@ struct PAINTOP_EXPORT KisColorSourceOptionData : boost::equality_comparable<KisC
     static Type id2Type(const KoID &id);
 };
 
-#endif // KISCOLORSOURCEOPTIONDATA_H
+#endif

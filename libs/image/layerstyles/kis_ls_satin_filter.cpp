@@ -8,7 +8,6 @@
 
 #include <cstdlib>
 
-
 #include <resources/KoAbstractGradient.h>
 
 #include "psd.h"
@@ -28,7 +27,6 @@
 #include "kis_ls_utils.h"
 #include "kis_layer_style_filter_environment.h"
 #include "kis_cached_paint_device.h"
-
 
 KisLsSatinFilter::KisLsSatinFilter()
     : KisLayerStyleFilter(KoID("lssatin", i18n("Satin (style)")))
@@ -62,7 +60,6 @@ struct SatinRectsData
         blur_size = shadow->size();
         offset = shadow->calculateOffset(context);
 
-        // need rect calculation in reverse order
         dstRect = applyRect;
 
         srcRect = dstRect;
@@ -80,7 +77,6 @@ struct SatinRectsData
     }
 
     inline QRect finalChangeRect() const {
-        // TODO: is it correct?
         return blurNeedRect;
     }
 
@@ -117,8 +113,6 @@ void blendAndOffsetSatinSelection(KisPixelSelectionSP dstSelection,
     }
 }
 
-//#include "kis_paint_device_debug_utils.h"
-
 void KisLsSatinFilter::applySatin(KisPaintDeviceSP srcDevice,
                                   KisMultipleProjection *dst,
                                   const QRect &applyRect,
@@ -141,30 +135,19 @@ void KisLsSatinFilter::applySatin(KisPaintDeviceSP srcDevice,
     KisPixelSelectionSP tempSelection = s2.selection()->pixelSelection();
     tempSelection->makeCloneFromRough(selection, selection->selectedRect());
 
-    //KIS_DUMP_DEVICE_2(tempSelection, QRect(0,0,64,64), "00_selection", "dd");
-
     KisLsUtils::applyGaussianWithTransaction(tempSelection, d.satinNeedRect, d.blur_size);
 
-    //KIS_DUMP_DEVICE_2(tempSelection, QRect(0,0,64,64), "01_gauss", "dd");
-
-    /**
-     * Contour correction
-     */
     KisLsUtils::applyContourCorrection(tempSelection,
                                        d.satinNeedRect,
                                        config->contourLookupTable(),
                                        config->antiAliased(),
                                        config->edgeHidden());
 
-    //KIS_DUMP_DEVICE_2(tempSelection, QRect(0,0,64,64), "02_contour", "dd");
-
     blendAndOffsetSatinSelection(selection,
                                  tempSelection,
                                  config->invert(),
                                  d.offset,
                                  d.dstRect);
-
-    //KIS_DUMP_DEVICE_2(selection, QRect(0,0,64,64), "03_blended", "dd");
 
     KisLsUtils::applyFinalSelection(KisMultipleProjection::defaultProjectionId(),
                                     baseSelection,

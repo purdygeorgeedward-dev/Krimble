@@ -34,4 +34,4 @@ private:
     int m_radius;
 };
 
-#endif // DLG_GROW_SELECTION_H
+#endif

@@ -9,7 +9,6 @@
 
 #include <simpletest.h>
 
-
 class FilterStrokeTest : public QObject
 {
     Q_OBJECT
@@ -18,4 +17,4 @@ private Q_SLOTS:
     void testBlurFilter();
 };
 
-#endif /* __FILTER_STROKE_TEST_H */
+#endif

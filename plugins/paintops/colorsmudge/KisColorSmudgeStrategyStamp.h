@@ -31,5 +31,4 @@ private:
     DabColoringStrategyStamp m_coloringStrategy;
 };
 
-
-#endif //KRITA_KISCOLORSMUDGESTRATEGYSTAMP_H
+#endif

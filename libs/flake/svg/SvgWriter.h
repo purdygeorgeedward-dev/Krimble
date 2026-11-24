@@ -28,23 +28,17 @@ class KoPathShape;
 class QIODevice;
 class QString;
 
-/// Implements exporting shapes to SVG
 class KRITAFLAKE_EXPORT SvgWriter
 {
 public:
-    /// Creates svg writer to export specified layers
     SvgWriter(const QList<KoShapeLayer*> &layers);
 
-    /// Creates svg writer to export specified shapes
     SvgWriter(const QList<KoShape*> &toplevelShapes);
 
-    /// Destroys the svg writer
     virtual ~SvgWriter();
 
-    /// Writes svg to specified output device
     bool save(QIODevice &outputDevice, const QSizeF &pageSize);
 
-    /// Writes svg to the specified file
     bool save(const QString &filename, const QSizeF &pageSize, bool writeInlineImages);
 
     bool saveDetached(QIODevice &outputDevice);
@@ -69,4 +63,4 @@ private:
     QString m_documentDescription;
 };
 
-#endif // SVGWRITER_H
+#endif

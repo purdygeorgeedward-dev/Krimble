@@ -11,14 +11,14 @@
 #include <psd_utils.h>
 
 struct Header {
-    char signature[4]; // 8PBS
-    char version[2]; // 1 or 2
+    char signature[4];
+    char version[2];
     char padding[6];
-    char nChannels[2]; // 1 - 56
-    char height[4]; // 1-30,000 or 1 - 300,000
-    char width[4]; // 1-30,000 or 1 - 300,000
-    char channelDepth[2]; // 1, 8, 16
-    char colormode[2]; // 0-9
+    char nChannels[2];
+    char height[4];
+    char width[4];
+    char channelDepth[2];
+    char colormode[2];
 };
 
 PSDHeader::PSDHeader()
@@ -105,7 +105,7 @@ bool PSDHeader::valid()
             error = QString("Width out of range: %1").arg(width);
             return false;
         }
-    } else /* if (version == 2) */ {
+    } else {
         if (height < 1 || height > 300000) {
             error = QString("Height out of range: %1").arg(height);
             return false;

@@ -96,7 +96,7 @@ KisSegmentGradientEditor::KisSegmentGradientEditor(QWidget *parent)
 
     selectPreviousHandleButton->setAutoRaise(true);
     selectPreviousHandleButton->setDefaultAction(selectPreviousHandleAction);
-    
+
     selectNextHandleButton->setAutoRaise(true);
     selectNextHandleButton->setDefaultAction(selectNextHandleAction);
 
@@ -129,7 +129,7 @@ KisSegmentGradientEditor::KisSegmentGradientEditor(QWidget *parent)
 
     compactModeSelectPreviousHandleButton->setAutoRaise(true);
     compactModeSelectPreviousHandleButton->setDefaultAction(selectPreviousHandleAction);
-    
+
     compactModeSelectNextHandleButton->setAutoRaise(true);
     compactModeSelectNextHandleButton->setDefaultAction(selectNextHandleAction);
 
@@ -222,7 +222,7 @@ void KisSegmentGradientEditor::on_gradientSlider_selectedHandleChanged()
         );
 
         selectedHandleLabel->setText(i18nc("Text that indicates the selected segment in the segment gradient editor", "Segment #%1", handle.index + 1));
-        
+
         segmentLeftEditor->setColorType(KisGradientWidgetsUtils::segmentEndPointTypeToColorType(segment->startType()));
         segmentLeftEditor->setTransparent(segment->startType() == FOREGROUND_TRANSPARENT_ENDPOINT ||
                                           segment->startType() == BACKGROUND_TRANSPARENT_ENDPOINT);
@@ -253,7 +253,7 @@ void KisSegmentGradientEditor::on_gradientSlider_selectedHandleChanged()
         KisSignalsBlocker blocker(stopLeftEditor, stopRightEditor, constrainStopButton, stopPositionSlider);
 
         selectedHandleLabel->setText(i18nc("Text that indicates the selected stop in the segment gradient editor", "Stop #%1", handle.index + 1));
-        
+
         if (previousSegment) {
             stopLeftEditor->setColorType(KisGradientWidgetsUtils::segmentEndPointTypeToColorType(previousSegment->endType()));
             stopLeftEditor->setTransparent(previousSegment->endType() == FOREGROUND_TRANSPARENT_ENDPOINT ||
@@ -269,7 +269,7 @@ void KisSegmentGradientEditor::on_gradientSlider_selectedHandleChanged()
                                             nextSegment->startType() == BACKGROUND_TRANSPARENT_ENDPOINT);
             stopRightEditor->setColor(nextSegment->startColor());
             stopRightEditor->setOpacity(nextSegment->startColor().opacityF() * 100.0);
-        }        
+        }
         stopRightEditor->setEnabled(nextSegment);
 
         if (previousSegment && nextSegment) {
@@ -331,13 +331,12 @@ void KisSegmentGradientEditor::on_segmentLeftEditor_positionChanged(double posit
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Segment) {
         return;
-    } 
+    }
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index];
     KisSegmentGradientSlider::Handle stopHandle{KisSegmentGradientSlider::HandleType_Stop, gradientSlider->selectedHandle().index};
     {
         KisSignalsBlocker blocker(gradientSlider, segmentLeftEditor);
         gradientSlider->moveHandle(stopHandle, position / 100.0 - segment->startOffset());
-        // Set the clamped value
         segmentLeftEditor->setPosition(segment->startOffset() * 100.0);
     }
     Q_EMIT gradientSlider->updateRequested();
@@ -348,7 +347,7 @@ void KisSegmentGradientEditor::on_segmentLeftEditor_colorTypeChanged(KisGradient
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Segment) {
         return;
-    } 
+    }
 
     KoGradientSegmentEndpointType endPointType = KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(type, segmentLeftEditor->transparent());
     KoColor color;
@@ -387,7 +386,7 @@ void KisSegmentGradientEditor::on_segmentLeftEditor_transparentToggled(bool chec
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Segment) {
         return;
-    } 
+    }
     const qreal opacity = checked ? 0.0 : 1.0;
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index];
     segment->setStartType(KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(segmentLeftEditor->colorType(), checked));
@@ -429,13 +428,12 @@ void KisSegmentGradientEditor::on_segmentRightEditor_positionChanged(double posi
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Segment) {
         return;
-    } 
+    }
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index];
     KisSegmentGradientSlider::Handle stopHandle{KisSegmentGradientSlider::HandleType_Stop, gradientSlider->selectedHandle().index + 1};
     {
         KisSignalsBlocker blocker(gradientSlider, segmentLeftEditor);
         gradientSlider->moveHandle(stopHandle, position / 100.0 - segment->endOffset());
-        // Set the clamped value
         segmentLeftEditor->setPosition(segment->startOffset() * 100.0);
     }
     Q_EMIT gradientSlider->updateRequested();
@@ -446,7 +444,7 @@ void KisSegmentGradientEditor::on_segmentRightEditor_colorTypeChanged(KisGradien
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Segment) {
         return;
-    } 
+    }
 
     KoGradientSegmentEndpointType endPointType = KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(type, segmentRightEditor->transparent());
     KoColor color;
@@ -485,7 +483,7 @@ void KisSegmentGradientEditor::on_segmentRightEditor_transparentToggled(bool che
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Segment) {
         return;
-    } 
+    }
     const qreal opacity = checked ? 0.0 : 1.0;
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index];
     segment->setEndType(KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(segmentRightEditor->colorType(), checked));
@@ -549,12 +547,11 @@ void KisSegmentGradientEditor::on_stopPositionSlider_valueChanged(double positio
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Stop) {
         return;
-    } 
+    }
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index];
     {
         KisSignalsBlocker blocker(gradientSlider, stopPositionSlider);
         gradientSlider->moveSelectedHandle(position / 100.0 - segment->startOffset());
-        // Set the clamped value
         stopPositionSlider->setValue(segment->startOffset() * 100.0);
     }
     Q_EMIT gradientSlider->updateRequested();
@@ -565,7 +562,7 @@ void KisSegmentGradientEditor::on_stopLeftEditor_colorTypeChanged(KisGradientWid
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Stop) {
         return;
-    } 
+    }
 
     KoGradientSegmentEndpointType endPointType = KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(type, stopLeftEditor->transparent());
     KoColor color;
@@ -609,7 +606,7 @@ void KisSegmentGradientEditor::on_stopLeftEditor_transparentToggled(bool checked
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Stop) {
         return;
-    } 
+    }
     const qreal opacity = checked ? 0.0 : 1.0;
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index - 1];
     segment->setEndType(KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(stopLeftEditor->colorType(), checked));
@@ -663,7 +660,7 @@ void KisSegmentGradientEditor::on_stopRightEditor_colorTypeChanged(KisGradientWi
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Stop) {
         return;
-    } 
+    }
 
     KoGradientSegmentEndpointType endPointType = KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(type, stopRightEditor->transparent());
     KoColor color;
@@ -706,7 +703,7 @@ void KisSegmentGradientEditor::on_stopRightEditor_transparentToggled(bool checke
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_Stop) {
         return;
-    } 
+    }
     const qreal opacity = checked ? 0.0 : 1.0;
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index];
     segment->setStartType(KisGradientWidgetsUtils::colorTypeToSegmentEndPointType(stopRightEditor->colorType(), checked));
@@ -769,9 +766,9 @@ void KisSegmentGradientEditor::on_midPointPositionSlider_valueChanged(double pos
 {
     if (gradientSlider->selectedHandle().type != KisSegmentGradientSlider::HandleType_MidPoint) {
         return;
-    } 
+    }
     KoGradientSegment *segment = m_gradient->segments()[gradientSlider->selectedHandle().index];
-    segment->setMiddleOffset(segment->startOffset() + (position / 100.0) * (segment->endOffset() - segment->startOffset()));    
+    segment->setMiddleOffset(segment->startOffset() + (position / 100.0) * (segment->endOffset() - segment->startOffset()));
     Q_EMIT gradientSlider->updateRequested();
     Q_EMIT sigGradientChanged();
 }

@@ -16,9 +16,6 @@
 #include <KisDisplayConfig.h>
 
 #include <KisProofingConfiguration.h>
-/**
- * @brief A widget that allows to select a combination of auto levels parameters
- */
 class KRITAUI_EXPORT KisProofingOptionsWidget : public QWidget
 {
     Q_OBJECT
@@ -45,4 +42,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif /* KIS_PROOFING_OPTIONS_WIDGET_H */
+#endif

@@ -16,8 +16,6 @@
 
 #include <QColor>
 
-// -- KoSimpleColorConversionTransformation --
-
 class KoSimpleColorConversionTransformation : public KoColorConversionTransformation
 {
 public:
@@ -51,8 +49,6 @@ public:
     }
 
 };
-
-
 
 KoSimpleColorSpaceEngine::KoSimpleColorSpaceEngine()
     : KoColorSpaceEngine("simple", i18n("Simple Color Conversion Engine"))

@@ -34,9 +34,6 @@ void KisStrokeTest::testRegularStroke()
     SCOMPARE(getJobName(queue[2]), "finish");
     QCOMPARE(stroke.isEnded(), true);
 
-    // uncomment this line to catch an assert:
-    // stroke.addJob(0);
-
     KisStrokeJob* job;
 
     job = stroke.popOneJob();
@@ -65,8 +62,6 @@ void KisStrokeTest::testCancelStrokeCase1()
 
     stroke.addJob(0);
 
-    // "not initialized, has jobs"
-
     QCOMPARE(queue.size(), 2);
     SCOMPARE(getJobName(queue[0]), "init");
     SCOMPARE(getJobName(queue[1]), "dab");
@@ -88,8 +83,6 @@ void KisStrokeTest::testCancelStrokeCase2and3()
     stroke.addJob(0);
     delete stroke.popOneJob();
 
-    // "initialized, has jobs"
-
     QCOMPARE(queue.size(), 1);
     SCOMPARE(getJobName(queue[0]), "dab");
     QCOMPARE(stroke.isEnded(), false);
@@ -108,11 +101,9 @@ void KisStrokeTest::testCancelStrokeCase5()
     KisStroke stroke(new KisTestingStrokeStrategy());
     QQueue<KisStrokeJob*> &queue = stroke.testingGetQueue();
 
-    // initialized, no jobs, not finished
-
     stroke.addJob(0);
-    delete stroke.popOneJob(); // init
-    delete stroke.popOneJob(); // dab
+    delete stroke.popOneJob();
+    delete stroke.popOneJob();
 
     QCOMPARE(stroke.isEnded(), false);
 
@@ -121,7 +112,7 @@ void KisStrokeTest::testCancelStrokeCase5()
     SCOMPARE(getJobName(queue[0]), "cancel");
     QCOMPARE(stroke.isEnded(), true);
 
-    delete stroke.popOneJob(); // cancel
+    delete stroke.popOneJob();
 }
 
 void KisStrokeTest::testCancelStrokeCase4()
@@ -131,9 +122,9 @@ void KisStrokeTest::testCancelStrokeCase4()
 
     stroke.addJob(0);
     stroke.endStroke();
-    delete stroke.popOneJob(); // init
-    delete stroke.popOneJob(); // dab
-    delete stroke.popOneJob(); // finish
+    delete stroke.popOneJob();
+    delete stroke.popOneJob();
+    delete stroke.popOneJob();
 
     QCOMPARE(stroke.isEnded(), true);
 
@@ -150,13 +141,9 @@ void KisStrokeTest::testCancelStrokeCase6()
     stroke.addJob(0);
     delete stroke.popOneJob();
 
-    // "initialized, has jobs"
-
     QCOMPARE(queue.size(), 1);
     SCOMPARE(getJobName(queue[0]), "dab");
     QCOMPARE(stroke.isEnded(), false);
-
-    // "cancelled"
 
     stroke.cancelStroke();
 
@@ -165,8 +152,6 @@ void KisStrokeTest::testCancelStrokeCase6()
     QCOMPARE(stroke.isEnded(), true);
 
     int seqNo = cancelSeqNo(queue.head());
-
-    // try cancel once more...
 
     stroke.cancelStroke();
 

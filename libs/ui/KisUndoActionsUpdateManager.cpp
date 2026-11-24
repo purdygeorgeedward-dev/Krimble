@@ -11,7 +11,6 @@
 
 #include <KisDocument.h>
 
-
 KisUndoActionsUpdateManager::KisUndoActionsUpdateManager(QAction *undoAction, QAction *redoAction, QObject *parent)
     : QObject(parent),
       m_undoAction(undoAction),

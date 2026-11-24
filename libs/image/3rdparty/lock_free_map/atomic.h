@@ -104,7 +104,7 @@ public:
     T compareExchange(T expected, T desired, MemoryOrder memoryOrder)
     {
         std::atomic<T>::compare_exchange_strong(expected, desired, (std::memory_order) memoryOrder);
-        return expected; // modified by reference by compare_exchange_strong
+        return expected;
     }
 
     bool compareExchangeStrong(T& expected, T desired, MemoryOrder memoryOrder)
@@ -143,4 +143,4 @@ public:
     }
 };
 
-#endif // ATOMIC_H
+#endif

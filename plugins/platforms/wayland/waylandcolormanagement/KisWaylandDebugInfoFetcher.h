@@ -33,4 +33,4 @@ private:
     QString m_report;
 };
 
-#endif /* KISWAYLANDDEBUGINFOFETCHER_H */
+#endif

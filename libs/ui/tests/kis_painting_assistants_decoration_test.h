@@ -29,7 +29,5 @@ class KisPaintingAssistantsDecorationTest : public QObject {
 
 };
 
-#endif /* HG_KIS_PAINTING_ASSISTANTS_DECORATION_TEST_H */
-
-
+#endif
 

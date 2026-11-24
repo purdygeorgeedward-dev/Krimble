@@ -75,8 +75,6 @@ void KoShapeReorderCommand::redo()
 {
     KUndo2Command::redo();
     for (int i = 0; i < d->shapes.count(); i++) {
-        // z-index cannot change the bounding rect of the shape, so
-        // no united updates needed
         d->shapes.at(i)->setZIndex(d->newIndexes.at(i));
         d->shapes.at(i)->update();
     }
@@ -86,8 +84,6 @@ void KoShapeReorderCommand::undo()
 {
     KUndo2Command::undo();
     for (int i = 0; i < d->shapes.count(); i++) {
-        // z-index cannot change the bounding rect of the shape, so
-        // no united updates needed
         d->shapes.at(i)->setZIndex(d->previousIndexes.at(i));
         d->shapes.at(i)->update();
     }
@@ -103,11 +99,9 @@ static void prepare(KoShape *s, QMap<KoShape*, QList<KoShape*> > &newOrder, KoSh
             children = parent->shapes();
         }
         else {
-            // get all toplevel shapes
             children = manager->topLevelShapes();
         }
         std::sort(children.begin(), children.end(), KoShape::compareShapeZIndex);
-        // the append and prepend are needed so that the raise/lower of all shapes works as expected.
         children.append(0);
         children.prepend(0);
         it = newOrder.insert(parent, children);
@@ -138,13 +132,8 @@ static void prepare(KoShape *s, QMap<KoShape*, QList<KoShape*> > &newOrder, KoSh
     }
 }
 
-// static
 KoShapeReorderCommand *KoShapeReorderCommand::createCommand(const QList<KoShape*> &shapes, KoShapeManager *manager, MoveShapeType move, KUndo2Command *parent)
 {
-    /**
-     * TODO: this method doesn't handle the case when one of the shapes
-     *       has maximum or minimum zIndex value (which is 16-bit in our case)!
-     */
 
     QList<int> newIndexes;
     QList<KoShape*> changedShapes;
@@ -166,7 +155,7 @@ KoShapeReorderCommand *KoShapeReorderCommand::createCommand(const QList<KoShape*
     for (; newIt != newOrder.end(); ++newIt) {
         QList<KoShape*> order(newIt.value());
         order.removeAll(nullptr);
-        int index = -KoShape::maxZIndex - 1; // set minimum zIndex
+        int index = -KoShape::maxZIndex - 1;
         int pos = 0;
         for (; pos < order.size(); ++pos) {
             if (order[pos]->zIndex() > index) {
@@ -178,11 +167,9 @@ KoShapeReorderCommand *KoShapeReorderCommand::createCommand(const QList<KoShape*
         }
 
         if (pos == order.size()) {
-            //nothing needs to be done
             continue;
         }
         else if (pos <= order.size() / 2) {
-            // new index for the front
             int startIndex = order[pos]->zIndex() - pos;
             for (int i = 0; i < pos; ++i) {
                 changedShapes.append(order[i]);
@@ -190,7 +177,6 @@ KoShapeReorderCommand *KoShapeReorderCommand::createCommand(const QList<KoShape*
             }
         }
         else {
-            //new index for the end
             for (int i = pos; i < order.size(); ++i) {
                 changedShapes.append(order[i]);
                 newIndexes.append(++index);
@@ -244,8 +230,6 @@ KoShapeReorderCommand::homogenizeZIndexes(QList<KoShapeReorderCommand::IndexedSh
 {
     if (shapes.isEmpty()) return shapes;
 
-    // the shapes are expected to be sorted, we just need to adjust the indexes
-
     int lastIndex = shapes.begin()->zIndex;
 
     auto it = shapes.begin() + 1;
@@ -283,7 +267,6 @@ QList<KoShapeReorderCommand::IndexedShape>
 KoShapeReorderCommand::homogenizeZIndexesLazy(QList<KoShapeReorderCommand::IndexedShape> shapes)
 {
     shapes = homogenizeZIndexes(shapes);
-    // remove shapes that didn't change
     for (auto it = shapes.begin(); it != shapes.end();) {
         if (it->zIndex == it->shape->zIndex()) {
             it = shapes.erase(it);

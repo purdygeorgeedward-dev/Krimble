@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testIndirectComparisonToItself();
 };
 
-#endif /* __KISSURFACECOLORSPACEWRAPPERTEST_H */
+#endif

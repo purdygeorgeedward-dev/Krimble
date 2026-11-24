@@ -6,7 +6,6 @@
 
 #include <KisPopupSelfActivatingLineEdit.h>
 
-
 KisPopupSelfActivatingLineEdit::KisPopupSelfActivatingLineEdit(QWidget *parent)
     : QLineEdit(parent)
 {
@@ -15,7 +14,6 @@ KisPopupSelfActivatingLineEdit::KisPopupSelfActivatingLineEdit(QWidget *parent)
 KisPopupSelfActivatingLineEdit::~KisPopupSelfActivatingLineEdit()
 {
 }
-
 
 void KisPopupSelfActivatingLineEdit::focusInEvent(QFocusEvent *e)
 {

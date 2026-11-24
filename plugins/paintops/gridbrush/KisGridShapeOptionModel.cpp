@@ -5,7 +5,6 @@
  */
 #include "KisGridShapeOptionModel.h"
 
-
 KisGridShapeOptionModel::KisGridShapeOptionModel(lager::cursor<KisGridShapeOptionData> _optionData)
     : optionData(_optionData)
     , LAGER_QT(shape) {_optionData[&KisGridShapeOptionData::shape]}

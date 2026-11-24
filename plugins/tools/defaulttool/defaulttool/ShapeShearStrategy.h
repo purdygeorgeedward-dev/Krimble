@@ -18,20 +18,9 @@ class KoToolBase;
 class KoShape;
 class KoSelection;
 
-/**
- * A strategy for the KoInteractionTool.
- * This strategy is invoked when the user starts a shear of a selection of objects,
- * the strategy will then shear the objects interactively and provide a command afterwards.
- */
 class ShapeShearStrategy : public KoInteractionStrategy
 {
 public:
-    /**
-     * Constructor that starts to rotate the objects.
-     * @param tool the parent tool which controls this strategy
-     * @param clicked the initial point that the user depressed (in pt).
-     * @param direction the handle that was grabbed
-     */
     ShapeShearStrategy(KoToolBase *tool, KoSelection *selection, const QPointF &clicked, KoFlake::SelectionHandle direction);
     ~ShapeShearStrategy() override {}
 

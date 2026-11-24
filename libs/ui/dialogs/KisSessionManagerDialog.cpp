@@ -19,8 +19,7 @@ KisSessionManagerDialog::KisSessionManagerDialog(QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);
-    
-    // Register the custom event type that is used to defer UI updates
+
     if (refreshEventType == -1) {
         refreshEventType = QEvent::registerEventType();
     }
@@ -38,7 +37,7 @@ KisSessionManagerDialog::KisSessionManagerDialog(QWidget *parent)
     lstSessions->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(lstSessions, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(slotSessionDoubleClicked(QModelIndex)));
-    
+
     connect(lstSessions->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(slotModelSelectionChanged(QItemSelection, QItemSelection)));
 
     updateButtons();
@@ -47,7 +46,6 @@ KisSessionManagerDialog::KisSessionManagerDialog(QWidget *parent)
 bool KisSessionManagerDialog::event(QEvent *event)
 {
     if (event->type() == (QEvent::Type) refreshEventType) {
-        // Do the actual work of updating the button state when receiving a custom event
         bool hasSelectedSession = getSelectedSession() != nullptr;
         btnDelete->setEnabled(hasSelectedSession);
         btnSwitchTo->setEnabled(hasSelectedSession);
@@ -60,8 +58,6 @@ bool KisSessionManagerDialog::event(QEvent *event)
 
 void KisSessionManagerDialog::updateButtons()
 {
-    // Defer updating the buttons by posting a custom event with low priority to avoid locking against
-    // a non-recursive session lock that may be already held by the thread
     QApplication::postEvent(this, new QEvent((QEvent::Type) refreshEventType), Qt::LowEventPriority);
 }
 
@@ -103,7 +99,7 @@ void KisSessionManagerDialog::slotRenameSession()
     KisResourceUserOperations::renameResourceWithUserInput(this, session, name);
 }
 
-void KisSessionManagerDialog::slotSessionDoubleClicked(QModelIndex /*item*/)
+void KisSessionManagerDialog::slotSessionDoubleClicked(QModelIndex )
 {
     slotSwitchSession();
     slotClose();
@@ -125,7 +121,7 @@ KisSessionResourceSP KisSessionManagerDialog::getSelectedSession() const
 {
     QModelIndex idx = lstSessions->currentIndex();
     if (idx.isValid()) {
-        KoResourceSP res = m_model->resourceForIndex(idx); // lstSessions uses the same index as m_model
+        KoResourceSP res = m_model->resourceForIndex(idx);
         return res.dynamicCast<KisSessionResource>();
     }
     return nullptr;
@@ -165,7 +161,7 @@ void KisSessionManagerDialog::slotModelReset()
             lstSessions->setCurrentIndex(idx);
         }
     }
-    
+
     updateButtons();
 }
 
@@ -173,6 +169,6 @@ void KisSessionManagerDialog::slotModelSelectionChanged(QItemSelection selected,
 {
     (void) selected;
     (void) deselected;
-    
+
     updateButtons();
 }

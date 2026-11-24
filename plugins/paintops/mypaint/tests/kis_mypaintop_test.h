@@ -26,4 +26,4 @@ private Q_SLOTS:
     void testLoading();
 };
 
-#endif // KIS_MYPAINTOP_TEST_H
+#endif

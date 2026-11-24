@@ -10,27 +10,9 @@
 #include <QObject>
 #include <QVector>
 
-/**
- * Block QObject's signals in a safe and sane way.
- *
- * Avoid using direct calls to QObject::blockSignals(bool),
- * because:
- *
- * 1) They are not safe. One beautifully sunny day someone (it might
- *    easily be you yourself) will forget about these call and will put
- *    a 'return' statement somewhere among the lines. Surely this is
- *    not what you expect to happen.
- *
- * 2) Two lines of blocking for every line of access can easily make
- *    the code unreadable.
- */
-
 class KisSignalsBlocker
 {
 public:
-    /**
-     * Six should be enough for all usage cases! (c)
-     */
     KisSignalsBlocker(QObject *o1,
                       QObject *o2,
                       QObject *o3 = 0,
@@ -83,4 +65,4 @@ private:
     QVector<QPair<QObject*,bool>> m_objects;
 };
 
-#endif /* __KIS_SIGNALS_BLOCKER_H */
+#endif

@@ -12,7 +12,6 @@
 class KisSurrogateUndoStore;
 class KUndo2MagicString;
 
-
 class KRITAIMAGE_EXPORT KisSurrogateUndoAdapter : public KisUndoAdapter
 {
 public:
@@ -35,4 +34,4 @@ private:
     KisSurrogateUndoStore *m_undoStore;
 };
 
-#endif /* __KIS_SURROGATE_UNDO_ADAPTER_H */
+#endif

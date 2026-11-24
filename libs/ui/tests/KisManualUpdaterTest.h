@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISMANUALUPDATERTEST_H
 #define KISMANUALUPDATERTEST_H
 
@@ -24,4 +23,4 @@ private Q_SLOTS:
     void testCheckForUpdate_data();
 };
 
-#endif // KISMANUALUPDATERTEST_H
+#endif

@@ -12,12 +12,6 @@
 class KoSvgTextShape;
 class KoShape;
 
-/**
- * @brief The KoSvgTextReorderShapeInsideCommand class
- * Within a text shape, the order of the shapes inside determines the order
- * in which the shapes are evaluated for filling. This command allows changing
- * that order.
- */
 class KRITAFLAKE_EXPORT KoSvgTextReorderShapeInsideCommand: public KUndo2Command
 {
 public:
@@ -38,4 +32,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KOSVGTEXTREORDERSHAPEINSIDECOMMAND_H
+#endif

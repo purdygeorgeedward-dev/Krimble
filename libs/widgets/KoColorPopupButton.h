@@ -11,35 +11,22 @@
 
 #include "kritawidgets_export.h"
 
-/**
- * @short A widget for 
- *
- */
 class KRITAWIDGETS_EXPORT KoColorPopupButton: public QToolButton
 {
     Q_OBJECT
 
 public:
-    /**
-     * Constructor for the widget, where value is set to 0
-     *
-     * @param parent parent QWidget
-     */
     explicit KoColorPopupButton(QWidget *parent=0);
 
-    /**
-     * Destructor
-     */
     ~KoColorPopupButton() override;
 
     QSize sizeHint() const override;
 
 Q_SIGNALS:
-    /// Emitted when a resource was selected
     void iconSizeChanged();
 
 protected:
-    void resizeEvent(QResizeEvent *) override; ///< reimplemented from QToolButton
+    void resizeEvent(QResizeEvent *) override;
 };
 
 #endif

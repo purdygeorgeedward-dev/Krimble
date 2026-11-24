@@ -58,7 +58,6 @@ struct RemoveReferenceImagesCommand : KoShapeDeleteCommand
         , m_layer(layer)
     {}
 
-
     void redo() override {
         KoShapeDeleteCommand::redo();
 
@@ -129,8 +128,8 @@ public:
 
     void rerenderAfterBeingInvisible() override {}
 
-    void resetCache(const KoColorSpace *colorSpace) override { 
-        Q_UNUSED(colorSpace); 
+    void resetCache(const KoColorSpace *colorSpace) override {
+        Q_UNUSED(colorSpace);
     }
 
     KisPaintDeviceSP projection() const override {
@@ -227,14 +226,12 @@ bool KisReferenceImagesLayer::isFakeNode() const
 
 KUndo2Command *KisReferenceImagesLayer::setProfile(const KoColorProfile *profile)
 {
-    // references should not be converted with the image
     Q_UNUSED(profile);
     return 0;
 }
 
 KUndo2Command *KisReferenceImagesLayer::convertTo(const KoColorSpace *dstColorSpace, KoColorConversionTransformation::Intent renderingIntent, KoColorConversionTransformation::ConversionFlags conversionFlags)
 {
-    // references should not be converted with the image
     Q_UNUSED(dstColorSpace);
     Q_UNUSED(renderingIntent);
     Q_UNUSED(conversionFlags);

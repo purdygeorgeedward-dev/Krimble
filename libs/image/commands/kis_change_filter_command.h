@@ -18,7 +18,6 @@
 #include "generator/kis_generator_registry.h"
 #include "generator/kis_generator.h"
 
-
 class KisChangeFilterCmd : public KUndo2Command
 {
 

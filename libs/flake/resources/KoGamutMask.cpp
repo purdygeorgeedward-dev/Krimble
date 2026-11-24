@@ -30,8 +30,6 @@
 #include <QTransform>
 #include <KoMarker.h>
 
-//#include <kis_debug.h>
-
 KoGamutMaskShape::KoGamutMaskShape(KoShape* shape)
     : m_maskShape(shape)
 {
@@ -184,7 +182,6 @@ void KoGamutMask::paintStroke(QPainter &painter, bool preview)
 
 QTransform KoGamutMask::maskToViewTransform(qreal viewSize)
 {
-    // apply mask rotation before drawing
     QPointF centerPoint(viewSize*0.5, viewSize*0.5);
 
     QTransform transform;
@@ -221,7 +218,6 @@ bool KoGamutMask::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
 
     d->data = dev->readAll();
 
-    // TODO: test
     KIS_ASSERT_RECOVER_RETURN_VALUE(d->data.size() != 0, false);
 
     if (filename().isNull()) {
@@ -258,7 +254,7 @@ bool KoGamutMask::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
     QByteArray ba = store->read(store->size());
     store->close();
 
-    if (ba.size() == 0) { // empty gamutmask.svg is possible when the first temporary resource is saved
+    if (ba.size() == 0) {
         setMaskShapes(QList<KoShape*>());
         d->maskSize = QSizeF(0, 0);
         d->title = "";
@@ -283,7 +279,7 @@ bool KoGamutMask::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
 
         KoDocumentResourceManager manager;
         SvgParser parser(&manager);
-        parser.setResolution(QRectF(0,0,100,100), 72); // initialize with default values
+        parser.setResolution(QRectF(0,0,100,100), 72);
         QSizeF fragmentSize;
 
         QList<KoShape*> shapes = parser.parseSvg(xmlDocument.documentElement(), &fragmentSize);
@@ -297,8 +293,6 @@ bool KoGamutMask::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
         setMaskShapes(shapes);
 
     }
-
-
 
     if (store->open("preview.png")) {
         KoStoreDevice previewDev(store.data());
@@ -356,7 +350,6 @@ bool KoGamutMask::saveToDevice(QIODevice *dev) const
     writer.save(storeDev, d->maskSize);
 
     if (!store->close()) { return false; }
-
 
     if (!store->open("preview.png")) {
         return false;
@@ -428,7 +421,6 @@ void KoGamutMask::setMaskShapesToVector(QList<KoShape *> shapes, QVector<KoGamut
     }
 }
 
-// clean up when ending mask preview
 void KoGamutMask::clearPreview()
 {
     d->previewShapes.clear();

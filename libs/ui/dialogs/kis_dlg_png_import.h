@@ -11,7 +11,6 @@
 
 #include "ui_wdgdlgpngimport.h"
 
-
 class KisDlgPngImport : public KoDialog
 {
     Q_OBJECT
@@ -26,4 +25,4 @@ private:
 
 };
 
-#endif // KIS_DLG_PNG_IMPORT_H
+#endif

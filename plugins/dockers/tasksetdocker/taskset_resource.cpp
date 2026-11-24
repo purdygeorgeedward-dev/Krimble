@@ -78,9 +78,6 @@ bool TasksetResource::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP res
                 record.action = child.attribute("action");
                 record.filterId = child.attribute("filterId");
                 record.filterName = child.attribute("filterName");
-                // operationId only exists in version 3+; absent attributes
-                // read back as an empty string, so version-2 files load
-                // correctly through this same path.
                 record.operationId = child.attribute("operationId");
                 record.configXml = readConfigBlob(child);
                 m_steps.append(record);

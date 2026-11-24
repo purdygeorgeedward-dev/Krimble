@@ -49,8 +49,6 @@
 #endif
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-/// openGL ES headers use a bit different names in prototypes,
-/// add a workaround for it
 #if !defined APIENTRYP && defined GL_APIENTRYP
 #define APIENTRYP GL_APIENTRYP
 #endif
@@ -71,7 +69,6 @@ KIS_DECLARE_STATIC_INITIALIZER {
 
 namespace
 {
-    // config option, set manually by main()
     bool g_isDebugSynchronous = false;
 
     bool g_sanityDefaultFormatIsSet = false;
@@ -151,19 +148,7 @@ void KisOpenGL::initialize()
     if (!qEnvironmentVariableIsSet("KRITA_UNLOCK_TEXTURE_BUFFERS") &&
         openGLCheckResult->rendererString().toUpper().contains("ANGLE")) {
 
-        // Angle should always be openGLES...
         KIS_SAFE_ASSERT_RECOVER_NOOP(KisOpenGL::hasOpenGLES());
-
-        /**
-         * Angle works badly with texture buffers on DirectX. It does no distinction
-         * between stream and dynamic buffers, therefore it does too many copies of the
-         * data:
-         *
-         * source user data -> ram buffer -> staging buffer -> native buffer -> texture,
-         *
-         * which is extremely slow when painting with big brushes. On Angle we should
-         * just use normal unbuffered texture uploads
-         */
 
         g_forceDisableTextureBuffers = true;
         appendOpenGLWarningString(
@@ -171,7 +156,6 @@ void KisOpenGL::initialize()
                   "to performance issues."));
     }
 #endif
-
 
     g_debugText.clear();
     QDebug debugOut(&g_debugText);
@@ -226,12 +210,6 @@ void KisOpenGL::initialize()
         }
     }
 
-//    debugOut << "\n== log ==\n";
-//    debugOut.noquote();
-//    debugOut << g_surfaceFormatDetectionLog;
-//    debugOut.resetFormat();
-//    debugOut << "\n== end log ==";
-
     dbgOpenGL.noquote().nospace() << g_debugText;
     KisUsageLogger::writeSysInfo(g_debugText);
 
@@ -239,8 +217,6 @@ void KisOpenGL::initialize()
         return;
     }
 
-
-    // Check if we have a bugged driver that needs fence workaround
     bool isOnX11 = false;
 #ifdef HAVE_X11
     isOnX11 = true;
@@ -255,25 +231,12 @@ void KisOpenGL::initialize()
         g_needsFenceWorkaround = true;
     }
 
-    /**
-     * The large pixmap cache workaround was originally added to fix
-     * the bug 361709 and later extended to all GPU/OS configurations.
-     * This setting is still left here in case anyone finds the cached
-     * method performing better that the direct drawing of assistants
-     * onto the canvas.
-     *
-     * See bugs:
-     *   https://bugs.kde.org/show_bug.cgi?id=361709
-     *   https://bugs.kde.org/show_bug.cgi?id=401940
-     */
-
     if (cfg.assistantsDrawMode() == KisConfig::ASSISTANTS_DRAW_MODE_LARGE_PIXMAP_CACHE) {
         const qreal devicePixelRatio = QGuiApplication::primaryScreen()->devicePixelRatio();
         const QSize screenSize = QGuiApplication::primaryScreen()->size() * devicePixelRatio;
         const int minCacheSize = 20 * 1024;
 
-        // reserve space for at least 4 textures
-        const int cacheSize = 2048 + 5 * 4 * screenSize.width() * screenSize.height() / 1024; // KiB
+        const int cacheSize = 2048 + 5 * 4 * screenSize.width() * screenSize.height() / 1024;
 
         QPixmapCache::setCacheLimit(qMax(minCacheSize, cacheSize));
     }
@@ -288,9 +251,6 @@ void KisOpenGL::initializeContext(QOpenGLContext *ctx)
 
     dbgUI << "OpenGL: Opening new context";
     if (isDebugEnabled) {
-        // Passing ctx for ownership management only, not specifying context.
-        // QOpenGLDebugLogger only function on the current active context.
-        // FIXME: Do we need to make sure ctx is the active context?
         QOpenGLDebugLogger* openglLogger = new QOpenGLDebugLogger(ctx);
         if (openglLogger->initialize()) {
             qDebug() << "QOpenGLDebugLogger is initialized. Check whether you get a message below.";
@@ -303,7 +263,6 @@ void KisOpenGL::initializeContext(QOpenGLContext *ctx)
         }
     }
 
-    // Double check we were given the version we requested
     QSurfaceFormat format = ctx->format();
     QOpenGLFunctions *f = ctx->functions();
     f->initializeOpenGLFunctions();
@@ -351,8 +310,6 @@ QString KisOpenGL::currentDriver()
     return QString();
 }
 
-// Check whether we can allow LoD on OpenGL3 without triggering
-// all of the other 3.2 functionality.
 bool KisOpenGL::supportsLoD()
 {
     initialize();
@@ -512,14 +469,11 @@ KisOpenGL::OpenGLRenderer KisOpenGL::RendererConfig::rendererId() const
         result = RendererSoftware;
 
     } else if (format.renderableType() == QSurfaceFormat::OpenGLES) {
-        // If D3D11, D3D9?, Default (which is after probing, if selected)
-        // or the system specifies QT_OPENGL_ES_2
         result = RendererOpenGLES;
     } else if (format.renderableType() == QSurfaceFormat::OpenGL) {
         result = RendererDesktopGL;
     } else if (format.renderableType() == QSurfaceFormat::DefaultRenderableType &&
                angleRenderer == AngleRendererD3d11) {
-        // noop
     } else {
         qWarning() << "WARNING: unsupported combination of OpenGL renderer" << ppVar(format.renderableType()) << ppVar(angleRenderer);
     }
@@ -561,28 +515,22 @@ QOpenGLContext::OpenGLModuleType determineOpenGLImplementation(const RendererInf
     switch (info.first) {
     case QSurfaceFormat::OpenGLES:
 #if defined(Q_OS_WINDOWS)
-        // https://invent.kde.org/szaman/qtbase/-/blob/krita/5.15/src/plugins/platforms/windows/qwindowsintegration.cpp#L425
         switch (info.second) {
         case KisOpenGL::AngleRendererD3d11:
         case KisOpenGL::AngleRendererD3d9:
         case KisOpenGL::AngleRendererD3d11Warp:
             return QOpenGLContext::LibGLES;
-        // Assume system OpenGL -- QOpenGLStaticContext
         default:
             break;
         }
         return QOpenGLContext::LibGL;
 #else
-        // At least Manjaro Qt can perfectly call up a ES context,
-        // while Qt says via macros that it doesn't support that...
         return QOpenGLContext::LibGLES;
 #endif
     case QSurfaceFormat::DefaultRenderableType:
 #ifdef Q_OS_WIN
-    // https://invent.kde.org/szaman/qtbase/-/blob/krita/5.15/src/plugins/platforms/windows/qwindowsglcontext.cpp#L1117
         return QOpenGLContext::LibGL;
 #else
-    // https://invent.kde.org/szaman/qtbase/-/blob/krita/5.15/src/plugins/platforms/xcb/gl_integrations/xcb_glx/qglxintegration.cpp#L246
 #if defined(QT_OPENGL_ES_2)
     return QOpenGLContext::LibGLES;
 #else
@@ -591,9 +539,7 @@ QOpenGLContext::OpenGLModuleType determineOpenGLImplementation(const RendererInf
 #endif
     case QSurfaceFormat::OpenGL:
     default:
-        // https://invent.kde.org/szaman/qtbase/-/blob/krita/5.15/src/plugins/platforms/windows/qwindowsglcontext.cpp#L1117
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(info.first != QSurfaceFormat::OpenVG, QOpenGLContext::LibGL);
-        // https://invent.kde.org/szaman/qtbase/-/blob/krita/5.15/src/gui/kernel/qplatformintegration.cpp#L547
         return QOpenGLContext::LibGL;
     };
 }
@@ -608,7 +554,6 @@ KisOpenGL::RendererConfig generateSurfaceConfig(KisOpenGL::OpenGLRenderer render
     KisOpenGL::RendererConfig config;
     config.angleRenderer = info.second;
 
-    
     dbgOpenGL << "Requesting configuration for" << info.first << info.second;
     dbgOpenGL << "Requesting root surface format" << rootSurfaceFormat;
 
@@ -621,21 +566,12 @@ KisOpenGL::RendererConfig generateSurfaceConfig(KisOpenGL::OpenGLRenderer render
         format.setProfile(QSurfaceFormat::CoreProfile);
         Q_UNUSED(inhibitCompatibilityProfile);
 #else
-        // If asked for 3.0 "Core", Qt will instead request
-        // an OpenGL ES context.
-        // NVIDIA's GLX implementation will not allow that and results
-        // in a forced process exit through X11 (NVIDIA bug #3959482).
         format.setVersion(3, 3);
-        // Make sure to request a Compatibility profile to have NVIDIA
-        // return the maximum supported GL version.
 
         if (!inhibitCompatibilityProfile) {
             format.setProfile(QSurfaceFormat::CompatibilityProfile);
         }
 #ifdef Q_OS_WIN
-        // Some parts of Qt seems to require deprecated functions. On Windows
-        // with the Intel Graphics driver, things like canvas decorations and
-        // the Touch Docker does not render without this option.
         format.setOptions(QSurfaceFormat::DeprecatedFunctions);
 #endif
 #endif
@@ -655,10 +591,8 @@ KisOpenGL::RendererConfig generateSurfaceConfig(KisOpenGL::OpenGLRenderer render
 
     format.setRenderableType(info.first);
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-    format.setSwapInterval(0); // Disable vertical refresh syncing
+    format.setSwapInterval(0);
     if (KisRepaintDebugger::enabled()) {
-        // With repaint debugging, vsync is preferred so that all update regions
-        // can be visible.
         format.setSwapInterval(1);
     }
     if (debugContext) {
@@ -678,11 +612,7 @@ bool isOpenGLRendererBlacklisted(const QString &rendererString,
     Q_UNUSED(driverVersionString);
     Q_UNUSED(warningMessage);
 #else
-    // Special blacklisting of OpenGL/ANGLE is tracked on:
-    // https://phabricator.kde.org/T7411
 
-    // HACK: Specifically detect for Intel driver build number
-    //       See https://www.intel.com/content/www/us/en/support/articles/000005654/graphics.html
     if (rendererString.startsWith("Intel")) {
         KLocalizedString knownBadIntelWarning = ki18n("The Intel graphics driver in use is known to have issues with OpenGL.");
         KLocalizedString grossIntelWarning = ki18n(
@@ -702,23 +632,15 @@ bool isOpenGLRendererBlacklisted(const QString &rendererString,
             }
             qDebug() << "Detected Intel driver build number as" << driverBuild;
             if (driverBuild > 4636 && driverBuild < 4729) {
-                // Make ANGLE the preferred renderer for Intel driver versions
-                // between build 4636 and 4729 (exclusive) due to an UI offset bug.
-                // See https://communities.intel.com/thread/116003
-                // (Build 4636 is known to work from some test results)
                 qDebug() << "Detected Intel driver build between 4636 and 4729, making ANGLE the preferred renderer";
                 isBlacklisted = true;
                 *warningMessage << knownBadIntelWarning;
             } else if (driverBuild == 4358) {
-                // There are several reports on a bug where the canvas is not being
-                // updated properly which has debug info pointing to this build.
                 qDebug() << "Detected Intel driver build 4358, making ANGLE the preferred renderer";
                 isBlacklisted = true;
                 *warningMessage << knownBadIntelWarning;
             }
         } else {
-            // In case Intel changed the driver version format to something that
-            // we don't understand, we still select ANGLE.
             qDebug() << "Detected Intel driver with unknown version format, making ANGLE the preferred renderer";
             isBlacklisted = true;
             *warningMessage << grossIntelWarning;
@@ -786,7 +708,6 @@ public:
 
         return false;
     }
-
 
 public:
     void setPreferredColorSpace(const KisSurfaceColorSpaceWrapper &preferredColorSpace) {
@@ -875,7 +796,7 @@ private:
 
     bool isPreferredColorSpace(const QSurfaceFormat & surfaceFormat) const {
         return KisOpenGLModeProber::fuzzyCompareColorSpaces(
-            m_preferredColorSpace, 
+            m_preferredColorSpace,
             KisSurfaceColorSpaceWrapper::fromQtColorSpace(surfaceFormat.colorSpace()));
     }
 
@@ -931,7 +852,6 @@ KisOpenGL::RendererConfig KisOpenGL::selectSurfaceConfig(KisOpenGL::OpenGLRender
 #if defined HAVE_HDR
     std::vector<std::pair<KisSurfaceColorSpaceWrapper, int>> formatSymbolPairs(
         {
-            // TODO: check if we can use real sRGB space here
             {KisSurfaceColorSpaceWrapper::DefaultColorSpace, 8},
             {KisSurfaceColorSpaceWrapper::scRGBColorSpace, 16},
             {KisSurfaceColorSpaceWrapper::bt2020PQColorSpace, 10}
@@ -957,13 +877,6 @@ KisOpenGL::RendererConfig KisOpenGL::selectSurfaceConfig(KisOpenGL::OpenGLRender
     Info info = KisOpenGLModeProber::instance()->probeFormat(defaultConfig);
 
 #ifndef Q_OS_MACOS
-    // When RendererAuto is active, Qt may perform insane things internally,
-    // e.g. switch from OpenGL to OpenGLES automatically. And the presence of
-    // the compatibility profile flag will cause the context creation process
-    // to fail.
-    //
-    // So, here we request an explicit API again to avoid Qt making decisions
-    // for us.
 
     if (!info) {
         dbgOpenGL << "Failed to probe default Qt's openGL format.. Trying DesktopGL with compatibility enabled...";
@@ -995,11 +908,10 @@ KisOpenGL::RendererConfig KisOpenGL::selectSurfaceConfig(KisOpenGL::OpenGLRender
         info = KisOpenGLModeProber::instance()->probeFormat(defaultConfig);
     }
 
-#endif /* Q_OS_MACOS */
+#endif
 
 #ifdef Q_OS_WIN
     if (!info) {
-        // try software rasterizer (WARP)
         defaultConfig = generateSurfaceConfig(KisOpenGL::RendererSoftware,
                                               makeDefaultSurfaceFormatPair(),
                                               false,
@@ -1019,9 +931,6 @@ KisOpenGL::RendererConfig KisOpenGL::selectSurfaceConfig(KisOpenGL::OpenGLRender
 
     const OpenGLRenderer defaultRenderer = getRendererFromProbeResult(*info);
 
-    /**
-     * On Windows we always prefer Angle, not what Qt suggests us
-     */
 #ifdef Q_OS_WIN
     const OpenGLRenderer preferredAutoRenderer = RendererOpenGLES;
 #else
@@ -1047,10 +956,9 @@ KisOpenGL::RendererConfig KisOpenGL::selectSurfaceConfig(KisOpenGL::OpenGLRender
     compareOp.setPreferredRendererByHDR(KisOpenGL::RendererOpenGLES);
 #endif
     compareOp.setPreferredRendererByUser(preferredRenderer);
-    compareOp.setOpenGLESBlacklisted(false); // We cannot blacklist ES drivers atm
+    compareOp.setOpenGLESBlacklisted(false);
 
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
-    // 10-bit is the default, 8-bit is set explicitly by the user
     compareOp.setUserPreferredBitDepth(preferredCanvasSurfaceBitMode == KisConfig::CanvasSurfaceBitDepthMode::Depth8Bit ? 8 : 10);
 #else
     Q_UNUSED(preferredCanvasSurfaceBitMode)
@@ -1110,7 +1018,6 @@ KisOpenGL::RendererConfig KisOpenGL::selectSurfaceConfig(KisOpenGL::OpenGLRender
 
     QVector<RendererConfig> preferredConfigs;
     for (auto it = renderersToTest.begin(); it != renderersToTest.end(); ++it) {
-        // if default mode of the renderer doesn't work, then custom won't either
         if (!it.value()) continue;
 
         Q_FOREACH (const auto &formatPair, formatSymbolPairs) {
@@ -1138,9 +1045,6 @@ KisOpenGL::RendererConfig KisOpenGL::selectSurfaceConfig(KisOpenGL::OpenGLRender
             if (info && info->isSupportedVersion()) {
 
 #ifdef Q_OS_WIN
-                // HACK: Block ANGLE with Direct3D9
-                //       Direct3D9 does not give OpenGL ES 3.0
-                //       Some versions of ANGLE returns OpenGL version 3.0 incorrectly
 
                 if (info->isUsingAngle() &&
                         info->rendererString().contains("Direct3D9", Qt::CaseInsensitive)) {
@@ -1197,8 +1101,6 @@ void KisOpenGL::setDefaultSurfaceConfig(const KisOpenGL::RendererConfig &config)
         QCoreApplication::setAttribute(Qt::AA_UseOpenGLES, true);
 #ifdef Q_OS_WIN
         if (!qEnvironmentVariableIsSet("QT_ANGLE_PLATFORM")) {
-            // Force ANGLE to use Direct3D11. D3D9 doesn't support OpenGL ES 3 and WARP
-            //  might get weird crashes atm.
             qputenv("QT_ANGLE_PLATFORM", KisOpenGLModeProber::angleRendererToString(config.angleRenderer).toLatin1());
         }
 #endif

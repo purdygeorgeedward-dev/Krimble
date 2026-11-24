@@ -1,8 +1,3 @@
-/*
- * Krimble 2026-10-25: the window of Batch Process: a list of recipes (the built-in ones and the ones saved by the user), the fields of the recipe (resize, format, quality, name),
- * "Save recipe...", and the run over the pictures chosen. It uses Qt widgets only: the choosing of pictures and the saving to the phone's Pictures folder (Android code) are
- * given to it as functions (KisMainWindow.cpp), so it can be tried on any machine (tools/batch-bench).
- */
 #ifndef KRIMBLE_BATCH_DIALOG_H
 #define KRIMBLE_BATCH_DIALOG_H
 
@@ -25,16 +20,15 @@ class QSpinBox;
 class KrimbleBatchDialog : public QDialog
 {
 public:
-    // pick: asks the user for the pictures (returns their paths); save: puts one finished file (a path in the cache, its mime type and name) where it belongs, true if it worked
     typedef std::function<QStringList()> PickFunction;
     typedef std::function<bool(const QString &tempPath, const QString &mime, const QString &name, const QString &folder)> SaveFunction;
 
     KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveFunction save, const QString &whereText);
 
-    KrimbleBatch::Recipe currentRecipe() const;      // what the fields (or the script) say now
-    void setScript(const QString &text);             // switches to "use a script" with this text (for the bench)
-    bool buildProgram(KrimbleBatch::Program *program, QString *error) const;   // the script, or the settings, as what is to be done
-    void runOn(const QStringList &files);            // the run (used by the button, and by the bench)
+    KrimbleBatch::Recipe currentRecipe() const;
+    void setScript(const QString &text);
+    bool buildProgram(KrimbleBatch::Program *program, QString *error) const;
+    void runOn(const QStringList &files);
     bool processAnimation(const QString &path, KrimbleBatch::Animation animation, const KrimbleBatch::Program &program, int format, const QString &dirPath);
 
 private:

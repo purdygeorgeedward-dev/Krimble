@@ -6,11 +6,9 @@
  */
 #include "KisHSVOption.h"
 
-
 #include <kis_properties_configuration.h>
 #include <kis_paint_information.h>
 #include <KisStandardOptionData.h>
-
 
 KisHSVOption::KisHSVOption(const KisCurveOptionData &data)
     : KisCurveOption(data),
@@ -52,17 +50,10 @@ void KisHSVOption::apply(KoColorTransformation* transfo, const KisPaintInformati
         v = (v * 2) - 1;
     }
     transfo->setParameter(m_paramId, v);
-    transfo->setParameter(3, 0); //sets the type to HSV.
-    transfo->setParameter(4, false); //sets the colorize to false.
+    transfo->setParameter(3, 0);
+    transfo->setParameter(4, false);
 
-    /**
-     * Theoretically, we might want to make this a user-selectable
-     * option, but I doubt anyone would complain. See details in the
-     * bugreport:
-     *
-     * https://bugs.kde.org/show_bug.cgi?id=462193
-     */
-    transfo->setParameter(8, false); //sets the compatibility to false.
+    transfo->setParameter(8, false);
 }
 
 template <typename Data>

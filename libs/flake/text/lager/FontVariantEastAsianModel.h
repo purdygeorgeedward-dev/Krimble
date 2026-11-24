@@ -29,4 +29,4 @@ public:
 
 };
 
-#endif // FONTVARIANTEASTASIANMODEL_H
+#endif

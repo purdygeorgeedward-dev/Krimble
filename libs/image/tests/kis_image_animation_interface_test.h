@@ -29,10 +29,9 @@ private Q_SLOTS:
 
     void slotFrameDone();
 
-
 private:
     KisImageSP m_image;
     QImage m_compositedFrame;
 };
 
-#endif /* __KIS_IMAGE_ANIMATION_INTERFACE_TEST_H */
+#endif

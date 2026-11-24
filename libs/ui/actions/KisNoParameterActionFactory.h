@@ -20,4 +20,4 @@ public:
     virtual void run(KisViewManager *view) = 0;
 };
 
-#endif //__KIS_NOPARAMETERACTIONFACTORY_H
+#endif

@@ -46,4 +46,4 @@ private:
 
 };
 
-#endif // KIS_CURVEPAINTOP_H_
+#endif

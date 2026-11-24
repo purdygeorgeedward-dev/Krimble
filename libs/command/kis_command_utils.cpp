@@ -73,10 +73,6 @@ namespace KisCommandUtils
         if (m_createCommandFunc) {
             addCommand(m_createCommandFunc());
 
-            /**
-             *  We should release all the potential resources owned
-             *  by the attached lambda
-             */
             m_createCommandFunc = {};
         }
     }
@@ -232,6 +228,5 @@ namespace KisCommandUtils
             accumulatingCommand.reset(cmd);
         }
     }
-
 
 }

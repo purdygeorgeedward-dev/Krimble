@@ -3,7 +3,7 @@
  *
  * SPDX-FileCopyrightText: 2016 Spencer Brown <sbrown655@gmail.com>
  * SPDX-FileCopyrightText: 2020 Deif Lou <ginoba@gmail.com>
- * 
+ *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
@@ -39,7 +39,6 @@ QList<KoResourceLoadResult> KisGradientMapFilterConfiguration::linkedResources(K
 {
     QList<KoResourceLoadResult> resources;
 
-    // only the first version of the filter loaded the gradient by name
     if (version() == 1) {
         KoAbstractGradientSP gradient = this->gradient();
         if (gradient) {
@@ -61,11 +60,9 @@ QList<KoResourceLoadResult> KisGradientMapFilterConfiguration::embeddedResources
 {
     QList<KoResourceLoadResult> resources;
 
-    // the second version of the filter embeds the gradient
     if (version() > 1) {
         KoAbstractGradientSP gradient = this->gradient();
 
-        // TODO: check if it is okay to resave the gradient on loading
         QBuffer buffer;
         buffer.open(QBuffer::WriteOnly);
         gradient->saveToDevice(&buffer);

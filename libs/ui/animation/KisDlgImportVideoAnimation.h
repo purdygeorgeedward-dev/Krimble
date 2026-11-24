@@ -67,7 +67,7 @@ protected Q_SLOTS:
     void slotVideoSliderChanged();
     void slotVideoTimerTimeout();
     void slotImportDurationChanged(qreal time);
-    
+
     void slotDocumentHandlerChanged(int selectedIndex);
 
     void slotFFProbeFile();
@@ -93,8 +93,7 @@ private:
 
     int m_ffmpegFindInput;
 
-
 };
 
-#endif // KISDLGIMPORTVIDEOANIMATION_H
+#endif
 

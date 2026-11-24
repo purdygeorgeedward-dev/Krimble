@@ -21,4 +21,4 @@ private Q_SLOTS:
     void WillShapeBeCutTest();
 };
 
-#endif // CUT_THROUGH_SHAPE_STRATEGY_TEST_H
+#endif

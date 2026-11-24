@@ -6,7 +6,6 @@
 
 #include "kis_tiff_test.h"
 
-
 #include <simpletest.h>
 #include <QCoreApplication>
 
@@ -26,7 +25,6 @@
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing the importing of files in krita"
 #endif
-
 
 const QString TiffMimetype = "image/tiff";
 
@@ -92,7 +90,6 @@ void KisTiffTest::testSaveTiffGreyAColorSpace()
 
 }
 
-
 void KisTiffTest::testSaveTiffCmykColorSpace()
 {
     QString profile = "Chemical proof";
@@ -109,7 +106,6 @@ void KisTiffTest::testSaveTiffLabColorSpace()
     testSaveTiffColorSpace(LABAColorModelID.id(), Float32BitsColorDepthID.id(), profile);
 }
 
-
 void KisTiffTest::testSaveTiffYCbCrAColorSpace()
 {
     const QString profile = "ITU-R BT.709-6 + BT.1886 YCbCr ICC V4 profile";
@@ -125,12 +121,10 @@ void KisTiffTest::testImportFromWriteonly()
     TestUtil::testImportFromWriteonly(TiffMimetype);
 }
 
-
 void KisTiffTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(TiffMimetype);
 }
-
 
 void KisTiffTest::testImportIncorrectFormat()
 {
@@ -159,11 +153,6 @@ void KisTiffTest::testLoadTiffWithLegacyPQProfile()
 
     QVERIFY(loadingStatus.isOk());
 
-    /**
-     * A PNG with the legacy profile should use the default Krita profille
-     * for a PQ space with all the cicp information set properly. The embedded
-     * profile should be ignored.
-     */
     const KoColorProfile *profile = doc->image()->colorSpace()->profile();
 
     QCOMPARE(profile->getColorPrimaries(), PRIMARIES_ITU_R_BT_2020_2_AND_2100_0);
@@ -171,7 +160,6 @@ void KisTiffTest::testLoadTiffWithLegacyPQProfile()
     QVERIFY(profile->hdrReferenceWhite().has_value());
     QCOMPARE(*profile->hdrReferenceWhite(), 203.0);
 }
-
 
 KISTEST_MAIN(KisTiffTest)
 

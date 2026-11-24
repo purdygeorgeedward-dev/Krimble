@@ -22,7 +22,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(RoundMarkerPaintOpPluginFactory, "kritaroundmarkerpaintop.json", registerPlugin<RoundMarkerPaintOpPlugin>();)
 
-
 RoundMarkerPaintOpPlugin::RoundMarkerPaintOpPlugin(QObject* parent, const QVariantList&):
     QObject(parent)
 {

@@ -10,7 +10,6 @@
 #include <KoResourceLoadResult.h>
 #include <KisResourcesInterface.h>
 
-
 bool KisEmbeddedTextureData::isNull() const
 {
     return md5Base64.isEmpty() && md5sum.isEmpty() && fileName.isEmpty() && name.isEmpty();
@@ -27,7 +26,6 @@ KisEmbeddedTextureData KisEmbeddedTextureData::fromPattern(KoPatternSP pattern)
 
     return data;
 }
-
 
 KoResourceLoadResult KisEmbeddedTextureData::tryFetchPattern(KisResourcesInterfaceSP resourcesInterface) const
 {
@@ -60,14 +58,12 @@ KoResourceLoadResult KisEmbeddedTextureData::tryLoadEmbeddedPattern() const
     }
 
     KIS_SAFE_ASSERT_RECOVER(!patternBase64.isEmpty()) {
-        // return a fail-link pattern
         return KoResourceSignature(ResourceType::Patterns, effectiveMd5Sum, fileName, effectiveName);
     }
 
     const QByteArray ba = QByteArray::fromBase64(patternBase64.toLatin1());
     return KoEmbeddedResource(KoResourceSignature(ResourceType::Patterns, effectiveMd5Sum, fileName, effectiveName), ba);
 }
-
 
 KoResourceLoadResult KisEmbeddedTextureData::loadLinkedPattern(KisResourcesInterfaceSP resourcesInterface) const
 {

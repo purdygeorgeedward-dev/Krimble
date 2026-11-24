@@ -19,7 +19,6 @@
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
 
-// Mapping of uniforms to uniform names
 std::map<Uniform, const char *> KisShaderProgram::names = {
    {ModelViewProjection, "modelViewProjection"},
    {TextureMatrix, "textureMatrix"},
@@ -31,16 +30,6 @@ std::map<Uniform, const char *> KisShaderProgram::names = {
    {FragmentColor, "fragColor"}
 };
 
-/**
- * Generic shader loading function that will compile a shader program given
- * a vertex shader and fragment shader resource path. Extra code can be prepended
- * to each shader respectively using the header parameters.
- *
- * @param vertPath Resource path to a vertex shader
- * @param fragPath Resource path to a fragment shader
- * @param vertHeader Extra code which will be prepended to the vertex shader
- * @param fragHeader Extra code which will be prepended to the fragment shader
- */
 KisShaderProgram *KisOpenGLShaderLoader::loadShader(QString vertPath, QString fragPath,
                                                     QByteArray vertHeader, QByteArray fragHeader)
 {
@@ -48,7 +37,6 @@ KisShaderProgram *KisOpenGLShaderLoader::loadShader(QString vertPath, QString fr
 
     KisShaderProgram *shader = new KisShaderProgram();
 
-    // Load vertex shader
     QByteArray vertSource;
 
     if (KisOpenGL::hasOpenGLES()) {
@@ -73,7 +61,6 @@ KisShaderProgram *KisOpenGLShaderLoader::loadShader(QString vertPath, QString fr
     if (!result)
         throw ShaderLoaderException(QString("%1: %2 - Cause: %3").arg("Failed to add vertex shader source from file", vertPath, shader->log()));
 
-    // Load fragment shader
     QByteArray fragSource;
 
     if (KisOpenGL::hasOpenGLES()) {
@@ -85,7 +72,6 @@ KisShaderProgram *KisOpenGLShaderLoader::loadShader(QString vertPath, QString fr
             "precision mediump float;\n"
             "precision mediump sampler3D;\n");
 
-        // OpenColorIO doesn't support OpenGL ES.
         fragSource.append("#define texture2D texture\n");
         fragSource.append("#define texture3D texture\n");
         if (KisOpenGL::supportsLoD()) {
@@ -115,11 +101,9 @@ KisShaderProgram *KisOpenGLShaderLoader::loadShader(QString vertPath, QString fr
     if (!result)
         throw ShaderLoaderException(QString("%1: %2 - Cause: %3").arg("Failed to add fragment shader source from file", fragPath, shader->log()));
 
-    // Bind attributes
     shader->bindAttributeLocation("a_vertexPosition", PROGRAM_VERTEX_ATTRIBUTE);
     shader->bindAttributeLocation("a_textureCoordinate", PROGRAM_TEXCOORD_ATTRIBUTE);
 
-    // Link
     result = shader->link();
     if (!result)
         throw ShaderLoaderException(QString("Failed to link shader: ").append(vertPath));
@@ -129,12 +113,6 @@ KisShaderProgram *KisOpenGLShaderLoader::loadShader(QString vertPath, QString fr
     return shader;
 }
 
-/**
- * Specific display shader loading function. It adds the appropriate extra code
- * to the fragment shader depending on what is available on the target machine.
- * Additionally, it picks the appropriate shader files depending on the availability
- * of OpenGL3.
- */
 KisShaderProgram *KisOpenGLShaderLoader::loadDisplayShader(QSharedPointer<KisDisplayFilter> displayFilter, bool useHiQualityFiltering)
 {
     QByteArray fragHeader;
@@ -146,8 +124,6 @@ KisShaderProgram *KisOpenGLShaderLoader::loadDisplayShader(QSharedPointer<KisDis
         }
     }
 
-    // If we have an OCIO display filter and it contains a function we add
-    // it to our shader header which will sit on top of the fragment code.
     bool haveDisplayFilter = displayFilter && !displayFilter->program().isEmpty();
     if (haveDisplayFilter) {
         fragHeader.append("#define USE_OCIO\n");
@@ -155,7 +131,6 @@ KisShaderProgram *KisOpenGLShaderLoader::loadDisplayShader(QSharedPointer<KisDis
     }
 
     QString vertPath, fragPath;
-    // Select appropriate shader files
     if (KisOpenGL::supportsLoD()) {
         vertPath = "matrix_transform.vert";
         fragPath = "highq_downscale.frag";
@@ -169,14 +144,9 @@ KisShaderProgram *KisOpenGLShaderLoader::loadDisplayShader(QSharedPointer<KisDis
     return shader;
 }
 
-/**
- * Specific checker shader loading function. It picks the appropriate shader
- * files depending on the availability of OpenGL3 on the target machine.
- */
 KisShaderProgram *KisOpenGLShaderLoader::loadCheckerShader()
 {
     QString vertPath, fragPath;
-    // Select appropriate shader files
     if (KisOpenGL::supportsLoD()) {
         vertPath = "matrix_transform.vert";
         fragPath = "simple_texture.frag";
@@ -190,14 +160,9 @@ KisShaderProgram *KisOpenGLShaderLoader::loadCheckerShader()
     return shader;
 }
 
-/**
- * Specific uniform shader loading function. It picks the appropriate shader
- * files depending on the availability of OpenGL3 on the target machine.
- */
 KisShaderProgram *KisOpenGLShaderLoader::loadSolidColorShader()
 {
     QString vertPath, fragPath;
-    // Select appropriate shader files
     if (KisOpenGL::supportsLoD()) {
         vertPath = "solid_color.vert";
         fragPath = "solid_color.frag";

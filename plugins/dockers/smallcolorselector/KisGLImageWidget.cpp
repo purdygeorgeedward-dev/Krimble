@@ -61,7 +61,6 @@ KisGLImageWidget::KisGLImageWidget(const KisSurfaceColorSpaceWrapper &colorSpace
 
 KisGLImageWidget::~KisGLImageWidget()
 {
-    // force releasing the resources on destruction
     slotOpenGLContextDestroyed();
 }
 
@@ -126,7 +125,6 @@ void KisGLImageWidget::initializeGL()
 
     m_shader->release();
 
-
     m_vao.create();
     m_vao.bind();
 
@@ -144,7 +142,6 @@ void KisGLImageWidget::initializeGL()
     m_textureVerticesBuffer.release();
 
     m_vao.release();
-
 
     if (!m_sourceImage.isNull()) {
         loadImage(m_sourceImage);
@@ -179,16 +176,10 @@ void KisGLImageWidget::updateVerticesBuffer(const QRect &rect)
     m_verticesBuffer.release();
 }
 
-
 void KisGLImageWidget::paintGL()
 {
-    // TODO: fix conversion to the destination surface space
-    // Fill with bright color as as default for debugging purposes
-    // glClearColor(bgColor.redF(), bgColor.greenF(), bgColor.blueF(), 1.0f);
     glClearColor(0.3, 0.2, 0.8, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-
-
 
     if (m_havePendingTextureUpdate) {
         m_havePendingTextureUpdate = false;
@@ -223,8 +214,7 @@ void KisGLImageWidget::paintGL()
         projectionMatrix.ortho(0, width(), height(), 0, -1, 1);
         QMatrix4x4 viewProjectionMatrix;
 
-        // use a QTransform to scale, translate, rotate your view
-        QTransform transform; // TODO: noop!
+        QTransform transform;
         viewProjectionMatrix = projectionMatrix * QMatrix4x4(transform);
 
         m_shader->setUniformValue("viewProjectionMatrix", viewProjectionMatrix);
@@ -241,7 +231,6 @@ void KisGLImageWidget::paintGL()
     glActiveTexture(GL_TEXTURE0);
     m_texture.bind();
 
-    // draw 2 triangles = 6 vertices starting at offset 0 in the buffer
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_verticesBuffer.release();
@@ -258,7 +247,6 @@ void KisGLImageWidget::loadImage(const KisGLImageF16 &image)
     }
 
     m_havePendingTextureUpdate = true;
-
 
     updateGeometry();
     update();

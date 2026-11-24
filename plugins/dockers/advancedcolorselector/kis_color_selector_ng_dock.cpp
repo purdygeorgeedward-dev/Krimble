@@ -16,10 +16,45 @@
 #include <QScreen>
 #include <QResizeEvent>
 #include <QTimer>
+#include <QApplication>
+#include <QPointer>
+#include <functional>
 #include "krimble_color_studio.h"
 
+namespace {
+class KrimbleAfterRelease : public QObject
+{
+public:
+    KrimbleAfterRelease(QObject *owner, std::function<void()> action) : QObject(owner), m_action(std::move(action))
+    {
+        qApp->installEventFilter(this);
+    }
+protected:
+    bool eventFilter(QObject *, QEvent *event) override
+    {
+        if (event->type() == QEvent::MouseButtonRelease || event->type() == QEvent::TouchEnd || event->type() == QEvent::TabletRelease) {
+            qApp->removeEventFilter(this);
+            auto action = m_action;
+            QTimer::singleShot(0, parent(), action);
+            deleteLater();
+        }
+        return false;
+    }
+private:
+    std::function<void()> m_action;
+};
 
-// KisColorSelectorNgDock::KisColorSelectorNgDock()
+void krimbleWhenNotDragging(QObject *owner, std::function<void()> action)
+{
+    if (QGuiApplication::mouseButtons() == Qt::NoButton) {
+        QTimer::singleShot(0, owner, action);
+        return;
+    }
+    if (owner->findChild<KrimbleAfterRelease *>(QString(), Qt::FindDirectChildrenOnly)) return;
+    new KrimbleAfterRelease(owner, std::move(action));
+}
+}
+
 KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
     : QDockWidget()
 {
@@ -37,9 +72,6 @@ KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
     };
     krimbleApplyHeightCap(isFloating());
     connect(this, &QDockWidget::topLevelChanged, this, krimbleApplyHeightCap);
-    // Krimble 2026-11-23: George: "If I tear off ColorLab it should snap to the size of the content." / "It should not allow to be stretched out past
-    // the actual content." / "You can resize it, but only cutting off the right side" / "never cut off the top or the left edge." / "The minimum should be
-    // where you get the minimum number of color well rows at the bottom." / "don't snap back onto screen when dragged off screen."
     m_krimbleDockedMin = minimumSize();
     m_krimbleDockedMax = maximumSize();
     connect(this, &QDockWidget::topLevelChanged, this, [this](bool floating) {
@@ -48,7 +80,7 @@ KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
             setMaximumSize(m_krimbleDockedMax);
             return;
         }
-        QTimer::singleShot(0, this, [this]() { krimbleFitFloating(true); });
+        krimbleWhenNotDragging(this, [this]() { krimbleFitFloating(true); });
     });
 
     setWindowTitle(classic ? i18n("HSV Triangle Color Picker") : i18n("Color Lab"));
@@ -61,27 +93,26 @@ void KisColorSelectorNgDock::krimbleFitFloating(bool snap)
     QWidget *view = studio ? studio->krimbleRoomView() : nullptr;
     if (!studio || !view) return;
     m_krimbleFitting = true;
-    // the window's parts around the scroll area (title band, tabs, frame) stay the same size; the content decides the rest
     const int chromeW = width() - view->width();
     const int chromeH = height() - view->height();
     const int maxW = chromeW + studio->maximumWidth();
-    if (snap && width() != maxW) resize(maxW, height());   // the width first: the card's scale (and so its height) follows the width
+    if (snap && width() != maxW) resize(maxW, height());
     const int fewest = studio->krimbleNeededViewHeight(0);
     const int all = studio->krimbleNeededViewHeight(10);
     if (fewest > 0 && all > 0) {
-        setMinimumSize(1, chromeH + fewest);   // narrower only cuts off the right side; the content stays at the top left
+        setMinimumSize(1, chromeH + fewest);
         setMaximumSize(maxW, chromeH + all);
         if (snap) resize(maxW, chromeH + all);
     }
     m_krimbleFitting = false;
-    if (snap) QTimer::singleShot(0, this, [this]() { krimbleFitFloating(false); });   // once more, after the layout has followed the new width
+    if (snap) QTimer::singleShot(0, this, [this]() { krimbleFitFloating(false); });
 }
 
 void KisColorSelectorNgDock::resizeEvent(QResizeEvent *event)
 {
     QDockWidget::resizeEvent(event);
     if (isFloating() && event->size().width() != event->oldSize().width()) {
-        QTimer::singleShot(0, this, [this]() { krimbleFitFloating(false); });   // a new width changes the card's height
+        krimbleWhenNotDragging(this, [this]() { krimbleFitFloating(false); });
     }
 }
 

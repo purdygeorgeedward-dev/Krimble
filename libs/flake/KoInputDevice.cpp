@@ -36,7 +36,6 @@ KoInputDevice::KoInputDevice(const KoInputDevice &other)
 {
 }
 
-
 KoInputDevice::~KoInputDevice()
 {
     delete d;
@@ -59,13 +58,9 @@ qint64 KoInputDevice::uniqueTabletId() const
 
 bool KoInputDevice::isMouse() const
 {
-    // sometimes, the system gives us tablet events with NoDevice or UnknownPointer. This is
-    // likely an XInput2 bug. However, assuming that if cannot identify the tablet device we've
-    // actually got a mouse is reasonable. See https://bugs.kde.org/show_bug.cgi?id=283130.
     return d->mouse || d->device == KoInputDevice::InputDevice::Unknown
             || d->pointer == KoInputDevice::Pointer::Unknown;
 }
-
 
 bool KoInputDevice::operator==(const KoInputDevice &other) const
 {
@@ -82,14 +77,11 @@ KoInputDevice & KoInputDevice::operator=(const KoInputDevice & other)
     return *this;
 }
 
-// static
 KoInputDevice KoInputDevice::invalid()
 {
     KoInputDevice id(KoInputDevice::InputDevice::Unknown, KoInputDevice::Pointer::Unknown);
     return id;
 }
-
-
 
 KoInputDevice KoInputDevice::mouse()
 {
@@ -97,14 +89,12 @@ KoInputDevice KoInputDevice::mouse()
     return id;
 }
 
-// static
 KoInputDevice KoInputDevice::stylus()
 {
     KoInputDevice id(KoInputDevice::InputDevice::Stylus, KoInputDevice::Pointer::Pen);
     return id;
 }
 
-// static
 KoInputDevice KoInputDevice::eraser()
 {
     KoInputDevice id(KoInputDevice::InputDevice::Stylus, KoInputDevice::Pointer::Eraser);

@@ -100,18 +100,13 @@ void WGMyPaintShadeSelector::mouseReleaseEvent(QMouseEvent *event)
 
 void WGMyPaintShadeSelector::paintEvent(QPaintEvent *)
 {
-    // Hint to the casual reader: some of the calculation here do not
-    // what Martin Renold originally intended. Not everything here will make sense.
-    // It does not matter in the end, as long as the result looks good.
     if (!m_model || !m_model->isHSXModel()) {
         return;
     }
 
-    // This selector was ported from MyPaint in 2010
     if (!m_realPixelCache || m_realPixelCache->colorSpace() != m_model->colorSpace()) {
         m_realPixelCache = new KisPaintDevice(m_model->colorSpace());
         m_realCircleBorder = new KisPaintDevice(m_model->colorSpace());
-//        m_cachedColorSpace = colorSpace();
     }
     else {
         m_realPixelCache->clear();
@@ -192,21 +187,16 @@ bool WGMyPaintShadeSelector::getChannelValues(QPoint pos, QVector4D &values, QVe
     qreal r = std::sqrt(qreal(sqr(dxs)+sqr(dys)));
 
     if (qMin(abs(dx), abs(dy)) < stripe_width) {
-        // horizontal and vertical lines
         bool horizontal = std::abs(dx) > std::abs(dy);
         dx = (dx/qreal(m_sizeHD))*255;
         dy = (dy/qreal(m_sizeHD))*255;
 
         h = 0;
-        // x-axis = value, y-axis = saturation
         v =    dx*v_factor + signedSqr(dx)*v_factor2;
         s = - (dy*s_factor + signedSqr(dy)*s_factor2);
-        // but not both at once
         if (horizontal) {
-            // horizontal stripe
             s = 0.0;
         } else {
-            // vertical stripe
             v = 0.0;
         }
     }
@@ -216,14 +206,11 @@ bool WGMyPaintShadeSelector::getChannelValues(QPoint pos, QVector4D &values, QVe
         dy = (dy/qreal(m_sizeHD))*255;
 
         h = 0;
-        // x-axis = value, y-axis = saturation
         v =    dx*v_factor + signedSqr(dx)*v_factor2;
         s = - (dy*s_factor + signedSqr(dy)*s_factor2);
-        // both at once
     }
     else if (r < s_radiusHD+1) {
 
-        // hue
         if (dx > 0)
             h = 90*sqr2(r/s_radiusHD);
         else
@@ -232,8 +219,7 @@ bool WGMyPaintShadeSelector::getChannelValues(QPoint pos, QVector4D &values, QVe
 
         if (r > s_radiusHD) {
             needsBlending = true;
-            // antialiasing boarder
-            qreal aaFactor = r-floor(r); // part after the decimal point
+            qreal aaFactor = r-floor(r);
             aaFactor = 1-aaFactor;
 
             qreal fh = m_colorH + h/360.0;
@@ -247,12 +233,10 @@ bool WGMyPaintShadeSelector::getChannelValues(QPoint pos, QVector4D &values, QVe
 
             h = 180 + 180*atan2f(dys,-dxs)/M_PI;
             v = 255*(r-s_radiusHD)/(diag-s_radiusHD) - 128;
-            s = 0; // overwrite the s value that was meant for the inside of the circle
-            // here we already have drawn the inside, and the value left should be just the background value
+            s = 0;
         }
     }
     else {
-        // background (hue+darkness gradient)
         h = 180 + 180*atan2f(dys,-dxs)/M_PI;
         v = 255*(r-s_radiusHD)/(diag-s_radiusHD) - 128;
     }

@@ -39,7 +39,6 @@
 #include <KisRunnableStrokeJobUtils.h>
 #include <kis_pointer_utils.h>
 
-
 using namespace KisLazyFillTools;
 
 struct KisColorizeMask::Private
@@ -154,7 +153,6 @@ KisColorizeMask::KisColorizeMask(KisImageWSP image, const QString &name)
             SIGNAL(timeout()),
             SLOT(slotRecalculatePrefilteredImage()));
 
-
     m_d->updateCompressor.moveToThread(qApp->thread());
 }
 
@@ -254,7 +252,6 @@ private:
     QList<KeyStroke> *m_list;
     KisColorizeMaskSP m_node;
 };
-
 
 void KisColorizeMask::setProfile(const KoColorProfile *profile, KUndo2Command *parentCommand)
 {
@@ -377,12 +374,6 @@ void KisColorizeMask::slotUpdateRegenerateFilling(bool prefilterOnly)
 void KisColorizeMask::slotUpdateOnDirtyParent()
 {
     if (!parent()) {
-        // When the colorize mask is being merged,
-        // the update is performed for all the layers,
-        // so the invisible areas around the canvas are included in the merged layer.
-        // Colorize Mask gets the info that its parent is "dirty" (needs updating),
-        // but when it arrives, the parent doesn't exist anymore and is set to null.
-        // Colorize Mask doesn't work outside of the canvas anyway (at least in time of writing).
         return;
     }
     KisPaintDeviceSP src = parent()->original();
@@ -416,7 +407,7 @@ void KisColorizeMask::slotRegenerationFinished(bool prefilterOnly)
     if (!m_d->extentBeforeUpdateStart.isEmpty()) {
         oldExtent = m_d->extentBeforeUpdateStart.pop();
     } else {
-        KIS_SAFE_ASSERT_RECOVER_NOOP(!m_d->extentBeforeUpdateStart.isEmpty()); // always fail!
+        KIS_SAFE_ASSERT_RECOVER_NOOP(!m_d->extentBeforeUpdateStart.isEmpty());
     }
 
     setDirty(oldExtent | extent());
@@ -483,7 +474,6 @@ QIcon KisColorizeMask::icon() const
     return KisIconUtils::loadIcon("colorizeMask");
 }
 
-
 bool KisColorizeMask::accept(KisNodeVisitor &v)
 {
     return v.visit(this);
@@ -520,7 +510,6 @@ QRect KisColorizeMask::decorateRect(KisPaintDeviceSP &src,
     Q_UNUSED(flags);
 
     if (maskPos == N_ABOVE_FILTHY) {
-        // the source layer has changed, we should update the filtered cache!
 
         if (!m_d->filteringDirty) {
             Q_EMIT sigUpdateOnDirtyParent();
@@ -529,7 +518,6 @@ QRect KisColorizeMask::decorateRect(KisPaintDeviceSP &src,
 
     KIS_ASSERT(dst != src);
 
-    // Draw the filling and the original layer
     {
         KisPainter gc(dst);
 
@@ -551,7 +539,6 @@ QRect KisColorizeMask::decorateRect(KisPaintDeviceSP &src,
         }
     }
 
-    // Draw the key strokes
     if (m_d->showKeyStrokes) {
         KisIndirectPaintingSupport::ReadLocker locker(this);
 
@@ -564,7 +551,6 @@ QRect KisColorizeMask::decorateRect(KisPaintDeviceSP &src,
         KisPaintDeviceSP temporaryTarget = this->temporaryTarget();
         const bool isTemporaryTargetErasing = temporaryCompositeOp() == COMPOSITE_ERASE;
         const QRect temporaryExtent = temporaryTarget ? temporaryTarget->extent() : QRect();
-
 
         KisFillPainter gc(dst);
 
@@ -644,7 +630,6 @@ QRect KisColorizeMask::calculateMaskBounds(DeviceMetricPolicy boundsPolicy) cons
     return rc;
 }
 
-
 QRect KisColorizeMask::extent() const
 {
     return calculateMaskBounds(DeviceExtentPolicy());
@@ -705,8 +690,6 @@ void KisColorizeMask::setCurrentColor(const KoColor &_color)
     m_d->needAddCurrentKeyStroke = newKeyStroke;
 }
 
-
-
 struct KeyStrokeAddRemoveCommand : public KisCommandUtils::FlipFlopCommand {
     KeyStrokeAddRemoveCommand(bool add, int index, KeyStroke stroke, QList<KeyStroke> *list, KisColorizeMaskSP node, KUndo2Command *parentCommand = nullptr)
         : FlipFlopCommand(!add, parentCommand),
@@ -735,7 +718,6 @@ private:
 
 void KisColorizeMask::mergeToLayerThreaded(KisNodeSP layer, KUndo2Command *parentCommand, const KUndo2MagicString &transactionText,int timedID, QVector<KisRunnableStrokeJobData*> *jobs)
 {
-    // Just fake threaded merging. It is not supported for the colorize mask.
 
     KritaUtils::addJobSequential(*jobs,
         [=] () {
@@ -759,9 +741,6 @@ void KisColorizeMask::mergeToLayerUnthreaded(KisNodeSP layer, KUndo2Command *par
     const bool isTemporaryTargetErasing = temporaryCompositeOp() == COMPOSITE_ERASE;
     const QRect temporaryExtent = temporaryTarget ? temporaryTarget->extent() : QRect();
 
-    /**
-     * Add a new key stroke plane
-     */
     if (m_d->needAddCurrentKeyStroke && !isTemporaryTargetErasing) {
         KeyStroke key(m_d->currentKeyStrokeDevice, m_d->currentColor);
         executeAndAdd(new KeyStrokeAddRemoveCommand(
@@ -770,10 +749,6 @@ void KisColorizeMask::mergeToLayerUnthreaded(KisNodeSP layer, KUndo2Command *par
 
     QVector<KisRunnableStrokeJobData*> jobs;
 
-    /**
-     * When erasing, the brush affects all the key strokes, not only
-     * the current one.
-     */
     if (!isTemporaryTargetErasing) {
         mergeToLayerImpl(m_d->currentKeyStrokeDevice, parentCommand, transactionText, timedID, false, sharedWriteLock, &jobs);
     } else {
@@ -786,13 +761,6 @@ void KisColorizeMask::mergeToLayerUnthreaded(KisNodeSP layer, KUndo2Command *par
 
     mergeToLayerImpl(m_d->fakePaintDevice, parentCommand, transactionText, timedID, false, sharedWriteLock, &jobs);
 
-    /**
-     * When merging, we use barrier jobs only for ensuring that the merge jobs
-     * are not split by the update jobs. Merge jobs hold the shared lock, so
-     * forcing them out of CPU will basically cause a deadlock. When running in
-     * the fake executor, the jobs cannot be split anyway, so there is no danger
-     * in that.
-     */
     KisFakeRunnableStrokeJobsExecutor fakeExecutor(KisFakeRunnableStrokeJobsExecutor::AllowBarrierJobs);
     fakeExecutor.addRunnableJobs(implicitCastList<KisRunnableStrokeJobDataBase*>(jobs));
 
@@ -800,11 +768,8 @@ void KisColorizeMask::mergeToLayerUnthreaded(KisNodeSP layer, KUndo2Command *par
     m_d->currentColor = KoColor();
     releaseResources();
 
-    /**
-     * Try removing the key strokes that has been completely erased
-     */
     if (isTemporaryTargetErasing) {
-        for (int index = 0; index < m_d->keyStrokes.size(); /*noop*/) {
+        for (int index = 0; index < m_d->keyStrokes.size(); ) {
             const KeyStroke &stroke = m_d->keyStrokes[index];
 
             if (stroke.dev->exactBounds().isEmpty()) {
@@ -816,7 +781,6 @@ void KisColorizeMask::mergeToLayerUnthreaded(KisNodeSP layer, KUndo2Command *par
         }
     }
 }
-
 
 void KisColorizeMask::writeMergeData(KisPainter *painter, KisPaintDeviceSP src, const QRect &rc)
 {
@@ -885,7 +849,6 @@ KisColorizeMask::KeyStrokeColors KisColorizeMask::keyStrokesColors() const
 {
     KeyStrokeColors colors;
 
-    // TODO: thread safety!
     for (int i = 0; i < m_d->keyStrokes.size(); i++) {
         colors.colors << m_d->keyStrokes[i].color;
 
@@ -974,7 +937,6 @@ void KisColorizeMask::removeKeyStroke(const KoColor &_color)
 
     applicator.end();
 }
-
 
 QVector<KisPaintDeviceSP> KisColorizeMask::allPaintDevices() const
 {
@@ -1157,7 +1119,6 @@ void KisColorizeMask::regeneratePrefilteredDeviceIfNeeded()
     KIS_ASSERT_RECOVER_RETURN(src);
 
     if (!m_d->filteredSourceValid(src)) {
-        // update the prefiltered source if needed
         slotUpdateRegenerateFilling(true);
     }
 }

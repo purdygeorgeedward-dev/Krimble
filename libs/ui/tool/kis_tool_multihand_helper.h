@@ -9,7 +9,6 @@
 
 #include "kis_tool_freehand_helper.h"
 
-
 class KRITAUI_EXPORT KisToolMultihandHelper : public KisToolFreehandHelper
 {
     Q_OBJECT
@@ -45,4 +44,4 @@ private:
     Private * const d;
 };
 
-#endif /* __KIS_TOOL_MULTIHAND_HELPER_H */
+#endif

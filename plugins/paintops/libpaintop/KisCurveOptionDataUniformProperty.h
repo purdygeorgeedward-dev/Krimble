@@ -31,4 +31,4 @@ private:
     QScopedPointer<KisCurveOptionData> m_data;
 };
 
-#endif // KISCURVEOPTIONDATAUNIFORMPROPERTY_H
+#endif

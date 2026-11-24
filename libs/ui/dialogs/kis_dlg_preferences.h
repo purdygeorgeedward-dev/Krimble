@@ -39,10 +39,6 @@ class KoConfigAuthorPage;
 class KisProofingConfigModel;
 class KisFrameRateLimitModel;
 
-/**
- *  "General"-tab for preferences dialog
- */
-
 class WdgGeneralSettings : public QWidget, public Ui::WdgGeneralSettings
 {
     Q_OBJECT
@@ -136,12 +132,6 @@ public:
     KisCumulativeUndoData m_cumulativeUndoData;
 };
 
-
-
-/**
- *  "Shortcuts" tab for preferences dialog
- */
-
 class WdgShortcutSettings : public KisShortcutsDialog
 {
     Q_OBJECT
@@ -174,12 +164,6 @@ public Q_SLOTS:
     void saveChanges();
     void cancelChanges();
 };
-
-
-
-/**
- *  "Color" tab for preferences dialog
- */
 
 class WdgColorSettings : public QWidget, public Ui::WdgColorSettings
 {
@@ -235,8 +219,6 @@ public:
     QButtonGroup m_preferredSpaceGraphicMode;
 };
 
-//=======================
-
 class WdgTabletSettings : public QWidget, public Ui::WdgTabletSettings {
 
     Q_OBJECT
@@ -261,14 +243,7 @@ public:
     void setDefault();
     WdgTabletSettings  *m_page;
 
-
 };
-
-//=======================
-
-/**
-  * "Performance"-tab for preferences dialog
- */
 
 class SliderAndSpinBoxSync;
 
@@ -308,8 +283,6 @@ private:
     QScopedPointer<KisFrameRateLimitModel> m_frameRateModel;
 };
 
-//=======================
-
 class WdgDisplaySettings : public QWidget, public Ui::WdgDisplaySettings
 {
     Q_OBJECT
@@ -319,11 +292,6 @@ public:
         setObjectName(name); setupUi(this);
     }
 };
-
-/**
- *  Display settings tab for preferences dialog
- */
-
 
 class DisplaySettingsTab : public WdgDisplaySettings
 {
@@ -340,12 +308,6 @@ protected Q_SLOTS:
 
 public:
 };
-
-//=======================
-
-/**
- *  Full screen settings tab for preferences dialog
- */
 
 class WdgFullscreenSettingsBase : public QWidget, public Ui::WdgFullscreenSettings
 {
@@ -365,12 +327,6 @@ public:
 public:
     void setDefault();
 };
-
-//=======================
-
-/**
-  * "Pop-up Palette"-tab for preferences dialog
- */
 
 class WdgPopupPaletteSettingsBase : public QWidget, public Ui::WdgPopupPaletteSettings
 {
@@ -396,12 +352,6 @@ protected Q_SLOTS:
     void slotSelectorTypeChanged(int index);
 };
 
-//=======================
-
-
-/**
- *  Preferences dialog of KImageShop^WKrayon^WKrita
- */
 class KisDlgPreferences : public KPageDialog
 {
     Q_OBJECT

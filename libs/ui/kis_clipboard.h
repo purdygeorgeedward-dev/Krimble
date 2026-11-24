@@ -24,10 +24,6 @@ class KoColorSpace;
 
 class KisClipboardPrivate;
 
-/**
- * The Krita clipboard is a clipboard that can store paint devices
- * instead of just qimage's.
- */
 class KRITAUI_EXPORT KisClipboard : public QObject
 {
 
@@ -44,44 +40,21 @@ public:
 
     static KisClipboard* instance();
 
-    /**
-     * Sets the clipboard to the contents of the specified paint device; also
-     * set the system clipboard to a QImage representation of the specified
-     * paint device.
-     *
-     * @param dev The paint device that will be stored on the clipboard
-     * @param topLeft a hint about the place where the clip should be pasted by default
-     */
     void setClip(KisPaintDeviceSP dev, const QPoint& topLeft);
 
     void setClip(KisPaintDeviceSP dev, const QPoint& topLeft, const KisTimeSpan &range);
 
-    /**
-     * Get the contents of the clipboard in the form of a paint device.
-     */
     KisPaintDeviceSP clip(const QRect &imageBounds,
                           bool showPopup,
                           int overridePasteBehaviour = -1,
                           KisTimeSpan *clipRange = nullptr) const;
 
-    /**
-     * Given the mimedata for a paste event, ask user which source
-     * they'll want to use for the image.
-     *
-     * @return A pair of bool and PasteFormatBehaviour:
-     *   The boolean indicates acceptance of the paste event.
-     *   If set, the PasteFormatBehaviour member indicates the chosen source.
-     */
     QPair<bool, PasteFormatBehaviour> askUserForSource(const QMimeData *data,
                                                        bool useClipboardFallback = false) const;
 
-    //A function to allow for caching the clipboard data
     QPair<bool, PasteFormatBehaviour> askUserForSourceWithData(QImage qimage,
                                                                const QList<QUrl> urls,
                                                                bool useClipboardFallback = false) const;
-    /**
-     * Get the contents of the specified mimedata buffer in the form of a paint device.
-     */
     KisPaintDeviceSP clipFromMimeData(const QMimeData *data,
                                       const QRect &imageBounds,
                                       bool showPopup,
@@ -100,7 +73,6 @@ public:
                               false,
                               PasteFormatBehaviour::PASTE_FORMAT_ASK}) const;
 
-    //A function to allow for caching the clipboard data
     KisPaintDeviceSP clipFromBoardContentsWithData(
         QImage image,
         const QList<QUrl> urls,
@@ -144,4 +116,4 @@ private:
     KisClipboardPrivate *const d;
 };
 
-#endif // __KIS_CLIPBOARD_H_
+#endif

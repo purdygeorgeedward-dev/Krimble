@@ -15,4 +15,4 @@ private Q_SLOTS:
     void refCounting();
 };
 
-#endif // TESTSHAPEBACKGROUNDCOMMAND_H
+#endif

@@ -19,13 +19,11 @@
 
 void KisLowMemoryTests::initTestCase()
 {
-    // hard limit of 1MiB, no undo in memory, no clones
     KisImageConfig config(false);
     config.setMemoryHardLimitPercent(1.1 * 100.0 / KisImageConfig::totalRAM());
     config.setMemorySoftLimitPercent(0);
     config.setMemoryPoolLimitPercent(0);
 }
-
 
 class DeadlockyThread : public QRunnable
 {
@@ -151,7 +149,6 @@ void KisLowMemoryTests::hangingTilesTest()
     srcTile->lockForWrite();
     srcTile->lockForRead();
 
-
     KisTiledDataManager dstDM(1, &defaultPixel);
     dstDM.bitBlt(&srcDM, QRect(0,0,64,64));
 
@@ -194,7 +191,6 @@ void KisLowMemoryTests::hangingTilesTest()
     QCOMPARE(dstTile->tileData(), cowedTileData);
     QCOMPARE(dstTile->data(), cowedData);
 
-    // two crash tests
     QCOMPARE(weirdTileData->data(), weirdData);
     quint8 testPixel = *weirdData;
     QCOMPARE(testPixel, defaultPixel);

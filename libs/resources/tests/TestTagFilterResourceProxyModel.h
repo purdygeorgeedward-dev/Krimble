@@ -1,8 +1,4 @@
-﻿/*
- * SPDX-FileCopyrightText: 2019 boud <boud@valdyas.org>
- *
- *  SPDX-License-Identifier: GPL-2.0-or-later
- */
+﻿
 #ifndef TESTAGFILTERTRESOURCEPROXYMODEL_H
 #define TESTAGFILTERTRESOURCEPROXYMODEL_H
 

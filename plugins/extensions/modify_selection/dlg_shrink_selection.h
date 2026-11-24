@@ -36,4 +36,4 @@ private:
     bool m_shrinkFromImageBorder;
 };
 
-#endif // DLG_SHRINK_SELECTION_H
+#endif

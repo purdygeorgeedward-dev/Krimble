@@ -39,8 +39,6 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 
-// Full KisKActionCollection definition needed here (forward decl in KoToolManager.h isn't enough) —
-// KoToolBoxDocker.cpp calls actionCollection()->action(...), which needs the complete type.
 #include <kactioncollection.h>
 #include <QWidget>
 #include <QToolButton>
@@ -94,7 +92,6 @@ class KrimbleToolBoxGrip : public QLabel
 public:
     KrimbleToolBoxGrip(const QString &text, QWidget *parent) : QLabel(text, parent) {}
 protected:
-    // Raised bevel strip, edge to edge, flush with the top of the toolbox, five lines inside (Claude 2026-11-22, George: "Apply it.").
     void paintEvent(QPaintEvent *) override
     {
         QPainter p(this);
@@ -107,16 +104,10 @@ protected:
         p.setPen(Qt::NoPen);
         p.setBrush(g);
         p.drawRect(r);
-        // classic raised bevel: light on top and left, dark on bottom and right, 1 px each
         p.setBrush(Qt::NoBrush);
-        // Krimble 2026-11-23 (866th): the white top and left bevel lines are off. George: "The giant white line at the top and top left of the toolbar has to go."
-        // p.setPen(QPen(QColor(255, 255, 255, 150), 1.0));
-        // p.drawLine(QPointF(0.5, height() - 1.0), QPointF(0.5, 0.5));
-        // p.drawLine(QPointF(0.5, 0.5), QPointF(width() - 1.0, 0.5));
         p.setPen(QPen(QColor(0, 0, 0, 150), 1.0));
         p.drawLine(QPointF(width() - 0.5, 0.5), QPointF(width() - 0.5, height() - 0.5));
         p.drawLine(QPointF(width() - 0.5, height() - 0.5), QPointF(0.5, height() - 0.5));
-        // five lines inside
         QColor line = palette().color(QPalette::WindowText);
         line.setAlpha(160);
         p.setPen(Qt::NoPen);
@@ -125,34 +116,6 @@ protected:
         for (int i = -2; i <= 2; ++i)
             p.drawRect(QRectF(18, cy + i * gap - 0.5, width() - 36, 1.0));
     }
-    // Previous paint (six lines under a lip), kept for reference:
-//     void paintEvent(QPaintEvent *event) override
-//     {
-//         QLabel::paintEvent(event);
-//         QPainter p(this);
-//         const qreal dpr = devicePixelRatioF();
-//         const qreal thick = 2.0 / dpr;    // 2 device pixels
-//         const qreal gap = 6.0 / dpr;      // 6 device pixels between the lines
-//         // const qreal length = width() * 0.45;
-//         QColor c = palette().color(QPalette::WindowText);
-//         c.setAlpha(150);
-//         p.setPen(Qt::NoPen);
-//         // for (int i = -1; i <= 1; ++i) {
-//         //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
-//         //     p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
-//         // }
-//         // for (int i = -4; i <= 4; ++i) {   // nine lines across the whole width
-//         //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
-//         //     p.fillRect(QRectF(0, y, width(), thick), c);
-//         // }
-//         // an empty lip at the top, then six lines across the whole width ("Add a lip area at the top of the toolbox and lose a few lines of the grab.")
-//         const qreal lip = 18.0 / dpr;
-//         const qreal mid = lip + (height() - lip) / 2.0;
-//         for (int i = 0; i < 6; ++i) {
-//             const qreal y = mid + (i - 2.5) * (gap + thick) - thick / 2.0;
-//             p.fillRect(QRectF(0, y, width(), thick), c);
-//         }
-//     }
 };
 
 class KrimbleToolBoxFoot : public QWidget
@@ -186,7 +149,6 @@ protected:
         return;
 #if 0
         QPainter p(this);
-        // the edge: a dark line with a light line beside it, and a few dots, so it can be seen and found
         if (m_vertical) {
             p.fillRect(QRect(width() - 6, 0, 1, height()), QColor(0, 0, 0, 170));
             p.fillRect(QRect(width() - 5, 0, 1, height()), QColor(255, 255, 255, 110));
@@ -283,7 +245,6 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     };
     connect(this, &QDockWidget::topLevelChanged, this, applyContainerStretch);
     QTimer::singleShot(0, this, [this, applyContainerStretch]() { applyContainerStretch(isFloating()); });
-    // the toolbox may already be floating when the app starts (saved layout): no signal comes then
     QTimer::singleShot(0, this, [this]() { setFloatingEdges(isFloating()); });
     connect(m_restoreTimer, &QTimer::timeout, this, [this]() {
         applyColumns();
@@ -295,7 +256,6 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     w->setFrameShadow(QFrame::Raised);
     w->setFrameStyle(QFrame::Panel | QFrame::Raised);
     QFont font = qApp->font();
-    // Font size may be in pixels (on Android) or points (everywhere else.)
     qreal ratio = 0.9;
     if (font.pixelSize() == -1) {
         font.setPointSizeF(font.pointSizeF() * ratio);
@@ -303,8 +263,9 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    // w->setMinimumSize(titleSize, titleSize + 12);
-    w->setMinimumSize(titleSize, titleSize + 12 + qCeil(18.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));   // room for the lip
+    const int krimbleGripHeight = qCeil(80.0 / qMax<qreal>(1.0, qApp->devicePixelRatio()));
+    w->setMinimumSize(titleSize, krimbleGripHeight);
+    w->setMaximumHeight(krimbleGripHeight);
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
@@ -351,8 +312,6 @@ void KoToolBoxDocker::unsetCanvas()
 {
 }
 
-// Krimble: the two simple gadget icons, drawn in code in the toolbox icon color.
-// Quick Mask: a rectangle with a circle in it. Screen Mode: a screen with a second, smaller screen behind it.
 static QIcon krimbleGadgetIcon(bool quickMask)
 {
     QIcon icon;
@@ -363,22 +322,7 @@ static QIcon krimbleGadgetIcon(bool quickMask)
         p.setRenderHint(QPainter::Antialiasing, true);
         const qreal u = size / 28.0;
         const QColor c(225, 228, 240);
-        // Previous icons (794th), kept for reference:
-        // p.setPen(QPen(c, 2.0 * u));
-        // p.setBrush(Qt::NoBrush);
-        // if (quickMask) {
-        //     p.drawRect(QRectF(3 * u, 6 * u, 22 * u, 16 * u));
-        //     p.setBrush(c);
-        //     p.setPen(Qt::NoPen);
-        //     p.drawEllipse(QPointF(14 * u, 14 * u), 4.5 * u, 4.5 * u);
-        // } else {
-        //     p.drawRect(QRectF(9 * u, 4 * u, 16 * u, 12 * u));
-        //     p.setBrush(QColor(56, 62, 96));
-        //     p.drawRect(QRectF(3 * u, 10 * u, 16 * u, 12 * u));
-        // }
-        // 2026-11-22 drafts approved (George: "The icons. Yes. Push."):
         if (quickMask) {
-            // a gray-filled frame with a dotted circle: the mask over the picture, the selection as marching ants
             p.setPen(QPen(c, 1.6 * u));
             p.setBrush(QColor(c.red(), c.green(), c.blue(), 60));
             p.drawRect(QRectF(3 * u, 6 * u, 22 * u, 16 * u));
@@ -389,7 +333,6 @@ static QIcon krimbleGadgetIcon(bool quickMask)
             p.setBrush(QColor(56, 62, 96));
             p.drawEllipse(QPointF(14 * u, 14 * u), 5.2 * u, 5.2 * u);
         } else {
-            // two windows, each with a title bar; the front one covers the back one
             p.setPen(QPen(c, 1.6 * u));
             p.setBrush(Qt::NoBrush);
             p.drawRect(QRectF(10 * u, 4 * u, 15 * u, 11 * u));
@@ -433,9 +376,6 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         trailingLayout->setSpacing(4);
         trailingLayout->addWidget(m_dualColorButton, 0, Qt::AlignHCenter);
         {
-            // Krimble: the two gadgets under the color swatches, as in the industry-standard toolbox
-            // (docs/krimble-refs/2026-11-21_0428_ps-toolbox-bottom-quickmask-screenmode.jpg): Quick Mask on the left,
-            // Screen Mode on the right, with very simple icons.
             QHBoxLayout *gadgets = new QHBoxLayout();
             gadgets->setContentsMargins(0, 4, 0, 0);
             gadgets->setSpacing(4);
@@ -443,20 +383,16 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
             quickMask->setObjectName(QStringLiteral("krimbleQuickMaskButton"));
             quickMask->setAutoRaise(true);
             quickMask->setCheckable(true);
-            // quickMask->setIcon(krimbleGadgetIcon(true));
             quickMask->setProperty("krimbleDrawnIcon", krimbleGadgetIcon(true));
             KrimbleToolboxIcons::refreshGadget(quickMask, QStringLiteral("08_02_quick_mask"));
-            // quickMask->setIconSize(QSize(28, 28));
-            quickMask->setIconSize(QSize(22, 22));   // 870th: George, 2026-11-23: "too big. They get too close to the edges." / "Those two smaller icons are better."
+            quickMask->setIconSize(QSize(22, 22));
             quickMask->setToolTip(i18n("Quick Mask: paint the selection"));
             QToolButton *screenMode = new QToolButton(trailingBox);
             screenMode->setObjectName(QStringLiteral("krimbleScreenModeButton"));
             screenMode->setAutoRaise(true);
-            // screenMode->setIcon(krimbleGadgetIcon(false));
             screenMode->setProperty("krimbleDrawnIcon", krimbleGadgetIcon(false));
             KrimbleToolboxIcons::refreshGadget(screenMode, QStringLiteral("08_03_screen_mode"));
-            // screenMode->setIconSize(QSize(28, 28));
-            screenMode->setIconSize(QSize(22, 22));   // 870th: George, 2026-11-23: "too big. They get too close to the edges." / "Those two smaller icons are better."
+            screenMode->setIconSize(QSize(22, 22));
             screenMode->setToolTip(i18n("Screen Mode: the picture only (tap the X to come back)"));
             gadgets->addWidget(quickMask, 0, Qt::AlignHCenter);
             gadgets->addWidget(screenMode, 0, Qt::AlignHCenter);
@@ -469,7 +405,6 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                 if (!show) return;
                 KisImageWSP image = vm->image();
                 if (on && image && !image->globalSelection()) {
-                    // nothing selected yet: start from an empty selection, painted in from nothing
                     if (QAction *all = vm->actionCollection()->action(QStringLiteral("select_all"))) all->trigger();
                     if (QAction *inv = vm->actionCollection()->action(QStringLiteral("invert_selection"))) inv->trigger();
                 }
@@ -478,7 +413,7 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                     QTimer::singleShot(200, quickMask, [vm]() {
                         if (!vm || !vm->image() || !vm->nodeManager()) return;
                         KisSelectionMaskSP mask = vm->image()->rootLayer()->selectionMask();
-                        if (mask) vm->nodeManager()->slotNonUiActivatedNode(mask);   // paint on the mask: white selects, black deselects
+                        if (mask) vm->nodeManager()->slotNonUiActivatedNode(mask);
                     });
                 }
             });
@@ -487,7 +422,7 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                 connect(show, &QAction::toggled, quickMask, [quickMask](bool on) {
                     if (quickMask->isChecked() == on) return;
                     QSignalBlocker block(quickMask);
-                    quickMask->setChecked(on);   // stays in step when the mask is shown or hidden from a menu
+                    quickMask->setChecked(on);
                 });
             }
             connect(screenMode, &QToolButton::clicked, this, [vm]() {
@@ -505,7 +440,6 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                 undoButton->setObjectName(QStringLiteral("krimbleUndoButton"));
                 undoButton->setAutoRaise(true);
                 undoButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-                // undoButton->setIcon(KisIconUtils::loadIcon("krita_tool_undo"));
                 undoButton->setProperty("krimbleDrawnIcon", KisIconUtils::loadIcon("krita_tool_undo"));
                 KrimbleToolboxIcons::refreshGadget(undoButton, QStringLiteral("08_01_undo"));
                 undoButton->setToolTip(i18n("Undo (long press for Redo)"));
@@ -516,7 +450,6 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                 }
                 m_toolBox->addActionButton(undoButton, 99 * 1000000);
             }
-        // }
         });
 
         connect(m_dualColorButton, SIGNAL(foregroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetFGColor(KoColor)));
@@ -629,19 +562,6 @@ bool KoToolBoxDocker::eventFilter(QObject *watched, QEvent *event)
 void KoToolBoxDocker::setFloatingEdges(bool floating)
 {
     const int e = 10;
-    // The 24 px margin version, kept, not deleted:
-    // const bool has = property("krimbleToolBoxEdges").toBool();
-    // if (floating && !has) {
-    //     m.setRight(m.right() + e);
-    //     m.setBottom(m.bottom() + e);
-    //     setContentsMargins(m);
-    //     setProperty("krimbleToolBoxEdges", true);
-    // } else if (!floating && has) {
-    //     m.setRight(qMax(0, m.right() - e));
-    //     m.setBottom(qMax(0, m.bottom() - e));
-    //     setContentsMargins(m);
-    //     setProperty("krimbleToolBoxEdges", false);
-    // }
     m_edgeRight->setVisible(floating);
     m_edgeBottom->setVisible(floating);
     if (floating) {
@@ -657,7 +577,6 @@ void KoToolBoxDocker::floatingEdgeDrag(const QSize &startSize, const QPoint &del
     int w = startSize.width();
     int h = startSize.height();
     if (changeWidth) {
-        // whole icon columns only (1 to 4): the icons plus everything around them
         const int icons = iconWidth();
         const int around = chromeWidth();
         const int columns = qBound(1, qRound(qreal(startSize.width() - around + delta.x()) / icons), 40);
@@ -679,30 +598,13 @@ void KoToolBoxDocker::floatingEdgeDrag(const QSize &startSize, const QPoint &del
 
 int KoToolBoxDocker::iconWidth() const
 {
-    // the toolbox's smallest width is one icon
     return qMax(1, m_toolBox->minimumSizeHint().width());
 }
 
 int KoToolBoxDocker::chromeWidth() const
 {
-    // everything that is not icons: panel frame, margins, a scroll bar if there is one
     return qMax(0, width() - m_scrollArea->viewport()->width());
 }
-
-// void KoToolBoxDocker::applyColumns()   (the first version, kept, not deleted: it only worked docked at the left or right)
-// {
-//     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
-//     if (!mainWindow || isFloating() || !isVisible()) return;
-//     const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
-//     if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;
-//
-//     const int target = m_columns * iconWidth() + chromeWidth();
-//     if (qAbs(width() - target) < 2) return;
-//
-//     m_applying = true;
-//     mainWindow->resizeDocks({this}, {target}, Qt::Horizontal);
-//     QTimer::singleShot(400, this, [this]() { m_applying = false; });
-// }
 
 QSize KoToolBoxDocker::sizeHint() const
 {
@@ -723,7 +625,7 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
         m_screenTimer->setInterval(350);
         connect(m_screenTimer, &QTimer::timeout, this, [this]() {
             if (!isFloating() || !isVisible()) return;
-            if (QApplication::mouseButtons() != Qt::NoButton) {   // the finger is still down: look again later
+            if (QApplication::mouseButtons() != Qt::NoButton) {
                 m_screenTimer->start();
                 return;
             }
@@ -732,7 +634,7 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
             QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
             if (!screenPtr) return;
             QRect avail = screenPtr->availableGeometry();
-            avail.setTop(avail.top() + 48);        // keep a strip free at the top, as the dialogs do
+            avail.setTop(avail.top() + 48);
             QRect g = geometry();
             g.setWidth(qMin(g.width(), avail.width()));
             if (g.top() > avail.bottom() - 36) g.moveTop(avail.bottom() - 36);
@@ -801,8 +703,8 @@ void KoToolBoxDocker::krimbleDockAtEdge()
     if (area == Qt::NoDockWidgetArea) return;
     QTimer::singleShot(1000, this, [this, token, area]() {
         if (token != m_edgeDockToken || !isFloating() || !isVisible()) return;
-        if (QApplication::mouseButtons() != Qt::NoButton) return;     // a finger is down again: the screen timer looks again when it lifts
-        if (krimbleEdgeArea() != area) return;                         // it was moved away from the edge meanwhile
+        if (QApplication::mouseButtons() != Qt::NoButton) return;
+        if (krimbleEdgeArea() != area) return;
         QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
         if (!mainWindow) return;
         setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -858,7 +760,7 @@ void KoToolBoxDocker::applyColumns()
     krimbleLogState("applyColumns (start)");
     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
     if (!mainWindow || !isVisible() || !m_toolBox || !m_toolBox->layout()) return;
-    const bool columns = m_toolBox->layout()->hasHeightForWidth();   // true: vertical layout (columns); false: rows
+    const bool columns = m_toolBox->layout()->hasHeightForWidth();
 
     if (columns) {
         const int target = m_columns * iconWidth() + chromeWidth();
@@ -920,7 +822,6 @@ void KoToolBoxDocker::snapToColumns()
     if (isFloating() || !isVisible()) return;
     if (m_justDocked) { m_userDragged = false; return; }
     if (m_windowResizing || m_applying) return;
-    // do not fight a finger that is still down on the separator
     if (QApplication::mouseButtons() != Qt::NoButton) {
         if (!krimbleFingerAtToolbox()) return;
         m_userDragged = true;
@@ -1031,7 +932,7 @@ void KoToolBoxDocker::krimbleFitFloatingShape()
     const QSize tools = m_toolBox->sizeHint();
     if (tools.isEmpty()) return;
     const QMargins m = widget()->layout()->contentsMargins();
-    const int titleW = qMax(0, width() - widget()->width());        // the title bar is at the side in the horizontal layout
+    const int titleW = qMax(0, width() - widget()->width());
     const int titleH = qMax(0, height() - widget()->height());
     const int frameW = m_scrollArea->width() - m_scrollArea->viewport()->width();
     const int frameH = m_scrollArea->height() - m_scrollArea->viewport()->height();
@@ -1041,7 +942,7 @@ void KoToolBoxDocker::krimbleFitFloatingShape()
         const QRect avail = screenPtr->availableGeometry();
         if (w > int(avail.width() * 0.95)) {
             w = int(avail.width() * 0.95);
-            h += style()->pixelMetric(QStyle::PM_ScrollBarExtent);      // room for the sideways scroll bar
+            h += style()->pixelMetric(QStyle::PM_ScrollBarExtent);
         }
         h = qMin(h, int(avail.height() * 0.95));
     }

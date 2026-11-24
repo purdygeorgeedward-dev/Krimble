@@ -10,14 +10,6 @@
 #include <QQmlEngine>
 #include <QQuickItem>
 
-/**
- * @brief The KisQmlPopupWidgetManager class
- * This encapsulates a KisQQuickPopupWidget.h class, so it can be used from QML.
- *
- * QQuickWidgets don't allow popups to go outside their bounds, so this class is
- * essentially working around that by using a KisQQuickPopupWidget to wrap the
- * content item in.
- */
 class KisQmlPopupWidgetManager : public QObject
 {
     Q_OBJECT
@@ -52,10 +44,6 @@ public:
 
     QQuickItem *rootControl() const;
 
-    /**
-     * @brief margins
-     * Popup qml component has margins, so we implement those in here too.
-     */
     qreal margins() const;
     void setMargins(const qreal value);
 
@@ -99,4 +87,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KISQMLPOPUP_H
+#endif

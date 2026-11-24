@@ -73,7 +73,7 @@ inline std::vector<SensorData*> sensors(Data *data)
     return result;
 }
 
-} // namespace detail
+}
 
 MyPaintSensorDataWithRange::MyPaintSensorDataWithRange(const KoID &id)
     : KisSensorData(id)
@@ -157,7 +157,7 @@ std::vector<KisSensorData *> MyPaintSensorPack::sensors()
     return detail::sensors(&m_data);
 }
 
-const MyPaintSensorData& MyPaintSensorPack::constSensorsStruct() const 
+const MyPaintSensorData& MyPaintSensorPack::constSensorsStruct() const
 {
     return m_data;
 }
@@ -342,7 +342,6 @@ bool MyPaintSensorPack::read(KisCurveOptionDataCommon &data, const KisProperties
 
     std::vector<KisSensorData *> sensors = data.sensors();
 
-    // TODO: refactor into library resource
     std::unique_ptr<MyPaintBrush, decltype(&mypaint_brush_unref)>
         brush(mypaint_brush_new(), &mypaint_brush_unref);
 
@@ -370,7 +369,6 @@ bool MyPaintSensorPack::read(KisCurveOptionDataCommon &data, const KisProperties
         }
     }
 
-    // At least one sensor needs to be active
     if (std::find_if(sensors.begin(), sensors.end(),
                      std::mem_fn(&KisSensorData::isActive)) == sensors.end()) {
 
@@ -382,9 +380,9 @@ bool MyPaintSensorPack::read(KisCurveOptionDataCommon &data, const KisProperties
 
     data.strengthValue = qreal(mypaint_brush_get_base_value(brush.get(), brushSetting));
 
-    data.useSameCurve = false; // not used in mypaint engine
-    data.commonCurve = DEFAULT_CURVE_STRING; // not used in mypaint engine
-    data.curveMode = 0; // not used in mypaint engine
+    data.useSameCurve = false;
+    data.commonCurve = DEFAULT_CURVE_STRING;
+    data.curveMode = 0;
 
     return true;
 }
@@ -438,7 +436,6 @@ void MyPaintSensorPack::write(const KisCurveOptionDataCommon &data, KisPropertie
     doc = QJsonDocument(QJsonObject::fromVariantMap(map));
     setting->setProperty(MYPAINT_JSON, doc.toJson());
 
-    // not used in mypaint engine
     setting->setProperty(data.id.id() + "UseSameCurve", false);
     setting->setProperty(data.id.id() + "commonCurve", DEFAULT_CURVE_STRING);
     setting->setProperty(data.id.id() + "curveMode", 0);

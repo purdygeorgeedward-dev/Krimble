@@ -11,7 +11,6 @@
 #include <kis_types.h>
 #include <kundo2command.h>
 
-
 class KRITAIMAGE_EXPORT KisChangeDeselectedMaskCommand : public KUndo2Command
 {
 public:
@@ -29,4 +28,4 @@ private:
     KisSelectionMaskSP m_oldDeselectedMask;
 };
 
-#endif // KISCAHANGEDESELECTEDMASKCOMMAND_H
+#endif

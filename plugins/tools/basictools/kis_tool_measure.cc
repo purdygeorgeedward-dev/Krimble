@@ -83,7 +83,7 @@ void KisToolMeasureOptionsWidget::slotUnitChanged(int index)
     updateDistance();
 }
 
-void KisToolMeasureOptionsWidget::slotResolutionChanged(double xRes, double /*yRes*/)
+void KisToolMeasureOptionsWidget::slotResolutionChanged(double xRes, double )
 {
     m_resolution = xRes;
     updateDistance();
@@ -94,7 +94,6 @@ void KisToolMeasureOptionsWidget::updateDistance()
     double distance = m_distance / m_resolution;
     m_distanceLabel->setText(KritaUtils::prettyFormatReal(m_unit.toUserValue(distance)));
 }
-
 
 KisToolMeasure::KisToolMeasure(KoCanvasBase * canvas)
     : KisTool(canvas, KisCursor::crossCursor())
@@ -145,7 +144,7 @@ void KisToolMeasure::paint(QPainter& gc, const KoViewConverter &converter)
 
     if (distance() >= INNER_RADIUS) {
         QRectF rectangle(m_startPos.x() - INNER_RADIUS, m_startPos.y() - INNER_RADIUS, 2*INNER_RADIUS, 2*INNER_RADIUS);
-        
+
         double det = diff.x() * m_baseLineVec.y() - diff.y() * m_baseLineVec.x();
         int startAngle = -atan2(m_baseLineVec.y(), m_baseLineVec.x()) / (2*M_PI) * 360;
         int spanAngle = switch_elbow ? -angle() : angle();
@@ -162,7 +161,6 @@ void KisToolMeasure::paint(QPainter& gc, const KoViewConverter &converter)
         elbowPath.arcTo(rectangle, startAngle, spanAngle);
     }
 
-    // The opengl renderer doesn't take the QPainter's transform, so the path is scaled here
     qreal sx, sy;
     converter.zoom(&sx, &sy);
     QTransform transf;
@@ -184,7 +182,6 @@ void KisToolMeasure::beginPrimaryAction(KoPointerEvent *event)
 {
     setMode(KisTool::PAINT_MODE);
 
-    // Erase old temporary lines
     canvas()->updateCanvas(convertToPt(boundingRect()));
 
     m_startPos = convertToPixelCoord(event);
@@ -199,7 +196,6 @@ void KisToolMeasure::continuePrimaryAction(KoPointerEvent *event)
 {
     CHECK_MODE_SANITY_OR_RETURN(KisTool::PAINT_MODE);
 
-    // Erase old temporary lines
     canvas()->updateCanvas(convertToPt(boundingRect()));
 
     QPointF pos = convertToPixelCoord(event);
@@ -241,7 +237,6 @@ QWidget* KisToolMeasure::createOptionWidget()
         return nullptr;
     m_optionsWidget = new KisToolMeasureOptionsWidget(nullptr, currentImage());
 
-    // See https://bugs.kde.org/show_bug.cgi?id=316896
     QWidget *specialSpacer = new QWidget(m_optionsWidget);
     specialSpacer->setObjectName("SpecialSpacer");
     specialSpacer->setFixedSize(0, 0);

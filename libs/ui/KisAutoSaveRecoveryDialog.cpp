@@ -28,7 +28,6 @@
 #include <QCheckBox>
 #include <kis_debug.h>
 
-
 struct FileItem {
 
     FileItem() : checked(true) {}
@@ -51,7 +50,6 @@ public:
 
     QList<QWidget*> createItemWidgets(const QModelIndex& index) const override
     {
-        // a lump of coal and a piece of elastic will get you through the world
         QWidget *page = new QWidget;
         QHBoxLayout *layout = new QHBoxLayout(page);
 
@@ -83,7 +81,6 @@ public:
                            const QPersistentModelIndex &index) const override
 #endif
 
-
     {
         FileItem *fileItem = (FileItem*)index.data().value<void*>();
 
@@ -99,13 +96,11 @@ public:
         filename->setText(fileItem->name);
         modified->setText(fileItem->date);
 
-        // move the page _up_ otherwise it will draw relative to the actual position
         page->setGeometry(option.rect.translated(0, -option.rect.y()));
     }
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &/*index*/) const override
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex & ) const override
     {
-        //paint background for selected or hovered item
         QStyleOptionViewItem opt = option;
         itemView()->style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, 0);
     }
@@ -114,7 +109,6 @@ public:
     {
         return QSize(600, 200);
     }
-
 
     KisAutoSaveRecoveryDialog *m_parent;
 };
@@ -132,9 +126,9 @@ public:
         m_fileItems.clear();
     }
 
-    int rowCount(const QModelIndex &/*parent*/) const override { return m_fileItems.size(); }
+    int rowCount(const QModelIndex & ) const override { return m_fileItems.size(); }
 
-    Qt::ItemFlags flags(const QModelIndex& /*index*/) const override
+    Qt::ItemFlags flags(const QModelIndex& ) const override
     {
         Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
         return flags;
@@ -158,7 +152,7 @@ public:
         return QVariant();
     }
 
-    bool setData(const QModelIndex& index, const QVariant& /*value*/, int role) override
+    bool setData(const QModelIndex& index, const QVariant& , int role) override
     {
         if (index.isValid() && index.row() < m_fileItems.size()) {
             if (role == Qt::CheckStateRole) {
@@ -199,7 +193,6 @@ KisAutoSaveRecoveryDialog::KisAutoSaveRecoveryDialog(const QStringList &filename
         file->name = filename;
 
         QString path = autoSaveLocation() + "/" + filename;
-        // get thumbnail -- almost all Krita-supported formats save a thumbnail
         KoStore* store = KoStore::createStore(path, KoStore::Read);
 
         if (store) {
@@ -210,7 +203,6 @@ KisAutoSaveRecoveryDialog::KisAutoSaveRecoveryDialog(const QStringList &filename
             QString pathToUse = thumbnailExists ? thumbnailPath : (previewExists ? previewPath : "");
 
             if (!pathToUse.isEmpty() && store->open(pathToUse)) {
-                // Hooray! No long delay for the user...
                 QByteArray bytes = store->read(store->size());
                 store->close();
                 QImage img;
@@ -221,7 +213,6 @@ KisAutoSaveRecoveryDialog::KisAutoSaveRecoveryDialog(const QStringList &filename
             delete store;
         }
 
-        // get the date
         QDateTime date = QFileInfo(path).lastModified();
         file->date = "(" + QLocale::system().toString(date, QLocale::ShortFormat) + ")";
 
@@ -240,7 +231,7 @@ KisAutoSaveRecoveryDialog::KisAutoSaveRecoveryDialog(const QStringList &filename
     layout->addWidget(m_listView);
     layout->addWidget(new QLabel(i18n("If you select Cancel, all recoverable files will be kept.\nIf you press OK, selected files will be recovered, the unselected files discarded.")));
     setMainWidget(page);
-    
+
     setAttribute(Qt::WA_DeleteOnClose, false);
     connect( this, SIGNAL(user1Clicked()), this, SLOT(slotDeleteAll()) );
 }
@@ -274,7 +265,6 @@ QStringList KisAutoSaveRecoveryDialog::recoverableFiles()
 QString KisAutoSaveRecoveryDialog::autoSaveLocation()
 {
 #if defined(Q_OS_WIN)
-    // On Windows, use the temp location (https://bugs.kde.org/show_bug.cgi?id=314921)
     return QDir::tempPath();
 #elif defined(Q_OS_ANDROID)
     QString path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).append("/krita-backup");
@@ -283,15 +273,12 @@ QString KisAutoSaveRecoveryDialog::autoSaveLocation()
     }
     return path;
 #else
-    // On Linux, use a temp file in $HOME then. Mark it with the pid so two instances don't overwrite each other's
-    // autosave file
     return QDir::homePath();
 #endif
 }
 
 void KisAutoSaveRecoveryDialog::toggleFileItem(bool toggle)
 {
-    // I've made better man from a piece of putty and matchstick!
     QVariant v = sender()->property("fileitem") ;
     if (v.isValid()) {
         FileItem *fileItem = (FileItem*)v.value<void*>();

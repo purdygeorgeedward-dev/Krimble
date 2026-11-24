@@ -16,14 +16,6 @@
 #include <kis_node.h>
 class KisNodeDummy;
 
-/**
- * Keeps track of the node stack and manages local (UI-wide) representation
- * of the node stack. It uses KisNodeDummy objects to represent the stack.
- * This is done to break synchronization tie between UI and Image threads,
- * caused by the fact that KisNodeModel must be synchronously notified
- * when a node is removed/deleted.
- */
-
 class KRITAUI_EXPORT KisDummiesFacadeBase : public QObject
 {
     Q_OBJECT
@@ -38,21 +30,9 @@ public:
     virtual bool hasDummyForNode(KisNodeSP node) const = 0;
     virtual KisNodeDummy* dummyForNode(KisNodeSP node) const = 0;
 
-    /**
-     * Return the root dummy of the graph. Since the call to setImage() causes
-     * an **asynchronous** update of the dummies graph, it may cause
-     * rootDummy() to be null at some moments, which is a valid state.
-     */
     virtual KisNodeDummy* rootDummy() const = 0;
     virtual int dummiesCount() const = 0;
 
-    /**
-     * Sometimes (e.g. on setImage() call) sigActivateNode() signal may be emitted
-     * while the dummies facade is not yet connected to the node managed. In this
-     * case, the activation signal would be lost. Hence we should provide the last
-     * emitted value, so that node manager could cold-initialize the current node
-     * value on connection.
-     */
     KisNodeSP lastActivatedNode() const;
     void setLastActivatedNode(KisNodeSP node);
 
@@ -63,9 +43,6 @@ protected:
     virtual void removeNodeImpl(KisNodeSP node) = 0;
 
 Q_SIGNALS:
-    /**
-     * The signals for controlling the node model
-     */
 
     void sigBeginInsertDummy(KisNodeDummy *parent, int index, const QString &metaObjectType);
     void sigEndInsertDummy(KisNodeDummy *dummy);
@@ -75,12 +52,6 @@ Q_SIGNALS:
 
     void sigDummyChanged(KisNodeDummy *dummy);
 
-    /**
-     * This signal is emitted when the shape controller wants to request
-     * the change of an active layer. E.g. when a new layer is added or
-     * when the root layer of the image is changed. It should be forwarded
-     * through a signal to allow queueing and synchronization of threads.
-     */
     void sigActivateNode(KisNodeSP node);
 
 private Q_SLOTS:
@@ -103,4 +74,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_DUMMIES_FACADE_BASE_H */
+#endif

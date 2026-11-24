@@ -23,4 +23,4 @@ public:
     LAGER_QT_CURSOR(int, type);
 };
 
-#endif // KISCOLORSOURCEOPTIONMODEL_H
+#endif

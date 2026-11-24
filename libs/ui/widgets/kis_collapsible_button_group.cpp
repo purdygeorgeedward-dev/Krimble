@@ -12,7 +12,7 @@ struct KisCollapsibleButtonGroup::Private {
     }
 
     ~Private() {
-    }    
+    }
 
     QScopedPointer<QToolButton> collapsedButton;
     QList<QToolButton*> allButtons;
@@ -39,7 +39,7 @@ KisCollapsibleButtonGroup::KisCollapsibleButtonGroup(QWidget *parent)
     connect(m_d->collapsedButton.data(), &QToolButton::triggered, [this](QAction* triggered) {
         m_d->collapsedButton->setDefaultAction(triggered);
     });
-}	
+}
 
 void KisCollapsibleButtonGroup::setAutoRaise(bool autoRaise)
 {
@@ -115,8 +115,6 @@ QToolButton* KisCollapsibleButtonGroup::addAction(QAction *action)
 
     action->setIconVisibleInMenu(true);
     if (action->text().isEmpty()) {
-        // TODO: Once we're out of string freeze, we should try to use a shorter string here.
-        // Tooltip is too long, but at least we know it's localized!
         action->setText(action->toolTip());
     }
 

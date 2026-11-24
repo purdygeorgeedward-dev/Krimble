@@ -14,17 +14,6 @@
 
 class KoUpdater;
 
-/**
- * KoUpdaterPrivate is the gui-thread side of KoUpdater. Communication
- * between KoUpdater and KoUpdaterPrivate is handled through queued
- * connections -- this is the main app thread part of the
- * KoUpdater-KoUpdaterPrivate bridge.
- *
- * The gui thread can iterate over its list of KoUpdaterPrivate
- * instances for the total progress computation: the queued signals
- * from the threads will only arrive when the eventloop in the gui
- * thread has a chance to deliver them.
- */
 class KoUpdaterPrivate : public QObject
 {
 
@@ -34,8 +23,6 @@ public:
 
     KoUpdaterPrivate(int weight, const QString& name, bool isPersistent = false);
 
-    /// when deleting an updater, make sure the accompanying thread is
-    /// interrupted, too.
     ~KoUpdaterPrivate() override;
 
     bool interrupted() const { return m_interrupted; }
@@ -56,28 +43,23 @@ public:
 
 public Q_SLOTS:
 
-    /// Cancel comes from KoUpdater
     void cancel();
 
     void setInterrupted(bool value = true);
 
-    /// progress comes from KoUpdater
     void setProgress( int percent );
 
     void setAutoNestedName(const QString &name);
     void setHasValidRange(bool value);
 
-
 Q_SIGNALS:
 
-    /// Emitted whenever the progress changed
     void sigUpdated();
 
-    /// Emitted whenever the operation is cancelled by the downstream updater
     void sigCancelled();
 
 private:
-    int m_progress; // always in percent
+    int m_progress;
     int m_weight;
     bool m_interrupted;
     QString m_autoNestedName;

@@ -19,7 +19,6 @@
 
 class KoShape;
 
-
 class KRITAFLAKE_EXPORT KoShapeResizeCommand : public KisCommandUtils::SkipFirstRedoBase
 {
 public:
@@ -49,4 +48,4 @@ private:
 
 };
 
-#endif // KOSHAPERESIZECOMMAND_H
+#endif

@@ -41,8 +41,6 @@ template<class T> struct GenericSetting
 template<class T> struct NumericSetting
 {
     typedef T ValueType;
-    // the storage type, for enums it's the underlying integral type, otherwise T
-    // NOTE: The use of std::remove_cv is because std::type_identity is C++20
     using ST = typename std::conditional_t<std::is_enum<T>::value, std::underlying_type<T>, std::remove_cv<T>>::type;
 
     T readValue(const KConfigGroup &group) const
@@ -86,7 +84,7 @@ struct ShadeLine {
         : gradient(grad), offset(offs), patchCount(patchC) {}
     QVector4D gradient;
     QVector4D offset;
-    int patchCount {-1}; // negative value means slider mode
+    int patchCount {-1};
 };
 
 class WGConfig
@@ -117,7 +115,6 @@ public:
     static QVector<KisColorSelectorConfiguration> defaultFavoriteConfigurations();
     void setFavoriteConfigurations(const QVector<KisColorSelectorConfiguration> &favoriteConfigs);
 
-    // shade selector
     static QVector<ShadeLine> defaultShadeSelectorLines();
     QVector<ShadeLine> shadeSelectorLines(bool defaultValue = false) const;
     void setShadeSelectorLines(const QVector<ShadeLine> &shadeLines);
@@ -135,12 +132,10 @@ public:
         return m_cfg.readEntry(name, defaultValue);
     }
 
-
-
     static const KisColorSelectorConfiguration defaultColorSelectorConfiguration;
 
 private:
-    /*mutable*/ KConfigGroup m_cfg;
+    KConfigGroup m_cfg;
     bool m_readOnly;
 };
 
@@ -156,34 +151,15 @@ public:
 
     WGConfigNotifier operator=(const WGConfigNotifier&) = delete;
 
-    /**
-     * Notify that the plugin configuration has changed. This will cause the
-     * configChanged() signal to be emitted.
-     */
     void notifyConfigChanged();
-    /**
-     * Notify that a setting which affects KisVisualColorSelector or the
-     * KisVisualColorModel it uses has changed.
-     */
     void notifySelectorConfigChanged();
 
 Q_SIGNALS:
-    /**
-     * This signal is emitted whenever notifyConfigChanged() is called.
-     */
     void configChanged();
     void selectorConfigChanged();
 };
 
-/**
- * @return the WGConfigNotifier singleton
- */
 WGConfigNotifier* notifier();
-
-/* ======== Configuration object definitions ========
-/  TODO: Think about splitting this off into individual headers
-/  to prevent full recompile on every change.
-*/
 
 enum Scrolling {
     ScrollNone,
@@ -214,13 +190,12 @@ extern const GenericSetting<bool> commonColorsAutoUpdate;
 extern const GenericSetting<bool> quickSettingsEnabled;
 extern const NumericSetting<int> popupSize;
 
-// Shade Selector
 extern const GenericSetting<bool> minimalShadeSelectorEnabled;
 extern const NumericSetting<int> shadeSelectorLineHeight;
 extern const GenericSetting<bool> shadeSelectorUpdateOnExternalChanges;
 extern const GenericSetting<bool> shadeSelectorUpdateOnInteractionEnd;
 extern const GenericSetting<bool> shadeSelectorUpdateOnRightClick;
 
-} // namespace WGConfig
+}
 
-#endif // WGCONFIG_H
+#endif

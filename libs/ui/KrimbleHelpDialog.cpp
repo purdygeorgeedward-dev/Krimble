@@ -1,6 +1,3 @@
-/*
- * Krimble 2026-10-25: see KrimbleHelpDialog.h.
- */
 #include "KrimbleHelpDialog.h"
 
 #include <klocalizedstring.h>
@@ -34,7 +31,6 @@ KrimbleHelpDialog::KrimbleHelpDialog(QWidget *parent, const QString &markdown)
     root->setContentsMargins(8, 8, 8, 8);
     root->setSpacing(6);
 
-    // "Go to" the parts of the handbook (its "## " headings), and Find
     m_parts = new QComboBox(this);
     m_parts->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_parts->setMinimumContentsLength(8);
@@ -69,7 +65,6 @@ KrimbleHelpDialog::KrimbleHelpDialog(QWidget *parent, const QString &markdown)
     });
     connect(m_find, &QLineEdit::returnPressed, this, [this]() { findText(false); });
     connect(m_find, &QLineEdit::textChanged, this, [this](const QString &text) {
-        // as it is typed: from the start of the word being typed
         if (text.isEmpty()) return;
         QTextCursor c = m_browser->textCursor();
         c.setPosition(qMin(c.selectionStart(), c.position()));
@@ -89,7 +84,6 @@ void KrimbleHelpDialog::goToPart(const QString &heading)
         if (b.blockFormat().headingLevel() == 2 && b.text().trimmed() == heading) {
             QTextCursor c(b);
             m_browser->setTextCursor(c);
-            // the heading at the top of the window
             QScrollBar *bar = m_browser->verticalScrollBar();
             bar->setValue(bar->value() + m_browser->cursorRect(c).top() - 4);
             return;
@@ -104,7 +98,6 @@ void KrimbleHelpDialog::findText(bool backwards)
     QTextDocument::FindFlags flags;
     if (backwards) flags |= QTextDocument::FindBackward;
     if (!m_browser->find(text, flags)) {
-        // from the other end
         m_browser->moveCursor(backwards ? QTextCursor::End : QTextCursor::Start);
         m_browser->find(text, flags);
     }

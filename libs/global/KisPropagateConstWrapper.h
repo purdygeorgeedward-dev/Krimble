@@ -12,4 +12,4 @@
 #include "3rdparty/propagate_const.h"
 #endif
 
-#endif // KISPROPAGATECONSTWRAPPER_H
+#endif

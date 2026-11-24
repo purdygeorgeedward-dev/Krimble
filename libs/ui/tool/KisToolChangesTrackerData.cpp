@@ -11,7 +11,6 @@ KIS_DECLARE_STATIC_INITIALIZER {
     qRegisterMetaType<KisToolChangesTrackerDataSP>("KisToolChangesTrackerDataSP");
 }
 
-
 KisToolChangesTrackerData::~KisToolChangesTrackerData()
 {
 }

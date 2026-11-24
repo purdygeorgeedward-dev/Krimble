@@ -12,12 +12,6 @@
 
 #include "KoCompositeOpBase.h"
 
-/**
- * Generic implementation of the COPY composite op which respects selection.
- *
- * Note: this composite op is necessary with the deform brush and should not
- * be hidden.
- */
 template<class Traits>
 class KoCompositeOpCopy2: public KoCompositeOpBase< Traits, KoCompositeOpCopy2<Traits> >
 {
@@ -43,8 +37,6 @@ public:
 
         if (opacity == unitValue<channels_type>()) {
             if (!alphaLocked || srcAlpha != zeroValue<channels_type>()) {
-                // don't blend if the color of the destination is undefined (has zero opacity)
-                // copy the source channel instead
                 for(qint32 i=0; i<channels_nb; ++i)
                     if(i != alpha_pos && (allChannelFlags || channelFlags.testBit(i)))
                         dst[i] = src[i];
@@ -56,7 +48,7 @@ public:
 
             newAlpha = dstAlpha;
 
-        } else { // opacity 0...1
+        } else {
 
             if (!alphaLocked || srcAlpha != zeroValue<channels_type>()) {
 
@@ -66,13 +58,8 @@ public:
                     return newAlpha;
                 }
 
-                // blend the color channels
                 for(qint32 i=0; i<channels_nb; ++i) {
                     if(i != alpha_pos && (allChannelFlags || channelFlags.testBit(i))) {
-
-                        // We use the most fundamental OVER algorithm here,
-                        // which multiplies, blends and then unmultiplies the
-                        // channels
 
                         typedef typename KoColorSpaceMathsTraits<channels_type>::compositetype composite_type;
 
@@ -93,4 +80,4 @@ public:
     }
 };
 
-#endif // KO_COMPOSITEOP_COPY2_H
+#endif

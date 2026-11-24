@@ -20,10 +20,6 @@ public:
 
     void setText(const QString &text);
 
-    /**
-     * The default warning message for a case when the user
-     * tries to change color profile for a multilayered image
-     */
     static QString changeImageProfileWarningText();
 
 private:
@@ -31,4 +27,4 @@ private:
     QLabel *m_warningText = 0;
 };
 
-#endif // KISWARNINGWIDGET_H
+#endif

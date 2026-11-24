@@ -64,9 +64,9 @@
 
 #if defined(HAVE_LCMS_FAST_FLOAT_PLUGIN)
 #include <lcms2_fast_float.h>
-#endif 
+#endif
 
-void lcms2LogErrorHandlerFunction(cmsContext /*ContextID*/, cmsUInt32Number ErrorCode, const char *Text)
+void lcms2LogErrorHandlerFunction(cmsContext , cmsUInt32Number ErrorCode, const char *Text)
 {
     errorPigment << "Lcms2 error: " << ErrorCode << Text;
 }
@@ -79,12 +79,10 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
     KoResourcePaths::addAssetType("icc_profiles", "data", "/color/icc");
     KoResourcePaths::addAssetType("icc_profiles", "data", "/profiles/");
 
-    // Set the lmcs error reporting function
     cmsSetLogErrorHandler(&lcms2LogErrorHandlerFunction);
 
     KoColorSpaceRegistry *registry = KoColorSpaceRegistry::instance();
 
-    // Initialise color engine
     KoColorSpaceEngineRegistry::instance()->add(new IccColorSpaceEngine);
 
     QStringList profileFilenames;
@@ -113,7 +111,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
     QStringList blackList = QStringList() << "panhexro.icm"
                                           << "ctpctdmed.icc";
 
-
     Q_FOREACH(const QString &iccProfiledir, iccProfileDirs) {
         QDir profileDir(iccProfiledir);
         Q_FOREACH(const QString &entry, profileDir.entryList(QStringList() << "*.icm" << "*.icc" << "*.ICM" << "*.ICC", QDir::NoDotAndDotDot | QDir::Files | QDir::Readable)) {
@@ -122,7 +119,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
         }
     }
 
-    // Load the profiles
     if (!profileFilenames.empty()) {
         for (QStringList::Iterator it = profileFilenames.begin(); it != profileFilenames.end(); ++it) {
 
@@ -131,7 +127,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
 
             profile->load();
             if (profile->valid()) {
-                //qDebug() << "Valid profile : " << profile->fileName() << profile->name();
                 registry->addProfileToMap(profile);
             } else {
                 qDebug() << "Invalid profile : " << *it;
@@ -139,8 +134,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
             }
         }
     }
-
-    // ------------------- LAB ---------------------------------
 
     KoColorProfile *labProfile = LcmsColorProfileContainer::createFromLcmsProfile(cmsCreateLab4Profile(0));
     registry->addProfile(labProfile);
@@ -161,8 +154,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
         new KoBasicHistogramProducerFactory<KoBasicF32HistogramProducer>
             (KoID("LABAF32HISTO", i18n("L*a*b*/32 Histogram")), LABAColorModelID.id(), Float32BitsColorDepthID.id()));
 
-    // ------------------- RGB ---------------------------------
-
     KoColorProfile *rgbProfile = LcmsColorProfileContainer::createFromLcmsProfile(cmsCreate_sRGBProfile());
     registry->addProfile(rgbProfile);
 
@@ -176,13 +167,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
     KoColorProfile *rec2100pq80nits = new IccColorProfile(query);
     registry->addProfile(rec2100pq80nits);
 
-    /**
-     * By default we remap the legacy HDR profile into the new Rec2020PQ
-     * profile with CICP values. This profile will also have CRWL tag set
-     * to the official 203 nits. The legacy HDR profile loaded from older
-     * .kra files will have a different mapping to map to 80 nits used in
-     * Krita previously.
-     */
     const QString legacyRec2020PQProfileName = "High Dynamic Range UHDTV Wide Color Gamut Display (Rec. 2020) - SMPTE ST 2084 PQ EOTF";
     registry->addProfileAlias(legacyRec2020PQProfileName, rec2100pq203nits->name());
 
@@ -214,8 +198,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
     KoHistogramProducerFactoryRegistry::instance()->add(
         new KoBasicHistogramProducerFactory<KoBasicF32HistogramProducer>
             (KoID("RGF328HISTO", i18n("RGBA/F32 Histogram")), RGBAColorModelID.id(), Float32BitsColorDepthID.id()));
-
-    // ------------------- GRAY ---------------------------------
 
     cmsToneCurve *Gamma = cmsBuildGamma(0, 2.2);
     cmsHPROFILE hProfile = cmsCreateGrayProfile(cmsD50_xyY(), Gamma);
@@ -251,8 +233,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
         new KoBasicHistogramProducerFactory<KoBasicF32HistogramProducer>
             (KoID("GRAYAF32HISTO", i18n("GRAY/F32 float Histogram")), GrayAColorModelID.id(), Float32BitsColorDepthID.id()));
 
-    // ------------------- CMYK ---------------------------------
-
     registry->add(new CmykU8ColorSpaceFactory());
     registry->add(new CmykU16ColorSpaceFactory());
     registry->add(new CmykF32ColorSpaceFactory());
@@ -268,8 +248,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
     KoHistogramProducerFactoryRegistry::instance()->add(
         new KoBasicHistogramProducerFactory<KoBasicF32HistogramProducer>
             (KoID("CMYKF32HISTO", i18n("CMYK/F32 Histogram")), CMYKAColorModelID.id(), Float32BitsColorDepthID.id()));
-
-    // ------------------- XYZ ---------------------------------
 
     KoColorProfile *xyzProfile = LcmsColorProfileContainer::createFromLcmsProfile(cmsCreateXYZProfile());
     registry->addProfile(xyzProfile);
@@ -303,11 +281,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
         new KoBasicHistogramProducerFactory<KoBasicF32HistogramProducer>
             (KoID("XYZF32HISTO", i18n("XYZF32 Histogram")), XYZAColorModelID.id(), Float32BitsColorDepthID.id()));
 
-    // ------------------- YCBCR ---------------------------------
-
-    //    KoColorProfile *yCbCrProfile = LcmsColorProfileContainer::createFromLcmsProfile(cmsCreateYCBCRProfile());
-    //    registry->addProfile(yCbCrProfile);
-
     registry->add(new YCbCrU8ColorSpaceFactory());
     registry->add(new YCbCrU16ColorSpaceFactory());
     registry->add(new YCbCrF32ColorSpaceFactory());
@@ -324,7 +297,6 @@ LcmsEnginePlugin::LcmsEnginePlugin(QObject *parent, const QVariantList &)
         new KoBasicHistogramProducerFactory<KoBasicF32HistogramProducer>
             (KoID("YCBCRF32HISTO", i18n("YCbCr/F32 Histogram")), YCbCrAColorModelID.id(), Float32BitsColorDepthID.id()));
 
-    // Add profile alias for default profile from lcms1
     registry->addProfileAlias("sRGB built-in - (lcms internal)", "sRGB built-in");
     registry->addProfileAlias("gray built-in - (lcms internal)", "gray built-in");
     registry->addProfileAlias("Lab identity built-in - (lcms internal)", "Lab identity built-in");

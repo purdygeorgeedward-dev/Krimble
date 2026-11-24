@@ -16,4 +16,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif /* __KIS_LOD_CAPABLE_LAYER_OFFSET_TEST_H */
+#endif

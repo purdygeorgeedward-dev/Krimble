@@ -8,13 +8,11 @@
 
 #include "kis_properties_configuration.h"
 
-// new rewrite
-const QString CURVE_LINE_WIDTH = "Curve/lineWidth"; // same as in sketch
-const QString CURVE_PAINT_CONNECTION_LINE = "Curve/makeConnection"; // same as in sketch
+const QString CURVE_LINE_WIDTH = "Curve/lineWidth";
+const QString CURVE_PAINT_CONNECTION_LINE = "Curve/makeConnection";
 const QString CURVE_STROKE_HISTORY_SIZE = "Curve/strokeHistorySize";
 const QString CURVE_SMOOTHING = "Curve/smoothing";
 const QString CURVE_CURVES_OPACITY = "Curve/curvesOpacity";
-
 
 bool KisCurveOpOptionData::read(const KisPropertiesConfiguration *config)
 {

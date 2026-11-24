@@ -26,11 +26,6 @@ public:
     KisSafeNodeProjectionStoreBase(const KisSafeNodeProjectionStoreBase &rhs);
     ~KisSafeNodeProjectionStoreBase();
 
-    /**
-     * Notify the store that current projection device can be
-     * safely dropped. The store will try to recycle the device
-     * (taking ABA problem into account).
-     */
     void releaseDevice();
 
     void setImage(KisImageWSP image);
@@ -61,11 +56,6 @@ public:
     KisSafeNodeProjectionStore();
     KisSafeNodeProjectionStore(const KisSafeNodeProjectionStore &rhs);
 
-    /**
-     * Safely fetch the current node projection device. If projection
-     * already exists, the existing device is returned. Otherwise a new
-     * device is created as a full copy of \p prototype.
-     */
     KisPaintDeviceSP getDeviceLazy(KisPaintDeviceSP prototype);
 };
 
@@ -75,14 +65,8 @@ public:
     KisSafeSelectionNodeProjectionStore();
     KisSafeSelectionNodeProjectionStore(const KisSafeSelectionNodeProjectionStore &rhs);
 
-    /**
-     * Safely fetch the current node projection device. If projection
-     * already exists, the existing device is returned. Otherwise a new
-     * device is created as a full copy of \p prototype.
-     */
     KisSelectionSP getDeviceLazy(KisSelectionSP prototype);
 };
-
 
 typedef KisSharedPtr<KisSafeNodeProjectionStoreBase> KisSafeNodeProjectionStoreBaseSP;
 typedef KisWeakSharedPtr<KisSafeNodeProjectionStoreBase> KisSafeNodeProjectionStoreBaseWSP;
@@ -93,4 +77,4 @@ typedef KisWeakSharedPtr<KisSafeNodeProjectionStore> KisSafeNodeProjectionStoreW
 typedef KisSharedPtr<KisSafeSelectionNodeProjectionStore> KisSafeSelectionNodeProjectionStoreSP;
 typedef KisWeakSharedPtr<KisSafeSelectionNodeProjectionStore> KisSafeSelectionNodeProjectionStoreWSP;
 
-#endif // KISSAFENODEPROJECTIONSTORE_H
+#endif

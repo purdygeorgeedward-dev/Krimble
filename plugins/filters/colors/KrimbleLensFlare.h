@@ -27,14 +27,14 @@ enum Kind { Zoom = 0, Prime = 1, Cinematic = 2, Starburst = 3 };
 
 struct Params {
     Kind kind = Zoom;
-    double sx = 0, sy = 0;        // the light, in picture pixels
-    double cx = 0, cy = 0;        // the center of the picture
-    double diagonal = 1255;       // the picture's diagonal
-    double brightness = 1.0;      // 0 .. 2
-    double rays = 1.0;            // 0 .. 2
-    double ghosts = 1.0;          // 0 .. 2
-    double ring = 1.0;            // 0 .. 2
-    double warmth = 0.0;          // -1 (cool) .. 1 (warm)
+    double sx = 0, sy = 0;
+    double cx = 0, cy = 0;
+    double diagonal = 1255;
+    double brightness = 1.0;
+    double rays = 1.0;
+    double ghosts = 1.0;
+    double ring = 1.0;
+    double warmth = 0.0;
     unsigned seed = 1;
 };
 
@@ -63,11 +63,10 @@ public:
     explicit Renderer(const Params &params) : m(params)
     {
         s = qMax(0.05, m.diagonal / 1255.0);
-        // the tint: warm by default, cool for the cinematic type; Warmth moves it
         RGB warm{1.0, 0.85, 0.6}, cool{0.55, 0.75, 1.0};
         double w = (m.kind == Cinematic ? -0.6 : 0.6) + m.warmth;
         w = qBound(-1.0, w, 1.0);
-        const double a = (w + 1.0) / 2.0;   // 0 = cool, 1 = warm
+        const double a = (w + 1.0) / 2.0;
         tint = {cool.r + (warm.r - cool.r) * a, cool.g + (warm.g - cool.g) * a, cool.b + (warm.b - cool.b) * a};
 
         std::mt19937 rng(m.seed);
@@ -80,7 +79,6 @@ public:
             for (int i = 0; i < 6; ++i) rays.append({i * M_PI / 3 + 0.3, 1.0});
             rayWidth = 0.012; rayAmp = 1.1;
         }
-        // angle bins: the rays near each angle, so each pixel looks at one or two rays only
         bins.resize(Bins);
         for (int i = 0; i < rays.size(); ++i) {
             const double reach = rayWidth * 3.5;
@@ -109,7 +107,6 @@ public:
         ringRadius = (m.kind == Zoom ? 230 : 150) * s;
     }
 
-    // the light added at a pixel (each channel 0 .. 1 after clamping)
     RGB light(double x, double y) const
     {
         const double dx = x - m.sx, dy = y - m.sy;
@@ -154,7 +151,6 @@ public:
                     const double e = std::sqrt((gx / 2.2) * (gx / 2.2) + gy * gy);
                     cover = qBound(0.0, (g.R - e) / (3 * s) + 0.5, 1.0);
                 } else {
-                    // a six-sided disc
                     const double rr = std::sqrt(gx * gx + gy * gy);
                     const double seg = M_PI / 3;
                     double a = std::atan2(gy, gx) - 0.4;
@@ -191,6 +187,6 @@ private:
     double ringRadius = 230;
 };
 
-} // namespace KrimbleLensFlare
+}
 
 #endif

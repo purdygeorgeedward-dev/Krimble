@@ -35,4 +35,4 @@ private:
 
 };
 
-#endif // KIS_TAG_MODEL_PROVIDER_H
+#endif

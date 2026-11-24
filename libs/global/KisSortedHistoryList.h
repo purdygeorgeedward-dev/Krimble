@@ -23,16 +23,10 @@ public:
     {
     }
 
-    /**
-     * @return the number of elements in the list
-     */
     int size() const {
         return m_list.size();
     }
 
-    /**
-     * @return @pos's element of the sorted history list
-     */
     T at(int pos) const {
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(pos < size(), T());
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(pos >= 0, T());
@@ -40,11 +34,6 @@ public:
         return m_sortedList.at(pos);
     }
 
-    /**
-     * Add an element to the history list
-     *
-     * @return the position of the inserted element in the sorted list
-     */
     int append(const T& value) {
         int newElementIndex = m_list.append(value);;
         if (resortList()) {
@@ -58,26 +47,15 @@ public:
         return newElementIndex;
     }
 
-    /**
-     * Clear all historical elements from the list
-     */
     void clear() {
         m_list.clear();
         m_sortedList.clear();
     }
 
-    /**
-     * @return the maximum possible number of elements in the list
-     */
     int maxSize() const {
         return m_list.maxSize();
     }
 
-    /**
-     * Set the comparison function for sorting the elements.
-     *
-     * Set to empty function `compare_less{}` to disable sorting completely
-     */
     void setCompareLess(compare_less func) {
         m_compareLess = func;
         resortList();
@@ -110,5 +88,4 @@ private:
     compare_less m_compareLess;
 };
 
-
-#endif // KISSORTEDHISTORYLIST_H
+#endif

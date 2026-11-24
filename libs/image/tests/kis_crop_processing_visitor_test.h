@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testWrappedInCommand();
 };
 
-#endif /* __KIS_CROP_PROCESSING_VISITOR_TEST_H */
+#endif

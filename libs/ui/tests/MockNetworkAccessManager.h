@@ -16,7 +16,6 @@
 
 #include "kritaui_export.h"
 
-
 struct FakeReplyData {
     QUrl url;
     QNetworkAccessManager::Operation requestMethod;
@@ -64,4 +63,4 @@ private:
     FakeReplyData m_replyData;
 };
 
-#endif // MOCKNETWORKACCESSMANAGER_H
+#endif

@@ -154,50 +154,13 @@ inline float dither_factor_bayer_8(int x, int y)
 {
     y ^= x;
 
-    /* Compute reverse(interleave(xor(x mod n, y mod n), x mod n))
-     * Here n = 8 and `mod n` is the bottom 3 bits.
-     */
     uint32_t m = ((y & 0x1) << 5) | ((x & 0x1) << 4) | ((y & 0x2) << 2) | ((x & 0x2) << 1) | ((y & 0x4) >> 1) | ((x & 0x4) >> 2);
 
-    /* m is in range [0, 63].  We scale it to [0, 63.0f/64.0f], then
-     * shift it to to [1.0f/128.0f, 127.0f/128.0f] so that 0 < d < 1.
-     * This ensures exact values are not changed by dithering.
-     */
     return static_cast<float>(m) * (1.f / 64.f) + (1.f / 128.f);
 }
 
 inline float apply_dither(float f, float d, float s)
 {
-    /* float_to_unorm splits the [0, 1] segment in (1 << n_bits)
-     * subsections of equal length; however unorm_to_float does not
-     * map to the center of those sections.  In fact, pixel value u is
-     * mapped to:
-     *
-     *       u              u              u               1
-     * -------------- = ---------- + -------------- * ----------
-     *  2^n_bits - 1     2^n_bits     2^n_bits - 1     2^n_bits
-     *
-     * Hence if f = u / (2^n_bits - 1) is exactly representable on a
-     * n_bits palette, all the numbers between
-     *
-     *     u
-     * ----------  =  f - f * 2^n_bits = f + (0 - f) * 2^n_bits
-     *  2^n_bits
-     *
-     *  and
-     *
-     *    u + 1
-     * ---------- = f - (f - 1) * 2^n_bits = f + (1 - f) * 2^n_bits
-     *  2^n_bits
-     *
-     * are also mapped back to u.
-     *
-     * Hence the following calculation ensures that we add as much
-     * noise as possible without perturbing values which are exactly
-     * representable in the target colorspace.  Note that this corresponds
-     * to mixing the original color with noise with a ratio of `1 /
-     * 2^n_bits`.
-     */
     return f + (d - f) * s;
 }
-} // namespace KisDitherMaths
+}

@@ -33,7 +33,7 @@ public:
     {
     }
 
-    constexpr KisSurfaceColorSpaceWrapper(ColorSpace colorSpace) 
+    constexpr KisSurfaceColorSpaceWrapper(ColorSpace colorSpace)
         : m_colorSpace(colorSpace)
     {
     }
@@ -83,11 +83,6 @@ public:
     }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    /**
-     * Because both QSurfaceFormat::ColorSpace and KisSurfaceColorSpaceWrapper::ColorSpace are enums, there is an 
-     * ambiguity when trying to compare KisSurfaceColorSpaceWrapper to KisSurfaceColorSpaceWrapper::ColorSpace.
-     * We need to resolve this ambiguity manually by providing corresponding operators.
-     */ 
     friend constexpr bool operator==(KisSurfaceColorSpaceWrapper::ColorSpace lhs, const KisSurfaceColorSpaceWrapper &rhs) {
         return lhs == rhs.m_colorSpace;
     }
@@ -119,7 +114,7 @@ public:
         case bt2020PQColorSpace:
             return QColorSpace::Bt2100Pq;
         }
-        
+
         Q_UNREACHABLE_RETURN(QColorSpace());
     }
 #endif
@@ -128,4 +123,4 @@ private:
     ColorSpace m_colorSpace;
 };
 
- #endif /* KISSURFACECOLORSPACEWRAPPER_H */
+ #endif

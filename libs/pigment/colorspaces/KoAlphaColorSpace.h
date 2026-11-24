@@ -23,7 +23,6 @@
 #include <half.h>
 #endif
 
-
 template <typename _T, typename _Tdst>
 class KoColorSpaceMaths;
 
@@ -43,10 +42,6 @@ template <> inline KoID alphaIdFromChannelType<half>() { return KoID("ALPHAF16",
 
 class QBitArray;
 
-/**
- * The alpha mask is a special color strategy that treats all pixels as
- * alpha value with a color common to the mask. The default color is white.
- */
 template <class _CSTrait>
 class KRITAPIGMENT_EXPORT KoAlphaColorSpaceImpl : public KoColorSpaceAbstract<_CSTrait>
 {
@@ -54,7 +49,6 @@ class KRITAPIGMENT_EXPORT KoAlphaColorSpaceImpl : public KoColorSpaceAbstract<_C
     typedef KoColorSpaceMaths<channels_type> _Maths;
     typedef KoColorSpaceMaths<channels_type, quint8> _MathsToU8;
     typedef KoColorSpaceMaths<quint8, channels_type> _MathsFromU8;
-
 
 public:
 
@@ -81,7 +75,7 @@ public:
         return false;
     }
 
-    bool profileIsCompatible(const KoColorProfile* /*profile*/) const override {
+    bool profileIsCompatible(const KoColorProfile* ) const override {
         return false;
     }
 

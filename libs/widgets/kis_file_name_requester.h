@@ -15,19 +15,10 @@
 #include <KoFileDialog.h>
 #include <QValidator>
 
-
 namespace Ui {
     class WdgFileNameRequester;
 }
 
-/**
- * This represents an editable file name.
- * Visual it presents a QLineEdit + a button that pops up
- * a file chooser.
- *
- * Signals are fired when the user changes the text
- * or selects a new file via the button/file chooser.
- */
 class KRITAWIDGETS_EXPORT KisFileNameRequester : public QWidget
 {
     Q_OBJECT
@@ -37,7 +28,6 @@ public:
     ~KisFileNameRequester() override;
 
     void setStartDir(const QString &path);
-    /// Set the name used to store the last-used directory in the settings
     void setConfigurationName(const QString &name);
 
     QString fileName() const;
@@ -46,11 +36,6 @@ public:
     KoFileDialog::DialogType mode() const;
     void setReadOnlyText(bool readonly);
 
-    /**
-     * Sets the mime type filters to use, same format as KoFileDialog::setMimeTypeFilters.
-     * If this is not called, the default list is used, which simply selects all the image
-     * file formats Krita can load.
-     */
     void setMimeTypeFilters(const QStringList &filterList, QString defaultFilter = QString());
 
     void setValidator(QValidator *validator);
@@ -72,4 +57,4 @@ private:
     QString m_name;
 };
 
-#endif // KIS_FILE_NAME_REQUESTER_H
+#endif

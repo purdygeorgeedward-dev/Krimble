@@ -9,7 +9,6 @@
 
 #include "KisMirrorAxisConfig.h"
 
-
 class Q_DECL_HIDDEN KisMirrorAxisConfig::Private
 {
 public:
@@ -52,7 +51,6 @@ public:
 
     QPointF axisPosition;
 };
-
 
 KisMirrorAxisConfig::KisMirrorAxisConfig()
     : QObject()

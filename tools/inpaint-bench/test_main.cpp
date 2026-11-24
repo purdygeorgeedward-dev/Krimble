@@ -3,7 +3,6 @@
 #include <vector>
 #include <chrono>
 #include <cstdlib>
-// usage: test image.ppm mask.pgm out.ppm [expand] [sharpness]
 int main(int argc, char **argv)
 {
     if (argc < 4) return 1;

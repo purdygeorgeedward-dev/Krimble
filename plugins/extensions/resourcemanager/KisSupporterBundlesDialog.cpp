@@ -53,10 +53,6 @@ void KisSupporterBundlesDialog::slotFetchIndexDone(bool success, const QString &
 
     } else {
         m_lblError->setText(i18n("<strong>Error:</strong> %1").arg(errorMessage.toHtmlEscaped()));
-        // Delay this a bit to avoid excessively fast retries and to make it
-        // clear to the user that a retry is actually happening. Otherwise the
-        // loading page may flash so quickly that it seems like it's not doing
-        // anything at all.
         QTimer::singleShot(1000, [this] {
             m_stack->setCurrentIndex(PAGE_ERROR);
         });
@@ -78,11 +74,7 @@ void KisSupporterBundlesDialog::slotResetBundleWidgets()
 
     QVector<KisSupporterBundleWidget *> bundleWidgets;
     for (const KisSupporterBundle &bundle : m_fetcher->bundles()) {
-        // Gather the products that this bundle is associated with.
         QVector<KisSupporterProduct> bundleProducts = getProductsForBundle(currentProducts, bundle);
-        // Only show bundles that the user could actually acquire, there's no
-        // point in dangling a bundle in front of their nose that they couldn't
-        // purchase any product for.
         if (couldOwnAnyProduct(bundleProducts)) {
             KisSupporterBundleWidget *bundleWidget = new KisSupporterBundleWidget(m_fetcher, bundle, bundleProducts);
             bundleWidgets.append(bundleWidget);
@@ -101,9 +93,6 @@ void KisSupporterBundlesDialog::slotResetBundleWidgets()
     } else {
         std::sort(bundleWidgets.begin(), bundleWidgets.end(), &KisSupporterBundlesDialog::bundleWidgetLessThan);
 
-        // We've been asked to put this disclaimer here so that people don't
-        // contact the authors and complain about paywalling or something.
-        // Don't remove this message without discussing it with them.
         QLabel *purchaseNoteLabel =
             new QLabel(i18n("These bundles have been made available by their authors to help provide rewards for "
                             "supporting Krita's development. They do not receive compensation for purchases and may "

@@ -17,4 +17,4 @@ public:
     GamutMaskPlugin(QObject *parent, const QVariantList &);
 };
 
-#endif // H_GAMUT_MASK_PLUGIN_H
+#endif

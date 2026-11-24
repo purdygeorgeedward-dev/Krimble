@@ -26,7 +26,6 @@ public:
     };
     Q_DECLARE_FLAGS(SaveDataFlags, SaveDataFlag)
 
-
 private Q_SLOTS:
     void testRoundTrip_data();
     void testRoundTrip();
@@ -43,5 +42,4 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisLinkedPatternManagerTest::SaveDataFlags)
 Q_DECLARE_METATYPE(KisLinkedPatternManagerTest::SaveDataFlags)
 
-
-#endif /* __KIS_LINKED_PATTERN_MANAGER_TEST_H */
+#endif

@@ -36,4 +36,4 @@ public:
     KisDynamicSensorFuzzyPerStroke(const KisSensorData &data, std::optional<KisCubicCurve> curveOverride, const QString &parentOptionName);
 };
 
-#endif // KISDYNAMICSENSORFUZZY_H
+#endif

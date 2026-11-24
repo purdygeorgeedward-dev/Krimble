@@ -42,7 +42,6 @@ struct KisNodeViewColorScheme::Private
 
 QVector<QColor> KisNodeViewColorScheme::Private::colorLabels;
 
-
 KisNodeViewColorScheme::KisNodeViewColorScheme()
     : m_d(new Private)
 {
@@ -74,7 +73,6 @@ int KisNodeViewColorScheme::visibilityMargin() const
     return 2;
 }
 
-
 int KisNodeViewColorScheme::thumbnailSize() const
 {
     KisConfig cfg(true);
@@ -96,12 +94,10 @@ int KisNodeViewColorScheme::decorationMargin() const
     return 1;
 }
 
-
 int KisNodeViewColorScheme::textMargin() const
 {
     return 2;
 }
-
 
 int KisNodeViewColorScheme::iconSize() const
 {
@@ -141,8 +137,7 @@ int KisNodeViewColorScheme::indentation() const
 
 int KisNodeViewColorScheme::selectedButtonColumnWidth() const
 {
-    // return visibilityColumnWidth();
-    return visibilityColumnWidth() + 14;   // a 14 unit gap (dead to taps) between the eye and the check box, see NodeDelegate
+    return visibilityColumnWidth() + 14;
 }
 
 QRect KisNodeViewColorScheme::relVisibilityRect() const
@@ -176,10 +171,6 @@ QRect KisNodeViewColorScheme::relExpandButtonRect() const
 
 QColor KisNodeViewColorScheme::colorFromLabelIndex(int index) const
 {
-    /**
-     * We should ensure that the index of the overflowing range
-     * will never be zero again.
-     */
     if (index >= m_d->colorLabels.size()) {
         index = 1 + index % (m_d->colorLabels.size() - 1);
     } else {

@@ -21,7 +21,6 @@ SvgTextInsertRichCommand::SvgTextInsertRichCommand(KoSvgTextShape *shape, KoSvgT
 void SvgTextInsertRichCommand::redo()
 {
     KoShapeBulkActionLock lock(m_shape);
-    // Index defaults to -1 when there's no text in the shape.
     int oldIndex = qMax(0, m_shape->indexForPos(m_pos));
 
     m_textData = m_shape->getMemento();

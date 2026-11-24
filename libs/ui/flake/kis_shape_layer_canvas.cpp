@@ -36,7 +36,6 @@
 #include "kis_default_bounds.h"
 #include "kis_do_something_command.h"
 
-
 KisShapeLayerCanvasBase::KisShapeLayerCanvasBase(KisShapeLayer *parent)
     : KoCanvasBase(0)
     , m_shapeManager(new KoShapeManager(this))
@@ -83,26 +82,24 @@ KoViewConverter *KisShapeLayerCanvasBase::viewConverter()
 
 void KisShapeLayerCanvasBase::gridSize(QPointF *offset, QSizeF *spacing) const
 {
-    KIS_SAFE_ASSERT_RECOVER_NOOP(false); // This should never be called as this canvas should have no tools.
+    KIS_SAFE_ASSERT_RECOVER_NOOP(false);
     Q_UNUSED(offset);
     Q_UNUSED(spacing);
 }
 
 bool KisShapeLayerCanvasBase::snapToGrid() const
 {
-    KIS_SAFE_ASSERT_RECOVER_NOOP(false); // This should never be called as this canvas should have no tools.
+    KIS_SAFE_ASSERT_RECOVER_NOOP(false);
     return false;
 }
 
 void KisShapeLayerCanvasBase::addCommand(KUndo2Command *)
 {
-    KIS_SAFE_ASSERT_RECOVER_NOOP(false); // This should never be called as this canvas should have no tools.
+    KIS_SAFE_ASSERT_RECOVER_NOOP(false);
 }
-
 
 KoToolProxy * KisShapeLayerCanvasBase::toolProxy() const
 {
-//     KIS_SAFE_ASSERT_RECOVER_NOOP(false); // This should never be called as this canvas should have no tools.
     return 0;
 }
 
@@ -118,7 +115,7 @@ const QWidget* KisShapeLayerCanvasBase::canvasWidget() const
 
 KoUnit KisShapeLayerCanvasBase::unit() const
 {
-    KIS_SAFE_ASSERT_RECOVER_NOOP(false); // This should never be called as this canvas should have no tools.
+    KIS_SAFE_ASSERT_RECOVER_NOOP(false);
     return KoUnit(KoUnit::Point);
 }
 
@@ -132,7 +129,6 @@ bool KisShapeLayerCanvasBase::hasChangedWhileBeingInvisible()
     return m_hasChangedWhileBeingInvisible;
 }
 
-
 KisShapeLayerCanvas::KisShapeLayerCanvas(const KoColorSpace *cs, KisDefaultBoundsBaseSP defaultBounds, KisShapeLayer *parent)
         : KisShapeLayerCanvasBase(parent)
         , m_projection(new KisPaintDevice(parent, cs, defaultBounds))
@@ -140,10 +136,6 @@ KisShapeLayerCanvas::KisShapeLayerCanvas(const KoColorSpace *cs, KisDefaultBound
         , m_asyncUpdateSignalCompressor(25, KisSignalCompressor::FIRST_ACTIVE)
         , m_safeForcedConnection(std::bind(&KisShapeLayerCanvas::slotStartAsyncRepaint, this))
 {
-    /**
-     * The layer should also add itself to its own shape manager, so that the canvas
-     * would track its changes/transformations
-     */
     m_shapeManager->addShape(parent, KoShapeManager::AddWithoutRepaint);
     m_shapeManager->selection()->setActiveLayer(parent);
 
@@ -157,10 +149,6 @@ KisShapeLayerCanvas::KisShapeLayerCanvas(const KisShapeLayerCanvas &rhs, KisShap
         , m_asyncUpdateSignalCompressor(25, KisSignalCompressor::FIRST_ACTIVE)
         , m_safeForcedConnection(std::bind(&KisShapeLayerCanvas::slotStartAsyncRepaint, this))
 {
-    /**
-     * The layer should also add itself to its own shape manager, so that the canvas
-     * would track its changes/transformations
-     */
     m_shapeManager->addShape(parent, KoShapeManager::AddWithoutRepaint);
     m_shapeManager->selection()->setActiveLayer(parent);
 
@@ -236,13 +224,10 @@ public:
 
 private:
 
-    // we store a pointer to the layer just
-    // to keep the lifetime of the canvas!
     KisShapeLayerSP m_layer;
 
     KisShapeLayerCanvas *m_canvas;
 };
-
 
 void KisShapeLayerCanvas::updateCanvas(const QVector<QRectF> &region)
 {
@@ -257,7 +242,6 @@ void KisShapeLayerCanvas::updateCanvas(const QVector<QRectF> &region)
     {
         QMutexLocker locker(&m_dirtyRegionMutex);
         Q_FOREACH (const QRectF &rc, region) {
-            // grow for antialiasing
             const QRect imageRect = kisGrowRect(viewConverter()->documentToView(rc).toAlignedRect(), 2);
             m_dirtyRegion += imageRect;
         }
@@ -266,7 +250,6 @@ void KisShapeLayerCanvas::updateCanvas(const QVector<QRectF> &region)
     m_asyncUpdateSignalCompressor.start();
     m_hasUpdateInCompressor = true;
 }
-
 
 void KisShapeLayerCanvas::updateCanvas(const QRectF& rc)
 {
@@ -280,11 +263,6 @@ void KisShapeLayerCanvas::slotStartAsyncRepaint()
         return;
     }
 
-    /**
-     * Don't try to start a regeneration stroke while image
-     * is locked. It may happen on loading, when all necessary
-     * conversions are not yet finished.
-     */
     if (image->locked()) {
         m_asyncUpdateSignalCompressor.start();
         return;
@@ -301,9 +279,6 @@ void KisShapeLayerCanvas::slotStartAsyncRepaint()
         repaintRect = m_dirtyRegion.boundingRect();
         forceUpdateHiddenAreasOnly = m_forceUpdateHiddenAreasOnly;
 
-        /// Since we are going to override the previous jobs, we should fetch
-        /// all the area covered by it. Otherwise we'll get dirty leftovers of
-        /// the layer on the projection
         Q_FOREACH (const KoShapeManager::PaintJob &job, m_paintJobsOrder.jobs) {
             repaintRect |= viewConverter()->documentToView().mapRect(job.docUpdateRect).toAlignedRect();
         }
@@ -318,8 +293,6 @@ void KisShapeLayerCanvas::slotStartAsyncRepaint()
             return;
         }
 
-        // Crop the update rect by the image bounds. We keep the cache consistent
-        // by tracking the size of the image in slotImageSizeChanged()
         uncroppedRepaintRect = repaintRect;
         repaintRect = repaintRect.intersected(image->bounds());
     } else {
@@ -327,34 +300,6 @@ void KisShapeLayerCanvas::slotStartAsyncRepaint()
         repaintRect |= kisGrowRect(viewConverter()->documentToView(shapesBounds).toAlignedRect(), 2);
         uncroppedRepaintRect = repaintRect;
     }
-
-    /**
-     * Vector shapes are not thread-safe against concurrent read-writes, so we
-     * need to utilize rather complicated policy on accessing them:
-     *
-     * 1) All shape writes happen in GUI thread (right in the tools)
-     * 2) No concurrent reads from the shapes may happen in other threads
-     *    while the user is modifying them.
-     *
-     * That is why our shape rendering code is split into two parts:
-     *
-     * 1) First we just fetch a shallow copy of the shapes of the layer (it
-     *    takes about 1ms for complicated vector layers) and pack them into
-     *    KoShapeManager::PaintJobsList jobs. It happens here, in
-     *    slotStartAsyncRepaint(), which runs in the GUI thread. It guarantees
-     *    that no one is accessing the shapes during the copy operation.
-     *
-     * 2) The rendering itself happens in the worker thread in repaint(). But
-     *    repaint() doesn't access original shapes anymore. It accesses only they
-     *    shallow copies, which means that there is no concurrent
-     *    access to anything (*).
-     *
-     * (*) "no concurrent access to anything" is a rather fragile term :) There
-     *     will still be concurrent access to it, on detaching... But(!), when detaching,
-     *     the original data is kept unchanged, so "it should be safe enough"(c). Especially
-     *     if we guarantee that rendering thread may not cause a detach (?), and the detach
-     *     can happen only from a single GUI thread.
-     */
 
     const QVector<QRect> updateRects =
         KritaUtils::splitRectIntoPatchesTight(repaintRect,
@@ -372,8 +317,6 @@ void KisShapeLayerCanvas::slotStartAsyncRepaint()
     {
         QMutexLocker locker(&m_dirtyRegionMutex);
 
-        // check if it is still empty! It should be true, because GUI thread is
-        // the only actor that can add stuff to it.
         KIS_SAFE_ASSERT_RECOVER_NOOP(m_paintJobsOrder.isEmpty());
         m_paintJobsOrder = jobsOrder;
     }
@@ -410,10 +353,6 @@ void KisShapeLayerCanvas::repaint()
         std::swap(paintJobsOrder, m_paintJobsOrder);
     }
 
-    /**
-     * Sometimes two update jobs might not override and the second one
-     * will arrive right after the first one
-     */
     if (paintJobsOrder.isEmpty()) return;
 
     const qint32 MASK_IMAGE_WIDTH = 256;
@@ -498,14 +437,6 @@ void KisShapeLayerCanvas::repaint()
 
 void KisShapeLayerCanvas::forceRepaint()
 {
-    /**
-     * WARNING! Although forceRepaint() may be called from different threads, it is
-     * not entirely safe. If the user plays with shapes at the same time (vector tools are
-     * not ported to strokes yet), the shapes my be accessed from two different places at
-     * the same time, which will cause a crash.
-     *
-     * The only real solution to this is to port vector tools to strokes framework.
-     */
 
     if (hasPendingUpdates()) {
         m_asyncUpdateSignalCompressor.stop();

@@ -17,7 +17,7 @@ struct KoDummyColorTransformation : public KoColorTransformation
       m_parameters << 1 << 2;
     }
     QList<QVariant> m_parameters;
-    void transform(const quint8 */*src*/, quint8 */*dst*/, qint32 /*nPixels*/) const override
+    void transform(const quint8 * , quint8 * , qint32 ) const override
     {
     }
     QList<QString> parameters() const override

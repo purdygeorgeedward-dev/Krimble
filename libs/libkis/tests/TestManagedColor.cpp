@@ -68,7 +68,6 @@ void TestManagedColor::testXMLRoundTrip()
     QVERIFY(components.size() == 4);
     QVERIFY(c.toQString() == "Red 127 Green 127 Blue 127 Alpha 127");
 
-
 }
 
 void TestManagedColor::testToQString()

@@ -48,4 +48,4 @@ public:
     void updateButtonSizes();
 };
 
-#endif // KIS_UTILITY_TITLE_BAR_P_H
+#endif

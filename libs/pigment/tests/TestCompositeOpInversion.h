@@ -48,22 +48,16 @@ private Q_SLOTS:
     void testToneMappingPositive();
     void testToneMappingNegative();
 
-
     void dumpOpCategories();
 
 private:
-    /// Uncomment if you want to generate the sample
-    /// sheets of every blendmode to verify their contiguity
     void generateSampleSheetsLong_data();
     void generateSampleSheetsLong();
 
 private:
-    // TODO: disabled for now
     void testF16Modes();
     void testF16Modes_data();
 
-    /// just a simple test case to test exactly one color
-    /// during debugging
     void testColor();
 
 private:
@@ -71,4 +65,4 @@ private:
     void testPreservesSdrRangeImpl(bool useStrictRange);
 };
 
-#endif // TESTCOMPOSITEOPINVERSION_H
+#endif

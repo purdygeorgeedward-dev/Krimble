@@ -44,11 +44,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
 {
     dbgFile << "Starting write of PS layer data";
 
-    /**
-     * For PS tiff files, first thing is to write the
-     * projection of the image file.
-     */
-
     if (layer->image()->width() > MAX_PSD_SIZE || layer->image()->height() > MAX_PSD_SIZE) {
         dbgFile << "This TIFF file is too big to be represented as a PSD blob!";
         return ImportExportCodes::Failure;
@@ -60,8 +55,7 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
     uint16_t color_type = 0;
     uint16_t sample_format = SAMPLEFORMAT_UINT;
     const KoColorSpace *destColorSpace = nullptr;
-    // Check colorspace
-    if (!writeColorSpaceInformation(image(), pd->colorSpace(), color_type, sample_format, destColorSpace)) { // unsupported colorspace
+    if (!writeColorSpaceInformation(image(), pd->colorSpace(), color_type, sample_format, destColorSpace)) {
         if (!destColorSpace) {
             dbgFile << "Unsupported colorspace" << pd->colorSpace()->name();
             return ImportExportCodes::FormatColorSpaceUnsupported;
@@ -71,9 +65,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
     }
 
     {
-        // WORKAROUND: block any attempts to use YCbCr with alpha channels.
-        // This should not happen because alpha is disabled by default
-        // and the checkbox is blocked for YCbCr and CMYK.
         KIS_SAFE_ASSERT_RECOVER(color_type != PHOTOMETRIC_YCBCR
                                 || !m_options->alpha)
         {
@@ -83,12 +74,10 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
         }
     }
 
-    // Save depth
     uint32_t depth = 8 * pd->pixelSize() / pd->channelCount();
     TIFFSetField(image(), TIFFTAG_BITSPERSAMPLE, depth);
 
     {
-        // WORKAROUND: block any attempts to use JPEG with >= 8 bits
 
         if (m_options->compressionType == COMPRESSION_JPEG && depth != 8) {
             warnFile << "Attempt to export JPEG with multi-byte depth, "
@@ -97,7 +86,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
         }
     }
 
-    // Save number of samples
     if (m_options->alpha) {
         TIFFSetField(image(), TIFFTAG_SAMPLESPERPIXEL, pd->channelCount());
         const std::array<uint16_t, 1> sampleinfo = {EXTRASAMPLE_UNASSALPHA};
@@ -107,13 +95,11 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
         TIFFSetField(image(), TIFFTAG_EXTRASAMPLES, 0);
     }
 
-    // Save colorspace information
     TIFFSetField(image(), TIFFTAG_PHOTOMETRIC, color_type);
     TIFFSetField(image(), TIFFTAG_SAMPLEFORMAT, sample_format);
     TIFFSetField(image(), TIFFTAG_IMAGEWIDTH, layer->image()->width());
     TIFFSetField(image(), TIFFTAG_IMAGELENGTH, layer->image()->height());
 
-    // Set the compression options
     TIFFSetField(image(), TIFFTAG_COMPRESSION, m_options->compressionType);
     if (m_options->compressionType == COMPRESSION_JPEG) {
         TIFFSetField(image(), TIFFTAG_JPEGQUALITY, m_options->jpegQuality);
@@ -125,17 +111,12 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
                      m_options->pixarLogCompress);
     }
 
-    // Set the predictor
     if (m_options->compressionType == COMPRESSION_LZW
         || m_options->compressionType == COMPRESSION_ADOBE_DEFLATE)
         TIFFSetField(image(), TIFFTAG_PREDICTOR, m_options->predictor);
 
-    // Use contiguous configuration
     TIFFSetField(image(), TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
-    // Do not set the rowsperstrip, as it's incompatible with JPEG
-
-    // But do set YCbCr 4:4:4 if applicable
     if (color_type == PHOTOMETRIC_YCBCR) {
         TIFFSetField(image(), TIFFTAG_YCBCRSUBSAMPLING, 1, 1);
         TIFFSetField(image(), TIFFTAG_YCBCRPOSITIONING, YCBCRPOSITION_CENTERED);
@@ -144,7 +125,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
         }
     }
 
-    // Save profile
     if (m_options->saveProfile) {
         const KoColorProfile *profile = pd->colorSpace()->profile();
         if (profile && profile->type() == "icc" && !profile->rawData().isEmpty()) {
@@ -218,12 +198,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
     }
     buff.reset();
 
-    ///* BEGIN PS SPECIFIC HANDLING CODE *///
-
-    /**
-     * Synthesize the PSD file into the TIFFTAG_IMAGESOURCEDATA field.
-     */
-
     {
         const bool haveLayers = layer->childCount() > 1 || KisPainter::checkDeviceHasTransparency(layer->firstChild()->projection());
 
@@ -247,7 +221,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
                 return ImportExportCodes::ErrorWhileWriting;
             }
         } else {
-            // else write a zero length block
             dbgFile << "No layers, saving empty layers/mask block" << buf.pos();
             psdwrite(buf, (quint32)0);
         }
@@ -261,12 +234,7 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
         }
     }
 
-    /**
-     * Write all the annotations into the TIFFTAG_PHOTOSHOP field.
-     */
-
     {
-        // IMAGE RESOURCES SECTION
         KisTiffPsdResourceRecord resourceSection;
 
         for (vKisAnnotationSP_it it = layer->image()->beginAnnotations(); it != layer->image()->endAnnotations(); ++it) {
@@ -278,7 +246,7 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
 
             dbgFile << "Annotation:" << annotation->type() << annotation->description();
 
-            if (annotation->type().startsWith(QString("PSD Resource Block:"))) { //
+            if (annotation->type().startsWith(QString("PSD Resource Block:"))) {
                 PSDResourceBlock *resourceBlock =
                     dynamic_cast<PSDResourceBlock *>(annotation.data());
                 if (resourceBlock) {
@@ -288,7 +256,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
             }
         }
 
-        // Add resolution block
         {
             auto *resInfo = new RESN_INFO_1005();
             resInfo->hRes = static_cast<int>(INCH_TO_POINT(layer->image()->xRes()));
@@ -299,7 +266,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
             resourceSection.resources[KisTiffPsdResourceRecord::RESN_INFO] = block;
         }
 
-        // Add icc block
         {
             auto *profileInfo = new ICC_PROFILE_1039();
             profileInfo->icc = layer->image()->profile()->rawData();
@@ -327,12 +293,6 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
             return ImportExportCodes::ErrorWhileWriting;
         }
     }
-
-    /**
-     * Freshly baked Photoshoppy TIFF file!
-     */
-
-    ///* END PS SPECIFIC HANDLING CODE *///
 
     TIFFWriteDirectory(image());
     return ImportExportCodes::OK;

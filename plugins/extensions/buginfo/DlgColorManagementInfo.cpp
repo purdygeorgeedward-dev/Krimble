@@ -14,7 +14,6 @@
 #include <surfacecolormanagement/KisOutputColorInfoInterface.h>
 #include <surfacecolormanagement/KisSurfaceColorManagementInfo.h>
 
-
 DlgColorManagementInfo::DlgColorManagementInfo(QWidget *parent)
     : DlgBugInfo(parent)
 {
@@ -110,7 +109,6 @@ QString DlgColorManagementInfo::infoText(QSettings& kritarc)
         s << Qt::endl;
 
         s << "Native window handle:" << canvas->canvasWidget()->windowHandle() << Qt::endl;
-
 
         if (KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS() &&
             canvas->canvasWidget()->windowHandle() == mainWindow->windowHandle()) {

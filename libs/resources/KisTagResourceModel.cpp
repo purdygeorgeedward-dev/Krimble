@@ -26,7 +26,6 @@ struct KisAllTagResourceModel::Private {
     int cachedRowCount {-1};
 };
 
-
 KisAllTagResourceModel::KisAllTagResourceModel(const QString &resourceType, QObject *parent)
     : QAbstractTableModel(parent)
     , d(new Private())
@@ -40,11 +39,6 @@ KisAllTagResourceModel::KisAllTagResourceModel(const QString &resourceType, QObj
     connect(KisStorageModel::instance(), SIGNAL(storageDisabled(const QString&)), this, SLOT(removeStorage(const QString&)));
     connect(KisResourceLocator::instance(), SIGNAL(resourceActiveStateChanged(const QString&, int)), this, SLOT(slotResourceActiveStateChanged(const QString&, int)));
 
-    /**
-     * TODO: connect to beginExternalResourceImport() and beginExternalResourceRemove
-     *       as well. It seems to work without them somehow, but I guess it is just a
-     *       coincidence or UB
-     */
 }
 
 KisAllTagResourceModel::~KisAllTagResourceModel()
@@ -117,12 +111,9 @@ QVariant KisAllTagResourceModel::data(const QModelIndex &index, int role) const
     }
 
     if (index.column() >= TagId) {
-        // trick to get the correct value without writing everything again
-        // this is used for example in case of sorting
         role = Qt::UserRole + index.column();
     }
 
-    // These are not shown, but needed for the filter
     switch(role) {
     case Qt::UserRole + TagId:
     {
@@ -184,35 +175,25 @@ bool KisAllTagResourceModel::tagResources(const KisTagSP tag, const QVector<int>
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(tag && tag->valid() && tag->id() >= 0, false);
 
-    // notes for performance:
-    // the only two costly parts are:
-    // - executing the query constructed by createQuery()
-    // - running endInsertRows() (because it updates all the views and filter proxies etc...)
-
     QVector<int> resourceIdsToAdd;
     QVector<int> resourceIdsToUpdate;
 
-    // looks expensive but actually isn't
     for (int i = 0; i < resourceIds.count(); i++) {
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(resourceIds[i] >= 0, false);
         int taggedState = isResourceTagged(tag, resourceIds[i]);
         switch (taggedState) {
         case -1:
-            // never tagged
             resourceIdsToAdd.append(resourceIds[i]);
             break;
         case 0:
-            // tagged but then untagged
             resourceIdsToUpdate.append(resourceIds[i]);
             break;
         case 1:
-            // it means the resource is already tagged; do nothing
             break;
         }
     }
 
     if (resourceIdsToAdd.isEmpty() && resourceIdsToUpdate.isEmpty()) {
-        // Is already tagged, let's do nothing
         return true;
     }
 
@@ -235,7 +216,6 @@ bool KisAllTagResourceModel::tagResources(const KisTagSP tag, const QVector<int>
         int activesRowId = -1;
         int lastActiveRowId = -1;
 
-        // needed for beginInsertRows calculations
         QMap<int, int> resourcesCountForLastActiveRowId;
 
         while (allIndices.next()) {
@@ -260,33 +240,17 @@ bool KisAllTagResourceModel::tagResources(const KisTagSP tag, const QVector<int>
          }
 
         Q_FOREACH(const int key, resourcesCountForLastActiveRowId.keys()) {
-            // when having multiple beginInsertRows:
-            // let's say you have this model:
-            // 0  A
-            // 1  A
-            // 2  A
-            //  <- put 2 Bs here
-            // 3  A
-            //  <- put one B here
-            // 4  A
-            // and you want to add the two Bs and then add another B
-            // then the signals should be:
-            // beginRemoveRows(3, 4) <- new indices of the two Bs
-            // beginRemoveRows(4, 4) <- new index of the one B ignoring the action before
-
 
             beginInsertRows(QModelIndex(), key + 1, key + resourcesCountForLastActiveRowId[key]);
             howManyTimesBeginInsertedCalled++;
         }
 
-        // Resource was tagged, then untagged. Tag again;
         QSqlQuery q;
 
         if (!q.prepare("UPDATE resource_tags\n"
                        "SET    active = 1\n"
                        "WHERE  resource_id = :resource_id\n"
                        "AND    tag_id      = :tag_id")) {
-
 
             qWarning() << "Could not prepare update resource_tags to active statement" << q.lastError();
 
@@ -319,9 +283,7 @@ bool KisAllTagResourceModel::tagResources(const KisTagSP tag, const QVector<int>
         beginInsertRows(QModelIndex(), rowCount(), rowCount() + resourceIdsToAdd.count() - 1);
         howManyTimesBeginInsertedCalled++;
 
-        // Resource was never tagged before, insert it. The active column is DEFAULT 1
         QSqlQuery q;
-
 
         QString values;
         for (int i = 0; i < resourceIdsToAdd.count(); i++) {
@@ -399,13 +361,12 @@ bool KisAllTagResourceModel::untagResources(const KisTagSP tag, const QVector<in
     int activesRowId = -1;
     int lastActiveRowId = -1;
 
-    // needed for beginInsertRows indices calculations
     QMap<int, int> resourcesCountForLastActiveRowId;
 
     while (allIndices.next()) {
         bool variantSuccess = true;
 
-        bool isActive = true; // all of them are active!
+        bool isActive = true;
         KIS_SAFE_ASSERT_RECOVER(variantSuccess) { isActive = false; }
 
         int rowTagId = allIndices.value("tag_id").toInt(&variantSuccess);
@@ -418,7 +379,6 @@ bool KisAllTagResourceModel::untagResources(const KisTagSP tag, const QVector<in
         if (willStayActive) {
             lastActiveRowId = activesRowId;
         } else if (isActive) {
-            // means we're removing it
             if (!resourcesCountForLastActiveRowId.contains(lastActiveRowId)) {
                 resourcesCountForLastActiveRowId[lastActiveRowId] = 0;
             }
@@ -427,21 +387,6 @@ bool KisAllTagResourceModel::untagResources(const KisTagSP tag, const QVector<in
     }
 
     Q_FOREACH(const int key, resourcesCountForLastActiveRowId.keys()) {
-        // when having multiple beginRemoveRows:
-        // let's say you have this model:
-        // 0  A
-        // 1  A
-        // 2  A
-        // 3  *B*
-        // 4  *B*
-        // 5  A
-        // 6  *B*
-        // 7  A
-        // and you want to remove all Bs
-        // then the signals should be:
-        // beginRemoveRows(3, 4) <- first two indices in the obvious way
-        // beginRemoveRows(4, 4) <- next index as if the first action was already done
-        //  (so `5  A` already became `3  A`, so the *B* is `4  B`, not `6  B`)
 
         beginRemoveRows(QModelIndex(), key + 1, key + resourcesCountForLastActiveRowId[key]);
         beginRemoveRowsCount++;
@@ -501,7 +446,6 @@ int KisAllTagResourceModel::isResourceTagged(const KisTagSP tag, const int resou
 
     r = query.first();
     if (!r) {
-        // Resource was not tagged
         return -1;
     }
 
@@ -531,8 +475,6 @@ void KisAllTagResourceModel::slotResourceActiveStateChanged(const QString &resou
 
     resetQuery();
 
-    /// The model has multiple rows for every resource, one row per tag,
-    /// so we need to notify about the changes in all the tags
     QVector<QModelIndex> indexes;
 
     for (int i = 0; i < rowCount(); ++i)  {
@@ -559,11 +501,11 @@ QString KisAllTagResourceModel::createQuery(bool onlyActive, bool returnADbIndex
                             "    ,        resource_types.id            as    resource_type_id\n"
                             "    ,        resource_types.name          as    resource_type_name\n"
                             "    ,        min(resources.id)            as    resource_id\n"
-                            ) + (returnADbIndexToo ? QString(", resource_tags.id   as   resource_tags_row_id\n") : QString("")) + QString( // include r_t row id
-                            ) + (onlyActive ? QString("") : QString(", resource_tags.active   as   resource_tags_pair_active\n")) + QString( // include r_t row active info
+                            ) + (returnADbIndexToo ? QString(", resource_tags.id   as   resource_tags_row_id\n") : QString("")) + QString(
+                            ) + (onlyActive ? QString("") : QString(", resource_tags.active   as   resource_tags_pair_active\n")) + QString(
                             "    FROM     resource_types\n"
                             "    JOIN     resource_tags\n   ON       resource_tags.resource_id    = resources.id\n"
-                            ) + (onlyActive ? QString("    AND       resource_tags.active         = 1\n") : QString("")) + QString( // make sure only active tags are used
+                            ) + (onlyActive ? QString("    AND       resource_tags.active         = 1\n") : QString("")) + QString(
                             "    JOIN     resources         ON       resources.resource_type_id   = resource_types.id\n"
                             "    JOIN     tags              ON       tags.id                      = resource_tags.tag_id\n"
                             "                              AND       tags.resource_type_id        = resource_types.id\n"
@@ -607,8 +549,6 @@ QString KisAllTagResourceModel::createQuery(bool onlyActive, bool returnADbIndex
     return query;
 }
 
-// Keep in sync with KisAllResourcesModel::headerData for sections 1-16
-// then KisAllTagResourceModel::data for 16-25
 QVariant KisAllTagResourceModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation != Qt::Horizontal) {
@@ -682,7 +622,6 @@ QVariant KisAllTagResourceModel::headerData(int section, Qt::Orientation orienta
     return {};
 }
 
-// As above, keep in sync.
 QHash<int, QByteArray> KisAllTagResourceModel::roleNames() const
 {
     QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
@@ -690,7 +629,6 @@ QHash<int, QByteArray> KisAllTagResourceModel::roleNames() const
     roles[Qt::UserRole + KisAbstractResourceModel::StorageId] = "storageId";
     roles[Qt::UserRole + KisAbstractResourceModel::Name] = "name";
     roles[Qt::UserRole + KisAbstractResourceModel::Filename] = "filename";
-    //roles[Qt::UserRole + Tooltip] = "tooltip";
     roles[Qt::UserRole + KisAbstractResourceModel::Thumbnail] = "thumbnail";
     roles[Qt::UserRole + KisAbstractResourceModel::Status] = "status";
     roles[Qt::UserRole + KisAbstractResourceModel::Location] = "location";
@@ -735,7 +673,6 @@ bool KisAllTagResourceModel::resetQuery()
     return r;
 }
 
-
 struct KisTagResourceModel::Private {
     QString resourceType;
     KisAllTagResourceModel *sourceModel {0};
@@ -745,7 +682,6 @@ struct KisTagResourceModel::Private {
     StorageFilter storageFilter {ShowActiveStorages};
     ResourceFilter resourceFilter {ShowActiveResources};
 };
-
 
 KisTagResourceModel::KisTagResourceModel(const QString &resourceType, QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -926,16 +862,12 @@ bool KisTagResourceModel::setResourceActive(const QModelIndex &index, bool value
 
 KoResourceSP KisTagResourceModel::importResourceFile(const QString &filename, const bool allowOverwrite, const QString &storageId)
 {
-    // Since we're importing the resource, there's no reason to add rows to the tags::resources table,
-    // because the resource is untagged.
     KisResourceModel resourceModel(d->resourceType);
     return resourceModel.importResourceFile(filename, allowOverwrite, storageId);
 }
 
 KoResourceSP KisTagResourceModel::importResource(const QString &filename, QIODevice *device, const bool allowOverwrite, const QString &storageId)
 {
-    // Since we're importing the resource, there's no reason to add rows to the tags::resources table,
-    // because the resource is untagged.
     KisResourceModel resourceModel(d->resourceType);
     return resourceModel.importResource(filename, device, allowOverwrite, storageId);
 }
@@ -954,20 +886,15 @@ bool KisTagResourceModel::exportResource(KoResourceSP resource, QIODevice *devic
 
 bool KisTagResourceModel::addResource(KoResourceSP resource, const QString &storageId)
 {
-    // Since we're importing the resource, there's no reason to add rows to the tags::resources table,
-    // because the resource is untagged.
     KisResourceModel resourceModel(d->resourceType);
     return resourceModel.addResource(resource, storageId);
 }
 
 bool KisTagResourceModel::addResourceDeduplicateFileName(KoResourceSP resource, const QString &storageId)
 {
-    // Since we're importing the resource, there's no reason to add rows to the tags::resources table,
-    // because the resource is untagged.
     KisResourceModel resourceModel(d->resourceType);
     return resourceModel.addResourceDeduplicateFileName(resource, storageId);
 }
-
 
 bool KisTagResourceModel::updateResource(KoResourceSP resource)
 {

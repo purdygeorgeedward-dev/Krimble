@@ -33,7 +33,6 @@ public:
         KisCountVisitor v(nodetypes, props);
         image->rootLayer()->accept(v);
 
-        // There is always one group layer, the root layer.
         if (m_nodeType == "KisGroupLayer") {
             return (v.count() > 1);
         }
@@ -42,7 +41,7 @@ public:
         }
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -75,4 +74,4 @@ public:
 
 };
 
-#endif // NodeTypeCheck_H
+#endif

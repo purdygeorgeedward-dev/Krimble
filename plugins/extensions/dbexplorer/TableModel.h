@@ -33,10 +33,6 @@ private:
     QVector<int> m_dateTimeColumns;
 };
 
-/**
- * @brief The TableModel class handles boolean
- * and datetime columns in a custom way.
- */
 class TableModel : public QSqlRelationalTableModel
 {
     Q_OBJECT
@@ -58,4 +54,4 @@ private:
 
 };
 
-#endif // TABLEMODEL_H
+#endif

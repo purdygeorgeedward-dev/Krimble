@@ -102,8 +102,6 @@ void KisToolSelectContiguous::beginPrimaryAction(KoPointerEvent *event)
 
     KisCursorOverrideLock cursorLock(KisCursor::waitCursor());
 
-    // -------------------------------
-
     KisProcessingApplicator applicator(currentImage(), currentNode(),
                                        KisProcessingApplicator::NONE,
                                        KisImageSignalVector(),
@@ -146,8 +144,6 @@ void KisToolSelectContiguous::beginPrimaryAction(KoPointerEvent *event)
     }
 
     if (sampleLayersMode() != SampleColorLabeledLayers) {
-        // Reset this so that the device from color labeled layers gets
-        // regenerated when that mode is selected again
         m_referenceNodeList.reset();
     }
 
@@ -229,8 +225,6 @@ void KisToolSelectContiguous::beginPrimaryAction(KoPointerEvent *event)
                     return 0;
                 });
     applicator.applyCommand(cmd, KisStrokeJobData::BARRIER);
-
-
 
     KisSelectionToolHelper helper(kisCanvas, kundo2_i18n("Select Contiguous Area"));
 
@@ -359,7 +353,6 @@ QWidget* KisToolSelectContiguous::createOptionWidget()
 
     selectionWidget->setStopGrowingAtDarkestPixelButtonVisible(true);
 
-    // Create widgets
     KisOptionButtonStrip *optionButtonStripContiguousSelectionMode =
         new KisOptionButtonStrip;
     KoGroupButton *buttonContiguousSelectionModeFloodFill =
@@ -391,7 +384,6 @@ QWidget* KisToolSelectContiguous::createOptionWidget()
     checkBoxSelectionAsBoundary->setSizePolicy(QSizePolicy::Ignored,
                                                QSizePolicy::Preferred);
 
-    // Set the tooltips
     buttonContiguousSelectionModeFloodFill->setToolTip(
         i18n("Select regions similar in color to the clicked region"));
     buttonContiguousSelectionModeBoundaryFill->setToolTip(
@@ -407,13 +399,11 @@ QWidget* KisToolSelectContiguous::createOptionWidget()
         i18n("Set if the contour of the active selection should be treated as "
              "a boundary when making a new selection"));
 
-
     KisSliderSpinBox *sliderCloseGap = new KisSliderSpinBox;
     sliderCloseGap->setPrefix(i18nc("The 'close gap' spinbox prefix in contiguous selection tool options", "Close Gap: "));
     sliderCloseGap->setRange(0, 32);
     sliderCloseGap->setSuffix(i18n(" px"));
 
-    // Construct the option widget
     KisOptionCollectionWidgetWithHeader *sectionSelectionExtent =
         new KisOptionCollectionWidgetWithHeader(
             i18nc("The 'selection extent' section label in contiguous "
@@ -440,7 +430,6 @@ QWidget* KisToolSelectContiguous::createOptionWidget()
                                   "sectionSelectionExtent",
                                   sectionSelectionExtent);
 
-    // Load configuration settings into tool options
     const QString contiguousSelectionModeStr =
         m_configGroup.readEntry<QString>("contiguousSelectionMode", "");
     m_contiguousSelectionMode =
@@ -474,7 +463,6 @@ QWidget* KisToolSelectContiguous::createOptionWidget()
     sliderCloseGap->setValue(m_closeGap);
     checkBoxSelectionAsBoundary->setChecked(m_useSelectionAsBoundary);
 
-    // Make connections
     connect(optionButtonStripContiguousSelectionMode,
             SIGNAL(buttonToggled(KoGroupButton*, bool)),
             SLOT(slot_optionButtonStripContiguousSelectionMode_buttonToggled(

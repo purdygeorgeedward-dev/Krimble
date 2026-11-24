@@ -19,8 +19,6 @@
 
 #include "kis_debug.h"
 
-// ############ Simple Existing Tag Action ##############
-
 SimpleExistingTagAction::SimpleExistingTagAction(KoResourceSP resource, KisTagSP tag, QObject* parent)
     : QAction(parent)
     , m_resource(resource)
@@ -42,9 +40,6 @@ void SimpleExistingTagAction::onTriggered()
     if (!m_tag) return;
     Q_EMIT triggered(m_tag, m_resource);
 }
-
-
-// ############ Line Edit ##############
 
 LineEditAction::LineEditAction(QObject* parent)
     : QWidgetAction(parent)
@@ -88,7 +83,6 @@ bool LineEditAction::closeParentOnTrigger()
     return m_closeParentOnTrigger;
 }
 
-
 void LineEditAction::slotActionTriggered()
 {
     setData(userText());
@@ -130,8 +124,6 @@ QString LineEditAction::userText()
     return m_editBox->text();
 }
 
-// ############ New Tag ##############
-
 UserInputTagAction::UserInputTagAction(QObject* parent)
     : LineEditAction(parent)
 {
@@ -148,8 +140,6 @@ void UserInputTagAction::onTriggered()
 {
     Q_EMIT triggered(userText());
 }
-
-// ############ New Tag Resource ##############
 
 NewTagResourceAction::NewTagResourceAction(KoResourceSP resource, QObject *parent)
     : LineEditAction(parent)
@@ -174,9 +164,6 @@ void NewTagResourceAction::onTriggered()
     Q_EMIT triggered(userText(), m_resource);
 }
 
-// ############ TAG COMPARER ##############
-
-
 CompareWithOtherTagFunctor::CompareWithOtherTagFunctor(KisTagSP referenceTag)
 {
     m_referenceTag = referenceTag;
@@ -184,9 +171,6 @@ CompareWithOtherTagFunctor::CompareWithOtherTagFunctor(KisTagSP referenceTag)
 
 bool CompareWithOtherTagFunctor::operator()(KisTagSP otherTag)
 {
-//    ENTER_FUNCTION() << "refTag: " << (m_referenceTag.isNull() ? "null" : m_referenceTag->name())
-//                     << " other: " << (otherTag.isNull() ? "null" : otherTag->name())
-//                     << " result = " << (!otherTag.isNull() && !m_referenceTag.isNull() && otherTag->url() == m_referenceTag->url());
     return !otherTag.isNull() && !m_referenceTag.isNull() && otherTag->url() == m_referenceTag->url();
 }
 

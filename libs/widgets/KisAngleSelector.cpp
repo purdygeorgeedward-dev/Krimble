@@ -137,7 +137,7 @@ QSize KisAngleSelectorSpinBox::minimumSizeHint() const
         s += fixedContent;
         w = qMax(w, fm.horizontalAdvance(s));
 
-        w += 2; // cursor blinking space
+        w += 2;
 
         QStyleOptionSpinBox option;
         initStyleOption(&option);
@@ -298,7 +298,7 @@ KisAngleSelector::KisAngleSelector(QWidget* parent)
 
     setFlipOptionsMode(FlipOptionsMode_Buttons);
     setWidgetsHeight(0);
-    
+
     using namespace std::placeholders;
     connect(
         m_d->angleGauge,
@@ -400,7 +400,7 @@ void KisAngleSelector::setAngle(qreal newAngle)
     KisSignalsBlocker spinBoxSignalsBlocker(m_d->spinBox);
 
     const qreal oldAngle = m_d->spinBox->value();
-    
+
     m_d->spinBox->setValue(newAngle);
     m_d->angleGauge->setAngle(m_d->spinBox->value());
 
@@ -579,13 +579,8 @@ void KisAngleSelector::flip(Qt::Orientations orientations)
 bool KisAngleSelector::event(QEvent *e)
 {
     if (e->type() == QEvent::PaletteChange) {
-        // For some reason the spinbox, that uses stylesheets, doesn't update
-        // on palette changes, so we reset the stylesheet to force an update.
-        // Calling m_d->spinBox->update() doesn't work
         m_d->spinBox->refreshStyle();
     } else if (e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange) {
-        // Temporarily reset the spin box style so that we can get its
-        // height size hint
         m_d->spinBox->refreshStyle();
         m_d->resizeWidgets();
     }

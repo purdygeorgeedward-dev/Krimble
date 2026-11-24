@@ -9,19 +9,6 @@
 
 #include <mutex>
 
-/**
- * A wrapper class that adapts std::unique_lock to any kind
- * of locking that might be necessary to a particular class.
- *
- * Just define an Adapter class that implements `lock()`,
- * `unlock()` and (optionally) `try_lock()` interface and
- * pass it to `KisAdaptedLock`. The resulting class will
- * behave as normal `std::unique_lock` and lock/unlock the
- * object as you instructed it.
- *
- * See examples in `KisCursorOverrideLockAdapter` and
- * `KisLockFrameGenerationLock`
- */
 template <typename Adapter>
 class KisAdaptedLock
     : protected Adapter,
@@ -77,11 +64,6 @@ public:
     using std::unique_lock<Adapter>::owns_lock;
 };
 
-/**
- * A macro to make sure that the resulting lock is
- * a 'class' and can be forward-declared instead of
- * the entire include pulling
- */
 #define KIS_DECLARE_ADAPTED_LOCK(Name, Adapter) \
 class Name : public KisAdaptedLock<Adapter>     \
 {                                               \
@@ -90,4 +72,4 @@ class Name : public KisAdaptedLock<Adapter>     \
     using BaseClass::BaseClass;                 \
 };
 
-#endif // KISADAPTEDLOCK_H
+#endif

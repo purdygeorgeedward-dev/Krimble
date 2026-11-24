@@ -11,11 +11,9 @@
 
 class KoShape;
 
-/// Factory for path shapes
 class StarShapeFactory : public KoShapeFactoryBase
 {
 public:
-    /// constructor
     StarShapeFactory();
     ~StarShapeFactory() override {}
     KoShape *createDefaultShape(KoDocumentResourceManager *documentResources = 0) const override;
@@ -24,4 +22,4 @@ public:
     QList<KoShapeConfigWidgetBase *> createShapeOptionPanels() override;
 };
 
-#endif // KOSTARHAPEFACTORY_H
+#endif

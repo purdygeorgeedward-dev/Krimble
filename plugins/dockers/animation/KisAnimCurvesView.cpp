@@ -36,7 +36,7 @@ struct KisAnimCurvesView::Private
 
     bool isDraggingKeyframe {false};
     bool isAdjustingHandle {false};
-    int adjustedHandle {0}; // 0 = left, 1 = right
+    int adjustedHandle {0};
     QPoint dragStart;
     QPoint dragOffset;
 
@@ -97,7 +97,6 @@ KisAnimCurvesView::KisAnimCurvesView(QWidget *parent)
         viewport()->update();
     });
 
-
     KisZoomableScrollBar* vertZoomableBar = new KisZoomableScrollBar(this);
     setVerticalScrollBar(vertZoomableBar);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -113,11 +112,11 @@ KisAnimCurvesView::KisAnimCurvesView(QWidget *parent)
        qreal currentOffset = m_d->verticalHeader->valueOffset();
        m_d->verticalHeader->setValueOffset(currentOffset - overscroll * m_d->verticalHeader->step() * 0.25);
     });
-    
+
     connect(m_d->verticalHeader, &KisAnimCurvesValuesHeader::scaleChanged, [this](qreal){
         viewport()->update();
     });
-    
+
     connect(m_d->verticalHeader, &KisAnimCurvesValuesHeader::valueOffsetChanged, [this](qreal){
         viewport()->update();
     });
@@ -157,7 +156,7 @@ void KisAnimCurvesView::setModel(QAbstractItemModel *model)
             this, &KisAnimCurvesView::slotHeaderDataChanged);
 
     connect(selectionModel(), &QItemSelectionModel::selectionChanged,
-        [this](const QItemSelection& newSelection, const QItemSelection& /*oldSelection*/) {
+        [this](const QItemSelection& newSelection, const QItemSelection& ) {
             if (newSelection.count() == 0) {
                 activeDataChanged(QModelIndex());
             } else {
@@ -176,7 +175,6 @@ QRect KisAnimCurvesView::visualRect(const QModelIndex &index) const
 
 void KisAnimCurvesView::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint)
 {
-    // TODO
     Q_UNUSED(index);
     Q_UNUSED(hint);
 }
@@ -228,7 +226,6 @@ void KisAnimCurvesView::paintGrid(QPainter &painter)
     const QColor zeroLineColor = qApp->palette().highlight().color();
     const QColor activeFrameColor = KisAnimTimelineColors::instance()->headerActive().color();
 
-    // Draw vertical lines..
     const int visibleFrames = m_d->horizontalHeader->estimateLastVisibleColumn() - m_d->horizontalHeader->estimateFirstVisibleColumn() + 1;
     const int firstVisibleFrame = qMax( m_d->horizontalHeader->estimateFirstVisibleColumn() - 1, 0);
     for (int time = 0; time <= visibleFrames; time++) {
@@ -257,7 +254,6 @@ void KisAnimCurvesView::paintGrid(QPainter &painter)
         painter.drawLine(top, bottom);
     }
 
-    // Draw horizontal lines..
     const int visibleSteps = m_d->verticalHeader->visibleValueDifference() / m_d->verticalHeader->step();
     const qreal stepAmount = m_d->verticalHeader->step();
     for (int step = 0; step <= visibleSteps; step++) {
@@ -387,21 +383,18 @@ QModelIndex KisAnimCurvesView::findNextKeyframeIndex(int channel, int time, int 
         QVariant next = currentIndex.data(role);
         return (next.isValid()) ? model()->index(channel, next.toInt()) : QModelIndex();
     } else {
-        // Find the next unselected index
         QModelIndex nextIndex = currentIndex;
         do {
             QVariant next = nextIndex.data(role);
             nextIndex = (next.isValid()) ? model()->index(channel, next.toInt()) : QModelIndex();
         } while(nextIndex.isValid() && selectionModel()->isSelected(nextIndex));
 
-        // Find the next selected index, accounting for D&D offset
         QModelIndex draggedIndex = model()->index(channel, qMax(0, time - selectionOffset));
         do {
             QVariant next = draggedIndex.data(role);
             draggedIndex = (next.isValid()) ? model()->index(channel, next.toInt()) : QModelIndex();
         } while(draggedIndex.isValid() && !selectionModel()->isSelected(draggedIndex));
 
-        // Choose the earlier of the two
         if (draggedIndex.isValid() && nextIndex.isValid()) {
             if (draggedIndex.column() + selectionOffset <= nextIndex.column()) {
                 return draggedIndex;
@@ -457,7 +450,6 @@ void KisAnimCurvesView::findExtremes(qreal *minimum, qreal *maximum)
 
 QModelIndex KisAnimCurvesView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
-    // TODO
     Q_UNUSED(cursorAction);
     Q_UNUSED(modifiers);
     return QModelIndex();
@@ -525,15 +517,15 @@ QRegion KisAnimCurvesView::visualRegionForSelection(const QItemSelection &select
 void KisAnimCurvesView::mousePressEvent(QMouseEvent *e)
 {
     if (m_d->modifiersCatcher->modifierPressed("pan-zoom")) {
-        if (e->button() == Qt::LeftButton) { // PAN
+        if (e->button() == Qt::LeftButton) {
             m_d->dragPanning = true;
             m_d->panAnchor = e->pos();
 
-        } else if (e->button() == Qt::RightButton) { // ZOOM
+        } else if (e->button() == Qt::RightButton) {
             m_d->dragZooming = true;
             m_d->zoomAnchor = e->pos();
         }
-    } else if (e->button() == Qt::LeftButton) { // SELECT
+    } else if (e->button() == Qt::LeftButton) {
         m_d->dragStart = e->pos();
 
         const int handleClickRadius = 16;
@@ -586,7 +578,6 @@ void KisAnimCurvesView::mousePressEvent(QMouseEvent *e)
         QAbstractItemView::mousePressEvent(e);
     }
 }
-
 
 void KisAnimCurvesView::mouseDoubleClickEvent(QMouseEvent *e)
 {
@@ -691,7 +682,6 @@ void KisAnimCurvesView::mouseReleaseEvent(QMouseEvent *e)
             const QPointF largestOffset = qAbs(m_d->dragOffset.y()) > qAbs(m_d->dragOffset.x()) ? QPointF(0.0f, m_d->dragOffset.y()) :
                                                                                                   QPointF(m_d->dragOffset.x(), 0.0f);
 
-            //Only use the largest offset when axis snap is enabled on mouse button release..
             const bool axisSnap = (e->modifiers() & Qt::ShiftModifier);
             const QPointF offset = axisSnap ? largestOffset : m_d->dragOffset;
             const int timeOffset = qRound( qreal(offset.x()) / m_d->horizontalHeader->defaultSectionSize() );
@@ -701,7 +691,6 @@ void KisAnimCurvesView::mouseReleaseEvent(QMouseEvent *e)
             KIS_SAFE_ASSERT_RECOVER_RETURN(curvesModel);
             curvesModel->adjustKeyframes(indices, timeOffset, valueOffset);
 
-            //Adjust selection to match new keyframe adjustment.
             Q_FOREACH(const QModelIndex& index, indices) {
                 const bool wasCurrent = (index == selectionModel()->currentIndex());
                 selectionModel()->select(index, QItemSelectionModel::Deselect);
@@ -808,8 +797,6 @@ void KisAnimCurvesView::slotDataChanged(const QModelIndex &topLeft, const QModel
 
     viewport()->update();
 
-    // this forces the horizontal ruler to refresh. Repaint() doesn't do it for some reason
-    // If you remove this, scrubbing the timeline will probably stop updating the indicator
     m_d->horizontalHeader->resize(m_d->horizontalHeader->width()-1, m_d->horizontalHeader->height());
     m_d->horizontalHeader->resize(m_d->horizontalHeader->width()+1, m_d->horizontalHeader->height());
 
@@ -945,7 +932,6 @@ void KisAnimCurvesView::removeKeyframes()
 {
     m_d->model->removeFrames(selectedIndexes());
 }
-
 
 void KisAnimCurvesView::zoomToFitCurve()
 {

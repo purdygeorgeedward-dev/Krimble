@@ -21,4 +21,4 @@ protected:
     bool showRoundCornersGUI() const override;
 };
 
-#endif // KIS_TOOL_ELLIPSE_BASE_H
+#endif

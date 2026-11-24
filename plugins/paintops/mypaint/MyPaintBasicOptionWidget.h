@@ -10,7 +10,6 @@
 #include <MyPaintBasicOptionData.h>
 #include <lager/cursor.hpp>
 
-
 class MyPaintBasicOptionWidget : public KisPaintOpOption
 {
 public:
@@ -30,4 +29,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // MYPAINTBASICOPTIONWIDGET_H
+#endif

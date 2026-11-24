@@ -5,7 +5,6 @@
  */
 #include "KisCurveOptionDataUniformProperty.h"
 
-
 #include "KisCurveOptionData.h"
 #include "kis_paintop_settings.h"
 #include "kis_paintop_preset.h"

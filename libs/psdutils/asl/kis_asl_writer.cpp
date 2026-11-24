@@ -31,7 +31,6 @@ void parseElement(const QDomElement &el, QIODevice &device, bool forceTypeInfo =
     QString type = el.attribute("type", "<unknown>");
     QString key = el.attribute("key", "");
 
-    // should be filtered on a higher level
     KIS_ASSERT_RECOVER_RETURN(key != ResourceType::Patterns);
 
     if (type == "Descriptor") {
@@ -155,7 +154,6 @@ int calculateNumStyles(const QDomElement &root)
     return numStyles;
 }
 
-// No need for endianness, PS-specific
 void writeFileImpl(QIODevice &device, const QDomDocument &doc)
 {
     {
@@ -226,7 +224,6 @@ void writeFileImpl(QIODevice &device, const QDomDocument &doc)
         parseElement(child.toElement(), device);
         child = child.nextSibling();
 
-        // ASL files' size should be 4-bytes aligned
         const qint64 paddingSize = 4 - (device.pos() & 0x3);
         if (paddingSize != 4) {
             QByteArray padding(paddingSize, '\0');
@@ -269,7 +266,6 @@ void writePsdLfx2SectionImpl(QIODevice &device, const QDomDocument &doc)
     parseElement<byteOrder>(child.toElement(), device);
     child = child.nextSibling();
 
-    // ASL files' size should be 4-bytes aligned
     const qint64 paddingSize = 4 - (device.pos() & 0x3);
     if (paddingSize != 4) {
         QByteArray padding(static_cast<int>(paddingSize), '\0');
@@ -303,7 +299,6 @@ void writeFillLayerSectionImpl(QIODevice &device, const QDomDocument &doc)
     parseElement<byteOrder>(child.toElement(), device);
     child = child.nextSibling();
 
-    // ASL files' size should be 4-bytes aligned
     const qint64 paddingSize = 4 - (device.pos() & 0x3);
     if (paddingSize != 4) {
         QByteArray padding(static_cast<int>(paddingSize), '\0');
@@ -341,7 +336,6 @@ void writeTypeToolSectionImpl(QIODevice &device, const QDomDocument &doc, const 
     QDomNode child = root.firstChild();
     parseElement<byteOrder>(child.toElement(), device);
 
-    // warp data
     {
         quint16 textVersion = 1;
         SAFE_WRITE_EX(byteOrder, device, textVersion);
@@ -362,7 +356,6 @@ void writeTypeToolSectionImpl(QIODevice &device, const QDomDocument &doc, const 
         SAFE_WRITE_EX(byteOrder, device, double(bounds.bottom()));
     }
 
-    // ASL files' size should be 4-bytes aligned
     const qint64 paddingSize = 4 - (device.pos() & 0x3);
     if (paddingSize != 4) {
         QByteArray padding(static_cast<int>(paddingSize), '\0');
@@ -384,7 +377,6 @@ void writeVectorStrokeDataImpl(QIODevice &device, const QDomDocument &doc)
     QDomNode child = root.firstChild();
     parseElement<byteOrder>(child.toElement(), device);
 
-    // ASL files' size should be 4-bytes aligned
     const qint64 paddingSize = 4 - (device.pos() & 0x3);
     if (paddingSize != 4) {
         QByteArray padding(static_cast<int>(paddingSize), '\0');
@@ -410,7 +402,6 @@ void writeVectorOriginationDataImpl(QIODevice &device, const QDomDocument &doc)
     QDomNode child = root.firstChild();
     parseElement<byteOrder>(child.toElement(), device);
 
-    // ASL files' size should be 4-bytes aligned
     const qint64 paddingSize = 4 - (device.pos() & 0x3);
     if (paddingSize != 4) {
         QByteArray padding(static_cast<int>(paddingSize), '\0');
@@ -418,7 +409,7 @@ void writeVectorOriginationDataImpl(QIODevice &device, const QDomDocument &doc)
     }
 }
 
-} // namespace
+}
 
 KisAslWriter::KisAslWriter(psd_byte_order byteOrder)
     : m_byteOrder(byteOrder)

@@ -71,6 +71,6 @@ KRITAUI_EXPORT void maybeShowOnStartup();
 
 KRITAUI_EXPORT bool isSupported();
 
-} // namespace KisAndroidScalingDialog
+}
 
 #endif

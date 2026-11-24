@@ -7,7 +7,6 @@
 #include "kis_effect_mask_test.h"
 #include <simpletest.h>
 
-
 void KisEffectMaskTest::testCreation()
 {
 }
@@ -24,7 +23,5 @@ void KisEffectMaskTest::testCaching()
 {
 }
 
-
 SIMPLE_TEST_MAIN(KisEffectMaskTest)
-
 

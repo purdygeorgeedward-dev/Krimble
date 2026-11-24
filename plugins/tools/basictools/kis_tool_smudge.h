@@ -48,4 +48,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_SMUDGE_H_
+#endif

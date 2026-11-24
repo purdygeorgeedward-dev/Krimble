@@ -28,4 +28,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_SKETCHOP_OPTION_WIDGET_H
+#endif

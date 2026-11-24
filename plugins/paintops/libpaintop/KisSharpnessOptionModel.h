@@ -23,4 +23,4 @@ public:
     LAGER_QT_CURSOR(int, softness);
 };
 
-#endif // KISSHARPNESSOPTIONMODEL_H
+#endif

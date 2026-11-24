@@ -14,7 +14,6 @@
 #include <KoColorSpace.h>
 #include <KoColor.h>
 
-
 #include "kis_node_visitor.h"
 #include "kis_processing_visitor.h"
 #include "kis_debug.h"
@@ -27,7 +26,6 @@
 #include "kis_layer_properties_icons.h"
 #include <kis_projection_leaf.h>
 #include <kis_abstract_projection_plane.h>
-
 
 struct Q_DECL_HIDDEN KisGroupLayer::Private
 {
@@ -116,11 +114,6 @@ bool KisGroupLayer::allowAsChild(KisNodeSP node) const
     if (!checkNodeRecursively(node)) return false;
 
     if (!parent()) {
-        // We are the root layer, so we need to check
-        // whether the node that's going to be added is
-        // a selection mask; that is only allowed if
-        // there isn't a global selection. See
-        // BUG:294905
 
         if (node->inherits("KisSelectionMask")) {
             return !qobject_cast<KisSelectionMask*>(node.data())->active() || !selectionMask();
@@ -258,11 +251,6 @@ KisPaintDeviceSP KisGroupLayer::tryObligeChild() const
 
 std::tuple<KisPaintDeviceSP, bool> KisGroupLayer::originalImpl() const
 {
-    /**
-     * We are too lazy! Let's our children work for us.
-     * Try to use children's paintDevice if it's the only
-     * one in stack and meets some conditions
-     */
     KisPaintDeviceSP realOriginal = tryObligeChild();
     bool ownsOriginal = false;
 

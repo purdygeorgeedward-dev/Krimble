@@ -15,25 +15,13 @@
 
 class KoParameterShape;
 
-/// The undo / redo command for changing a parameter
 class KoParameterHandleMoveCommand : public KUndo2Command
 {
 public:
-    /**
-     * Constructor.
-     * @param shape the shape this command works on
-     * @param handleId the ID under which the parameterShape knows the handle in KoParameterShape::moveHandle()
-     * @param startPoint The old position
-     * @param endPoint The new position
-     * @param keyModifiers the key modifiers used while moving.
-     * @param parent the parent command if this is a compound undo command.
-     */
     KoParameterHandleMoveCommand(KoParameterShape *shape, int handleId, const QPointF &startPoint, const QPointF &endPoint, Qt::KeyboardModifiers keyModifiers, KUndo2Command *parent = 0);
     ~KoParameterHandleMoveCommand() override;
 
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 
     int id() const override;
@@ -47,5 +35,5 @@ private:
     Qt::KeyboardModifiers m_keyModifiers;
 };
 
-#endif // KOPARAMETERHANDLEMOVECOMMAND_H
+#endif
 

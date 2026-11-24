@@ -30,7 +30,7 @@
 
 #include "KisCanvasState.h"
 
-static const int gRulersUpdateDelay = 80 /* ms */;
+static const int gRulersUpdateDelay = 80 ;
 
 struct KisCanvasController::Private {
     Private(KisCanvasController *qq)
@@ -145,21 +145,11 @@ QPointF KisCanvasController::currentCursorPosition() const
 
 void KisCanvasController::keyPressEvent(QKeyEvent *event)
 {
-    /**
-     * Dirty Hack Alert:
-     * Do not call the KoCanvasControllerWidget::keyPressEvent()
-     * to avoid activation of Pan and Default tool activation shortcuts
-     */
     Q_UNUSED(event);
 }
 
 void KisCanvasController::wheelEvent(QWheelEvent *event)
 {
-    /**
-     * Dirty Hack Alert:
-     * Do not call the KoCanvasControllerWidget::wheelEvent()
-     * to disable the default behavior of KoCanvasControllerWidget and QAbstractScrollArea
-     */
     Q_UNUSED(event);
 }
 
@@ -187,9 +177,8 @@ void KisCanvasController::ensureVisibleDoc(const QRectF &docRect, bool smooth)
     const QRect viewRect = m_d->coordinatesConverter->documentToWidget(docRect).toAlignedRect();
 
     if (!viewRect.isValid() || currentVisible.contains(viewRect))
-        return; // its visible. Nothing to do.
+        return;
 
-    // if we move, we move a little more so the amount of times we have to move is less.
     int jumpWidth = smooth ? 0 : currentVisible.width() / 5;
     int jumpHeight = smooth ? 0 : currentVisible.height() / 5;
     if (!smooth && viewRect.width() + jumpWidth > currentVisible.width())
@@ -198,19 +187,19 @@ void KisCanvasController::ensureVisibleDoc(const QRectF &docRect, bool smooth)
         jumpHeight = 0;
 
     int horizontalMove = 0;
-    if (currentVisible.width() <= viewRect.width())      // center view
+    if (currentVisible.width() <= viewRect.width())
         horizontalMove = viewRect.center().x() - currentVisible.center().x();
-    else if (currentVisible.x() > viewRect.x())          // move left
+    else if (currentVisible.x() > viewRect.x())
         horizontalMove = viewRect.x() - currentVisible.x() - jumpWidth;
-    else if (currentVisible.right() < viewRect.right())  // move right
+    else if (currentVisible.right() < viewRect.right())
         horizontalMove = viewRect.right() - qMax(0, currentVisible.right() - jumpWidth);
 
     int verticalMove = 0;
-    if (currentVisible.height() <= viewRect.height())       // center view
+    if (currentVisible.height() <= viewRect.height())
         verticalMove = viewRect.center().y() - currentVisible.center().y();
-    if (currentVisible.y() > viewRect.y())               // move up
+    if (currentVisible.y() > viewRect.y())
         verticalMove = viewRect.y() - currentVisible.y() - jumpHeight;
-    else if (currentVisible.bottom() < viewRect.bottom()) // move down
+    else if (currentVisible.bottom() < viewRect.bottom())
         verticalMove = viewRect.bottom() - qMax(0, currentVisible.bottom() - jumpHeight);
 
     pan(QPoint(horizontalMove, verticalMove));
@@ -272,7 +261,6 @@ void KisCanvasController::mirrorCanvasAroundCanvas(bool enable)
 void KisCanvasController::Private::showRotationValueOnCanvas()
 {
     qreal rotationAngle = coordinatesConverter->rotationAngle();
-    // Prevent the displayed rotation angle from jittering between -0.0 and 0.0.
     if (rotationAngle > -0.05 && rotationAngle < 0.05) {
         rotationAngle = 0.0;
     }
@@ -429,7 +417,6 @@ void KisCanvasController::slotToggleLevelOfDetailMode(bool value)
             QIcon(), 5000, KisFloatingMessage::Low);
     }
 
-
 }
 
 bool KisCanvasController::levelOfDetailMode() const
@@ -515,7 +502,6 @@ void KisCanvasController::syncOnImageSizeChange(const QPointF &oldStillPoint, co
 
 void KisCanvasController::updateCanvasOffsetInternal(const QPointF &newOffset)
 {
-    // not need to snap to device pixels, it is done by the converter automatically
     m_d->coordinatesConverter->setDocumentOffset(newOffset);
 }
 
@@ -533,7 +519,7 @@ void KisCanvasController::updateCanvasWidgetSizeInternal(const QSize &newSize, q
             && m_d->coordinatesConverter->zoomMode() != KoZoomMode::ZOOM_CONSTANT) {
             m_d->coordinatesConverter->setZoom(KoZoomMode::ZOOM_CONSTANT,
                                                m_d->coordinatesConverter->zoom(),
-                                               effectiveCanvasResolutionX(),   // (the same two the file passes to setZoom elsewhere)
+                                               effectiveCanvasResolutionX(),
                                                effectiveCanvasResolutionY(),
                                                m_d->coordinatesConverter->makeWidgetStillPoint(
                                                    m_d->coordinatesConverter->imageCenterInWidgetPixel()));
@@ -625,8 +611,6 @@ void KisCanvasController::zoomToInternal(const QRect &viewRect)
 
 void KisCanvasController::resetScrollBars()
 {
-    // The scrollbar value always points at the top-left corner of the
-    // bit of image we paint.
 
     const QPoint minOffset = m_d->coordinatesConverter->minimumOffset();
     const QPoint maxOffset = m_d->coordinatesConverter->maximumOffset();
@@ -664,8 +648,6 @@ void KisCanvasController::setUsePrintResolutionMode(bool value)
 
     KisImageSP image = m_d->view->image();
 
-    // changeCanvasMappingMode is called with the same canvasMappingMode when the window is
-    // moved across screens. Preserve the old zoomMode if this is the case.
     const KoZoomMode::Mode newMode =
             !changed ? m_d->coordinatesConverter->zoomMode() : KoZoomMode::ZOOM_CONSTANT;
     const qreal newZoom = m_d->coordinatesConverter->zoom();

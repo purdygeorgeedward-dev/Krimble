@@ -8,7 +8,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_perspectivetransform_worker.h"
 
 #include <QMatrix4x4>
@@ -31,7 +30,6 @@
 #include "kis_painter.h"
 #include "kis_image.h"
 #include "kis_algebra_2d.h"
-
 
 KisPerspectiveTransformWorker::KisPerspectiveTransformWorker(KisPaintDeviceSP dev, QPointF center, double aX, double aY, double distance, bool cropDst, KoUpdaterPtr progress)
         : m_dev(dev), m_progressUpdater(progress), m_cropDst(cropDst)
@@ -106,7 +104,6 @@ void KisPerspectiveTransformWorker::setForwardTransform(const QTransform &transf
     init(transform);
 }
 
-
 struct BilinearWrapper
 {
     using SrcAccessorSP = KisRandomSubAccessorSP;
@@ -150,19 +147,8 @@ void KisPerspectiveTransformWorker::runImpl()
 
     if (m_isIdentity) return;
 
-    // TODO: check if this optimization is possible. The only blocking issue might be if
-    //       some other thread also accesses this device (which should not be the case,
-    //       theoretically
-    //
-    // if (m_isTranslating) {
-    //     m_dev->moveTo(m_dev->offset() + QPoint(qRound(m_forwardTransform.dx()), qRound(m_forwardTransform.dy())));
-    //     return;
-    // }
-
     KisPaintDeviceSP cloneDevice = new KisPaintDevice(*m_dev.data());
 
-    // Clear the destination device, since all the tiles are already
-    // shared with cloneDevice
     m_dev->clear();
 
     KIS_ASSERT_RECOVER_NOOP(!m_isIdentity);

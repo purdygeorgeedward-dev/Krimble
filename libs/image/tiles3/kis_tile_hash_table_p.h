@@ -9,9 +9,6 @@
 #include "kis_debug.h"
 #include "kis_global.h"
 
-//#define SHARED_TILES_SANITY_CHECK
-
-
 template<class T>
 KisTileHashTableTraits<T>::KisTileHashTableTraits(KisMementoManager *mm)
         : m_lock(QReadWriteLock::NonRecursive)
@@ -37,7 +34,6 @@ KisTileHashTableTraits<T>::KisTileHashTableTraits(const KisTileHashTableTraits<T
 
     m_hashTable = new TileTypeSP [TABLE_SIZE];
     Q_CHECK_PTR(m_hashTable);
-
 
     TileTypeSP foreignTile;
     TileTypeSP nativeTile;
@@ -77,18 +73,6 @@ template<class T>
 typename KisTileHashTableTraits<T>::TileTypeSP
 KisTileHashTableTraits<T>::getTileMinefieldWalk(qint32 col, qint32 row, qint32 idx)
 {
-    // WARNING: this function is here only for educational purposes! Don't
-    //          use it! It causes race condition in a shared pointer copy-ctor
-    //          when accessing m_hashTable!
-
-    /**
-     * This is a special method for dangerous and unsafe access to
-     * the tiles table. Thanks to the fact that our shared pointers
-     * are thread safe, we can iterate through the linked list without
-     * having any locks help. In the worst case, we will miss the needed
-     * tile. In that case, the higher level code will do the proper
-     * locking and do the second try with all the needed locks held.
-     */
 
     TileTypeSP headTile = m_hashTable[idx];
     TileTypeSP tile = headTile;
@@ -153,14 +137,8 @@ bool KisTileHashTableTraits<T>::unlinkTile(qint32 col, qint32 row, qint32 idx)
             if (prevTile)
                 prevTile->setNext(tile->next());
             else
-                /* optimize here*/
                 m_hashTable[idx] = tile->next();
 
-            /**
-             * The shared pointer may still be accessed by someone, so
-             * we need to disconnects the tile from memento manager
-             * explicitly
-             */
             tile->setNext(TileTypeSP());
             tile->notifyDetachedFromDataManager();
             tile.clear();
@@ -194,7 +172,6 @@ inline KisTileData* KisTileHashTableTraits<T>::defaultTileDataImp() const
     return m_defaultTileData;
 }
 
-
 template<class T>
 bool KisTileHashTableTraits<T>::tileExists(qint32 col, qint32 row)
 {
@@ -207,9 +184,6 @@ KisTileHashTableTraits<T>::getExistingTile(qint32 col, qint32 row)
 {
     const qint32 idx = calculateHash(col, row);
 
-    // NOTE: minefield walk is disabled due to supposed unsafety,
-    //       see bug 391270
-
     QReadLocker locker(&m_lock);
     return getTile(col, row, idx);
 }
@@ -220,9 +194,6 @@ KisTileHashTableTraits<T>::getTileLazy(qint32 col, qint32 row,
                                        bool& newTile)
 {
     const qint32 idx = calculateHash(col, row);
-
-    // NOTE: minefield walk is disabled due to supposed unsafety,
-    //       see bug 391270
 
     newTile = false;
     TileTypeSP tile;
@@ -247,9 +218,6 @@ typename KisTileHashTableTraits<T>::TileTypeSP
 KisTileHashTableTraits<T>::getReadOnlyTileLazy(qint32 col, qint32 row, bool &existingTile)
 {
     const qint32 idx = calculateHash(col, row);
-
-    // NOTE: minefield walk is disabled due to supposed unsafety,
-    //       see bug 391270
 
     QReadLocker locker(&m_lock);
 
@@ -301,10 +269,6 @@ void KisTileHashTableTraits<T>::clear()
             TileTypeSP tmp = tile;
             tile = tile->next();
 
-            /**
-             * About disconnection of tiles see a comment in unlinkTile()
-             */
-
             tmp->setNext(TileTypeSP());
             tmp->notifyDetachedFromDataManager();
             tmp = 0;
@@ -340,9 +304,6 @@ inline KisTileData* KisTileHashTableTraits<T>::refAndFetchDefaultTileData() cons
     result->ref();
     return result;
 }
-
-
-/*************** Debugging stuff ***************/
 
 template<class T>
 void KisTileHashTableTraits<T>::debugPrintInfo()
@@ -416,10 +377,6 @@ void KisTileHashTableTraits<T>::debugListLengthDistribution()
 template<class T>
 void KisTileHashTableTraits<T>::sanityChecksumCheck()
 {
-    /**
-     * We assume that the lock should have already been taken
-     * by the code that was going to change the table
-     */
     Q_ASSERT(!m_lock.tryLockForWrite());
 
     TileTypeSP tile = 0;
@@ -438,6 +395,6 @@ void KisTileHashTableTraits<T>::sanityChecksumCheck()
         dbgKrita << ppVar(exactNumTiles);
         dbgKrita << ppVar(m_numTiles);
         dbgKrita << "Wrong tiles checksum!";
-        Q_ASSERT(0); // not fatalKrita for a backtrace support
+        Q_ASSERT(0);
     }
 }

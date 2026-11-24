@@ -30,7 +30,6 @@ public:
     KoStore *m_store;
 };
 
-
 class KoStoreFake : public KoStore
 {
 public:
@@ -40,7 +39,6 @@ public:
         m_buffer.open(QIODevice::ReadWrite);
     }
     ~KoStoreFake() override {
-        // Oh, no, please do not clean anything! :)
         d_ptr->stream = 0;
         d_ptr->isOpen = false;
     }
@@ -74,5 +72,4 @@ bool memoryIsFilled(quint8 c, quint8 *mem, qint32 size)
 
 #define TILESIZE 64*64
 
-
-#endif /* TILES_TEST_UTILS_H */
+#endif

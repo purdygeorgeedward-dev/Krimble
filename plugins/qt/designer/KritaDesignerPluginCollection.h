@@ -10,7 +10,6 @@
 #include <QtDesigner/QtDesigner>
 #include <QtCore/qplugin.h>
 
-
 class KritaDesignerPluginCollection : public QObject, public QDesignerCustomWidgetCollectionInterface
 {
     Q_OBJECT
@@ -26,4 +25,4 @@ private:
     QList<QDesignerCustomWidgetInterface*> m_widgets;
 };
 
-#endif // _KRITADESIGNERPLUGINCOLLECTION_H_
+#endif

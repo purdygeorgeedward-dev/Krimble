@@ -91,7 +91,6 @@ KisSplashScreen::KisSplashScreen(bool themed, QWidget *parent, Qt::WindowFlags f
     connect(lblRecent, SIGNAL(linkActivated(QString)), SLOT(linkClicked(QString)));
     connect(&m_timer, SIGNAL(timeout()), SLOT(raise()));
 
-    // hide these labels by default
     displayLinks(false);
     displayRecentFiles(false);
 
@@ -119,8 +118,6 @@ void KisSplashScreen::updateSplashImage()
 
     if (img.isNull() || img.height() == 0) return;
 
-    // Preserve aspect ratio of splash.
-    // const int height = splashHeight;
     int height = splashHeight;
     int width = height * img.width() / img.height();
 #ifdef Q_OS_ANDROID
@@ -143,7 +140,6 @@ void KisSplashScreen::updateSplashImage()
     lblSplash->setFixedWidth(width);
     lblSplash->setFixedHeight(height);
 
-    // Get a downscaled pixmap of the splash.
     const int pixelWidth = width * devicePixelRatioF();
     const int pixelHeight = height * devicePixelRatioF();
     img = img.scaled(pixelWidth, pixelHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
@@ -153,7 +149,6 @@ void KisSplashScreen::updateSplashImage()
     m_loadingTextLabel->move(marginRight, marginTop + bannerHeight - 1);
     m_loadingTextLabel->setFixedWidth((width - marginRight - 1) - marginRight);
 
-    // Place credits text on bottom right with similar margins.
     m_artCreditsLabel->setText(source.artistCredit);
     m_artCreditsLabel->setFixedWidth(m_loadingTextLabel->width());
     m_artCreditsLabel->setFixedHeight(20);
@@ -227,7 +222,6 @@ void KisSplashScreen::displayLinks(bool show) {
                         << i18n("<p><span style=\" color:%1;\"><b>Using Krimble</b></span></p>",color);
 
 #ifdef Q_OS_MACOS
-        // macOS store version should not contain external links containing donation buttons or forms
         if (!KisMacosEntitlements().sandbox()) {
 #endif
 
@@ -247,7 +241,6 @@ void KisSplashScreen::displayLinks(bool show) {
                         << "</td></tr></table></body>"
                         << "</html>";
 
-
         lblLinks->setTextFormat(Qt::RichText);
         lblLinks->setText(lblLinksText.join(""));
 
@@ -255,7 +248,6 @@ void KisSplashScreen::displayLinks(bool show) {
         actionControlsLayout->setContentsMargins(5,5,5,5);
 
     } else {
-        // eliminating margins here allows for the splash screen image to take the entire area with nothing underneath
         filesLayout->setContentsMargins(0,0,0,0);
         actionControlsLayout->setContentsMargins(0,0,0,0);
     }
@@ -269,7 +261,6 @@ void KisSplashScreen::displayLinks(bool show) {
         updateSplashImage();
     }
 }
-
 
 void KisSplashScreen::displayRecentFiles(bool show) {
     lblRecent->setVisible(show);
@@ -289,11 +280,6 @@ void KisSplashScreen::setLoadingText(QString text)
 KisSplashScreen::Source KisSplashScreen::getImageSource()
 {
     QString artistCredit = QString();
-    // Loading the ginormous 4K PNG splash image increases the startup time on
-    // Android by several seconds and at the same time looks really bad when
-    // scaled down to a dinky size. Instead of overengineering this into an
-    // Enterprise Splash Screen Solution where we choose the image based on
-    // screen size or something, we'll just use a HD JPEG instead. It's fine.
 #ifdef Q_OS_ANDROID
     QString resourcePath = QStringLiteral(":/splash/hd.jpg");
     QDate currentDate = QDate::currentDate();
@@ -302,14 +288,11 @@ KisSplashScreen::Source KisSplashScreen::getImageSource()
         resourcePath = QStringLiteral(":/splash/holiday.jpg");
     }
 #else
-    // QString resourcePath = QStringLiteral(":/splash/0.png");
     QString resourcePath = QStringLiteral(":/splash/0.jpg");
-    // TODO: Re-add the holiday splash...
 #if 0
     QDate currentDate = QDate::currentDate();
     if (currentDate > QDate(currentDate.year(), 12, 4) ||
             currentDate < QDate(currentDate.year(), 1, 9)) {
-        // resourcePath = QStringLiteral(":/splash/1.png");
         resourcePath = QStringLiteral(":/splash/1.jpg");
         artistCredit = QStringLiteral("???")};
     }
@@ -321,7 +304,6 @@ KisSplashScreen::Source KisSplashScreen::getImageSource()
     return Source{resourcePath, artistCredit};
 }
 
-
 QString KisSplashScreen::colorString() const
 {
     QString color = "#FFFFFF";
@@ -332,7 +314,6 @@ QString KisSplashScreen::colorString() const
     return color;
 }
 
-
 void KisSplashScreen::repaint()
 {
     QWidget::repaint();
@@ -342,23 +323,15 @@ void KisSplashScreen::repaint()
 void KisSplashScreen::show()
 {
     if (!this->parentWidget()) {
-        this->winId(); // Force creation of native window
+        this->winId();
         QWindow *windowHandle = this->windowHandle();
         QScreen *screen = windowHandle ? windowHandle->screen() : nullptr;
         if (windowHandle && !screen) {
-            // At least on Windows, the window may be created on a non-primary
-            // screen with a different scale factor. If we don't explicitly
-            // move it to the primary screen, the position will be scaled with
-            // the wrong factor and the splash will be offset.
-            // XXX: In theory this branch should be unreachable, but leaving
-            //      this here just in case.
             windowHandle->setScreen(QApplication::primaryScreen());
         }
         if (!screen) {
             screen = QApplication::primaryScreen();
         }
-        // Reinitialize the splash image as the screen may have a different
-        // devicePixelRatio.
         updateSplashImage();
         QRect r(QPoint(), size());
         move(screen->availableGeometry().center() - r.center());

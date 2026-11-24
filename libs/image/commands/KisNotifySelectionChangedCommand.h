@@ -21,4 +21,4 @@ private:
     KisImageWSP m_image;
 };
 
-#endif // KISNOTIFYSELECTIONCHANGEDCOMMAND_H
+#endif

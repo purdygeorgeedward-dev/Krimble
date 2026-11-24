@@ -36,4 +36,4 @@ private:
     bool m_showGlobalSelectionMask = false;
 };
 
-#endif // KISNODEDISPLAYMODEADAPTER_H
+#endif

@@ -51,9 +51,7 @@ public:
     }
 private:
 
-
 };
-
 
 LogDockerPlugin::LogDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

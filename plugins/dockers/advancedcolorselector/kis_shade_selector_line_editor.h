@@ -48,4 +48,4 @@ private:
     KisDoubleParseSpinBox* m_valueShift;
 };
 
-#endif /* __KIS_SHADE_SELECTOR_LINE_EDITOR_H */
+#endif

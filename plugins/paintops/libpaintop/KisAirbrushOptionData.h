@@ -12,7 +12,6 @@
 
 class KisPropertiesConfiguration;
 
-
 struct PAINTOP_EXPORT KisAirbrushOptionData : boost::equality_comparable<KisAirbrushOptionData>
 {
     inline friend bool operator==(const KisAirbrushOptionData &lhs, const KisAirbrushOptionData &rhs) {
@@ -29,4 +28,4 @@ struct PAINTOP_EXPORT KisAirbrushOptionData : boost::equality_comparable<KisAirb
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KISAIRBRUSHOPTIONDATA_H
+#endif

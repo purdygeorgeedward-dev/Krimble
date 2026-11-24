@@ -14,7 +14,6 @@
 #include "KisTextureOptionData.h"
 #include "KoResourceLoadResult.h"
 
-
 class KisTextureOptionModel : public QObject
 {
     Q_OBJECT
@@ -48,4 +47,4 @@ private:
     void updateOffsetLimits(KoResourceSP resource);
 };
 
-#endif // KISTEXTUREOPTIONMODEL_H
+#endif

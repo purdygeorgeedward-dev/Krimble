@@ -47,7 +47,7 @@ public:
     KisSignalCompressor *updateCompressor;
     QList<QPointer<KoUpdaterPrivate> > subtasks;
     bool canceled;
-    int updateInterval = 250; // ms, 4 updates per second should be enough
+    int updateInterval = 250;
     bool autoNestNames = false;
     QString taskName;
     int taskMax = 99;
@@ -63,10 +63,6 @@ public:
     }
 };
 
-// NOTE: do not make the KoProgressUpdater object part of the QObject
-// hierarchy. Do not make KoProgressProxy its parent (note that KoProgressProxy
-// is not necessarily castable to QObject ). This prevents proper functioning
-// of progress reporting in multi-threaded environments.
 KoProgressUpdater::KoProgressUpdater(KoProgressProxy *progressProxy, Mode mode)
     : d (new Private(this, progressProxy, 0, mode))
 {
@@ -92,8 +88,6 @@ KoProgressUpdater::~KoProgressUpdater()
         d->progressProxy()->setValue(d->progressProxy()->maximum());
     }
 
-    // make sure to stop the timer to avoid accessing
-    // the data we are going to delete right now
     d->updateCompressor->stop();
 
     qDeleteAll(d->subtasks);
@@ -121,7 +115,6 @@ QPointer<KoUpdater> KoProgressUpdater::startSubtask(int weight,
                                                     bool isPersistent)
 {
     if (!d->isStarted) {
-        // lazy initialization for intermediate proxies
         start();
     }
 
@@ -196,13 +189,6 @@ void KoProgressUpdater::update()
 void KoProgressUpdater::updateUi()
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(QThread::currentThread() == this->thread());
-
-    // This function runs in the app main thread. All the progress
-    // updates arrive at the KoUpdaterPrivate instances through
-    // queued connections, so until we relinquish control to the
-    // event loop, the progress values cannot change, and that
-    // won't happen until we return from this function (which is
-    // triggered by a timer)
 
     {
         QMutexLocker l(&d->mutex);

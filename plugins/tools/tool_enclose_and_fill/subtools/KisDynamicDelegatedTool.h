@@ -29,7 +29,7 @@ template <typename BaseClass>
 class KisDynamicDelegateTool : public BaseClass
 {
 public:
-    template <typename ... Args> 
+    template <typename ... Args>
     explicit KisDynamicDelegateTool(Args ... args) : BaseClass(args...) {}
     KisDynamicDelegateTool() = delete;
     KisDynamicDelegateTool(const KisDynamicDelegateTool&) = delete;
@@ -334,7 +334,7 @@ protected:
         if (m_delegateTool) m_delegateTool->setCursor(cursor);
         BaseClass::setCursor(cursor);
     }
-    
+
     void setMode(typename BaseClass::ToolMode mode) override
     {
         if (m_delegateTool) m_delegateTool->setMode(mode);
@@ -356,7 +356,7 @@ protected Q_SLOTS:
 
 private:
     DelegateType *m_delegateTool;
-    
+
 };
 
 #endif

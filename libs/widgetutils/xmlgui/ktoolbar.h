@@ -25,133 +25,43 @@ class KisKMainWindow;
 class KisKXMLGUIClient;
 class KisToolBarStateModel;
 
-/**
- * @short Floatable toolbar with auto resize.
- *
- * A KDE-style toolbar.
- *
- * KisToolBar can be used as a standalone widget, but KisKMainWindow
- * provides easy factories and management of one or more toolbars.
- *
- * KisToolBar uses a global config group to load toolbar settings on
- * construction. It will reread this config group on a
- * KApplication::appearanceChanged() signal.
- *
- * @note If you can't depend on KXmlGui but you want to integrate with KDE, you can use QToolBar with:
- *    Set ToolButtonStyle to Qt::ToolButtonFollowStyle, this will make QToolBar use the settings for "Main Toolbar"
- *    Additionally set QToolBar::setProperty("otherToolbar", true) to use settings for "Other toolbars"
- *    Settings from "Other toolbars" will only work on widget styles derived from KStyle
- * @author Reginald Stadlbauer <reggie@kde.org>, Stephan Kulow <coolo@kde.org>, Sven Radej <radej@kde.org>, Hamish Rodda <rodda@kde.org>.
- */
 class KRITAWIDGETUTILS_EXPORT KisToolBar : public QToolBar
 {
     Q_OBJECT
 
 public:
-    /**
-     * Constructor.
-     *
-     * This constructor takes care of adding the toolbar to the mainwindow,
-     * if @p parent is a QMainWindow.
-     *
-     * Normally KDE applications do not call this directly, they either
-     * call KisKMainWindow::toolBar(name), or they use XML-GUI and specify
-     * toolbars using XML.
-     *
-     * @param objectName  The QObject name of this toolbar, required so that QMainWindow can save and load the toolbar position,
-     *                    and so that KisToolBar can find out if it's the main toolbar.
-     * @param parent      The standard toolbar parent (usually a KisKMainWindow)
-     * @param readConfig  whether to apply the configuration (global and application-specific)
-     */
     explicit KisToolBar(const QString &objectName, QWidget *parent, bool readConfig = true);
 
-    /**
-     * Destroys the toolbar.
-     */
     ~KisToolBar() override;
 
-    /**
-     * Returns the main window that this toolbar is docked with.
-     */
     KisKMainWindow *mainWindow() const;
 
-    /**
-     * Convenience function to set icon size
-     */
     void setIconDimensions(int size);
 
-    /**
-     * Returns the default size for this type of toolbar.
-     *
-     * @return the default size for this type of toolbar.
-     */
-    int iconSizeDefault() const; // KDE5: hide from public API. Doesn't make sense to export this, and it isn't used.
+    int iconSizeDefault() const;
 
-    /**
-     * Save the toolbar settings to group @p configGroup in @p config.
-     */
     void saveSettings(KConfigGroup &cg);
 
-    /**
-     * Read the toolbar settings from group @p configGroup in @p config
-     * and apply them.
-     */
     void applySettings(const KConfigGroup &cg);
 
-    /**
-     * Adds an XML gui client that uses this toolbar
-     * @since 4.8.1
-     */
     void addXMLGUIClient(KisKXMLGUIClient *client);
 
-    /**
-     * Removes an XML gui client that uses this toolbar
-     * @since 4.8.5
-     */
     void removeXMLGUIClient(KisKXMLGUIClient *client);
 
-    /**
-     * Load state from an XML @p element, called by KisKXMLGUIBuilder.
-     */
     void loadState(const QDomElement &element);
 
-    /**
-     * Save state into an XML @p element, called by KisKXMLGUIBuilder.
-     */
     void saveState(QDomElement &element) const;
 
-    /**
-     * Reimplemented to support context menu activation on disabled tool buttons.
-     */
     bool eventFilter(QObject *watched, QEvent *event) override;
 
-    /**
-     * Returns whether the toolbars are currently editable (drag & drop of actions).
-     */
     static bool toolBarsEditable();
 
-    /**
-     * Enable or disable toolbar editing via drag & drop of actions.  This is
-     * called by KisKEditToolbar and should generally be set to disabled whenever
-     * KisKEditToolbar is not active.
-     */
     static void setToolBarsEditable(bool editable);
 
-    /**
-     * Returns whether the toolbars are locked (i.e., moving of the toolbars disallowed).
-     */
     static bool toolBarsLocked();
 
-    /**
-     * Allows you to lock and unlock all toolbars (i.e., disallow/allow moving of the toolbars).
-     */
     static void setToolBarsLocked(bool locked);
 
-    /**
-     * Emits a dbus signal to tell all toolbars in all applications, that the user settings have
-     * changed.
-     * @since 5.0
-     */
     static void emitToolbarStyleChanged();
 
     static KisToolBarStateModel* toolBarStateModel();
@@ -163,7 +73,6 @@ protected:
     void contextMenuEvent(QContextMenuEvent *) override;
     void actionEvent(QActionEvent *) override;
 
-    // Draggable toolbar configuration
     void dragEnterEvent(QDragEnterEvent *) override;
     void dragMoveEvent(QDragMoveEvent *) override;
     void dragLeaveEvent(QDragLeaveEvent *) override;

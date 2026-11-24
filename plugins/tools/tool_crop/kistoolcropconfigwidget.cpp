@@ -4,7 +4,6 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
 #include <QLabel>
 #include <QBoxLayout>
 #include "kistoolcropconfigwidget.h"
@@ -12,7 +11,6 @@
 #include <kis_icon.h>
 #include <kis_acyclic_signal_connector.h>
 #include <QStandardItemModel>
-
 
 KisToolCropConfigWidget::KisToolCropConfigWidget(QWidget* parent, KisToolCrop* cropTool)
     : QWidget(parent)
@@ -35,12 +33,9 @@ KisToolCropConfigWidget::KisToolCropConfigWidget(QWidget* parent, KisToolCrop* c
     }
 #endif
 
-    // update the UI based off data from crop tool
     cmbType->setCurrentIndex(m_cropTool->cropType());
     QStandardItemModel *cmbTypeModel = qobject_cast<QStandardItemModel *>(cmbType->model());
-    // Disable "Layer"
     cmbTypeModel->item(2)->setEnabled(m_cropTool->cropTypeSelectable());
-    // Disable "Frame"
     cmbTypeModel->item(3)->setEnabled(m_cropTool->cropTypeSelectable());
 
     intHeight->setValue(m_cropTool->cropHeight());
@@ -112,7 +107,6 @@ KisToolCropConfigWidget::KisToolCropConfigWidget(QWidget* parent, KisToolCrop* c
     connector->connectBackwardBool(cropTool, SIGNAL(isCenteredChanged(bool)), boolCenter, SLOT(setChecked(bool)));
 
     connector = new KisAcyclicSignalConnector(this);
-    //connector->connectForwardDouble();
     connector->connectBackwardVoid(cropTool, SIGNAL(cropTypeSelectableChanged()), this, SLOT(cropTypeSelectableChanged()));
 
     connect(lockWidthButton, SIGNAL(toggled(bool)), this, SLOT(updateLockWidthIcon()));
@@ -124,9 +118,7 @@ KisToolCropConfigWidget::KisToolCropConfigWidget(QWidget* parent, KisToolCrop* c
 void KisToolCropConfigWidget::cropTypeSelectableChanged()
 {
     QStandardItemModel *cmbTypeModel = qobject_cast<QStandardItemModel *>(cmbType->model());
-    // Disable "Layer"
     cmbTypeModel->item(2)->setEnabled(m_cropTool->cropTypeSelectable());
-    // Disable "Frame"
     cmbTypeModel->item(3)->setEnabled(m_cropTool->cropTypeSelectable());
 }
 

@@ -20,7 +20,6 @@ public:
     KisPresetShadowUpdater(KisViewManager *view);
     ~KisPresetShadowUpdater();
 
-
 public Q_SLOTS:
     void slotCanvasResourceChanged(int key, const QVariant & value);
     void slotPresetChanged();
@@ -34,4 +33,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISPRESETSHADOWUPDATER_H
+#endif

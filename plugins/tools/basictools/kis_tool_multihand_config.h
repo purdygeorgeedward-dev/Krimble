@@ -9,7 +9,6 @@
 
 #include "ui_wdgmultihandtool.h"
 
-
 class KisToolMultiHandConfigWidget : public QWidget, public Ui::WdgMultiHandTool
 {
     Q_OBJECT
@@ -18,14 +17,6 @@ public:
     KisToolMultiHandConfigWidget(QWidget *parent=0);
     ~KisToolMultiHandConfigWidget() override;
 
-//Q_SIGNALS:
-
-
-//public Q_SLOTS:
-    //void cropTypeSelectableChanged();
-
-//private:
-    //KisToolCrop* m_cropTool;
 };
 
-#endif // KISTOOLMULTIHANDCONFIG_H
+#endif

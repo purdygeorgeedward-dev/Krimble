@@ -52,13 +52,8 @@ static QDataStream & operator>> (QDataStream & s, TgaHeader & head)
     s >> head.pixel_size;
     s >> head.flags;
 
-    /*dbgKrita << "id_length: " << head.id_length << " - colormap_type: " << head.colormap_type << " - image_type: " << head.image_type;
-    dbgKrita << "colormap_index: " << head.colormap_index << " - colormap_length: " << head.colormap_length << " - colormap_size: " << head.colormap_size;
-    dbgKrita << "x_origin: " << head.x_origin << " - y_origin: " << head.y_origin << " - width:" << head.width << " - height:" << head.height << " - pixelsize: " << head.pixel_size << " - flags: " << head.flags;*/
-
     return s;
 }
-
 
 static bool isSupported(const TgaHeader & head)
 {
@@ -101,17 +96,10 @@ static bool isSupported(const TgaHeader & head)
 
 static bool loadTGA(QDataStream & s, const TgaHeader & tga, QImage &img)
 {
-    // Create image.
     img = QImage(tga.width, tga.height, QImage::Format_RGB32);
 
     TgaHeaderInfo info(tga);
 
-    /**
-     * Theoretically, we should check alpha presence via the bits
-     * in flags, but there are a lot of files in the wild that
-     * have this flag unset. It contradicts TGA specification,
-     * but we cannot do anything about it.
-     */
     const bool alphaFlag = tga.flags & 0xf;
     if (tga.pixel_size == 32 && !alphaFlag) {
         qWarning() << "WARNING: TGA image with 32-bit pixel size reports absence of alpha channel. It is not possible, fixing...";
@@ -129,23 +117,18 @@ static bool loadTGA(QDataStream & s, const TgaHeader & tga, QImage &img)
         return false;
     }
 
-    // Read palette.
     char palette[768];
     if (info.pal) {
-        // @todo Support palettes in other formats!
         s.readRawData(palette, 3 * tga.colormap_length);
     }
 
-    // Allocate image.
     uchar * const image = new uchar[size];
 
     if (info.rle) {
-        // Decode image.
         char * dst = (char *)image;
         int num = size;
 
         while (num > 0) {
-            // Get packet header.
             uchar c;
             s >> c;
 
@@ -158,7 +141,6 @@ static bool loadTGA(QDataStream & s, const TgaHeader & tga, QImage &img)
             }
 
             if (c & 0x80) {
-                // RLE pixels.
                 Q_ASSERT(pixel_size <= 8);
                 char pixel[8];
                 s.readRawData(pixel, pixel_size);
@@ -167,18 +149,15 @@ static bool loadTGA(QDataStream & s, const TgaHeader & tga, QImage &img)
                     dst += pixel_size;
                 } while (--count);
             } else {
-                // Raw pixels.
                 count *= pixel_size;
                 s.readRawData(dst, count);
                 dst += count;
             }
         }
     } else {
-        // Read raw image.
         s.readRawData((char *)image, size);
     }
 
-    // Convert image to internal format.
     int y_start, y_step, y_end;
     if (tga.flags & TGA_ORIGIN_UPPER) {
         y_start = 0;
@@ -197,19 +176,16 @@ static bool loadTGA(QDataStream & s, const TgaHeader & tga, QImage &img)
         QRgb * scanline = (QRgb *) (void*) img.scanLine(y);
 
         if (info.pal) {
-            // Paletted.
             for (int x = 0; x < tga.width; x++) {
                 uchar idx = *src++;
                 scanline[x] = qRgb(palette[3 * idx + 2], palette[3 * idx + 1], palette[3 * idx + 0]);
             }
         } else if (info.grey) {
-            // Greyscale.
             for (int x = 0; x < tga.width; x++) {
                 scanline[x] = qRgb(*src, *src, *src);
                 src++;
             }
         } else {
-            // True Color.
             if (tga.pixel_size == 16) {
                 for (int x = 0; x < tga.width; x++) {
                     Color555 c = *reinterpret_cast<Color555 *>(src);
@@ -231,24 +207,15 @@ static bool loadTGA(QDataStream & s, const TgaHeader & tga, QImage &img)
             }
         }
     }
-    /* According to http://www.paulbourke.net/dataformats/tga/
-     * Targa 24 images are sometimes stored as Targa 32 images.
-     *
-     * In case all alpha information is transparent, we convert
-     * image to 24 bits.
-     */
     if (!hasAlpha && tga.pixel_size == 32) {
         img.convertTo(QImage::Format_RGB32);
         qWarning() << "WARNING: TGA image with 32-bit has all pixels transparent, removing alpha information.";
     }
 
-    // Free image.
     delete []image;
 
     return true;
 }
-
-
 
 KisImportExportErrorCode KisTGAImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP configuration)
 {
@@ -260,13 +227,10 @@ KisImportExportErrorCode KisTGAImport::convert(KisDocument *document, QIODevice 
     s >> tga;
     s.device()->seek(TgaHeader::SIZE + tga.id_length);
 
-
-    // Check image file format.
     if (s.atEnd()) {
         return ImportExportCodes::FileFormatIncorrect;
     }
 
-    // Check supported file types.
     if (!isSupported(tga)) {
         return ImportExportCodes::FormatFeaturesUnsupported;
     }

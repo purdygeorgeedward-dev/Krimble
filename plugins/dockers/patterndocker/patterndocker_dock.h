@@ -32,5 +32,4 @@ private:
     KisPatternChooser* m_patternChooser;
 };
 
-
 #endif

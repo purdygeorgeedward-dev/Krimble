@@ -29,16 +29,13 @@ class KisPainter;
 class KisTangentNormalPaintOp: public KisBrushBasedPaintOp
 {
 public:
-    //public functions//
 
-    /* Create a Tangent Normal Brush Operator*/
     KisTangentNormalPaintOp(const KisPaintOpSettingsSP settings, KisPainter* painter, KisNodeSP node, KisImageSP image);
     ~KisTangentNormalPaintOp() override;
 
     void paintLine(const KisPaintInformation &pi1, const KisPaintInformation &pi2, KisDistanceInformation *currentDistance) override;
 
 protected:
-    /*paint the dabs*/
     KisSpacingInformation paintAt(const KisPaintInformation& info) override;
 
     KisSpacingInformation updateSpacingImpl(const KisPaintInformation &info) const override;
@@ -50,7 +47,6 @@ private:
                                          qreal rotation) const;
 
 private:
-    //private functions//
     KisTangentTiltOption m_tangentTiltOption;
 
     KisFlowOpacityOption2 m_opacityOption;
@@ -70,4 +66,4 @@ private:
 
     KisPaintDeviceSP m_lineCacheDevice;
 };
-#endif // _KIS_TANGENTNORMALPAINTOP_H_
+#endif

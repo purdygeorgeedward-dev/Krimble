@@ -23,22 +23,10 @@
 
 #include "kritaui_export.h"
 
-const int minPoolChunk = 32; // 8 MiB (default, with tilesize 256)
-const int maxPoolChunk = 128; // 32 MiB (default, with tilesize 256)
-const int freeThreshold = 64; // 16 MiB (default, with tilesize 256)
+const int minPoolChunk = 32;
+const int maxPoolChunk = 128;
+const int freeThreshold = 64;
 
-
-/**
- * A pool for keeping the chunks of data of constant size. We have one
- * such pool per used openGL tile size. The size of the chunk
- * obviously depends on the size of the tile in pixels and the size of
- * a single pixel in bytes.
- *
- * As soon as the number of allocations drops to zero, all the memory
- * is returned back to the operating system. Please note, that there
- * is *no way* of reclaiming even unused pool memory until *all* the
- * allocated chunks are free'd.
- */
 class KRITAUI_EXPORT KisTextureTileInfoPoolSingleSize
 {
 public:
@@ -77,8 +65,6 @@ public:
     }
 
     void tryPurge(int numFrees) {
-        // checking numFrees here is asserting that there were no frees
-        // between the time we originally indicated the purge and now.
         if (numFrees == m_numFrees && !m_numAllocations) {
             m_pool.purge_memory();
             m_maxAllocations = 0;
@@ -111,11 +97,6 @@ private:
     QMap<int, int> m_purge;
 };
 
-/**
- * A universal pool for keeping the openGL tile of different pixel
- * sizes.  The underlying pools are created for each pixel size on
- * demand.
- */
 class KRITAUI_EXPORT KisTextureTileInfoPool : public QObject
 {
     Q_OBJECT
@@ -134,9 +115,6 @@ public:
         qDeleteAll(m_pools);
     }
 
-    /**
-     * Alloc a tile with the specified pixel size
-     */
     quint8* malloc(int pixelSize) {
         QMutexLocker l(&m_mutex);
 
@@ -152,9 +130,6 @@ public:
         return m_pools[pixelSize]->malloc();
     }
 
-    /**
-     * Free a tile with the specified pixel size
-     */
     void free(quint8 *ptr, int pixelSize) {
         QMutexLocker l(&m_mutex);
         KisTextureTileInfoPoolSingleSize *pool = m_pools[pixelSize];
@@ -163,9 +138,6 @@ public:
         }
     }
 
-    /**
-     * \return the length of the chunks stored in the pool
-     */
     int chunkSize(int pixelSize) const {
         QMutexLocker l(&m_mutex);
         return m_pools[pixelSize]->chunkSize();
@@ -217,5 +189,4 @@ private:
     QHash<PoolId, KisTextureTileInfoPoolWSP> m_storage;
 };
 
-
-#endif /* __KIS_TEXTURE_TILE_INFO_POOL_H */
+#endif

@@ -19,4 +19,4 @@ public:
 
 };
 
-#endif // TOOL_KNIFE_H_
+#endif

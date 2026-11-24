@@ -21,4 +21,4 @@ private:
     KisWaylandKeyboardWatcher m_watcher;
 };
 
-#endif // KIS_EXTENDED_MODIFIERS_MAPPER_WAYLAND_H
+#endif

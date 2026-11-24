@@ -16,7 +16,7 @@ inline KoResourceSignature lazySignature(KoResourceSP resource) {
     return resource ? resource->signature() : KoResourceSignature();
 }
 
-} // namespace
+}
 
 KisStrokeCompatibilityInfo::KisStrokeCompatibilityInfo()
 {

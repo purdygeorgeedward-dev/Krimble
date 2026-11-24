@@ -4,7 +4,6 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
 #ifndef KISTOOLCROPCONFIGWIDGET_H
 #define KISTOOLCROPCONFIGWIDGET_H
 
@@ -44,4 +43,4 @@ private Q_SLOTS:
     void updateLockHeightIcon();
 };
 
-#endif // KISTOOLCROPCONFIGWIDGET_H
+#endif

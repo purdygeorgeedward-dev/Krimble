@@ -173,10 +173,6 @@ public:
 
     int audioSampleRate() const
     {
-        // While creating an audio track on Android lets you pass it a sample
-        // rate, that doesn't actually give you an audio track with the given
-        // sample rate. For WEBM with Vorbis, you always get a 48kHz track. MP4
-        // with AAC seems more forgiving, but let's go with known good values.
         switch (m_formatId) {
         case FORMAT_MP4_H264:
         case FORMAT_MP4_AV1:
@@ -190,7 +186,6 @@ public:
 private:
     static void fillEncoders(QVector<Encoder> &outEncoders, const QVector<Encoder> &encoders)
     {
-        // Prefer software encoders, because hardware encoders are often busted.
         outEncoders.reserve(encoders.size());
         for (const Encoder &encoder : encoders) {
             if (!encoder.hardware) {
@@ -400,8 +395,6 @@ public:
 
     bool allocateImage(int outputWidth, int outputHeight, AVPixelFormat outputFormat)
     {
-        // The Android encoder really shouldn't be changing
-        // pixel formats along the way, but just in case.
         if (m_imageFormat != AV_PIX_FMT_NONE) {
             m_imageFormat = AV_PIX_FMT_NONE;
             av_freep(&m_imageBuffers[0]);
@@ -654,22 +647,14 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         tempFile.close();
     } else {
         warnFile << "Failed to open temporary file:" << tempFile.errorString();
-        // Keep going, we might not actually need a temporary file.
     }
 
     Context ctx(&outErrorMessage);
     int outputWidth = settings().outputSize.width();
     int outputHeight = settings().outputSize.height();
 
-    // Set up audio if we were given some.
     std::unique_ptr<Audio> audio;
     if (!settings().audioFile.isEmpty()) {
-        // We always use these fixed parameters: 16 bit PCM, 2 channels and a
-        // sample rate according to the format. The Android media encoder makes
-        // it appear like you can create audio tracks with other parameters, but
-        // if it doesn't like the parameters it just gives you something else,
-        // which obviously just results in nonsense. We'll go with known good
-        // parameters instead, they'll also play back consistently everywhere.
         audio = std::make_unique<Audio>(mlt_audio_s16, format->audioSampleRate(), 2);
         if (!audio->open(ctx, settings())) {
             return EncodeResult::Failed;
@@ -679,8 +664,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         case Audio::PULL_FRAME_OK:
             break;
         case Audio::PULL_FRAME_END_OF_STREAM:
-            // There's no frames, which can happen if our animation range start
-            // is beyond the end of the file. Just export without audio then.
             audio.reset();
             break;
         default:
@@ -688,7 +671,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         }
     }
 
-    // Set up the encoder.
     {
         QJniObject outputPath = QJniObject::fromString(settings().outputFile);
         if (ctx.checkObject(QStringLiteral("outputPath"), outputPath)) {
@@ -745,7 +727,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         return EncodeResult::Cancelled;
     }
 
-    // Start the encoding.
     {
         QJniObject activity = QJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                  "activity",
@@ -761,7 +742,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         }
     }
 
-    // Encode the frames.
     Frame frame;
     int swsFlags = ctx.getSwsFlags(settings().scaleFilter);
     while (nextFrame(frame)) {
@@ -769,14 +749,8 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
             return EncodeResult::Cancelled;
         }
 
-        // Grab the next frame from disk.
         QImage inputImage;
         if (!frame.readImage(inputImage)) {
-            // If we don't have audio, we can just skip the frame and hope it's
-            // okay. In timelapses it often is, you're not gonna notice a single
-            // frame missing in the video. However, if we have an animation with
-            // audio, skipping a frame would make a mess and be hard to resync,
-            // so in that case we just give up and bail out.
             if (audio) {
                 ctx.setInternalErrorMessage(QStringLiteral("failed to read frame %1").arg(frame.path()));
                 return EncodeResult::Failed;
@@ -787,8 +761,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
 
         AVPixelFormat inputPixelFormat;
         if (!ctx.convertFrame(inputImage, inputPixelFormat)) {
-            // Dito to the above, try to skip frames we don't understand, don't
-            // bother when there's audio involved.
             if (audio) {
                 ctx.setInternalErrorMessage(QStringLiteral("failed to convert frame %1").arg(frame.path()));
                 return EncodeResult::Failed;
@@ -799,27 +771,20 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
 
         int instances = frame.instances();
         for (int i = 0; i < instances; ++i) {
-            // Grab a buffer from the encoder.
             EncodeResult prepareVideoResult = prepareVideo(ctx);
             if (prepareVideoResult != EncodeResult::Completed) {
                 return prepareVideoResult;
             }
 
-            // Retrieve the buffer layout.
             EncoderImage encoderImage;
             if (!readEncoderImage(ctx, encoderImage)) {
                 return EncodeResult::Failed;
             }
 
-            // Map the buffer layout to a libswscale-befitting arrangement. The
-            // layout may either have the YUV components in separate buffers or it
-            // may have the U and V components combined into a single buffer, where
-            // either U or V can come first. Which one we get depends on hardware.
             uint8_t *dstBuffers[4] = {nullptr, nullptr, nullptr, nullptr};
             int dstLinesizes[4] = {0, 0, 0, 0};
             AVPixelFormat outputPixelFormat;
             if (encoderImage.pixelStrideU == 1 && encoderImage.pixelStrideV == 1) {
-                // Separate Y, U and V buffers.
                 outputPixelFormat = AV_PIX_FMT_YUV420P;
                 dstBuffers[0] = encoderImage.bufferY;
                 dstBuffers[1] = encoderImage.bufferU;
@@ -830,7 +795,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
 
             } else if (encoderImage.pixelStrideU == 2 && encoderImage.pixelStrideV == 2
                        && encoderImage.bufferU + 1 == encoderImage.bufferV) {
-                // One Y buffer and one combined UV buffer, U comes first.
                 outputPixelFormat = AV_PIX_FMT_NV12;
                 dstBuffers[0] = encoderImage.bufferY;
                 dstBuffers[1] = encoderImage.bufferU;
@@ -839,7 +803,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
 
             } else if (encoderImage.pixelStrideU == 2 && encoderImage.pixelStrideV == 2
                        && encoderImage.bufferV + 1 == encoderImage.bufferU) {
-                // One Y buffer and one combined UV buffer, V comes first.
                 outputPixelFormat = AV_PIX_FMT_NV21;
                 dstBuffers[0] = encoderImage.bufferY;
                 dstBuffers[1] = encoderImage.bufferV;
@@ -868,14 +831,11 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
             }
 
             if (instances == 1) {
-                // Just a single frame, scale it into the native buffer.
                 const uint8_t *srcBuffers[] = {inputImage.bits(), nullptr, nullptr, nullptr};
                 const int srcLinesizes[] = {inputImage.bytesPerLine(), 0, 0, 0};
                 sws_scale(swsContext, srcBuffers, srcLinesizes, 0, inputImage.height(), dstBuffers, dstLinesizes);
 
             } else {
-                // Repeated frame, scale it into an intermediate buffer, then
-                // copy it over to the native one for each instance.
                 if (i == 0 || ctx.imageFormat() != outputPixelFormat) {
                     if (ctx.imageFormat() != outputPixelFormat) {
                         if (!ctx.allocateImage(outputWidth, outputHeight, outputPixelFormat)) {
@@ -946,21 +906,17 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         return EncodeResult::Cancelled;
     }
 
-    // Finish the encoder streams.
     {
-        // Need a buffer from the encoder to tell it that it's done.
         EncodeResult prepareVideoResult = prepareVideo(ctx);
         if (prepareVideoResult != EncodeResult::Completed) {
             return prepareVideoResult;
         }
 
-        // Hand empty buffer back with the end of stream flag set.
         int finishVideoResult = int(ctx.encoder().callMethod<jint>("finishVideo", "()I"));
         if (ctx.checkResult(QStringLiteral("finishVideo"), finishVideoResult)) {
             return EncodeResult::Failed;
         }
 
-        // Same procedure with audio, but it might already have finished.
         if (audio && !audio->isFinished()) {
             EncodeResult prepareAudioResult = prepareAudio(ctx);
             if (prepareAudioResult != EncodeResult::Completed) {
@@ -973,7 +929,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         }
     }
 
-    // Drain all remaining frames and samples out of the encoders.
     bool videoStreamEnded = false;
     bool audioStreamEnded = !audio;
     do {
@@ -1003,7 +958,6 @@ KisMediaEncoderRunnable::EncodeResult KisAndroidMediaEncoderRunnable::encode(QSt
         }
     } while (!videoStreamEnded || !audioStreamEnded);
 
-    // Close the encoder, copy the temporary file to the output file if needed.
     {
         int closeResult = int(ctx.encoder().callMethod<jint>("close", "()I"));
         if (ctx.checkResult(QStringLiteral("close"), closeResult)) {

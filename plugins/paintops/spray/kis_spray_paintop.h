@@ -20,9 +20,7 @@
 #include "KisSprayOpOption.h"
 #include "KisSprayShapeOptionData.h"
 
-
 class KisPainter;
-
 
 class KisSprayPaintOp : public KisPaintOp
 {
@@ -65,4 +63,4 @@ private:
     KisNodeSP m_node;
 };
 
-#endif // KIS_SPRAY_PAINTOP_H_
+#endif

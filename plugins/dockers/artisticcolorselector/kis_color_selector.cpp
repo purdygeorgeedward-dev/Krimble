@@ -19,11 +19,8 @@
 #include <kis_config.h>
 #include <kis_arcs_constants.h>
 #include <resources/KoGamutMask.h>
-//#include <KisGamutMaskViewConverter.h>
 
 #include "kis_color_selector.h"
-
-//#define DEBUG_ARC_SELECTOR
 
 KisColorSelector::KisColorSelector(QWidget* parent, KisColor::Type type)
     : QWidget(parent)
@@ -44,7 +41,6 @@ KisColorSelector::KisColorSelector(QWidget* parent, KisColor::Type type)
     , m_isDirtyGamutMask(false)
     , m_isDirtyColorPreview(false)
 {
-//    m_viewConverter = new KisGamutMaskViewConverter();
 
     setLumaCoefficients(DEFAULT_LUMA_R, DEFAULT_LUMA_G, DEFAULT_LUMA_B,DEFAULT_LUMA_GAMMA);
 
@@ -52,9 +48,9 @@ KisColorSelector::KisColorSelector(QWidget* parent, KisColor::Type type)
     recalculateAreas(DEFAULT_VALUE_SCALE_STEPS);
     selectColor(KisColor(Qt::red, m_colorConverter, KisColor::HSY, m_lumaR, m_lumaG, m_lumaB, m_lumaGamma));
 
-    using namespace std::placeholders; // For _1 placeholder
+    using namespace std::placeholders;
     auto function = std::bind(&KisColorSelector::slotUpdateColorAndPreview, this, _1);
-    m_updateColorCompressor.reset(new ColorCompressorType(25 /* ms */, function));
+    m_updateColorCompressor.reset(new ColorCompressorType(25 , function));
 }
 
 void KisColorSelector::setColorSpace(KisColor::Type type)
@@ -245,7 +241,6 @@ bool KisColorSelector::gamutMaskOn()
     return m_gamutMaskOn;
 }
 
-
 void KisColorSelector::setGamutMaskOn(bool gamutMaskOn)
 {
     if (m_currentGamutMask) {
@@ -327,7 +322,6 @@ QPointF KisColorSelector::mapHueToAngle(qreal hue) const
 
     return QPointF(x,y);
 }
-
 
 qint8 KisColorSelector::getLightIndex(const QPointF& pt) const
 {
@@ -507,7 +501,6 @@ bool KisColorSelector::colorIsClear(const KisColor &color)
 
     return false;
 }
-
 
 void KisColorSelector::requestUpdateColorAndPreview(const KisColor &color, Acs::ColorRole role)
 {
@@ -711,7 +704,7 @@ void KisColorSelector::drawLightStrip(QPainter& painter, const QRect& rect)
             qreal  t1    = qreal(i)   / qreal(getNumLightPieces());
             qreal  t2    = qreal(i+1) / qreal(getNumLightPieces());
             qreal  light = 1.0 - (qreal(i) / qreal(getNumLightPieces()-1));
-            qreal  diff  = t2 - t1;// + 0.001;
+            qreal  diff  = t2 - t1;
 
             QRectF rectColor = QRectF(rectColorLeftX, t1, rectColorWidth, diff);
             rectColor = matrix.mapRect(rectColor);
@@ -742,9 +735,7 @@ void KisColorSelector::drawLightStrip(QPainter& painter, const QRect& rect)
         }
     }
 
-    // draw color blip
     painter.setRenderHint(QPainter::Antialiasing, false);
-    // draw position of fg color value on the strip
     qreal fgColorValue = 1.0 - m_fgColor.getX();
 
     int y = rect.y() + int(rectSize * fgColorValue);
@@ -752,7 +743,6 @@ void KisColorSelector::drawLightStrip(QPainter& painter, const QRect& rect)
     painter.drawLine(rect.left(), y, rect.right(), y);
     painter.setPen(QPen(QBrush(COLOR_SELECTED_DARK), penSizeSmall));
     painter.drawLine(rect.left(), y+2*penSizeSmall, rect.right(), y+2*penSizeSmall);
-    // draw color blip
 
     if (m_showValueScaleNumbers) {
         painter.setRenderHint(QPainter::Antialiasing, true);
@@ -764,13 +754,9 @@ void KisColorSelector::drawLightStrip(QPainter& painter, const QRect& rect)
 
         QFont font = painter.font();
         QFontMetrics fm = painter.fontMetrics();
-        int retries = 10; // limit number of font size searches to prevent endless cycles
-        // Font size can be specified in points or pixels. If the font uses
-        // pixel sizes, the point size will be -1 and vice-versa.
+        int retries = 10;
         bool inPointSize = font.pointSize() != -1;
         while ((retries > 0) && (fm.boundingRect("100%").width() > rect.width()*rectColorLeftX)) {
-            // Scale down with a proportional step size, otherwise large font
-            // sizes on scaled displays don't get small enough in 10 tries.
             if (inPointSize) {
                 int pointSize = font.pointSize();
                 font.setPointSize(pointSize - (pointSize / 11 + 1));
@@ -787,7 +773,7 @@ void KisColorSelector::drawLightStrip(QPainter& painter, const QRect& rect)
             qreal  t1    = qreal(i)   / qreal(valueScalePieces);
             qreal  t2    = qreal(i+1) / qreal(valueScalePieces);
             qreal  light = 1.0 - (qreal(i) / qreal(valueScalePieces-1));
-            qreal  diff  = t2 - t1;// + 0.001;
+            qreal  diff  = t2 - t1;
 
             grayScaleColor.setX(light);
 
@@ -796,8 +782,6 @@ void KisColorSelector::drawLightStrip(QPainter& painter, const QRect& rect)
 
             painter.fillRect(rectValue, grayScaleColor.toQColor());
 
-            // if the right font size was not found in time,
-            // skip drawing the numbers
             if (retries > 0) {
                 int valueNumber = 0;
                 if (m_colorSpace == KisColor::HSY) {
@@ -895,11 +879,10 @@ void KisColorSelector::drawColorPreview(QPainter &painter, const QRect &rect)
     painter.restore();
 }
 
-void KisColorSelector::paintEvent(QPaintEvent* /*event*/)
+void KisColorSelector::paintEvent(QPaintEvent* )
 {
     QPainter wdgPainter(this);
 
-    // draw the fg and bg color previews
     if (m_isDirtyColorPreview) {
         m_colorPreviewBuffer.fill(Qt::transparent);
         QPainter colorPreviewPainter(&m_colorPreviewBuffer);
@@ -908,9 +891,7 @@ void KisColorSelector::paintEvent(QPaintEvent* /*event*/)
         m_isDirtyColorPreview = false;
     }
     wdgPainter.drawImage(m_widgetArea, m_colorPreviewBuffer);
-    // draw the fg and bg color previews
 
-    // draw the wheel
     if (m_isDirtyWheel) {
         m_renderBuffer.fill(Qt::transparent);
         QPainter wheelPainter(&m_renderBuffer);
@@ -921,11 +902,7 @@ void KisColorSelector::paintEvent(QPaintEvent* /*event*/)
         m_isDirtyWheel = false;
     }
     wdgPainter.drawImage(m_renderArea, m_renderBuffer);
-    // draw the wheel
 
-    // draw the mask either in continuous mode or in discrete mode when enforcing is turned off
-    // if enforcing is turned on in discrete mode,
-    // drawRing function takes care of delineating the mask swatches
     if (m_gamutMaskOn
             && ((getNumPieces() == 1) || (!m_enforceGamutMask))) {
 
@@ -938,11 +915,9 @@ void KisColorSelector::paintEvent(QPaintEvent* /*event*/)
         }
         wdgPainter.drawImage(m_renderArea, m_maskBuffer);
     }
-    // draw gamut mask
 
     drawOutline(wdgPainter, m_renderArea);
 
-    // draw light strip
     if (m_isDirtyLightStrip) {
         m_lightStripBuffer.fill(Qt::transparent);
         QPainter lightStripPainter(&m_lightStripBuffer);
@@ -951,7 +926,6 @@ void KisColorSelector::paintEvent(QPaintEvent* /*event*/)
         m_isDirtyLightStrip = false;
     }
     wdgPainter.drawImage(m_lightStripArea, m_lightStripBuffer);
-    // draw light strip
 
     drawBlip(wdgPainter, m_renderArea);
 }
@@ -1037,7 +1011,7 @@ void KisColorSelector::mouseMoveEvent(QMouseEvent* event)
     update();
 }
 
-void KisColorSelector::mouseReleaseEvent(QMouseEvent* /*event*/)
+void KisColorSelector::mouseReleaseEvent(QMouseEvent* )
 {
     Acs::ColorRole colorRole = Acs::buttonsToRole(Qt::NoButton, m_pressedButtons);
 
@@ -1076,12 +1050,12 @@ void KisColorSelector::mouseReleaseEvent(QMouseEvent* /*event*/)
     update();
 }
 
-void KisColorSelector::resizeEvent(QResizeEvent* /*event*/)
+void KisColorSelector::resizeEvent(QResizeEvent* )
 {
     recalculateAreas(quint8(getNumLightPieces()));
 }
 
-void KisColorSelector::leaveEvent(QEvent* /*e*/)
+void KisColorSelector::leaveEvent(QEvent* )
 {
     m_widgetUpdatesSelf = false;
 #ifdef DEBUG_ARC_SELECTOR

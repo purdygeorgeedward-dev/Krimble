@@ -46,7 +46,7 @@ struct MyPaintSensorData : boost::equality_comparable<MyPaintSensorData>
 {
     MyPaintSensorData();
 
-    inline friend bool operator==(const MyPaintSensorData &lhs, const MyPaintSensorData &rhs) {   
+    inline friend bool operator==(const MyPaintSensorData &lhs, const MyPaintSensorData &rhs) {
         return lhs.sensorPressure == rhs.sensorPressure &&
             lhs.sensorFineSpeed == rhs.sensorFineSpeed &&
             lhs.sensorGrossSpeed == rhs.sensorGrossSpeed &&
@@ -76,7 +76,7 @@ public:
     MyPaintSensorPack(const MyPaintSensorPack &rhs) = default;
 
     KisSensorPackInterface * clone() const override;
-    
+
     std::vector<const KisSensorData *> constSensors() const override;
     std::vector<KisSensorData *> sensors() override;
 
@@ -87,9 +87,8 @@ public:
     bool read(KisCurveOptionDataCommon &data, const KisPropertiesConfiguration *setting) const override;
     void write(const KisCurveOptionDataCommon &data, KisPropertiesConfiguration *setting) const override;
 
-
 private:
     MyPaintSensorData m_data;
 };
 
-#endif // MYPAINTSENSORPACK_H
+#endif

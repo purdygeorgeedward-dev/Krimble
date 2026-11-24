@@ -173,10 +173,8 @@ KisCurveOptionWidget::KisCurveOptionWidget(lager::cursor<KisCurveOptionDataCommo
             &KisMultiSensorsSelector::highlightedSensorChanged,
             std::bind(&KisCurveOptionModel::setactiveSensorId, &m_d->model, std::placeholders::_1));
 
-    // set all the icons for the curve preset shapes
     updateThemedIcons();
 
-    // various curve preset buttons with predefined curves
     connect(m_curveOptionWidget->linearCurveButton, SIGNAL(clicked(bool)), this, SLOT(changeCurveLinear()));
     connect(m_curveOptionWidget->revLinearButton, SIGNAL(clicked(bool)), this, SLOT(changeCurveReverseLinear()));
     connect(m_curveOptionWidget->jCurveButton, SIGNAL(clicked(bool)), this, SLOT(changeCurveJShape()));
@@ -310,7 +308,6 @@ void KisCurveOptionWidget::changeCurveSShape()
     m_d->model.setdisplayedCurve(KisCubicCurve(points).toString());
 }
 
-
 void KisCurveOptionWidget::changeCurveReverseSShape()
 {
     QList<QPointF> points;
@@ -359,7 +356,6 @@ void KisCurveOptionWidget::changeCurveArchShape()
 
 void KisCurveOptionWidget::updateThemedIcons()
 {
-    // set all the icons for the curve preset shapes
     m_curveOptionWidget->linearCurveButton->setIcon(KisIconUtils::loadIcon("curve-preset-linear"));
     m_curveOptionWidget->revLinearButton->setIcon(KisIconUtils::loadIcon("curve-preset-linear-reverse"));
     m_curveOptionWidget->jCurveButton->setIcon(KisIconUtils::loadIcon("curve-preset-j"));
@@ -369,7 +365,6 @@ void KisCurveOptionWidget::updateThemedIcons()
     m_curveOptionWidget->uCurveButton->setIcon(KisIconUtils::loadIcon("curve-preset-u"));
     m_curveOptionWidget->revUCurveButton->setIcon(KisIconUtils::loadIcon("curve-preset-arch"));
 
-    // this helps make the checkboxes show themselves on the dark color themes
     QPalette pal = m_curveOptionWidget->sensorSelector->palette();
     QPalette newPalette = pal;
     newPalette.setColor(QPalette::Active, QPalette::Window, pal.text().color() );

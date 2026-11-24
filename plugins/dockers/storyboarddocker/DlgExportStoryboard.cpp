@@ -48,7 +48,7 @@ DlgExportStoryboard::DlgExportStoryboard(ExportFormat format, QSharedPointer<Sto
     m_page->exportPathFileRequester->setFileName(cfg.readEntry<QString>("storyboard/exportFilePath"));
     m_page->gridRowsSpinBox->setValue(cfg.readEntry<int>("storyboard/rows", 3));
     m_page->gridColumnsSpinBox->setValue(cfg.readEntry<int>("storyboard/columns", 3));
-    
+
     if (format == ExportFormat::PDF) {
         QStringList mimeTypes;
         mimeTypes << "application/pdf";
@@ -72,7 +72,6 @@ DlgExportStoryboard::DlgExportStoryboard(ExportFormat format, QSharedPointer<Sto
 DlgExportStoryboard::~DlgExportStoryboard()
 {
 }
-
 
 int DlgExportStoryboard::rows() const
 {
@@ -162,7 +161,7 @@ int DlgExportStoryboard::fontSize() const
 
 void DlgExportStoryboard::setUsableMaximums(QPageSize pPageSize, QPageLayout::Orientation pOrientation, ExportLayout pLayout)
 {
-    if (pLayout == ExportLayout::SVG_TEMPLATE) { // Bypass estimates -- We can't really make any educated guess here!
+    if (pLayout == ExportLayout::SVG_TEMPLATE) {
         m_page->fontSizeSpinBox->setMaximum(50);
     } else {
         const QSize pointSize = pPageSize.sizePoints();

@@ -25,7 +25,6 @@ KisPhongBumpmapConfigWidget::KisPhongBumpmapConfigWidget(const KisPaintDeviceSP 
     matPropLabelsGroup->addWidget(m_page->lblSpecularReflectivity);
     matPropLabelsGroup->addWidget(m_page->lblSpecularShinyExp);
 
-    //Let widgets warn the preview of when they are updated
     connect(m_page->azimuthAngleSelector1, SIGNAL(angleChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->azimuthAngleSelector2, SIGNAL(angleChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->azimuthAngleSelector3, SIGNAL(angleChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
@@ -35,7 +34,7 @@ KisPhongBumpmapConfigWidget::KisPhongBumpmapConfigWidget(const KisPaintDeviceSP 
     connect(m_page->lightKColorCombo2, SIGNAL(currentIndexChanged(int)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->lightKColorCombo3, SIGNAL(currentIndexChanged(int)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->lightKColorCombo4, SIGNAL(currentIndexChanged(int)), SIGNAL(sigConfigurationItemChanged()));
-    
+
     connect(m_page->elevationAngleSelector1, SIGNAL(angleChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->elevationAngleSelector2, SIGNAL(angleChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->elevationAngleSelector3, SIGNAL(angleChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
@@ -44,39 +43,36 @@ KisPhongBumpmapConfigWidget::KisPhongBumpmapConfigWidget(const KisPaintDeviceSP 
     connect(m_page->useNormalMap, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->diffuseReflectivityGroup, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->specularReflectivityGroup, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
-    
+
     connect(m_page->ambientReflectivityKisDoubleSliderSpinBox, SIGNAL(valueChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->diffuseReflectivityKisDoubleSliderSpinBox, SIGNAL(valueChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->specularReflectivityKisDoubleSliderSpinBox, SIGNAL(valueChanged(qreal)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->shininessExponentKisSliderSpinBox, SIGNAL(valueChanged(int)), SIGNAL(sigConfigurationItemChanged()));
-    
+
     connect(m_page->heightChannelComboBox, SIGNAL(currentIndexChanged(int)), SIGNAL(sigConfigurationItemChanged()));
-    
+
     connect(m_page->lightSourceGroupBox1, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->lightSourceGroupBox2, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->lightSourceGroupBox3, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->lightSourceGroupBox4, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
-
 
     QVBoxLayout *l = new QVBoxLayout(this);
     Q_CHECK_PTR(l);
 
     l->addWidget(m_page);
 
-    /* fill in the channel chooser */
     const QList<KoChannelInfo *> channels = m_device->colorSpace()->channels();
     for (quint8 ch = 0; ch < m_device->colorSpace()->colorChannelCount(); ch++)
         m_page->heightChannelComboBox->addItem(channels.at(ch)->name());
-    
-    connect(m_page->useNormalMap, SIGNAL(toggled(bool)), this, SLOT(slotDisableHeightChannelCombobox(bool)) );
 
+    connect(m_page->useNormalMap, SIGNAL(toggled(bool)), this, SLOT(slotDisableHeightChannelCombobox(bool)) );
 
 }
 
 void KisPhongBumpmapConfigWidget::setConfiguration(const KisPropertiesConfigurationSP config)
 {
     if (!config) return;
-    
+
     QVariant tempcolor;
     if (config->getBool(USE_NORMALMAP_IS_ENABLED))  {
         m_page->heightChannelComboBox->setEnabled(false);
@@ -90,7 +86,6 @@ void KisPhongBumpmapConfigWidget::setConfiguration(const KisPropertiesConfigurat
     m_page->useNormalMap->setChecked( config->getBool(USE_NORMALMAP_IS_ENABLED) );
     m_page->diffuseReflectivityGroup->setChecked( config->getBool(PHONG_DIFFUSE_REFLECTIVITY_IS_ENABLED) );
     m_page->specularReflectivityGroup->setChecked( config->getBool(PHONG_SPECULAR_REFLECTIVITY_IS_ENABLED) );
-    // NOTE: Indexes are off by 1 simply because arrays start at 0 and the GUI naming scheme started at 1
     m_page->lightSourceGroupBox1->setChecked( config->getBool(PHONG_ILLUMINANT_IS_ENABLED[0]) );
     m_page->lightSourceGroupBox2->setChecked( config->getBool(PHONG_ILLUMINANT_IS_ENABLED[1]) );
     m_page->lightSourceGroupBox3->setChecked( config->getBool(PHONG_ILLUMINANT_IS_ENABLED[2]) );
@@ -118,15 +113,13 @@ KisPropertiesConfigurationSP KisPhongBumpmapConfigWidget::configuration() const
     KisFilterConfigurationSP config = new KisFilterConfiguration("phongbumpmap", 2, KisGlobalResourcesInterface::instance());
     config->setProperty(PHONG_HEIGHT_CHANNEL, m_page->heightChannelComboBox->currentText());
     config->setProperty(USE_NORMALMAP_IS_ENABLED, m_page->useNormalMap->isChecked());
-    
+
     config->setProperty(PHONG_AMBIENT_REFLECTIVITY, m_page->ambientReflectivityKisDoubleSliderSpinBox->value());
     config->setProperty(PHONG_DIFFUSE_REFLECTIVITY, m_page->diffuseReflectivityKisDoubleSliderSpinBox->value());
     config->setProperty(PHONG_SPECULAR_REFLECTIVITY, m_page->specularReflectivityKisDoubleSliderSpinBox->value());
     config->setProperty(PHONG_SHINYNESS_EXPONENT, m_page->shininessExponentKisSliderSpinBox->value());
     config->setProperty(PHONG_DIFFUSE_REFLECTIVITY_IS_ENABLED, m_page->diffuseReflectivityGroup->isChecked());
     config->setProperty(PHONG_SPECULAR_REFLECTIVITY_IS_ENABLED, m_page->specularReflectivityGroup->isChecked());
-    //config->setProperty(PHONG_SHINYNESS_EXPONENT_IS_ENABLED, m_page->specularReflectivityCheckBox->isChecked());
-    // Indexes are off by 1 simply because arrays start at 0 and the GUI naming scheme started at 1
     config->setProperty(PHONG_ILLUMINANT_IS_ENABLED[0], m_page->lightSourceGroupBox1->isChecked());
     config->setProperty(PHONG_ILLUMINANT_IS_ENABLED[1], m_page->lightSourceGroupBox2->isChecked());
     config->setProperty(PHONG_ILLUMINANT_IS_ENABLED[2], m_page->lightSourceGroupBox3->isChecked());
@@ -144,14 +137,6 @@ KisPropertiesConfigurationSP KisPhongBumpmapConfigWidget::configuration() const
     config->setProperty(PHONG_ILLUMINANT_INCLINATION[2], m_page->elevationAngleSelector3->angle());
     config->setProperty(PHONG_ILLUMINANT_INCLINATION[3], m_page->elevationAngleSelector4->angle());
 
-    // Read configuration
-    /*
-    QMap<QString, QVariant> rofl = QMap<QString, QVariant>(config->getProperties());
-
-    QMap<QString, QVariant>::const_iterator i;
-    for (i = rofl.constBegin(); i != rofl.constEnd(); ++i)
-        dbgKrita << i.key() << ":" << i.value();
-    */
     return config;
 }
 

@@ -8,7 +8,6 @@
 
 #include <KisCanvasSurfaceColorSpaceManager.h>
 
-
 class KRITAUI_EXPORT KisSRGBSurfaceColorSpaceManager : public KisCanvasSurfaceColorSpaceManager
 {
     Q_OBJECT
@@ -22,4 +21,4 @@ protected:
     void slotConfigChanged();
 };
 
-#endif /* KISSRGBSURFACECOLORSPACEMANAGER_H */
+#endif

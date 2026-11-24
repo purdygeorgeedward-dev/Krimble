@@ -29,4 +29,4 @@ public:
     LAGER_QT_CURSOR(qreal, opacity);
 };
 
-#endif // MYPAINTBASICOPTIONMODEL_H
+#endif

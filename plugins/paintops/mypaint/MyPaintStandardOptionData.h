@@ -9,7 +9,6 @@
 #include <MyPaintCurveOptionData.h>
 #include <kis_paintop_lod_limitations.h>
 
-
 struct MyPaintRadiusLogarithmicData : MyPaintCurveOptionData
 {
     MyPaintRadiusLogarithmicData();
@@ -70,7 +69,6 @@ struct MyPaintEllipticalDabRatioData : MyPaintCurveOptionData
     }
 };
 
-
 struct MyPaintDirectionFilterData : MyPaintCurveOptionData
 {
     MyPaintDirectionFilterData()
@@ -89,7 +87,6 @@ struct MyPaintSnapToPixelsData : MyPaintCurveOptionData
     }
 };
 
-
 struct MyPaintPressureGainData : MyPaintCurveOptionData
 {
     MyPaintPressureGainData()
@@ -98,7 +95,6 @@ struct MyPaintPressureGainData : MyPaintCurveOptionData
     {
     }
 };
-
 
 struct MyPaintChangeColorHData : MyPaintCurveOptionData
 {
@@ -271,7 +267,6 @@ struct MyPaintDabsPerSecondData : MyPaintCurveOptionData
     }
 };
 
-
 struct MyPaintOpaqueLinearizeData : MyPaintCurveOptionData
 {
     MyPaintOpaqueLinearizeData()
@@ -416,4 +411,4 @@ struct MyPaintCustomInputSlownessData : MyPaintCurveOptionData
     }
 };
 
-#endif // MYPAINTSTANDARDOPTIONDATA_H
+#endif

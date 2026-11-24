@@ -14,9 +14,6 @@
 class KoResource;
 class KisGenericGradientEditor;
 
-/**
- * @brief The KisCmbGradient class allows the user to select a gradient.
- */
 class KisCmbGradient : public KisPopupButton
 {
     Q_OBJECT
@@ -50,4 +47,4 @@ private:
     KisGenericGradientEditor *m_gradientEditor;
 };
 
-#endif // KIS_CMB_GRADIENT_H
+#endif

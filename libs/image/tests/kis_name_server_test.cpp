@@ -14,5 +14,4 @@ void KisNameServerTest::testCreation()
     KisNameServer test;
 }
 
-
 SIMPLE_TEST_MAIN(KisNameServerTest)

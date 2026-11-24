@@ -8,7 +8,6 @@
 #include <QGlobalStatic>
 #include <QString>
 
-
 Q_GLOBAL_STATIC(KoColorSpaceEngineRegistry, s_instance)
 
 struct Q_DECL_HIDDEN KoColorSpaceEngine::Private {

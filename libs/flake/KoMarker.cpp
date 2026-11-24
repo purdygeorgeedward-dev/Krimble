@@ -16,7 +16,6 @@
 #include <KoGradientBackground.h>
 #include <KoColorBackground.h>
 
-
 #include <QString>
 #include <QUrl>
 #include <QPainterPath>
@@ -36,16 +35,12 @@ public:
     {}
 
     ~Private() {
-        // shape manager that is stored in the painter should be destroyed
-        // before the shapes themselves
         shapePainter.reset();
         qDeleteAll(shapes);
     }
 
     bool operator==(const KoMarker::Private &other) const
     {
-        // WARNING: comparison of shapes is extremely fuzzy! Don't
-        //          trust it in life-critical cases!
 
         return name == other.name &&
             coordinateSystem == other.coordinateSystem &&
@@ -242,7 +237,7 @@ void KoMarker::paintAtPosition(QPainter *painter, const QPointF &pos, qreal stro
 
 qreal KoMarker::maxInset(qreal strokeWidth) const
 {
-    QRectF shapesBounds = boundingRect(strokeWidth, 0.0); // normalized to 0,0
+    QRectF shapesBounds = boundingRect(strokeWidth, 0.0);
     qreal result = 0.0;
 
     result = qMax(KisAlgebra2D::norm(shapesBounds.topLeft()), result);
@@ -284,7 +279,7 @@ QPainterPath KoMarker::outline(qreal strokeWidth, qreal nodeAngle) const
 
 void KoMarker::drawPreview(QPainter *painter, const QRectF &previewRect, const QPen &pen, KoFlake::MarkerPosition position)
 {
-    const QRectF outlineRect = outline(pen.widthF(), 0).boundingRect(); // normalized to 0,0
+    const QRectF outlineRect = outline(pen.widthF(), 0).boundingRect();
     QPointF marker;
     QPointF start;
     QPointF end;
@@ -320,7 +315,6 @@ void KoMarker::applyShapeStroke(const KoShape *parentShape, KoShapeStroke *strok
     if (!originalGradient) {
         QList<KoShape*> linearizedShapes = KoShape::linearizeSubtree(d->shapes);
         Q_FOREACH(KoShape *shape, linearizedShapes) {
-            // update the stroke
             KoShapeStrokeSP shapeStroke = shape->stroke() ?
                         qSharedPointerDynamicCast<KoShapeStroke>(shape->stroke()) :
                         KoShapeStrokeSP();
@@ -334,7 +328,6 @@ void KoMarker::applyShapeStroke(const KoShape *parentShape, KoShapeStroke *strok
                 shape->setStroke(shapeStroke);
             }
 
-            // update the background
             if (shape->background()) {
                 QSharedPointer<KoColorBackground> bg(new KoColorBackground(stroke->color()));
                 shape->setBackground(bg);
@@ -349,7 +342,6 @@ void KoMarker::applyShapeStroke(const KoShape *parentShape, KoShapeStroke *strok
 
         QTransform gradientToUser;
 
-        // Unwrap the gradient to work in global mode
         if (g->coordinateMode() == QGradient::ObjectBoundingMode) {
             QRectF boundingRect =
                 parentShape ?
@@ -366,10 +358,8 @@ void KoMarker::applyShapeStroke(const KoShape *parentShape, KoShapeStroke *strok
 
         QList<KoShape*> linearizedShapes = KoShape::linearizeSubtree(d->shapes);
         Q_FOREACH(KoShape *shape, linearizedShapes) {
-            // shape-unwinding transform
             QTransform t = gradientToUser * markerTransformInverted * shape->absoluteTransformation().inverted();
 
-            // update the stroke
             KoShapeStrokeSP shapeStroke = shape->stroke() ?
                         qSharedPointerDynamicCast<KoShapeStroke>(shape->stroke()) :
                         KoShapeStrokeSP();
@@ -384,7 +374,6 @@ void KoMarker::applyShapeStroke(const KoShape *parentShape, KoShapeStroke *strok
                 shape->setStroke(shapeStroke);
             }
 
-            // update the background
             if (shape->background()) {
 
                 QSharedPointer<KoGradientBackground> bg(new KoGradientBackground(KoFlake::cloneGradient(g.data()), t));

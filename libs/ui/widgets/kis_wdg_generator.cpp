@@ -45,7 +45,7 @@ struct KisWdgGenerator::Private
 
 public:
 
-    QWidget * centralWidget {nullptr}; // Active generator settings widget
+    QWidget * centralWidget {nullptr};
     KisGeneratorSP currentGenerator;
     Ui_WdgGenerators uiWdgGenerators;
     KisPaintDeviceSP dev;
@@ -78,7 +78,6 @@ void KisWdgGenerator::initialize(KisViewManager *view)
     Q_FOREACH (const QString &generatorName, generatorNames) {
 
         KisGeneratorSP generator = KisGeneratorRegistry::instance()->get(generatorName);
-        // The item is automatically added to the lstGenerators listwidget
         new KisGeneratorItem(generator,
                              d->uiWdgGenerators.lstGenerators,
                              QListWidgetItem::UserType + 1);
@@ -92,14 +91,11 @@ void KisWdgGenerator::initialize(KisViewManager *view)
     }
 }
 
-
-
 void KisWdgGenerator::setConfiguration(const KisFilterConfigurationSP  config)
 {
     for (int i = 0; i < d->uiWdgGenerators.lstGenerators->count(); ++i) {
         KisGeneratorItem * item = static_cast<KisGeneratorItem*>(d->uiWdgGenerators.lstGenerators->item(i));
         if (item->generator->id() == config->name()) {
-            // match!
             slotGeneratorActivated(i);
             d->uiWdgGenerators.lstGenerators->setCurrentRow(i);
             KisConfigWidget * wdg = dynamic_cast<KisConfigWidget*>(d->centralWidget);
@@ -126,10 +122,8 @@ KisFilterConfigurationSP KisWdgGenerator::configuration()
     return nullptr;
 }
 
-
 void KisWdgGenerator::slotGeneratorActivated(int row)
 {
-    // Store the old settings
     KisConfigWidget *wdg = dynamic_cast<KisConfigWidget*>(d->centralWidget);
     if (wdg) {
         KisPropertiesConfigurationSP config = wdg->configuration();
@@ -141,7 +135,6 @@ void KisWdgGenerator::slotGeneratorActivated(int row)
         }
     }
 
-    // Retrieve the new configuration
     KisGeneratorItem *item = dynamic_cast<KisGeneratorItem*>(d->uiWdgGenerators.lstGenerators->item(row));
 
     if (!item) {
@@ -156,7 +149,7 @@ void KisWdgGenerator::slotGeneratorActivated(int row)
         KisConfigWidget* widget =
                 d->currentGenerator->createConfigurationWidget(d->uiWdgGenerators.centralWidgetHolder, d->dev, true);
 
-        if (!widget) { // No widget, so display a label instead
+        if (!widget) {
             d->centralWidget = new QLabel(i18n("No configuration options."),
                                           d->uiWdgGenerators.centralWidgetHolder);
         } else {

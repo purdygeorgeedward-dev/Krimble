@@ -16,5 +16,4 @@ void KisFilterRegistryTest::testCreation()
     Q_UNUSED(test);
 }
 
-
 SIMPLE_TEST_MAIN(KisFilterRegistryTest)

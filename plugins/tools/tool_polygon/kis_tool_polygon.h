@@ -32,7 +32,6 @@ protected Q_SLOTS:
     void resetCursorStyle() override;
 };
 
-
 #include "KoToolFactoryBase.h"
 
 class KisToolPolygonFactory : public KisToolPolyLineFactoryBase
@@ -56,5 +55,4 @@ public:
     }
 };
 
-
-#endif //__KIS_TOOL_POLYGON_H__
+#endif

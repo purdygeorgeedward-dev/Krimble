@@ -18,7 +18,6 @@
 #include "kis_transaction.h"
 #include "kis_raster_keyframe_channel.h"
 
-
 namespace KisAutoKey
 {
 
@@ -104,16 +103,11 @@ KUndo2Command* tryAutoCreateDuplicatedFrame(KisPaintDeviceSP device, AutoCreateK
             device->setDirty(originalDirtyRect);
             undo = transaction.endAndTake();
         }
-        // for KisAutoKey::DUPLICATE mode we do nothing and just reuse
-        // the LoDN device
     } else {
         undo = new KUndo2Command;
 
         if (flags & AllowBlankMode && autoKeyMode == KisAutoKey::BLANK) {
             channel->addKeyframe(targetKeyframe, undo);
-
-            /// Use the same color label as previous keyframe, the duplicate
-            /// action duplicates the label automatically, but addKeyframe not
 
             KisKeyframeSP newKeyframe = channel->keyframeAt(targetKeyframe);
             KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(newKeyframe, undo);
@@ -135,7 +129,6 @@ void testingSetActiveMode(Mode mode)
     s_holder->testingSetActiveMode(mode);
 }
 
-
-} // namespace KisAutoKey
+}
 
 #include "KisAnimAutoKey.moc"

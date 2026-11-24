@@ -18,7 +18,6 @@
 class KoCanvasBase;
 class KisToolSelectPath;
 
-
 class __KisToolSelectPathLocalTool : public KoCreatePathTool {
 public:
     __KisToolSelectPathLocalTool(KoCanvasBase *canvas, KisToolSelectPath *parentTool);
@@ -50,20 +49,16 @@ struct KisDelegatedSelectPathWrapper : public DelegatedSelectPathTool {
         Q_ASSERT(dynamic_cast<__KisToolSelectPathLocalTool*>(delegateTool));
     }
 
-    // If an event is explicitly forwarded only as an action (e.g. shift-click is captured by "change size")
-    // we will receive a primary action but no mousePressEvent.  Thus these events must be explicitly forwarded.
     void beginPrimaryAction(KoPointerEvent *event) override;
     void continuePrimaryAction(KoPointerEvent *event) override;
     void endPrimaryAction(KoPointerEvent *event) override;
     void beginPrimaryDoubleClickAction(KoPointerEvent *event) override;
-
 
     void mousePressEvent(KoPointerEvent *event) override;
     void mouseMoveEvent(KoPointerEvent *event) override;
     void mouseReleaseEvent(KoPointerEvent *event) override;
     void mouseDoubleClickEvent(KoPointerEvent *event) override;
 };
-
 
 class KisToolSelectPath : public KisToolSelectBase<KisDelegatedSelectPathWrapper>
 {
@@ -99,9 +94,6 @@ public:
         return new KisToolSelectPath(canvas);
     }
 
-
 };
 
-
-
-#endif // KIS_TOOL_SELECT_PATH_H_
+#endif

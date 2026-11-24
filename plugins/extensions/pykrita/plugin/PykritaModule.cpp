@@ -1,12 +1,8 @@
-// This file is part of PyKrita, Krita' Python scripting plugin.
-//
 // SPDX-FileCopyrightText: 2006 Paul Giannaros <paul@giannaros.org>
 // SPDX-FileCopyrightText: 2012, 2013 Shaheed Haque <srhaque@theiet.org>
 // SPDX-FileCopyrightText: 2013 Alex Turbov <i.zaufi@gmail.com>
 // SPDX-FileCopyrightText: 2021 L. E. Segovia <amy@amyspark.me>
-//
 // SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
-//
 
 #include "PykritaModule.h"
 
@@ -18,11 +14,9 @@ struct module_state {
 
 #define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
 
-/// \note Namespace name written in uppercase intentionally!
-/// It will appear in debug output from Python plugins...
 namespace PYKRITA
 {
-    PyObject* debug(PyObject* /*self*/, PyObject* args)
+    PyObject* debug(PyObject* , PyObject* args)
     {
         const char* text;
 
@@ -32,12 +26,12 @@ namespace PYKRITA
         return Py_None;
     }
 
-    PyObject* qt_major_version(PyObject* /*self*/, PyObject* args)
+    PyObject* qt_major_version(PyObject* , PyObject* args)
     {
         Q_UNUSED(args);
         return PyLong_FromLong(QT_VERSION_MAJOR);
     }
-}                                                           // namespace PYKRITA
+}
 
 namespace
 {
@@ -56,9 +50,8 @@ namespace
         }
         , { 0, 0, 0, 0 }
     };
-}                                                           // anonymous namespace
+}
 
-//BEGIN Python module registration
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT
     , "pykrita"
@@ -85,7 +78,4 @@ PyMODINIT_FUNC PYKRITA_INIT()
     return pykritaModule;
 }
 
-//END Python module registration
-
-// krita: space-indent on; indent-width 4;
 #undef PYKRITA_INIT

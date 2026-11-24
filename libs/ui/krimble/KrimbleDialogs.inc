@@ -24,7 +24,6 @@ protected:
         const qreal w = width();
         const qreal h = height();
         for (int i = 0; i < 3; ++i) {
-            // const qreal off = 8 + i * 7;
             const qreal off = 6 + i * 5;
             p.drawLine(QPointF(w - 5, h - off), QPointF(w - off, h - 5));
         }
@@ -65,13 +64,12 @@ static void krimbleRestackGrid(QGridLayout *grid)
         Entry e;
         e.item = grid->itemAt(i);
         grid->getItemPosition(i, &e.row, &e.col, &e.rowSpan, &e.colSpan);
-        if (!e.item || e.item->layout() || e.rowSpan != 1) return;    // anything unusual: leave this grid as it is
+        if (!e.item || e.item->layout() || e.rowSpan != 1) return;
         maxCol = qMax(maxCol, e.col + e.colSpan - 1);
         entries << e;
     }
     QMap<int, QList<Entry> > rows;
     Q_FOREACH (const Entry &e, entries) rows[e.row] << e;
-    // rows that are exactly a label in the first column and a control (not another label) in the second
     auto isLabelControlRow = [](const QList<Entry> &row) {
         if (row.size() != 2) return false;
         const Entry &a = row.at(0).col == 0 ? row.at(0) : row.at(1);
@@ -114,7 +112,7 @@ static int krimbleDialogMinWidth(QDialog *dialog)
     int w = dialog->minimumSizeHint().width();
     if (QScrollArea *scroll = dialog->findChild<QScrollArea*>(QStringLiteral("krimbleDialogScroll"))) {
         if (scroll->widget()) {
-            w = qMax(w, scroll->widget()->minimumSizeHint().width() + 2 * scroll->frameWidth() + 24);   // 24: the window's margins and a scroll bar
+            w = qMax(w, scroll->widget()->minimumSizeHint().width() + 2 * scroll->frameWidth() + 24);
         }
     }
     return w;
@@ -207,7 +205,7 @@ static void krimbleCompactDialog(QDialog *dialog)
         for (int i = 0; i < l->count(); ++i) {
             if (QSpacerItem *spacer = l->itemAt(i)->spacerItem()) {
                 const QSize hint = spacer->sizeHint();
-                if (hint.width() <= 24 && (hint.height() > 10 || (spacer->expandingDirections() & Qt::Vertical))) {   // a vertical spacer
+                if (hint.width() <= 24 && (hint.height() > 10 || (spacer->expandingDirections() & Qt::Vertical))) {
                     spacer->changeSize(hint.width(), 6, QSizePolicy::Minimum, QSizePolicy::Minimum);
                 }
             }
@@ -252,10 +250,8 @@ public:
     {
         QLayout *layout = w ? w->layout() : nullptr;
         if (!layout || !w->isVisible()) return;
-        // QLayout::totalMinimumSize() and totalHeightForWidth() already include the widget's own contents margins (measured in real Qt: a group box's 168 px), so none are added here
         int need = layout->totalMinimumSize().height();
         if (layout->hasHeightForWidth() && w->width() > 0) need = qMax(need, layout->totalHeightForWidth(w->width()));
-        // only a widget that really is smaller than that is raised: a widget that has its room is left alone
         if (w->height() + 1 < need && need > w->minimumHeight() && need < 6000 && need <= w->maximumHeight()) w->setMinimumHeight(need);
     }
 protected:
@@ -348,7 +344,6 @@ public:
             return;
         }
         QRect avail = screen->availableGeometry();
-        // Keep a strip free at the top for a title bar that may be drawn outside the dialog's area.
         const int titleBar = qMax(0, dialog->geometry().top() - dialog->frameGeometry().top());
         const int topStrip = qMax(48, titleBar);
         avail.setTop(avail.top() + topStrip);
@@ -456,7 +451,7 @@ protected:
                             if (QLatin1String(pageList->metaObject()->className()) == QLatin1String("KPageListView")) {
                                 if (QScreen *pageScreen = QGuiApplication::primaryScreen()) {
                                     const qreal keyboardDpr = qMax<qreal>(1.0, pageScreen->devicePixelRatio());
-                                    const int keyboardColumn = qRound(486 / keyboardDpr);   // in the style sheets' and layouts' own units
+                                    const int keyboardColumn = qRound(486 / keyboardDpr);
                                     const int cap = qMax(int(pageScreen->availableGeometry().width() * 0.24), keyboardColumn);
                                     if (pageList->maximumWidth() > cap) pageList->setMaximumWidth(cap);
                                     pageList->setMinimumWidth(qMax(pageList->minimumWidth(), keyboardColumn));
@@ -498,9 +493,6 @@ protected:
                     }
                 }
                 if (isKeptWindow(dialog)) {
-                    // Watch the dialog's window for touches: a window sees ALL fingers, while a
-                    // widget only sees them if it accepts the first touch (which would stop one-finger
-                    // taps from reaching buttons).
                     if (QWindow *handle = dialog->windowHandle()) {
                         if (!handle->property("krimbleKeeper").toBool()) {
                             handle->installEventFilter(this);
@@ -535,7 +527,6 @@ protected:
 private:
     bool handleTouch(QWindow *window, QTouchEvent *touch)
     {
-        // QDialog *dialog = qobject_cast<QDialog*>(qvariant_cast<QObject*>(window->property("krimbleDialog")));
         QWidget *dialog = qobject_cast<QWidget*>(qvariant_cast<QObject*>(window->property("krimbleDialog")));
         if (!dialog || !dialog->isWindow()) {
             return false;
@@ -554,12 +545,11 @@ private:
                 dialog->move(dialog->pos() + delta.toPoint());
             }
             touch->accept();
-            return true;     // the dialog's contents do not react to the two-finger move
+            return true;
         }
         if (m_target) {
             QPointer<QWidget> moved(m_target);
             m_target.clear();
-            // QTimer::singleShot(0, dialog, [moved]() { keepOnScreen(moved); });   (bounced a dialog back on screen: George, no)
             QTimer::singleShot(0, dialog, [moved]() {
                 QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
                 if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {

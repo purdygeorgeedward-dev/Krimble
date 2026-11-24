@@ -14,8 +14,6 @@
 
 using namespace KisMetaData;
 
-//------------------- Validator::Reason -------------------//
-
 struct Q_DECL_HIDDEN Validator::Reason::Private {
     Type type;
 };
@@ -44,8 +42,6 @@ Validator::Reason::Type Validator::Reason::type() const
 {
     return d->type;
 }
-
-//------------------- Validator -------------------//
 
 struct Q_DECL_HIDDEN Validator::Private {
     Private() : countValidEntries(0) {
@@ -101,5 +97,4 @@ const QMap<QString, Validator::Reason>& Validator::invalidEntries() const
 {
     return d->invalidEntries;
 }
-
 

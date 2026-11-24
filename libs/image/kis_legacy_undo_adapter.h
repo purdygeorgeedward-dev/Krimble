@@ -10,11 +10,6 @@
 #include "kis_undo_adapter.h"
 #include "kis_types.h"
 
-
-/**
- * KisLegacyUndoAdapter -- blocks the strokes and updates queue,
- * and then adds the command to a store
- */
 class KRITAIMAGE_EXPORT KisLegacyUndoAdapter : public KisUndoAdapter
 {
 public:
@@ -30,4 +25,4 @@ private:
     qint32 m_macroCounter;
 };
 
-#endif /* __KIS_LEGACY_UNDO_ADAPTER_H */
+#endif

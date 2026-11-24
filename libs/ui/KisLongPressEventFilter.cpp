@@ -80,12 +80,6 @@ bool KisLongPressEventFilter::handleMousePress(QWidget *target, const QMouseEven
         m_pressLocalPos = me->position().toPoint();
         m_pressGlobalPos = me->globalPosition().toPoint();
 #endif
-        // Kinetic scrolling may have already delayed the input, so subtract
-        // that from the intended delay to avoid waiting for it twice. This may
-        // end up with a delay of zero, but that's okay. Also, the user may have
-        // already dragged far enough for the cursor to be outside of the
-        // long-press distance (it only checks the axes that are scrollable), in
-        // which case we bail out here.
         int kineticScrollDelay = getKineticScrollDelay(target);
         if (kineticScrollDelay == 0 || isWithinDistance(QCursor::pos())) {
             m_target = target;
@@ -97,9 +91,6 @@ bool KisLongPressEventFilter::handleMousePress(QWidget *target, const QMouseEven
             if (longPressInterval < MINIMUM_DELAY) {
                 longPressInterval = MINIMUM_DELAY;
             }
-            // Kinetic scrolling may have already delayed the input, so subtract
-            // that from the intended delay to avoid waiting for it twice. This
-            // may end up with a delay of zero, but that's okay.
             m_timer->start(qMax(0, longPressInterval - kineticScrollDelay));
             return true;
         }
@@ -159,10 +150,6 @@ void KisLongPressEventFilter::triggerLongPress()
     cancel();
     if (!m_handlingEvent && isContextMenuTarget(target)) {
         QScopedValueRollback rollback(m_handlingEvent, true);
-        // First we synchronously send a right click press and release so that
-        // the target widget can update its state correctly. Afterwards we post
-        // the context menu event to it so that'll open. As far as I can tell,
-        // that's what Qt does when you right-click on a widget as well.
         {
             QMouseEvent pressEvent(QEvent::MouseButtonPress,
                                    m_pressLocalPos,
@@ -240,51 +227,34 @@ bool KisLongPressEventFilter::isLongPressableWidget(QWidget *target)
         return prop.toBool();
     }
 
-    // Several widget types don't have desirable long-press behavior. If they're
-    // our own widgets, we should just fix that in the widget, but we can"t
-    // really sensibly do that to Qt's widgets. Luckily however, those widgets
-    // really shouldn't have context menus in the first place, so we can just
-    // disregard them as long-press targets and be done with it.
-
-    // Buttons get depressed when you click and hold on them and won't pop back
-    // up if a context menu is opened during that. They may also have a menu
-    // attached to them that the user operates like a context menu.
     if (qobject_cast<QAbstractButton *>(target)) {
         return false;
     }
 
-    // Slightly non-obvious, but this thing has many child classes, like text
-    // areas or the canvas, none of which have sensible context menus.
     if (qobject_cast<QAbstractScrollArea *>(target)) {
         return false;
     }
 
-    // Sliders (including scrollbars) may get dragged slowly.
     if (qobject_cast<QAbstractSlider *>(target)) {
         return false;
     }
 
-    // Spinners may get held down to keep a number spinning.
     if (qobject_cast<QAbstractSpinBox *>(target)) {
         return false;
     }
 
-    // Combo boxes get held down to pick an item.
     if (qobject_cast<QComboBox *>(target)) {
         return false;
     }
 
-    // Text editing will have its own long-press handling.
     if (qobject_cast<QLineEdit *>(target)) {
         return false;
     }
 
-    // Menus don't have context menus.
     if (qobject_cast<QMenu *>(target)) {
         return false;
     }
 
-    // Menu bars don't have context menus either.
     if (qobject_cast<QMenuBar *>(target)) {
         return false;
     }

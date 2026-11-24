@@ -23,7 +23,6 @@
 class RecentItemDelegate;
 class KisMainWindow;
 
-// Custom QAction to bridge a QLabel::linkActivated signal to a QAction::setChecked signal
 class ShowNewsAction : public QAction
 {
   Q_OBJECT
@@ -33,7 +32,6 @@ private Q_SLOTS:
     void enableFromLink(QString unused_url);
 };
 
-/// A widget for displaying if no documents are open. This will display in the MDI area
 class KRITAUI_EXPORT KisWelcomePageWidget : public QWidget, public Ui::KisWelcomePage
 {
     Q_OBJECT
@@ -45,8 +43,6 @@ class KRITAUI_EXPORT KisWelcomePageWidget : public QWidget, public Ui::KisWelcom
     void setMainWindow(KisMainWindow* m_mainWindow);
 
 public Q_SLOTS:
-    /// if a document is placed over this area, a dotted line will appear as an indicator
-    /// that it is a droppable area. KisMainwindow is what triggers this
     void showDropAreaIndicator(bool show);
 
     void slotUpdateThemeColors();
@@ -64,9 +60,6 @@ private Q_SLOTS:
     void recentDocumentClicked(QModelIndex index);
     void slotRecentDocContextMenuRequest(const QPoint &pos);
 
-    /**
-     * Once all files in the recent documents model are checked, cleanup the UI if the model is empty
-     */
     void slotRecentFilesModelIsUpToDate();
 
     void slotScrollerStateChanged(QScroller::State state){ KisKineticScroller::updateCursor(this, state); }
@@ -86,7 +79,6 @@ private Q_SLOTS:
 
 protected:
 
-    // QWidget overrides
     void dragEnterEvent(QDragEnterEvent * event) override;
     void dropEvent(QDropEvent * event) override;
     void dragMoveEvent(QDragMoveEvent * event) override;
@@ -94,7 +86,6 @@ protected:
     void changeEvent(QEvent *event) override;
 
     bool eventFilter(QObject *watched, QEvent *event) override;
-
 
 private:
     void setupNewsLangSelection(QMenu *newsOptionMenu);
@@ -112,14 +103,8 @@ private:
 
     KisMainWindow *m_mainWindow {nullptr};
 
-    /// help us see how many people are clicking startup screen links
-    /// you can see the results in Matomo (stats.kde.org)
-    /// this will be listed in the "Acquisition" section of Matomo
-    /// just append some text to this to associate it with an event/page
     const QString analyticsString = "pk_campaign=startup-sceen&pk_kwd=";
 
-
-    // keeping track of link colors with theme change
     QColor textColor;
     QColor backgroundColor;
     QColor blendedColor;
@@ -135,4 +120,4 @@ private:
 
 };
 
-#endif // KISWELCOMEPAGEWIDGET_H
+#endif

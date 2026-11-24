@@ -56,7 +56,6 @@ class KRITAUI_EXPORT KisStatusBar : public QObject
             m_widget->hide();
         }
 
-
     private:
         QPointer<QWidget> m_widget;
     };

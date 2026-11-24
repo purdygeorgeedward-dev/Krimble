@@ -29,7 +29,6 @@ protected:
 private Q_SLOTS:
     void reject() override;
 
-    // first page
     void onButtonBrowseDirectoryClicked();
     void onSpinInputFpsValueChanged(int value);
     void onSpinFpsValueChanged(int value);
@@ -52,14 +51,11 @@ private Q_SLOTS:
     void onButtonBrowseExportClicked();
 #endif
     void onButtonExportClicked();
-    // second page
     void onButtonCancelClicked();
-    // exporter
     void onExporterStarted();
     void onExporterFinished();
     void onExporterFinishedWithError(QString error);
     void onExporterProgressUpdated(int frameNo);
-    // third page
     void onButtonWatchItClicked();
 #ifndef Q_OS_ANDROID
     void onButtonShowInFolderClicked();
@@ -80,4 +76,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // RECORDER_EXPORT_H
+#endif

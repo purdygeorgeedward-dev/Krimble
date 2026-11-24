@@ -40,7 +40,6 @@ public:
 
 }
 
-
 struct KisHairyInkOptionWidget::Private
 {
     Private(lager::cursor<KisHairyInkOptionData> optionData)

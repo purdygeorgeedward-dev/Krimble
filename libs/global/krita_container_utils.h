@@ -34,7 +34,6 @@ template <class C>
     }
 }
 
-
 template <class C, typename KeepIfFunction>
     auto filterContainer(C &container, KeepIfFunction keepIf)
         -> decltype(bool(keepIf(container[0])), void()) {
@@ -88,7 +87,7 @@ struct is_appendable_container
     typedef typename std::remove_const<T>::type test_type;
 
     template<typename A, typename R = decltype(std::declval<A&>().push_back(std::declval<typename A::value_type>()))>
-        static constexpr bool test(A */*pointer*/) {
+        static constexpr bool test(A * ) {
             return  is_container<A>::value && std::is_same<R, void>::value;
         }
 
@@ -102,6 +101,5 @@ struct is_appendable_container
 
 }
 
-
-#endif // KRITA_CONTAINER_UTILS_H
+#endif
 

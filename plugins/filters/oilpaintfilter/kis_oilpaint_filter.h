@@ -26,7 +26,6 @@ public:
         return KoID("oilpaint", i18n("Oilpaint"));
     }
 
-
     QRect neededRect(const QRect & rect, const KisFilterConfigurationSP _config, int lod) const override;
     QRect changedRect(const QRect & rect, const KisFilterConfigurationSP _config, int lod) const override;
 

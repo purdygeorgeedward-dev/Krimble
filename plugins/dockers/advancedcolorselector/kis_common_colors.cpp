@@ -27,12 +27,11 @@
 #include "kis_config.h"
 #include "kis_common_colors_recalculation_runner.h"
 
-
 KisCommonColors::KisCommonColors(QWidget *parent) :
     KisColorPatches("commonColors", parent)
 {
     m_reloadButton = new QToolButton(this);
-    m_reloadButton->setIcon(KisIconUtils::loadIcon("reload-preset-16")); //small reload icon
+    m_reloadButton->setIcon(KisIconUtils::loadIcon("reload-preset-16"));
     m_reloadButton->setToolTip(i18n("Create a list of colors from the image"));
     m_reloadButton->setAutoRaise(true);
     connect(m_reloadButton, SIGNAL(clicked()), this, SLOT(recalculate()));
@@ -112,8 +111,6 @@ void KisCommonColors::recalculate()
         return;
     }
     if(!m_reloadButton->isEnabled()) {
-        // on old computation is still running
-        // try later to recalculate
         m_recalculationTimer.start();
         return;
     }

@@ -15,7 +15,7 @@
 
 #include "ui_wdgnoiseoptions.h"
 
-KisWdgNoise::KisWdgNoise(KisFilter* /*filter*/, QWidget* parent)
+KisWdgNoise::KisWdgNoise(KisFilter* , QWidget* parent)
         : KisConfigWidget(parent)
 {
     m_widget.reset(new Ui_WdgNoiseOptions());
@@ -60,5 +60,4 @@ KisPropertiesConfigurationSP KisWdgNoise::configuration() const
     config->setProperty("grayscale", m_widget->chkGrayscale->isChecked());
     return config;
 }
-
 

@@ -30,4 +30,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KOSHAPEFILLRESOURCECONNECTOR_H
+#endif

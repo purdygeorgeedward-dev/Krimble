@@ -299,5 +299,4 @@ QDomElement findElementByAttribute(QDomNode parent,
     return QDomElement();
 }
 
-
 }

@@ -59,24 +59,22 @@ bool CompositionModel::setData ( const QModelIndex& index, const QVariant& value
     return false;
 }
 
-
-QVariant CompositionModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
+QVariant CompositionModel::headerData(int , Qt::Orientation , int ) const
 {
     return i18n("Composition");
 }
 
-
-int CompositionModel::rowCount(const QModelIndex& /*parent*/) const
+int CompositionModel::rowCount(const QModelIndex& ) const
 {
     return m_compositions.count();
 }
 
-int CompositionModel::columnCount(const QModelIndex& /*parent*/) const
+int CompositionModel::columnCount(const QModelIndex& ) const
 {
     return 2;
 }
 
-Qt::ItemFlags CompositionModel::flags(const QModelIndex& /*index*/) const
+Qt::ItemFlags CompositionModel::flags(const QModelIndex& ) const
 {
     Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
     return flags;

@@ -37,7 +37,6 @@ private:
     QTimer * m_timer;
 };
 
-
 struct KRITAUI_EXPORT KisDoubleWidgetParam {
     KisDoubleWidgetParam(double nmin, double nmax, double ninitvalue, const QString & label, const QString & nname);
     double min;

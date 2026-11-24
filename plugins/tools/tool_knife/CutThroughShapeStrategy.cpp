@@ -27,7 +27,6 @@
 #include <KoSvgTextShape.h>
 #include <KoColorDisplayRendererInterface.h>
 
-
 CutThroughShapeStrategy::CutThroughShapeStrategy(KoToolBase *tool, KoSelection *selection, const QList<KoShape *> &shapes, QPointF startPoint, const GutterWidthsConfig &width)
     : KoInteractionStrategy(tool)
     , m_startPoint(startPoint)
@@ -45,18 +44,16 @@ CutThroughShapeStrategy::~CutThroughShapeStrategy()
 
 KUndo2Command *CutThroughShapeStrategy::createCommand()
 {
-    // TODO: undoing
     return 0;
 }
 
 QPointF snapEndPoint(const QPointF &startPoint, const QPointF &mouseLocation, Qt::KeyboardModifiers modifiers) {
 
-    QPointF nicePoint = snapToClosestNiceAngle(mouseLocation, startPoint); // by default the function gives you 15 degrees increments
+    QPointF nicePoint = snapToClosestNiceAngle(mouseLocation, startPoint);
 
     if (modifiers & Qt::KeyboardModifier::ShiftModifier) {
         return nicePoint;
         if (qAbs(mouseLocation.x() - startPoint.x()) >= qAbs(mouseLocation.y() - startPoint.y())) {
-            // do horizontal line
             return QPointF(mouseLocation.x(), startPoint.y());
         } else {
             return QPointF(startPoint.x(), mouseLocation.y());
@@ -77,7 +74,7 @@ void CutThroughShapeStrategy::handleMouseMove(const QPointF &mouseLocation, Qt::
     QRectF dirtyRect;
     KisAlgebra2D::accumulateBounds(m_startPoint, &dirtyRect);
     KisAlgebra2D::accumulateBounds(m_endPoint, &dirtyRect);
-    dirtyRect = kisGrowRect(dirtyRect, gutterWidthInDocumentCoordinates(calculateLineAngle(m_startPoint, m_endPoint))); // twice as much as it should need to account for lines showing the effect
+    dirtyRect = kisGrowRect(dirtyRect, gutterWidthInDocumentCoordinates(calculateLineAngle(m_startPoint, m_endPoint)));
 
     QRectF accumulatedWithPrevious = m_previousLineDirtyRect | dirtyRect;
 
@@ -88,17 +85,13 @@ void CutThroughShapeStrategy::handleMouseMove(const QPointF &mouseLocation, Qt::
 
 }
 
-
 bool CutThroughShapeStrategy::willShapeBeCutGeneral(KoShape* referenceShape, const QPainterPath& srcOutline, bool checkGapLineRect, const QRectF& gapLineRect)
 {
     if (dynamic_cast<KoSvgTextShape*>(referenceShape)) {
-        // skip all text
         return false;
     }
 
-
     if (checkGapLineRect && (srcOutline.boundingRect() & gapLineRect).isEmpty()) {
-        // the gap lines can't cross the shape since their bounding rects don't cross it
         return false;
     }
 
@@ -110,7 +103,6 @@ bool CutThroughShapeStrategy::willShapeBeCutPrecise(const QPainterPath& srcOutli
     bool containsGapLinePointStart = srcOutline.contains(gapLine.p1());
     bool containsGapLinePointEnd = srcOutline.contains(gapLine.p2());
 
-    // if should skip if there is exactly one gap line point inside the shape
     bool exactlyOneGapLinePointInside = (containsGapLinePointStart != containsGapLinePointEnd);
     bool bothGapLinePointsInside = containsGapLinePointStart && containsGapLinePointEnd;
 
@@ -120,14 +112,6 @@ bool CutThroughShapeStrategy::willShapeBeCutPrecise(const QPainterPath& srcOutli
 
     bool crossesGapLine = KisAlgebra2D::getLineSegmentCrossingLineIndexes(leftLine, srcOutline).count() > 0
             || KisAlgebra2D::getLineSegmentCrossingLineIndexes(rightLine, srcOutline).count() > 0;
-
-
-    // it doesn't contain exactly one point, therefore it contains either both or none.
-    // if it contains both, it will be true.
-    // if it contains none:
-    //       if it crosses either gap line, it will be true
-    //       if any of the shape points are inside the gap, it will be true
-    //       otherwise it's false
 
     if (bothGapLinePointsInside) {
         return true;
@@ -139,7 +123,6 @@ bool CutThroughShapeStrategy::willShapeBeCutPrecise(const QPainterPath& srcOutli
 
     Q_FOREACH(QPointF p, srcOutline.toFillPolygon()) {
         if (gapLinePolygon.containsPoint(p, Qt::WindingFill)) {
-            // a shape point is inside the gap shape
             return true;
         }
     }
@@ -166,21 +149,18 @@ void CutThroughShapeStrategy::initializeGapShapes(QRectF outlineRect, QLineF lef
                                                   QRectF& outGapLineRect, QPolygonF& outGapLinePolygon)
 {
 
-
     QRect outlineRectBiggerInt = kisGrowRect(outlineRect, 10).toRect();
     QLineF leftLineLong = leftLine;
     QLineF rightLineLong = rightLine;
 
-
     KisAlgebra2D::cropLineToRect(leftLineLong, outlineRectBiggerInt, true, true);
     KisAlgebra2D::cropLineToRect(rightLineLong, outlineRectBiggerInt, true, true);
-
 
     QList<QPainterPath> paths = KisAlgebra2D::getPathsFromRectangleCutThrough(QRectF(outlineRectBiggerInt), leftLineLong, rightLineLong);
     outLeft = paths[0];
     outRight = paths[1];
 
-    outGapLineRect = KisAlgebra2D::createRectFromCorners(leftLine) | KisAlgebra2D::createRectFromCorners(rightLine); // will not be empty if the gutterWidth > 0
+    outGapLineRect = KisAlgebra2D::createRectFromCorners(leftLine) | KisAlgebra2D::createRectFromCorners(rightLine);
 
     outGapLinePolygon = QPolygonF({leftLine.p1(), leftLine.p2(), rightLine.p2(), rightLine.p1(), leftLine.p1()});
 
@@ -189,7 +169,6 @@ void CutThroughShapeStrategy::initializeGapShapes(QRectF outlineRect, QLineF lef
 void CutThroughShapeStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 {
     tool()->canvas()->updateCanvas(m_previousLineDirtyRect);
-
 
     KisCanvas2 *kisCanvas = static_cast<KisCanvas2 *>(tool()->canvas());
     KIS_SAFE_ASSERT_RECOVER_RETURN(kisCanvas);
@@ -205,13 +184,9 @@ void CutThroughShapeStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 
     initializeOutlineObjects(booleanWorkaroundTransform, m_allShapes, srcOutlines, outlineRect);
 
-
-
     if (outlineRect.isEmpty()) {
-        //qCritical() << "The outline rect is empty";
         return;
     }
-
 
     QLineF gapLine = QLineF(m_startPoint, m_endPoint);
     qreal eps = 0.0000001;
@@ -230,20 +205,16 @@ void CutThroughShapeStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
     QLineF leftLine = gapLines[0];
     QLineF rightLine = gapLines[1];
 
-
     if (leftLine.length() == 0 || rightLine.length() == 0) {
         KIS_SAFE_ASSERT_RECOVER_RETURN(gapLine.length() != 0 && gapLines[0].length() != 0 && gapLines[1].length() != 0 && "Original gap lines shouldn't be empty at this point");
         return;
     }
-
-    // -------------
 
     QPainterPath left, right;
 
     QRectF gapLineRect;
     QPolygonF gapLinePolygon;
     initializeGapShapes(outlineRect, leftLine, rightLine, left, right, gapLineRect, gapLinePolygon);
-
 
     bool checkGapLineRect = !gapLineRect.isEmpty();
 
@@ -252,10 +223,8 @@ void CutThroughShapeStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
     int affectedShapes = 0;
     QTransform booleanWorkaroundTransformInverted = booleanWorkaroundTransform.inverted();
 
-
     std::unique_ptr<KUndo2Command> cmd = std::unique_ptr<KUndo2Command>(new KUndo2Command(kundo2_i18n("Knife tool: cut through shapes")));
     new KoKeepShapesSelectedCommand(m_selectedShapes, {}, kisCanvas->selectedShapesProxy(), false, cmd.get());
-
 
     for (int i = 0; i < srcOutlines.size(); i++) {
 
@@ -274,25 +243,18 @@ void CutThroughShapeStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 
         affectedShapes++;
 
-
         QPainterPath leftPath = srcOutlines[i] & left;
         QPainterPath rightPath = srcOutlines[i] & right;
 
         QList<QPainterPath> bothSides;
         bothSides << leftPath << rightPath;
 
-
         Q_FOREACH(QPainterPath path, bothSides) {
             if (path.isEmpty()) {
                 continue;
             }
 
-            // comment copied from another place:
-            // there is a bug in Qt, sometimes it leaves the resulting
-            // outline open, so just close it explicitly.
             path.closeSubpath();
-            // this is needed because Qt linearize curves; this allows for a
-            // "sane" linearization instead of a very blocky appearance
             path = booleanWorkaroundTransformInverted.map(path);
             std::unique_ptr<KoPathShape> shape = std::unique_ptr<KoPathShape>(KoPathShape::createShapeFromPainterPath(path));
             shape->closeMerge();
@@ -315,8 +277,6 @@ void CutThroughShapeStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 
         }
 
-        // that happens no matter if there was any non-empty shape
-        // because if there is none, maybe they just were underneath the gap
         shapesToRemove << m_allShapes[i];
 
     }
@@ -326,8 +286,6 @@ void CutThroughShapeStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
         new KoKeepShapesSelectedCommand({}, newSelectedShapes, tool()->canvas()->selectedShapesProxy(), true, cmd.get());
         tool()->canvas()->addCommand(cmd.release());
     }
-
-
 
 }
 
@@ -358,7 +316,6 @@ void CutThroughShapeStrategy::paint(QPainter &painter, const KoViewConverter &co
     QLineF gutterLine1 = gutterLines.length() > 0 ? gutterLines[0] : gutterCenterLine;
     QLineF gutterLine2 = gutterLines.length() > 1 ? gutterLines[1] : gutterCenterLine;
 
-
     painter.drawLine(gutterLine1);
     painter.drawLine(gutterLine2);
 
@@ -371,11 +328,10 @@ void CutThroughShapeStrategy::paint(QPainter &painter, const KoViewConverter &co
     painter.drawArc(arcRect1, -qtAngleFactor*kisRadiansToDegrees(KisAlgebra2D::directionBetweenPoints(gutterCenterLine.p1(), gutterLine1.p1(), 0)), qtHalfCircle);
     painter.drawArc(arcRect2, -qtAngleFactor*kisRadiansToDegrees(KisAlgebra2D::directionBetweenPoints(gutterCenterLine.p2(), gutterLine1.p2(), 0)), -qtHalfCircle);
 
-
     int xLength = 3;
     qreal xLengthEllipse = 2*qSqrt(2);
 
-    if (false) { // drawing X
+    if (false) {
     painter.drawLine({QLineF(gutterCenterLine.p1() - QPointF(xLength, xLength), gutterCenterLine.p1() + QPointF(xLength, xLength))});
     painter.drawLine({QLineF(gutterCenterLine.p2() - QPointF(xLength, xLength), gutterCenterLine.p2() + QPointF(xLength, xLength))});
 
@@ -383,11 +339,8 @@ void CutThroughShapeStrategy::paint(QPainter &painter, const KoViewConverter &co
     painter.drawLine({QLineF(gutterCenterLine.p2() - QPointF(xLength, -xLength), gutterCenterLine.p2() + QPointF(xLength, -xLength))});
     }
 
-    // ellipse at the both ends of the gutter center line
     painter.drawEllipse(gutterCenterLine.p1(), xLengthEllipse, xLengthEllipse);
     painter.drawEllipse(gutterCenterLine.p2(), xLengthEllipse, xLengthEllipse);
-
-
 
     pen.setWidth(1);
     semitransparentGray.setAlphaF(0.2);

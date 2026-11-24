@@ -3,7 +3,7 @@
  *
  * SPDX-FileCopyrightText: 2016 Spencer Brown <sbrown655@gmail.com>
  * SPDX-FileCopyrightText: 2020 Deif Lou <ginoba@gmail.com>
- * 
+ *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
@@ -135,7 +135,7 @@ void KisGradientMapFilter::processImpl(KisPaintDeviceSP device,
         NearestColorModePolicy colorModePolicy(&cachedGradient);
         processImpl(device, applyRect, config, progressUpdater, colorModePolicy);
 
-    } else /* if colorMode == KisGradientMapFilterConfiguration::ColorMode_Dither */ {
+    } else {
         KisDitherUtil ditherUtil;
         KisGradientMapFilterDitherCachedGradient cachedGradient(gradient, cachedGradientSize, colorSpace);
         ditherUtil.setConfiguration(*filterConfig, "dither/");
@@ -152,7 +152,7 @@ void KisGradientMapFilter::processImpl(KisPaintDeviceSP device,
                                        const ColorModeStrategy &colorModeStrategy) const
 {
     Q_UNUSED(config);
-    
+
     Q_ASSERT(!device.isNull());
 
     const KoColorSpace *colorSpace = device->colorSpace();

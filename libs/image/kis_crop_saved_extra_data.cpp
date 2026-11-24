@@ -8,7 +8,6 @@
 
 #include "kis_node.h"
 
-
 KisCropSavedExtraData::KisCropSavedExtraData(Type type,
                                              QRect cropRect,
                                              KisNodeSP cropNode)

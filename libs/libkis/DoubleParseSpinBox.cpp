@@ -19,7 +19,6 @@ DoubleParseSpinBox::DoubleParseSpinBox()
 {
     d->widget = new KisDoubleParseSpinBox();
 
-    // Forward signals from KisDoubleParseSpinBox to DoubleParseSpinBox
     connect(d->widget, SIGNAL(errorWhileParsing(QString)), this, SIGNAL(errorWhileParsing(QString)));
     connect(d->widget, SIGNAL(noMoreParsingError()), this, SIGNAL(noMoreParsingError()));
 }

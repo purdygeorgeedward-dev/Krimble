@@ -22,7 +22,6 @@ class KoShapeBackground;
 class KoShape;
 class KoColor;
 
-/// A widget for configuring the fill of a shape
 class KRITAUI_EXPORT KoFillConfigWidget : public QWidget
 {
     Q_OBJECT
@@ -36,22 +35,13 @@ class KRITAUI_EXPORT KoFillConfigWidget : public QWidget
 
 public:
 
-    /**
-     * @param trackShapeSelection controls if the widget connects to the canvas's selectionChanged signal.
-     *                            If you decide to pass 'false', then don't forget to call
-     *                            forceUpdateOnSelectionChanged() manually of every selectionChanged() and
-     *                            selectionContentChanged() signals.
-     */
     explicit KoFillConfigWidget(KoCanvasBase *canvas, KoFlake::FillVariant fillVariant, bool trackShapeSelection, QWidget *parent);
     ~KoFillConfigWidget() override;
 
     void setNoSelectionTrackingMode(bool value);
 
-    /// Returns the list of the selected shape
-    /// If you need to use only one shape, call currentShape()
     QList<KoShape*> currentShapes();
 
-    /// returns the selected index of the fill type
     int selectedFillIndex();
 
     KoShapeStrokeSP createShapeStroke();
@@ -69,13 +59,9 @@ private Q_SLOTS:
     void noColorSelected();
     void shapeChanged();
 
-    /// apply color changes to the selected shape
     void colorChanged(std::pair<QColor, KoFlake::FillVariant> resource);
 
-    /// the pattern of the fill changed, apply the changes
     void patternChanged(QSharedPointer<KoShapeBackground> background);
-
-
 
     void slotUpdateFillTitle();
 
@@ -92,7 +78,6 @@ private Q_SLOTS:
     void slotProposeCurrentColorToResourceManager();
     void slotRecoverColorInResourceManager();
 
-    /// this won't preserve the rows and columns
     void slotMeshGradientChanged();
     void slotMeshGradientShadingChanged(int index);
     void slotMeshHandleColorChanged(const KoColor &c);
@@ -110,7 +95,6 @@ private:
     void updateGradientSaveButtonAvailability();
     void loadCurrentFillFromResourceServer();
 
-    /// sets the active gradient either from the shape (if present) or creates a new one
     void createNewMeshGradientBackground();
     void createNewDefaultMeshGradientBackground();
     void setNewMeshGradientBackgroundToShape();
@@ -118,11 +102,10 @@ private:
 
     void updateWidgetComponentVisibility();
 
-    /// updates the UI based on KoFlake::FillType it gets from the shape.
     void updateUiFromFillType(KoShape *shape);
 
     class Private;
     Private * const d {nullptr};
 };
 
-#endif // FILLCONFIGWIDGET_H
+#endif

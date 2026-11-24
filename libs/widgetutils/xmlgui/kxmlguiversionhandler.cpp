@@ -62,15 +62,13 @@ static void insertToolBars(QDomDocument &doc, const QList<QDomElement> &toolBars
     QDomElement menuBar = parent.namedItem(QStringLiteral("MenuBar")).toElement();
     QDomElement insertAfter = menuBar;
     if (menuBar.isNull()) {
-        insertAfter = parent.firstChildElement();    // if null, insertAfter will do an append
+        insertAfter = parent.firstChildElement();
     }
     Q_FOREACH (const QDomElement &e, toolBars) {
         QDomNode result = parent.insertAfter(e, insertAfter);
         Q_ASSERT(!result.isNull());
     }
 }
-
-//
 
 typedef QMap<QString, QMap<QString, QString> > ActionPropertiesMap;
 
@@ -87,7 +85,7 @@ static ActionPropertiesMap extractActionProperties(const QDomDocument &doc)
     QDomNode n = actionPropElement.firstChild();
     while (!n.isNull()) {
         QDomElement e = n.toElement();
-        n = n.nextSibling(); // Advance now so that we can safely delete e
+        n = n.nextSibling();
         if (e.isNull()) {
             continue;
         }
@@ -140,9 +138,6 @@ static void storeActionProperties(QDomDocument &doc,
         doc.documentElement().appendChild(actionPropElement);
     }
 
-//Remove only those ActionProperties entries from the document, that are present
-//in the properties argument. In real life this means that local ActionProperties
-//takes precedence over global ones, if they exists (think local override of shortcuts).
     QDomNode actionNode = actionPropElement.firstChild();
     while (!actionNode.isNull()) {
         if (properties.contains(actionNode.toElement().attribute(QStringLiteral("name")))) {
@@ -184,13 +179,12 @@ QString KXmlGuiVersionHandler::findVersionNumber(const QString &xml)
             }
             break;
         case ST_AFTER_OPEN: {
-            //Jump to gui..
             const int guipos = xml.indexOf(QStringLiteral("gui"), pos, Qt::CaseInsensitive);
             if (guipos == -1) {
-                return QString();    //Reject
+                return QString();
             }
 
-            pos = guipos + 2; //Position at i, so we're moved ahead to the next character by the ++;
+            pos = guipos + 2;
             state = ST_AFTER_GUI;
             break;
         }
@@ -200,14 +194,14 @@ QString KXmlGuiVersionHandler::findVersionNumber(const QString &xml)
         case ST_EXPECT_VERSION: {
             const int verpos = xml.indexOf(QStringLiteral("version"), pos, Qt::CaseInsensitive);
             if (verpos == -1) {
-                return QString();    //Reject
+                return QString();
             }
-            pos = verpos + 7; // strlen("version") is 7
+            pos = verpos + 7;
             while (xml.at(pos).isSpace()) {
                 ++pos;
             }
             if (xml.at(pos++) != QLatin1Char('=')) {
-                return QString();    //Reject
+                return QString();
             }
             while (xml.at(pos).isSpace()) {
                 ++pos;
@@ -221,25 +215,25 @@ QString KXmlGuiVersionHandler::findVersionNumber(const QString &xml)
             for (endpos = pos; endpos < length; endpos++) {
                 const ushort ch = xml[endpos].unicode();
                 if (ch >= QLatin1Char('0') && ch <= QLatin1Char('9')) {
-                    continue;    //Number..
+                    continue;
                 }
-                if (ch == QLatin1Char('"')) { //End of parameter
+                if (ch == QLatin1Char('"')) {
                     break;
-                } else { //This shouldn't be here..
+                } else {
                     endpos = length;
                 }
             }
 
             if (endpos != pos && endpos < length) {
-                const QString matchCandidate = xml.mid(pos, endpos - pos); //Don't include " ".
+                const QString matchCandidate = xml.mid(pos, endpos - pos);
                 return matchCandidate;
             }
 
-            state = ST_EXPECT_VERSION; //Try to match a well-formed version..
+            state = ST_EXPECT_VERSION;
             break;
-        } //case..
-        } //switch
-    } //for
+        }
+        }
+    }
 
     return QString();
 }
@@ -249,7 +243,6 @@ KXmlGuiVersionHandler::KXmlGuiVersionHandler(const QStringList &files)
     Q_ASSERT(!files.isEmpty());
 
     if (files.count() == 1) {
-        // No need to parse version numbers if there's only one file anyway
         m_file = files.first();
         m_doc = KisKXMLGUIFactory::readConfigFile(m_file);
         return;
@@ -272,7 +265,6 @@ KXmlGuiVersionHandler::KXmlGuiVersionHandler(const QStringList &files)
     for (; docIt != docEnd; ++docIt) {
         const QString versionStr = findVersionNumber((*docIt).data);
         if (versionStr.isEmpty()) {
-            //qDebug(260) << "found no version in" << (*docIt).file;
             continue;
         }
 
@@ -281,11 +273,9 @@ KXmlGuiVersionHandler::KXmlGuiVersionHandler(const QStringList &files)
         if (!ok) {
             continue;
         }
-        //qDebug(260) << "found version" << version << "for" << (*docIt).file;
 
         if (version > bestVersion) {
             best = docIt;
-            //qDebug(260) << "best version is now " << version;
             bestVersion = version;
         }
     }
@@ -295,41 +285,25 @@ KXmlGuiVersionHandler::KXmlGuiVersionHandler(const QStringList &files)
             QList<DocStruct>::iterator local = allDocuments.begin();
 
             if ((*local).file.startsWith(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))) {
-                // load the local document and extract the action properties
                 QDomDocument localDocument;
                 localDocument.setContent((*local).data);
 
                 const ActionPropertiesMap properties = extractActionProperties(localDocument);
                 const QList<QDomElement> toolbars = extractToolBars(localDocument);
 
-                // in case the document has a ActionProperties section
-                // we must not delete it but copy over the global doc
-                // to the local and insert the ActionProperties section
-
-                // TODO: kedittoolbar should mark toolbars as modified so that
-                // we don't keep old toolbars just because the user defined a shortcut
-
                 if (!properties.isEmpty() || !toolbars.isEmpty()) {
-                    // now load the global one with the higher version number
-                    // into memory
                     QDomDocument document;
                     document.setContent((*best).data);
-                    // and store the properties in there
                     storeActionProperties(document, properties);
                     if (!toolbars.isEmpty()) {
-                        // remove application toolbars present in the user file
-                        // (not others, that the app might have added since)
                         removeToolBars(document, toolBarNames(toolbars));
 
-                        // add user toolbars
                         insertToolBars(document, toolbars);
                     }
 
                     (*local).data = document.toString();
-                    // make sure we pick up the new local doc, when we return later
                     best = local;
 
-                    // write out the new version of the local document
                     QFile f((*local).file);
                     if (f.open(QIODevice::WriteOnly)) {
                         const QByteArray utf8data = (*local).data.toUtf8();
@@ -337,7 +311,6 @@ KXmlGuiVersionHandler::KXmlGuiVersionHandler(const QStringList &files)
                         f.close();
                     }
                 } else {
-                    // Move away the outdated local file, to speed things up next time
                     const QString f = (*local).file;
                     const QString backup = f + QStringLiteral(".backup");
                     QFile::rename(f, backup);
@@ -347,7 +320,6 @@ KXmlGuiVersionHandler::KXmlGuiVersionHandler(const QStringList &files)
         m_doc = (*best).data;
         m_file = (*best).file;
     } else {
-        //qDebug(260) << "returning first one...";
         m_doc = allDocuments.first().data;
         m_file = allDocuments.first().file;
     }

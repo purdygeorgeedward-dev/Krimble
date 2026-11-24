@@ -6,11 +6,9 @@
 
 #include "kis_random_accessor.h"
 
-
 #include <kis_debug.h>
 
-
-const quint32 KisRandomAccessor2::CACHESIZE = 4; // Define the number of tiles we keep in cache
+const quint32 KisRandomAccessor2::CACHESIZE = 4;
 
 KisRandomAccessor2::KisRandomAccessor2(KisTiledDataManager *ktm, qint32 offsetX, qint32 offsetY, bool writable, KisIteratorCompleteListener *completeListener) :
         m_ktm(ktm),
@@ -51,7 +49,6 @@ void KisRandomAccessor2::moveTo(qint32 x, qint32 y)
     x -= m_offsetX;
     y -= m_offsetY;
 
-    // Look in the cache if the tile if the data is available
     for (uint i = 0; i < m_tilesCacheSize; i++) {
         if (x >= m_tilesCache[i]->area_x1 && x <= m_tilesCache[i]->area_x2 &&
                 y >= m_tilesCache[i]->area_y1 && y <= m_tilesCache[i]->area_y2) {
@@ -67,8 +64,7 @@ void KisRandomAccessor2::moveTo(qint32 x, qint32 y)
             return;
         }
     }
-    // The tile wasn't in cache
-    if (m_tilesCacheSize == KisRandomAccessor2::CACHESIZE) { // Remove last element of cache
+    if (m_tilesCacheSize == KisRandomAccessor2::CACHESIZE) {
         unlockTile(m_tilesCache[CACHESIZE-1]->tile);
         unlockOldTile(m_tilesCache[CACHESIZE-1]->oldtile);
         delete m_tilesCache[CACHESIZE-1];
@@ -86,12 +82,10 @@ void KisRandomAccessor2::moveTo(qint32 x, qint32 y)
     m_tilesCache[0] = kti;
 }
 
-
 quint8* KisRandomAccessor2::rawData()
 {
     return m_data;
 }
-
 
 const quint8* KisRandomAccessor2::oldRawData() const
 {

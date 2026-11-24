@@ -69,7 +69,6 @@ KisColorSmudgeOp::KisColorSmudgeOp(const KisPaintOpSettingsSP settings, KisPaint
 
     m_gradient = painter->gradient();
 
-    // useNewEngine should be true if brushApplication is not ALPHAMASK
     KIS_SAFE_ASSERT_RECOVER_NOOP(m_brush->brushApplication() == ALPHAMASK || m_smudgeRateOption.useNewEngine());
 
     const bool useSmearAlpha = m_smudgeRateOption.smearAlpha();
@@ -117,8 +116,6 @@ KisColorSmudgeOp::KisColorSmudgeOp(const KisPaintOpSettingsSP settings, KisPaint
     m_hsvOptions.append(KisHSVOption::createSaturationOption(settings.data()));
     m_hsvOptions.append(KisHSVOption::createValueOption(settings.data()));
 
-    /// color transformation must be created **after** the color
-    /// space of m_paintColor has been set up
     Q_FOREACH (KisHSVOption * option, m_hsvOptions) {
         if (option->isChecked() && !m_hsvTransform) {
             m_hsvTransform = m_paintColor.colorSpace()->createColorTransformation("hsv_adjustment", QHash<QString, QVariant>());
@@ -136,25 +133,13 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
 {
     KisBrushSP brush = m_brush;
 
-    // Simple error catching
     if (!painter()->device() || !brush || !brush->canPaintFor(info)) {
         return KisSpacingInformation(1.0);
     }
     if (m_smudgeRateOption.mode() == KisSmudgeLengthOptionData::SMEARING_MODE) {
-        /**
-        * Disable handling of the subpixel precision. In the smudge op we
-        * should read from the aligned areas of the image, so having
-        * additional internal offsets, created by the subpixel precision,
-        * will worsen the quality (at least because
-        * QRectF(m_dstDabRect).center() will not point to the real center
-        * of the brush anymore).
-        * Of course, this only really matters with smearing_mode (bug:327235),
-        * and you only notice the lack of subpixel precision in the dulling methods.
-        */
         m_dabCache->disableSubpixelPrecision();
     }
 
-    // get the scaling factor calculated by the size option
     qreal scale = m_sizeOption.apply(info);
     scale *= KisLodTransform::lodToScale(painter()->device());
     qreal rotation = m_rotationOption.apply(info);
@@ -177,18 +162,10 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
 
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(m_strategy, spacingInfo);
 
-
     const qreal paintThickness = m_paintThicknessOption.apply(info);
     m_strategy->updateMask(m_dabCache, info, shape, scatteredPos, &m_dstDabRect, paintThickness);
 
     QPointF newCenterPos = QRectF(m_dstDabRect).center();
-    /**
-     * Save the center of the current dab to know where to read the
-     * data during the next pass. We do not save scatteredPos here,
-     * because it may differ slightly from the real center of the
-     * brush (due to rounding effects), which will result in a
-     * really weird quality.
-     */
     QRect srcDabRect = m_dstDabRect.translated((m_lastPaintPos - newCenterPos).toPoint());
 
     m_lastPaintPos = newCenterPos;

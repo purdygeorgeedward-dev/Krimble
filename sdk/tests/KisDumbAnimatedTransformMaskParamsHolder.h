@@ -10,7 +10,6 @@
 #include "kritatransformmaskstubs_export.h"
 #include "kis_transform_mask_params_interface.h"
 
-
 class KRITATRANSFORMMASKSTUBS_EXPORT KisDumbAnimatedTransformMaskParamsHolder : public KisAnimatedTransformParamsHolderInterface
 {
 public:
@@ -39,4 +38,4 @@ private:
     KisDefaultBoundsBaseSP m_defaultBounds;
     KisTransformMaskParamsInterfaceSP m_params;
 };
-#endif // KISDUMBANIMATEDTRANSFORMMASKPARAMSHOLDER_H
+#endif

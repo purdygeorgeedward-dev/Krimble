@@ -27,7 +27,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(DefaultPaintOpsPluginFactory, "kritadefaultpaintops.json", registerPlugin<DefaultPaintOpsPlugin>();)
 
-
 DefaultPaintOpsPlugin::DefaultPaintOpsPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

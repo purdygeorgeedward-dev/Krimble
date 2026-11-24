@@ -12,7 +12,6 @@
 #include <QBuffer>
 #include <KisPortingUtils.h>
 
-
 #define WORKSPACE_VERSION 1
 
 KisWorkspaceResource::KisWorkspaceResource(const QString& filename): KoResource(filename)
@@ -45,7 +44,6 @@ bool KisWorkspaceResource::saveToDevice(QIODevice *dev) const
     state.appendChild(doc.createCDATASection(m_dockerState.toBase64()));
     root.appendChild(state);
 
-    // Save KisPropertiesConfiguration settings
     QDomElement settings = doc.createElement("settings");
     KisPropertiesConfiguration::toXML(doc, settings);
     root.appendChild(settings);

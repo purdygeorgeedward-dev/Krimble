@@ -30,5 +30,4 @@ private:
     QPointer<KisCanvas2> m_canvas;
 };
 
-
-#endif /* _TOUCHDOCKER_DOCK_H_ */
+#endif

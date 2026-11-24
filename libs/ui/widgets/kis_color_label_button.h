@@ -44,7 +44,6 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-
 class KRITAUI_EXPORT KisColorLabelFilterGroup : public QButtonGroup {
     Q_OBJECT
 public:
@@ -77,8 +76,8 @@ private:
 class KRITAUI_EXPORT KisColorLabelMouseDragFilter : public QObject {
     enum State{
         Idle,
-        WaitingForDragLeave, //Waiting for mouse to exit first clicked while the mouse button is down.
-        WaitingForDragEnter //Waiting for mouse to slide across buttons within the same button group.
+        WaitingForDragLeave,
+        WaitingForDragEnter
     };
 
     State currentState;
@@ -92,5 +91,4 @@ protected:
     void checkSlideOverNeighborButtons(QMouseEvent* mouseEvent, class QAbstractButton* startingButton);
 };
 
-
-#endif // KISCOLORLABELBUTTON_H
+#endif

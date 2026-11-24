@@ -24,4 +24,4 @@ private Q_SLOTS:
 
 };
 
-#endif /* __KIS_SPATIAL_CONTAINER_TEST_H */
+#endif

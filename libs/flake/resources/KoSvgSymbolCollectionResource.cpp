@@ -2,7 +2,6 @@
 
    SPDX-FileCopyrightText: 2017 L. E. Segovia <amy@amyspark.me>
 
-
    SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include <resources/KoSvgSymbolCollectionResource.h>
@@ -41,9 +40,6 @@ QImage KoSvgSymbol::icon(int size = 0)
     }
 
     int maxDim = qMax(rc.width(), rc.height());
-    // no need to customize it, most of the time the code being able to set the size
-    // doesn't even know where this image will end up
-    // because it's saved into the database and then used in widgets
     const qreal margin = 0.05;
 
     QImage image(size, size, QImage::Format_ARGB32_Premultiplied);
@@ -52,10 +48,7 @@ QImage KoSvgSymbol::icon(int size = 0)
     gc.setRenderHint(QPainter::Antialiasing, true);
     image.fill(Qt::gray);
 
-//        debugFlake << "Going to render. Original bounding rect:" << group->boundingRect()
-//                 << "Normalized: " << rc
-//                 << "Scale W" << 256 / rc.width() << "Scale H" << 256 / rc.height();
-    gc.translate(size*margin, size*margin); // go inwards (towards the center, or bottom-right corner) by one margin
+    gc.translate(size*margin, size*margin);
     gc.scale(symbolScale, symbolScale);
     gc.translate(-rc.x(), -rc.y());
 
@@ -65,15 +58,12 @@ QImage KoSvgSymbol::icon(int size = 0)
     return image;
 }
 
-
-
 struct KoSvgSymbolCollectionResource::Private {
     QVector<KoSvgSymbol*> symbols;
     QString title;
     QString description;
     QByteArray data;
 };
-
 
 KoSvgSymbolCollectionResource::KoSvgSymbolCollectionResource(const QString& filename)
     : KoResource(filename)
@@ -140,17 +130,10 @@ bool KoSvgSymbolCollectionResource::loadFromDevice(QIODevice *dev, KisResourcesI
 
     KoDocumentResourceManager manager;
     SvgParser parser(&manager);
-    parser.setResolution(QRectF(0,0,100,100), 72); // initialize with default values
+    parser.setResolution(QRectF(0,0,100,100), 72);
     QSizeF fragmentSize;
-    // We're not interested in the shapes themselves
     qDeleteAll(parser.parseSvg(doc.documentElement(), &fragmentSize));
     d->symbols = parser.takeSymbols();
-//    debugFlake << "Loaded" << filename() << "\n\t"
-//             << "Title" << parser.documentTitle() << "\n\t"
-//             << "Description" << parser.documentDescription()
-//             << "\n\tgot" << d->symbols.size() << ResourceType::Symbols
-//             << d->symbols[0]->shape->outlineRect()
-//             << d->symbols[0]->shape->size();
 
     d->title = parser.documentTitle();
     if (d->title.isEmpty()) {

@@ -38,7 +38,6 @@ KisAbrBrush::KisAbrBrush(const KisAbrBrush& rhs)
     : KisScalingSizeBrush(rhs)
     , m_parent(0)
 {
-    // Warning! The brush became detached from the parent collection!
 }
 
 KisAbrBrush::KisAbrBrush(const KisAbrBrush& rhs, KisAbrBrushCollection *parent)
@@ -80,7 +79,7 @@ void KisAbrBrush::setBrushTipImage(const QImage& image)
 
 void KisAbrBrush::toXML(QDomDocument& d, QDomElement& e) const
 {
-    e.setAttribute("name", name()); // legacy
+    e.setAttribute("name", name());
     predefinedBrushToXML("abr_brush", e);
     KisBrush::toXML(d, e);
 }

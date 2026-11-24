@@ -30,15 +30,13 @@ public:
     QList<QPointer<QWidget> > createOptionWidgets() override;
     void activate(const QSet<KoShape*> &shapes) override;
 
-    /// the regular hexagon that fits in the box (flat top: a flat edge on top and bottom; pointed top: a point on top and bottom)
     static QPolygonF hexagonInRect(const QRectF &rect, bool flatTop);
-    /// the settings the tool works with now, from the program's settings (the hex grid of View > Show > Hex and the tool's own options)
     struct HexSettings {
-        bool flatTop = false;      // the orientation of the hexagon
-        bool snap = false;         // snap to the hex grid
-        bool locked = false;       // the settings are locked: no rotation, no scaling, the size and the orientation of the grid
-        qreal gridSize = 100.0;    // the hex grid: center to corner, image pixels
-        bool gridFlat = false;     // the hex grid's orientation
+        bool flatTop = false;
+        bool snap = false;
+        bool locked = false;
+        qreal gridSize = 100.0;
+        bool gridFlat = false;
         bool fixedSize() const { return snap || locked; }
         bool effectiveFlat() const { return snap ? gridFlat : flatTop; }
     };
@@ -53,7 +51,6 @@ protected:
 private:
     QPointer<QWidget> m_hexOptions;
 };
-
 
 class KisToolSelectHexagon : public KisToolSelectBase<__KisToolSelectHexagonLocal>
 {
@@ -89,4 +86,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_SELECT_HEXAGON_H_
+#endif

@@ -60,8 +60,6 @@ void TestKoColor::testSerialization()
     testForModel(LABAColorModelID.id());
     testForModel(CMYKAColorModelID.id());
     testForModel(GrayAColorModelID.id());
-    // we cannot test ycbcr since we cannot ship profiles
-    //testForModel(YCbCrAColorModelID.id());
 }
 
 void TestKoColor::testExistingSerializations()
@@ -71,7 +69,6 @@ void TestKoColor::testExistingSerializations()
     QDomDocument doc;
 
     QColor c;
-    // Test sRGB.
     main = "<sRGB r='0' g='0' b='1' />";
     doc.setContent(main);
     KoColor sRGB = KoColor::fromXML(doc.documentElement(), Integer8BitsColorDepthID.id());
@@ -80,7 +77,6 @@ void TestKoColor::testExistingSerializations()
     QVERIFY2(c == QColor(blue), QString("XML parser is not loading the sRGB properly: \nresult: %1 \nexpected: %2")
              .arg(c.name()).arg(blue).toLatin1());
 
-    // Test wide gamut RGB -- We can only check that the values deserialize properly, which is fine in this case.
     QString Rec2020profile = KoColorSpaceRegistry::instance()->p2020G10Profile()->name();
     main = QString("<RGB r='3.0' g='0' b='1' space='%1'/>").arg(Rec2020profile);
     doc.setContent(main);
@@ -93,9 +89,6 @@ void TestKoColor::testExistingSerializations()
     QVERIFY(qFuzzyCompare(rec2020ChannelValues[2], 1.0f));
     QVERIFY(qFuzzyCompare(rec2020ChannelValues[3], 1.0f));
 
-
-    // Test cmyk, we can only check that the channels deserialize properly here.
-    // NOTE: 32bit float gives wildly different values here, so I am unsure what is going on still...
     const KoColorSpace *cmykSpace = KoColorSpaceRegistry::instance()->colorSpace(CMYKAColorModelID.id(), Integer8BitsColorDepthID.id());
     main = QString("<CMYK c='0.2' m='0.5' y='1.0' k='0.0' space='%1'/>").arg(cmykSpace->profile()->name());
     doc.setContent(main);
@@ -127,13 +120,6 @@ void TestKoColor::testExistingSerializations()
         }
     }
 
-    // CMYK has wildly different values in F32 than in U8. Avoid F32 CMYK!
-    //cmykColorU8.convertTo(cmykColorF32.colorSpace());
-    //qDebug() << ppVar(cmykColorU8);
-    //qDebug() << cmykColorU8.toXML();
-    //qDebug() << cmykColorF32.colorSpace()->difference(cmykColorF32.data(), cmykColorU8.data());
-
-    // Test XYZ - check channels.
     const KoColorSpace *xyzSpace = KoColorSpaceRegistry::instance()->colorSpace(XYZAColorModelID.id(), Integer8BitsColorDepthID.id());
     main = QString("<XYZ x='0.0' y='0.0' z='1.0' space='%1'/>").arg(xyzSpace->profile()->name());
     doc.setContent(main);
@@ -143,17 +129,12 @@ void TestKoColor::testExistingSerializations()
     QCOMPARE(xyzData[1], 0);
     QCOMPARE(xyzData[2], 255);
 
-
-    // Test LAB
-    // Lab has a different way of handling floating point from the rest of the colorspaces.
     const KoColorSpace *labSpace = KoColorSpaceRegistry::instance()->lab16();
     main = QString("<Lab space='%1' L='34.67' a='54.1289' b='-90.3359' />").arg(labSpace->profile()->name());
     doc.setContent(main);
     KoColor LABcolorU8 = KoColor::fromXML(doc.documentElement(), Integer8BitsColorDepthID.id());
     KoColor LABcolorU16 = KoColor::fromXML(doc.documentElement(), Integer16BitsColorDepthID.id());
     KoColor LABcolorF32 = KoColor::fromXML(doc.documentElement(), Float32BitsColorDepthID.id());
-
-    // Check that there isn't too much of a discrepancy between the XML values of the different bitdepths.
 
     elements.clear();
     elements.append(doc.documentElement());
@@ -178,9 +159,6 @@ void TestKoColor::testExistingSerializations()
         }
     }
 
-
-    // The following is the known sRGB color that the test value matches with.
-    // Let's make sure that all the lab values roughly convert to this sRGB value.
     KoColor purpleCompare = KoColor(QColor("#442de9"), sRGB.colorSpace());
 
     LABcolorU8.convertTo(sRGB.colorSpace());
@@ -196,7 +174,6 @@ void TestKoColor::testExistingSerializations()
             , QString("LAB F32 has too high a difference to it's sRGB reference: %1")
             .arg(sRGB.colorSpace()->difference(LABcolorF32.data(), purpleCompare.data())).toLatin1());
 
-    // Test Gray - check channels.
     const KoColorSpace *graySpace = KoColorSpaceRegistry::instance()->colorSpace(GrayAColorModelID.id(), Integer8BitsColorDepthID.id());
     main = QString("<Gray g='0.5' space='%1'/>").arg(graySpace->profile()->name());
     doc.setContent(main);
@@ -258,8 +235,6 @@ void TestKoColor::testSVGParsing()
 {
     QHash <QString, const KoColorProfile *> profileList;
 
-    //1. Testing case with fallback hex value and nonsense icc-color that we cannot parse
-
     KoColor p1 = KoColor::fromSVG11("#ff0000 icc-color(blah, 0.0, 1.0, 1.0, 0.0);", profileList);
     const KoColorSpace *sRGB = KoColorSpaceRegistry::instance()->rgb16(KoColorSpaceRegistry::instance()->p709SRGBProfile());
     KoColor c1 = KoColor(QColor("#ff0000"), sRGB);
@@ -268,16 +243,12 @@ void TestKoColor::testSVGParsing()
              , QString("SVG11 parser is not loading the sRGB hex fallback: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p1)).arg(KoColor::toQString(c1)).toLatin1());
 
-    //2. testing case with fallback colorname and nonsense icc-color that we cannot parse
-
     KoColor p2 = KoColor::fromSVG11("#ff0000 silver icc-color(blah, 0.0, 1.0, 1.0, 0.0);", profileList);
     KoColor c2 = KoColor(QColor("silver"), sRGB);
 
     QVERIFY2(p2 == c2
              , QString("SVG11 parser is not loading the sRGB colorname fallback: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p2)).arg(KoColor::toQString(c2)).toLatin1());
-
-    //3. testing case with fallback color and useful icc-color
 
     const KoColorSpace *cmyk = KoColorSpaceRegistry::instance()->colorSpace(CMYKAColorModelID.id(), Integer8BitsColorDepthID.id());
     QString cmykName = "sillyCMYKName";
@@ -289,7 +260,6 @@ void TestKoColor::testSVGParsing()
     QVERIFY2(p3 == c3
              , QString("SVG11 parsed cmyk incorrectly: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p3)).arg(KoColor::toQString(c3)).toLatin1());
-    //4. Roundtrip
 
     KoColor c4(KoColorSpaceRegistry::instance()->lab16());
     c4.fromQColor(QColor("#426471"));
@@ -301,12 +271,9 @@ void TestKoColor::testSVGParsing()
              , QString("Difference between colors from serialization roundtrip above 1.0: %1")
              .arg(c4.colorSpace()->difference(p4.data(), c4.data())).toLatin1());
 
-    //4.5 Check that the size stays the same even though we already added this profile to the stack before.
     int profileListSize = profileList.size();
     QString newColor = c4.toSVG11(&profileList);
     QCOMPARE(profileList.size(), profileListSize);
-
-    //5. Testing rgb...
 
     KoColor p5 = KoColor::fromSVG11("#ff0000 rgb(100, 50, 50%)", profileList);
     KoColor c5 = KoColor(QColor(100, 50, 127), sRGB);
@@ -314,15 +281,12 @@ void TestKoColor::testSVGParsing()
     QVERIFY2(p5 == c5, QString("the rgb() definition for SVG11 is not parsed correctly, \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p5)).arg(KoColor::toQString(c5)).toLatin1());
 
-    //6. Testing special srgb definition... especially the part where it can be defined case-insensitive.
-
     KoColor p6 = KoColor::fromSVG11("#ff0000 icc-color(srgb, 1.0, 1.0, 0.0)", profileList);
     KoColor c6 = KoColor::fromXML("<color channeldepth='F32'><sRGB r='1.0' g='1.0' b='0.0'/></color>");
 
     QVERIFY2(p6 == c6
              , QString("sRGB parsing is different between SVG11 and XML: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p6)).arg(KoColor::toQString(c6)).toLatin1());
-    //7. Testing out-of-bounds values...
 
     KoColor p7 = KoColor::fromSVG11("#ff0000 icc-color(srgb, 2.0, 1.0, 0.0)", profileList);
     KoColor c7 = KoColor::fromXML("<color channeldepth='F32'><sRGB r='2.0' g='1.0' b='0.0'/></color>");
@@ -330,7 +294,6 @@ void TestKoColor::testSVGParsing()
     QVERIFY2(p7 == c7, QString("Out of bounds RGB is parsing differently for XML and SVG11: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p7)).arg(KoColor::toQString(c7)).toLatin1());
 
-    //8. Check lab special case.
     KoColor p8 = KoColor::fromSVG11("#ff0000 icc-color(lab, 34.67, 54.1289, -90.3359)", profileList);
     QDomDocument doc;
     doc.setContent(QString("<Lab space='%1' L='34.67' a='54.1289' b='-90.3359' />").arg(c4.colorSpace()->profile()->name()));
@@ -338,8 +301,6 @@ void TestKoColor::testSVGParsing()
 
     QVERIFY2(p8 == c8, QString("Lab parsing is giving different values for XML and SVG11: \nresult: %1 \nexpected: %2")
                                .arg(KoColor::toQString(p8)).arg(KoColor::toQString(c8)).toLatin1());
-    //9. Check xyz loading
-    //We do not support XYZ because Inkscape decided that XYZ X and Z are 0-2, and I cannot figure out why.
     const KoColorSpace *xyzSpace = KoColorSpaceRegistry::instance()->colorSpace(XYZAColorModelID.id(), Integer16BitsColorDepthID.id());
     profileList.insert("XYZ", xyzSpace->profile());
     KoColor p9 = KoColor::fromSVG11("#0077FF icc-color(XYZ, 1.0, 0.0, 0.5)", profileList);
@@ -348,7 +309,6 @@ void TestKoColor::testSVGParsing()
              , QString("SVG11 parser is not loading the sRGB hex fallback for XYZ: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p9)).arg(KoColor::toQString(c9)).toLatin1());
 
-    //10. Check xyz saving
     KoColor p10 = KoColor(sRGB);
     QString c10 = "#0077FF";
     p10.fromQColor(QColor(c10));
@@ -357,7 +317,6 @@ void TestKoColor::testSVGParsing()
     QVERIFY2(p10.toSVG11(&profileList) != c10, QString("XYZ values are being saved: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p10)).arg(c10).toLatin1());
 
-    //11. Check gray loading.
     const KoColorSpace *gray = KoColorSpaceRegistry::instance()->graya8();
     profileList.insert("grayName", gray->profile());
     KoColor p11 = KoColor::fromSVG11("#ff0000 icc-color(grayName, 0.21);", profileList);
@@ -367,7 +326,6 @@ void TestKoColor::testSVGParsing()
              , QString("SVG11 parsed gray incorrectly: \nresult: %1 \nexpected: %2")
              .arg(KoColor::toQString(p11)).arg(KoColor::toQString(c11)).toLatin1());
 
-    //12. check sRGB is not saved.
     profileListSize = profileList.size();
     QString colorDef = c1.toSVG11(&profileList);
     QCOMPARE(profileList.size(), profileListSize);

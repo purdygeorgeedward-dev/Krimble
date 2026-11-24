@@ -29,4 +29,4 @@ private:
     const QScopedPointer<KisRunnableStrokeJobsInterface> m_jobsInterface;
 };
 
-#endif // KISRUNNABLEBASEDSTROKESTRATEGY_H
+#endif

@@ -10,7 +10,6 @@
 
 #include <QStringList>
 
-// kritaimage
 #include "kis_types.h"
 #include "kis_node_visitor.h"
 
@@ -25,7 +24,6 @@ class KisNodeFilterInterface;
 class KRITALIBKRA_EXPORT KisKraLoadVisitor : public KisNodeVisitor
 {
 public:
-
 
     KisKraLoadVisitor(KisImageSP image,
                       KoStore *store,
@@ -76,12 +74,6 @@ private:
     QString getLocation(const QString &filename, const QString &suffix = QString());
     void loadNodeKeyframes(KisNode *node);
 
-    /**
-     * Load deprecated filters.
-     * Most deprecated filters can be handled by this, but the brightnesscontact to perchannels
-     * conversion needs to be handled in the perchannel class because those filters
-     * have their own xml loading functionality.
-     */
     void loadDeprecatedFilter(KisFilterConfigurationSP cfg);
 
 private:
@@ -99,5 +91,5 @@ private:
     QMap<QString, const KoColorProfile *> m_profileCache;
 };
 
-#endif // KIS_KRA_LOAD_VISITOR_H_
+#endif
 

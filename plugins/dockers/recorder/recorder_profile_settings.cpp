@@ -21,7 +21,6 @@ enum ArgumentsPageIndex
 };
 }
 
-
 RecorderProfileSettings::RecorderProfileSettings(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::RecorderProfileSettings)

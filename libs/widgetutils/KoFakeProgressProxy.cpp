@@ -11,7 +11,6 @@
 
 Q_GLOBAL_STATIC(KoFakeProgressProxy, s_instance)
 
-
 int KoFakeProgressProxy::maximum() const
 {
     return 100;

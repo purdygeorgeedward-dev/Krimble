@@ -29,4 +29,4 @@ private:
     GLsync m_syncObject = 0;
 };
 
-#endif // KISOPENGLSYNC_H
+#endif

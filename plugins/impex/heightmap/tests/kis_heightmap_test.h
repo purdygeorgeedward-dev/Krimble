@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testImportIncorrectFormat();
 };
 
-#endif // _KIS_HEIGHTMAP_TEST_H_
+#endif

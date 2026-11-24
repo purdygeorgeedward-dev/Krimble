@@ -11,7 +11,6 @@
 
 #include "kritaimage_export.h"
 
-
 class KisTileDataStore;
 class KisTileData;
 
@@ -46,7 +45,5 @@ private:
     Private * const m_d;
 };
 
-
-
-#endif /* KIS_TILE_DATA_SWAPPER_H_ */
+#endif
 

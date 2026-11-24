@@ -42,11 +42,9 @@ private:
     QPointF speedCorrectedPosition(const KisPaintInformation& pi1,
                                    const KisPaintInformation& pi2);
 
-
     static qreal simplifyThreshold(const QRectF &bounds);
     static QPointF getAngle(const QPointF& p1, const QPointF& p2, qreal distance);
     static QPainterPath applyDisplace(const QPainterPath& path, int speed);
-
 
     bool m_displaceEnabled {false};
     int m_displaceCoeff {0};
@@ -82,4 +80,4 @@ private:
     KisPainter::FillStyle m_fillStyle {KisPainter::FillStyleNone};
 };
 
-#endif // KIS_EXPERIMENT_PAINTOP_H_
+#endif

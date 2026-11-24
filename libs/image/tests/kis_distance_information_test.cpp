@@ -18,16 +18,13 @@
 
 void KisDistanceInformationTest::testInitInfo()
 {
-    // Test equality checking operators.
     testInitInfoEquality();
 
-    // Test XML cloning.
     testInitInfoXMLClone();
 }
 
 void KisDistanceInformationTest::testInterpolation()
 {
-    // Set up a scenario for interpolation.
 
     QPointF startPos;
     QPointF endPos(100.0, -50.0);
@@ -39,8 +36,6 @@ void KisDistanceInformationTest::testInterpolation()
 
     KisPaintInformation p1(startPos, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, startTime, 0.0);
     KisPaintInformation p2(endPos, 1.0, 0.0, 0.0, 5.0, 0.0, 1.0, endTime, 0.0);
-
-    // Test interpolation with various spacing settings.
 
     static const qreal interpTolerance = 0.000001;
 
@@ -99,7 +94,6 @@ void KisDistanceInformationTest::testInterpolation()
     qreal b = 25.0;
     dist11.updateSpacing(KisSpacingInformation(QPointF(a * 2.0, b * 2.0), 0.0, false));
     dist11.updateTiming(KisTimingInformation());
-    // Compute the expected interpolation factor; we are using anisotropic spacing here.
     qreal angle = KisAlgebra2D::directionBetweenPoints(startPos, endPos, 0.0);
     qreal cosTermSqrt = qCos(angle) / a;
     qreal sinTermSqrt = qSin(angle) / b;
@@ -140,8 +134,6 @@ void KisDistanceInformationTest::testInitInfoEquality() const
 
 void KisDistanceInformationTest::testInitInfoXMLClone() const
 {
-    // Note: Numeric values used here must be values that get serialized to XML exactly (e.g. small
-    // integers). Otherwise, roundoff error in serialization may cause a failure.
 
     KisDistanceInitInfo info1;
     QDomDocument doc;

@@ -83,8 +83,6 @@ qreal KoViewConverter::viewToDocumentY(qreal viewY) const
     return viewY / m_zoomLevel;
 }
 
-
-
 void KoViewConverter::setZoom(qreal zoom)
 {
     if (qFuzzyCompare(zoom, qreal(0.0)) || qFuzzyCompare(zoom, qreal(1.0))) {

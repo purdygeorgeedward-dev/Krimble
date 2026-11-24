@@ -42,4 +42,4 @@ private:
 
 };
 
-#endif // KIS_SHADE_SELECTOR_LINE_COMBO_BOX_H
+#endif

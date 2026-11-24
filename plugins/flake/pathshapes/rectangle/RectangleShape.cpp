@@ -81,7 +81,6 @@ void RectangleShape::moveHandleAction(int handleId, const QPointF &point, Qt::Ke
         }
         break;
     }
-    // this is needed otherwise undo/redo might not end in the same result
     if (100 - m_cornerRadiusX < 1e-10) {
         m_cornerRadiusX = 100;
     }
@@ -128,7 +127,6 @@ void RectangleShape::updatePath(const QSizeF &size)
 
     int cp = 0;
 
-    // first path starts and closes path
     points[cp]->setProperty(KoPathPoint::StartSubpath);
     points[cp]->setProperty(KoPathPoint::CloseSubpath);
     points[cp]->setPoint(QPointF(rx, 0));
@@ -136,14 +134,12 @@ void RectangleShape::updatePath(const QSizeF &size)
     points[cp]->removeControlPoint2();
 
     if (m_cornerRadiusX < 100 || m_cornerRadiusY == 0) {
-        // end point of the top edge
         points[++cp]->setPoint(QPointF(x2, 0));
         points[cp]->removeControlPoint1();
         points[cp]->removeControlPoint2();
     }
 
     if (rx) {
-        // the top right radius
         arcToCurve(rx, ry, 90, -90, points[cp]->point(), curvePoints);
         points[cp]->setControlPoint2(curvePoints[0]);
         points[++cp]->setControlPoint1(curvePoints[1]);
@@ -152,14 +148,12 @@ void RectangleShape::updatePath(const QSizeF &size)
     }
 
     if (m_cornerRadiusY < 100 || m_cornerRadiusX == 0) {
-        // the right edge
         points[++cp]->setPoint(QPointF(size.width(), y2));
         points[cp]->removeControlPoint1();
         points[cp]->removeControlPoint2();
     }
 
     if (rx) {
-        // the bottom right radius
         arcToCurve(rx, ry, 0, -90, points[cp]->point(), curvePoints);
         points[cp]->setControlPoint2(curvePoints[0]);
         points[++cp]->setControlPoint1(curvePoints[1]);
@@ -168,14 +162,12 @@ void RectangleShape::updatePath(const QSizeF &size)
     }
 
     if (m_cornerRadiusX < 100 || m_cornerRadiusY == 0) {
-        // the bottom edge
         points[++cp]->setPoint(QPointF(rx, size.height()));
         points[cp]->removeControlPoint1();
         points[cp]->removeControlPoint2();
     }
 
     if (rx) {
-        // the bottom left radius
         arcToCurve(rx, ry, 270, -90, points[cp]->point(), curvePoints);
         points[cp]->setControlPoint2(curvePoints[0]);
         points[++cp]->setControlPoint1(curvePoints[1]);
@@ -184,27 +176,23 @@ void RectangleShape::updatePath(const QSizeF &size)
     }
 
     if ((m_cornerRadiusY < 100 || m_cornerRadiusX == 0) && ry) {
-        // the right edge
         points[++cp]->setPoint(QPointF(0, ry));
         points[cp]->removeControlPoint1();
         points[cp]->removeControlPoint2();
     }
 
     if (rx) {
-        // the top left radius
         arcToCurve(rx, ry, 180, -90, points[cp]->point(), curvePoints);
         points[cp]->setControlPoint2(curvePoints[0]);
         points[0]->setControlPoint1(curvePoints[1]);
         points[0]->setPoint(curvePoints[2]);
     }
 
-    // unset all stop/close path properties
     for (int i = 1; i < cp; ++i) {
         points[i]->unsetProperty(KoPathPoint::StopSubpath);
         points[i]->unsetProperty(KoPathPoint::CloseSubpath);
     }
 
-    // last point stops and closes path
     points.last()->setProperty(KoPathPoint::StopSubpath);
     points.last()->setProperty(KoPathPoint::CloseSubpath);
 
@@ -265,7 +253,6 @@ QString RectangleShape::pathShapeId() const
 
 bool RectangleShape::saveSvg(SvgSavingContext &context)
 {
-    // let basic path saiving code handle our saving
     if (!isParametricShape()) return false;
 
     context.shapeWriter().startElement("rect");
@@ -303,7 +290,6 @@ bool RectangleShape::loadSvg(const QDomElement &element, SvgLoadingContext &cont
     const QString ryStr = element.attribute("ry");
     qreal rx = rxStr.isEmpty() ? 0.0 : SvgUtil::parseUnitX(context.currentGC(), context.resolvedProperties(), rxStr);
     qreal ry = ryStr.isEmpty() ? 0.0 : SvgUtil::parseUnitY(context.currentGC(), context.resolvedProperties(), ryStr);
-    // if one radius is given but not the other, use the same value for both
     if (!rxStr.isEmpty() && ryStr.isEmpty()) {
         ry = rx;
     }

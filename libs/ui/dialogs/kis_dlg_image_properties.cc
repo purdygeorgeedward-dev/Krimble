@@ -27,7 +27,7 @@
 
 struct KisDlgImageProperties::Private {
     Private(KisDisplayColorConverter *colorConverter)
-        : compressor(KisSignalCompressor(500 /* ms */, KisSignalCompressor::POSTPONE))
+        : compressor(KisSignalCompressor(500 , KisSignalCompressor::POSTPONE))
         , colorConverter(colorConverter)
     {
     }
@@ -58,9 +58,8 @@ KisDlgImageProperties::KisDlgImageProperties(KisImageWSP image, KisDisplayColorC
     m_page->lblHeightValue->setText(QString::number(image->height()));
     m_page->lblLayerCount->setText(QString::number(image->nChildLayers()));
 
-    m_page->lblResolutionValue->setText(QLocale().toString(image->xRes()*72, 2)); // XXX: separate values for x & y?
+    m_page->lblResolutionValue->setText(QLocale().toString(image->xRes()*72, 2));
 
-    //Set the canvas projection color:    backgroundColor
     KoColor background = d->image->defaultProjectionColor();
     background.setOpacity(1.0);
     m_page->bnBackgroundColor->setColor(background);
@@ -72,34 +71,26 @@ KisDlgImageProperties::KisDlgImageProperties(KisImageWSP image, KisDisplayColorC
     connect(m_page->sldBackgroundColor, SIGNAL(valueChanged(qreal)), &d->compressor, SLOT(start()));
     connect(&d->compressor, SIGNAL(timeout()), this, SLOT(setCurrentColor()));
 
-    //Set the color space
     m_page->colorSpaceSelector->setCurrentColorSpace(image->colorSpace());
     m_page->chkConvertLayers->setChecked(KisConfig(true).convertLayerColorSpaceInProperties());
 
-    // fetch the proofing space
     KisProofingConfigurationSP config = d->image->proofingConfiguration();
     const bool hasImageLocalConfig = bool(config);
 
     if (config) {
-        // create a copy of the original config
         d->originalProofingConfig.reset(new KisProofingConfiguration(*config));
     } else {
         config = KisImageConfig(true).defaultProofingconfiguration();
     }
 
-    // enable proofing config widgets only when the image has its
-    // own config
     m_page->chkSaveProofing->setChecked(hasImageLocalConfig);
     connect(m_page->chkSaveProofing, &QCheckBox::toggled,
         m_page->wdgProofingOptions, &KisProofingOptionsWidget::setEnabled);
     m_page->wdgProofingOptions->setEnabled(m_page->chkSaveProofing->isChecked());
 
-    // we should reset to the global settings when when the checkbox
-    // is toggled
     connect(m_page->chkSaveProofing, &QCheckBox::toggled,
         this, &KisDlgImageProperties::setProofingConfigToImage);
 
-    // initialize the proofing configuration widget
     m_page->wdgProofingOptions->setProofingConfig(config);
     connect(d->colorConverter, SIGNAL(displayConfigurationChanged()), this, SLOT(updateDisplayConfigInfo()));
     updateDisplayConfigInfo();
@@ -109,7 +100,6 @@ KisDlgImageProperties::KisDlgImageProperties(KisImageWSP image, KisDisplayColorC
             this,
             &KisDlgImageProperties::setProofingConfigToImage);
 
-    //annotations
     vKisAnnotationSP_it beginIt = image->beginAnnotations();
     vKisAnnotationSP_it endIt = image->endAnnotations();
 

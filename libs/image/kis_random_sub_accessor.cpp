@@ -22,11 +22,9 @@ KisRandomSubAccessor::KisRandomSubAccessor(KisPaintDeviceSP device)
 {
 }
 
-
 KisRandomSubAccessor::~KisRandomSubAccessor()
 {
 }
-
 
 void KisRandomSubAccessor::sampledOldRawData(quint8* dst)
 {
@@ -43,7 +41,7 @@ void KisRandomSubAccessor::sampledOldRawData(quint8* dst)
     if (vsub < 0.0) {
         vsub = 1.0 + vsub;
     }
-    
+
     int sumOfWeights = 0;
 
     weights[0] = qRound((1.0 - hsub) * (1.0 - vsub) * 255);
@@ -66,7 +64,6 @@ void KisRandomSubAccessor::sampledOldRawData(quint8* dst)
     m_device->colorSpace()->mixColorsOp()->mixColors(pixels, weights, 4, dst, sumOfWeights);
 }
 
-
 void KisRandomSubAccessor::sampledRawData(quint8* dst)
 {
     const quint8* pixels[4];
@@ -82,7 +79,7 @@ void KisRandomSubAccessor::sampledRawData(quint8* dst)
     if (vsub < 0.0) {
         vsub = 1.0 + vsub;
     }
-    
+
     int sumOfWeights = 0;
 
     weights[0] = qRound((1.0 - hsub) * (1.0 - vsub) * 255);

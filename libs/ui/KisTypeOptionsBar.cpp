@@ -26,7 +26,6 @@
 #include <KoSvgTextPropertiesInterface.h>
 
 namespace {
-// Qt 5 font weights (0 to 99) to CSS weights (100 to 900).
 int cssWeightFromQtWeight(int qtWeight)
 {
     if (qtWeight <= 12) return 100;
@@ -56,7 +55,7 @@ KisTypeOptionsBar::KisTypeOptionsBar(KisViewManager *viewManager)
     m_size->setKeyboardTracking(false);
 
     m_alignGroup = new QButtonGroup(this);
-    m_alignGroup->setExclusive(false);   // "none" must be possible (justified text); the click handler keeps one checked
+    m_alignGroup->setExclusive(false);
 
     registerAction(QStringLiteral("type_font"), i18n("Type: Font and Style"), m_font);
     registerAction(QStringLiteral("type_size"), i18n("Type: Size"), m_size);
@@ -97,7 +96,6 @@ QWidgetAction *KisTypeOptionsBar::registerAction(const QString &name, const QStr
 
 double KisTypeOptionsBar::pointsPerPixel() const
 {
-    // KisImage::xRes() is in pixels per point.
     if (m_view && m_view->image() && m_view->image()->xRes() > 0.0) {
         return 1.0 / m_view->image()->xRes();
     }
@@ -116,7 +114,6 @@ void KisTypeOptionsBar::updateVisibility()
     }
     if (m_view && m_view->mainWindow()) {
         if (QToolBar *toolBar = m_view->mainWindow()->findChild<QToolBar*>(QStringLiteral("TypeOptionsBar"))) {
-            // toolBar->setVisible(show);
             if (show) toolBar->setVisible(true);
         }
     }
@@ -181,7 +178,7 @@ void KisTypeOptionsBar::slotSelectionChanged()
         checked = 2;
         break;
     default:
-        break;      // justified or unknown: none checked
+        break;
     }
     Q_FOREACH (QAbstractButton *button, m_alignGroup->buttons()) {
         QSignalBlocker blocker(button);
@@ -211,9 +208,6 @@ void KisTypeOptionsBar::slotFontChanged()
     KoSvgTextProperties out;
     out.setProperty(KoSvgTextProperties::FontFamiliesId, QVariant(QStringList() << m_font->currentFamily()));
     out.setProperty(KoSvgTextProperties::FontWeightId, QVariant(cssWeightFromQtWeight(font.weight())));
-    // (KoSvgText::parseFontStyle is not exported from the library, so the value is built directly.)
-    // out.setProperty(KoSvgTextProperties::FontStyleId,
-    //                 QVariant::fromValue(KoSvgText::parseFontStyle(font.italic() ? QStringLiteral("italic") : QStringLiteral("normal"))));
     out.setProperty(KoSvgTextProperties::FontStyleId,
                     QVariant::fromValue(KoSvgText::CssFontStyleData(font.italic() ? QFont::StyleItalic : QFont::StyleNormal)));
     applyToCharacters(out);
@@ -234,7 +228,6 @@ void KisTypeOptionsBar::slotAlignClicked(int id)
     if (m_updating || !m_interface) {
         return;
     }
-    // exactly one of the three stays checked: the one just clicked
     Q_FOREACH (QAbstractButton *button, m_alignGroup->buttons()) {
         QSignalBlocker blocker(button);
         button->setChecked(m_alignGroup->id(button) == id);

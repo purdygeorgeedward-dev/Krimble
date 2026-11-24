@@ -7,10 +7,6 @@
 #include <QDebug>
 #include <KisMimeDatabase.h>
 
-/**
- * @return a set of filters ("*.bla,*.foo") that is suitable for filtering
- * the contents of a directory.
- */
 QStringList KisResourceLoaderBase::filters() const
 {
     QStringList filters;

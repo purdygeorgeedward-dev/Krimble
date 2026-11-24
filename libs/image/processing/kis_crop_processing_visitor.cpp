@@ -19,7 +19,6 @@
 #include "kis_transform_mask.h"
 #include "lazybrush/kis_colorize_mask.h"
 
-
 KisCropProcessingVisitor::KisCropProcessingVisitor(const QRect &rect, bool cropLayers, bool moveLayers)
     : m_rect(rect),
       m_cropLayers(cropLayers),
@@ -46,10 +45,6 @@ void KisCropProcessingVisitor::moveNodeImpl(KisNode *node, KisUndoAdapter *undoA
 
 void KisCropProcessingVisitor::cropPaintDeviceImpl(KisPaintDeviceSP device, KisUndoAdapter *undoAdapter)
 {
-    /**
-     * TODO: implement actual robust cropping of the selections,
-     * including the cropping of vector (!) selection.
-     */
 
     if (m_cropLayers) {
         KisTransaction transaction(kundo2_noi18n("crop"), device);

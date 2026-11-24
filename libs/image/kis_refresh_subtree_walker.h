@@ -10,7 +10,6 @@
 #include "kis_types.h"
 #include "kis_base_rects_walker.h"
 
-
 class KRITAIMAGE_EXPORT KisRefreshSubtreeWalker : public virtual KisBaseRectsWalker
 {
 public:
@@ -46,7 +45,6 @@ public:
 
 protected:
     KisRefreshSubtreeWalker() {}
-
 
     static
     std::pair<QRect, bool>
@@ -92,34 +90,14 @@ protected:
             KisProjectionLeafSP extraUpdateLeaf = startWith;
 
             if (startWith->isMask()) {
-                /**
-                 * When the mask is the root of the update, update
-                 * its parent projection using N_EXTRA method.
-                 *
-                 * This special update is necessary because the following
-                 * wolker will work in N_ABOVE_FILTHY mode only
-                 */
 
                 extraUpdateLeaf = startWith->parent();
             }
 
-            /**
-             * Sometimes it may happen that the mask is placed outside layers hierarchy
-             * (e.g. inactive selection mask), then the projection leafs will not point
-             * to anywhere
-             */
             if (extraUpdateLeaf) {
                 NodePosition pos = N_EXTRA | calculateNodePosition(extraUpdateLeaf);
                 registerNeedRect(extraUpdateLeaf, pos, KisRenderPassFlag::None);
 
-                /**
-                 * In normal walkers we register notifications
-                 * in the change-rect pass to avoid regeneration
-                 * of the nodes that are below filthy. In the subtree
-                 * walker there is no change-rect pass and all the
-                 * nodes are considered as filthy, so we should do
-                 * that explicitly.
-                 */
                 registerCloneNotification(extraUpdateLeaf->node(), pos);
             }
         }
@@ -141,5 +119,5 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisRefreshSubtreeWalker::Flags);
 
-#endif /* __KIS_REFRESH_SUBTREE_WALKER_H */
+#endif
 

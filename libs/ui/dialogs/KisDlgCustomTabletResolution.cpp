@@ -92,7 +92,6 @@ void KisDlgCustomTabletResolution::accept()
         cfg.setValue("wintabCustomResolutionHeight", ui->intHeight->value());
     }
 
-    // apply the mode right now
     {
         QRect customTabletRect;
         const Mode tabletMode = getTabletMode(&customTabletRect);

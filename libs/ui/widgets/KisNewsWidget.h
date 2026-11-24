@@ -25,9 +25,6 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
-/**
- * @brief The KisNewsWidget class shows the latest news from Krita.org
- */
 class KisNewsWidget : public QWidget, public Ui::KisNewsPage
 {
     Q_OBJECT
@@ -56,4 +53,4 @@ private:
     QSet<QString> m_enabledFeeds;
 };
 
-#endif // KISNEWSWIDGET_H
+#endif

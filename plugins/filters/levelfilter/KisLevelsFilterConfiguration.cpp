@@ -128,15 +128,6 @@ void KisLevelsFilterConfiguration::setShowLogarithmicHistogram(bool newShowLogar
     setProperty("histogram_mode", newShowLogarithmicHistogram ? "logarithmic" : "linear");
 }
 
-/**
- * The purpose of this function is to copy the values of the legacy
- * options (levels filter version < 2), that correspond to the lightness
- * levels adjustment, to the new and compact "lightness" option which
- * is used now.
- * Note that the "blackvalue", "whitevalue", "outblackvalue" and "outwhitevalue"
- * legacy properties span the range [0, 255] while the values in the "lightness"
- * property span the range [0, 1]
- */
 void KisLevelsFilterConfiguration::setLightessLevelsCurveFromLegacyValues()
 {
     const double inputBlackPoint = static_cast<double>(getInt("blackvalue", 0)) / 255.0;
@@ -150,16 +141,6 @@ void KisLevelsFilterConfiguration::setLightessLevelsCurveFromLegacyValues()
     );
 }
 
-/**
- * The purpose of this function is to copy the values of the new and
- * compact "lightness" option, that correspond to the lightness levels
- * adjustment, to the legacy options that where used before version 2 of
- * the filter. Storing the legacy options as well as the new ones
- * improves backwards compatibility of documents.
- * Note that the "blackvalue", "whitevalue", "outblackvalue" and "outwhitevalue"
- * legacy properties span the range [0, 255] while the values in the "lightness"
- * property span the range [0, 1]
- */
 void KisLevelsFilterConfiguration::setLegacyValuesFromLightnessLevelsCurve()
 {
     KisLevelsCurve lightnessLevelsCurve_ = lightnessLevelsCurve();
@@ -170,15 +151,6 @@ void KisLevelsFilterConfiguration::setLegacyValuesFromLightnessLevelsCurve()
     KisColorTransformationConfiguration::setProperty("outwhitevalue", static_cast<int>(qRound(lightnessLevelsCurve_.outputWhitePoint() * 255.0)));
 }
 
-/**
- * The options may be changed directly using the "setProperty" method of
- * the "KisPropertiesConfiguration". In this case we must intercept the
- * action to update the transfer function luts after setting the property.
- * if some legacy property is set (lightness levels properties prior to
- * version 2) then the legacy properties are copied to the new and
- * compact "lightness" property. Conversely, if the "lightness" property
- * is set, its values are copied to the legacy properties.
- */
 void KisLevelsFilterConfiguration::setProperty(const QString &name, const QVariant &value)
 {
     KisColorTransformationConfiguration::setProperty(name, value);
@@ -305,31 +277,6 @@ void addParamNode(QDomDocument& doc,
 
 void KisLevelsFilterConfiguration::toXML(QDomDocument& doc, QDomElement& root) const
 {
-    /**
-     * levels curve param follows this format:
-     *      "input_black_point;input_white_point;input_gamma;output_black_point;output_white_point"
-     * 
-     * For backwards compatibility, the "blackvalue" etc. values are also saved.
-     * Those contain the values of the lightness mode levels.
-     * 
-     * @code
-     * <params version=2>
-     *      <param name="mode">lightness</param>
-     *      <param name="histogram_mode">logarithmic</param>
-     *      <param name="lightness">0;1;0.4;0;1</param>
-     *      <param name="number_of_channels">3</param>
-     *      <param name="channel_0">0;1;1;0;1</param>
-     *      <param name="channel_1">0.2;0.8;1.2;0.25;0.75</param>
-     *      <param name="channel_2">0;1;0.6;0;1</param>
-     * 
-     *      <param type="internal" name="blackvalue">0</param>
-     *      <param type="internal" name="whitevalue">255</param>
-     *      <param type="internal" name="gammavalue">1</param>
-     *      <param type="internal" name="outblackvalue">0</param>
-     *      <param type="internal" name="outwhitevalue">255</param>
-     * </params>
-     * @endcode
-     */
 
     root.setAttribute("version", version());
 

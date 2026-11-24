@@ -18,17 +18,6 @@ public:
     {
     }
 
-
-    /*
-       pre and post are split because:
-
-    21:12:20 < dmitryK> boud: i guess it was somehow related to the fact that the maskWidth/maskHeight should
-                        correspond to the size of the mask returned by paintDevice()
-    21:13:33 < dmitryK> boud: the random stuff is called once per brush->paintDevice() call, after the device is
-                        returned to the paint op, that is "preparing the randomness for the next call"
-    21:14:16 < dmitryK> boud: and brushesPipe->currentBrush() always returning the same brush for any particular
-                        paintInfo.
-    */
 protected:
     static int selectPre(KisParasite::SelectionMode mode,
                          int index, int rank,
@@ -47,7 +36,6 @@ protected:
             index = static_cast<int>(info.pressure() * (rank - 1) + 0.5);
             break;
         case KisParasite::Angular:
-            // + M_PI_2 + M_PI_4 to be compatible with the gimp
             angle = info.drawingAngle() + M_PI_2 + M_PI_4;
             angle = normalizeAngle(angle);
 
@@ -60,7 +48,6 @@ protected:
             index = qRound(info.yTilt() / 2.0 * rank) + rank / 2;
             break;
         case KisParasite::Velocity:
-            // log is slow, but allows for nicer dab transition
             velocity = log(info.drawingSpeed() + 1);
             if (velocity > capSpeed) {
                 velocity = capSpeed;
@@ -207,7 +194,6 @@ private:
     bool m_isInitialized;
 };
 
-
 struct KisImagePipeBrush::Private {
 public:
     KisImageBrushesPipe brushesPipe;
@@ -227,20 +213,16 @@ KisImagePipeBrush::KisImagePipeBrush(const QString& name, int w, int h,
 {
     Q_ASSERT(devices.count() == modes.count());
     Q_ASSERT(devices.count() > 0);
-    Q_ASSERT(devices.count() < 2); // XXX Multidimensionals not supported yet, change to MaxDim!
+    Q_ASSERT(devices.count() < 2);
 
     setName(name);
 
     KisPipeBrushParasite parasite;
 
     parasite.dim = devices.count();
-    // XXX Change for multidim! :
     parasite.ncells = devices.at(0).count();
-    parasite.rank[0] = parasite.ncells; // ### This can masquerade some bugs, be careful here in the future
+    parasite.rank[0] = parasite.ncells;
     parasite.selection[0] = modes.at(0);
-
-
-    // XXX needsmovement!
 
     parasite.setBrushesCount();
 
@@ -276,10 +258,7 @@ bool KisImagePipeBrush::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP r
 bool KisImagePipeBrush::initFromData(const QByteArray &data)
 {
     if (data.size() == 0) return false;
-    // XXX: this doesn't correctly load the image pipe brushes yet.
 
-    // XXX: This stuff is in utf-8, too.
-    // The first line contains the name -- this means we look until we arrive at the first newline
     QByteArray line1;
 
     qint32 i = 0;
@@ -290,11 +269,8 @@ bool KisImagePipeBrush::initFromData(const QByteArray &data)
     }
     setName(QString::fromUtf8(line1, line1.size()));
 
-    i++; // Skip past the first newline
+    i++;
 
-    // The second line contains the number of brushes, separated by a space from the parasite
-
-    // XXX: This stuff is in utf-8, too.
     QByteArray line2;
     while (i < data.size() && data[i] != '\n') {
         line2.append(data[i]);
@@ -308,10 +284,10 @@ bool KisImagePipeBrush::initFromData(const QByteArray &data)
     KisPipeBrushParasite parasite = KisPipeBrushParasite(parasiteString);
     parasite.sanitize();
 
-    parasiteSelectionString = parasite.selectionMode; // selection mode to return to UI
+    parasiteSelectionString = parasite.selectionMode;
 
     d->brushesPipe.setParasite(parasite);
-    i++; // Skip past the second newline
+    i++;
 
     for (int brushIndex = d->brushesPipe.sizeBrush();
             brushIndex < numOfBrushes && i < data.size(); brushIndex++) {
@@ -339,7 +315,7 @@ bool KisImagePipeBrush::initFromData(const QByteArray &data)
 
 bool KisImagePipeBrush::saveToDevice(QIODevice* dev) const
 {
-    QByteArray utf8Name = name().toUtf8(); // Names in v2 brushes are in UTF-8
+    QByteArray utf8Name = name().toUtf8();
     char const* name = utf8Name.data();
     int len = qstrlen(name);
 
@@ -348,26 +324,18 @@ bool KisImagePipeBrush::saveToDevice(QIODevice* dev) const
         return false;
     }
 
-    // Save this pipe brush: first the header, and then all individual brushes consecutively
-    // XXX: this needs some care for when we have > 1 dimension)
-
-    // Gimp Pipe Brush header format: Name\n<number of brushes> <parasite>\n
-
-    // The name\n
     if (dev->write(name, len) == -1)
         return false;
 
     if (!dev->putChar('\n'))
         return false;
 
-    // Write the parasite (also writes number of brushes)
     if (!d->brushesPipe.parasite().saveToDevice(dev))
         return false;
 
     if (!dev->putChar('\n'))
         return false;
 
-    // <gbr brushes>
     return d->brushesPipe.saveToDevice(dev);
 }
 
@@ -500,13 +468,11 @@ void KisImagePipeBrush::setSpacing(double _spacing)
 
 void KisImagePipeBrush::setBrushApplication(enumBrushApplication brushApplication)
 {
-    //Set all underlying brushes to use the same brush Application
     KisGbrBrush::setBrushApplication(brushApplication);
     d->brushesPipe.setBrushApplication(brushApplication);
 }
 
 void KisImagePipeBrush::setGradient(KoAbstractGradientSP gradient) {
-    //Set all underlying brushes to use the same gradient
     KisGbrBrush::setGradient(gradient);
     d->brushesPipe.setGradient(gradient);
 }
@@ -515,7 +481,6 @@ KisGbrBrushSP KisImagePipeBrush::testingGetCurrentBrush(const KisPaintInformatio
 {
     return d->brushesPipe.currentBrush(info);
 }
-
 
 void KisImagePipeBrush::testingSelectNextBrush(const KisPaintInformation& info) const
 {

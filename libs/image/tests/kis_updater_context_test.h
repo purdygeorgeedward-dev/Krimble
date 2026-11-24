@@ -19,5 +19,5 @@ private Q_SLOTS:
     void stressTestExclusiveJobs();
 };
 
-#endif /* KIS_UPDATER_CONTEXT_TEST_H */
+#endif
 

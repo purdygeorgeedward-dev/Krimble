@@ -85,8 +85,6 @@ void KisPanAction::begin(int shortcut, QEvent *event)
                 break;
             }
 
-            // Some QT wheel events are actually be touch pad pan events. From the QT docs:
-            // "Wheel events are generated for both mouse wheels and trackpad scroll gestures."
             QWheelEvent *wheelEvent = dynamic_cast<QWheelEvent*>(event);
             if (wheelEvent) {
                 inputManager()->canvas()->canvasController()->pan(-wheelEvent->pixelDelta());
@@ -141,11 +139,6 @@ void KisPanAction::inputEvent(QEvent *event)
             QTouchEvent *tevent = static_cast<QTouchEvent*>(event);
             int newTouchPointsCount;
             QPointF newPos = d->averagePoint(tevent, &newTouchPointsCount);
-            // When the number of touch points have changed, the average point
-            // of the touch points will produce a huge jump which we don't want
-            // to happen when panning. This can happen when ending a 3-finger
-            // pan gesture. So we only pan the canvas if the number of touch
-            // points have not changed.
             if (newTouchPointsCount == d->touchPointsCount) {
                 QPointF delta = newPos - d->lastPosition;
                 inputManager()->canvas()->canvasController()->pan(-delta.toPoint());

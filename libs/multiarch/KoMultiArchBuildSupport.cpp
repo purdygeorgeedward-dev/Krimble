@@ -10,12 +10,10 @@
 #include <KSharedConfig>
 #include <kis_debug.h>
 
-
 std::tuple<bool, bool> vectorizationConfiguration()
 {
     static const std::tuple<bool, bool> vectorization = [&]() {
         KConfigGroup cfg = KSharedConfig::openConfig()->group("");
-        // use the old key name for compatibility
         const bool useVectorization =
             !cfg.readEntry("amdDisableVectorWorkaround", false);
         const bool disableAVXOptimizations =

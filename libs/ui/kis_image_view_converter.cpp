@@ -21,7 +21,7 @@ KisImageViewConverter::KisImageViewConverter(const KisImageWSP image)
 KisImageViewConverter::KisImageViewConverter(KisImageResolutionProxySP proxy)
     : m_proxy(proxy)
 {
-    setZoom(0.1); // set the superclass to not hit the optimization of zoom=100%
+    setZoom(0.1);
 }
 
 KisImageViewConverter::KisImageViewConverter(const KisImageViewConverter &rhs)
@@ -44,8 +44,6 @@ void KisImageViewConverter::setImage(KisImageWSP image)
     m_proxy = m_proxy->createOrCloneDetached(image);
 }
 
-// remember here; document is postscript points;  view is krita pixels.
-
 void KisImageViewConverter::zoom(qreal *zoomX, qreal *zoomY) const
 {
     Q_ASSERT(zoomX);
@@ -54,22 +52,18 @@ void KisImageViewConverter::zoom(qreal *zoomX, qreal *zoomY) const
     *zoomY = effectiveYRes();
 }
 
-/// convert from flake to krita units
 qreal KisImageViewConverter::documentToViewX(qreal documentX) const {
     return documentX * effectiveXRes();
 }
 
-/// convert from flake to krita units
 qreal KisImageViewConverter::documentToViewY(qreal documentY) const {
     return documentY * effectiveYRes();
 }
 
-/// convert from krita to flake units
 qreal KisImageViewConverter::viewToDocumentX(qreal viewX) const {
     return viewX / effectiveXRes();
 }
 
-/// convert from krita to flake units
 qreal KisImageViewConverter::viewToDocumentY(qreal viewY) const {
     return viewY / effectiveYRes();
 }

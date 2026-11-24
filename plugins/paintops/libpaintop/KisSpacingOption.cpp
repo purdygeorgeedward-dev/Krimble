@@ -11,7 +11,6 @@
 #include <KisPaintOpOptionUtils.h>
 namespace kpou = KisPaintOpOptionUtils;
 
-
 KisSpacingOption::KisSpacingOption(const KisPropertiesConfiguration *setting)
     : KisSpacingOption(kpou::loadOptionData<KisSpacingOptionData>(setting))
 {

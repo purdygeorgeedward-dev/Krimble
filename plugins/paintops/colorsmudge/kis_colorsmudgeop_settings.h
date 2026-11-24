@@ -10,7 +10,6 @@
 #include <QScopedPointer>
 #include <kis_brush_based_paintop_settings.h>
 
-
 class KisColorSmudgeOpSettings : public KisBrushBasedPaintOpSettings
 {
 public:
@@ -26,4 +25,4 @@ private:
 
 typedef KisSharedPtr<KisColorSmudgeOpSettings> KisColorSmudgeOpSettingsSP;
 
-#endif /* __KIS_COLORSMUDGEOP_SETTINGS_H */
+#endif

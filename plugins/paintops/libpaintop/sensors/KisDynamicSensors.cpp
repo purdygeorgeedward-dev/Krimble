@@ -9,7 +9,6 @@
 
 #include <KisDynamicSensorIds.h>
 
-
 KisDynamicSensorSpeed::KisDynamicSensorSpeed(const KisSensorData &data, std::optional<KisCubicCurve> curveOverride)
     : KisDynamicSensor(SpeedId, data, curveOverride)
 {
@@ -19,7 +18,6 @@ KisDynamicSensorRotation::KisDynamicSensorRotation(const KisSensorData &data, st
     : KisDynamicSensor(RotationId, data, curveOverride)
 {
 }
-
 
 KisDynamicSensorPressure::KisDynamicSensorPressure(const KisSensorData &data, std::optional<KisCubicCurve> curveOverride)
     : KisDynamicSensor(PressureId, data, curveOverride)

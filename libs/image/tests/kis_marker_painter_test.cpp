@@ -19,14 +19,12 @@
 #include "kis_algebra_2d.h"
 #include <testutil.h>
 
-
 void KisMarkerPainterTest::testFillHalfBrushDiff()
 {
     QRectF rc(10,10,10,10);
     KisAlgebra2D::RightHalfPlane p(QPointF(10,13), QPointF(20,17));
 
     QCOMPARE(cutOffRect(rc, p), QRectF(10,13,10,7));
-
 
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
@@ -44,7 +42,6 @@ void KisMarkerPainterTest::testFillHalfBrushDiff()
     painter.fillHalfBrushDiff(p1, p2, p3,
                               center, radius);
 
-    //KIS_DUMP_DEVICE_2(dev, fullRect, "fill_half_brush_raw_points", "dd");
     QImage result = dev->convertToQImage(0, fullRect);
     QVERIFY(TestUtil::checkQImage(result, "marker_painter", "half_brush_fill", ""));
 }
@@ -55,7 +52,6 @@ void KisMarkerPainterTest::testFillFullCircle()
     KisAlgebra2D::RightHalfPlane p(QPointF(10,13), QPointF(20,17));
 
     QCOMPARE(cutOffRect(rc, p), QRectF(10,13,10,7));
-
 
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
@@ -69,7 +65,6 @@ void KisMarkerPainterTest::testFillFullCircle()
     KisMarkerPainter painter(dev, color);
     painter.fillFullCircle(center, radius);
 
-    //KIS_DUMP_DEVICE_2(dev, fullRect, "fill_full_circle", "dd");
     QImage result = dev->convertToQImage(0, fullRect);
     QVERIFY(TestUtil::checkQImage(result, "marker_painter", "fill_full_circle", ""));
 }
@@ -82,12 +77,10 @@ void KisMarkerPainterTest::testFillCirclesDiffSingle()
     QRect fullRect(0,0,60,60);
     KoColor color(Qt::blue, cs);
 
-
     KisMarkerPainter painter(dev, color);
     painter.fillCirclesDiff(QPointF(10,30), 20,
                             QPointF(30,30), 20);
 
-    //KIS_DUMP_DEVICE_2(dev, fullRect, "fill_single_diff", "dd");
     QImage result = dev->convertToQImage(0, fullRect);
     QVERIFY(TestUtil::checkQImage(result, "marker_painter", "fill_single_diff", ""));
 }
@@ -114,8 +107,6 @@ void KisMarkerPainterTest::testFillCirclesDiff()
     for (int x = x0 + step; x < x1; x += step) {
         const qreal y = 20 * std::sin(omega * (x - x0));
 
-
-
         QPointF p1(x, y0 + y);
         painter.fillCirclesDiff(p0, 10,
                                 p1, 10);
@@ -123,7 +114,6 @@ void KisMarkerPainterTest::testFillCirclesDiff()
         p0 = p1;
     }
 
-    //KIS_DUMP_DEVICE_2(dev, fullRect, "fill_stroke", "dd");
     QImage result = dev->convertToQImage(0, fullRect);
     QVERIFY(TestUtil::checkQImage(result, "marker_painter", "fill_stroke", ""));
 }

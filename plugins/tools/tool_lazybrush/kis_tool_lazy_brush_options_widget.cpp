@@ -89,7 +89,7 @@ KisToolLazyBrushOptionsWidget::KisToolLazyBrushOptionsWidget(KisCanvasResourcePr
 
     m_d->colorModel = new KisPaletteModel(this);
     m_d->ui->colorView->setPaletteModel(m_d->colorModel);
-    m_d->ui->colorView->setAllowModification(false); //people probably shouldn't be able to edit the colorentries themselves.
+    m_d->ui->colorView->setAllowModification(false);
     m_d->ui->colorView->setCrossedKeyword("transparent");
 
     PaletteEventFilter *filter = new PaletteEventFilter(m_d->ui->colorView, this);
@@ -127,7 +127,6 @@ KisToolLazyBrushOptionsWidget::KisToolLazyBrushOptionsWidget(KisCanvasResourcePr
         i18nc("@info:tooltip",
               "The mask will try to remove parts of the key strokes "
               "that are placed outside the closed contours. 0% - no effect, 100% - max effect"));
-
 
     connect(m_d->ui->colorView, SIGNAL(sigIndexSelected(QModelIndex)), this, SLOT(entrySelected(QModelIndex)));
     connect(m_d->ui->btnTransparent, SIGNAL(toggled(bool)), this, SLOT(slotMakeTransparent(bool)));
@@ -257,8 +256,6 @@ void KisToolLazyBrushOptionsWidget::slotUpdateNodeProperties()
                          m_d->ui->intCleanUp,
                          m_d->ui->chkLimitToDevice);
 
-    // not implemented yet!
-    //m_d->ui->chkAutoUpdates->setEnabled(m_d->activeMask);
     m_d->ui->chkAutoUpdates->setEnabled(false);
     m_d->ui->chkAutoUpdates->setVisible(false);
 
@@ -327,7 +324,6 @@ void KisToolLazyBrushOptionsWidget::slotMakeTransparent(bool enableTransparency)
         }
     }
 
-    // We can't rely on the order of the colors returned, so we need to sort them row by row from left to right
     std::sort(infoList.begin(), infoList.end(), sortSwatchInfo);
     KisColorizeMask::KeyStrokeColors colors;
     int i = 0;
@@ -361,7 +357,6 @@ void KisToolLazyBrushOptionsWidget::slotUpdate()
 
 void KisToolLazyBrushOptionsWidget::slotSetAutoUpdates(bool value)
 {
-    // not implemented yet!
     ENTER_FUNCTION() << ppVar(value);
 }
 

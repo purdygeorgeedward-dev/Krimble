@@ -57,4 +57,4 @@ private:
     QPointer<KisCanvas2> m_canvas;
 };
 
-#endif /* __KIS_INFINITY_MANAGER_H */
+#endif

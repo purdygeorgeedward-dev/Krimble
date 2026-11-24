@@ -53,7 +53,6 @@ LayerSplit::~LayerSplit()
 {
 }
 
-
 struct Layer {
     KoColor color;
     KisPaintDeviceSP device;
@@ -81,7 +80,6 @@ void LayerSplit::slotLayerSplit()
         KisNodeSP node = viewManager()->activeNode();
         if (!node) return;
 
-        // Convert to paint layer prior to splitting if current node is a colorize mask
         if (node->inherits("KisColorizeMask")) {
             std::future<KisNodeSP> convertedNode = KisLayerUtils::convertToPaintLayer(image, node);
             node = convertedNode.get();
@@ -181,9 +179,6 @@ void LayerSplit::slotLayerSplit()
         updater->setProgress(100);
 
         dbgKrita << "Created" << colorMap.size() << "layers";
-//        Q_FOREACH (const Layer &l, colorMap) {
-//            dbgKrita << "\t" << l.device->objectName() << ":" << l.pixelsWritten;
-//        }
 
         if (dlg.sortLayers()) {
             std::sort(colorMap.begin(), colorMap.end());
@@ -196,7 +191,6 @@ void LayerSplit::slotLayerSplit()
         if(modeToLayer){
             KisGroupLayerSP baseGroup = dynamic_cast<KisGroupLayer*>(node->parent().data());
             if (!baseGroup) {
-                // Masks are never nested
                 baseGroup = dynamic_cast<KisGroupLayer*>(node->parent()->parent().data());
             }
 

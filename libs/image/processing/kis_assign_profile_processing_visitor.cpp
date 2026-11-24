@@ -20,7 +20,6 @@
 #include "kis_time_span.h"
 #include <QSet>
 
-
 KisAssignProfileProcessingVisitor::KisAssignProfileProcessingVisitor(const KoColorSpace *srcColorSpace,
                                                                      const KoColorSpace *dstColorSpace)
     : m_srcColorSpace(srcColorSpace)
@@ -28,7 +27,6 @@ KisAssignProfileProcessingVisitor::KisAssignProfileProcessingVisitor(const KoCol
 
 {
 }
-
 
 void KisAssignProfileProcessingVisitor::visitExternalLayer(KisExternalLayer *layer, KisUndoAdapter *undoAdapter)
 {

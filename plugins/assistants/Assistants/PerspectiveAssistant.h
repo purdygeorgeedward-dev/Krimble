@@ -49,16 +49,11 @@ protected:
     void drawCache(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool assistantVisible=true) override;
 private:
     QPointF project(const QPointF& pt, const QPointF& strokeBegin, const bool snapToAnyDirection, qreal moveThresholdPt);
-    // creates the convex hull, returns false if it's not a quadrilateral
-    // finds the transform from perspective coordinates (a unit square) to the document
     bool getTransform(QPolygonF& polyOut, QTransform& transformOut) const;
     explicit PerspectiveAssistant(const PerspectiveAssistant &rhs, QMap<KisPaintingAssistantHandleSP, KisPaintingAssistantHandleSP> &handleMap);
 
-    // The number of subdivisions to draw
     int m_subdivisions {8};
-    // which direction to snap to (in transformed coordinates)
     QLineF m_snapLine;
-    // cached information
     mutable QTransform m_cachedTransform;
     mutable QPolygonF m_cachedPolygon;
     mutable QPointF m_cachedPoints[4];

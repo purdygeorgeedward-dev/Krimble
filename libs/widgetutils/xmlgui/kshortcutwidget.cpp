@@ -12,11 +12,9 @@ class KisKShortcutWidgetPrivate
 public:
     KisKShortcutWidgetPrivate(KisKShortcutWidget *q) : q(q) {}
 
-//private slots
     void priKeySequenceChanged(const QKeySequence &);
     void altKeySequenceChanged(const QKeySequence &);
 
-//members
     KisKShortcutWidget *const q;
     Ui::KisKShortcutWidget ui;
     QList<QKeySequence> cut;
@@ -65,21 +63,18 @@ QList<QKeySequence> KisKShortcutWidget::shortcut() const
     return ret;
 }
 
-
 void KisKShortcutWidget::setCheckActionCollections(const QList<KisKActionCollection *> &actionCollections)
 {
     d->ui.priEditor->setCheckActionCollections(actionCollections);
     d->ui.altEditor->setCheckActionCollections(actionCollections);
 }
 
-//slot
 void KisKShortcutWidget::applyStealShortcut()
 {
     d->ui.priEditor->applyStealShortcut();
     d->ui.altEditor->applyStealShortcut();
 }
 
-//slot
 void KisKShortcutWidget::setShortcut(const QList<QKeySequence> &newSc)
 {
     if (newSc == d->cut) {
@@ -101,13 +96,11 @@ void KisKShortcutWidget::setShortcut(const QList<QKeySequence> &newSc)
     Q_EMIT shortcutChanged(d->cut);
 }
 
-//slot
 void KisKShortcutWidget::clearShortcut()
 {
     setShortcut(QList<QKeySequence>());
 }
 
-//private slot
 void KisKShortcutWidgetPrivate::priKeySequenceChanged(const QKeySequence &seq)
 {
     if (cut.isEmpty()) {
@@ -121,7 +114,6 @@ void KisKShortcutWidgetPrivate::priKeySequenceChanged(const QKeySequence &seq)
     }
 }
 
-//private slot
 void KisKShortcutWidgetPrivate::altKeySequenceChanged(const QKeySequence &seq)
 {
     if (cut.size() <= 1) {

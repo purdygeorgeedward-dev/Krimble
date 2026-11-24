@@ -29,11 +29,7 @@
 
 #include "rsliderspinbox.h"
 
-// C++ includes
-
 #include <cmath>
-
-// Qt includes
 
 #include <QPainter>
 #include <QStyle>
@@ -101,7 +97,6 @@ RAbstractSliderSpinBox::RAbstractSliderSpinBox(QWidget* const parent, RAbstractS
     d->edit->hide();
     d->edit->installEventFilter(this);
 
-    // Make edit transparent
     d->edit->setAutoFillBackground(false);
     QPalette pal = d->edit->palette();
     pal.setColor(QPalette::Base, Qt::transparent);
@@ -115,11 +110,9 @@ RAbstractSliderSpinBox::RAbstractSliderSpinBox(QWidget* const parent, RAbstractS
 
     setExponentRatio(1.0);
 
-    // Set sane defaults
     setFocusPolicy(Qt::StrongFocus);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    // dummy needed to fix a bug in the polyester theme
     d->dummySpinBox = new QSpinBox(this);
     d->dummySpinBox->hide();
 }
@@ -158,10 +151,7 @@ void RAbstractSliderSpinBox::paintEvent(QPaintEvent* e)
 
     QPainter painter(this);
 
-    // Create options to draw spin box parts
     QStyleOptionSpinBox spinOpts = spinBoxOptions();
-
-    // Draw "SpinBox".Clip off the area of the lineEdit to avoid double borders being drawn
 
     painter.save();
     painter.setClipping(true);
@@ -172,14 +162,10 @@ void RAbstractSliderSpinBox::paintEvent(QPaintEvent* e)
     painter.setClipping(false);
     painter.restore();
 
-
-    // Create options to draw progress bar parts
     QStyleOptionProgressBar progressOpts = progressBarOptions();
 
-    // Draw "ProgressBar" in SpinBox
     style()->drawControl(QStyle::CE_ProgressBar, &progressOpts, &painter, 0);
 
-    // Draw focus if necessary
     if (hasFocus() && d->edit->hasFocus())
     {
         QStyleOptionFocusRect focusOpts;
@@ -194,8 +180,6 @@ void RAbstractSliderSpinBox::mousePressEvent(QMouseEvent* e)
 {
     Q_D(RAbstractSliderSpinBox);
     QStyleOptionSpinBox spinOpts = spinBoxOptions();
-
-    // Depress buttons or highlight slider. Also used to emulate mouse grab.
 
     if (e->buttons() & Qt::LeftButton)
     {
@@ -221,8 +205,6 @@ void RAbstractSliderSpinBox::mouseReleaseEvent(QMouseEvent* e)
     Q_D(RAbstractSliderSpinBox);
     QStyleOptionSpinBox spinOpts = spinBoxOptions();
 
-    // Step up/down for buttons. Emulating mouse grab too.
-
     if (upButtonRect(spinOpts).contains(e->pos()) && d->upButtonDown)
     {
         setInternalValue(d->value + d->singleStep);
@@ -235,7 +217,6 @@ void RAbstractSliderSpinBox::mouseReleaseEvent(QMouseEvent* e)
              !(d->edit->isVisible())                   &&
              !(d->upButtonDown || d->downButtonDown))
     {
-        // Snap to percentage for progress area
         setInternalValue(valueForX(e->pos().x(),e->modifiers()));
     }
 
@@ -262,7 +243,6 @@ void RAbstractSliderSpinBox::mouseMoveEvent(QMouseEvent* e)
         d->shiftMode = false;
     }
 
-    // Respect emulated mouse grab.
     if (e->buttons() & Qt::LeftButton && !(d->downButtonDown || d->upButtonDown))
     {
         setInternalValue(valueForX(e->pos().x(),e->modifiers()));
@@ -288,7 +268,7 @@ void RAbstractSliderSpinBox::keyPressEvent(QKeyEvent* e)
             d->shiftPercent = pow( double(d->value - d->minimum)/double(d->maximum - d->minimum), 1/double(d->exponentRatio) );
             d->shiftMode = true;
             break;
-        case Qt::Key_Enter: // Line edit isn't "accepting" key strokes...
+        case Qt::Key_Enter:
         case Qt::Key_Return:
         case Qt::Key_Escape:
         case Qt::Key_Control:
@@ -361,13 +341,8 @@ QSize RAbstractSliderSpinBox::sizeHint() const
     QStyleOptionSpinBox spinOpts = spinBoxOptions();
     QFontMetrics fm(font());
 
-    // We need at least 50 pixels or things start to look bad
     int w = qMax(fm.horizontalAdvance(QString::number(d->maximum)), 50);
     QSize hint(w, d->edit->sizeHint().height() + 3);
-
-    // Getting the size of the buttons is a pain as the calcs require a rect
-    // that is "big enough". We run the calc twice to get the "smallest" buttons
-    // This code was inspired by QAbstractSpinBox.
 
     QSize extra(35, 6);
     spinOpts.rect.setSize(hint + extra);
@@ -399,7 +374,6 @@ QStyleOptionSpinBox RAbstractSliderSpinBox::spinBoxOptions() const
     opts.buttonSymbols = QAbstractSpinBox::UpDownArrows;
     opts.subControls   = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
 
-    // Disable non-logical buttons
     if (d->value == d->minimum)
     {
         opts.stepEnabled = QAbstractSpinBox::StepUpEnabled;
@@ -413,7 +387,6 @@ QStyleOptionSpinBox RAbstractSliderSpinBox::spinBoxOptions() const
         opts.stepEnabled = QAbstractSpinBox::StepUpEnabled | QAbstractSpinBox::StepDownEnabled;
     }
 
-    // Deal with depressed buttons
     if (d->upButtonDown)
     {
         opts.activeSubControls = QStyle::SC_SpinBoxUp;
@@ -436,8 +409,6 @@ QStyleOptionProgressBar RAbstractSliderSpinBox::progressBarOptions() const
 
     QStyleOptionSpinBox spinOpts = spinBoxOptions();
 
-    // Create opts for drawing the progress portion
-
     QStyleOptionProgressBar progressOpts;
     progressOpts.initFrom(this);
     progressOpts.maximum       = d->maximum;
@@ -451,7 +422,6 @@ QStyleOptionProgressBar RAbstractSliderSpinBox::progressBarOptions() const
     progressOpts.textAlignment = Qt::AlignCenter;
     progressOpts.textVisible   = !(d->edit->isVisible());
 
-    // Change opts rect to be only the ComboBox's text area
     progressOpts.rect          = editRect(spinOpts);
 
     return progressOpts;
@@ -487,30 +457,23 @@ int RAbstractSliderSpinBox::valueForX(int x, Qt::KeyboardModifiers modifiers) co
     QStyleOptionSpinBox spinOpts = spinBoxOptions();
     QStyleOptionProgressBar progressOpts = progressBarOptions();
 
-    // Adjust for magic number in style code (margins)
     QRect correctedProgRect = progressRect(progressOpts).adjusted(2, 2, -2, -2);
 
-    // Compute the distance of the progress bar, in pixel
     double leftDbl  = correctedProgRect.left();
     double xDbl     = x - leftDbl;
 
-    // Compute the ration of the progress bar used, linearly (ignoring the exponent)
     double rightDbl = correctedProgRect.right();
     double minDbl   = d->minimum;
     double maxDbl   = d->maximum;
     double dValues  = (maxDbl - minDbl);
     double percent  = (xDbl / (rightDbl - leftDbl));
 
-    // If SHIFT is pressed, movement should be slowed.
     if ( modifiers & Qt::ShiftModifier )
     {
         percent = d->shiftPercent + (percent - d->shiftPercent) * d->slowFactor;
     }
 
-    // Final value
     double realvalue = ((dValues * pow(percent, d->exponentRatio)) + minDbl);
-
-    // If key CTRL is pressed, round to the closest step.
 
     if ( modifiers & Qt::ControlModifier )
     {
@@ -524,7 +487,6 @@ int RAbstractSliderSpinBox::valueForX(int x, Qt::KeyboardModifiers modifiers) co
         realvalue = floor((realvalue + fstep / 2) / fstep) * fstep;
     }
 
-    // Return the value
     return int(realvalue);
 }
 
@@ -548,7 +510,6 @@ void RAbstractSliderSpinBox::contextMenuEvent(QContextMenuEvent* event)
 
 void RAbstractSliderSpinBox::editLostFocus()
 {
-    // only hide on focus lost, if editing is finished that will be handled in eventFilter
     Q_D(RAbstractSliderSpinBox);
 
     if (!d->edit->hasFocus())
@@ -556,8 +517,6 @@ void RAbstractSliderSpinBox::editLostFocus()
         hideEdit();
     }
 }
-
-// ---------------------------------------------------------------------------------------------
 
 class RSliderSpinBoxPrivate : public RAbstractSliderSpinBoxPrivate
 {
@@ -655,8 +614,6 @@ void RSliderSpinBox::setInternalValue(int _value)
     emit(valueChanged(value()));
 }
 
-// ---------------------------------------------------------------------------------------------
-
 class RDoubleSliderSpinBoxPrivate : public RAbstractSliderSpinBoxPrivate
 {
 };
@@ -678,12 +635,8 @@ void RDoubleSliderSpinBox::setRange(double minimum, double maximum, int decimals
     d->minimum = minimum * d->factor;
     d->maximum = maximum * d->factor;
 
-    // This code auto-compute a new step when pressing control.
-    // A flag defaulting to "do not change the fast step" should be added, but it implies changing every call
-
     if (maximum - minimum >= 2.0 || decimals <= 0)
     {
-        //Quick step on integers
         d->fastSliderStep = int(pow(10.0, decimals));
     }
     else if(decimals == 1)
@@ -768,4 +721,4 @@ void RDoubleSliderSpinBox::setInternalValue(int val)
     emit(valueChanged(value()));
 }
 
-}  // namespace KDcrawIface
+}

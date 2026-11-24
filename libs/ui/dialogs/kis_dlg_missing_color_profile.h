@@ -31,4 +31,4 @@ private:
     QButtonGroup colorProfiles;
 };
 
-#endif // KIS_DLG_PASTE_FORMAT_H
+#endif

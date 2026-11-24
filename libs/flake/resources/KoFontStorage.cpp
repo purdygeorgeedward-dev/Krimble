@@ -18,7 +18,7 @@ class FontTagIterator : public KisResourceStorage::TagIterator
 {
 public:
 
-    FontTagIterator(QVector<KisTagSP> /*tags*/, const QString &resourceType)
+    FontTagIterator(QVector<KisTagSP> , const QString &resourceType)
         : m_resourceType(resourceType)
     {
     }
@@ -128,7 +128,6 @@ KoResourceSP KoFontStorage::resource(const QString &url)
 
 bool KoFontStorage::supportsVersioning() const
 {
-    // Even though it doesn't make sense, this needs to support versioning, otherwise the thumbnail is never updated...
     return true;
 }
 
@@ -149,7 +148,6 @@ bool KoFontStorage::isValid() const
 
 bool KoFontStorage::loadVersionedResource(KoResourceSP resource)
 {
-    //Q_UNUSED(resource);
     resource->updateThumbnail();
     return true;
 }

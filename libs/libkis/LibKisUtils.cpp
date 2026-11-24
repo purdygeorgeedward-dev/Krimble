@@ -36,8 +36,6 @@
 #include "TransparencyMask.h"
 #include "TransformMask.h"
 
-
-
 QList<Node *> LibKisUtils::createNodeList(KisNodeList kisnodes, KisImageWSP image)
 {
     QList <Node*> nodes;

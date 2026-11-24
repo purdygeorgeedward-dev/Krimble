@@ -6,7 +6,6 @@
 #ifndef KIS_DEFORM_OPTION_DATA_H
 #define KIS_DEFORM_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -46,4 +45,4 @@ struct KisDeformOptionData : boost::equality_comparable<KisDeformOptionData>
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-#endif // KIS_DEFORM_OPTION_DATA_H
+#endif

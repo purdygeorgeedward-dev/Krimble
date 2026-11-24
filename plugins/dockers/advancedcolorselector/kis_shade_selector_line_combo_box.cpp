@@ -22,7 +22,6 @@
 
 #include "kis_global.h"
 
-
 KisShadeSelectorLineComboBox::KisShadeSelectorLineComboBox(QWidget *parent) :
     QComboBox(parent),
     m_popup(new KisShadeSelectorLineComboBoxPopup(this)),
@@ -124,7 +123,6 @@ void KisShadeSelectorLineComboBox::updateSettings()
 
     setLineHeight(m_currentLine->m_lineHeight);
 }
-
 
 void KisShadeSelectorLineComboBox::setGradient(bool b)
 {

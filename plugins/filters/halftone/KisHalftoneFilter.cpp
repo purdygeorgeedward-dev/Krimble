@@ -81,7 +81,7 @@ void KisHalftoneFilter::processImpl(KisPaintDeviceSP device,
           mode == KisHalftoneFilterConfiguration::HalftoneMode_IndependentChannels ||
           mode == KisHalftoneFilterConfiguration::HalftoneMode_Alpha))
     );
-    
+
     if (mode == KisHalftoneFilterConfiguration::HalftoneMode_Intensity) {
         KIS_SAFE_ASSERT_RECOVER_RETURN(
             device->colorSpace()->colorModelId().id() != AlphaColorModelID.id()
@@ -100,11 +100,8 @@ void KisHalftoneFilter::processImpl(KisPaintDeviceSP device,
         );
         if (filterConfig->colorModelId() == AlphaColorModelID.id())
         {
-            // This an Alpha layer (mask layer) but the device passed
-            // here has the composition color space (GrayA)
             processMask(device, applyRect, filterConfig, progressUpdater);
         } else {
-            // process the alpha channel of a multichannel device
             processAlpha(device, applyRect, filterConfig, progressUpdater);
         }
     }
@@ -156,7 +153,6 @@ KisPaintDeviceSP KisHalftoneFilter::makeGeneratorPaintDevice(KisPaintDeviceSP pr
     KisFilterConfigurationSP generatorConfiguration = config->generatorConfiguration(prefix);
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(generatorConfiguration, nullptr);
 
-    // Fill the generator device
     KisPaintDeviceSP generatorDevice = m_grayDevicesCache.getDevice(prototype, KoColorSpaceRegistry::instance()->graya8());
 
     KisProcessingInformation(generatorDevice, applyRect.topLeft(), KisSelectionSP());
@@ -172,8 +168,6 @@ KisPaintDeviceSP KisHalftoneFilter::makeGeneratorPaintDevice(KisPaintDeviceSP pr
 
 bool KisHalftoneFilter::checkUpdaterInterruptedAndSetPercent(KoUpdater *progressUpdater, int percent) const
 {
-    // The updater is null so return false to keep going
-    // with the computations
     if (!progressUpdater) {
         return false;
     }
@@ -196,8 +190,7 @@ void KisHalftoneFilter::processIntensity(KisPaintDeviceSP device,
     if (checkUpdaterInterruptedAndSetPercent(progressUpdater, 0)) {
         return;
     }
-    
-    // Make the generator device
+
     KisPaintDeviceSP generatorDevice = makeGeneratorPaintDevice(device, prefix, applyRect, config, nullptr);
     if (!generatorDevice) {
         return;
@@ -206,12 +199,10 @@ void KisHalftoneFilter::processIntensity(KisPaintDeviceSP device,
         return;
     }
 
-    // Make the hardness and the noise weight LUT
     const qreal hardness = config->hardness(prefix) / 100.0;
     const QVector<quint8> hardnessLut = makeHardnessLut(hardness);
     const QVector<quint8> noiseWeightLut = makeNoiseWeightLut(hardness);
 
-    // Fill the mask device
     KisSelectionSP maskDevice = m_selectionsCache.getSelection();
 
     {
@@ -227,10 +218,8 @@ void KisHalftoneFilter::processIntensity(KisPaintDeviceSP device,
                 int srcGray = srcIterator.rawData()[0];
                 int srcAlpha = srcIterator.rawData()[1];
 
-                // Combine pixels
                 int result = qBound(0, dstGray + (srcGray - 128) * noiseWeightLut[dstGray] * srcAlpha / 0xFE01, 255);
 
-                // Apply hardness
                 result = hardnessLut[result];
 
                 *maskIterator.rawData() = 255 - result;
@@ -241,10 +230,8 @@ void KisHalftoneFilter::processIntensity(KisPaintDeviceSP device,
                 int srcGray = srcIterator.rawData()[0];
                 int srcAlpha = srcIterator.rawData()[1];
 
-                // Combine pixels
                 int result = qBound(0, dstGray + (srcGray - 128) * noiseWeightLut[dstGray] * srcAlpha / 0xFE01, 255);
 
-                // Apply hardness
                 result = hardnessLut[result];
 
                 *maskIterator.rawData() = result;
@@ -256,7 +243,6 @@ void KisHalftoneFilter::processIntensity(KisPaintDeviceSP device,
         return;
     }
 
-    // Make the halftone image
     const KoColorSpace *colorSpace;
     if (device->colorSpace()->profile()->isLinear()) {
         colorSpace = KoColorSpaceRegistry::instance()->rgb8();
@@ -264,7 +250,7 @@ void KisHalftoneFilter::processIntensity(KisPaintDeviceSP device,
         colorSpace = device->colorSpace();
     }
     KisPaintDeviceSP halftoneDevice = m_genericDevicesCache.getDevice(device, colorSpace);
-    
+
     {
         KisPaintDeviceSP foregroundDevice = m_genericDevicesCache.getDevice(device, colorSpace);
         KoColor foregroundColor = config->foregroundColor(prefix);
@@ -290,7 +276,6 @@ void KisHalftoneFilter::processIntensity(KisPaintDeviceSP device,
         return;
     }
 
-    // Make the final image
     {
         KisPainter painter(halftoneDevice);
         painter.setCompositeOpId(COMPOSITE_DESTINATION_IN);
@@ -317,12 +302,10 @@ void KisHalftoneFilter::processChannel(KisPaintDeviceSP device,
                                        KoChannelInfo * channelInfo) const
 {
     const int channelPos = channelInfo->pos() / sizeof(ChannelType);
-    // Make the hardness and the noise weight LUT
     const qreal hardness = config->hardness(prefix) / 100.0;
     const QVector<quint8> hardnessLut = makeHardnessLut(hardness);
     const QVector<quint8> noiseWeightLut = makeNoiseWeightLut(hardness);
 
-    // Fill the device
     const bool invert = config->invert(prefix);
     KisSequentialIterator dstIterator(device, applyRect);
     KisSequentialIterator srcIterator(generatorDevice, applyRect);
@@ -339,10 +322,8 @@ void KisHalftoneFilter::processChannel(KisPaintDeviceSP device,
                 src = device->colorSpace()->scaleToU8(c.data(), 0);
                 srcAlpha = device->colorSpace()->scaleToU8(c.data(), device->colorSpace()->alphaPos());
 
-                // Combine pixels
                 int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] * srcAlpha / 0xFE01, 255);
 
-                // Apply hardness
                 result = hardnessLut[result];
 
                 ChannelType *dstPixel = reinterpret_cast<ChannelType*>(dstIterator.rawData());
@@ -359,10 +340,8 @@ void KisHalftoneFilter::processChannel(KisPaintDeviceSP device,
                 src = device->colorSpace()->scaleToU8(c.data(), 0);
                 srcAlpha = device->colorSpace()->scaleToU8(c.data(), device->colorSpace()->alphaPos());
 
-                // Combine pixels
                 int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] * srcAlpha / 0xFE01, 255);
 
-                // Apply hardness
                 result = hardnessLut[result];
 
                 ChannelType *dstPixel = reinterpret_cast<ChannelType*>(dstIterator.rawData());
@@ -378,10 +357,8 @@ void KisHalftoneFilter::processChannel(KisPaintDeviceSP device,
                 int src = srcIterator.rawData()[0];
                 int srcAlpha = srcIterator.rawData()[1];
 
-                // Combine pixels
                 int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] * srcAlpha / 0xFE01, 255);
 
-                // Apply hardness
                 result = hardnessLut[result];
 
                 ChannelType *dstPixel = reinterpret_cast<ChannelType*>(dstIterator.rawData());
@@ -395,10 +372,8 @@ void KisHalftoneFilter::processChannel(KisPaintDeviceSP device,
                 int src = srcIterator.rawData()[0];
                 int srcAlpha = srcIterator.rawData()[1];
 
-                // Combine pixels
                 int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] * srcAlpha / 0xFE01, 255);
 
-                // Apply hardness
                 result = hardnessLut[result];
 
                 ChannelType *dstPixel = reinterpret_cast<ChannelType*>(dstIterator.rawData());
@@ -422,7 +397,6 @@ void KisHalftoneFilter::processChannels(KisPaintDeviceSP device,
         return;
     }
 
-    // Make the generator devices
     QVector<KisPaintDeviceSP> generatorDevices(channels.count());
     for (int i = 0; i < channels.count(); ++i) {
         if (channels.at(i)->channelType() == KoChannelInfo::ALPHA) {
@@ -442,7 +416,6 @@ void KisHalftoneFilter::processChannels(KisPaintDeviceSP device,
         }
     }
 
-    // process channels
     for (int i = 0; i < channels.count(); ++i) {
         if (!generatorDevices[i]) {
             progressUpdater->setProgress(progressUpdater->progress() + progressStep);
@@ -501,12 +474,11 @@ void KisHalftoneFilter::processAlpha(KisPaintDeviceSP device,
                                      KoUpdater *progressUpdater) const
 {
     const QString prefix = "alpha_";
-    
+
     if (checkUpdaterInterruptedAndSetPercent(progressUpdater, 0)) {
         return;
     }
 
-    // Make the generator device
     KisPaintDeviceSP generatorDevice = makeGeneratorPaintDevice(device, prefix, applyRect, config, nullptr);
     if (!generatorDevice) {
         return;
@@ -515,12 +487,10 @@ void KisHalftoneFilter::processAlpha(KisPaintDeviceSP device,
         return;
     }
 
-    // Make the hardness and the noise weight LUT
     const qreal hardness = config->hardness(prefix) / 100.0;
     const QVector<quint8> hardnessLut = makeHardnessLut(hardness);
     const QVector<quint8> noiseWeightLut = makeNoiseWeightLut(hardness);
 
-    // Fill the device
     const bool invert = config->invert(prefix);
     KisSequentialIterator dstIterator(device, applyRect);
     KisSequentialIterator srcIterator(generatorDevice, applyRect);
@@ -531,10 +501,8 @@ void KisHalftoneFilter::processAlpha(KisPaintDeviceSP device,
             int src = srcIterator.rawData()[0];
             int srcAlpha = srcIterator.rawData()[1];
 
-            // Combine pixels
             int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] * srcAlpha / 0xFE01, 255);
 
-            // Apply hardness
             result = hardnessLut[result];
 
             device->colorSpace()->setOpacity(dstIterator.rawData(), static_cast<quint8>(255 - result), 1);
@@ -545,10 +513,8 @@ void KisHalftoneFilter::processAlpha(KisPaintDeviceSP device,
             int src = srcIterator.rawData()[0];
             int srcAlpha = srcIterator.rawData()[1];
 
-            // Combine pixels
             int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] * srcAlpha / 0xFE01, 255);
 
-            // Apply hardness
             result = hardnessLut[result];
 
             device->colorSpace()->setOpacity(dstIterator.rawData(), static_cast<quint8>(result), 1);
@@ -567,12 +533,11 @@ void KisHalftoneFilter::processMask(KisPaintDeviceSP device,
                                     KoUpdater *progressUpdater) const
 {
     const QString prefix = "alpha_";
-    
+
     if (checkUpdaterInterruptedAndSetPercent(progressUpdater, 0)) {
         return;
     }
 
-    // Make the generator device
     KisPaintDeviceSP generatorDevice = makeGeneratorPaintDevice(device, prefix, applyRect, config, nullptr);
     if (!generatorDevice) {
         return;
@@ -581,12 +546,10 @@ void KisHalftoneFilter::processMask(KisPaintDeviceSP device,
         return;
     }
 
-    // Make the hardness and the noise weight LUT
     const qreal hardness = config->hardness(prefix) / 100.0;
     const QVector<quint8> hardnessLut = makeHardnessLut(hardness);
     const QVector<quint8> noiseWeightLut = makeNoiseWeightLut(hardness);
 
-    // Fill the device
     const bool invert = config->invert(prefix);
     KisSequentialIterator dstIterator(device, applyRect);
     KisSequentialIterator srcIterator(generatorDevice, applyRect);
@@ -596,10 +559,8 @@ void KisHalftoneFilter::processMask(KisPaintDeviceSP device,
             int dst = 255 - *dstIterator.rawData();
             int src = *srcIterator.rawData();
 
-            // Combine pixels
             int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] / 0xFF, 255);
 
-            // Apply hardness
             result = hardnessLut[result];
 
             *dstIterator.rawData() = static_cast<quint8>(255 - result);
@@ -609,10 +570,8 @@ void KisHalftoneFilter::processMask(KisPaintDeviceSP device,
             int dst = *dstIterator.rawData();
             int src = *srcIterator.rawData();
 
-            // Combine pixels
             int result = qBound(0, dst + (src - 128) * noiseWeightLut[dst] / 0xFF, 255);
 
-            // Apply hardness
             result = hardnessLut[result];
 
             *dstIterator.rawData() =  static_cast<quint8>(result);
@@ -629,13 +588,12 @@ KisFilterConfigurationSP KisHalftoneFilter::defaultConfiguration(KisResourcesInt
 {
     KisHalftoneFilterConfigurationSP filterConfig =
         dynamic_cast<KisHalftoneFilterConfiguration*>(factoryConfiguration(resourcesInterface).data());
-        
+
     filterConfig->setMode(KisHalftoneFilterConfiguration::defaultMode());
 
     QString defaultGeneratorId = KisHalftoneFilterConfiguration::defaultGeneratorId();
     KisGeneratorSP defaultGenerator = KisGeneratorRegistry::instance()->get(defaultGeneratorId);
 
-    // intensity
     filterConfig->setGeneratorId("intensity_", defaultGeneratorId);
     if (defaultGenerator) {
         KisFilterConfigurationSP defaultGeneratorConfiguration =
@@ -652,8 +610,7 @@ KisFilterConfigurationSP KisHalftoneFilter::defaultConfiguration(KisResourcesInt
     filterConfig->setForegroundOpacity("intensity_", KisHalftoneFilterConfiguration::defaultForegroundOpacity());
     filterConfig->setBackgroundColor("intensity_", KisHalftoneFilterConfiguration::defaultBackgroundColor());
     filterConfig->setBackgroundOpacity("intensity_", KisHalftoneFilterConfiguration::defaultBackgroundOpacity());
-    
-    // Alpha
+
     filterConfig->setGeneratorId("alpha_", defaultGeneratorId);
     if (defaultGenerator) {
         KisFilterConfigurationSP defaultGeneratorConfiguration =
@@ -667,10 +624,6 @@ KisFilterConfigurationSP KisHalftoneFilter::defaultConfiguration(KisResourcesInt
     filterConfig->setHardness("alpha_", KisHalftoneFilterConfiguration::defaultHardness());
     filterConfig->setInvert("alpha_", KisHalftoneFilterConfiguration::defaultInvert());
 
-    // The channels only use default generator if it is screentone
-    // because there are predefined ways of presenting the patterns (screen angles)
-
-    // Map channel prefixes to rotation angle
     QHash<QString, qreal> channelDict;
     channelDict.insert("RGBA_channel0_", 15.0);
     channelDict.insert("RGBA_channel1_", 45.0);
@@ -694,7 +647,7 @@ KisFilterConfigurationSP KisHalftoneFilter::defaultConfiguration(KisResourcesInt
         filterConfig->setHardness(i.key(), KisHalftoneFilterConfiguration::defaultHardness());
         filterConfig->setInvert(i.key(), KisHalftoneFilterConfiguration::defaultInvert());
     }
-    
+
     return filterConfig;
 }
 

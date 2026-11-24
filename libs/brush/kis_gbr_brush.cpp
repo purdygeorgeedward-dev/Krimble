@@ -31,37 +31,33 @@
 #include "kis_image.h"
 
 struct GimpBrushV1Header {
-    quint32 header_size;  /*  header_size = sizeof (BrushHeader) + brush name  */
-    quint32 version;      /*  brush file version #  */
-    quint32 width;        /*  width of brush  */
-    quint32 height;       /*  height of brush  */
-    quint32 bytes;        /*  depth of brush in bytes */
+    quint32 header_size;
+    quint32 version;
+    quint32 width;
+    quint32 height;
+    quint32 bytes;
 };
 
-/// All fields are in MSB on disk!
 struct GimpBrushHeader {
-    quint32 header_size;  /*  header_size = sizeof (BrushHeader) + brush name  */
-    quint32 version;      /*  brush file version #  */
-    quint32 width;        /*  width of brush  */
-    quint32 height;       /*  height of brush  */
-    quint32 bytes;        /*  depth of brush in bytes */
+    quint32 header_size;
+    quint32 version;
+    quint32 width;
+    quint32 height;
+    quint32 bytes;
 
-    /*  The following are only defined in version 2 */
-    quint32 magic_number; /*  GIMP brush magic number  */
-    quint32 spacing;      /*  brush spacing as % of width & height, 0 - 1000 */
+    quint32 magic_number;
+    quint32 spacing;
 };
 
-// Needed, or the GIMP won't open it!
 quint32 const GimpV2BrushMagic = ('G' << 24) + ('I' << 16) + ('M' << 8) + ('P' << 0);
-
 
 struct KisGbrBrush::Private {
 
     QByteArray data;
-    quint32 header_size;  /*  header_size = sizeof (BrushHeader) + brush name  */
-    quint32 version;      /*  brush file version #  */
-    quint32 bytes;        /*  depth of brush in bytes */
-    quint32 magic_number; /*  GIMP brush magic number  */
+    quint32 header_size;
+    quint32 version;
+    quint32 bytes;
+    quint32 magic_number;
 };
 
 #define DEFAULT_SPACING 0.25
@@ -155,7 +151,6 @@ bool KisGbrBrush::init()
     d->magic_number = bh.magic_number;
 
     if (bh.version == 1) {
-        // No spacing in version 1 files so use Gimp default
         bh.spacing = static_cast<int>(DEFAULT_SPACING * 100);
     }
     else {
@@ -177,14 +172,10 @@ bool KisGbrBrush::init()
     QString name;
 
     if (bh.version == 1) {
-        // Version 1 has no magic number or spacing, so the name
-        // is at a different offset. Character encoding is undefined.
         const char *text = d->data.constData() + sizeof(GimpBrushV1Header);
         name = QString::fromLatin1(text, bh.header_size - sizeof(GimpBrushV1Header) - 1);
     }
     else {
-        // ### Version = 3->cinepaint; may be float16 data!
-        // Version >=2: UTF-8 encoding is used
         name = QString::fromUtf8(d->data.constData() + sizeof(GimpBrushHeader),
                                  bh.header_size - sizeof(GimpBrushHeader) - 1);
     }
@@ -218,7 +209,6 @@ bool KisGbrBrush::init()
         QVector<QRgb> table;
         for (int i = 0; i < 256; ++i) table.append(qRgb(i, i, i));
         image.setColorTable(table);
-        // Grayscale
 
         if (static_cast<qint32>(k + bh.width * bh.height) > d->data.size()) {
             qWarning() << filename()  << "GBR file dimensions bigger than bytearray size. Header:"<< k << "Width:" << bh.width << "height" << bh.height
@@ -239,7 +229,6 @@ bool KisGbrBrush::init()
             }
         }
     } else if (bh.bytes == 4) {
-        // RGBA
 
         if (static_cast<qint32>(k + (bh.width * bh.height * 4)) > d->data.size()) {
             qWarning() << filename()  << "GBR file dimensions bigger than bytearray size. Header:"<< k << "Width:" << bh.width << "height" << bh.height
@@ -268,7 +257,7 @@ bool KisGbrBrush::init()
     setWidth(image.width());
     setHeight(image.height());
     if (!d->data.isEmpty()) {
-        d->data.clear(); // Save some memory, we're using enough of it as it is.
+        d->data.clear();
     }
     setValid(image.width() != 0 && image.height() != 0);
     setBrushTipImage(image);
@@ -277,8 +266,6 @@ bool KisGbrBrush::init()
 
 bool KisGbrBrush::initFromPaintDev(KisPaintDeviceSP image, int x, int y, int w, int h)
 {
-    // Forcefully convert to RGBA8
-    // XXX profile and exposure?
     setBrushTipImage(image->convertToQImage(0, x, y, w, h, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags()));
     setName(image->objectName());
 
@@ -295,16 +282,15 @@ bool KisGbrBrush::saveToDevice(QIODevice* dev) const
         return false;
     }
     GimpBrushHeader bh;
-    QByteArray utf8Name = name().toUtf8(); // Names in v2 brushes are in UTF-8
+    QByteArray utf8Name = name().toUtf8();
     char const* name = utf8Name.data();
     int nameLength = qstrlen(name);
     int wrote;
 
     bh.header_size = qToBigEndian((quint32)sizeof(GimpBrushHeader) + nameLength + 1);
-    bh.version = qToBigEndian((quint32)2); // Only RGBA8 data needed atm, no cinepaint stuff
+    bh.version = qToBigEndian((quint32)2);
     bh.width = qToBigEndian((quint32)width());
     bh.height = qToBigEndian((quint32)height());
-    // Hardcoded, 4 bytes RGBA or 1 byte GREY
     if (!isImageType()) {
         bh.bytes = qToBigEndian((quint32)1);
     }
@@ -314,7 +300,6 @@ bool KisGbrBrush::saveToDevice(QIODevice* dev) const
     bh.magic_number = qToBigEndian((quint32)GimpV2BrushMagic);
     bh.spacing = qToBigEndian(static_cast<quint32>(spacing() * 100.0));
 
-    // Write header: first bh, then the name
     QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<char*>(&bh), sizeof(GimpBrushHeader));
     wrote = dev->write(bytes);
     bytes.clear();
@@ -338,14 +323,13 @@ bool KisGbrBrush::saveToDevice(QIODevice* dev) const
         for (qint32 y = 0; y < height(); y++) {
             for (qint32 x = 0; x < width(); x++) {
                 QRgb c = image.pixel(x, y);
-                bytes[k++] = static_cast<char>(255 - qRed(c)); // red == blue == green
+                bytes[k++] = static_cast<char>(255 - qRed(c));
             }
         }
     } else {
         bytes.resize(width() * height() * 4);
         for (qint32 y = 0; y < height(); y++) {
             for (qint32 x = 0; x < width(); x++) {
-                // order for gimp brushes, v2 is: RGBA
                 QRgb pixel = image.pixel(x, y);
                 bytes[k++] = static_cast<char>(qRed(pixel));
                 bytes[k++] = static_cast<char>(qGreen(pixel));
@@ -392,9 +376,6 @@ void KisGbrBrush::makeMaskImage(bool preserveAlpha)
             for (int x = 0; x < imageWidth; x++) {
                 QRgb c = pixel[x];
                 float alpha = qAlpha(c) / 255.0f;
-                // linear interpolation with maximum gray value which is transparent in the mask
-                //int a = (qGray(c) * alpha) + ((1.0 - alpha) * 255);
-                // single multiplication version
                 int a = 255 + int(alpha * (qGray(c) - 255));
                 dstPixel[x] = (uchar)a;
             }

@@ -66,12 +66,10 @@ public:
     }
 
     inline bool overlaps(const KisTimeSpan& other) const {
-        // If either are "invalid", we should probably return false.
         if (!isValid() || !other.isValid()) {
             return false;
         }
 
-        // Handle infinite cases...
         if (other.isInfinite()) {
             return (other.contains(start()) || other.contains(end()));
         } else if (isInfinite()) {
@@ -173,11 +171,8 @@ namespace KisDomUtils {
     bool KRITAIMAGE_EXPORT loadValue(const QDomElement &parent, const QString &tag, KisTimeSpan *range);
 }
 
-
-
 Q_DECLARE_METATYPE(KisTimeSpan)
 
 KRITAIMAGE_EXPORT QDebug operator<<(QDebug dbg, const KisTimeSpan &r);
 
-
-#endif /* __KIS_TIME_RANGE_H */
+#endif

@@ -29,10 +29,6 @@
 class QRect;
 struct DecorationLine;
 
-
-/**
- * Crop tool
- */
 class KisToolCrop : public KisTool
 {
 
@@ -243,7 +239,5 @@ private Q_SLOTS:
 
 };
 
-
-
-#endif // KIS_TOOL_CROP_H_
+#endif
 

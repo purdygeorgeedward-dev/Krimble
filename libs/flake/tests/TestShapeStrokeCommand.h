@@ -15,4 +15,4 @@ private Q_SLOTS:
     void refCounting();
 };
 
-#endif // TESTSHAPESTROKECOMMAND_H
+#endif

@@ -39,7 +39,6 @@ public:
     static constexpr const char *HalftoneMode_IndependentChannels = "independent_channels";
     static constexpr const char *HalftoneMode_Alpha = "alpha";
 
-    // default properties
     inline static QString defaultMode() { return HalftoneMode_Intensity; }
 
     inline static QString defaultGeneratorId()

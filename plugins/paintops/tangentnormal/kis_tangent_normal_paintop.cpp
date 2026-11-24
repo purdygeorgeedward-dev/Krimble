@@ -21,7 +21,6 @@
 #include <kis_lod_transform.h>
 #include <kis_paintop_plugin_utils.h>
 
-
 KisTangentNormalPaintOp::KisTangentNormalPaintOp(const KisPaintOpSettingsSP settings, KisPainter* painter, KisNodeSP node, KisImageSP image)
     : KisBrushBasedPaintOp(settings, painter)
     , m_tangentTiltOption(settings.data())
@@ -38,7 +37,6 @@ KisTangentNormalPaintOp::KisTangentNormalPaintOp(const KisPaintOpSettingsSP sett
 
 {
     Q_UNUSED(image);
-    //Init, read settings, etc//
     m_airbrushData.read(settings.data());
 
     m_dabCache->setSharpnessPostprocessing(&m_sharpnessOption);
@@ -47,16 +45,10 @@ KisTangentNormalPaintOp::KisTangentNormalPaintOp(const KisPaintOpSettingsSP sett
 
 KisTangentNormalPaintOp::~KisTangentNormalPaintOp()
 {
-    //destroy things here//
 }
 
 KisSpacingInformation KisTangentNormalPaintOp::paintAt(const KisPaintInformation& info)
 {
-    /*
-     * For the color, the precision of tilt is only 60x60, and the precision of direction and rotation are 360 and 360*90.
-     * You can't get more precise than 8bit. Therefore, we will check if the current space is RGB,
-     * if so we request a profile with that space and 8bit bit depth, if not, just sRGB
-     */
     KoColor currentColor = painter()->paintColor();
     QString currentSpace = currentColor.colorSpace()->colorModelId().id();
     const KoColorSpace* rgbColorSpace = KoColorSpaceRegistry::instance()->rgb8();
@@ -69,34 +61,32 @@ KisSpacingInformation KisTangentNormalPaintOp::paintAt(const KisPaintInformation
     qreal r, g, b;
 
     if (currentColor.colorSpace()->colorDepthId().id()=="F16" || currentColor.colorSpace()->colorDepthId().id()=="F32"){
-        channelValues[0] = 0.5;//red
-        channelValues[1] = 0.5;//green
-        channelValues[2] = 1.0;//blue
-        channelValues[3] = 1.0;//alpha, leave alone.
-
+        channelValues[0] = 0.5;
+        channelValues[1] = 0.5;
+        channelValues[2] = 1.0;
+        channelValues[3] = 1.0;
 
         m_tangentTiltOption.apply(info, &r, &g, &b);
 
-        channelValues[0] = r;//red
-        channelValues[1] = g;//green
-        channelValues[2] = b;//blue
+        channelValues[0] = r;
+        channelValues[1] = g;
+        channelValues[2] = b;
     } else {
-        channelValues[0] = 1.0;//blue
-        channelValues[1] = 0.5;//green
-        channelValues[2] = 0.5;//red
-        channelValues[3] = 1.0;//alpha, leave alone.
+        channelValues[0] = 1.0;
+        channelValues[1] = 0.5;
+        channelValues[2] = 0.5;
+        channelValues[3] = 1.0;
 
         m_tangentTiltOption.apply(info, &r, &g, &b);
 
-        channelValues[0] = b;//blue
-        channelValues[1] = g;//green
-        channelValues[2] = r;//red
+        channelValues[0] = b;
+        channelValues[1] = g;
+        channelValues[2] = r;
     }
 
     quint8 data[MAX_PIXEL_SIZE];
     rgbColorSpace->fromNormalisedChannelsValue(data, channelValues);
-    KoColor color(data, rgbColorSpace);//Should be default RGB(0.5,0.5,1.0)
-    //draw stuff here, return kisspacinginformation.
+    KoColor color(data, rgbColorSpace);
     KisBrushSP brush = m_brush;
 
     if (!painter()->device() || !brush || !brush->canPaintFor(info)) {
@@ -108,7 +98,6 @@ KisSpacingInformation KisTangentNormalPaintOp::paintAt(const KisPaintInformation
     qreal rotation = m_rotationOption.apply(info);
     if (checkSizeTooSmall(scale)) return KisSpacingInformation();
     KisDabShape shape(scale, 1.0, rotation);
-
 
     QPointF cursorPos =
             m_scatterOption.apply(info,
@@ -125,22 +114,16 @@ KisSpacingInformation KisTangentNormalPaintOp::paintAt(const KisPaintInformation
 
     QRect dabRect = m_maskDab->bounds();
 
-    // sanity check
     Q_ASSERT(m_dstDabRect.size() == dabRect.size());
     Q_UNUSED(dabRect);
 
     qreal  oldOpacityF = painter()->opacityF();
     QString oldCompositeOpId = painter()->compositeOpId();
 
-
     m_opacityOption.apply(painter(), info);
-    //paint with the default color? Copied this from color smudge.//
-    //painter()->setCompositeOp(COMPOSITE_COPY);
-    //painter()->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), color);
     painter()->bltFixed(m_dstDabRect.topLeft(), m_maskDab, m_maskDab->bounds());
     painter()->renderMirrorMaskSafe(m_dstDabRect, m_maskDab, !m_dabCache->needSeparateOriginal());
 
-    // restore original opacity and composite mode values
     painter()->setOpacityF(oldOpacityF);
     painter()->setCompositeOpId(oldCompositeOpId);
 
@@ -189,28 +172,27 @@ void KisTangentNormalPaintOp::paintLine(const KisPaintInformation& pi1, const Ki
         qreal r, g, b;
 
         if (currentColor.colorSpace()->colorDepthId().id()=="F16" || currentColor.colorSpace()->colorDepthId().id()=="F32"){
-            channelValues[0] = 0.5;//red
-            channelValues[1] = 0.5;//green
-            channelValues[2] = 1.0;//blue
-            channelValues[3] = 1.0;//alpha, leave alone.
-
+            channelValues[0] = 0.5;
+            channelValues[1] = 0.5;
+            channelValues[2] = 1.0;
+            channelValues[3] = 1.0;
 
             m_tangentTiltOption.apply(pi2, &r, &g, &b);
 
-            channelValues[0] = r;//red
-            channelValues[1] = g;//green
-            channelValues[2] = b;//blue
+            channelValues[0] = r;
+            channelValues[1] = g;
+            channelValues[2] = b;
         } else {
-            channelValues[0] = 1.0;//blue
-            channelValues[1] = 0.5;//green
-            channelValues[2] = 0.5;//red
-            channelValues[3] = 1.0;//alpha, leave alone.
+            channelValues[0] = 1.0;
+            channelValues[1] = 0.5;
+            channelValues[2] = 0.5;
+            channelValues[3] = 1.0;
 
             m_tangentTiltOption.apply(pi2, &r, &g, &b);
 
-            channelValues[0] = b;//blue
-            channelValues[1] = g;//green
-            channelValues[2] = r;//red
+            channelValues[0] = b;
+            channelValues[1] = g;
+            channelValues[2] = r;
         }
 
         quint8 data[4];

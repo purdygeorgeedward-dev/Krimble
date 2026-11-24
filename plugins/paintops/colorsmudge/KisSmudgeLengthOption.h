@@ -27,4 +27,4 @@ private:
     KisSmudgeLengthOptionData::Mode m_mode {KisSmudgeLengthOptionData::SMEARING_MODE};
 };
 
-#endif // KISSMUDGELENGTHOPTION_H
+#endif

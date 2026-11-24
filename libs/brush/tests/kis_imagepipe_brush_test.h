@@ -27,4 +27,4 @@ private:
     void checkConsistency(KisImagePipeBrushSP brush);
 };
 
-#endif /* __KIS_IMAGEPIPE_BRUSH_TEST_H */
+#endif

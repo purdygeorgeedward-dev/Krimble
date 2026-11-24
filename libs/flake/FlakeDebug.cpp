@@ -12,4 +12,3 @@ const QLoggingCategory &FLAKE_LOG() \
     return category;
 }
 
-

@@ -7,11 +7,9 @@
 #ifndef KISTEXTUREMASKINFO_H
 #define KISTEXTUREMASKINFO_H
 
-
 #include <kis_paint_device.h>
 #include <QSharedPointer>
 #include <QMutex>
-
 
 #include <boost/operators.hpp>
 
@@ -82,4 +80,4 @@ private:
     QSharedPointer<KisTextureMaskInfo> m_mainInfo;
 };
 
-#endif // KISTEXTUREMASKINFO_H
+#endif

@@ -66,8 +66,6 @@ public:
     void init(KoDualColorButton *q);
 };
 
-
-
 void KoDualColorButton::Private::init(KoDualColorButton *q)
 {
     if ( q->sizeHint().isValid() )
@@ -104,15 +102,15 @@ void KoDualColorButton::updateArrows() {
     QColor windowText = d->dialogParent->palette().windowText().color();
 
     arrowBitmap = KisIconUtils::loadIcon("swap_arrow").pixmap(12,12);
-    
+
     QPainter pen(&arrowBitmap);
-    
+
     pen.setCompositionMode(QPainter::CompositionMode_SourceIn);
     pen.fillRect(arrowBitmap.rect(),windowText);
     pen.end();
 
     resetArrowPixmap = KisIconUtils::loadIcon("reset_arrow").pixmap(10,12);
-    
+
     pen.begin(&resetArrowPixmap);
 
     pen.setCompositionMode(QPainter::CompositionMode_SourceIn);
@@ -149,10 +147,6 @@ void KoDualColorButton::setForegroundColor(const KoColor &color)
 {
     d->foregroundColor = color;
     if (d->colorDialogState && d->colorDialogState->selection == Foreground) {
-        /**
-         * The internal color selector might Q_EMIT the color of a different profile, so
-         * we should break this cycling dependency somehow.
-         */
         KisSignalsBlocker b(d->colorSelectorDialog);
         d->colorSelectorDialog->slotColorUpdated(color);
     }
@@ -164,10 +158,6 @@ void KoDualColorButton::setBackgroundColor( const KoColor &color )
     d->backgroundColor = color;
 
     if (d->colorDialogState && d->colorDialogState->selection == Background) {
-        /**
-         * The internal color selector might Q_EMIT the color of a different profile, so
-         * we should break this cycling dependency somehow.
-         */
         KisSignalsBlocker b(d->colorSelectorDialog);
         d->colorSelectorDialog->slotColorUpdated(color);
     }
@@ -240,7 +230,6 @@ void KoDualColorButton::paint_icons(QPainter &painter){
     painter.drawPixmap( 1, foregroundRect.bottom() + 2, resetPixmap );
 }
 
-
 void KoDualColorButton::dragEnterEvent( QDragEnterEvent *event )
 {
     event->setAccepted( isEnabled() && KColorMimeData::canDecode( event->mimeData() ) );
@@ -288,7 +277,6 @@ void KoDualColorButton::openForegroundDialog()
     if (krimbleOpenColorLab(false)) return;
     d->colorDialogState.emplace();
     d->colorDialogState->selection = Foreground;
-    // TODO: fix cyclic connections in a proper way
     d->colorDialogState->connections.addUniqueConnection(d->colorSelectorDialog, SIGNAL(signalForegroundColorChosen(KoColor)), this, SLOT(slotSetForegroundColorFromDialog(KoColor)));
     d->colorDialogState->connections.addUniqueConnection(this, SIGNAL(foregroundColorChanged(KoColor)), d->colorSelectorDialog, SLOT(slotColorUpdated(KoColor)));
     d->colorSelectorDialog->slotColorUpdated(d->foregroundColor);
@@ -302,7 +290,6 @@ void KoDualColorButton::openBackgroundDialog()
     if (krimbleOpenColorLab(true)) return;
     d->colorDialogState.emplace();
     d->colorDialogState->selection = Background;
-    // TODO: fix cyclic connections in a proper way
     d->colorDialogState->connections.addUniqueConnection(d->colorSelectorDialog, SIGNAL(signalForegroundColorChosen(KoColor)), this, SLOT(slotSetBackgroundColorFromDialog(KoColor)));
     d->colorDialogState->connections.addUniqueConnection(this, SIGNAL(backgroundColorChanged(KoColor)), d->colorSelectorDialog, SLOT(slotColorUpdated(KoColor)));
     d->colorSelectorDialog->slotColorUpdated(d->backgroundColor);
@@ -367,12 +354,11 @@ void KoDualColorButton::mousePressEvent( QMouseEvent *event )
     }
     else if ( event->pos().x() < backgroundRect.x() ) {
         ResetColours();
-        
+
         d->miniCtlFlag = true;
     }
     update();
 }
-
 
 void KoDualColorButton::ResetColours()
 {
@@ -418,7 +404,6 @@ void KoDualColorButton::mouseReleaseEvent( QMouseEvent *event )
 
     d->miniCtlFlag = false;
 
-
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("colorselector");
     bool usePlatformDialog = cfg.readEntry("UsePlatformColorDialog", false);
 
@@ -442,9 +427,6 @@ void KoDualColorButton::mouseReleaseEvent( QMouseEvent *event )
 
     update();
 }
-
-
-
 
 void KoDualColorButton::changeEvent(QEvent *event)
 {

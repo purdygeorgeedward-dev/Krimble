@@ -11,13 +11,6 @@
 
 #include "kritaglobal_export.h"
 
-/**
- * To show debug output, start krita like:
- *
- * QT_LOGGING_RULES="*.*=false;krita.metadata.*=true;krita.file.*=true"
- *
- */
-
 extern const KRITAGLOBAL_EXPORT QLoggingCategory &_30009();
 extern const KRITAGLOBAL_EXPORT QLoggingCategory &_30010();
 extern const KRITAGLOBAL_EXPORT QLoggingCategory &_41000();
@@ -122,38 +115,9 @@ extern const KRITAGLOBAL_EXPORT QLoggingCategory &_41018();
 #define errOpenGL qCDebug(_41015)
 #define errMetaData qCDebug(_41016)
 
-// Qt does not yet define qCFatal (TODO: this is an oversight, submit a patch upstream)
-/*
-#define fatalResources qCFatal(_30009)
-#define fatalKrita qCFatal(_41000)
-#define fatalImage qCFatal(_41001)
-#define fatalRegistry qCFatal(_41002)
-#define fatalTools qCFatal(_41003)
-#define fatalTiles qCFatal(_41004)
-#define fatalFilters qCFatal(_41005)
-#define fatalPlugins qCFatal(_41006)
-#define fatalUI qCFatal(_41007)
-#define fatalFile qCFatal(_41008)
-#define fatalMath qCFatal(_41009)
-#define fatalRender qCFatal(_41010)
-#define fatalScript qCFatal(_41011)
-#define fatalInput qCFatal(_41012)
-#define fatalAction qCDebug(_41013)
-*/
-
-
-/**
- * Show a nicely formatted backtrace.
- */
 KRITAGLOBAL_EXPORT QString kisBacktrace();
 
-/**
- * Please pretty print my variable
- *
- * Use this macro to display in the output stream the name of a variable followed by its value.
- */
 #define ppVar( var ) #var << "=" << (var)
-
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 #  ifndef QT_NO_DEBUG

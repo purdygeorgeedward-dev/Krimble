@@ -124,11 +124,6 @@ void TimelineNodeListKeeper::updateActiveDummy(KisNodeDummy *dummy)
 
 void TimelineNodeListKeeper::slotUpdateDummyContent(QPointer<KisNodeDummy> dummy)
 {
-    /**
-     * The dummy object has been destroyed in the meantime, while the
-     * event was hanging in the queue. We shouldn't try to dereference/update
-     * it anymore, since the whole layer has already been removed
-     */
     if (!dummy) return;
 
     int pos = m_d->converter.rowForDummy(dummy);
@@ -159,9 +154,6 @@ void TimelineNodeListKeeper::Private::tryConnectDummy(KisNodeDummy *dummy)
         channelConnectionsStore.addConnection(channel, &KisKeyframeChannel::sigAnyKeyframeChange,
                                               q,
                                               [this, safeDummyPointer ] () {
-                                                  // make sure that the pointer is invalidated when
-                                                  // the dummy is destroyed, it might happen on
-                                                  // reordering of the signals
                                                   q->slotUpdateDummyContent(safeDummyPointer);
                                               });
     }

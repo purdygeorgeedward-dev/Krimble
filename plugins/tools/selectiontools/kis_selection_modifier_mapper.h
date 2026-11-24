@@ -7,10 +7,6 @@
 #ifndef KIS_SELECTION_MODIFIER_MAPPER_H_
 #define KIS_SELECTION_MODIFIER_MAPPER_H_
 
-/**
- * See KisToolSelectBase for usage.
- */
-
 #include "kis_selection.h"
 #include <QScopedPointer>
 

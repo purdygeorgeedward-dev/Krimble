@@ -17,17 +17,6 @@ class QButtonGroup;
 class QWidgetAction;
 class QWidget;
 
-/**
- * KRIMBLE 2026-10-04: the "Type Options" toolbar, a horizontal bar of the most used text controls (font and
- * style, size, alignment) that is shown under the menu bar while the Type tool is active, like the options bar
- * of the industry-standard editors. The controls are widget actions in the normal action collection, so the
- * toolbar "TypeOptionsBar" in krita5.xmlgui (and "Customize Toolbar") can place and rearrange them. They
- * read and write through the same text properties interface (KoSvgTextPropertiesInterface) as the Text
- * Properties panel, so the two always agree.
- *
- * First version: Font and Style, Size, Align left / center / right. (Orientation, anti-aliasing, color, panel
- * button and cancel / confirm are not made yet.)
- */
 class KisTypeOptionsBar : public QObject
 {
     Q_OBJECT
@@ -57,4 +46,4 @@ private:
     bool m_updating {false};
 };
 
-#endif // KISTYPEOPTIONSBAR_H
+#endif

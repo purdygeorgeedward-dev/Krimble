@@ -29,4 +29,4 @@ private:
     KisMetaData::FilterRegistryModel m_filterRegistryModel;
 };
 
-#endif // DLG_WEBP_EXPORT_H
+#endif

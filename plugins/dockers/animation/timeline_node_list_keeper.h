@@ -20,7 +20,6 @@ class KisNodeDummy;
 class KisDummiesFacadeBase;
 class KisNodeDisplayModeAdapter;
 
-
 class KRITAANIMATIONDOCKER_EXPORT TimelineNodeListKeeper : public QObject
 {
     Q_OBJECT
@@ -29,7 +28,6 @@ public:
 
     struct OtherLayer;
     typedef QList<OtherLayer> OtherLayersList;
-
 
     TimelineNodeListKeeper(ModelWithExternalNotifications *model,
                            KisDummiesFacadeBase *dummiesFacade,
@@ -105,4 +103,4 @@ private:
 
 Q_DECLARE_METATYPE( TimelineNodeListKeeper::OtherLayersList )
 
-#endif /* __TIMELINE_NODE_LIST_KEEPER_H */
+#endif

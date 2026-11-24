@@ -70,8 +70,6 @@ KisTimingInformation KisParticlePaintOp::updateTimingImpl(const KisPaintInformat
 void KisParticlePaintOp::paintLine(const KisPaintInformation &pi1, const KisPaintInformation &pi2,
                                    KisDistanceInformation *currentDistance)
 {
-    // Use superclass behavior for lines of zero length. Otherwise, airbrushing can happen faster
-    // than it is supposed to.
     if (pi1.pos() == pi2.pos()) {
         KisPaintOp::paintLine(pi1, pi2, currentDistance);
     } else {
@@ -89,7 +87,6 @@ void KisParticlePaintOp::doPaintLine(const KisPaintInformation &pi1, const KisPa
     else {
         m_dab->clear();
     }
-
 
     if (m_first) {
         m_particleBrush.setInitialPosition(pi1.pos());

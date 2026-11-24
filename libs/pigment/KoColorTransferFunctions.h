@@ -13,18 +13,6 @@
 
 #include <KoAlwaysInline.h>
 
-/**
- * @brief The KoColorTransferFunctions class
- *
- * A number of often used transferFunctions.
- *
- * These functions can, at the time of writing, not be implemented
- * in ICC profiles, so instead, we apply or remove the curve as
- * necessary.
- */
-
-// Not all embedded nclx color space definitions can be converted to icc, so we
-// keep an enum to load those.
 enum class LinearizePolicy { KeepTheSame, LinearFromPQ, LinearFromHLG, LinearFromSMPTE428 };
 
 static constexpr uint16_t max12bit = 4095.f;
@@ -61,17 +49,12 @@ ALWAYS_INLINE float removeSmpte2048Curve(float x, float refWhite = 203.0) noexce
     return res * (10000.0f/refWhite);
 }
 
-// From ITU Bt. 2390-8 pg. 31, this calculates the gamma for the nominal peak.
-// This may differ per display regardless, but this is a good baseline.
 ALWAYS_INLINE float HLGOOTFGamma(float nominalPeak) noexcept
 {
     const float k = 1.111f;
     return 1.2f * powf(k, log2f(nominalPeak * (1.f / 1000.0f)));
 }
 
-// The HLG OOTF needs to be applied to convert from 'display linear' to 'scene linear'.
-// Krita doesn't support sending tagged HLG to the display, so we have to pretend
-// we're always converting from PQ to HLG.
 ALWAYS_INLINE void applyHLGOOTF(float *rgb,
                                 const double *lumaCoefficients,
                                 float gamma = 1.2f,
@@ -86,9 +69,6 @@ ALWAYS_INLINE void applyHLGOOTF(float *rgb,
     rgb[2] *= a;
 }
 
-// The HLG OOTF needs to be removed to convert from 'scene linear' to 'display linear'.
-// Krita doesn't support sending tagged HLG to the display, so we have to pretend
-// we're always converting from HLG to PQ.
 ALWAYS_INLINE void removeHLGOOTF(float *rgb,
                                  const double *lumaCoefficients,
                                  float gamma = 1.2f,
@@ -109,8 +89,6 @@ ALWAYS_INLINE float applyHLGCurve(float x) noexcept
     const float b = 0.28466892f;
     const float c = 0.55991073f;
 
-    /// This scales everything so that diffuse white is at 75~%,
-    /// as per BT.2408, pg 4-5, and BT. 2390 pg. 52-53.
     const float scale =  (1.0f / 3.7743f);
 
     float val = x * scale;
@@ -132,7 +110,6 @@ ALWAYS_INLINE float removeHLGCurve(float x) noexcept
     const float scale = 3.7743f;
 
     if (x <= 0.5f) {
-        // return (powf(x, 2.0) / 3.0);
         return ((x * x) / 3.0f) * scale;
     } else {
         return ((expf((x - c) * (1.f / a)) + b) * (1.f / 12.0f)) * scale;
@@ -194,6 +171,6 @@ struct KoColorTransferFunctions {
     }
 };
 
-#endif // !defined(XSIMD_NO_SUPPORTED_ARCHITECTURE)
+#endif
 
-#endif // KOCOLORTRANSFERFUNCTIONS_H
+#endif

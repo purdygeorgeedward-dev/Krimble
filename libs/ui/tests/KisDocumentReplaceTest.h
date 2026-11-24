@@ -25,4 +25,4 @@ private:
     KisDocument *m_doc;
 };
 
-#endif // KIS_DOCUMENT_REPLACE_TEST_H_
+#endif

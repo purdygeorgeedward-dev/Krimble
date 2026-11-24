@@ -10,7 +10,6 @@
 
 #include <QObject>
 
-
 #include "kis_types.h"
 #include <KisImportExportErrorCode.h>
 class KisDocument;

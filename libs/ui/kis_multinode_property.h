@@ -28,10 +28,6 @@ class MultinodePropertyBaseConnector;
 template <class PropertyAdapter> class MultinodePropertyBoolConnector;
 template <class PropertyAdapter> class KisMultinodeProperty;
 
-/******************************************************************/
-/*               Adapters                                         */
-/******************************************************************/
-
 struct BaseAdapter {
     static KisNodeList filterNodes(KisNodeList nodes) { return nodes; }
 
@@ -254,7 +250,6 @@ struct ChannelFlagAdapter : public BaseAdapter {
             }
         }
 
-
         const QList<KoChannelInfo*> channels = nodes.first()->colorSpace()->channels();
 
         int index = 0;
@@ -283,28 +278,15 @@ private:
     Property m_prop;
 };
 
-/******************************************************************/
-/*               MultinodePropertyConnectorInterface              */
-/******************************************************************/
-
 class KRITAUI_EXPORT MultinodePropertyConnectorInterface : public QObject
 {
     Q_OBJECT
 public:
     ~MultinodePropertyConnectorInterface() override;
 
-    /**
-     * Public interface
-     */
     virtual void connectIgnoreCheckBox(QCheckBox *ignoreBox) = 0;
     void connectValueChangedSignal(const QObject *receiver, const char *method, Qt::ConnectionType type = Qt::AutoConnection);
 
-    /**
-     * Clicking on this widget will automatically enable it,
-     * setting "Ignored" property to false.
-     *
-     * Default implementation does nothing.
-     */
     virtual void connectAutoEnableWidget(QWidget *widget);
 
 Q_SIGNALS:
@@ -314,16 +296,9 @@ protected Q_SLOTS:
     virtual void slotIgnoreCheckBoxChanged(int state) = 0;
 
 public:
-    /**
-     * Interface for KisMultinodeProperty's notifications
-     */
     virtual void notifyValueChanged();
     virtual void notifyIgnoreChanged() = 0;
 };
-
-/******************************************************************/
-/*               MultinodePropertyBaseConnector                   */
-/******************************************************************/
 
 class KRITAUI_EXPORT MultinodePropertyBaseConnector : public MultinodePropertyConnectorInterface
 {
@@ -342,10 +317,6 @@ private:
     QPointer<QCheckBox> m_ignoreBox;
     KisMultinodePropertyInterface *m_parent;
 };
-
-/******************************************************************/
-/*               MultinodePropertyBoolConnector                   */
-/******************************************************************/
 
 template <class PropertyAdapter>
 class MultinodePropertyBoolConnector : public MultinodePropertyConnectorInterface
@@ -371,7 +342,6 @@ public:
     }
 
     void notifyIgnoreChanged() override {
-        // noop
     }
 
     void notifyValueChanged() override {
@@ -401,10 +371,6 @@ private:
     QPointer<QCheckBox> m_ignoreBox;
     PropertyType *m_parent;
 };
-
-/******************************************************************/
-/*               MultinodePropertyUndoCommand                     */
-/******************************************************************/
 
 template <class PropertyAdapter>
 class MultinodePropertyUndoCommand : public KUndo2Command
@@ -448,10 +414,6 @@ private:
     ValueType m_newValue;
 };
 
-/******************************************************************/
-/*               KisMultinodePropertyInterface                    */
-/******************************************************************/
-
 class KRITAUI_EXPORT KisMultinodePropertyInterface
 {
 public:
@@ -475,10 +437,6 @@ public:
 };
 
 typedef QSharedPointer<KisMultinodePropertyInterface> KisMultinodePropertyInterfaceSP;
-
-/******************************************************************/
-/*               KisMultinodeProperty                             */
-/******************************************************************/
 
 template <class PropertyAdapter>
 class KisMultinodeProperty : public KisMultinodePropertyInterface
@@ -589,7 +547,6 @@ public:
                                                                  m_savedValues, m_currentValue);
     }
 
-    // TODO: disconnect methods...
     void connectIgnoreCheckBox(QCheckBox *ignoreBox) override {
         m_connector->connectIgnoreCheckBox(ignoreBox);
     }
@@ -601,10 +558,6 @@ public:
     void connectAutoEnableWidget(QWidget *widget) override {
         m_connector->connectAutoEnableWidget(widget);
     }
-
-    /**
-     * Interface for the connector
-     */
 
     bool savedValuesDiffer() const override {
         return m_savedValuesDiffer;
@@ -631,10 +584,9 @@ private:
     QScopedPointer<MultinodePropertyConnectorInterface> m_connector;
 };
 
-
 typedef KisMultinodeProperty<CompositeOpAdapter> KisMultinodeCompositeOpProperty;
 typedef KisMultinodeProperty<OpacityAdapter> KisMultinodeOpacityProperty;
 typedef KisMultinodeProperty<NameAdapter> KisMultinodeNameProperty;
 typedef KisMultinodeProperty<ColorLabelAdapter> KisMultinodeColorLabelProperty;
 
-#endif /* __KIS_MULTINODE_PROPERTY_H */
+#endif

@@ -89,7 +89,6 @@ void KisAnimCurvesChannelsModel::setDummiesFacade(KisDummiesFacadeBase *facade)
 
 void KisAnimCurvesChannelsModel::selectedNodesChanged(const QList<KisNodeSP> &nodes)
 {
-    // Remove unselected nodes
     for (int i = m_d->items.count()-1; i >= 0; i--) {
         NodeListItem *item = m_d->items.at(i);
         if (item && item->dummy) {
@@ -112,7 +111,6 @@ void KisAnimCurvesChannelsModel::selectedNodesChanged(const QList<KisNodeSP> &no
         }
     }
 
-    // Add newly selected nodes
     Q_FOREACH(KisNodeSP node, nodes) {
         KisNodeDummy *dummy = m_d->dummiesFacade->dummyForNode(node);
         if (!dummy) continue;
@@ -215,14 +213,12 @@ QModelIndex KisAnimCurvesChannelsModel::index(int row, int column, const QModelI
     Q_UNUSED(column);
 
     if (!parent.isValid()) {
-        // Node
 
         NodeListItem *item = m_d->itemForRow(row);
         if (!item) return QModelIndex();
 
         return createIndex(row, column, ID_NODE);
     } else {
-        // Channel
         if (parent.parent().isValid()) return QModelIndex();
 
         NodeListItem *parentItem = m_d->itemForRow(parent.row());
@@ -244,14 +240,11 @@ QModelIndex KisAnimCurvesChannelsModel::parent(const QModelIndex &child) const
 int KisAnimCurvesChannelsModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
-        // Root
         return m_d->items.count();
     } else if (parent.internalId() == ID_NODE) {
-        // Node
         NodeListItem *item = m_d->itemForRow(parent.row());
         return item->curves.count();
     } else {
-        // Channel
         return 0;
     }
 }
@@ -337,7 +330,6 @@ bool KisAnimCurvesChannelsModel::setData(const QModelIndex &index, const QVarian
 
     return false;
 }
-
 
 void KisAnimCurvesChannelsModel::clear()
 {

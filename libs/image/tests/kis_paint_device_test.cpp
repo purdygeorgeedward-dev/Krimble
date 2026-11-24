@@ -32,7 +32,6 @@
 #include "testimage.h"
 #include "kis_default_bounds.h"
 
-
 class KisFakePaintDeviceWriter : public KisPaintDeviceWriter {
 public:
     KisFakePaintDeviceWriter(KoStore *store)
@@ -76,14 +75,12 @@ void KisPaintDeviceTest::testCreation()
     QVERIFY(dev->channelCount() == cs->channelCount());
     QVERIFY(dev->dataManager() != 0);
 
-    // Let the layer go out of scope and see what happens
     {
         KisPaintLayerSP l2 = new KisPaintLayer(image, "blabla", 250);
         dev = new KisPaintDevice(l2.data(), cs);
     }
 
 }
-
 
 void KisPaintDeviceTest::testStore()
 {
@@ -206,11 +203,9 @@ void KisPaintDeviceTest::testCrop()
 
     QVERIFY(dev->exactBounds() == QRect(-14, 8, 433, 512));
 
-    // Crop inside
     dev->crop(50, 50, 150, 150);
     QVERIFY(dev->exactBounds() == QRect(50, 50, 150, 150));
 
-    // Crop outside, pd should not grow
     dev->crop(0, 0, 1000, 1000);
     QVERIFY(dev->exactBounds() == QRect(50, 50, 150, 150));
 }
@@ -232,7 +227,6 @@ void KisPaintDeviceTest::testRoundtripReadWrite()
 
     dev2->convertToQImage(0, 0, 0, image.width(), image.height()).save("readwrite.png");
 
-
     QPoint pt;
     if (!TestUtil::comparePaintDevices(pt, dev, dev2)) {
         QFAIL(QString("Failed round trip using readBytes and writeBytes, first different pixel: %1,%2 ").arg(pt.x()).arg(pt.y()).toLatin1());
@@ -246,7 +240,7 @@ void KisPaintDeviceTest::testColorSpaceConversion()
     const KoColorSpace* dstCs = KoColorSpaceRegistry::instance()->lab16();
     KisPaintDeviceSP dev = new KisPaintDevice(srcCs);
     dev->convertFromQImage(image, 0);
-    dev->moveTo(10, 10);   // Unalign with tile boundaries
+    dev->moveTo(10, 10);
     KUndo2Command* cmd = new KUndo2Command();
     dev->convertTo(dstCs,
                    KoColorConversionTransformation::internalRenderingIntent(),
@@ -266,7 +260,6 @@ void KisPaintDeviceTest::testColorSpaceConversion()
 
     delete cmd;
 }
-
 
 void KisPaintDeviceTest::testRoundtripConversion()
 {
@@ -296,7 +289,6 @@ void KisPaintDeviceTest::testFastBitBlt()
     QRect cloneRect(100,100,200,200);
     QPoint errpoint;
 
-
     QVERIFY(dstDev->fastBitBltPossible(srcDev));
     dstDev->fastBitBlt(srcDev, cloneRect);
 
@@ -309,7 +301,6 @@ void KisPaintDeviceTest::testFastBitBlt()
         QFAIL(QString("Failed to create identical image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
     }
 
-    // Test Rough version
     dstDev->clear();
     dstDev->fastBitBltRough(srcDev, cloneRect);
 
@@ -429,7 +420,7 @@ void KisPaintDeviceTest::testCaching()
     QRect exactBounds4 = dev->exactBounds();
 
     QVERIFY(thumb1 != thumb2);
-    QVERIFY(thumb2 == thumb3); // Cache miss, but image is the same
+    QVERIFY(thumb2 == thumb3);
     QVERIFY(thumb3 != thumb4);
     QVERIFY(thumb4 != thumb1);
 
@@ -501,7 +492,6 @@ void KisPaintDeviceTest::testPlanarReadWrite()
     QCOMPARE((int)planes.size(), (int)dev->channelCount());
 
     for (int i = 0; i < 100*100; i++) {
-        // BGRA encoded
         QVERIFY(planes.at(2)[i] == 255);
         QVERIFY(planes.at(1)[i] == 200);
         QVERIFY(planes.at(0)[i] == 155);
@@ -530,7 +520,6 @@ void KisPaintDeviceTest::testPlanarReadWrite()
     QVERIFY(c1.blue() == 100);
     QVERIFY(c1.alpha() == 155);
 
-    // check if one of the planes is Null.
     Q_ASSERT(planes.size() == 4);
     delete [] planes[2];
     planes[2] = 0;
@@ -582,7 +571,6 @@ void KisPaintDeviceTest::testBltPerformance()
     << t.elapsed()
     << "ms";
 
-
 }
 
 void KisPaintDeviceTest::testDeviceDuplication()
@@ -596,14 +584,11 @@ void KisPaintDeviceTest::testDeviceDuplication()
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisPaintDeviceSP device = new KisPaintDevice(cs);
 
-//    dbgKrita<<"FILLING";
     device->fill(fillRect.left(), fillRect.top(),
                  fillRect.width(), fillRect.height(),fillPixel);
     referenceImage = device->convertToQImage(0);
 
-
     KisTransaction transaction1(device);
-//    dbgKrita<<"CLEARING";
     device->clear(clearRect);
 
     transaction1.revert();
@@ -614,7 +599,6 @@ void KisPaintDeviceTest::testDeviceDuplication()
     KisPaintDeviceSP clone =  new KisPaintDevice(*device);
 
     KisTransaction transaction(clone);
-//    dbgKrita<<"CLEARING";
     clone->clear(clearRect);
 
     transaction.revert();
@@ -643,7 +627,6 @@ void KisPaintDeviceTest::testTranslate()
 
 void KisPaintDeviceTest::testOpacity()
 {
-    // blt a semi-transparent image on a white paint device
 
     QImage image(QString(FILES_DATA_DIR) + '/' + "hakonepa_transparent.png");
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -681,8 +664,6 @@ void KisPaintDeviceTest::testExactBoundsWeirdNullAlphaCase()
     KoColor weirdColor(weirdPixelData, cs);
     dev->setPixel(6,6,weirdColor);
 
-    // such weird pixels should not change our opinion about
-    // device's size
     QCOMPARE(dev->exactBounds(), QRect(10,10,10,10));
 }
 
@@ -700,7 +681,6 @@ void KisPaintDeviceTest::benchmarkExactBoundsNullDefaultPixel()
     QRect measuredRect;
 
     QBENCHMARK {
-        // invalidate the cache
         dev->setDirty();
         measuredRect = dev->exactBounds();
     }
@@ -759,15 +739,10 @@ void KisPaintDeviceTest::testNonDefaultPixelArea()
     QCOMPARE(dev->exactBounds(), KisDefaultBounds::infiniteRect);
     QCOMPARE(dev->nonDefaultPixelArea(), fillRect);
 
-
-    // non-default pixel variant should also handle weird pixels
-
     const quint8 weirdPixelData[4] = {0,10,0,0};
     KoColor weirdColor(weirdPixelData, cs);
     dev->setPixel(100,100,weirdColor);
 
-    // such weird pixels should not change our opinion about
-    // device's size
     QCOMPARE(dev->exactBounds(), KisDefaultBounds::infiniteRect);
     QCOMPARE(dev->nonDefaultPixelArea(), fillRect | QRect(100,100,1,1));
 }
@@ -861,14 +836,12 @@ void checkReadWriteRoundTrip(KisPaintDeviceSP dev,
     deviceCopy->clear();
     QVERIFY(deviceCopy->extent().isEmpty());
 
-
     QScopedArrayPointer<quint8> buf2(new quint8[bufSize]);
     deviceCopy->writeBytes(buf1.data(), rc);
     deviceCopy->readBytes(buf2.data(), rc);
 
     QVERIFY(!memcmp(buf1.data(), buf2.data(), bufSize));
 }
-
 
 void KisPaintDeviceTest::testReadBytesWrapAround()
 {
@@ -889,7 +862,6 @@ void KisPaintDeviceTest::testReadBytesWrapAround()
                                               readRect.height() *
                                               pixelSize]);
         dev->readBytes(buf.data(), readRect);
-        //dev->convertToQImage(0, readRect.x(), readRect.y(), readRect.width(), readRect.height()).save("final1.png");
 
         QVERIFY(memcmp(buf.data() + (7 + readRect.width() * 7) * pixelSize, c2.data(), pixelSize));
         QVERIFY(!memcmp(buf.data() + (8 + readRect.width() * 8) * pixelSize, c2.data(), pixelSize));
@@ -901,13 +873,11 @@ void KisPaintDeviceTest::testReadBytesWrapAround()
     }
 
     {
-        // check weird case when the read rect is larger than wrap rect
         QRect readRect(10, 10, 30, 30);
         QScopedArrayPointer<quint8> buf(new quint8[readRect.width() *
                                               readRect.height() *
                                               pixelSize]);
         dev->readBytes(buf.data(), readRect);
-        //dev->convertToQImage(0, readRect.x(), readRect.y(), readRect.width(), readRect.height()).save("final2.png");
 
         QVERIFY(memcmp(buf.data() + (7 + readRect.width() * 7) * pixelSize, c2.data(), pixelSize));
         QVERIFY(!memcmp(buf.data() + (8 + readRect.width() * 8) * pixelSize, c2.data(), pixelSize));
@@ -928,13 +898,11 @@ void KisPaintDeviceTest::testReadBytesWrapAround()
     }
 
     {
-        // even more large
         QRect readRect(10, 10, 40, 40);
         QScopedArrayPointer<quint8> buf(new quint8[readRect.width() *
                                               readRect.height() *
                                               pixelSize]);
         dev->readBytes(buf.data(), readRect);
-        //dev->convertToQImage(0, readRect.x(), readRect.y(), readRect.width(), readRect.height()).save("final3.png");
 
         QVERIFY(memcmp(buf.data() + (7 + readRect.width() * 7) * pixelSize, c2.data(), pixelSize));
         QVERIFY(!memcmp(buf.data() + (8 + readRect.width() * 8) * pixelSize, c2.data(), pixelSize));
@@ -964,13 +932,11 @@ void KisPaintDeviceTest::testReadBytesWrapAround()
     }
 
     {
-        // check if the wrap rect contains the read rect entirely
         QRect readRect(1, 1, 10, 10);
         QScopedArrayPointer<quint8> buf(new quint8[readRect.width() *
                                               readRect.height() *
                                               pixelSize]);
         dev->readBytes(buf.data(), readRect);
-        //dev->convertToQImage(0, readRect.x(), readRect.y(), readRect.width(), readRect.height()).save("final4.png");
 
         QVERIFY(memcmp(buf.data() + (1 + readRect.width() * 1) * pixelSize, c1.data(), pixelSize));
         QVERIFY(!memcmp(buf.data() + (2 + readRect.width() * 2) * pixelSize, c1.data(), pixelSize));
@@ -979,13 +945,11 @@ void KisPaintDeviceTest::testReadBytesWrapAround()
     }
 
     {
-        // check if the wrap happens only on vertical side of the rect
         QRect readRect(1, 1, 29, 10);
         QScopedArrayPointer<quint8> buf(new quint8[readRect.width() *
                                               readRect.height() *
                                               pixelSize]);
         dev->readBytes(buf.data(), readRect);
-        //dev->convertToQImage(0, readRect.x(), readRect.y(), readRect.width(), readRect.height()).save("final5.png");
 
         QVERIFY(memcmp(buf.data() + (1 + readRect.width() * 1) * pixelSize, c1.data(), pixelSize));
         QVERIFY(!memcmp(buf.data() + (2 + readRect.width() * 2) * pixelSize, c1.data(), pixelSize));
@@ -997,13 +961,11 @@ void KisPaintDeviceTest::testReadBytesWrapAround()
     }
 
     {
-        // check if the wrap happens only on horizontal side of the rect
         QRect readRect(1, 1, 10, 29);
         QScopedArrayPointer<quint8> buf(new quint8[readRect.width() *
                                               readRect.height() *
                                               pixelSize]);
         dev->readBytes(buf.data(), readRect);
-        //dev->convertToQImage(0, readRect.x(), readRect.y(), readRect.width(), readRect.height()).save("final6.png");
 
         QVERIFY(memcmp(buf.data() + (1 + readRect.width() * 1) * pixelSize, c1.data(), pixelSize));
         QVERIFY(!memcmp(buf.data() + (2 + readRect.width() * 2) * pixelSize, c1.data(), pixelSize));
@@ -1171,7 +1133,6 @@ void testWrappedLineIterator(QString testName, const QRect &rect)
     const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb8();
     KisPaintDeviceSP dev = createWrapAroundPaintDevice(cs);
 
-    // test rect fits the wrap rect in both dimensions
     IteratorSP it = createIterator<IteratorSP>(dev, rect);
 
     int y = 0;
@@ -1222,7 +1183,6 @@ void testWrappedLineIteratorReadMoreThanBounds(QString testName)
     KisPaintDeviceSP dev = createWrapAroundPaintDevice(cs);
     KisPaintDeviceSP dst = new KisPaintDevice(cs);
 
-    // fill device with a gradient
     QRect bounds = dev->defaultBounds()->bounds();
     for (int y = bounds.y(); y < bounds.y() + bounds.height(); y++) {
         for (int x = bounds.x(); x < bounds.x() + bounds.width(); x++) {
@@ -1231,7 +1191,6 @@ void testWrappedLineIteratorReadMoreThanBounds(QString testName)
         }
     }
 
-    // test rect doesn't fit the wrap rect in both dimensions
     const QRect &rect(bounds.adjusted(-6,-6,8,8));
     KisRandomAccessorSP dstIt = dst->createRandomAccessorNG();
     IteratorSP it = createIterator<IteratorSP>(dev, rect);
@@ -1288,13 +1247,9 @@ void KisPaintDeviceTest::testMoveWrapAround()
     dev->setPixel(3, 3, c1);
     dev->setPixel(18, 18, c2);
 
-    // QRect rc = dev->defaultBounds()->bounds();
-
-    //dev->convertToQImage(0, rc.x(), rc.y(), rc.width(), rc.height()).save("move0.png");
     QCOMPARE(dev->exactBounds(), QRect(3,3,16,16));
     dev->moveTo(QPoint(10,10));
     QCOMPARE(dev->exactBounds(), QRect(8,8,6,6));
-    //dev->convertToQImage(0, rc.x(), rc.y(), rc.width(), rc.height()).save("move1.png");
 
 }
 
@@ -1302,10 +1257,8 @@ void KisPaintDeviceTest::testMoveWrapAround()
 
 #define NUM_TYPES 3
 
-// high-concurrency
 #define NUM_CYCLES 500000
 #define NUM_THREADS 4
-
 
 struct TestingCache : KisLockFreeCache<int> {
     int calculateNewValue() const override {
@@ -1361,7 +1314,6 @@ void KisPaintDeviceTest::testCacheState()
     CacheStressJob *job;
 
     for(qint32 i = 0; i < NUM_THREADS; i++) {
-        //job = new CacheStressJob(value, cacheValue, cacheState);
         job = new CacheStressJob(cache);
         job->setAutoDelete(true);
         jobsList.append(job);
@@ -1419,7 +1371,6 @@ void fillGradientDevice(KisPaintDeviceSP dev, const QRect &rect, bool flat = fal
     if (flat) {
         dev->fill(rect, KoColor(Qt::red, dev->colorSpace()));
     } else {
-        // fill device with a gradient
         KisSequentialIterator it(dev, rect);
         while (it.nextPixel()) {
             QColor c((10 * it.x()) & 0xFF, (10 * it.y()) & 0xFF, 0, 255);
@@ -1431,7 +1382,7 @@ void fillGradientDevice(KisPaintDeviceSP dev, const QRect &rect, bool flat = fal
 #include "kis_lod_transform.h"
 void KisPaintDeviceTest::testLodTransform()
 {
-    const int lod = 2; // round to 4
+    const int lod = 2;
     KisLodTransform t(lod);
 
     QRect rc1(-16, -16, 8, 8);
@@ -1464,9 +1415,6 @@ void KisPaintDeviceTest::testLodDevice()
     TestingLodDefaultBounds *bounds = new TestingLodDefaultBounds();
     dev->setDefaultBounds(bounds);
 
-    // fill device with a gradient
-    // QRect rect = dev->defaultBounds()->bounds();
-    // fillGradientDevice(dev, rect);
     fillGradientDevice(dev, QRect(50,50,30,30));
 
     QCOMPARE(dev->exactBounds(), QRect(50,50,30,30));
@@ -1475,7 +1423,7 @@ void KisPaintDeviceTest::testLodDevice()
 
     qDebug() << ppVar(dev->exactBounds());
     result = dev->convertToQImage(0,0,0,100,100);
-    /*QVERIFY*/(TestUtil::checkQImage(result, "paint_device_test",
+    (TestUtil::checkQImage(result, "paint_device_test",
                                   "lod", "initial"));
 
     bounds->testingSetLevelOfDetail(1);
@@ -1484,7 +1432,7 @@ void KisPaintDeviceTest::testLodDevice()
 
     qDebug() << ppVar(dev->exactBounds());
     result = dev->convertToQImage(0,0,0,100,100);
-    /*QVERIFY*/(TestUtil::checkQImage(result, "paint_device_test",
+    (TestUtil::checkQImage(result, "paint_device_test",
                                   "lod", "lod1"));
 
     bounds->testingSetLevelOfDetail(2);
@@ -1492,7 +1440,7 @@ void KisPaintDeviceTest::testLodDevice()
 
     qDebug() << ppVar(dev->exactBounds());
     result = dev->convertToQImage(0,0,0,100,100);
-    /*QVERIFY*/(TestUtil::checkQImage(result, "paint_device_test",
+    (TestUtil::checkQImage(result, "paint_device_test",
                                   "lod", "lod1"));
 
     syncLodCache(dev, 2);
@@ -1500,7 +1448,7 @@ void KisPaintDeviceTest::testLodDevice()
 
     qDebug() << ppVar(dev->exactBounds());
     result = dev->convertToQImage(0,0,0,100,100);
-    /*QVERIFY*/(TestUtil::checkQImage(result, "paint_device_test",
+    (TestUtil::checkQImage(result, "paint_device_test",
                                   "lod", "lod2"));
 
     bounds->testingSetLevelOfDetail(0);
@@ -1513,10 +1461,9 @@ void KisPaintDeviceTest::testLodDevice()
 
     QCOMPARE(dev->exactBounds(), QRect(35,30,15,15));
 
-
     qDebug() << ppVar(dev->exactBounds()) << ppVar(dev->x()) << ppVar(dev->y());
     result = dev->convertToQImage(0,0,0,100,100);
-    /*QVERIFY*/(TestUtil::checkQImage(result, "paint_device_test",
+    (TestUtil::checkQImage(result, "paint_device_test",
                                   "lod", "lod1-offset-6-14"));
 }
 
@@ -1528,7 +1475,6 @@ void KisPaintDeviceTest::benchmarkLod1Generation()
     TestingLodDefaultBounds *bounds = new TestingLodDefaultBounds(QRect(0,0,6000,4000));
     dev->setDefaultBounds(bounds);
 
-    // fill device with a gradient
     QRect rect = dev->defaultBounds()->bounds();
     fillGradientDevice(dev, rect, true);
 
@@ -1546,7 +1492,6 @@ void KisPaintDeviceTest::benchmarkLod2Generation()
     TestingLodDefaultBounds *bounds = new TestingLodDefaultBounds(QRect(0,0,6000,4000));
     dev->setDefaultBounds(bounds);
 
-    // fill device with a gradient
     QRect rect = dev->defaultBounds()->bounds();
     fillGradientDevice(dev, rect, true);
 
@@ -1564,7 +1509,6 @@ void KisPaintDeviceTest::benchmarkLod3Generation()
     TestingLodDefaultBounds *bounds = new TestingLodDefaultBounds(QRect(0,0,3000,2000));
     dev->setDefaultBounds(bounds);
 
-    // fill device with a gradient
     QRect rect = dev->defaultBounds()->bounds();
     fillGradientDevice(dev, rect, true);
 
@@ -1582,7 +1526,6 @@ void KisPaintDeviceTest::benchmarkLod4Generation()
     TestingLodDefaultBounds *bounds = new TestingLodDefaultBounds(QRect(0,0,3000,2000));
     dev->setDefaultBounds(bounds);
 
-    // fill device with a gradient
     QRect rect = dev->defaultBounds()->bounds();
     fillGradientDevice(dev, rect, true);
 
@@ -1633,10 +1576,6 @@ void KisPaintDeviceTest::testFramesSignals()
                 QVERIFY(!receivedAddedKey);
                 QVERIFY(ch == channel);
 
-                /**
-                 * The signal should come **after** the frame has been added
-                 */
-
                 KisKeyframeSP keyframe = ch->keyframeAt(time);
                 QVERIFY(keyframe);
 
@@ -1644,10 +1583,6 @@ void KisPaintDeviceTest::testFramesSignals()
                     dynamic_cast<KisRasterKeyframe*>(keyframe.data());
                 QVERIFY(rasterKeyframe);
 
-                /**
-                 * The raster keyframe channel should have had time to add the
-                 * frame to its internal structures.
-                 */
                 QVERIFY(!channel->timesForFrameID(rasterKeyframe->frameID()).isEmpty());
 
                 receivedAddedKey = time;
@@ -1658,10 +1593,6 @@ void KisPaintDeviceTest::testFramesSignals()
                 QVERIFY(!receivedToBeRemovedKey);
                 QVERIFY(ch == channel);
 
-                /**
-                 * The signal should come **before** the frame has been removed
-                 */
-
                 KisKeyframeSP keyframe = ch->keyframeAt(time);
                 QVERIFY(keyframe);
 
@@ -1669,9 +1600,6 @@ void KisPaintDeviceTest::testFramesSignals()
                     dynamic_cast<KisRasterKeyframe*>(keyframe.data());
                 QVERIFY(rasterKeyframe);
 
-                /**
-                 * The raster keyframe channel should have info about this frame
-                 */
                 QVERIFY(!channel->timesForFrameID(rasterKeyframe->frameID()).isEmpty());
 
                 receivedToBeRemovedKey = time;
@@ -1681,10 +1609,6 @@ void KisPaintDeviceTest::testFramesSignals()
             [&] (const KisKeyframeChannel *ch, int time) {
                 QVERIFY(!receivedHasBeenRemovedKey);
                 QVERIFY(ch == channel);
-
-                /**
-                 * The signal should come **after** the frame has been removed
-                 */
 
                 KisKeyframeSP keyframe = ch->keyframeAt(time);
                 QVERIFY(!keyframe);
@@ -1698,14 +1622,12 @@ void KisPaintDeviceTest::testFramesSignals()
                 receivedAnyFrameChange = true;
             });
 
-
     QScopedPointer<KUndo2Command> parentCommand;
 
     if (useCommand) {
         parentCommand.reset(new KUndo2Command);
     }
 
-    // add keyframe at position 10
     channel->addKeyframe(10, parentCommand.data());
 
     QVERIFY(receivedAddedKey);
@@ -1718,7 +1640,6 @@ void KisPaintDeviceTest::testFramesSignals()
     receivedAnyFrameChange = false;
 
     if (parentCommand) {
-        // first redo is skipped
         parentCommand->redo();
         QVERIFY(!receivedAddedKey);
         QVERIFY(!receivedToBeRemovedKey);
@@ -1727,7 +1648,6 @@ void KisPaintDeviceTest::testFramesSignals()
         parentCommand.reset(new KUndo2Command);
     }
 
-    // add keyframe at position 10
     channel->removeKeyframe(10, parentCommand.data());
 
     QVERIFY(!receivedAddedKey);
@@ -1744,7 +1664,6 @@ void KisPaintDeviceTest::testFramesSignals()
     receivedAnyFrameChange = false;
 
     if (parentCommand) {
-        // first redo is skipped
         parentCommand->redo();
         QVERIFY(!receivedAddedKey);
         QVERIFY(!receivedToBeRemovedKey);
@@ -1772,7 +1691,6 @@ void KisPaintDeviceTest::testFramesLeaking()
 
     KisPaintDeviceFramesInterface::TestingDataObjects o;
 
-    // Initial state: one frame, m_data is kept separate
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
@@ -1780,10 +1698,8 @@ void KisPaintDeviceTest::testFramesLeaking()
     QCOMPARE(o.m_frames.size(), 1);
     QVERIFY(o.m_currentData == o.m_frames[0]);
 
-    // add keyframe at position 10
     channel->addKeyframe(10);
 
-    // two frames, m_data has a default empty value
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
@@ -1791,10 +1707,8 @@ void KisPaintDeviceTest::testFramesLeaking()
     QCOMPARE(o.m_frames.size(), 2);
     QVERIFY(o.m_currentData == o.m_frames[0]);
 
-    // add keyframe at position 20
     channel->addKeyframe(20);
 
-    // three frames, m_data is default, current frame is 0
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
@@ -1802,10 +1716,8 @@ void KisPaintDeviceTest::testFramesLeaking()
     QCOMPARE(o.m_frames.size(), 3);
     QVERIFY(o.m_currentData == o.m_frames[0]);
 
-    // switch to frame 10
     bounds->testingSetTime(10);
 
-    // three frames, m_data is default, current frame is 10
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
@@ -1813,10 +1725,8 @@ void KisPaintDeviceTest::testFramesLeaking()
     QVERIFY(o.m_currentData == o.m_frames[1]);
     QCOMPARE(o.m_frames.size(), 3);
 
-    // switch to frame 20
     bounds->testingSetTime(20);
 
-    // three frames, m_data is default, current frame is 20
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
@@ -1824,10 +1734,8 @@ void KisPaintDeviceTest::testFramesLeaking()
     QVERIFY(o.m_currentData == o.m_frames[2]);
     QCOMPARE(o.m_frames.size(), 3);
 
-    // switch to frame 15
     bounds->testingSetTime(15);
 
-    // three frames, m_data is default, current frame is 10
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
@@ -1835,48 +1743,39 @@ void KisPaintDeviceTest::testFramesLeaking()
     QVERIFY(o.m_currentData == o.m_frames[1]);
     QCOMPARE(o.m_frames.size(), 3);
 
-    // deletion of frame 0 is forbidden
     QVERIFY(channel->keyframeAt(0));
     channel->removeKeyframe(0);
 
-    // delete keyframe at position 11
     int keyIndex = channel->activeKeyframeTime(11);
     QVERIFY(channel->keyframeAt(keyIndex));
     channel->removeKeyframe(keyIndex);
 
-    // two frames, m_data is default, current frame is 0
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 2);
 
-    // deletion of frame 0 is forbidden
     keyIndex = channel->activeKeyframeTime(11);
     QVERIFY(keyIndex != -1);
     channel->removeKeyframe(keyIndex);
 
-    // nothing changed
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 2);
 
-    // delete keyframe at position 20
     keyIndex = channel->activeKeyframeTime(20);
     QVERIFY(keyIndex != -1);
     channel->removeKeyframe(keyIndex);
 
-    // one keyframe is left at position 0, m_data is default
     o = i->testingGetDataObjects();
     QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
-    //QVERIFY(o.m_currentData == o.m_frames[0]);
     QCOMPARE(o.m_frames.size(), 1);
 
-    // ensure all the objects in the list of all objects are unique
     QList<KisPaintDeviceData*> allObjects = i->testingGetDataObjectsList();
     QSet<KisPaintDeviceData*> uniqueObjects;
     Q_FOREACH (KisPaintDeviceData *obj, allObjects) {
@@ -1904,9 +1803,8 @@ void KisPaintDeviceTest::testFramesUndoRedo()
 
     KisPaintDeviceFramesInterface::TestingDataObjects o;
 
-    // Initial state: one frame, m_data shared
     o = i->testingGetDataObjects();
-    QVERIFY(o.m_data); // default m_data should always be present
+    QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 1);
@@ -1915,7 +1813,7 @@ void KisPaintDeviceTest::testFramesUndoRedo()
     int frameId = -1;
     const int time = 1;
 
-    {   // add a keyframe
+    {
         KUndo2Command cmdAdd;
 
         channel->addKeyframe(time, &cmdAdd);
@@ -1926,7 +1824,7 @@ void KisPaintDeviceTest::testFramesUndoRedo()
         QCOMPARE(frameId, 1);
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -1935,7 +1833,7 @@ void KisPaintDeviceTest::testFramesUndoRedo()
         cmdAdd.undo();
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -1944,15 +1842,14 @@ void KisPaintDeviceTest::testFramesUndoRedo()
         cmdAdd.redo();
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
         QVERIFY(o.m_currentData == o.m_frames[0]);
     }
 
-
-    {   // Removing a frame should keep the frame in memory until the undo is no longer valid.
+    {
         KUndo2Command cmdRemove;
         KisKeyframeSP keyframe = channel->keyframeAt(time);
         QVERIFY(keyframe);
@@ -1961,7 +1858,7 @@ void KisPaintDeviceTest::testFramesUndoRedo()
         cmdRemove.redo();
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -1970,7 +1867,7 @@ void KisPaintDeviceTest::testFramesUndoRedo()
         cmdRemove.undo();
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -1979,16 +1876,15 @@ void KisPaintDeviceTest::testFramesUndoRedo()
         cmdRemove.redo();
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
         QVERIFY(o.m_currentData == o.m_frames[0]);
     }
 
-    // Once undo command is destroyed, ensure that memory is freed.
     o = i->testingGetDataObjects();
-    QVERIFY(o.m_data); // default m_data should always be present
+    QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 1);
@@ -2013,16 +1909,14 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
 
     KisPaintDeviceFramesInterface::TestingDataObjects o;
 
-    // Initial state: one frame, m_data shared
     o = i->testingGetDataObjects();
-    QVERIFY(o.m_data); // default m_data should always be present
+    QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 1);
     QVERIFY(o.m_currentData == o.m_frames[0]);
 
-
-    { // add a keyframe
+    {
         KUndo2Command cmdAdd;
 
         channel->addKeyframe(10, &cmdAdd);
@@ -2031,7 +1925,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(channel->keyframeAt(10));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2042,7 +1936,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(!channel->keyframeAt(10));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2053,7 +1947,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(channel->keyframeAt(10));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2068,7 +1962,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(!channel->keyframeAt(10));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2079,7 +1973,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(channel->keyframeAt(10));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2090,22 +1984,21 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(!channel->keyframeAt(10));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
         QVERIFY(o.m_currentData == o.m_frames[0]);
     }
 
-    //Like above, ensure that when undo goes out of scope, frame data is also dropped.
     o = i->testingGetDataObjects();
-    QVERIFY(o.m_data); // default m_data should always be present
+    QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 1);
     QVERIFY(o.m_currentData == o.m_frames[0]);
 
-    {   //Move Keyframe
+    {
         KUndo2Command cmdMove;
         channel->addKeyframe(10);
         channel->moveKeyframe(10, 12, &cmdMove);
@@ -2115,7 +2008,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(channel->keyframeAt(12));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2127,7 +2020,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(!channel->keyframeAt(12));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2139,7 +2032,7 @@ void KisPaintDeviceTest::testFramesUndoRedoWithChannel()
         QVERIFY(channel->keyframeAt(12));
 
         o = i->testingGetDataObjects();
-        QVERIFY(o.m_data); // default m_data should always be present
+        QVERIFY(o.m_data);
         QVERIFY(!o.m_lodData);
         QVERIFY(!o.m_externalFrameData);
         QCOMPARE(o.m_frames.size(), 2);
@@ -2277,16 +2170,12 @@ void KisPaintDeviceTest::testCopyPaintDeviceWithFrames()
 
     KisPaintDeviceFramesInterface::TestingDataObjects o;
 
-    // Initial state: one frame, m_data shared
     o = i->testingGetDataObjects();
-    QVERIFY(o.m_data); // m_data should always be present
+    QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 1);
     QVERIFY(o.m_currentData == o.m_frames[0]);
-
-
-    // add a keyframe
 
     KUndo2Command cmdAdd;
 
@@ -2296,11 +2185,10 @@ void KisPaintDeviceTest::testCopyPaintDeviceWithFrames()
     QVERIFY(channel->keyframeAt(10));
 
     o = i->testingGetDataObjects();
-    QVERIFY(o.m_data); // m_data should always be present
+    QVERIFY(o.m_data);
     QVERIFY(!o.m_lodData);
     QVERIFY(!o.m_externalFrameData);
     QCOMPARE(o.m_frames.size(), 2);
-    //QVERIFY(o.m_currentData == o.m_frames[0]);
 
     KisPaintDeviceSP newDev = new KisPaintDevice(*dev, KritaUtils::CopyAllFrames);
 
@@ -2318,11 +2206,9 @@ void KisPaintDeviceTest::testCopyPaintDeviceWithFrames()
 
 #include "KoCompositeOpRegistry.h"
 
-
 using namespace boost::accumulators;
 
 accumulator_set<qreal, stats<tag::variance, tag::max, tag::min> > accum;
-
 
 void KisPaintDeviceTest::testCompositionAssociativity()
 {
@@ -2352,8 +2238,6 @@ void KisPaintDeviceTest::testCompositionAssociativity()
             KoColor c1(QColor(rnd0(_rnd0), rnd1(_rnd1), rnd2(_rnd2), rnd3(_rnd3)), cs);
             KoColor c2(QColor(rnd0(_rnd0), rnd1(_rnd1), rnd2(_rnd2), rnd3(_rnd3)), cs);
             KoColor c3(QColor(rnd0(_rnd0), rnd1(_rnd1), rnd2(_rnd2), rnd3(_rnd3)), cs);
-            //KoColor c4(QColor(rnd0(_rnd0), rnd1(_rnd1), rnd2(_rnd2), rnd3(_rnd3)), cs);
-            //KoColor c5(QColor(rnd0(_rnd0), rnd1(_rnd1), rnd2(_rnd2), rnd3(_rnd3)), cs);
 
             KoColor r1(QColor(Qt::transparent), cs);
             KoColor r2(QColor(Qt::transparent), cs);
@@ -2362,13 +2246,9 @@ void KisPaintDeviceTest::testCompositionAssociativity()
             op->composite(r1.data(), 0, c1.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
             op->composite(r1.data(), 0, c2.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
             op->composite(r1.data(), 0, c3.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
-            //op->compositeF(r1.data(), 0, c4.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
-            //op->compositeF(r1.data(), 0, c5.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
 
             op->composite(r3.data(), 0, c2.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
             op->composite(r3.data(), 0, c3.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
-            //op->compositeF(r3.data(), 0, c4.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
-            //op->compositeF(r3.data(), 0, c5.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
 
             op->composite(r2.data(), 0, c1.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
             op->composite(r2.data(), 0, r3.data(), 0, 0,0, 1,1, OPACITY_OPAQUE_F);
@@ -2449,10 +2329,8 @@ void KisPaintDeviceTest::stressTestMemoryFragmentation()
     QThreadPool pool;
     pool.setMaxThreadCount(numThreads);
 
-
     for (int i = 0; i < numCycles; i++) {
         qDebug() << "iteration"<< i;
-        // KisTransaction t(dev);
 
         for (int y = 0; y < numSidePatches; y++) {
             for (int x = 0; x < numSidePatches; x++) {
@@ -2462,7 +2340,6 @@ void KisPaintDeviceTest::stressTestMemoryFragmentation()
         }
 
         pool.waitForDone();
-        // undoStack.push(t.endAndTake());
 
         qDebug() << "Iteration:" << i;
 

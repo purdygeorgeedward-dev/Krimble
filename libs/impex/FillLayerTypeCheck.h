@@ -7,7 +7,6 @@
 #ifndef FILLLAYERTYPECHECK_H
 #define FILLLAYERTYPECHECK_H
 
-
 #include "KisExportCheckRegistry.h"
 #include <KoID.h>
 #include <klocalizedstring.h>
@@ -17,7 +16,6 @@
 #include <kis_generator_layer.h>
 #include <kis_node_visitor.h>
 #include <kis_group_layer.h>
-
 
 class FillLayerTypeCheckVisitor : public KisNodeVisitor
 {
@@ -43,7 +41,6 @@ public:
         return visitAll(layer);
     }
 
-
     bool visit(KisAdjustmentLayer *) override {return true;}
 
     bool visit(KisExternalLayer *) override {return true;}
@@ -64,7 +61,6 @@ public:
 
     bool visit(KisColorizeMask *) override {return true;}
 
-
 private:
     bool check(KisGeneratorLayer * node) {
         if (node->filter()->name() == m_fillLayerID) {
@@ -77,7 +73,6 @@ private:
     const QString m_fillLayerID;
 
 };
-
 
 class FillLayerTypeCheck : public KisExportCheckBase
 {
@@ -100,7 +95,7 @@ public:
         return (v.count() > 0);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -130,4 +125,4 @@ public:
 
     const QString m_fillLayerID;
 };
-#endif // FILLLAYERTYPECHECK_H
+#endif

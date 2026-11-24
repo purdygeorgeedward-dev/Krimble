@@ -24,8 +24,6 @@ KisTiffPsdResourceRecord::~KisTiffPsdResourceRecord()
 
 bool KisTiffPsdResourceRecord::read(QIODevice &buf)
 {
-    // Unlike its PSD counterpart (PSDResourceSection), TIFF resource
-    // records are just a concatenation of resource blocks.
 
     while (!buf.atEnd()) {
         PSDResourceBlock *block = new PSDResourceBlock();
@@ -52,7 +50,6 @@ bool KisTiffPsdResourceRecord::write(QIODevice &io)
         error = "Resource Section is Invalid";
         return false;
     }
-    // write all the sections
     QBuffer buf;
     buf.open(QBuffer::WriteOnly);
 
@@ -65,11 +62,9 @@ bool KisTiffPsdResourceRecord::write(QIODevice &io)
 
     buf.close();
 
-    // Then get the size
     qint64 resourceSectionLength = buf.size();
     dbgFile << "resource section has size" << resourceSectionLength;
 
-    // and write the whole buffer
     return (io.write(buf.data()) == resourceSectionLength);
 }
 

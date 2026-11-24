@@ -10,7 +10,6 @@
 #include "kis_dummies_facade_base.h"
 #include "kis_node_model.h"
 
-
 KisModelIndexConverterShowAll::KisModelIndexConverterShowAll(KisDummiesFacadeBase *dummiesFacade,
                                                              KisNodeModel *model)
     : m_dummiesFacade(dummiesFacade),

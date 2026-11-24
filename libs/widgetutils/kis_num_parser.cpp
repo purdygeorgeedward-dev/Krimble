@@ -6,7 +6,7 @@
 
 #include "kis_num_parser.h"
 
-#include <qnumeric.h> // for qIsNaN
+#include <qnumeric.h>
 #include <qmath.h>
 #include <QVector>
 #include <QRegularExpression>
@@ -29,30 +29,22 @@ const QRegularExpression numberExpr("^(-)?([0-9]+\\.?[0-9]*(e[0-9]*)?)$");
 const QRegularExpression funcExprInteger("^(-)?\\((.+)\\)$");
 const QRegularExpression integerExpr("^(-)?([0-9]+)$");
 
-//double functions
 double treatFuncs(QString const& expr, bool & noProblem);
 double treatLevel1(QString const& expr, bool & noProblem);
 double treatLevel2(QString const& expr, bool & noProblem);
 double treatLevel3(QString const& expr, bool & noProblem);
 
-//int functions
 double treatLevel1Int(QString const& expr, bool & noProblem);
 double treatLevel2Int(QString const& expr, bool & noProblem);
 double treatFuncsInt(QString const& expr, bool & noProblem);
 
 namespace KisNumericParser {
 
-/*!
- * \param expr the expression to parse
- * \param noProblem if provided, the value pointed to will be se to true is no problem appeared, false otherwise.
- * \return the numerical value the expression eval to (or 0 in case of error).
- */
 double parseSimpleMathExpr(const QString &expr, bool *noProblem)
 {
 
-    bool ok = true; //intermediate variable to pass by reference to the sublevel parser (if no pointer is provided).
+    bool ok = true;
 
-    //then go down each 3 levels of operation priority.
     if (noProblem != nullptr) {
         return treatLevel1(expr, *noProblem);
     }
@@ -61,15 +53,10 @@ double parseSimpleMathExpr(const QString &expr, bool *noProblem)
 
 }
 
-/*!
- * \param expr the expression to parse
- * \param noProblem if provided, the value pointed to will be se to true is no problem appeared, false otherwise.
- * \return the numerical value the expression eval to (or 0 in case of error).
- */
 int parseIntegerMathExpr(QString const& expr, bool* noProblem)
 {
 
-    bool ok = true; //intermediate variable to pass by reference to the sublevel parser (if no pointer is provided).
+    bool ok = true;
 
     if (noProblem != nullptr) {
         return qRound(treatLevel1Int(expr, *noProblem));
@@ -79,18 +66,8 @@ int parseIntegerMathExpr(QString const& expr, bool* noProblem)
 
 }
 
-} //namespace KisNumericParser.
+}
 
-
-//intermediate functions
-
-/*!
- * \brief extractSubExprLevel1 extract from an expression the part of an expression that need to be treated recursively before computing level 1 operations (+, -).
- * \param expr The expression to treat, the part returned will be removed.
- * \param nextOp This reference, in case of success, will hold the first level operation identified as separator ('+' or '-')
- * \param noProblem A reference to a bool, set to true if there was no problem, false otherwise.
- * \return The first part of the expression that doesn't contain first level operations not nested within parenthesis.
- */
 inline QString extractSubExprLevel1(QString & expr, char & nextOp, bool & noProblem){
 
     QString ret;
@@ -154,14 +131,6 @@ inline QString extractSubExprLevel1(QString & expr, char & nextOp, bool & noProb
     return ret;
 }
 
-
-/*!
- * \brief extractSubExprLevel2 extract from an expression the part of an expression that need to be treated recursively before computing level 2 operations (*, /).
- * \param expr The expression to treat, the part returned will be removed.
- * \param nextOp This reference, in case of success, will hold the first level operation identified as separator ('*' or '/')
- * \param noProblem A reference to a bool, set to true if there was no problem, false otherwise.
- * \return The first part of the expression that doesn't contain second level operations not nested within parenthesis.
- */
 inline QString extractSubExprLevel2(QString & expr, char & nextOp, bool & noProblem){
 
     QString ret;
@@ -205,12 +174,6 @@ inline QString extractSubExprLevel2(QString & expr, char & nextOp, bool & noProb
     return ret;
 }
 
-/*!
- * \brief treatLevel1 treat an expression at the first level of recursion.
- * \param expr The expression to treat.
- * \param noProblem A reference to a bool set to true if no problem happened, false otherwise.
- * \return The value of the parsed expression or subexpression or 0 in case of error.
- */
 double treatLevel1(const QString &expr, bool & noProblem)
 {
 
@@ -245,14 +208,6 @@ double treatLevel1(const QString &expr, bool & noProblem)
 
 }
 
-/*!
- * \brief treatLevel2 treat a subexpression at the second level of recursion.
- * \param expr The subexpression to treat.
- * \param noProblem A reference to a bool set to true if no problem happened, false otherwise.
- * \return The value of the parsed subexpression or 0 in case of error.
- *
- * The expression should not contain first level operations not nested in parenthesis.
- */
 double treatLevel2(QString const& expr, bool & noProblem)
 {
 
@@ -289,14 +244,6 @@ double treatLevel2(QString const& expr, bool & noProblem)
     return result;
 }
 
-/*!
- * \brief treatLevel3 treat a subexpression at the third level of recursion.
- * \param expr The subexpression to treat.
- * \param noProblem A reference to a bool set to true if no problem happened, false otherwise.
- * \return The value of the parsed subexpression or 0 in case of error.
- *
- * The expression should not contain first or second level operations not nested in parenthesis.
- */
 double treatLevel3(const QString &expr, bool & noProblem)
 {
 
@@ -351,20 +298,12 @@ double treatLevel3(const QString &expr, bool & noProblem)
 
 }
 
-/*!
- * \brief treatFuncs treat the last level of recursion: parenthesis and functions.
- * \param expr The expression to parse.
- * \param noProblem A reference to a bool set to true if no problem happened, false otherwise.
- * \return The value of the parsed subexpression or 0 in case of error.
- *
- * The expression should not contain operators not nested anymore. The subexpressions within parenthesis will be treated by recalling the level 1 function.
- */
 double treatFuncs(QString const& expr, bool & noProblem)
 {
 
     noProblem = true;
 
-    QRegularExpression funcExp = funcExpr; //copy the expression in the current execution stack, to avoid errors for example when multiple thread call this function.
+    QRegularExpression funcExp = funcExpr;
     QRegularExpression numExp = numberExpr;
     QRegularExpressionMatch match;
 
@@ -389,7 +328,6 @@ double treatFuncs(QString const& expr, bool & noProblem)
             return 0.0;
         }
 
-        //trigonometry is done in degree
         if (func == "cos") {
             val = qCos(val/180*qAcos(-1));
         } else if (func == "sin") {
@@ -428,13 +366,6 @@ double treatFuncs(QString const& expr, bool & noProblem)
 
 }
 
-//int functions
-/*!
- * \brief treatLevel1 treat an expression at the first level of recursion.
- * \param expr The expression to treat.
- * \param noProblem A reference to a bool set to true if no problem happened, false otherwise.
- * \return The value of the parsed expression or subexpression or 0 in case of error.
- */
 double treatLevel1Int(QString const& expr, bool & noProblem)
 {
 
@@ -469,14 +400,6 @@ double treatLevel1Int(QString const& expr, bool & noProblem)
 
 }
 
-/*!
- * \brief treatLevel2 treat a subexpression at the second level of recursion.
- * \param expr The subexpression to treat.
- * \param noProblem A reference to a bool set to true if no problem happened, false otherwise.
- * \return The value of the parsed subexpression or 0 in case of error.
- *
- * The expression should not contain first level operations not nested in parenthesis.
- */
 double treatLevel2Int(const QString &expr, bool &noProblem)
 {
 
@@ -522,14 +445,6 @@ double treatLevel2Int(const QString &expr, bool &noProblem)
 
 }
 
-/*!
- * \brief treatFuncs treat the last level of recursion: parenthesis
- * \param expr The expression to parse.
- * \param noProblem A reference to a bool set to true if no problem happened, false otherwise.
- * \return The value of the parsed subexpression or 0 in case of error.
- *
- * The expression should not contain operators not nested anymore. The subexpressions within parenthesis will be treated by recalling the level 1 function.
- */
 double treatFuncsInt(QString const& expr, bool & noProblem)
 {
 

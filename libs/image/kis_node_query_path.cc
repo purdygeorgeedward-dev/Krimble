@@ -28,19 +28,15 @@ struct PathElement {
 struct Q_DECL_HIDDEN KisNodeQueryPath::Private {
     QList<PathElement> elements;
     bool relative;
-    /// This function will remove unneeded call to parent, for instance, "1/../3/../5" => "5"
     void simplifyPath() {
-        // No elements then return
         if (elements.isEmpty()) return;
         QList<PathElement> newelements;
         int i = 0;
         for (; i < elements.count() && elements[i].type == PathElement::Parent; ++i) {
             newelements.push_back(PathElement::Parent);
         }
-        // Loop over the element of the list
         for (; i < elements.count(); ++i) {
             PathElement pe = elements[i];
-            // If it's the last element, or the next element isn't a parent
             if (pe.type != PathElement::Parent) {
                 newelements.push_back(pe);
             } else {
@@ -51,7 +47,6 @@ struct Q_DECL_HIDDEN KisNodeQueryPath::Private {
                 }
             }
         }
-        // Set the new list
         elements = newelements;
     }
     void queryLevel(int _level, KisNodeSP _node, QList<KisNodeSP>& _result) {
@@ -112,7 +107,6 @@ bool KisNodeQueryPath::isRelative() const
 {
     return d->relative;
 }
-
 
 QList<KisNodeSP> KisNodeQueryPath::queryNodes(KisImageWSP image, KisNodeSP currentNode) const
 {
@@ -180,7 +174,7 @@ KisNodeQueryPath KisNodeQueryPath::fromString(const QString& _path)
     path.d->relative = !(_path.at(0) == '/');
     QStringList indexes = _path.split('/');
     if (!path.d->relative) {
-        indexes.pop_front(); // In case of an absolute path "/1/2", the list is "", "1", "2" which is not good
+        indexes.pop_front();
     }
     Q_FOREACH (const QString& index, indexes) {
         if (index == "*") {
@@ -209,5 +203,4 @@ KisNodeQueryPath KisNodeQueryPath::absolutePath(KisNodeSP node)
     }
     return path;
 }
-
 

@@ -28,7 +28,6 @@ public:
     QString m_alwaysUseTemplate;
 };
 
-
 KisTemplatesPane::KisTemplatesPane(QWidget* parent, const QString& header,
                                    KisTemplateGroup *group, KisTemplate* defaultTemplate)
     : KisDetailsPane(parent,header)
@@ -40,7 +39,6 @@ KisTemplatesPane::KisTemplatesPane(QWidget* parent, const QString& header,
     KGuiItem::assign(m_openButton, openGItem);
     KConfigGroup cfgGrp( KSharedConfig::openConfig(), "TemplateChooserDialog");
     QString fullTemplateName = cfgGrp.readPathEntry("FullTemplateName", QString());
-
 
     d->m_alwaysUseTemplate = cfgGrp.readPathEntry("AlwaysUseTemplate", QString());
     m_alwaysUseCheckBox->setVisible(false);
@@ -166,7 +164,6 @@ void KisTemplatesPane::changeAlwaysUseTemplate(KisTemplatesPane* sender, const Q
 
     QStandardItem* item = model()->itemFromIndex(m_documentList->selectionModel()->currentIndex());
 
-    // If the old always use template is selected uncheck the checkbox
     if (item && (item->data(Qt::UserRole + 1).toString() == d->m_alwaysUseTemplate)) {
         m_alwaysUseCheckBox->setChecked(false);
     }

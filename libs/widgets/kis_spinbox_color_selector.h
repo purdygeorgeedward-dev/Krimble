@@ -13,11 +13,6 @@
 #include "KoColor.h"
 #include "KoColorSpace.h"
 
-/**
- * @brief The KisSpinboxColorSelector class
- * This will give a widget with spinboxes depending on the color space
- * Take responsibility for changing the color space.
- */
 class KRITAWIDGETS_EXPORT KisSpinboxColorSelector : public QWidget
 {
     Q_OBJECT
@@ -44,4 +39,4 @@ private:
     void updateSpinboxesWithNewValues();
 };
 
-#endif // KISSPINBOXCOLORSELECTOR_H
+#endif

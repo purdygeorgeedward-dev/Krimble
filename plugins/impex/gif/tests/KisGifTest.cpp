@@ -6,7 +6,6 @@
 
 #include "KisGifTest.h"
 
-
 #include <simpletest.h>
 #include <QCoreApplication>
 
@@ -16,30 +15,22 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing the importing of files in krita"
 #endif
 
-
 const QString GifMimetype = "image/gif";
-
-
 
 void KisGifTest::testImportFromWriteonly()
 {
     TestUtil::testImportFromWriteonly(GifMimetype);
 }
 
-
 void KisGifTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(GifMimetype);
 }
-
 
 void KisGifTest::testImportIncorrectFormat()
 {
     TestUtil::testImportIncorrectFormat(GifMimetype);
 }
 
-
-
 KISTEST_MAIN(KisGifTest)
-
 

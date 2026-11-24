@@ -46,7 +46,7 @@ static const unsigned int ANT_ADVANCE_WIDTH = ANT_LENGTH + ANT_SPACE;
 
 KisSelectionDecoration::KisSelectionDecoration(QPointer<KisView>_view)
     : KisCanvasDecoration("selection", _view),
-      m_signalCompressor(50 /*ms*/, KisSignalCompressor::FIRST_ACTIVE),
+      m_signalCompressor(50 , KisSignalCompressor::FIRST_ACTIVE),
       m_offset(0),
       m_mode(Ants)
 {
@@ -63,7 +63,6 @@ KisSelectionDecoration::KisSelectionDecoration(QPointer<KisView>_view)
 
     connect(&m_signalCompressor, SIGNAL(timeout()), SLOT(slotStartUpdateSelection()));
 
-    // selections should be at the top of the stack
     setPriority(100);
 
     m_selectionActionsPanel = new KisSelectionActionsPanel(this->view()->viewManager());
@@ -142,7 +141,6 @@ void KisSelectionDecoration::selectionChanged()
                 view()->canvasBase()->updateCanvas();
             }
 
-
             m_selectionActionsPanel->setVisible(true);
         } else {
             m_signalCompressor.start();
@@ -214,11 +212,8 @@ void KisSelectionDecoration::drawDecoration(QPainter& gc, const QRectF& updateRe
     Q_UNUSED(updateRect);
     Q_UNUSED(canvas);
 
-    // render Selection Action Bar first, so that it doesn't blink when making a new selection
-
     if ((m_mode == Ants && m_outlinePath.isEmpty()) || (m_mode == Mask && m_thumbnailImage.isNull())
         || !m_selectionVisibility) {
-        //The SAP needs to be drawn on top of the decoration, but to avoid the panel flashing when making a new selection, we also need to call draw here
         m_selectionActionsPanel->draw(gc, canvas->displayRendererInterface());
 
         return;
@@ -255,7 +250,7 @@ void KisSelectionDecoration::drawDecoration(QPainter& gc, const QRectF& updateRe
         gc.setPen(Qt::NoPen);
         gc.drawPath(p1 - p2);
 
-    } else /* if (m_mode == Ants) */ {
+    } else {
 
         KoColor c;
         c.fromQColor(Qt::white);
@@ -267,11 +262,9 @@ void KisSelectionDecoration::drawDecoration(QPainter& gc, const QRectF& updateRe
 
         gc.setOpacity(m_opacity);
 
-        // render selection outline in white
         gc.setPen(m_outlinePen);
         gc.drawPath(m_outlinePath);
 
-        // render marching ants in black (above the white outline)
         gc.setPen(m_antsPen);
         gc.drawPath(m_outlinePath);
     }

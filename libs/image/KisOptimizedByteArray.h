@@ -17,7 +17,6 @@
 
 #include "KisRollingMeanAccumulatorWrapper.h"
 
-
 class KRITAIMAGE_EXPORT KisOptimizedByteArray
 {
 public:
@@ -68,4 +67,4 @@ private:
      QSharedDataPointer<Private> m_d;
 };
 
-#endif // KISOPTIMIZEDBYTEARRAY_H
+#endif

@@ -15,7 +15,6 @@ struct KisResourceTypeModel::Private {
     QSqlQuery query;
 };
 
-
 KisResourceTypeModel::KisResourceTypeModel(QObject *parent)
     : QAbstractTableModel(parent)
     , d(new Private)

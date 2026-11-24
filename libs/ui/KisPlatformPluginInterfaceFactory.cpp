@@ -21,7 +21,7 @@
 #include <surfacecolormanagement/KisSurfaceColorManagerInterface.h>
 #include <surfacecolormanagement/KisSurfaceColorManagementInfo.h>
 
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
 Q_GLOBAL_STATIC(KisPlatformPluginInterfaceFactory, s_instance)
 
@@ -44,7 +44,7 @@ KisPlatformPluginInterfaceFactory::KisPlatformPluginInterfaceFactory()
 
     m_surfaceColorManagedByOS = fetchSurfaceColorManagedByOS();
 
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 }
 
 KisPlatformPluginInterfaceFactory* KisPlatformPluginInterfaceFactory::instance()
@@ -113,7 +113,6 @@ QString KisPlatformPluginInterfaceFactory::osPreferredColorSpaceReport(QWidget *
     return "Surface color management is disabled\n";
 #endif
 }
-
 
 KisExtendedModifiersMapperPluginInterface* KisPlatformPluginInterfaceFactory::createExtendedModifiersMapper()
 {

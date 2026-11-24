@@ -126,7 +126,6 @@ struct OptimizedOpsSelector<KoBgrU16Traits>
     }
 };
 
-
 template<class Traits>
 struct AddGeneralOps<Traits, true>
 {
@@ -240,7 +239,7 @@ struct AddGeneralOps<Traits, true>
              add<CFVividLight<Arg, ClampAsFloatHDR>>(cs, COMPOSITE_VIVID_LIGHT_HDR, KoCompositeOp::categoryLight());
          }
          add<CFFlatLight<Arg>    >(cs, COMPOSITE_FLAT_LIGHT  , KoCompositeOp::categoryLight());
-         add<CFPinLight<Arg>>(cs, COMPOSITE_PIN_LIGHT, KoCompositeOp::categoryLight()); // using HDR mode as default
+         add<CFPinLight<Arg>>(cs, COMPOSITE_PIN_LIGHT, KoCompositeOp::categoryLight());
          add<&cfLinearLight<Arg> >(cs, COMPOSITE_LINEAR_LIGHT, KoCompositeOp::categoryLight());
          add<&cfPNormA<Arg>      >(cs, COMPOSITE_PNORM_A     , KoCompositeOp::categoryLight());
          add<&cfPNormB<Arg>      >(cs, COMPOSITE_PNORM_B     , KoCompositeOp::categoryLight());
@@ -249,8 +248,8 @@ struct AddGeneralOps<Traits, true>
          add<&cfFogLightenIFSIllusions<Arg>>(cs, COMPOSITE_FOG_LIGHTEN_IFS_ILLUSIONS, KoCompositeOp::categoryLight());
          add<&cfEasyDodge<Arg>   >(cs, COMPOSITE_EASY_DODGE  , KoCompositeOp::categoryLight());
 
-         add<CFColorBurn<Arg>>(cs, COMPOSITE_BURN, KoCompositeOp::categoryDark()); // using HDR mode as default
-         add<CFLinearBurn<Arg, ClampAsFloatHDR>>(cs, COMPOSITE_LINEAR_BURN , KoCompositeOp::categoryDark()); // using HDR mode as default
+         add<CFColorBurn<Arg>>(cs, COMPOSITE_BURN, KoCompositeOp::categoryDark());
+         add<CFLinearBurn<Arg, ClampAsFloatHDR>>(cs, COMPOSITE_LINEAR_BURN , KoCompositeOp::categoryDark());
          add<&cfDarkenOnly<Arg> >(cs, COMPOSITE_DARKEN      , KoCompositeOp::categoryDark());
          add<CFGammaDark<Arg>   >(cs, COMPOSITE_GAMMA_DARK  , KoCompositeOp::categoryDark());
          add<&cfShadeIFSIllusions<Arg>>(cs, COMPOSITE_SHADE_IFS_ILLUSIONS, KoCompositeOp::categoryDark());
@@ -276,7 +275,7 @@ struct AddGeneralOps<Traits, true>
          add<CFEquivalence<Arg>         >(cs, COMPOSITE_EQUIVALENCE         , KoCompositeOp::categoryNegative());
          add<CFAdditiveSubtractive<Arg> >(cs, COMPOSITE_ADDITIVE_SUBTRACTIVE, KoCompositeOp::categoryNegative());
          add<CFNegation<Arg>            >(cs, COMPOSITE_NEGATION            , KoCompositeOp::categoryNegative());
-         
+
          if constexpr (IsIntegerSpace) {
              add<&cfXor<Arg>        >(cs, COMPOSITE_XOR            , KoCompositeOp::categoryBinary());
              add<&cfOr<Arg>         >(cs, COMPOSITE_OR             , KoCompositeOp::categoryBinary());
@@ -343,9 +342,8 @@ struct AddRGBOps<Traits, true>
         add<CFIncreaseLightness<HSYType,channels_type>>(cs, COMPOSITE_INC_LUMINOSITY, KoCompositeOp::categoryHSY());
         add<CFDecreaseLightness<HSYType,channels_type>>(cs, COMPOSITE_DEC_LUMINOSITY, KoCompositeOp::categoryHSY());
 
-
-        add<CFDarkerColor<HSYType, channels_type>>(cs, COMPOSITE_DARKER_COLOR, KoCompositeOp::categoryDark()); //darker color as PSD does it//
-        add<CFLighterColor<HSYType, channels_type>>(cs, COMPOSITE_LIGHTER_COLOR, KoCompositeOp::categoryLight()); //lighter color as PSD does it//
+        add<CFDarkerColor<HSYType, channels_type>>(cs, COMPOSITE_DARKER_COLOR, KoCompositeOp::categoryDark());
+        add<CFLighterColor<HSYType, channels_type>>(cs, COMPOSITE_LIGHTER_COLOR, KoCompositeOp::categoryLight());
 
         add<CFLambertLighting<HSIType,channels_type>>(cs, COMPOSITE_LAMBERT_LIGHTING, KoCompositeOp::categoryMix());
         add<CFLambertLightingGamma2_2<HSIType, channels_type>>(cs, COMPOSITE_LAMBERT_LIGHTING_GAMMA_2_2, KoCompositeOp::categoryMix());
@@ -380,9 +378,6 @@ struct AddRGBOps<Traits, true>
     }
 };
 
-
-
-
 template<class Traits, bool flag>
 struct AddGeneralAlphaOps
 {
@@ -395,7 +390,6 @@ struct AddGeneralAlphaOps<Traits, true>
     typedef float Arg;
     static const qint32 alpha_pos  = Traits::alpha_pos;
     template<void compositeFunc(Arg, Arg, Arg&, Arg&)>
-
 
     static void add(KoColorSpace* cs, const QString& id, const QString& category)
     {
@@ -415,23 +409,10 @@ struct AddGeneralAlphaOps<Traits, true>
         add<&cfAdditionSAI<HSVType,Arg>>(cs, COMPOSITE_LUMINOSITY_SAI, KoCompositeOp::categoryHSV());
     }
 
-
 };
-
-
-
-
 
 }
 
-
-
-
-
-/**
- * This function add to the colorspace all the composite ops defined by
- * the pigment library.
- */
 template<class _Traits_>
 void addStandardCompositeOps(KoColorSpace* cs)
 {

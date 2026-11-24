@@ -54,7 +54,7 @@ QRect KisFilterLensFlare::changedRect(const QRect &rect, const KisFilterConfigur
 }
 
 namespace {
-struct Pixel16 { quint16 b, g, r, a; };   // the 16-bit RGBA layout of Krita (blue first)
+struct Pixel16 { quint16 b, g, r, a; };
 }
 
 void KisFilterLensFlare::processImpl(KisPaintDeviceSP device,
@@ -218,7 +218,6 @@ void KisWdgLensFlare::setView(KisViewManager *view)
     }
 }
 
-// the light follows a finger (or the mouse) on the picture while this window is open; the preview updates as it moves
 bool KisWdgLensFlare::moveLightTo(const QPointF &widgetPoint)
 {
     if (!m_view || !m_view->canvasBase() || !m_view->image()) return false;
@@ -236,7 +235,7 @@ bool KisWdgLensFlare::moveLightTo(const QPointF &widgetPoint)
         m_y->setValue(y);
         m_x->blockSignals(false);
         m_y->blockSignals(false);
-        emit sigConfigurationItemChanged();   // one signal for both: one preview
+        emit sigConfigurationItemChanged();
     }
     return true;
 }
@@ -249,7 +248,7 @@ bool KisWdgLensFlare::eventFilter(QObject *watched, QEvent *event)
     case QEvent::MouseMove: {
         QMouseEvent *mouse = static_cast<QMouseEvent*>(event);
         if (event->type() == QEvent::MouseMove && !(mouse->buttons() & Qt::LeftButton)) break;
-        if (mouse->source() != Qt::MouseEventNotSynthesized) return true;   // the touch events below handle the finger
+        if (mouse->source() != Qt::MouseEventNotSynthesized) return true;
         return moveLightTo(mouse->localPos());
     }
     case QEvent::MouseButtonRelease:
@@ -257,7 +256,7 @@ bool KisWdgLensFlare::eventFilter(QObject *watched, QEvent *event)
     case QEvent::TouchBegin:
     case QEvent::TouchUpdate: {
         QTouchEvent *touch = static_cast<QTouchEvent*>(event);
-        if (touch->touchPoints().size() != 1) break;   // two fingers still pan and zoom
+        if (touch->touchPoints().size() != 1) break;
         event->accept();
         moveLightTo(touch->touchPoints().first().pos());
         return true;

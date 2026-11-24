@@ -70,7 +70,7 @@ public:
 #ifndef QT_NO_ACTION
     QAction *createUndoAction(QObject *parent) const;
     QAction *createRedoAction(QObject *parent) const;
-#endif // QT_NO_ACTION
+#endif
     bool canUndo() const;
     bool canRedo() const;
     QString undoText() const;
@@ -92,13 +92,12 @@ Q_SIGNALS:
     void redoTextChanged(const QString &redoActionText);
 
 private:
-    // from QUndoGroupPrivate
     KUndo2QStack *m_active;
     QList<KUndo2QStack*> m_stack_list;
 
     Q_DISABLE_COPY(KUndo2Group)
 };
 
-#endif // QT_NO_UNDOGROUP
+#endif
 
-#endif // KUNDO2GROUP_H
+#endif

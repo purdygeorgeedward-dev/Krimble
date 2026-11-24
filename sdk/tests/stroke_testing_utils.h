@@ -14,9 +14,7 @@
 #include "kis_stroke_strategy.h"
 #include "kis_resources_snapshot.h"
 
-
 class KisUndoStore;
-
 
 namespace utils {
 
@@ -53,11 +51,9 @@ namespace utils {
 
         virtual void initImage(KisImageWSP image, KisNodeSP activeNode, int iteration);
 
-        // overload
         virtual void modifyResourceManager(KoCanvasResourceProvider *manager,
                                            KisImageWSP image);
 
-        // overload
         virtual void initImage(KisImageWSP image, KisNodeSP activeNode);
         virtual void beforeCheckingResult(KisImageWSP image, KisNodeSP activeNode);
         virtual void iterationEndedCallback(KisImageWSP image, KisNodeSP activeNode, int iteration);
@@ -69,7 +65,6 @@ namespace utils {
                                      KisResourcesSnapshotSP resources,
                                      int iteration);
 
-        // overload
         virtual void addPaintingJobs(KisImageWSP image,
                                      KisResourcesSnapshotSP resources);
 
@@ -99,4 +94,4 @@ namespace utils {
     };
 }
 
-#endif /* __STROKE_TESTING_UTILS_H */
+#endif

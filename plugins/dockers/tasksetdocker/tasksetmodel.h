@@ -15,26 +15,17 @@
 
 class QAction;
 
-/**
- * Krimble: a step is either a plain action trigger (the original,
- * Krita-native behaviour -- fine for parameterless commands like Flatten
- * Image or a tool switch), or a real filter application captured with its
- * exact parameters via KisFilterManager::sigFilterApplied -- the
- * industry standard actions equivalent case, correctly replayable without
- * reopening an empty dialog the way a plain trigger of a filter's menu
- * action would.
- */
 struct TasksetStep
 {
     enum Type { ActionTrigger, FilterApplication, OperationRun };
 
     Type type = ActionTrigger;
-    QAction *action = nullptr;        // valid when type == ActionTrigger
-    QString filterId;                 // valid when type == FilterApplication
-    QString filterConfigXml;          // valid when type == FilterApplication, full KisFilterConfiguration::toXML()
-    QString filterDisplayName;        // valid when type == FilterApplication, for display without needing the registry
-    QString operationId;              // valid when type == OperationRun
-    QString operationConfigXml;       // valid when type == OperationRun, full KisOperationConfiguration::toXML()
+    QAction *action = nullptr;
+    QString filterId;
+    QString filterConfigXml;
+    QString filterDisplayName;
+    QString operationId;
+    QString operationConfigXml;
 };
 
 class TasksetModel : public QAbstractTableModel
@@ -43,7 +34,7 @@ class TasksetModel : public QAbstractTableModel
 public:
     TasksetModel(QObject* parent = 0);
     ~TasksetModel() override;
-    
+
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -62,4 +53,4 @@ private:
     QVector<TasksetStep> m_steps;
 };
 
-#endif // TASKSETMODEL_H
+#endif

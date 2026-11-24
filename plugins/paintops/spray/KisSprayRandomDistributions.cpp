@@ -37,15 +37,12 @@ public:
             return;
         }
 
-        // Create the CDF
         const double domainSize = b - a;
         const double intervalSize = domainSize / static_cast<double>(numberOfSamples - 1);
         double sum = 0.0;
         double lastX, lastY, lastSum;
         size_t effectiveNumberOfSamples = numberOfSamples;
 
-        // Adjust the limits of the pdf if it has a 0 probability segment at
-        // the start or at the end
         {
             for (size_t i = 0; i < numberOfSamples; ++i) {
                 const double x = a + intervalSize * static_cast<double>(i);
@@ -58,7 +55,6 @@ public:
                     break;
                 }
                 if (i == numberOfSamples - 1) {
-                    // The whole pdf must have 0 probability
                     return;
                 }
             }
@@ -75,17 +71,13 @@ public:
                 }
             }
         }
-        // Insert first point
         {
             samples.push_back({a, 0.0, 0.0});
             lastX = a;
             lastY = f(a);
             lastSum = 0.0;
         }
-        // Insert the rest of the points
         {
-            // This angle serves as a reference to see if the cdf curve is
-            // roughly straight, and remove some points
             constexpr double maximumAngleDeviationToSkip{M_PI / 1000.0};
             double referenceAngle = 0.0;
             bool mustCheckAngle = false;
@@ -94,9 +86,7 @@ public:
             for (size_t i = 1; i < effectiveNumberOfSamples; ++i) {
                 const double x = a + intervalSize * static_cast<double>(i);
                 const double y = f(x);
-                // Accumulate the area under the curve between the two points
                 sum += (x - lastX) * (y + lastY) / 2.0;
-                //
                 if (y == 0.0) {
                     if (lastY == 0.0) {
                         lastX = x;
@@ -116,7 +106,6 @@ public:
                     }
                 }
 
-                // Compute if the current point is nearly colinear to the last two points
                 if (i > 1 && mustCheckAngle) {
                     const int nPoints = samples.size();
                     const double angle = std::atan2(sum - samples[nPoints - 2].cdfAtX, x - samples[nPoints - 2].x);
@@ -137,7 +126,6 @@ public:
                 lastSum = sum;
             }
         }
-        // Scale the cdf to the [0..1] range and compute deltas
         {
             for (size_t i = 1; i < samples.size() - 1; ++i) {
                 samples[i].cdfAtX /= sum;
@@ -150,7 +138,6 @@ public:
 
     double generate(double randomValue) const
     {
-        // Find the first sample that has cdf greater than the passed value
         auto sampleIterator =
             std::upper_bound(samples.begin(), samples.end(), SampleInfo{0.0, randomValue, 0.0},
                              kismpl::mem_less(&SampleInfo::cdfAtX));
@@ -271,7 +258,6 @@ KisSprayClusterBasedDistribution::KisSprayClusterBasedDistribution(double cluste
     KIS_SAFE_ASSERT_RECOVER_RETURN(clusteringAmount >= -100.0 && clusteringAmount <= 100.0);
 
     if (clusteringAmount == 0.0) {
-        // Uniform distribution basically
         KisSprayFunctionBasedDistribution::initialize(2, 0.0, 1.0,
             [](double)
             {
@@ -308,7 +294,6 @@ KisSprayClusterBasedDistributionPolarDistance::KisSprayClusterBasedDistributionP
     KIS_SAFE_ASSERT_RECOVER_RETURN(clusteringAmount >= -100.0 && clusteringAmount <= 100.0);
 
     if (clusteringAmount == 0.0) {
-        // Uniform distribution basically
         KisSprayFunctionBasedDistribution::initialize(1000, 0.0, 1.0,
             [](double x)
             {
@@ -346,7 +331,7 @@ KisSprayCurveBasedDistribution::KisSprayCurveBasedDistribution(const KisCubicCur
 
     KisSprayFunctionBasedDistribution::initialize(((curve.curvePoints().size() % 4) + 1) * 1000 * repeat, 0.0, 1.0,
         [curve, repeat](double x)
-        { 
+        {
             const double sx = x * static_cast<double>(repeat);
             return curve.value(sx - std::floor(sx));
         }
@@ -362,7 +347,7 @@ KisSprayCurveBasedDistributionPolarDistance::KisSprayCurveBasedDistributionPolar
 
     KisSprayFunctionBasedDistribution::initialize(((curve.curvePoints().size() % 4) + 1) * 1000 * repeat, 0.0, 1.0,
         [curve, repeat](double x)
-        { 
+        {
             const double sx = x * static_cast<double>(repeat);
             return 2.0 * x * curve.value(sx - std::floor(sx));
         }

@@ -43,4 +43,4 @@ private:
     qreal Gamma {1.0};
 };
 
-#endif // KIS_COLOR_SELECTOR_RING_H
+#endif

@@ -26,7 +26,6 @@
 #include <KoCanvasController.h>
 #include <KoShapeStroke.h>
 
-
 KisToolRectangle::KisToolRectangle(KoCanvasBase * canvas)
         : KisToolRectangleBase(canvas, KisToolRectangleBase::PAINT, KisCursor::loadWithSize("tool_rectangle_cursor.svg", 32, 32, 6, 6))
 {

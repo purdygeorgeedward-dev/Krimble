@@ -9,7 +9,6 @@
 
 #include <QDialog>
 
-
 #include "ui_wdgsessionmanager.h"
 
 #include <KisSessionResource.h>
@@ -22,7 +21,7 @@ class KisSessionManagerDialog : public QDialog, Ui::DlgSessionManager
 
 public:
     explicit KisSessionManagerDialog(QWidget *parent = nullptr);
-    
+
 protected:
     bool event(QEvent *event) override;
 
@@ -48,7 +47,7 @@ private:
     int m_lastSessionId;
 
     KisResourceModel* m_model;
-    
+
     static int refreshEventType;
 };
 

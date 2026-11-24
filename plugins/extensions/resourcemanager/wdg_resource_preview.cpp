@@ -41,7 +41,6 @@
 
 #include <config-seexpr.h>
 
-
 WdgResourcePreview::WdgResourcePreview(WidgetType type, QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui::WdgResourcePreview),
@@ -82,7 +81,6 @@ WdgResourcePreview::WdgResourcePreview(WidgetType type, QWidget *parent) :
 
     QString selectedResourceType = getCurrentResourceType();
 
-
     KisTagModel* tagModel = new KisTagModel(selectedResourceType);
     tagModel->sort(KisAllTagsModel::Name);
     m_tagModelsForResourceType.insert(selectedResourceType, tagModel);
@@ -102,7 +100,6 @@ WdgResourcePreview::WdgResourcePreview(WidgetType type, QWidget *parent) :
         connect(m_ui->cmbStorage, SIGNAL(activated(int)), SLOT(slotStorageSelected(int)));
     }
 
-    // the model will be owned by `proxyModel`
     KisResourceModel* resourceModel;
 
     if (m_type == WidgetType::ResourceManager) {
@@ -209,7 +206,6 @@ void WdgResourcePreview::slotResourceTypeSelected(int)
     m_ui->cmbTag->setModel(m_tagModelsForResourceType[selectedResourceType]);
 
     if (!m_resourceProxyModelsForResourceType.contains(selectedResourceType)) {
-        // the model will be owned by `proxyModel`
         KisResourceModel* resourceModel;
         if (m_type == WidgetType::ResourceManager) {
             resourceModel = new KisResourceModel(selectedResourceType);

@@ -36,7 +36,6 @@
 #include "kis_onion_skin_cache.h"
 #include "kis_time_span.h"
 
-
 struct Q_DECL_HIDDEN KisPaintLayer::Private
 {
 public:
@@ -47,7 +46,6 @@ public:
     KisPaintDeviceSP paintDevice;
     QBitArray        paintChannelFlags;
 
-    // the real pointer is owned by the paint device
     KisRasterKeyframeChannel *contentChannel;
 
     KisSignalAutoConnectionsStore onionSkinConnection;
@@ -71,7 +69,6 @@ KisPaintLayer::KisPaintLayer(KisImageWSP image, const QString& name, quint8 opac
     m_d->paintDevice->setSupportsWraparoundMode(true);
     m_d->paintDevice->setParentNode(this);
 }
-
 
 KisPaintLayer::KisPaintLayer(KisImageWSP image, const QString& name, quint8 opacity)
     : KisLayer(image, name, opacity)
@@ -293,9 +290,7 @@ void KisPaintLayer::setOnionSkinEnabled(bool state)
     if (oldState == state) return;
 
     if (!state && oldState) {
-        // FIXME: change ordering! race condition possible!
 
-        // Turning off onionskins shrinks our extent. Let's clean up the onion skins first
         setDirty(KisOnionSkinCompositor::instance()->calculateExtent(m_d->paintDevice));
     }
 

@@ -25,4 +25,4 @@ protected:
     QPointF m_gradientVectorEnd;
 };
 
-#endif /* __KIS_GRADIENT_SHAPE_STRATEGY_H */
+#endif

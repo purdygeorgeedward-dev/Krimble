@@ -18,4 +18,4 @@ public:
     ~KisPhongBumpmapPlugin() override;
 };
 
-#endif //KIS_PHONG_BUMPMAP_PLUGIN_H
+#endif

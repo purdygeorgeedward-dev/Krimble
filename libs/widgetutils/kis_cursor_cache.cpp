@@ -23,7 +23,6 @@ namespace {
 
     QCursor loadImpl(const QString &cursorName, int hotspotX, int hotspotY, int width, int height) {
 #ifdef Q_OS_ANDROID
-        // On Android, large cursors render glitchy, so we avoid scaling the cursors till we find a solution to that.
         QPixmap cursorImage = QPixmap(":/" + cursorName);
 #else
         QPixmap cursorImage = QIcon(":/" + cursorName).pixmap(width > -1? width: 32, height > -1? height: 32);
@@ -65,7 +64,6 @@ QCursor KisCursorCache::load(const QString & cursorName, int width, int height, 
         return cursorHash[ cursorName ].second;
     }
 
-    // Otherwise, construct the cursor
     QCursor newCursor = loadImpl(cursorName, hotspotX, hotspotY, width, height);
     cursorHash.insert(cursorName, QPair<QPoint, QCursor>(QPoint(hotspotX, hotspotY), newCursor));
     return newCursor;

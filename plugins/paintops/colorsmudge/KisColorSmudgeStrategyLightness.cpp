@@ -67,7 +67,6 @@ void KisColorSmudgeStrategyLightness::initializePainting()
 
     m_heightmapPainter.begin(m_heightmapDevice);
 
-    // we should read data from the color layer, not from the final projection layer
     m_sourceWrapperDevice = toQShared(new KisColorSmudgeSourcePaintDevice(*m_layerOverlayDevice, 1));
 
     m_finalPainter.begin(m_colorOnlyDevice);
@@ -149,7 +148,6 @@ KisColorSmudgeStrategyLightness::paintDab(const QRect &srcRect, const QRect &dst
     readRects << srcRect;
     m_sourceWrapperDevice->readRects(readRects);
 
-
     blendBrush({ &m_finalPainter },
         m_sourceWrapperDevice,
         m_maskDab, m_shouldPreserveOriginalDab,
@@ -161,8 +159,7 @@ KisColorSmudgeStrategyLightness::paintDab(const QRect &srcRect, const QRect &dst
         colorRateValue,
         smudgeRadiusValue);
 
-
-    const qreal overlaySmearRate = smudgeRateValue - 0.01; //adjust so minimum value is 0 instead of 1%
+    const qreal overlaySmearRate = smudgeRateValue - 0.01;
     const qreal overlayAdjustment =
         (m_thicknessMode == KisPaintThicknessOptionData::ThicknessMode::OVERWRITE) ?
         1.0 : KisAlgebra2D::lerp(overlaySmearRate, 1.0, paintThicknessValue);
@@ -170,7 +167,6 @@ KisColorSmudgeStrategyLightness::paintDab(const QRect &srcRect, const QRect &dst
     m_heightmapPainter.setOpacityF(brushHeightmapOpacity);
     m_heightmapPainter.bltFixed(dstRect.topLeft(), m_origDab, m_origDab->bounds());
     m_heightmapPainter.renderMirrorMaskSafe(dstRect, m_origDab, m_shouldPreserveOriginalDab);
-
 
     KisFixedPaintDeviceSP tempColorDevice =
         new KisFixedPaintDevice(m_colorOnlyDevice->colorSpace(), m_memoryAllocator);
@@ -194,7 +190,7 @@ KisColorSmudgeStrategyLightness::paintDab(const QRect &srcRect, const QRect &dst
                 numPixels);
         m_projectionDevice->writeBytes(tempColorDevice->data(), tempColorDevice->bounds());
     }
- 
+
     m_layerOverlayDevice->writeRects(mirroredRects);
 
     return mirroredRects;

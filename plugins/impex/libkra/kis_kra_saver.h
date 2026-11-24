@@ -16,7 +16,6 @@
 class KisDocument;
 class KoStore;
 
-
 #include "kritalibkra_export.h"
 #include "KoColor.h"
 
@@ -42,10 +41,8 @@ public:
 
     bool saveAudio(KoStore *store);
 
-    /// @return a list with everything that went wrong while saving
     QStringList errorMessages() const;
 
-    /// @return a list with non-critical issues that happened while saving
     QStringList warningMessages() const;
 
 private:

@@ -12,14 +12,13 @@ KoLineStyleModel::KoLineStyleModel(QObject *parent)
     : QAbstractListModel(parent),
     m_hasTempStyle(false)
 {
-    // add standard dash patterns
     for (int i = Qt::NoPen; i < Qt::CustomDashLine; i++) {
         QPen pen(static_cast<Qt::PenStyle>(i));
         m_styles << pen.dashPattern();
     }
 }
 
-int KoLineStyleModel::rowCount(const QModelIndex &/*parent*/) const
+int KoLineStyleModel::rowCount(const QModelIndex & ) const
 {
     return m_styles.count() + (m_hasTempStyle ? 1 : 0);
 }
@@ -62,19 +61,15 @@ bool KoLineStyleModel::addCustomStyle(const QVector<qreal> &style)
 
 int KoLineStyleModel::setLineStyle(Qt::PenStyle style, const QVector<qreal> &dashes)
 {
-    // check if we select a standard or custom style
     if (style < Qt::CustomDashLine) {
-        // a standard style
         m_hasTempStyle = false;
         beginResetModel();
         endResetModel();
 
         return style;
     } else if (style == Qt::CustomDashLine) {
-        // a custom style -> check if already added
         int index = m_styles.indexOf(dashes, Qt::CustomDashLine);
         if (index < 0) {
-            // not already added -> add temporarily
             m_tempStyle = dashes;
             m_hasTempStyle = true;
             beginResetModel();
@@ -82,7 +77,6 @@ int KoLineStyleModel::setLineStyle(Qt::PenStyle style, const QVector<qreal> &das
 
             return m_styles.count();
         } else {
-            // already added -> return index
             m_hasTempStyle = false;
             beginResetModel();
             endResetModel();

@@ -9,10 +9,6 @@
 #include <QStandardItemModel>
 #include <QKeyEvent>
 
-////////////////////////////////////
-// class KisDetailsPane
-///////////////////////////////////
-
 struct KisDetailsPanePrivate
 {
     QStandardItemModel m_model;

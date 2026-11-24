@@ -8,12 +8,6 @@
 
 #include "KisDitherOpImpl.h"
 
-/**
- * THIS CLASS OVERRIDES THE STANDARD FACTORY.
- * Floating point CMYK uses different normalization for the color
- * and alpha channels.
- */
-
 template<typename srcCSTraits, typename dstCSTraits, DitherType dType> class KisCmykDitherOpImpl : public KisDitherOpImpl<srcCSTraits, dstCSTraits, dType>
 {
     using srcChannelsType = typename srcCSTraits::channels_type;
@@ -48,10 +42,8 @@ private:
 
         for (uint channelIndex = 0; channelIndex < srcCSTraits::channels_nb; ++channelIndex) {
             if (channelIndex == srcCSTraits::alpha_pos) {
-                // The standard normalization.
                 nativeDst[channelIndex] = KoColorSpaceMaths<srcChannelsType, dstChannelsType>::scaleToA(nativeSrc[channelIndex]);
             } else {
-                // Normalize using unitCMYKValue.
                 nativeDst[channelIndex] = scaleToA<srcChannelsType, dstChannelsType>(nativeSrc[channelIndex]);
             }
         }
@@ -65,17 +57,13 @@ private:
         float f = factor(x, y);
         float s = scale();
 
-        // In (non-integer) CMYK, all channels except alpha are normalized
-        // to a different range, [0, 100].
         for (uint channelIndex = 0; channelIndex < srcCSTraits::channels_nb; ++channelIndex) {
             if (channelIndex == srcCSTraits::alpha_pos) {
-                // The standard normalization.
                 float c = KoColorSpaceMaths<srcChannelsType, float>::scaleToA(nativeSrc[channelIndex]);
                 c = KisDitherMaths::apply_dither(c, f, s);
                 nativeDst[channelIndex] = KoColorSpaceMaths<float, dstChannelsType>::scaleToA(c);
                 ;
             } else {
-                // Normalize using unitCMYKValue.
                 float c = normalize<srcChannelsType>(nativeSrc[channelIndex]);
                 c = KisDitherMaths::apply_dither(c, f, s);
                 nativeDst[channelIndex] = denormalize<dstChannelsType>(c);
@@ -111,10 +99,8 @@ private:
             for (int x = 0; x < columns; ++x) {
                 for (uint channelIndex = 0; channelIndex < srcCSTraits::channels_nb; ++channelIndex) {
                     if (channelIndex == srcCSTraits::alpha_pos) {
-                        // The standard normalization.
                         dstPtr[channelIndex] = KoColorSpaceMaths<srcChannelsType, dstChannelsType>::scaleToA(srcPtr[channelIndex]);
                     } else {
-                        // Normalize using unitCMYKValue.
                         dstPtr[channelIndex] = scaleToA<srcChannelsType, dstChannelsType>(srcPtr[channelIndex]);
                     }
                 }
@@ -145,13 +131,11 @@ private:
 
                 for (uint channelIndex = 0; channelIndex < srcCSTraits::channels_nb; ++channelIndex) {
                     if (channelIndex == srcCSTraits::alpha_pos) {
-                        // The standard normalization.
                         float c = KoColorSpaceMaths<srcChannelsType, float>::scaleToA(srcPtr[channelIndex]);
                         c = KisDitherMaths::apply_dither(c, f, s);
                         dstPtr[channelIndex] = KoColorSpaceMaths<float, dstChannelsType>::scaleToA(c);
                         ;
                     } else {
-                        // Normalize using unitCMYKValue.
                         float c = normalize<srcChannelsType>(srcPtr[channelIndex]);
                         c = KisDitherMaths::apply_dither(c, f, s);
                         dstPtr[channelIndex] = denormalize<dstChannelsType>(c);
@@ -167,8 +151,6 @@ private:
             nativeDst += dstRowStride;
         }
     }
-
-    // CMYK-specific normalization bits
 
     template<typename A, typename U = srcCSTraits, typename std::enable_if<std::numeric_limits<A>::is_integer, void>::type * = nullptr> inline float normalize(A value) const
     {
@@ -197,7 +179,7 @@ private:
 
     template<typename U = typename dstCSTraits::channels_type, typename std::enable_if<!std::numeric_limits<U>::is_integer, void>::type * = nullptr> inline constexpr float scale() const
     {
-        return 0.f; // no dithering for floating point
+        return 0.f;
     }
 
     template<typename U = typename dstCSTraits::channels_type, typename std::enable_if<std::numeric_limits<U>::is_integer, void>::type * = nullptr> inline constexpr float scale() const

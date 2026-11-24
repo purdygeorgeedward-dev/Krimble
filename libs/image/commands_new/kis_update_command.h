@@ -7,13 +7,11 @@
 #ifndef __KIS_UPDATE_COMMAND_H
 #define __KIS_UPDATE_COMMAND_H
 
-
 #include "kundo2command.h"
 #include "kritaimage_export.h"
 #include "kis_types.h"
 
 class KisUpdatesFacade;
-
 
 class KRITAIMAGE_EXPORT KisUpdateCommand : public KUndo2Command
 {
@@ -40,4 +38,4 @@ private:
     bool m_needsFullRefresh;
 };
 
-#endif /* __KIS_UPDATE_COMMAND_H */
+#endif

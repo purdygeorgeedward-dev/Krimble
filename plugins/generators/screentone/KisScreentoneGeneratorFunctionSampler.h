@@ -26,18 +26,15 @@ public:
                                           const Function &the_function)
         : m_function(the_function)
     {
-        // Get transformation parameters
         qreal sizeX, sizeY;
         if (config->sizeMode() == KisScreentoneSizeMode_PixelBased) {
             const bool constrainSize = config->constrainSize();
             sizeX = config->sizeX();
-            // Ensure that the size y component is equal to the x component if keepSizeSquare is true
             sizeY = constrainSize ? sizeX : config->sizeY();
         } else {
             const qreal resolution = config->resolution();
             const bool constrainFrequency = config->constrainFrequency();
             const qreal frequencyX = config->frequencyX();
-            // Ensure that the frequency y component is equal to the x component if constrainFrequency is true
             const qreal frequencyY = constrainFrequency ? frequencyX : config->frequencyY();
             sizeX = qMax(1.0, resolution / frequencyX);
             sizeY = qMax(1.0, resolution / frequencyY);
@@ -47,8 +44,7 @@ public:
         const qreal shearX = config->shearX();
         const qreal shearY = config->shearY();
         const qreal rotation = config->rotation();
-        
-        // Get final transformation
+
         QTransform t;
         if (config->alignToPixelGrid()) {
             t.rotate(-rotation);
@@ -58,27 +54,16 @@ public:
                 static_cast<qreal>(config->alignToPixelGridX()),
                 static_cast<qreal>(config->alignToPixelGridY())
             );
-            // u1 is the unaligned vector that goes from the origin to the top-right
-            // corner of the macrocell. v1 is the aligned version
-            // u2 is the unaligned vector that goes from the origin to the bottom-left
-            // corner of the macrocell. v2 is the aligned version
             const QPointF u1 = t.map(QPointF(macrocellSize.width(), 0.0));
             const QPointF u2 = t.map(QPointF(0.0, macrocellSize.height()));
             QPointF v1(qRound(u1.x()), qRound(u1.y()));
             QPointF v2(qRound(u2.x()), qRound(u2.y()));
-            // If the following condition is met, that means that the screen is
-            // transformed in such a way that the cell corners are colinear so we move
-            // v1 or v2 to a neighbor position
             if (qFuzzyCompare(v1.y() * v2.x(), v2.y() * v1.x()) &&
                 !qFuzzyIsNull(v1.x() * v2.x() + v1.y() * v2.y())) {
-                // Choose point to move based on distance from non aligned point to
-                // aligned point
                 const qreal dist1 = kisSquareDistance(u1, v1);
                 const qreal dist2 = kisSquareDistance(u2, v2);
                 const QPointF *p_u = dist1 > dist2 ? &u1 : &u2;
                 QPointF *p_v = dist1 > dist2 ? &v1 : &v2;
-                // Then we get the closest pixel aligned point to the current,
-                // colinear, point
                 QPair<int, qreal> dists[4]{
                     {1, kisSquareDistance(*p_u, *p_v + QPointF(0.0, -1.0))},
                     {2, kisSquareDistance(*p_u, *p_v + QPointF(1.0, 0.0))},
@@ -92,7 +77,6 @@ public:
                         return a.second < b.second;
                     }
                 );
-                // Move the point
                 if (dists[0].first == 1) {
                     p_v->setY(p_v->y() - 1.0);
                 } else if (dists[0].first == 2) {
@@ -119,13 +103,11 @@ public:
 
         m_imageToScreenTransform = t;
     }
-    
+
     qreal operator()(qreal x, qreal y) const
     {
-        // Get the coordinates in screen
         qreal xx, yy;
         m_imageToScreenTransform.map(x, y, &xx, &yy);
-        // Get the value
         return m_function(xx, yy);
     }
 

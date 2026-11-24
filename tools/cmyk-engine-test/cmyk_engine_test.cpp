@@ -1,9 +1,3 @@
-// Krimble 2026-11-11: a standalone check of the CMYK engine (libs/ui/KrimbleCmykEngine.h). Needs only Qt5 Gui (apt-get install -y qtbase5-dev).
-// Build and run (from the repository root):
-//   g++ $(pkg-config --cflags Qt5Gui) -fPIC -std=c++17 -O2 tools/cmyk-engine-test/cmyk_engine_test.cpp -o /tmp/cmyk_engine_test $(pkg-config --libs Qt5Gui) && /tmp/cmyk_engine_test
-// It prints (1) the plates of a gray ramp from white to black for the default profile (SWOP (Coated), 20%, GCR, Medium, black 100, total 300) and its roughness (the largest second
-// difference of any plate, in percent: the smaller, the smoother), and (2) the round trip error of colors that CMYK can print (plates to RGB to plates to RGB; the numbers are the sum of
-// the three channel differences, 0 to 765) for the black generation presets, UCR and the ink limits.
 #include <QColor>
 #include <cstdio>
 #include <cstdlib>

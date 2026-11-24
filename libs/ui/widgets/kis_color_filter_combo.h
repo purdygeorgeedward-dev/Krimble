@@ -46,4 +46,4 @@ private:
     QList<ComboEventFilter *> m_eventFilters;
 };
 
-#endif /* __KIS_COLOR_FILTER_COMBO_H */
+#endif

@@ -10,14 +10,6 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
-/**
- * @brief The LocaleHandler class
- *
- * This object splits up a BCP47 locale into language and script sections,
- * and allows editing each.
- *
- * It also keeps track of models for script and language.
- */
 class LocaleHandler : public QObject
 {
     Q_OBJECT
@@ -97,10 +89,6 @@ private:
     const QScopedPointer<Private> d;
 };
 
-/**
- * @brief The FavoriteLocaleModel class
- * This class keeps track of favorite locales from the config.
- */
 class FavoriteLocaleModel : public QAbstractListModel {
     Q_OBJECT
 public:
@@ -126,15 +114,10 @@ private Q_SLOTS:
     void updateConfig();
 private:
 
-
     struct Private;
     const QScopedPointer<Private> d;
 };
 
-/**
- * @brief The LanguagesFilterModel class
- * class that tests both the name and the code.
- */
 class LanguagesFilterModel : public QSortFilterProxyModel {
 public:
     LanguagesFilterModel(QObject *parent = nullptr);
@@ -142,4 +125,4 @@ public:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 };
 
-#endif // LOCALEHANDLER_H
+#endif

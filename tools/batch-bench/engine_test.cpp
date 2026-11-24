@@ -1,5 +1,3 @@
-// Runs every built-in recipe of KrimbleBatch on the pictures given and writes the results; prints what came out.
-// Usage: engine_test OUTDIR picture1 picture2 ...
 #include "KrimbleBatch.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -28,7 +26,6 @@ int main(int argc, char **argv)
             out << "  " << name << (ok ? QStringLiteral("  %1x%2  %3 bytes").arg(image.width()).arg(image.height()).arg(bytes.size()) : QStringLiteral("  FAILED")) << "\n";
         }
     }
-    // a user recipe saved and read back
     KrimbleBatch::Recipe mine;
     mine.name = "My web 1200"; mine.resize = KrimbleBatch::ResizeWidth; mine.size = 1200; mine.format = KrimbleBatch::FormatWebPLossy; mine.quality = 80; mine.suffix = "my";
     KrimbleBatch::saveUserRecipes(QList<KrimbleBatch::Recipe>() << mine);

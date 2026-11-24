@@ -12,7 +12,6 @@
 #include "kis_stroke_strategy_undo_command_based.h"
 #include <KisAsynchronouslyMergeableCommandInterface.h>
 
-
 KisSavedCommandBase::KisSavedCommandBase(const KUndo2MagicString &name,
                                          KisStrokesFacade *strokesFacade)
     : KUndo2Command(name),
@@ -47,15 +46,8 @@ void KisSavedCommandBase::undo()
     runStroke(true);
 }
 
-
-
 void KisSavedCommandBase::redo()
 {
-    /**
-     * All the commands are first executed in the stroke and then
-     * added to the undo stack. It means that the first redo should be
-     * skipped
-     */
 
     if(m_skipOneRedo) {
         m_skipOneRedo = false;
@@ -64,7 +56,6 @@ void KisSavedCommandBase::redo()
 
     runStroke(false);
 }
-
 
 KisSavedCommand::KisSavedCommand(KUndo2CommandSP command,
                                  KisStrokesFacade *strokesFacade)
@@ -108,10 +99,6 @@ void KisSavedCommand::setTimedID(int timedID)
 
 bool KisSavedCommand::timedMergeWith(KUndo2Command *other)
 {
-    /// Since we are saving the actual command inside another
-    /// command, so we cannot unwrap the command here. Otherwise
-    /// the shared pointer in `other` will destroy the merged
-    /// command some time later.
 
     return m_command->timedMergeWith(other);
 }
@@ -141,8 +128,6 @@ bool KisSavedCommand::isMerged() const
 {
     return m_command->isMerged();
 }
-
-
 
 struct KisSavedMacroCommand::Private
 {

@@ -12,9 +12,6 @@
 #include "KoColorModelStandardIds.h"
 #include "KoColorModelStandardIdsUtils.h"
 
-/**
- * Converter from the alpha color space to any color space
- */
 template <typename alpha_channel_type>
 class KoColorConversionFromAlphaTransformation : public KoColorConversionTransformation
 {
@@ -33,12 +30,12 @@ public:
         quint16 data[4];
         const qint32 pixelSize = dstColorSpace()->pixelSize();
 
-        data[1] = UINT16_MAX / 2;   // a
-        data[2] = UINT16_MAX / 2;   // b
-        data[3] = UINT16_MAX;       // A
+        data[1] = UINT16_MAX / 2;
+        data[2] = UINT16_MAX / 2;
+        data[3] = UINT16_MAX;
 
         while (nPixels > 0) {
-            data[0] = KoColorSpaceMaths<alpha_channel_type, quint16>::scaleToA(*srcPtr); // L
+            data[0] = KoColorSpaceMaths<alpha_channel_type, quint16>::scaleToA(*srcPtr);
             dstColorSpace()->fromLabA16((quint8*)data, dst, 1);
 
             srcPtr++;
@@ -65,10 +62,10 @@ public:
         quint16 *dstPtr = reinterpret_cast<quint16*>(dst);
 
         while (nPixels > 0) {
-            dstPtr[0] = KoColorSpaceMaths<alpha_channel_type, quint16>::scaleToA(*srcPtr); // L
-            dstPtr[1] = UINT16_MAX / 2;   // a
-            dstPtr[2] = UINT16_MAX / 2;   // b
-            dstPtr[3] = UINT16_MAX;       // A
+            dstPtr[0] = KoColorSpaceMaths<alpha_channel_type, quint16>::scaleToA(*srcPtr);
+            dstPtr[1] = UINT16_MAX / 2;
+            dstPtr[2] = UINT16_MAX / 2;
+            dstPtr[3] = UINT16_MAX;
 
             srcPtr++;
             dstPtr += 4;
@@ -76,7 +73,6 @@ public:
         }
     }
 };
-
 
 template <typename alpha_channel_type, typename gray_channel_type>
 class KoColorConversionGrayAFromAlphaTransformation : public KoColorConversionTransformation
@@ -103,8 +99,6 @@ public:
         }
     }
 };
-
-//------ KoColorConversionFromAlphaTransformationFactoryImpl ------//
 
 template<typename alpha_channel_type>
 KoColorConversionFromAlphaTransformationFactoryImpl<alpha_channel_type>::
@@ -161,11 +155,6 @@ template class KoColorConversionFromAlphaTransformationFactoryImpl<half>;
 #endif
 template class KoColorConversionFromAlphaTransformationFactoryImpl<float>;
 
-//------ KoColorConversionToAlphaTransformation ------//
-
-/**
- * Converter to the alpha color space to any color space
- */
 template <typename alpha_channel_type>
 class KoColorConversionToAlphaTransformation : public KoColorConversionTransformation
 {
@@ -183,7 +172,7 @@ public:
 
         while (nPixels > 0) {
             srcColorSpace()->toLabA16(src, (quint8*)data, 1);
-            *dstPtr = KoColorSpaceMaths<quint16, alpha_channel_type>::scaleToA(UINT16_MULT(data[0], data[3])); // L * A
+            *dstPtr = KoColorSpaceMaths<quint16, alpha_channel_type>::scaleToA(UINT16_MULT(data[0], data[3]));
 
             src += pixelSize;
             dstPtr ++;
@@ -210,7 +199,7 @@ public:
         alpha_channel_type *dstPtr = reinterpret_cast<alpha_channel_type*>(dst);
 
         while (nPixels > 0) {
-            *dstPtr = KoColorSpaceMaths<quint16, alpha_channel_type>::scaleToA(UINT16_MULT(srcPtr[0], srcPtr[3])); // L * A
+            *dstPtr = KoColorSpaceMaths<quint16, alpha_channel_type>::scaleToA(UINT16_MULT(srcPtr[0], srcPtr[3]));
 
             srcPtr += 4;
             dstPtr++;
@@ -218,9 +207,6 @@ public:
         }
     }
 };
-
-
-//------ KoColorConversionGrayAU8ToAlphaTransformation ------//
 
 template <typename gray_channel_type, typename alpha_channel_type>
 class KoColorConversionGrayAToAlphaTransformation : public KoColorConversionTransformation
@@ -249,8 +235,6 @@ public:
         }
     }
 };
-
-//------ KoColorConversionToAlphaTransformationFactoryImpl ------//
 
 template <typename alpha_channel_type>
 KoColorConversionToAlphaTransformationFactoryImpl<alpha_channel_type>::

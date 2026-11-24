@@ -5,14 +5,12 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include <QMutexLocker>
 #include "kis_tile_data.h"
 #include "kis_tile_data_store.h"
 #include "kis_tile.h"
 #include "kis_memento_manager.h"
 #include "kis_debug.h"
-
 
 void KisTile::init(qint32 col, qint32 row,
                    KisTileData *defaultTileData, KisMementoManager* mm)
@@ -62,12 +60,6 @@ KisTile::~KisTile()
 #ifdef DEAD_TILES_SANITY_CHECK
     KIS_ASSERT(!m_lockCounter);
 
-    /**
-     * We should have been disconnected from the memento manager in
-     * notifyDetachedFromDataManager() or notifyDeadWithoutDetaching(),
-     * otherwise there is a bug
-     */
-
     if (m_mementoManager) {
         qDebug() << this << ppVar(m_sanityNumCOWHappened);
         qDebug() << this << ppVar(m_sanityHasBeenDetached);
@@ -116,7 +108,6 @@ void KisTile::notifyAttachedToDataManager(KisMementoManager *mm)
     sanityCheckIsNotDestroyedYet();
 #endif
 
-    // TODO: check if we really need locking here
     if (!m_mementoManager.loadAcquire()) {
         QMutexLocker locker(&m_COWMutex);
 
@@ -138,9 +129,6 @@ void KisTile::notifyAttachedToDataManager(KisMementoManager *mm)
 #endif
 }
 
-//#define DEBUG_TILE_LOCKING
-//#define DEBUG_TILE_COWING
-
 #ifdef DEBUG_TILE_LOCKING
 #define DEBUG_LOG_ACTION(action)                                        \
     printf("### %s \ttile:\t0x%llX (%d, %d) (0x%llX) ###\n", action, (quintptr)this, m_col, m_row, (quintptr)m_tileData)
@@ -157,12 +145,6 @@ void KisTile::notifyAttachedToDataManager(KisMementoManager *mm)
 
 inline void KisTile::blockSwapping() const
 {
-    /**
-     * We need to hold a special barrier lock here to ensure
-     * m_tileData->blockSwapping() has finished executing
-     * before anyone started reading the tile data. That is
-     * why we can not use atomic operations here.
-     */
 
     QMutexLocker locker(&m_swapBarrierLock);
     Q_ASSERT(m_lockCounter >= 0);
@@ -215,7 +197,6 @@ void KisTile::lockForRead() const
     blockSwapping();
 }
 
-
 #define lazyCopying() (m_tileData->m_usersCount>1)
 
 void KisTile::lockForWrite()
@@ -226,14 +207,8 @@ void KisTile::lockForWrite()
 
     blockSwapping();
 
-    /* We are doing COW here */
     if (lazyCopying()) {
         m_COWMutex.lock();
-
-        /**
-         * Everything could have happened before we took
-         * the mutex, so let's check again...
-         */
 
         if (lazyCopying()) {
 
@@ -282,7 +257,6 @@ void KisTile::unlockForRead() const
     KIS_ASSERT(m_sanityLockedForRead.loadAcquire() >= 0);
 #endif
 }
-
 
 #include <stdio.h>
 void KisTile::debugPrintInfo()

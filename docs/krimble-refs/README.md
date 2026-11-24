@@ -155,3 +155,17 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_1603_colorlab-issues-6.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 6 of 8) |
 | 2026-11-23_1603_colorlab-issues-7.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 7 of 8) |
 | 2026-11-23_1603_colorlab-issues-8.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 8 of 8) |
+| 2026-11-23_1803_build78-opened-tiny.jpg | Nov 23, 2026 18:03 MST | George, build 78: "Still opened a file tiny." (map1.webp, landscape, Color Lab + Layers docked on the right) |
+| 2026-11-23_1814_new-file-dialog-mockup.png | Nov 23, 2026 18:14 MST | George's New File dialog mockup: "The New file dialog window is a little clunky... you have to stretch it out to get to the controls. What do you think of this design?" |
+| 2026-11-23_1928_build78-menu-bottoms-1.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 1 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-2.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 2 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-3.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 3 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-4.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 4 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-5.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 5 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_2120_light-eyedropper-see.jpg | Nov 23, 2026 21:20 MST | George, build 78, Krimble Light: "SEE?" with arrows: the toolbox eyedropper drawn light gray while the other tools are black |
+- 2026-11-23_2245 newfile-redesign-preview-landscape.png / -portrait.png — New File dialog before and after (real forms, Blue-Gray sheet). George: "Yes to new file dialog."
+- 2026-11-23_2245 preview-aqua-pressed-glow-rounded.png — pressed Aqua options, glow style, rounded-corner examples.
+- 2026-11-23_2245 preview-pressedA-outline.png — pressed Aqua #0057e0 with outline options. George: "A with brighter outline looks great."
+- 2026-11-23_2245 ref-pro-editor-dark-1/2/3.png, ref-pro-editor-dark-menu.png, ref-pro-editor-four-grays.jpg — George's reference screenshots of the industry-standard editor's gray themes.
+- 2026-11-23_2245 preview-darkgray-vs-pro-editor-tones.png — Krimble Dark Gray vs those tones. George: "Never mind. Ours is better." / "Keep all of ours as is. Except cyber."
+- 2026-11-23_2249_unselected-tab-bottom-line.jpg — George: "Remove lines at bottom of unselected tabs." Previews: preview-tab-bottom-light-line.png, preview-tab-bottom-light-line-realqt.png.

@@ -8,7 +8,6 @@
 
 #include "KoOptimizedPixelDataScalerU8ToU16FactoryImpl.h"
 
-
 KoOptimizedPixelDataScalerU8ToU16Base *KoOptimizedPixelDataScalerU8ToU16Factory::createRgbaScaler()
 {
     return createOptimizedClass<

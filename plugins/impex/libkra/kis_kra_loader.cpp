@@ -80,52 +80,18 @@
 #include "KisMirrorAxisConfig.h"
 #include <kis_cursor_override_hijacker.h>
 
-/*
-  Color model id comparison through the ages:
-
-2.4        2.5          2.6         ideal
-
-ALPHA      ALPHA        ALPHA       ALPHAU8
-
-CMYK       CMYK         CMYK        CMYKAU8
-           CMYKAF32     CMYKAF32
-CMYKA16    CMYKAU16     CMYKAU16
-
-GRAYA      GRAYA        GRAYA       GRAYAU8
-GrayF32    GRAYAF32     GRAYAF32
-GRAYA16    GRAYAU16     GRAYAU16
-
-LABA       LABA         LABA        LABAU16
-           LABAF32      LABAF32
-           LABAU8       LABAU8
-
-RGBA       RGBA         RGBA        RGBAU8
-RGBA16     RGBA16       RGBA16      RGBAU16
-RgbAF32    RGBAF32      RGBAF32
-RgbAF16    RgbAF16      RGBAF16
-
-XYZA16     XYZA16       XYZA16      XYZAU16
-           XYZA8        XYZA8       XYZAU8
-XyzAF16    XyzAF16      XYZAF16
-XyzAF32    XYZAF32      XYZAF32
-
-YCbCrA     YCBCRA8      YCBCRA8     YCBCRAU8
-YCbCrAU16  YCBCRAU16    YCBCRAU16
-           YCBCRF32     YCBCRF32
- */
-
 using namespace KRA;
 
 struct KisKraLoader::Private
 {
 public:
     KisDocument* document;
-    QString imageName; // used to be stored in the image, is now in the documentInfo block
-    QString imageComment; // used to be stored in the image, is now in the documentInfo block
-    QMap<KisNode*, QString> layerFilenames; // temp storage during loading
-    int syntaxVersion; // version of the fileformat we are loading
+    QString imageName;
+    QString imageComment;
+    QMap<KisNode*, QString> layerFilenames;
+    int syntaxVersion;
     QVersionNumber kritaVersion;
-    vKisNodeSP selectedNodes; // the nodes that were active when saving the document.
+    vKisNodeSP selectedNodes;
     QMap<QString, QString> assistantsFilenames;
     StoryboardItemList storyboardItemList;
     StoryboardCommentList storyboardCommentList;
@@ -185,12 +151,10 @@ KisKraLoader::KisKraLoader(KisDocument * document, int syntaxVersion, const QVer
     m_d->kritaVersion = kritaVersion;
 }
 
-
 KisKraLoader::~KisKraLoader()
 {
     delete m_d;
 }
-
 
 KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
 {
@@ -244,28 +208,22 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
         }
 
         if ((colorspacename = imageElement.attribute(COLORSPACE_NAME)).isNull()) {
-            // An old file: take a reasonable default.
-            // Krita didn't support anything else in those
-            // days anyway.
             colorspacename = "RGBA";
         }
 
         profileProductName = imageElement.attribute(PROFILE);
-        // A hack for an old colorspacename
         convertColorSpaceNames(colorspacename, profileProductName);
 
         QString colorspaceModel = KoColorSpaceRegistry::instance()->colorSpaceColorModelId(colorspacename).id();
         QString colorspaceDepth = KoColorSpaceRegistry::instance()->colorSpaceColorDepthId(colorspacename).id();
 
         if (profileProductName.isNull()) {
-            // no mention of profile so get default profile";
             cs = KoColorSpaceRegistry::instance()->colorSpace(colorspaceModel, colorspaceDepth, "");
         } else {
             cs = KoColorSpaceRegistry::instance()->colorSpace(colorspaceModel, colorspaceDepth, profileProductName);
         }
 
         if (cs == 0) {
-            // try once more without the profile
             cs = KoColorSpaceRegistry::instance()->colorSpace(colorspaceModel, colorspaceDepth, "");
             if (cs == 0) {
                 m_d->errorMessages << i18n("Image specifies an unsupported color model: %1.", colorspacename);
@@ -274,7 +232,6 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
         }
         KisProofingConfigurationSP proofingConfig;
         if (!(attr = imageElement.attribute(PROOFINGPROFILENAME)).isNull()) {
-            // initialize config only if ptofile name is present
             proofingConfig = KisImageConfig(true).defaultProofingconfiguration();
             proofingConfig->proofingProfile = attr;
         }
@@ -321,7 +278,6 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
         image->setResolution(xres, yres);
         loadNodes(imageElement, image, const_cast<KisGroupLayer*>(image->rootLayer().data()));
 
-
         QDomNode child;
         for (child = imageElement.lastChild(); !child.isNull(); child = child.previousSibling()) {
             QDomElement e = child.toElement();
@@ -354,7 +310,6 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
                 proofingConfig->warningColor = KoColor::fromXML(eq.firstChildElement(), Integer8BitsColorDepthID.id());
             }
 
-            // COMPATIBILITY -- Load Animation Metadata from OLD KRA files.
             if (e.tagName().toLower() == "animation") {
                 loadAnimationMetadataFromXML(e, image);
             }
@@ -388,7 +343,6 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
         }
     }
 
-    // reading palettes from XML
     for (child = imageElement.lastChild(); !child.isNull(); child = child.previousSibling()) {
         QDomElement e = child.toElement();
         if (e.tagName() == PALETTES) {
@@ -401,7 +355,6 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
         }
     }
 
-    // reading resources from XML
     for (child = imageElement.lastChild(); !child.isNull(); child = child.previousSibling()) {
         QDomElement e = child.toElement();
         if (e.tagName() == RESOURCES) {
@@ -420,7 +373,6 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
         }
     }
 
-    // reading the extra annotations from XML
     for (child = imageElement.lastChild(); !child.isNull(); child = child.previousSibling()) {
         QDomElement e = child.toElement();
         if (e.tagName() == ANNOTATIONS) {
@@ -443,7 +395,6 @@ KisImageSP KisKraLoader::loadXML(const QDomElement& imageElement)
 
 void KisKraLoader::loadBinaryData(KoStore * store, KisImageSP image, const QString & uri, bool external)
 {
-    // icc profile: if present, this overrides the profile product name loaded in loadXML.
     QString location = external ? QString() : uri;
     location += m_d->imageName + ICC_PATH;
     if (store->hasFile(location)) {
@@ -462,7 +413,6 @@ void KisKraLoader::loadBinaryData(KoStore * store, KisImageSP image, const QStri
             }
         }
     }
-    //load the embed proofing profile, it only needs to be loaded into Krita, not assigned.
     location = external ? QString() : uri;
     location += m_d->imageName + ICC_PROOFING_PATH;
     if (store->hasFile(location)) {
@@ -486,8 +436,6 @@ void KisKraLoader::loadBinaryData(KoStore * store, KisImageSP image, const QStri
         }
     }
 
-
-    // Load the layers data: if there is a profile associated with a layer it will be set now.
     KisKraLoadVisitor visitor(image, store, m_d->document->shapeController(), m_d->layerFilenames, m_d->keyframeFilenames, m_d->imageName, m_d->syntaxVersion);
 
     if (external) {
@@ -502,8 +450,6 @@ void KisKraLoader::loadBinaryData(KoStore * store, KisImageSP image, const QStri
         m_d->warningMessages.append(visitor.warningMessages());
     }
 
-    // annotations
-    // exif
     location = external ? QString() : uri;
     location += m_d->imageName + EXIF_PATH;
     if (store->hasFile(location)) {
@@ -514,8 +460,6 @@ void KisKraLoader::loadBinaryData(KoStore * store, KisImageSP image, const QStri
         image->addAnnotation(KisAnnotationSP(new KisAnnotation("exif", "", data)));
     }
 
-
-    // layer styles
     location = external ? QString() : uri;
     location += m_d->imageName + LAYER_STYLES_PATH;
     if (store->hasFile(location)) {
@@ -526,10 +470,6 @@ void KisKraLoader::loadBinaryData(KoStore * store, KisImageSP image, const QStri
             KoStoreDevice device(store);
             device.open(QIODevice::ReadOnly);
 
-            /**
-             * ASL loading code cannot work with non-sequential IO devices,
-             * so convert the device beforehand!
-             */
             QByteArray buf = device.readAll();
             QBuffer raDevice(&buf);
             raDevice.open(QIODevice::ReadOnly);
@@ -553,7 +493,6 @@ void KisKraLoader::loadBinaryData(KoStore * store, KisImageSP image, const QStri
 
     loadAssistants(store, uri, external);
 
-    // Annotations
     Q_FOREACH(KisAnnotationSP annotation, m_d->annotations) {
         QByteArray ba;
         location = external ? QString() : uri;
@@ -600,8 +539,6 @@ void KisKraLoader::loadResources(KoStore *store, KisDocument *doc)
                 continue;
             }
 
-            /// don't try to load the resource if its file is empty
-            /// (which is a sign of a failed save operation)
             if (!store->device()->atEnd() && !doc->linkedResourcesStorageId().isEmpty()) {
                 bool result = bool(model.importResource(resourceItem.filename, store->device(), false, doc->linkedResourcesStorageId()));
                 if (!result) {
@@ -614,7 +551,7 @@ void KisKraLoader::loadResources(KoStore *store, KisDocument *doc)
     }
 }
 
-void KisKraLoader::loadStoryboards(KoStore *store, KisDocument */*doc*/)
+void KisKraLoader::loadStoryboards(KoStore *store, KisDocument * )
 {
     if (!store->hasFile(m_d->imageName + STORYBOARD_PATH + "index.xml")) return;
 
@@ -710,8 +647,6 @@ void KisKraLoader::backCompat_loadAudio(const QDomElement& elem, KisDocument *do
         }
     }
 
-    // Note: Muting has been removed from backCompat due to it no longer being document-specific.
-
     qreal audioVolume = 1.0;
     if (KisDomUtils::loadValue(qElement, "audioVolume", &audioVolume)) {
         document->setAudioVolume(audioVolume);
@@ -753,7 +688,6 @@ QString KisKraLoader::imageName() const
     return m_d->imageName;
 }
 
-
 void KisKraLoader::loadAssistants(KoStore *store, const QString &uri, bool external)
 {
     QString file_path;
@@ -773,7 +707,6 @@ void KisKraLoader::loadAssistants(KoStore *store, const QString &uri, bool exter
             assistant->loadXml(store, handleMap, file_path);
             assistant->setAssistantGlobalColorCache(globalColor);
 
-            //If an assistant has too few handles than it should according to it's own setup, just don't load it//
             if (assistant->handles().size()==assistant->numHandles()){
                 m_d->assistants.append(toQShared(assistant));
             }
@@ -839,8 +772,6 @@ KisNodeSP KisKraLoader::loadNodes(const QDomElement& element, KisImageSP image, 
 
         if (node.isElement()) {
 
-            // See https://bugs.kde.org/show_bug.cgi?id=408963, where there is a selection mask that is a child of the
-            // the projection. That needs to be treated as a global selection, so we keep track of those.
             vKisNodeSP topLevelSelectionMasks;
             if (node.nodeName().toUpper() == LAYERS.toUpper() || node.nodeName().toUpper() == MASKS.toUpper()) {
                 for (child = node.lastChild(); !child.isNull(); child = child.previousSibling()) {
@@ -885,10 +816,6 @@ KisNodeSP KisKraLoader::loadNodes(const QDomElement& element, KisImageSP image, 
 
 KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
 {
-    // Nota bene: If you add new properties to layers, you should
-    // ALWAYS define a default value in case the property is not
-    // present in the layer definition: this helps a LOT with backward
-    // compatibility.
     QString name = element.attribute(NAME, "No Name");
 
     QUuid id = QUuid(element.attribute(UUID, QUuid().toString()));
@@ -913,10 +840,8 @@ KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
         QString colorspaceModel = KoColorSpaceRegistry::instance()->colorSpaceColorModelId(colorspacename).id();
         QString colorspaceDepth = KoColorSpaceRegistry::instance()->colorSpaceColorDepthId(colorspacename).id();
         dbgFile << "Searching color space: " << colorspacename << colorspaceModel << colorspaceDepth << " for layer: " << name;
-        // use default profile - it will be replaced later in completeLoading
 
         if (profileProductName.isNull()) {
-            // no mention of profile so get default profile";
             colorSpace = KoColorSpaceRegistry::instance()->colorSpace(colorspaceModel, colorspaceDepth, "");
         } else {
             colorSpace = KoColorSpaceRegistry::instance()->colorSpace(colorspaceModel, colorspaceDepth, profileProductName);
@@ -938,7 +863,6 @@ KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
         colorLabelIndex = labels.size() - 1;
     }
 
-    // Now find out the layer type and do specific handling
     QString nodeType;
 
     if (m_d->syntaxVersion == 1) {
@@ -955,8 +879,6 @@ KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
         m_d->warningMessages << i18n("Layer %1 has an unsupported type.", name);
         return 0;
     }
-
-
 
     KisNodeSP node = 0;
 
@@ -991,8 +913,6 @@ KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
         return 0;
     }
 
-    // Loading the node went wrong. Return empty node and leave to
-    // upstream to complain to the user
     if (!node) {
         m_d->warningMessages << i18n("Failure loading layer %1 of type: %2.", name, nodeType);
         return 0;
@@ -1006,7 +926,7 @@ KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
     node->setY(y);
     node->setName(name);
 
-    if (! id.isNull())          // if no uuid in file, new one has been generated already
+    if (! id.isNull())
         node->setUuid(id);
 
     if (node->inherits("KisLayer") || node->inherits("KisColorizeMask")) {
@@ -1062,7 +982,6 @@ KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
         }
     }
 
-
     const bool timelineEnabled = element.attribute(VISIBLE_IN_TIMELINE, "0") == "0" ? false : true;
     node->setPinnedToTimeline(timelineEnabled);
 
@@ -1092,7 +1011,6 @@ KisNodeSP KisKraLoader::loadNode(const QDomElement& element, KisImageSP image)
 
     return node;
 }
-
 
 KisNodeSP KisKraLoader::loadPaintLayer(const QDomElement& element, KisImageSP image,
                                        const QString& name, const KoColorSpace* cs, quint32 opacity)
@@ -1184,7 +1102,6 @@ KisNodeSP KisKraLoader::loadGroupLayer(const QDomElement& element, KisImageSP im
 KisNodeSP KisKraLoader::loadAdjustmentLayer(const QDomElement& element, KisImageSP image,
                                             const QString& name, const KoColorSpace* cs, quint32 opacity)
 {
-    // XXX: do something with filterversion?
     Q_UNUSED(cs);
     QString attr;
     KisAdjustmentLayer* layer;
@@ -1192,12 +1109,10 @@ KisNodeSP KisKraLoader::loadAdjustmentLayer(const QDomElement& element, KisImage
     QString legacy = filtername;
 
     if ((filtername = element.attribute(FILTER_NAME)).isNull()) {
-        // XXX: Invalid adjustment layer! We should warn about it!
         warnFile << "No filter in adjustment layer";
         return 0;
     }
 
-    //get deprecated filters.
     if (filtername=="brightnesscontrast") {
         legacy = filtername;
         filtername = "perchannel";
@@ -1213,7 +1128,7 @@ KisNodeSP KisKraLoader::loadAdjustmentLayer(const QDomElement& element, KisImage
     KisFilterSP f = KisFilterRegistry::instance()->value(filtername);
     if (!f) {
         warnFile << "No filter for filtername" << filtername << "";
-        return 0; // XXX: We don't have this filter. We should warn about it!
+        return 0;
     }
 
     KisFilterConfigurationSP  kfc = f->defaultConfiguration(KisGlobalResourcesInterface::instance());
@@ -1223,7 +1138,6 @@ KisNodeSP KisKraLoader::loadAdjustmentLayer(const QDomElement& element, KisImage
         kfc->setProperty("colorModel", cs->colorModelId().id());
     }
 
-    // We'll load the configuration and the selection later.
     layer = new KisAdjustmentLayer(image, name, kfc, 0);
     Q_CHECK_PTR(layer);
 
@@ -1232,7 +1146,6 @@ KisNodeSP KisKraLoader::loadAdjustmentLayer(const QDomElement& element, KisImage
     return layer;
 
 }
-
 
 KisNodeSP KisKraLoader::loadShapeLayer(const QDomElement& element, KisImageSP image,
                                        const QString& name, const KoColorSpace* cs, quint32 opacity)
@@ -1253,17 +1166,14 @@ KisNodeSP KisKraLoader::loadShapeLayer(const QDomElement& element, KisImageSP im
 
 }
 
-
 KisNodeSP KisKraLoader::loadGeneratorLayer(const QDomElement& element, KisImageSP image,
                                            const QString& name, const KoColorSpace* cs, quint32 opacity)
 {
     Q_UNUSED(cs);
-    // XXX: do something with generator version?
     KisGeneratorLayer* layer;
     QString generatorname = element.attribute(GENERATOR_NAME);
 
     if (generatorname.isNull()) {
-        // XXX: Invalid generator layer! We should warn about it!
         warnFile << "No generator in generator layer";
         return 0;
     }
@@ -1271,13 +1181,12 @@ KisNodeSP KisKraLoader::loadGeneratorLayer(const QDomElement& element, KisImageS
     KisGeneratorSP generator = KisGeneratorRegistry::instance()->value(generatorname);
     if (!generator) {
         warnFile << "No generator for generatorname" << generatorname << "";
-        return 0; // XXX: We don't have this generator. We should warn about it!
+        return 0;
     }
 
     KisFilterConfigurationSP  kgc = generator->defaultConfiguration(KisGlobalResourcesInterface::instance());
     kgc->createLocalResourcesSnapshot();
 
-    // We'll load the configuration and the selection later.
     layer = new KisGeneratorLayer(image, name, kgc, 0);
     Q_CHECK_PTR(layer);
 
@@ -1315,17 +1224,13 @@ KisNodeSP KisKraLoader::loadCloneLayer(const QDomElement& element, KisImageSP im
     return layer;
 }
 
-
 KisNodeSP KisKraLoader::loadFilterMask(KisImageSP image, const QDomElement& element)
 {
     QString attr;
     KisFilterMask* mask;
     QString filtername;
 
-    // XXX: should we check the version?
-
     if ((filtername = element.attribute(FILTER_NAME)).isNull()) {
-        // XXX: Invalid filter layer! We should warn about it!
         warnFile << "No filter in filter layer";
         return 0;
     }
@@ -1333,13 +1238,12 @@ KisNodeSP KisKraLoader::loadFilterMask(KisImageSP image, const QDomElement& elem
     KisFilterSP f = KisFilterRegistry::instance()->value(filtername);
     if (!f) {
         warnFile << "No filter for filtername" << filtername << "";
-        return 0; // XXX: We don't have this filter. We should warn about it!
+        return 0;
     }
 
     KisFilterConfigurationSP  kfc = f->defaultConfiguration(KisGlobalResourcesInterface::instance());
     kfc->createLocalResourcesSnapshot();
 
-    // We'll load the configuration and the selection later.
     mask = new KisFilterMask(image);
     mask->setFilter(kfc);
     Q_CHECK_PTR(mask);
@@ -1353,10 +1257,6 @@ KisNodeSP KisKraLoader::loadTransformMask(KisImageSP image, const QDomElement& e
 
     KisTransformMask* mask;
 
-    /**
-     * We'll load the transform configuration later on a stage
-     * of binary data loading
-     */
     mask = new KisTransformMask(image, "");
     Q_CHECK_PTR(mask);
 

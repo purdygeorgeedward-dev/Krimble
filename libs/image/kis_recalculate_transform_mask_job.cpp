@@ -21,7 +21,6 @@ KisRecalculateTransformMaskJob::KisRecalculateTransformMaskJob(KisTransformMaskS
     setExclusive(true);
 }
 
-
 bool KisRecalculateTransformMaskJob::overrides(const KisSpontaneousJob *_otherJob)
 {
     const KisRecalculateTransformMaskJob *otherJob =
@@ -32,10 +31,6 @@ bool KisRecalculateTransformMaskJob::overrides(const KisSpontaneousJob *_otherJo
 
 void KisRecalculateTransformMaskJob::run()
 {
-    /**
-     * The mask might have been deleted from the layers stack. In
-     * such a case, don't try do update it.
-     */
     if (!m_mask->parent()) return;
     if (!m_mask->visible()) return;
     if (m_mask->staticImageCacheIsValid()) return;
@@ -53,13 +48,6 @@ void KisRecalculateTransformMaskJob::run()
     KisImageSP image = layer->image();
     Q_ASSERT(image);
 
-    /**
-     * Depending on whether the mask is hidden we should either
-     * update it entirely via the setDirty() call, or we can use a
-     * lightweight approach by directly regenerating the
-     * precalculated static image using
-     * KisRecalculateTransformMaskJob.
-     */
     if (m_mask->transformParams()->isHidden()) {
         QRect updateRect = m_mask->extent() | oldMaskExtent;
 
@@ -75,18 +63,11 @@ void KisRecalculateTransformMaskJob::run()
             m_mask->setDirtyDontResetAnimationCache(updateRect);
         }
     } else {
-        /**
-         * When we call NoFilthy update on a layer,
-         * its masks' change rect is not counted, because it is considered
-         * to be N_ABOVE_FILTHY. Therefore, we should expand the dirty
-         * rect manually to get the correct update
-         */
         QRect updateRect = oldMaskExtent |
             layer->projectionPlane()->changeRect(layer->extent(), KisLayer::N_FILTHY);
 
         updateRect |= m_extraUpdateRect;
 
-        // Should there be a case where this is flushed?
         image->requestProjectionUpdate(layer.data(), {updateRect},
                                        KisProjectionUpdateFlag::NoFilthy |
                                            KisProjectionUpdateFlag::DontInvalidateFrames);

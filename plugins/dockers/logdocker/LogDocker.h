@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef _LOG_DOCKER_H_
 #define _LOG_DOCKER_H_
 

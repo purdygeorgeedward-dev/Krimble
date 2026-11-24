@@ -160,8 +160,8 @@ void KisWdgOptionsJPEGXL::toggleExtraHDROptions(int index)
 void KisWdgOptionsJPEGXL::toggleModularTabs(int index)
 {
     const int id = modular->itemData(index, Qt::UserRole).value<int>();
-    advancedParameters->setTabEnabled(1, id == -1 || id == 0); // vardct
-    advancedParameters->setTabEnabled(2, id == -1 || id == 1); // modular
+    advancedParameters->setTabEnabled(1, id == -1 || id == 0);
+    advancedParameters->setTabEnabled(2, id == -1 || id == 1);
 }
 
 void KisWdgOptionsJPEGXL::setConfiguration(const KisPropertiesConfigurationSP cfg)
@@ -312,7 +312,6 @@ KisPropertiesConfigurationSP KisWdgOptionsJPEGXL::configuration() const
     cfg->setProperty("patches", patches->currentData());
     cfg->setProperty("epf", epf->value());
     cfg->setProperty("gaborish", gaborish->currentData());
-    // force modular encoding without overriding value in advanced tab
     if (forceModular->isChecked() && lossyEncoding->isChecked()) {
         cfg->setProperty("modular", 1);
     } else {

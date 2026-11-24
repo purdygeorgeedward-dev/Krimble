@@ -13,21 +13,12 @@
 
 class KoToolFactoryBase;
 
-/**
- * This singleton class keeps a register of all available flake tools,
- * or rather, of the factories that the KoToolBox (and KoToolManager) will use
- * to create flake tools.
- */
 class KRITAFLAKE_EXPORT KoToolRegistry : public KoGenericRegistry<KoToolFactoryBase*>
 {
 public:
     KoToolRegistry();
     ~KoToolRegistry() override;
 
-    /**
-     * Return an instance of the KoToolRegistry
-     * Create a new instance on first call and return the singleton.
-     */
     static KoToolRegistry *instance();
 
 private:

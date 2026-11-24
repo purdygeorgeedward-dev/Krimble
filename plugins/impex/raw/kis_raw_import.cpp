@@ -88,7 +88,7 @@ inline quint16 correctIndian(quint16 v)
 }
 
 KisImportExportErrorCode
-KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesConfigurationSP /*configuration*/)
+KisRawImport::convert(KisDocument *document, QIODevice * , KisPropertiesConfigurationSP )
 {
 #if KDCRAW_VERSION < 0x010200
     m_rawWidget->rawSettings->setDefaultSettings();
@@ -104,7 +104,6 @@ KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesCo
     if (r == QDialog::Accepted) {
         KisCursorOverrideLock cursorLock(Qt::WaitCursor);
 
-        // Do the decoding
         QByteArray imageData;
         RawDecodingSettings settings = rawDecodingSettings();
         settings.sixteenBitsImage = true;
@@ -157,7 +156,6 @@ KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesCo
             break;
         }
 
-        // Init the image
         const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb16(profile);
         KisImageSP image = new KisImage(document->createUndoStore(), width, height, cs, filename());
         KIS_ASSERT_RECOVER_RETURN_VALUE(!image.isNull(), ImportExportCodes::InternalError);
@@ -176,9 +174,7 @@ KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesCo
                                   int height,
                                   const QPointer<KoUpdater> &updater) -> void {
             const float original = static_cast<float>(updater->progress());
-            // Leave 10% for the metadata
             const float step = (static_cast<float>(updater->maximum() * 0.9) - original) / (float)height;
-            // Copy the data
             KisRandomAccessorSP it = layer->paintDevice()->createRandomAccessorNG();
 
             for (int y = 0; y < height;) {
@@ -224,8 +220,6 @@ KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesCo
         readLayer(layer, imageData, width, height, updater());
 
         {
-            // HACK!! Externally parse the Exif metadata
-            // libtiff has no way to access the fields wholesale
             try {
                 KisExiv2IODevice::ptr_type basicIoDevice(new KisExiv2IODevice(filename()));
 
@@ -239,17 +233,14 @@ KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesCo
 
                 const KisMetaData::IOBackend *io = KisMetadataBackendRegistry::instance()->value("exif");
 
-                // All IFDs are paint layer children of root
                 KisNodeSP node = image->rootLayer()->firstChild();
 
                 QBuffer ioDevice;
 
                 {
-                    // Synthesize the Exif blob
                     Exiv2::ExifData tempData;
                     Exiv2::Blob tempBlob;
 
-                    // NOTE: do not use std::copy_if, auto_ptrs beware
                     for (const Exiv2::Exifdatum &i : readImg->exifData()) {
                         const uint16_t tag = i.tag();
 
@@ -270,14 +261,11 @@ KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesCo
                         tempData.add(i);
                     }
 
-                    // Encode into temporary blob
                     Exiv2::ExifParser::encode(tempBlob, Exiv2::littleEndian, tempData);
 
-                    // Reencode into Qt land
                     ioDevice.setData(reinterpret_cast<char *>(tempBlob.data()), static_cast<int>(tempBlob.size()));
                 }
 
-                // Get layer
                 KisLayer *layer = qobject_cast<KisLayer *>(node.data());
                 KIS_ASSERT_RECOVER(layer)
                 {
@@ -285,7 +273,6 @@ KisRawImport::convert(KisDocument *document, QIODevice * /*io*/, KisPropertiesCo
                     return ImportExportCodes::InternalError;
                 }
 
-                // Inject the data as any other IOBackend
                 io->loadFrom(layer->metaData(), &ioDevice);
 #if EXIV2_TEST_VERSION(0,28,0)
             } catch (Exiv2::Error &e) {

@@ -9,7 +9,6 @@
 #include <KisCurveOptionWidget.h>
 #include <KisPaintThicknessOptionData.h>
 
-
 class KisPaintThicknessOptionWidget : public KisCurveOptionWidget
 {
     Q_OBJECT
@@ -27,4 +26,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISPAINTTHICKNESSOPTIONWIDGET_H
+#endif

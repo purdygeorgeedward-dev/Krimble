@@ -10,24 +10,6 @@
 #include <KoCompositeOp.h>
 #include <KoColorSpaceMaths.h>
 
-/**
- * A template base class that can be used for most composite modes/ops
- *
- * @param _compositeOp this template parameter is a class that must be
- *        derived from KoCompositeOpBase and must define the static member function
- *        template<bool alphaLocked, bool allChannelFlags>
- *        inline static channels_type composeColorChannels(
- *            const channels_type* src,
- *            channels_type srcAlpha,
- *            channels_type* dst,
- *            channels_type dstAlpha,
- *            channels_type maskAlpha,
- *            channels_type opacity,
- *            const QBitArray& channelFlags
- *        )
- *
- *        where channels_type is _CSTraits::channels_type
- */
 template<class _CSTraits, class _compositeOp>
 class KoCompositeOpBase : public KoCompositeOp
 {
@@ -118,4 +100,4 @@ private:
     }
 };
 
-#endif // KOCOMPOSITEOP_BASE_H_
+#endif

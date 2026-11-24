@@ -94,7 +94,6 @@ void KisTileDataPoolerTest::testCycles()
         i++;
     }
 
-
     KisTileDataStore::instance()->endIteration(iter);
     KisTileDataStore::instance()->debugClear();
 }

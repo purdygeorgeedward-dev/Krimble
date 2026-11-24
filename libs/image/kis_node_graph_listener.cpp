@@ -11,7 +11,6 @@
 #include <QRect>
 #include <QtGlobal>
 
-
 struct Q_DECL_HIDDEN KisNodeGraphListener::Private
 {
     Private() : sequenceNumber(0) {}
@@ -27,32 +26,32 @@ KisNodeGraphListener::~KisNodeGraphListener()
 {
 }
 
-void KisNodeGraphListener::aboutToAddANode(KisNode */*parent*/, int /*index*/)
+void KisNodeGraphListener::aboutToAddANode(KisNode * , int )
 {
     m_d->sequenceNumber++;
 }
 
-void KisNodeGraphListener::nodeHasBeenAdded(KisNode */*parent*/, int /*index*/, KisNodeAdditionFlags /*flags*/)
+void KisNodeGraphListener::nodeHasBeenAdded(KisNode * , int , KisNodeAdditionFlags )
 {
     m_d->sequenceNumber++;
 }
 
-void KisNodeGraphListener::aboutToRemoveANode(KisNode */*parent*/, int /*index*/)
+void KisNodeGraphListener::aboutToRemoveANode(KisNode * , int )
 {
     m_d->sequenceNumber++;
 }
 
-void KisNodeGraphListener::nodeHasBeenRemoved(KisNode */*parent*/, int /*index*/)
+void KisNodeGraphListener::nodeHasBeenRemoved(KisNode * , int )
 {
     m_d->sequenceNumber++;
 }
 
-void KisNodeGraphListener::aboutToMoveNode(KisNode * /*node*/, int /*oldIndex*/, int /*newIndex*/)
+void KisNodeGraphListener::aboutToMoveNode(KisNode * , int , int )
 {
     m_d->sequenceNumber++;
 }
 
-void KisNodeGraphListener::nodeHasBeenMoved(KisNode * /*node*/, int /*oldIndex*/, int /*newIndex*/)
+void KisNodeGraphListener::nodeHasBeenMoved(KisNode * , int , int )
 {
     m_d->sequenceNumber++;
 }
@@ -62,21 +61,21 @@ int KisNodeGraphListener::graphSequenceNumber() const
     return m_d->sequenceNumber;
 }
 
-void KisNodeGraphListener::keyframeChannelHasBeenAdded(KisNode */*node*/, KisKeyframeChannel */*channel*/)
+void KisNodeGraphListener::keyframeChannelHasBeenAdded(KisNode * , KisKeyframeChannel * )
 {
 
 }
 
-void KisNodeGraphListener::keyframeChannelAboutToBeRemoved(KisNode */*node*/, KisKeyframeChannel */*channel*/)
+void KisNodeGraphListener::keyframeChannelAboutToBeRemoved(KisNode * , KisKeyframeChannel * )
 {
 
 }
 
-void KisNodeGraphListener::nodeChanged(KisNode * /*node*/)
+void KisNodeGraphListener::nodeChanged(KisNode * )
 {
 }
 
-void KisNodeGraphListener::nodeCollapsedChanged(KisNode * /*node*/)
+void KisNodeGraphListener::nodeCollapsedChanged(KisNode * )
 {
 }
 
@@ -88,7 +87,7 @@ void KisNodeGraphListener::notifySelectionChanged()
 {
 }
 
-void KisNodeGraphListener::requestProjectionUpdate(KisNode * /*node*/, const QVector<QRect> &/*rects*/, KisProjectionUpdateFlags /*flags*/)
+void KisNodeGraphListener::requestProjectionUpdate(KisNode * , const QVector<QRect> & , KisProjectionUpdateFlags )
 {
 }
 

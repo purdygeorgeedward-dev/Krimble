@@ -15,7 +15,6 @@
 #include <kis_image.h>
 #include <operations/kis_operation_configuration.h>
 
-
 WdgGrowSelection::WdgGrowSelection(QWidget* parent, KisViewManager* view, KisOperationConfigurationSP config)
     : KisOperationUIWidget(i18n("Grow Selection"), parent)
     , m_growValue(config->getInt("x-radius", 1))
@@ -35,7 +34,6 @@ WdgGrowSelection::WdgGrowSelection(QWidget* parent, KisViewManager* view, KisOpe
     cmbUnit->addItems(KoUnit::listOfUnitNameForUi());
     cmbUnit->setCurrentIndex(KoUnit(KoUnit::Pixel).indexInListForUi());
 
-    // ensure that both spinboxes request the same horizontal size
     KisSizeGroup *spbGroup = new KisSizeGroup(this);
     spbGroup->addWidget(spbGrowValue);
     spbGroup->addWidget(spbGrowValueDouble);

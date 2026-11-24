@@ -1,5 +1,3 @@
-// Builds the Type tool window (KrimbleTextDialog) on its own, with a dark palette like Krimble's, and saves pictures of its tabs.
-// Build and run: see build.sh. QT_QPA_PLATFORM=offscreen
 #include "KrimbleTextDialog.h"
 #include <QApplication>
 #include <QPalette>

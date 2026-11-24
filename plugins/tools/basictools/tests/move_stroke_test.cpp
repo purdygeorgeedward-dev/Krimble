@@ -14,7 +14,6 @@
 #include "kis_paint_device.h"
 #include "strokes/move_stroke_strategy.h"
 
-
 class MoveStrokeTester : public utils::StrokeTester
 {
 public:
@@ -65,7 +64,6 @@ protected:
 private:
 
 };
-
 
 void MoveStrokeTest::testMoveStroke()
 {

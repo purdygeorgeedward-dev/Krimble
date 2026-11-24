@@ -17,11 +17,9 @@
 #include "KoColorSpace.h"
 #include "KisLockFrameGenerationLock.h"
 
-// TODO: conversion options into a separate file!
 #include "kis_update_info.h"
 
 #include "opengl/kis_texture_tile_update_info.h"
-
 
 #include "KisFrameCacheStore.h"
 
@@ -45,7 +43,6 @@ bool compareTextureTileUpdateInfo(KisTextureTileUpdateInfoSP tile1, KisTextureTi
     KIS_COMPARE_RF(tile1->valid(), tile2->valid());
 
     KIS_COMPARE_RF(tile1->patchPixelsLength(), tile2->patchPixelsLength());
-
 
     const uint numRealPixelBytes = static_cast<uint>(tile1->realPatchRect().width() * tile1->realPatchRect().height() * tile1->pixelSize());
 
@@ -72,7 +69,6 @@ bool compareTextureTileUpdateInfo(KisTextureTileUpdateInfoSP tile1, KisTextureTi
     return true;
 }
 
-
 bool compareUpdateInfo(KisOpenGLUpdateInfoSP info1, KisOpenGLUpdateInfoSP info2)
 {
     KIS_COMPARE_RF(info1->dirtyImageRect(), info2->dirtyImageRect());
@@ -87,7 +83,6 @@ bool compareUpdateInfo(KisOpenGLUpdateInfoSP info1, KisOpenGLUpdateInfoSP info2)
 
     return true;
 }
-
 
 class TestFramesRenderer : public KisAsyncAnimationRendererBase
 {
@@ -105,7 +100,6 @@ public:
                               KoColorConversionTransformation::internalRenderingIntent(),
                               KoColorConversionTransformation::internalConversionFlags()));
 
-        // TODO: refactor setting texture size in raw values!
         m_updateInfoBuilder.setTextureBorder(8);
         m_updateInfoBuilder.setEffectiveTextureSize(QSize(256 - 16, 256 - 16));
 
@@ -117,7 +111,6 @@ public:
         KisImageSP image = requestedImage();
         KIS_SAFE_ASSERT_RECOVER_NOOP(frame == image->animationInterface()->currentTime());
 
-        // by default we request update for the entire image
         KIS_SAFE_ASSERT_RECOVER_NOOP(requestedRegion == image->bounds());
 
         KisOpenGLUpdateInfoSP info = m_updateInfoBuilder.buildUpdateInfo(image->bounds(), image, true);
@@ -135,7 +128,6 @@ public:
         qDebug() << ppVar(loadedInfo->tileList.size());
 
         KIS_SAFE_ASSERT_RECOVER_NOOP(compareUpdateInfo(info, loadedInfo));
-
 
         Q_EMIT sigCompleteRegenerationInternal(frame);
     }
@@ -155,9 +147,6 @@ private:
     KisFrameCacheStore m_store;
 };
 
-
-
-
 void KisFrameCacheStoreTest::test()
 {
     QRect refRect(QRect(0,0,512,512));
@@ -170,7 +159,6 @@ void KisFrameCacheStoreTest::test()
     KisLockFrameGenerationLock lock(p.image->animationInterface());
     TestFramesRenderer renderer;
     renderer.startFrameRegeneration(p.image, 10, TestFramesRenderer::None, std::move(lock));
-
 
     p.image->waitForDone();
 

@@ -12,7 +12,6 @@
 #include "filter/kis_filter.h"
 #include "kis_cached_paint_device.h"
 
-
 class KisGaussianHighPassFilter : public KisFilter
 {
 public:

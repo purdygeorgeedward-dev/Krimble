@@ -55,7 +55,6 @@ void TestPosition::cleanup()
 
 void TestPosition::testBasePosition()
 {
-    // internal consistency tests.
     QCOMPARE(shape1->position(), QPointF(50, 50));
     QCOMPARE(shape2->position(), QPointF(20, 20));
     QCOMPARE(childShape1->position(), QPointF(20, 20));
@@ -67,10 +66,8 @@ void TestPosition::testAbsolutePosition()
     QCOMPARE(shape1->absolutePosition(), QPointF(75, 75));
     QCOMPARE(shape2->absolutePosition(), QPointF(45, 45));
 
-    // translated
     QCOMPARE(childShape1->absolutePosition(), QPointF(100 + 20 + 25, 100 + 20 + 25));
 
-    // rotated
     container2->setInheritsTransform(childShape2, false);
     QCOMPARE(container2->absolutePosition(), QPointF(150, 250));
     QCOMPARE(childShape2->absolutePosition(), QPointF(130, 232.5));
@@ -90,7 +87,7 @@ void TestPosition::testAbsolutePosition()
 
 void TestPosition::testSetAbsolutePosition()
 {
-    shape1->rotate(-90); // rotate back as we are rotating relative
+    shape1->rotate(-90);
     shape1->setPosition(QPointF(10, 10));
     QCOMPARE(shape1->absolutePosition(), QPointF(10 + 25, 10 + 25));
     shape1->setAbsolutePosition(QPointF(10, 10));
@@ -102,7 +99,7 @@ void TestPosition::testSetAbsolutePosition()
     QCOMPARE(childShape1->position(), QPointF(-125, -125));
     QCOMPARE(childShape1->absolutePosition(), QPointF(0, 0));
 
-    QCOMPARE(container2->position(), QPointF(100, 200));  // make sure nobody changed it
+    QCOMPARE(container2->position(), QPointF(100, 200));
     container2->setInheritsTransform(childShape2, false);
     childShape2->setAbsolutePosition(QPointF(0, 0));
     QCOMPARE(childShape2->position(), QPointF(-100 - 5, -200 - 7.5));

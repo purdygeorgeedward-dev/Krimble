@@ -5,9 +5,7 @@
  */
 
 #include "griddocker_dock.h"
-//#include "gridwidget.h"
 
-// #include <QVBoxLayout>
 #include <QStatusBar>
 #include <klocalizedstring.h>
 
@@ -25,7 +23,6 @@
 #include <KisDocument.h>
 
 #include "grid_config_widget.h"
-
 
 GridDockerDock::GridDockerDock( )
     : QDockWidget(i18n("Grid and Guides"))
@@ -78,7 +75,6 @@ void GridDockerDock::setCanvas(KoCanvasBase * canvas)
             SLOT(slotGuidesConfigUpdateRequested(KisGuidesConfig)));
         slotGuidesConfigUpdateRequested(m_canvas->viewManager()->document()->guidesConfig());
 
-        // isometric (legacy) grid only available with OpenGL
         if (m_canvas->canvasIsOpenGL()) {
             m_configWidget->enableIsometricLegacyGrid(true);
         } else {

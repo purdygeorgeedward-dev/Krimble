@@ -1,7 +1,7 @@
 #ifndef KIS_ABSTRACT_RESOURCES_H
 #define KIS_ABSTRACT_RESOURCES_H
 
-#endif // KIS_ABSTRACT_RESOURCES_H
+#endif
 
 #include "KoAbstractCanvasResourceInterface.h"
 

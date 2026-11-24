@@ -22,7 +22,6 @@
 #include "kis_node_graph_listener.h"
 #include "kis_clone_layer.h"
 
-
 struct Q_DECL_HIDDEN KisProjectionLeaf::Private
 {
     Private(KisNode *_node) : node(_node) {}
@@ -117,7 +116,6 @@ KisProjectionLeafSP KisProjectionLeaf::parent() const
 
     return node ? node->projectionLeaf() : KisProjectionLeafSP();
 }
-
 
 KisProjectionLeafSP KisProjectionLeaf::firstChild() const
 {
@@ -282,8 +280,6 @@ bool KisProjectionLeaf::visible() const
 {
     if (m_d->isTemporaryHidden || isDroppedNode()) return false;
 
-    // TODO: check opacity as well!
-
     bool hiddenByParentPassThrough = false;
 
     KisNodeSP node = m_d->node->parent();
@@ -391,10 +387,6 @@ bool KisProjectionLeaf::isTemporaryHiddenFromRendering() const
     return m_d->isTemporaryHidden;
 }
 
-/**
- * This method is rather slow and dangerous. It should be executes in
- * exclusive environment only.
- */
 void KisProjectionLeaf::explicitlyRegeneratePassThroughProjection()
 {
     if (!m_d->checkThisPassThrough()) return;

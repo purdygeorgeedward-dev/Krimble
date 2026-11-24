@@ -20,7 +20,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(ExperimentPaintOpPluginFactory, "kritaexperimentpaintop.json", registerPlugin<ExperimentPaintOpPlugin>();)
 
-
 ExperimentPaintOpPlugin::ExperimentPaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

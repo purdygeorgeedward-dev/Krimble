@@ -13,17 +13,6 @@
 
 #include "kritaflake_export.h"
 
-/**
- * A special mediator class that connects the resource and the
- * resource manager.  The resource manager connects to a
- * sigResourceChanged() changed and when a resource changes, the
- * manager calls connectResource() for this resource. After that, the
- * mediator should notify the manager about every change that happens
- * to the resource by emitting the corresponding signal.
- *
- * There is only one mediator for one type (key) of the resource.
- */
-
 class KRITAFLAKE_EXPORT KoResourceUpdateMediator : public QObject
 {
     Q_OBJECT
@@ -44,4 +33,4 @@ private:
 
 typedef QSharedPointer<KoResourceUpdateMediator> KoResourceUpdateMediatorSP;
 
-#endif /* __KO_RESOURCE_UPDATE_MEDIATOR_H */
+#endif

@@ -8,8 +8,6 @@
 #include <QPainter>
 #include <QEvent>
 
-
-
 KoSwapBgFgColours::KoSwapBgFgColours(KisCanvasResourceProvider *canvasResourceProvider,
                                      const KoColorDisplayRendererInterface *displayRenderer,
                                      QWidget *parent, QWidget *dialogParent)
@@ -18,7 +16,6 @@ KoSwapBgFgColours::KoSwapBgFgColours(KisCanvasResourceProvider *canvasResourcePr
     foregroundRect = QRect( 0, 7, 14, 14);
     backgroundRect = QRect( 7, 14, 14, 14);
 }
-
 
 void KoSwapBgFgColours::paint_icons(QPainter &painter)
 {

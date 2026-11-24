@@ -15,7 +15,6 @@
 #include <QColorSpace>
 
 #ifdef HAVE_HDR
-// for fetching the legacy 80-nits PQ space
 #include <KoColorProfileQuery.h>
 #endif
 
@@ -27,7 +26,6 @@
 #include <KisSurfaceColorSpaceWrapper.h>
 
 Q_GLOBAL_STATIC(KisOpenGLModeProber, s_instance)
-
 
 KisOpenGLModeProber::KisOpenGLModeProber()
 {
@@ -50,7 +48,6 @@ bool KisOpenGLModeProber::useHDRMode() const
 
 QSurfaceFormat KisOpenGLModeProber::surfaceformatInUse() const
 {
-    // TODO: use information provided by KisOpenGL instead
     QOpenGLContext *sharedContext = QOpenGLContext::globalShareContext();
     QSurfaceFormat format = sharedContext ? sharedContext->format() : QSurfaceFormat::defaultFormat();
     return format;
@@ -64,13 +61,10 @@ const KoColorProfile *KisOpenGLModeProber::rootSurfaceColorProfile() const
         KisSurfaceColorSpaceWrapper::fromQtColorSpace(surfaceformatInUse().colorSpace());
 
     if (surfaceColorSpace == KisSurfaceColorSpaceWrapper::sRGBColorSpace) {
-        // use the default one!
 #ifdef HAVE_HDR
     } else if (surfaceColorSpace == KisSurfaceColorSpaceWrapper::scRGBColorSpace) {
         profile = KoColorSpaceRegistry::instance()->p709G10Profile();
     } else if (surfaceColorSpace == KisSurfaceColorSpaceWrapper::bt2020PQColorSpace) {
-        // On Windows we use the legacy PQ profile, explicitly pinned to
-        // 80 nits. It is baked in the Qt's source code
         KoColorProfileQuery query(PRIMARIES_ITU_R_BT_2020_2_AND_2100_0, TRC_ITU_R_BT_2100_0_PQ);
         query.hdrReferenceWhite = 80.0;
         profile = KoColorSpaceRegistry::instance()->profileFor(query);
@@ -114,7 +108,6 @@ struct SurfaceFormatSetter
 private:
     QSurfaceFormat m_oldFormat;
 };
-
 
 struct EnvironmentSetter
 {
@@ -167,7 +160,6 @@ KisOpenGLModeProber::probeFormat(const KisOpenGL::RendererConfig &rendererConfig
     QByteArray probeAppName("krita");
     char *argv = probeAppName.data();
 
-
     if (adjustGlobalState) {
         sharedContextSetter.reset(new AppAttributeSetter(Qt::AA_ShareOpenGLContexts, false));
 
@@ -182,8 +174,6 @@ KisOpenGLModeProber::probeFormat(const KisOpenGL::RendererConfig &rendererConfig
         portalSetter.reset(new EnvironmentSetter(QLatin1String("QT_NO_XDG_DESKTOP_PORTAL"), QLatin1String("1")));
         formatSetter.reset(new SurfaceFormatSetter(format));
 
-        // Disable this workaround for plasma (BUG:408015), because it causes 
-        // a crash on Windows with Qt 5.15.7
         const bool runningInKDE =  qEnvironmentVariableIsSet("KDE_FULL_SESSION");
         const bool isInAppimage = qEnvironmentVariableIsSet("APPIMAGE");
 
@@ -205,7 +195,6 @@ KisOpenGLModeProber::probeFormat(const KisOpenGL::RendererConfig &rendererConfig
     surface.create();
     QOpenGLContext context;
     context.setFormat(format);
-
 
     if (!context.create()) {
         dbgOpenGL << "OpenGL context cannot be created";
@@ -258,9 +247,6 @@ void KisOpenGLModeProber::initSurfaceFormatFromConfig(std::pair<KisSurfaceColorS
                                                       QSurfaceFormat *format)
 {
 #ifdef HAVE_HDR
-    /**
-     * In Windows' HDR we have three fixed modes only.
-     */
     if (rootSurfaceFormat.first == KisSurfaceColorSpaceWrapper::bt2020PQColorSpace) {
         KIS_SAFE_ASSERT_RECOVER_NOOP(rootSurfaceFormat.second == 10);
         format->setRedBufferSize(10);
@@ -281,14 +267,9 @@ void KisOpenGLModeProber::initSurfaceFormatFromConfig(std::pair<KisSurfaceColorS
         format->setGreenBufferSize(8);
         format->setBlueBufferSize(8);
         format->setAlphaBufferSize(8);
-        // TODO: check if we can use real sRGB space here
         format->setColorSpace(KisSurfaceColorSpaceWrapper());
     }
 #else
-    /**
-     * In Wayland's HDR we don't set the mode on the root surface, we should only select
-     * bit-width.
-     */
     if (rootSurfaceFormat.first == KisSurfaceColorSpaceWrapper::bt2020PQColorSpace) {
         qWarning() << "WARNING: Bt.2020 PQ surface type is not supported by this build of Krita";
         rootSurfaceFormat.first = KisSurfaceColorSpaceWrapper::DefaultColorSpace;
@@ -304,14 +285,12 @@ void KisOpenGLModeProber::initSurfaceFormatFromConfig(std::pair<KisSurfaceColorS
             format->setGreenBufferSize(10);
             format->setBlueBufferSize(10);
             format->setAlphaBufferSize(2);
-            // TODO: check if we can use real sRGB space here
             format->setColorSpace(KisSurfaceColorSpaceWrapper());
         } else {
             format->setRedBufferSize(8);
             format->setGreenBufferSize(8);
             format->setBlueBufferSize(8);
             format->setAlphaBufferSize(8);
-            // TODO: check if we can use real sRGB space here
             format->setColorSpace(KisSurfaceColorSpaceWrapper());
         }
     }
@@ -369,7 +348,7 @@ KisOpenGLModeProber::Result::Result(QOpenGLContext &context) {
         return;
     }
 
-    QOpenGLFunctions *funcs = context.functions(); // funcs is ready to be used
+    QOpenGLFunctions *funcs = context.functions();
 
     m_rendererString = QString(reinterpret_cast<const char *>(funcs->glGetString(GL_RENDERER)));
     m_driverVersionString = QString(reinterpret_cast<const char *>(funcs->glGetString(GL_VERSION)));
@@ -404,9 +383,8 @@ KisOpenGLModeProber::Result::Result(QOpenGLContext &context) {
             qWarning() << "WARNING: Failed to detect QXcbGlIntegration type!";
         }
     }
-#endif /* HAVE_X11 */
+#endif
 
     m_extensions = context.extensions();
-    // Remove empty name extension that sometimes appears on NVIDIA output
     m_extensions.remove("");
 }

@@ -47,4 +47,4 @@ private:
     int m_lineIndex {0};
 };
 
-#endif // WGSHADELINEEDITOR_H
+#endif

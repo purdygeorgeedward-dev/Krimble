@@ -22,10 +22,6 @@ typedef KisSharedPtr<KisReferenceImagesDecoration> KisReferenceImagesDecorationS
 #include <kis_types.h>
 
 #include <kis_node.h>
-/**
- * @brief The KisReferenceImagesDecoration class draws the reference images on the canvas.
- * The document stores the list of reference images.
- */
 class KRITAUI_EXPORT KisReferenceImagesDecoration : public KisCanvasDecoration
 {
     Q_OBJECT
@@ -54,4 +50,4 @@ private:
     void setReferenceImageLayer(KisSharedPtr<KisReferenceImagesLayer> layer, bool updateCanvas);
 };
 
-#endif // KISREFERENCEIMAGESDECORATION_H
+#endif

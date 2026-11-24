@@ -19,7 +19,6 @@
 
 class KoShapeManager;
 
-
 class KoShape::SharedData : public QSharedData
 {
 public:
@@ -28,30 +27,27 @@ public:
 
     explicit SharedData(const SharedData &rhs);
 
-
 public:
-    // Members
 
-    mutable QSizeF size; // size in pt
+    mutable QSizeF size;
     QString shapeId;
-    QString name; ///< the shapes names
+    QString name;
 
-    QTransform localMatrix; ///< the shapes local transformation matrix
+    QTransform localMatrix;
 
     QScopedPointer<KoShapeUserData> userData;
-    QSharedPointer<KoShapeStrokeModel> stroke; ///< points to a stroke, or 0 if there is no stroke
-    QSharedPointer<KoShapeBackground> fill; ///< Stands for the background color / fill etc.
+    QSharedPointer<KoShapeStrokeModel> stroke;
+    QSharedPointer<KoShapeBackground> fill;
     bool inheritBackground = false;
     bool inheritStroke = false;
-    // XXX: change this to instance instead of pointer
-    QScopedPointer<KoClipPath> clipPath; ///< the current clip path
-    QScopedPointer<KoClipMask> clipMask; ///< the current clip mask
+    QScopedPointer<KoClipPath> clipPath;
+    QScopedPointer<KoClipMask> clipMask;
     QMap<QString, QString> additionalAttributes;
     QMap<QByteArray, QString> additionalStyleAttributes;
-    qreal transparency; ///< the shapes transparency
-    QString hyperLink; //hyperlink for this shape
+    qreal transparency;
+    QString hyperLink;
 
-    int zIndex : 16; // keep maxZIndex in sync!
+    int zIndex : 16;
     int visible : 1;
     int printable : 1;
     int geometryProtected : 1;
@@ -66,10 +62,6 @@ public:
 class KoShape::Private
 {
 private:
-    /**
-     * A special listener class to track the lifetime of the dependees
-     * and remove them from the notification list when they are deleted
-     */
     struct DependeesLifetimeListener : KoShape::ShapeChangeListener
     {
         DependeesLifetimeListener(QList<KoShape*> &dependees)
@@ -80,7 +72,6 @@ private:
         void notifyShapeChanged(KoShape::ChangeType type, KoShape *shape) override {
             if (type == KoShape::Deleted && m_dependees.contains(shape)) {
                 m_dependees.removeOne(shape);
-                // the listener will be unlinked on destruction automatically
             }
         }
 
@@ -95,7 +86,7 @@ public:
     KoShapeContainer *parent = nullptr;
     QSet<KoShapeManager *> shapeManagers;
     QSet<KoShape *> toolDelegates;
-    QList<KoShape*> dependees; ///< list of shape dependent on this shape
+    QList<KoShape*> dependees;
     QList<KoShape::ShapeChangeListener*> listeners;
     DependeesLifetimeListener dependeesLifetimeListener;
 };

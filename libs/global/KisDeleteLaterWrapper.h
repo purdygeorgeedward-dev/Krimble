@@ -49,4 +49,4 @@ KisDeleteLaterWrapper<T>* makeKisDeleteLaterWrapper(T value) {
     return new KisDeleteLaterWrapper<T>(value);
 }
 
-#endif // KISDELETELATERWRAPPER_H
+#endif

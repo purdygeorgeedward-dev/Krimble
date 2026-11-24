@@ -111,7 +111,6 @@
 
 #include "slider_and_spin_box_sync.h"
 
-// for the performance update
 #include <kis_cubic_curve.h>
 #include <kis_signals_blocker.h>
 
@@ -123,7 +122,6 @@
 
 #ifdef Q_OS_WIN
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-// this include is Qt5-only, the switch to WinTab is embedded in Qt
 #  include "config_qt5_has_wintab_switch.h"
 #else
 #  include <QtGui/private/qguiapplication_p.h>
@@ -133,11 +131,6 @@
 #include "KisWindowsPackageUtils.h"
 #endif
 
-/**
- * HACK ALERT: this is a function from a private Qt's header qfont_p.h,
- * we don't include the whole header, because it is painful in the
- * environments we don't fully control, e.g. in distribution packages.
- */
 Q_GUI_EXPORT int qt_defaultDpi();
 
 QString shortNameOfDisplay(int index)
@@ -148,13 +141,11 @@ QString shortNameOfDisplay(int index)
     QScreen* screen = QGuiApplication::screens()[index];
     QString resolution = QString::number(screen->geometry().width()).append("x").append(QString::number(screen->geometry().height()));
     QString name = screen->name();
-    // name and resolution for a specific screen can change, so they are not used in the identifier; but they can help people understand which screen is which
 
     KisConfig cfg(true);
     QString shortName = resolution + " " + name + " " + cfg.getScreenStringIdentfier(index);
     return shortName;
 }
-
 
 struct WritableLocationValidator : public QValidator {
     WritableLocationValidator(QObject *parent)
@@ -162,7 +153,7 @@ struct WritableLocationValidator : public QValidator {
     {
     }
 
-    State validate(QString &line, int &/*pos*/) const override
+    State validate(QString &line, int & ) const override
     {
         QFileInfo fi(line);
         if (!fi.isWritable()) {
@@ -184,7 +175,7 @@ struct BackupSuffixValidator : public QValidator {
 
     const QStringList invalidCharacters;
 
-    State validate(QString &line, int &/*pos*/) const override
+    State validate(QString &line, int & ) const override
     {
         Q_FOREACH(const QString invalidChar, invalidCharacters) {
             if (line.contains(invalidChar)) {
@@ -195,11 +186,6 @@ struct BackupSuffixValidator : public QValidator {
     }
 };
 
-/*
- * We need this because the final item in the ComboBox is a used as an action to launch file selection dialog.
- * So disabling it makes sure that user doesn't accidentally scroll and select it and get confused why the
- * file picker launched.
- */
 class UnscrollableComboBox : public QObject
 {
 public:
@@ -248,9 +234,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 {
     KisConfig cfg(true);
 
-    // HACK ALERT!
-    // QScrollArea contents are opaque at multiple levels
-    // The contents themselves AND the viewport widget
     {
         scrollAreaWidgetContents->setAutoFillBackground(false);
         scrollAreaWidgetContents->parentWidget()->setAutoFillBackground(false);
@@ -269,10 +252,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         }
     }
 
-    //
-    // Cursor Tab
-    //
-
     QStringList cursorItems = QStringList()
             << i18n("No Cursor")
             << i18n("Tool Icon")
@@ -290,8 +269,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
             << i18n("Preview Outline")
             << i18n("Tilt Outline");
 
-    // brush
-
     m_cmbCursorShape->addItems(cursorItems);
 
     m_cmbCursorShape->setCurrentIndex(cfg.newCursorStyle());
@@ -306,8 +283,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     KoColor cursorColor(KoColorSpaceRegistry::instance()->rgb8());
     cursorColor.fromQColor(cfg.getCursorMainColor());
     cursorColorButton->setColor(cursorColor);
-
-    // eraser
 
     m_chkSeparateEraserCursor->setChecked(cfg.separateEraserCursor());
 
@@ -326,8 +301,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     KoColor eraserCursorColor(KoColorSpaceRegistry::instance()->rgb8());
     eraserCursorColor.fromQColor(cfg.getEraserCursorMainColor());
     eraserCursorColorButton->setColor(eraserCursorColor);
-
-    // Color sampler
 
     setColorSamplerPreviewStyleItems(m_cmbColorSamplerPreviewStyle);
     setColorSamplerPreviewStyleIndexByValue(m_cmbColorSamplerPreviewStyle, cfg.colorSamplerPreviewStyle());
@@ -353,19 +326,8 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 
     m_chkColorSamplerPreviewExtraCircles->setChecked(cfg.colorSamplerPreviewCircleExtraCirclesEnabled());
 
-
     KisSpinBoxI18nHelper::setText(m_ssbColorSamplerPreviewThickness, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
 
-
-
-
-
-
-
-
-    //
-    // Window Tab
-    //
     chkUseCustomFont->setChecked(cfg.readEntry<bool>("use_custom_system_font", false));
     cmbCustomFont->findChild <QComboBox*>("stylesComboBox")->setVisible(false);
 
@@ -416,10 +378,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 #endif
     chkUsageLogging->setChecked(kritarc.value("LogUsage", true).toBool());
 
-
-    //
-    // Tools tab
-    //
     m_radioToolOptionsInDocker->setChecked(cfg.toolOptionsInDocker());
     cmbFlowMode->setCurrentIndex((int)!cfg.readEntry<bool>("useCreamyAlphaDarken", true));
     cmbCmykBlendingMode->setCurrentIndex((int)!cfg.readEntry<bool>("useSubtractiveBlendingForCmykColorSpaces", true));
@@ -445,10 +403,8 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     m_cmbKineticScrollingGesture->addItem(i18n("On Touch Drag"));
     m_cmbKineticScrollingGesture->addItem(i18n("On Click Drag"));
     m_cmbKineticScrollingGesture->addItem(i18n("On Middle-Click Drag"));
-    //m_cmbKineticScrollingGesture->addItem(i18n("On Right Click Drag"));
 
     spnZoomSteps->setValue(cfg.zoomSteps());
-
 
     m_cmbKineticScrollingGesture->setCurrentIndex(cfg.kineticScrollingGesture());
     m_kineticScrollingSensitivitySlider->setRange(0, 100);
@@ -461,11 +417,7 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 
     chkEnableSelectionActionBar->setChecked(sapEnabled);
 
-    //
-    // File handling
-    //
     int autosaveInterval = cfg.autoSaveInterval();
-    //convert to minutes
     m_autosaveSpinBox->setValue(autosaveInterval / 60);
     m_autosaveCheckBox->setChecked(autosaveInterval > 0);
     chkHideAutosaveFiles->setChecked(cfg.readEntry<bool>("autosavefileshidden", true));
@@ -482,7 +434,7 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     txtBackupFileSuffix->setValidator(validator);
     intNumBackupFiles->setValue(cfg.readEntry<int>("numberofbackupfiles", 1));
 
-    cmbDefaultExportFileType->clear(); 
+    cmbDefaultExportFileType->clear();
     QStringList mimeFilter = KisImportExportManager::supportedMimeTypes(KisImportExportManager::Export);
 
         QMap<QString, QString> mimeTypeMap;
@@ -492,7 +444,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
             mimeTypeMap.insert(description, mimeType);
         }
 
-        // Sort after we get the description because mimeType values have image, application, etc... in front
         QStringList sortedDescriptions = mimeTypeMap.keys();
         sortedDescriptions.sort(Qt::CaseInsensitive);
 
@@ -508,29 +459,21 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         if (index >= 0) {
             cmbDefaultExportFileType->setCurrentIndex(index);
         } else {
-            // Index can't be found, default set to image/png
             const QString defaultMimeType = "image/png";
             const int defaultIndex = cmbDefaultExportFileType->findData(defaultMimeType);
             if (defaultIndex >= 0) {
                 cmbDefaultExportFileType->setCurrentIndex(defaultIndex);
             } else {
-                // Case where the default mime type is also not found in the combo box
                 qDebug() << "Default mime type not found in the combo box.";
             }
         }
 
     QString selectedMimeType = cmbDefaultExportFileType->currentData().toString();
 
-    //
-    // Animation tab
-    //
     m_chkAutoPin->setChecked(cfg.autoPinLayersToTimeline());
     m_chkAdaptivePlaybackRange->setChecked(cfg.adaptivePlaybackRange());
     m_chkAutoZoom->setChecked(cfg.autoZoomTimelineToPlaybackRange());
 
-    //
-    // Miscellaneous tab
-    //
     cmbStartupSession->addItem(i18n("Open default window"));
     cmbStartupSession->addItem(i18n("Load previous session"));
     cmbStartupSession->addItem(i18n("Show session manager"));
@@ -572,8 +515,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     m_chkNativeFileDialog->setChecked(!group.readEntry("DontUseNativeFileDialog", dontUseNative));
 
     if (!qEnvironmentVariable("APPIMAGE").isEmpty()) {
-        // AppImages don't have access to platform plugins. BUG: 447805
-        // Setting the checkbox to false is 
         m_chkNativeFileDialog->setChecked(false);
         m_chkNativeFileDialog->setEnabled(false);
     }
@@ -581,8 +522,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     intMaxBrushSize->setValue(KisImageConfig(true).maxBrushSize());
     chkIgnoreHighFunctionKeys->setChecked(cfg.ignoreHighFunctionKeys());
 #ifndef Q_OS_WIN
-    // we properly support ignoring high F-keys on Windows only. To support on other platforms
-    // we should synchronize KisExtendedModifiersMatcher to ignore the keys as well.
     chkIgnoreHighFunctionKeys->setVisible(false);
 #endif
 
@@ -591,9 +530,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     cmbIconsInMenu->addItem(i18n("No"));
     cmbIconsInMenu->setCurrentIndex(cfg.iconsInMenu());
 
-    //
-    // Resources
-    //
     m_urlResourceFolder->setMode(KoFileDialog::OpenDirectory);
     m_urlResourceFolder->setConfigurationName("resource_directory");
     const QString resourceLocation = KoResourcePaths::getAppDataLocation();
@@ -626,7 +562,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 
     const QList<QPair<QString, QString>> writableLocations = []() {
         QList<QPair<QString, QString>> writableLocationsAndText;
-        // filters out the duplicates
         const QList<QString> locations = []() {
             QStringList filteredLocations;
             const QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
@@ -643,7 +578,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         Q_FOREACH (QString location, locations) {
             QString text;
             QFileInfo fileLocation(location);
-            // The first one that we get from is the "Default"
             if (isFirst) {
                 text = i18n("Default");
                 isFirst = false;
@@ -661,11 +595,9 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 
     for (auto it = writableLocations.constBegin(); it != writableLocations.constEnd(); ++it) {
         m_resourceFolderSelector->addItem(it->first + " - " + it->second);
-        // we need it to extract out the path
         m_resourceFolderSelector->setItemData(m_resourceFolderSelector->count() - 1, it->second, Qt::UserRole);
     }
 
-    // if the user has selected a custom location, we add it to the list as well.
     if (resourceLocation.startsWith("content://")) {
         m_resourceFolderSelector->addItem(resourceLocation);
         int index = m_resourceFolderSelector->count() - 1;
@@ -673,7 +605,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         m_resourceFolderSelector->setCurrentIndex(index);
         grpAndroidWarningMessage->setVisible(true);
     } else {
-        // find the index of the current resource location in the writableLocation, so we can set our view to that
         auto iterator = std::find_if(writableLocations.constBegin(),
                                      writableLocations.constEnd(),
                                      [&resourceLocation](QPair<QString, QString> location) {
@@ -687,20 +618,16 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         }
     }
 
-    // this should be the last item we add.
     m_resourceFolderSelector->addItem(i18n("Choose Manually"));
 
     connect(m_resourceFolderSelector, qOverload<int>(&QComboBox::activated), [this](int index) {
         const int previousIndex = m_resourceFolderSelector->currentIndex();
 
-        // if it is the last item in the last item, then open file picker and set the name returned as the filename
         if (m_resourceFolderSelector->count() - 1 == index) {
             KoFileDialog dialog(this, KoFileDialog::OpenDirectory, "Select Directory");
             const QString selectedDirectory = dialog.filename();
 
             if (!selectedDirectory.isEmpty()) {
-                // if the index above "Choose Manually" is a content Uri, then we just modify it, and then set that as
-                // the index.
                 if (m_resourceFolderSelector->itemData(index - 1, Qt::DisplayRole)
                         .value<QString>()
                         .startsWith("content://")) {
@@ -708,19 +635,16 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
                     m_resourceFolderSelector->setItemData(index - 1, selectedDirectory, Qt::UserRole);
                     m_resourceFolderSelector->setCurrentIndex(index - 1);
                 } else {
-                    // There isn't any content Uri in the ComboBox list, so just insert one, and set that as the index.
                     m_resourceFolderSelector->insertItem(index, selectedDirectory);
                     m_resourceFolderSelector->setItemData(index, selectedDirectory, Qt::UserRole);
                     m_resourceFolderSelector->setCurrentIndex(index);
                 }
-                // since we have selected the custom location, make the warning visible.
                 grpAndroidWarningMessage->setVisible(true);
             } else {
                 m_resourceFolderSelector->setCurrentIndex(previousIndex);
             }
         }
 
-        // hide-unhide based on the selection of user.
         grpAndroidWarningMessage->setVisible(
             m_resourceFolderSelector->currentData(Qt::UserRole).value<QString>().startsWith("content://"));
     });
@@ -737,13 +661,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 
     if (!folderInPrivateAppData.isEmpty()) {
         const auto pathToDisplay = [](const QString &path) {
-            // Due to how Unicode word wrapping works, the string does not
-            // wrap after backslashes in Qt 5.12. We don't want the path to
-            // become too long, so we add a U+200B ZERO WIDTH SPACE to allow
-            // wrapping. The downside is that we cannot let the user select
-            // and copy the path because it now contains invisible unicode
-            // code points.
-            // See: https://bugreports.qt.io/browse/QTBUG-80892
             return QDir::toNativeSeparators(path).replace(QChar('\\'), QStringLiteral(u"\\\u200B"));
         };
 
@@ -751,7 +668,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         const QDir appDataDir(folderInStandardAppData);
         grpWindowsAppData->setPixmap(
             grpWindowsAppData->style()->standardIcon(QStyle::SP_MessageBoxInformation).pixmap(QSize(32, 32)));
-        // Similar text is also used in KisViewManager.cpp
         grpWindowsAppData->setText(i18nc("@info resource folder",
                                          "<p>You are using the Microsoft Store package version of Krita. "
                                          "Even though Krita can be configured to place resources under the "
@@ -781,7 +697,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
                 });
     }
 #endif
-
 
     const int forcedFontDPI = cfg.readEntry("forcedDpiForQtFontBugWorkaround", -1);
     chkForcedFontDPI->setChecked(forcedFontDPI > 0);
@@ -817,10 +732,8 @@ void GeneralTab::setDefault()
     m_nmbColorSamplerPreviewSize->setValue(cfg.colorSamplerPreviewCircleDiameter(true));
     m_chkColorSamplerPreviewOutlineEnabled->setChecked(cfg.colorSamplerPreviewCircleOutlineEnabled(true));
 
-
     chkShowRootLayer->setChecked(cfg.showRootLayer(true));
     m_autosaveCheckBox->setChecked(cfg.autoSaveInterval(true) > 0);
-    //convert to minutes
     m_autosaveSpinBox->setValue(cfg.autoSaveInterval(true) / 60);
     chkHideAutosaveFiles->setChecked(true);
 
@@ -848,12 +761,10 @@ void GeneralTab::setDefault()
 
     chkIgnoreHighFunctionKeys->setChecked(cfg.ignoreHighFunctionKeys(true));
 
-
     chkUseCustomFont->setChecked(false);
     cmbCustomFont->setCurrentFont(qApp->font());
     intFontSize->setValue(qApp->font().pointSize());
 
-        
     m_cmbMDIType->setCurrentIndex((int)QMdiArea::TabbedView);
     m_chkRubberBand->setChecked(cfg.useOpenGL(true));
     KoColor mdiColor;
@@ -893,7 +804,6 @@ void GeneralTab::setDefault()
     KoColor eraserCursorColor(KoColorSpaceRegistry::instance()->rgb8());
     eraserCursorColor.fromQColor(cfg.getEraserCursorMainColor(true));
     eraserCursorColorButton->setColor(eraserCursorColor);
-
 
     m_chkAutoPin->setChecked(cfg.autoPinLayersToTimeline(true));
     m_chkAdaptivePlaybackRange->setChecked(cfg.adaptivePlaybackRange(false));
@@ -999,7 +909,6 @@ bool GeneralTab::colorSamplerPreviewCircleExtraCirclesEnabled() const
     return m_chkColorSamplerPreviewExtraCircles->isChecked();
 }
 
-
 KisConfig::SessionOnStartup GeneralTab::sessionOnStartup() const
 {
     return (KisConfig::SessionOnStartup)cmbStartupSession->currentIndex();
@@ -1022,7 +931,6 @@ bool GeneralTab::showRootLayer()
 
 int GeneralTab::autoSaveInterval()
 {
-    //convert to seconds
     return m_autosaveCheckBox->isChecked() ? m_autosaveSpinBox->value() * 60 : 0;
 }
 
@@ -1148,7 +1056,6 @@ int GeneralTab::forcedFontDpi()
 
 void GeneralTab::setColorSamplerPreviewStyleItems(QComboBox *cmb)
 {
-    // Order is synchronized with KisConfig::ColorSamplerPreviewStyle.
     cmb->addItems({
         i18nc("Preview option for no color sampler", "None"),
         i18nc("Preview option for a circular/ring-shaped color sampler", "Circle"),
@@ -1191,7 +1098,6 @@ void GeneralTab::getBackgroundImage()
     dialog.setImageFilters();
 
     QString fn = dialog.filename();
-    // dialog box was canceled or somehow no file was selected
     if (fn.isEmpty()) {
         return;
     }
@@ -1207,7 +1113,6 @@ void GeneralTab::getBackgroundImage()
 
 void GeneralTab::clearBackgroundImage()
 {
-    // clearing the background image text will implicitly make the background color be used
     m_backgroundimage->setText("");
 }
 
@@ -1235,7 +1140,6 @@ void GeneralTab::updateTouchPressureSensitivityEnabled(int touchPainting)
     chkTouchPressureSensitivity->setEnabled(touchPainting != int(KisConfig::TOUCH_PAINTING_DISABLED));
 }
 
-
 #include "kactioncollection.h"
 #include "KisActionsSnapshot.h"
 
@@ -1248,7 +1152,6 @@ ShortcutSettingsTab::ShortcutSettingsTab(QWidget *parent, const char *name)
     l->setContentsMargins(0, 0, 0, 0);
     m_page = new WdgShortcutSettings(this);
     l->addWidget(m_page, 0, 0);
-
 
     m_snapshot.reset(new KisActionsSnapshot);
 
@@ -1293,9 +1196,6 @@ ColorSettingsTab::ColorSettingsTab(QWidget *parent, const char *name)
 {
     setObjectName(name);
 
-    // XXX: Make sure only profiles that fit the specified color model
-    // are shown in the profile combos
-
     QGridLayout * l = new QGridLayout(this);
     l->setContentsMargins(0, 0, 0, 0);
     m_page = new WdgColorSettings(this);
@@ -1314,7 +1214,7 @@ ColorSettingsTab::ColorSettingsTab(QWidget *parent, const char *name)
     m_page->useDefColorSpace->setChecked(cfg.useDefaultColorSpace());
     connect(m_page->useDefColorSpace, SIGNAL(toggled(bool)), this, SLOT(toggleUseDefaultColorSpace(bool)));
     QList<KoID> colorSpaces = KoColorSpaceRegistry::instance()->listKeys();
-    for (QList<KoID>::iterator id = colorSpaces.begin(); id != colorSpaces.end(); /* nop */) {
+    for (QList<KoID>::iterator id = colorSpaces.begin(); id != colorSpaces.end(); ) {
         if (KoColorSpaceRegistry::instance()->colorSpaceColorModelId(id->id()) == AlphaColorModelID) {
             id = colorSpaces.erase(id);
         } else {
@@ -1351,7 +1251,6 @@ ColorSettingsTab::ColorSettingsTab(QWidget *parent, const char *name)
         m_page->cmbColorProfileForEXR->setCurrent(profiles.contains(userProfile) ? userProfile : defaultProfile);
     }
 
-
     if (!m_colorManagedByOS) {
         QFormLayout *monitorProfileGrid = new QFormLayout(m_page->monitorprofileholder);
         monitorProfileGrid->setContentsMargins(0, 0, 0, 0);
@@ -1365,7 +1264,6 @@ ColorSettingsTab::ColorSettingsTab(QWidget *parent, const char *name)
             m_monitorProfileWidgets << cmb;
         }
 
-        // disable if not Linux as KisColorManager is not yet implemented outside Linux
 #ifndef Q_OS_LINUX
         m_page->chkUseSystemMonitorProfile->setChecked(false);
         m_page->chkUseSystemMonitorProfile->setDisabled(true);
@@ -1411,7 +1309,6 @@ ColorSettingsTab::ColorSettingsTab(QWidget *parent, const char *name)
 
         monitorProfileGrid->addRow(m_chkEnableCanvasColorSpaceManagement);
 
-        // surface color space
         m_canvasSurfaceColorSpace = new KisSqueezedComboBox();
             m_canvasSurfaceColorSpace->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         QLabel *canvasSurfaceColorSpaceLbl = new QLabel(i18n("Canvas surface color space:"), this);
@@ -1428,7 +1325,6 @@ ColorSettingsTab::ColorSettingsTab(QWidget *parent, const char *name)
                  "window compositor. Use \"preferred\" space unless you know "
                  "what you are doing</p>"));
 
-        // surface bit depth
         m_canvasSurfaceBitDepth = new KisSqueezedComboBox();
             m_canvasSurfaceBitDepth->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         QLabel *canvasSurfaceBitDepthLbl = new QLabel(i18n("Canvas surface bit depth (needs restart):"), this);
@@ -1526,9 +1422,6 @@ ColorSettingsTab::ColorSettingsTab(QWidget *parent, const char *name)
     m_page->cmbMonitorIntent->setCurrentIndex(cfg.monitorRenderIntent());
     KisImageConfig cfgImage(true);
 
-    /**
-     * Default proofing config
-     */
     KisProofingConfigurationSP proofingConfig = cfgImage.defaultProofingconfiguration();
 
     m_page->wdgProofingOptions->setProofingConfig(proofingConfig);
@@ -1679,7 +1572,6 @@ void ColorSettingsTab::setDefault()
     }
 }
 
-
 void ColorSettingsTab::refillMonitorProfiles(const KoID & colorSpaceId)
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(!m_colorManagedByOS);
@@ -1694,7 +1586,6 @@ void ColorSettingsTab::refillMonitorProfiles(const KoID & colorSpaceId)
     }
 
     Q_FOREACH (const KoColorProfile *profile, profileList.values()) {
-        //qDebug() << "Profile" << profile->name() << profile->isSuitableForDisplay() << csf->defaultProfile();
         if (profile->isSuitableForDisplay()) {
             for (int i = 0; i < QApplication::screens().count(); ++i) {
                 m_monitorProfileWidgets[i]->addSqueezedItem(profile->name());
@@ -1781,8 +1672,6 @@ void ColorSettingsTab::updatePreferredSpaceGraphic()
     m_preferredSpaceGraphic->update();
 }
 
-//---------------------------------------------------------------------------------------------------
-
 void TabletSettingsTab::setDefault()
 {
     KisConfig cfg(true);
@@ -1792,7 +1681,7 @@ void TabletSettingsTab::setDefault()
     m_page->chkUseRightMiddleClickWorkaround->setChecked(
         KisConfig(true).useRightMiddleTabletButtonWorkaround(true));
 
-#if defined Q_OS_WIN && (defined QT5_HAS_WINTAB_SWITCH || QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)) 
+#if defined Q_OS_WIN && (defined QT5_HAS_WINTAB_SWITCH || QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
         m_page->radioWintab->setChecked(!cfg.useWin8PointerInput(true));
         m_page->radioWin8PointerInput->setChecked(cfg.useWin8PointerInput(true));
 #else
@@ -1886,24 +1775,17 @@ TabletSettingsTab::TabletSettingsTab(QWidget* parent, const char* name): QWidget
     m_page->intMaxAllowedBrushSpeed->setRange(1, 100);
     m_page->intMaxAllowedBrushSpeed->setValue(cfg.readEntry("maxAllowedSpeedValue", 30));
     KisSpinBoxI18nHelper::install(m_page->intMaxAllowedBrushSpeed, [](int value) {
-        // i18n: This is meant to be used in a spinbox so keep the {n} in the text
-        //       and it will be substituted by the number. The text before will be
-        //       used as the prefix and the text after as the suffix
         return i18np("Maximum brush speed: {n} px/ms", "Maximum brush speed: {n} px/ms", value);
     });
 
     m_page->intBrushSpeedSmoothing->setRange(3, 100);
     m_page->intBrushSpeedSmoothing->setValue(cfg.readEntry("speedValueSmoothing", 3));
     KisSpinBoxI18nHelper::install(m_page->intBrushSpeedSmoothing, [](int value) {
-        // i18n: This is meant to be used in a spinbox so keep the {n} in the text
-        //       and it will be substituted by the number. The text before will be
-        //       used as the prefix and the text after as the suffix
         return i18np("Brush speed smoothing: {n} sample", "Brush speed smoothing: {n} samples", value);
     });
 
     m_page->tiltDirectionOffsetAngle->setDecimals(0);
     m_page->tiltDirectionOffsetAngle->setRange(-180, 180);
-    // the angle is saved in clockwise direction to be consistent with Drawing Angle, so negate
     m_page->tiltDirectionOffsetAngle->setAngle(-cfg.readEntry("tiltDirectionOffset", 0.0));
     m_page->tiltDirectionOffsetAngle->setPrefix(i18n("Pen tilt direction offset: "));
     m_page->tiltDirectionOffsetAngle->setFlipOptionsMode(KisAngleSelector::FlipOptionsMode_MenuButton);
@@ -1927,8 +1809,6 @@ void TabletSettingsTab::slotResolutionSettings()
 #endif
 }
 
-
-//---------------------------------------------------------------------------------------------------
 #include "kis_acyclic_signal_connector.h"
 
 int getTotalRAM()
@@ -1986,7 +1866,6 @@ PerformanceTab::PerformanceTab(QWidget *parent, const char *name)
                                  std::bind(&KisIntParseSpinBox::value,
                                              intMemoryLimit));
 
-
     connect(intMemoryLimit, SIGNAL(valueChanged(int)), sync2, SLOT(slotParentValueChanged()));
     sync2->slotParentValueChanged();
     m_syncs << sync2;
@@ -1997,7 +1876,6 @@ PerformanceTab::PerformanceTab(QWidget *parent, const char *name)
                                  std::bind(&PerformanceTab::realTilesRAM,
                                              this));
 
-
     connect(intPoolLimit, SIGNAL(valueChanged(int)), sync3, SLOT(slotParentValueChanged()));
     connect(intMemoryLimit, SIGNAL(valueChanged(int)), sync3, SLOT(slotParentValueChanged()));
     sync3->slotParentValueChanged();
@@ -2006,7 +1884,6 @@ PerformanceTab::PerformanceTab(QWidget *parent, const char *name)
     sliderSwapSize->setSuffix(i18n(" GiB"));
     sliderSwapSize->setRange(1, 64);
     intSwapSize->setRange(1, 64);
-
 
     KisAcyclicSignalConnector *swapSizeConnector = new KisAcyclicSignalConnector(this);
 
@@ -2052,7 +1929,6 @@ PerformanceTab::PerformanceTab(QWidget *parent, const char *name)
     connect(chkTransformToolUseInStackPreview, SIGNAL(toggled(bool)), chkTransformToolForceLodMode, SLOT(setEnabled(bool)));
 
 #ifndef Q_OS_WIN
-    // AVX workaround is needed on Windows+GCC only
     chkDisableAVXOptimizations->setVisible(false);
 #endif
 
@@ -2207,8 +2083,6 @@ void PerformanceTab::slotFrameClonesLimitChanged(int value)
     m_lastUsedClonesLimit = value;
 }
 
-//---------------------------------------------------------------------------------------------------
-
 #include "KoColor.h"
 #include "opengl/KisOpenGLModeProber.h"
 #include "opengl/KisScreenInformationAdapter.h"
@@ -2259,7 +2133,7 @@ KisConfig::AssistantsDrawMode indexToAssistantDrawMode(int value)
            KisConfig::ASSISTANTS_DRAW_MODE_DIRECT;
 }
 
-} // anonymous namespace
+}
 
 DisplaySettingsTab::DisplaySettingsTab(QWidget *parent, const char *name)
     : WdgDisplaySettings(parent, name)
@@ -2290,7 +2164,6 @@ DisplaySettingsTab::DisplaySettingsTab(QWidget *parent, const char *name)
         supportedRenderers == KisOpenGL::RendererDesktopGL ||
         supportedRenderers == KisOpenGL::RendererOpenGLES ||
         supportedRenderers == KisOpenGL::RendererSoftware;
-
 
     if (!onlyOneRendererSupported) {
         QString qtPreferredRendererText;
@@ -2347,7 +2220,6 @@ DisplaySettingsTab::DisplaySettingsTab(QWidget *parent, const char *name)
         cmbAssistantsDrawMode->setCurrentIndex(assistantDrawModeToIndex(cfg.assistantsDrawMode()));
         cmbFilterMode->setEnabled(cfg.useOpenGL());
         cmbFilterMode->setCurrentIndex(cfg.openGLFilteringMode());
-        // Don't show the high quality filtering mode if it's not available
         if (!KisOpenGL::supportsLoD()) {
             cmbFilterMode->removeItem(3);
         }
@@ -2442,11 +2314,6 @@ DisplaySettingsTab::DisplaySettingsTab(QWidget *parent, const char *name)
 #ifndef HAVE_HDR
     HDR->setEnabled(false);
 
-    /**
-     * We hide the HDR page in Wayland mode, because the mode is managed
-     * by a different page. We still keep the disabled tab visible on other
-     * systems just to promote the existence of this feature.
-     */
     if (KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS()) {
         const int hdrTabIndex = tabWidget->indexOf(HDR);
         KIS_SAFE_ASSERT_RECOVER_NOOP(hdrTabIndex >= 0);
@@ -2607,7 +2474,6 @@ void DisplaySettingsTab::slotPreferredSurfaceFormatChanged(int index)
     }
 }
 
-//---------------------------------------------------------------------------------------------------
 FullscreenSettingsTab::FullscreenSettingsTab(QWidget* parent) : WdgFullscreenSettingsBase(parent)
 {
     KisConfig cfg(true);
@@ -2631,9 +2497,6 @@ void FullscreenSettingsTab::setDefault()
     chkTitlebar->setChecked(cfg.hideTitlebarFullscreen(true));
     chkToolbar->setChecked(cfg.hideToolbarFullscreen(true));
 }
-
-
-//---------------------------------------------------------------------------------------------------
 
 namespace PopupPaletteTabPrivate {
 static const QStringList allowedColorHistorySortingValues({"none", "hsv"});
@@ -2715,8 +2578,6 @@ void PopupPaletteTab::slotSelectorTypeChanged(int index) {
     grpFixTriangleRotation->setEnabled(!index);
 }
 
-//---------------------------------------------------------------------------------------------------
-
 static QWidget *krimblePrefsPage(QWidget *page)
 {
 #ifdef Q_OS_ANDROID
@@ -2752,7 +2613,6 @@ public:
     {
         const int pad = 6;
         const QRect t = option.fontMetrics.boundingRect(QRect(0, 0, m_w - 2 * pad, 0), Qt::AlignHCenter | Qt::TextWordWrap, index.data(Qt::DisplayRole).toString());
-        // return QSize(m_w, pad + option.decorationSize.height() + 2 + t.height() + pad);
         return QSize(m_w, pad + iconHeight(option, index) + 2 + t.height() + pad);
     }
     void paint(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const override
@@ -2788,7 +2648,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     setFaceType(KPageDialog::List);
 
-    // General
     KoVBox *vbox = new KoVBox();
     KPageWidgetItem *page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("General"));
     page->setObjectName("general");
@@ -2801,7 +2660,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     m_general->setMinimumWidth(0);
 #endif
 
-    // Shortcuts
     vbox = new KoVBox();
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Keyboard Shortcuts"));
     page->setObjectName("shortcuts");
@@ -2813,7 +2671,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     connect(this, SIGNAL(accepted()), m_shortcutSettings, SLOT(saveChanges()));
     connect(this, SIGNAL(rejected()), m_shortcutSettings, SLOT(cancelChanges()));
 
-    // Canvas input settings
     m_inputConfiguration = new KisInputConfigurationPage();
     page = addPage(krimblePrefsPage(m_inputConfiguration), i18n("Canvas Input Settings"));
     page->setHeader(i18n("Canvas Input"));
@@ -2821,7 +2678,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     page->setIcon(KisIconUtils::loadIcon("config-canvas-input"));
     m_pages << page;
 
-    // Display
     vbox = new KoVBox();
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Display"));
     page->setObjectName("display");
@@ -2831,7 +2687,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     addPage(page);
     m_displaySettings = new DisplaySettingsTab(vbox);
 
-    // Color
     vbox = new KoVBox();
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Color Management"));
     page->setObjectName("colormanagement");
@@ -2841,7 +2696,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     addPage(page);
     m_colorSettings = new ColorSettingsTab(vbox);
 
-    // Performance
     vbox = new KoVBox();
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Performance"));
     page->setObjectName("performance");
@@ -2851,7 +2705,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     addPage(page);
     m_performanceSettings = new PerformanceTab(vbox);
 
-    // Tablet
     vbox = new KoVBox();
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Tablet settings"));
     page->setObjectName("tablet");
@@ -2861,7 +2714,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     addPage(page);
     m_tabletSettings = new TabletSettingsTab(vbox);
 
-    // full-screen mode
     vbox = new KoVBox();
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Canvas-only settings"));
     page->setObjectName("canvasonly");
@@ -2871,7 +2723,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     addPage(page);
     m_fullscreenSettings = new FullscreenSettingsTab(vbox);
 
-    // Pop-up Palette
     vbox = new KoVBox();
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Pop-up Palette"));
     page->setObjectName("popuppalette");
@@ -2881,7 +2732,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     addPage(page);
     m_popupPaletteSettings = new PopupPaletteTab(vbox);
 
-    // Author profiles
     m_authorPage = new KoConfigAuthorPage();
     page = addPage(krimblePrefsPage(m_authorPage), i18nc("@title:tab Author page", "Author" ));
     page->setObjectName("author");
@@ -2926,14 +2776,11 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
         }
     }
 
-    // TODO QT6: check what this code actually does?
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     {
-        // HACK ALERT! Remove title widget background, thus making
-        // it consistent across all systems
         const auto *titleWidget = findChild<KTitleWidget*>();
         if (titleWidget) {
-            QLayoutItem *titleFrame = titleWidget->layout()->itemAt(0); // vboxLayout -> titleFrame
+            QLayoutItem *titleFrame = titleWidget->layout()->itemAt(0);
             if (titleFrame) {
                 titleFrame->widget()->setBackgroundRole(QPalette::Window);
             }
@@ -3157,7 +3004,6 @@ bool KisDlgPreferences::editPreferences(std::optional<PageDesc>page)
     Q_UNUSED(retval);
 
     if (!m_cancelClicked) {
-        // General settings
         KisConfig cfg(false);
         KisImageConfig cfgImage(false);
 
@@ -3209,7 +3055,6 @@ bool KisDlgPreferences::editPreferences(std::optional<PageDesc>page)
         cfg.writeEntry("backupfilesuffix", m_general->txtBackupFileSuffix->text());
         cfg.writeEntry("numberofbackupfiles", m_general->intNumBackupFiles->value());
 
-
         cfg.setShowCanvasMessages(m_general->showCanvasMessages());
         cfg.setCompressKra(m_general->compressKra());
         cfg.setTrimKra(m_general->trimKra());
@@ -3252,7 +3097,6 @@ bool KisDlgPreferences::editPreferences(std::optional<PageDesc>page)
         cfg.setCumulativeUndoRedo(m_general->chkCumulativeUndo->isChecked());
         cfg.setCumulativeUndoData(m_general->m_cumulativeUndoData);
 
-        // Animation..
         cfg.setAutoPinLayersToTimeline(m_general->autopinLayersToTimeline());
         cfg.setAdaptivePlaybackRange(m_general->adaptivePlaybackRange());
         cfg.setAutoZoomTimelineToPlaybackRange(m_general->autoZoomTimelineToPlaybackRange());
@@ -3270,7 +3114,6 @@ bool KisDlgPreferences::editPreferences(std::optional<PageDesc>page)
         cfg.setRenamePastedLayers(m_general->renamePastedLayers());
         KisImageConfig(true).setRenameDuplicatedLayers(m_general->renameDuplicatedLayers());
 
-        // Color settings
         if (!m_colorSettings->m_colorManagedByOS) {
             cfg.setUseSystemMonitorProfile(m_colorSettings->m_page->chkUseSystemMonitorProfile->isChecked());
             for (int i = 0; i < QApplication::screens().count(); ++i) {
@@ -3307,16 +3150,14 @@ bool KisDlgPreferences::editPreferences(std::optional<PageDesc>page)
         cfg.setPasteBehaviour(m_colorSettings->m_pasteBehaviourGroup.checkedId());
         cfg.setRenderIntent(m_colorSettings->m_page->cmbMonitorIntent->currentIndex());
 
-        // Tablet settings
         cfg.setPressureTabletCurve( m_tabletSettings->m_page->pressureCurve->curve().toString() );
         cfg.setUseRightMiddleTabletButtonWorkaround(
             m_tabletSettings->m_page->chkUseRightMiddleClickWorkaround->isChecked());
 
-#if defined Q_OS_WIN && (defined QT5_HAS_WINTAB_SWITCH || QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)) 
+#if defined Q_OS_WIN && (defined QT5_HAS_WINTAB_SWITCH || QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
         cfg.setUseWin8PointerInput(m_tabletSettings->m_page->radioWin8PointerInput->isChecked());
-        
+
 #  if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        // Qt6 supports switching the tablet API on the fly
         using QWindowsApplication = QNativeInterface::Private::QWindowsApplication;
         if (auto nativeWindowsApp = dynamic_cast<QWindowsApplication *>(QGuiApplicationPrivate::platformIntegration())) {
             nativeWindowsApp->setWinTabEnabled(!cfg.useWin8PointerInput());
@@ -3342,7 +3183,6 @@ bool KisDlgPreferences::editPreferences(std::optional<PageDesc>page)
 
         cfg.writeEntry<int>("maxAllowedSpeedValue", m_tabletSettings->m_page->intMaxAllowedBrushSpeed->value());
         cfg.writeEntry<int>("speedValueSmoothing", m_tabletSettings->m_page->intBrushSpeedSmoothing->value());
-        // the angle is saved in clockwise direction to be consistent with Drawing Angle, so negate
         cfg.writeEntry<int>("tiltDirectionOffset", -m_tabletSettings->m_page->tiltDirectionOffsetAngle->angle());
 
         m_performanceSettings->save();

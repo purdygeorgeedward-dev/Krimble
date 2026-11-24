@@ -22,14 +22,12 @@ public:
     void redo() override;
     void undo() override;
 
-
 Q_SIGNALS:
     void requestTransformTool();
 
-    
 private:
     bool m_firstRedo;
     KisViewManager* m_view;
 };
 
-#endif // KISTRANSFORMTOOLACTIVATIONCOMMAND_H
+#endif

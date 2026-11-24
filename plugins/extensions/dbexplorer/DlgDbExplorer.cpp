@@ -48,9 +48,9 @@ DlgDbExplorer::DlgDbExplorer(QWidget *parent)
         KisStorageModel *model = new KisStorageModel(this);
         TableDelegate *delegate = new TableDelegate(m_page->tableResources);
         m_page->tableStorages->setModel(model);
-        delegate->addDateTimeColumn(3); // creation date
-        delegate->addBooleanColumn(4); // preinstalled
-        delegate->addBooleanColumn(5); // active
+        delegate->addDateTimeColumn(3);
+        delegate->addBooleanColumn(4);
+        delegate->addBooleanColumn(5);
         m_page->tableStorages->setItemDelegate(delegate);
         m_page->tableStorages->hideColumn(0);
         m_page->tableStorages->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -60,9 +60,9 @@ DlgDbExplorer::DlgDbExplorer(QWidget *parent)
     {
         KisResourceModel *resourcesModel = new KisResourceModel(ResourceType::Brushes, this);
         TableDelegate *resourcesDelegate = new TableDelegate(m_page->tableResources);
-        resourcesDelegate->addBooleanColumn(6); // Status
-        resourcesDelegate->addBooleanColumn(12); // Dirty
-        resourcesDelegate->addBooleanColumn(14); // Active
+        resourcesDelegate->addBooleanColumn(6);
+        resourcesDelegate->addBooleanColumn(12);
+        resourcesDelegate->addBooleanColumn(14);
         m_page->tableResources->setModel(resourcesModel);
         m_page->tableResources->setItemDelegate(resourcesDelegate);
         m_page->tableResources->hideColumn(0);
@@ -127,13 +127,13 @@ DlgDbExplorer::DlgDbExplorer(QWidget *parent)
     {
         KisTagResourceModel *model = new KisTagResourceModel(ResourceType::Brushes, this);
         TableDelegate *delegate = new TableDelegate(m_page->tableTaggedResources);
-        delegate->addBooleanColumn(6); // status
-        delegate->addBooleanColumn(12); // dirty
-        delegate->addBooleanColumn(14); // resource active
-        delegate->addBooleanColumn(15); // storage active
-        delegate->addBooleanColumn(20); // resource active
-        delegate->addBooleanColumn(21); // tag active
-        delegate->addBooleanColumn(22); // storage active
+        delegate->addBooleanColumn(6);
+        delegate->addBooleanColumn(12);
+        delegate->addBooleanColumn(14);
+        delegate->addBooleanColumn(15);
+        delegate->addBooleanColumn(20);
+        delegate->addBooleanColumn(21);
+        delegate->addBooleanColumn(22);
 
         m_page->tableTaggedResources->setModel(model);
         m_page->tableTaggedResources->setItemDelegate(delegate);
@@ -164,7 +164,6 @@ DlgDbExplorer::DlgDbExplorer(QWidget *parent)
         m_page->tableSchema->setSelectionMode(QAbstractItemView::NoSelection);
         m_page->tableSchema->resizeColumnsToContents();
     }
-
 
     {
         m_page->cmbRvResourceTypes->setModel(m_resourceTypeModel);
@@ -254,9 +253,7 @@ void DlgDbExplorer::slotTbResourceItemSelected()
 
 void DlgDbExplorer::slotTbTagSelected(const QModelIndex &index)
 {
-    // 0 == tag ID
     const QModelIndex idx = m_page->tableTags->model()->index(index.row(), 0);
-    // get tag's resource type
     const QModelIndex idx2 = m_page->tableTags->model()->index(index.row(), 1);
 
     KisTagResourceModel *newModel = new KisTagResourceModel(idx2.data().value<QString>(), this);

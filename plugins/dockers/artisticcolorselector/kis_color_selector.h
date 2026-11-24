@@ -136,8 +136,6 @@ private:
     QPointF mapHueToAngle(qreal hue) const;
 
 public:
-    // This is a private interface for signal compressor, don't use it.
-    // Use requestUpdateColorAndPreview() instead
     void slotUpdateColorAndPreview(QPair<KisColor, Acs::ColorRole> color);
 
 private:
@@ -165,7 +163,6 @@ private:
     QVector<ColorRing> m_colorRings;
     Qt::MouseButtons   m_pressedButtons;
 
-    // docker settings
     quint8 m_defaultHueSteps;
     quint8 m_defaultSaturationSteps;
     quint8 m_defaultValueScaleSteps;
@@ -175,9 +172,7 @@ private:
     bool m_gamutMaskOn;
     KoGamutMaskSP m_currentGamutMask;
     bool m_enforceGamutMask;
-//    QSize m_renderAreaSize;
     bool m_maskPreviewActive;
-//    KisGamutMaskViewConverter* m_viewConverter;
     QTransform m_gamutMaskViewTransform;
 
     bool m_widgetUpdatesSelf;
@@ -195,4 +190,4 @@ private:
     QScopedPointer<ColorCompressorType> m_updateColorCompressor;
 };
 
-#endif // H_KIS_COLOR_SELECTOR_H
+#endif

@@ -31,9 +31,7 @@ void KisDitherUtil::setPattern(const QString &md5sum, const QString &patternName
     m_pattern = source.bestMatch(md5sum, "", patternName);
 
     if (m_pattern && m_thresholdMode == ThresholdMode::Pattern && m_patternValueMode == PatternValueMode::Auto) {
-        // Automatically pick between lightness-based and alpha-based patterns by whichever has maximum range
 
-        // FIXME QT6: remove after we derecate Qt5 (and use float all the time)
         using float_type = decltype(std::declval<QColor>().alphaF());
 
         float_type lightnessMin = 1.0, lightnessMax = 0.0;

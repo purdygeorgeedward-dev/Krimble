@@ -24,11 +24,6 @@
 #include "kis_color_button.h"
 #include "kis_file_name_requester.h"
 
-/**
- * Sanity check asserts that check the validity of the passed
- * properties (as c-strings). Sanity check intentionally use
- * Q_ASSERT to strip this code completely from the release builds.
- */
 #define SANITY_CHECK_PROPERTY_EXISTS(prop) Q_ASSERT(prop.isValid())
 #define SANITY_CHECK_PROPERTY_EXISTS_AND_WRITABLE(prop) do { Q_ASSERT(prop.isValid()); Q_ASSERT(prop.isWritable()); } while (0)
 #define SANITY_CHECK_PROPERTY_METATYPE_REGISTERED(prop) do { \
@@ -56,7 +51,6 @@ public Q_SLOTS:
         m_button->setEnabled(state.enabled);
         m_button->setChecked(state.value);
 
-        // TODO: verify if the two properties are equal or the control is disabled
     }
 
 private:
@@ -85,13 +79,11 @@ public Q_SLOTS:
         m_comboBox->setCurrentIndex(state.currentIndex);
         m_comboBox->setEnabled(state.enabled);
 
-        // TODO: verify if the two properties are equal or the control is disabled
     }
 
 private:
     QComboBox *m_comboBox;
 };
-
 
 namespace KisWidgetConnectionUtils {
 
@@ -242,7 +234,6 @@ private:
     QSpinBox *m_spinBox;
 };
 
-
 void connectControlState(QSpinBox *spinBox, QObject *source, const char *readStateProperty, const char *writeProperty)
 {
     const QMetaObject* meta = source->metaObject();
@@ -297,7 +288,6 @@ private:
     QDoubleSpinBox *m_spinBox;
 };
 
-
 void connectControlState(QDoubleSpinBox *spinBox, QObject *source, const char *readStateProperty, const char *writeProperty)
 {
     const QMetaObject* meta = source->metaObject();
@@ -329,7 +319,6 @@ void connectControlState(QDoubleSpinBox *spinBox, QObject *source, const char *r
     }
 }
 
-
 void connectControl(KisMultipliersDoubleSliderSpinBox *spinBox, QObject *source, const char *property)
 {
     const QMetaObject* meta = source->metaObject();
@@ -356,7 +345,6 @@ void connectControl(KisMultipliersDoubleSliderSpinBox *spinBox, QObject *source,
                          source, [prop, source] (qreal value) { prop.write(source, value); });
     }
 }
-
 
 class ConnectButtonGroupHelper : public QObject
 {
@@ -394,7 +382,6 @@ public Q_SLOTS:
     }
 
 Q_SIGNALS:
-    // this signal was added only in Qt 5.15
     void idClicked(int id);
 
 private:
@@ -413,7 +400,6 @@ void connectControl(QButtonGroup *group, QObject *source, const char *property)
 
     KIS_SAFE_ASSERT_RECOVER_RETURN(signal.parameterCount() >= 1);
     KIS_SAFE_ASSERT_RECOVER_RETURN(signal.parameterType(0) == QMetaType::type("int"));
-
 
     ConnectButtonGroupHelper *helper = new ConnectButtonGroupHelper(group);
 
@@ -494,7 +480,6 @@ void connectControlState(QAbstractButton *button, QObject *source, const char *r
     }
 }
 
-
 void connectControlState(QComboBox *button, QObject *source, const char *readStatePropertyName, const char *writePropertyName)
 {
     const QMetaObject* meta = source->metaObject();
@@ -521,11 +506,6 @@ void connectControlState(QComboBox *button, QObject *source, const char *readSta
     QMetaProperty writeProp = meta->property(meta->indexOfProperty(writePropertyName));
     SANITY_CHECK_PROPERTY_EXISTS_AND_WRITABLE(writeProp);
 
-    /**
-     * On Qt5 to perform conversion from int to enum, the enum should be registered as
-     * a metatype, so we should manually verify that. For some reason, on Qt6 it is not
-     * necessary.
-     */
     SANITY_CHECK_PROPERTY_METATYPE_REGISTERED(writeProp);
 
     if (writeProp.isWritable()) {
@@ -556,7 +536,6 @@ void connectControl(QComboBox *button, QObject *source, const char *property)
     button->setCurrentIndex(stateProp.read(source).value<int>());
 
     if (stateProp.isWritable()) {
-        // see a comment in connectControlState(QComboBox *button, ...)
         SANITY_CHECK_PROPERTY_METATYPE_REGISTERED(stateProp);
         QObject::connect(button, qOverload<int>(&QComboBox::currentIndexChanged),
                          source, [stateProp, source] (int value) { stateProp.write(source, value); });
@@ -585,7 +564,6 @@ public Q_SLOTS:
     }
 
 Q_SIGNALS:
-    // this signal was added only in Qt 5.15
     void sigWidgetChanged(SpacingState state);
 
 private:
@@ -687,13 +665,13 @@ void connectControl(KisFileNameRequester *widget, QObject *source, const char *p
 
     KIS_SAFE_ASSERT_RECOVER_RETURN(signal.parameterCount() >= 1);
     KIS_SAFE_ASSERT_RECOVER_RETURN(signal.parameterType(0) == QMetaType::type("QString"));
-    
+
     const QMetaObject* dstMeta = widget->metaObject();
 
     QMetaMethod updateSlot = dstMeta->method(
                 dstMeta->indexOfSlot("setFileName(QString)"));
     QObject::connect(source, signal, widget, updateSlot);
-    
+
     widget->setFileName(prop.read(source).toString());
 
     if (prop.isWritable()) {
@@ -740,12 +718,12 @@ void connectWidgetVisibleToProperty(QWidget* widget, QObject* source, const char
     KIS_SAFE_ASSERT_RECOVER_RETURN(prop.hasNotifySignal());
 
 	QMetaMethod signal = prop.notifySignal();
-	
+
     const QMetaObject* dstMeta = widget->metaObject();
-	
+
     QMetaMethod updateSlot = dstMeta->method(
         dstMeta->indexOfSlot("setVisible(bool)"));
-	
+
     QObject::connect(source, signal, widget, updateSlot);
     widget->setVisible(prop.read(source).toBool());
 }

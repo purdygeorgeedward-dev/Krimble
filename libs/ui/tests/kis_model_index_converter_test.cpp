@@ -14,7 +14,6 @@
 #include "kis_model_index_converter.h"
 #include "kis_model_index_converter_show_all.h"
 
-
 void KisModelIndexConverterTest::init()
 {
     m_dummiesFacade = new KisDummiesFacade(0);
@@ -421,7 +420,6 @@ void KisModelIndexConverterTest::testDummyFromRowShowAll()
     checkDummyFromRow(m_layer3, 0, m_sel3);
     checkDummyFromRow(m_layer3, 1, m_mask1);
 }
-
 
 void KisModelIndexConverterTest::testRowCountShowAll()
 {

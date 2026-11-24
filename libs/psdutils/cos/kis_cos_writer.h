@@ -18,4 +18,4 @@ public:
     static QByteArray writeTxt2FromVariantHash(const QVariantHash doc);
 };
 
-#endif // KISCOSWRITER_H
+#endif

@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_tile_data.h"
 #include "kis_tile_data_store.h"
 
@@ -14,7 +13,6 @@
 #include <boost/pool/singleton_pool.hpp>
 #include "kis_tile_data_store_iterators.h"
 
-// BPP == bytes per pixel
 #define TILE_SIZE_4BPP (4 * __TILE_DATA_WIDTH * __TILE_DATA_HEIGHT)
 #define TILE_SIZE_8BPP (8 * __TILE_DATA_WIDTH * __TILE_DATA_HEIGHT)
 
@@ -49,7 +47,6 @@ void SimpleCache::clear()
     }
 }
 
-
 KisTileData::KisTileData(qint32 pixelSize, const quint8 *defPixel, KisTileDataStore *store, bool checkFreeMemory)
     : m_state(NORMAL),
       m_mementoFlag(0),
@@ -67,18 +64,6 @@ KisTileData::KisTileData(qint32 pixelSize, const quint8 *defPixel, KisTileDataSt
     fillWithPixel(defPixel);
 }
 
-
-/**
- * Duplicating tiledata
- * + new object loaded in memory
- * + it's unlocked and has refCount==0
- *
- * NOTE: the memory allocated by the pooler for clones is not counted
- * by the store in memoryHardLimit. The pooler has it's own slice of
- * memory and keeps track of the its size itself. So we should be able
- * to disable the memory check with checkFreeMemory, otherwise, there
- * is a deadlock.
- */
 KisTileData::KisTileData(const KisTileData& rhs, bool checkFreeMemory)
     : m_state(NORMAL),
       m_mementoFlag(0),
@@ -95,7 +80,6 @@ KisTileData::KisTileData(const KisTileData& rhs, bool checkFreeMemory)
 
     memcpy(m_data, rhs.data(), m_pixelSize * WIDTH * HEIGHT);
 }
-
 
 KisTileData::~KisTileData()
 {
@@ -170,11 +154,9 @@ void KisTileData::freeData(quint8* ptr, const qint32 pixelSize)
     }
 }
 
-//#define DEBUG_POOL_RELEASE
-
 #ifdef DEBUG_POOL_RELEASE
 #include <unistd.h>
-#endif /* DEBUG_POOL_RELEASE */
+#endif
 
 void KisTileData::releaseInternalPools()
 {
@@ -191,13 +173,11 @@ void KisTileData::releaseInternalPools()
         while (iter->hasNext()) {
             KisTileData *item = iter->next();
 
-            // first release all the clones
             KisTileData *clone = 0;
             while (item->m_clonesStack.pop(clone)) {
                 delete clone;
             }
 
-            // check if the tile data has actually been pooled
             if (item->m_pixelSize != 4 &&
                 item->m_pixelSize != 8 &&
                 item->m_pixelSize != 16) {
@@ -205,7 +185,6 @@ void KisTileData::releaseInternalPools()
                 continue;
             }
 
-            // check if the tile has been swapped out
             if (item->m_data) {
                 const bool locked = item->m_swapLock.tryLockForWrite();
                 if (!locked) {
@@ -221,7 +200,6 @@ void KisTileData::releaseInternalPools()
         }
 
         if (!failedToLock) {
-            // purge the pools memory
             m_cache.clear();
             BoostPool4BPP::purge_memory();
             BoostPool8BPP::purge_memory();
@@ -255,7 +233,7 @@ void KisTileData::releaseInternalPools()
         sprintf(command, "cat /proc/%d/status | grep -i vm", (int)getpid());
         printf("--- %s ---\n", command);
         (void)system(command);
-#endif /* DEBUG_POOL_RELEASE */
+#endif
 
     } else {
         dbgKrita << "DEBUG: releasing of the pooled memory has been cancelled:"

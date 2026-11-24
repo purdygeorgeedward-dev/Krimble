@@ -9,7 +9,6 @@
 
 #include <QAtomicInt>
 
-
 class KisLockFreeLodCounter
 {
 public:
@@ -81,4 +80,4 @@ private:
     QAtomicInt m_num;
 };
 
-#endif /* __KIS_LOCK_FREE_LOD_COUNTER_H */
+#endif

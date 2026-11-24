@@ -8,7 +8,6 @@
 #include <KisPaintOpOptionUtils.h>
 namespace kpou = KisPaintOpOptionUtils;
 
-
 KisPaintThicknessOption::KisPaintThicknessOption(const KisPropertiesConfiguration *setting)
     : KisPaintThicknessOption(kpou::loadOptionData<KisPaintThicknessOptionData>(setting))
 {

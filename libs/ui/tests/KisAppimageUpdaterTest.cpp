@@ -30,7 +30,6 @@ void KisAppimageUpdaterTest::testCheckForUpdate()
             .arg(QString(FILES_DATA_DIR))
             .arg(QDir::separator());
 
-
     qputenv("APPIMAGEUPDATE_DUMMY_STATE", controlValue.toLocal8Bit());
 
     QScopedPointer<KisAppimageUpdater> updater(new KisAppimageUpdater(updaterDummyPath));
@@ -85,7 +84,6 @@ void KisAppimageUpdaterTest::testDoUpdate()
             .arg(QString(FILES_DATA_DIR))
             .arg(QDir::separator());
 
-
     qputenv("APPIMAGEUPDATE_DUMMY_STATE", controlValue.toLocal8Bit());
 
     QScopedPointer<KisAppimageUpdater> updater(new KisAppimageUpdater(updaterDummyPath));
@@ -103,7 +101,6 @@ void KisAppimageUpdaterTest::testDoUpdate()
 
     QCOMPARE(secondStatus.status(), resultStatus);
 
-    // for error also check for output
     if (secondStatus.status() == UpdaterStatus::StatusID::UPDATE_ERROR) {
         QCOMPARE(secondStatus.updaterOutput(), QString("DUMMY: an error occurred\n"));
     }

@@ -21,11 +21,10 @@
 #ifdef LIMIT_LONG_TESTS
 #define RATIO_STEP 50
 #define FADE_STEP 25
-#else /* LIMIT_LONG_TESTS */
+#else
 #define RATIO_STEP 20
 #define FADE_STEP 5
-#endif /* LIMIT_LONG_TESTS */
-
+#endif
 
 enum MaskType {
     DEFAULT, CIRC_GAUSS, CIRC_SOFT, RECT, RECT_GAUSS, RECT_SOFT, STAMP
@@ -49,22 +48,19 @@ public:
                                 0.0, 1.0,
                                 m_bounds.width() / 2.0, m_bounds.height() / 2.0,0);
 
-        // Start legacy scalar processing
         legacy->initializeData(&data);
         legacy->process(m_bounds);
 
         QImage scalarImage(m_paintDev->convertToQImage(m_colorSpace->profile()));
-        scalarImage.invertPixels(); // Make pixel color black
+        scalarImage.invertPixels();
 
-        // Start vector processing
         m_paintDev->initialize(255);
         vectorized->initializeData(&data);
         vectorized->process(m_bounds);
 
         QImage vectorImage(m_paintDev->convertToQImage(m_colorSpace->profile()));
-        vectorImage.invertPixels(); // Make pixel color black
+        vectorImage.invertPixels();
 
-        // Check for differences, max errors: 0
         QPoint tmpPt;
         if (!TestUtil::compareQImages(tmpPt,scalarImage, vectorImage, 0, 2, 0)) {
             scalarImage.save(QString(getTypeName(type) + "_scalar_mask.png"),"PNG");
@@ -75,9 +71,7 @@ public:
 
     }
 
-
     static bool exhaustiveTest(QRect bounds, MaskType type) {
-        // Exhaustive test
 
         for (size_t i = 0; i <= 100; i += FADE_STEP){
             for (size_t j = 0; j <= 100; j += FADE_STEP){
@@ -89,8 +83,7 @@ public:
                     KisGaussCircleMaskGenerator bCircVectr(499.5, k/100.f, i/100.f, j/100.f, 2, true);
                     bCircVectr.setDiameter(499.5);
                     KisGaussCircleMaskGenerator bCircScalar(bCircVectr);
-                    bCircScalar.setMaskScalarApplicator(); // Force usage of
-                                                           // scalar backend
+                    bCircScalar.setMaskScalarApplicator();
 
                     KisMaskSimilarityTester(bCircScalar.applicator(), bCircVectr.applicator(), bounds,type);
                     break;
@@ -101,8 +94,7 @@ public:
                     KisCurveCircleMaskGenerator bCircVectr(499.5, k/100.f, i/100.f, j/100.f, 2, pointsCurve, true);
                     bCircVectr.setDiameter(499.5);
                     KisCurveCircleMaskGenerator bCircScalar(bCircVectr);
-                    bCircScalar.setMaskScalarApplicator(); // Force usage of
-                                                           // scalar backend
+                    bCircScalar.setMaskScalarApplicator();
 
                     KisMaskSimilarityTester(bCircScalar.applicator(), bCircVectr.applicator(), bounds,type);
                     break;
@@ -111,8 +103,7 @@ public:
                     {
                     KisRectangleMaskGenerator bCircVectr(499.5, k/100.f, i/100.f, j/100.f, 2, true);
                     KisRectangleMaskGenerator bCircScalar(bCircVectr);
-                    bCircScalar.setMaskScalarApplicator(); // Force usage of
-                                                           // scalar backend
+                    bCircScalar.setMaskScalarApplicator();
 
                     KisMaskSimilarityTester(bCircScalar.applicator(), bCircVectr.applicator(), bounds,type);
                     break;
@@ -122,8 +113,7 @@ public:
                     {
                     KisGaussRectangleMaskGenerator bCircVectr(499.5, k/100.f, i/100.f, j/100.f, 2, true);
                     KisGaussRectangleMaskGenerator bCircScalar(bCircVectr);
-                    bCircScalar.setMaskScalarApplicator(); // Force usage of
-                                                           // scalar backend
+                    bCircScalar.setMaskScalarApplicator();
 
                     KisMaskSimilarityTester(bCircScalar.applicator(), bCircVectr.applicator(), bounds,type);
                     break;
@@ -134,8 +124,7 @@ public:
                     const KisCubicCurve pointsCurve(QString("0,1;1,0"));
                     KisCurveRectangleMaskGenerator bCircVectr(499.5, k/100.f, i/100.f, j/100.f, 2, pointsCurve, true);
                     KisCurveRectangleMaskGenerator bCircScalar(bCircVectr);
-                    bCircScalar.setMaskScalarApplicator(); // Force usage of
-                                                           // scalar backend
+                    bCircScalar.setMaskScalarApplicator();
 
                     KisMaskSimilarityTester(bCircScalar.applicator(), bCircVectr.applicator(), bounds,type);
                     break;
@@ -152,7 +141,7 @@ public:
                     return false;
                 }
 
-        } } } // end for
+        } } }
         return true;
     }
 
@@ -163,10 +152,9 @@ public:
         MaskGenerator scalarGenerator(generator);
 
         scalarGenerator
-            .setMaskScalarApplicator(); // Force usage of scalar backend
+            .setMaskScalarApplicator();
         KisMaskSimilarityTester(scalarGenerator.applicator(), generator.applicator(), bounds, type);
 
-        // KisMaskSimilarityTester::exhaustiveTest(bounds,type);
     }
 
 private:
@@ -207,7 +195,6 @@ protected:
     QRect m_bounds;
     KisFixedPaintDeviceSP m_paintDev;
 };
-
 
 void KisMaskSimilarityTest::testCircleMask()
 {

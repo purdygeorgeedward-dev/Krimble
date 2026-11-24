@@ -16,10 +16,6 @@
 
 #include <kritaimage_export.h>
 
-
-/**
- *  XXX: Docs!
- */
 class KRITAIMAGE_EXPORT KisGradientPainter : public KisPainter
 {
 
@@ -53,9 +49,6 @@ public:
 
     void precalculateShape();
 
-    /**
-     * Paint a gradient in the rect between startx, starty, width and height.
-     */
     bool paintGradient(const QPointF& gradientVectorStart,
                        const QPointF& gradientVectorEnd,
                        enumGradientRepeat repeat,
@@ -67,7 +60,6 @@ public:
                        qint32 height,
                        bool useDithering = false);
 
-    // convenience overload
     bool paintGradient(const QPointF& gradientVectorStart,
                        const QPointF& gradientVectorEnd,
                        enumGradientRepeat repeat,
@@ -76,7 +68,7 @@ public:
                        const QRect &applyRect,
                        bool useDithering = false);
 
-    template <class T> 
+    template <class T>
     bool paintGradient(const QPointF& gradientVectorStart,
                        const QPointF& gradientVectorEnd,
                        enumGradientRepeat repeat,
@@ -90,4 +82,4 @@ private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
-#endif //KIS_GRADIENT_PAINTER_H_
+#endif

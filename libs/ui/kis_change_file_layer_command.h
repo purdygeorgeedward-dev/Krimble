@@ -35,14 +35,12 @@ public:
     }
 public:
     void redo() override {
-        // setFileName() automatically issues a setDirty call
         m_node->setScalingMethod(m_newMethod);
         m_node->setScalingFilter(m_newFilter);
         m_node->setFileName(m_newPath, m_newFileName);
     }
 
     void undo() override {
-        // setFileName() automatically issues a setDirty call
         m_node->setScalingMethod(m_oldMethod);
         m_node->setScalingFilter(m_oldFilter);
         m_node->setFileName(m_oldPath, m_oldFileName);
@@ -59,4 +57,4 @@ private:
     QString m_oldFilter;
     QString m_newFilter;
 };
-#endif // KIS_CHANGE_FILE_LAYER_COMMAND_H
+#endif

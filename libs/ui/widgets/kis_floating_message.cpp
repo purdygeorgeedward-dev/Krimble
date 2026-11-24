@@ -25,7 +25,6 @@
 #include <kis_debug.h>
 #include "kis_global.h"
 
-
 #define OSD_WINDOW_OPACITY 0.85
 
 static void addDropShadow(QWidget *widget, QColor color)
@@ -157,8 +156,7 @@ QRect KisFloatingMessage::determineMetrics( const int M )
 
     const QSize minImageSize = m_icon.size().boundedTo(QSize(100, 100));
 
-    // determine a sensible maximum size, don't cover the whole desktop or cross the screen
-    const QSize margin( (M + MARGIN) * 2, (M + MARGIN) * 2); //margins
+    const QSize margin( (M + MARGIN) * 2, (M + MARGIN) * 2);
     const QSize image = m_icon.isNull() ? QSize(0, 0) : minImageSize;
     QRect geom = parentWidget()->geometry();
     QPoint p(geom.width() / 2 + geom.left(), geom.height() / 2 + geom.top());
@@ -173,33 +171,24 @@ QRect KisFloatingMessage::determineMetrics( const int M )
 #ifdef Q_OS_ANDROID
     if (parentWidget()) max.setWidth(qMin(max.width(), qMax(40, parentWidget()->width() - margin.width())));
 #endif
-    // If we don't do that, the boundingRect() might not be suitable for drawText() (Qt issue N67674)
     m_message.replace(QRegularExpression( " +\n"), "\n");
-    // remove consecutive line breaks
     m_message.replace(QRegularExpression( "\n+"), "\n");
 
-    // The osd cannot be larger than the screen
     QRect rect = fontMetrics().boundingRect(0, 0, max.width() - image.width(), max.height(),
            m_alignment, m_message);
 
     if (!m_icon.isNull()) {
-        const int availableWidth = max.width() - rect.width() - M; //WILL be >= (minImageSize.width() - M)
+        const int availableWidth = max.width() - rect.width() - M;
 
         m_scaledIcon = QPixmap::fromImage(m_icon.scaled(qMin(availableWidth, m_icon.width()),
                                                         qMin( rect.height(), m_icon.height()),
                                                         Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
-        const int widthIncludingImage = rect.width() + m_scaledIcon.width() + M; //margin between text + image
+        const int widthIncludingImage = rect.width() + m_scaledIcon.width() + M;
         rect.setWidth( widthIncludingImage );
     }
 
-    // expand in all directions by 2*M
-    //
-    // take care with this rect, because it must be *bigger*
-    // than the rect we paint the message in
     rect = kisGrowRect(rect, 2 * M);
-
-
 
     const QSize newSize = rect.size();
     QRect screen;
@@ -221,15 +210,12 @@ QRect KisFloatingMessage::determineMetrics( const int M )
         newPos.rx() = MARGIN;
         newPos.ry() = screen.height() - MARGIN - 50 - newSize.height();
 
-        //ensure we don't dip below the screen
         if (newPos.y() + newSize.height() > screen.height() - MARGIN) {
             newPos.ry() = screen.height() - MARGIN - newSize.height();
         }
-        // correct for screen position
         newPos += screen.topLeft();
 
         if (parentWidget()) {
-            // Move a bit to the left as there could be a scrollbar
             newPos.setX(newPos.x() - MARGIN);
         }
     }

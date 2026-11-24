@@ -103,7 +103,6 @@ QString FileLayer::getFileNameFromAbsolute(const QString &basePath, QString file
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(QFileInfo(filePath).isAbsolute(), filePath);
 
-    // try to resolve symlink
     {
         const QFileInfo fi(filePath);
         if (fi.isSymLink()) {
@@ -118,5 +117,4 @@ QString FileLayer::getFileNameFromAbsolute(const QString &basePath, QString file
 
     return filePath;
 }
-
 

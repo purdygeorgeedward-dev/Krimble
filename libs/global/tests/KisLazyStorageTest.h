@@ -17,4 +17,4 @@ private Q_SLOTS:
 
 };
 
-#endif // KISLAZYSTORAGETEST_H
+#endif

@@ -17,7 +17,6 @@
 
 #include <memory>
 
-// HACK! please refactor out!
 #include "kis_simple_stroke_strategy.h"
 #include "kis_abstract_projection_plane.h"
 
@@ -40,8 +39,6 @@ QSet<QString> changedProperties(const KisBaseNode::PropertyList &before,
         return value;
     };
 
-    /// we expect that neither of the lists has duplicated values,
-    /// therefore we can just iterate over the bigger list
     const KisBaseNode::PropertyList &list1 = before.size() >= after.size() ? before : after;
     const KisBaseNode::PropertyList &list2 = before.size() >= after.size() ? after : before;
 
@@ -56,16 +53,10 @@ QSet<QString> changedProperties(const KisBaseNode::PropertyList &before,
 
 }
 
-
 KisNodePropertyListCommand::KisNodePropertyListCommand(KisNodeSP node, KisBaseNode::PropertyList newPropertyList)
     : KisNodeCommand(kundo2_i18n("Property Changes"), node),
       m_newPropertyList(newPropertyList),
       m_oldPropertyList(node->sectionModelProperties())
-    /**
-     * TODO instead of "Property Changes" check which property
-     * has been changed and display either lock/unlock, visible/hidden
-     * or "Property Changes" (this require new strings)
-     */
 {
 }
 
@@ -152,15 +143,10 @@ bool checkOnionSkinChanged(const KisBaseNode::PropertyList &oldPropertyList,
     return changedProperties(oldPropertyList, newPropertyList).contains(KisLayerPropertiesIcons::onionSkins.id());
 }
 
-
 void KisNodePropertyListCommand::doUpdate(const KisBaseNode::PropertyList &oldPropertyList,
                                           const KisBaseNode::PropertyList &newPropertyList,
                                           const QRect &totalUpdateExtent)
 {
-    /**
-     * Sometimes the node might refuse to change the property, e.g. needs-update for colorize
-     * mask. In this case we should avoid issuing the update and set-modified call.
-     */
     if (oldPropertyList == newPropertyList) {
         return;
     }
@@ -207,7 +193,7 @@ void KisNodePropertyListCommand::doUpdate(const KisBaseNode::PropertyList &oldPr
     } else if (checkOnionSkinChanged(oldPropertyList, newPropertyList)) {
         m_node->setDirtyDontResetAnimationCache(totalUpdateExtent);
     } else {
-        m_node->setDirty(totalUpdateExtent); // TODO check if visibility was actually changed or not
+        m_node->setDirty(totalUpdateExtent);
     }
 }
 
@@ -239,16 +225,6 @@ void KisNodePropertyListCommand::setNodePropertiesAutoUndo(KisNodeSP node, KisIm
         image->undoAdapter()->addCommand(cmd.release());
     }
     else {
-        /**
-         * HACK ALERT!
-         *
-         * Here we start a fake legacy stroke, so that all the LoD planes would
-         * be invalidated. Ideally, we should refactor this method and avoid
-         * resetting LoD planes when node visibility changes, Instead there should
-         * be two commands executes: LoD agnostic one (which sets the properties
-         * themselves), and two LoD-specific update commands: one for lodN and
-         * another one for lod0.
-         */
 
         struct SimpleLodResettingStroke : public KisSimpleStrokeStrategy {
             SimpleLodResettingStroke(KUndo2Command *cmd)
@@ -261,9 +237,6 @@ void KisNodePropertyListCommand::setNodePropertiesAutoUndo(KisNodeSP node, KisIm
 
             void initStrokeCallback() override {
                 m_cmd->redo();
-                // NOTE: we don't Q_EMIT imageModified signal here because this
-                // branch is only taken for the stasis changes, that do not
-                // change actual image representation.
             }
 
         private:

@@ -6,7 +6,6 @@
 #ifndef KIS_SKETCHOP_OPTION_DATA_H
 #define KIS_SKETCHOP_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -29,8 +28,8 @@ struct KisSketchOpOptionData : boost::equality_comparable<KisSketchOpOptionData>
             && lhs.lineWidth == rhs.lineWidth;
     }
 
-    qreal offset {30.0}; // perc
-    qreal probability {50.0}; // perc
+    qreal offset {30.0};
+    qreal probability {50.0};
     bool simpleMode {false};
     bool makeConnection {true};
     bool magnetify {true};
@@ -39,7 +38,7 @@ struct KisSketchOpOptionData : boost::equality_comparable<KisSketchOpOptionData>
     bool distanceOpacity {false};
     bool distanceDensity {true};
     bool antiAliasing {false};
-    int lineWidth {1}; // px
+    int lineWidth {1};
 
     bool read(const KisPropertiesConfiguration *setting);
     void write(KisPropertiesConfiguration *setting) const;
@@ -47,4 +46,4 @@ struct KisSketchOpOptionData : boost::equality_comparable<KisSketchOpOptionData>
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-#endif // KIS_SKETCHOP_OPTION_DATA_H
+#endif

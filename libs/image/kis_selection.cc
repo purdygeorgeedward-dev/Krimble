@@ -29,7 +29,6 @@
 #include <QReadLocker>
 #include <QWriteLocker>
 
-
 struct Q_DECL_HIDDEN KisSelection::Private {
     Private(KisSelection *q)
         : isVisible(true),
@@ -42,19 +41,14 @@ struct Q_DECL_HIDDEN KisSelection::Private {
     template <typename T>
     static void safeDeleteShapeSelection(T *object, KisSelection *selection);
 
-    // used for forwarding setDirty signals only
     KisNodeWSP parentNode;
 
-    bool isVisible; //false is the selection decoration should not be displayed
+    bool isVisible;
     KisImageResolutionProxySP resolutionProxy;
     KisPixelSelectionSP pixelSelection;
     KisSelectionComponent *shapeSelection;
     KisLazyStorage<KisSelectionUpdateCompressor, KisSelection*> updateCompressor;
 
-    /**
-     * This lock makes sure that the shape selection is not reincarnated,
-     * while some update jobs still access it via KisSelection::updateProjection().
-     */
     QReadWriteLock shapeSelectionPointerLock;
 };
 
@@ -76,8 +70,6 @@ void KisSelection::Private::safeDeleteShapeSelection(T *object, KisSelection *se
 
         ~ShapeSelectionReleaseStroke()
         {
-            /// it looks like the strategy has not been executed,
-            /// the object will leak...
             KIS_SAFE_ASSERT_RECOVER_NOOP(!m_objectWrapper);
         }
 
@@ -96,33 +88,6 @@ void KisSelection::Private::safeDeleteShapeSelection(T *object, KisSelection *se
         KisDeleteLaterWrapper<T*> *m_objectWrapper = 0;
     };
 
-    /**
-     * Yes, you see it right. We create a fake object, then put it into the GUI
-     * events queue using delete later. This object, on destruction creates a
-     * stroke, whose only purpose of life is to give birth to another fake
-     * object, which will be put into delete-later queue again. This final
-     * object, on destruction will finally release the shape selection.
-     *
-     * If you don't understand that, relax, it is impossible.
-     *
-     * This trickery is needed to satisfy the following requirements:
-     *
-     * 1) KisShapeSelection object should be deleted in the GUI thread (all
-     * shape manipulations should happen in the GUI thread). Hence we have the
-     * last step of wrapping m_shapeSelection into KisDeleteLaterWrapper.
-     *
-     * 2) KisShapeSelection cannot be deleted before all the updates using this
-     * layer/selection has completed its execution. Hence we create of the
-     * stroke that uses a BARRIER job of wait until all the updates are
-     * finished.
-     *
-     * 3) We cannot call image->startStroke() from within
-     * safeDeleteShapeSelection() directly, because it may be called in the
-     * destructor of KisTransactionData, which may theoretically be called from
-     * the destructor of KisStrokeStrategy, which will cause a deadlock in the
-     * strokes queue. Hence we do the first layer of wrapping into
-     * GuiStrokeWrapper.
-     */
     struct GuiStrokeWrapper
     {
         GuiStrokeWrapper(KisImageSP image, T *object)
@@ -297,7 +262,7 @@ void KisSelection::copyFrom(const KisSelection &rhs)
 {
     m_d->isVisible = rhs.m_d->isVisible;
     m_d->resolutionProxy = rhs.m_d->resolutionProxy;
-    m_d->parentNode = 0; // not supposed to be shared
+    m_d->parentNode = 0;
 
     Q_ASSERT(rhs.m_d->pixelSelection);
     m_d->pixelSelection = new KisPixelSelection(*rhs.m_d->pixelSelection, KritaUtils::CopyAllFrames);
@@ -333,14 +298,11 @@ void KisSelection::setParentNode(KisNodeWSP node)
     m_d->parentNode = node;
     m_d->pixelSelection->setParentNode(node);
 
-    // the updates come through the parent image, so all the updates
-    // that happened in the meantime are considered "stalled"
     if (node) {
         m_d->updateCompressor->tryProcessStalledUpdate();
     }
 }
 
-// for testing purposes only
 KisNodeWSP KisSelection::parentNode() const
 {
     return m_d->parentNode;

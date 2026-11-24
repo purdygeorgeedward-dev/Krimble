@@ -99,7 +99,6 @@ const char* KoXmlNS::nsURI2NS(const QString &nsURI)
     else if (nsURI == KoXmlNS::xml)
         return "xml";
 
-    // Shouldn't happen.
     return "";
 }
 

@@ -10,17 +10,6 @@
 #include <QTextEdit>
 #include <QRegularExpression>
 
-/**
- * A Basic XML syntax highlighter in C++/Qt (subclass of QSyntaxHighlighter). Uses simple
- * regexes to highlight not very complicated XML content.
- *
- * * The primary limitations are:
- * * No specific handling for nested quotes within attributes
- * * No handling for multi-line comments
- *
- * @see https://github.com/d1vanov/basic-xml-syntax-highlighter
- *
- */
 class BasicXMLSyntaxHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -40,7 +29,6 @@ private:
 
     void setRegexes();
 
-
 private:
     QTextCharFormat     m_xmlKeywordFormat;
     QTextCharFormat     m_xmlElementFormat;
@@ -55,4 +43,4 @@ private:
     QRegularExpression        m_xmlCommentRegex;
 };
 
-#endif // BASIC_XML_SYNTAX_HIGHLIGHTER_H
+#endif

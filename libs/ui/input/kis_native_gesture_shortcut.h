@@ -26,4 +26,4 @@ private:
     Private * const d {nullptr};
 };
 
-#endif // KISNATIVEGESTURESHORTCUT_H
+#endif

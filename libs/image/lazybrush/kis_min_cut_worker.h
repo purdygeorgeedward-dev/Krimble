@@ -9,7 +9,6 @@
 
 #include <QScopedPointer>
 
-
 class KisMinCutWorker
 {
 public:
@@ -21,4 +20,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_MIN_CUT_WORKER_H */
+#endif

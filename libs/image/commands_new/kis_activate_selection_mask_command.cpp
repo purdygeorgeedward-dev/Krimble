@@ -9,7 +9,6 @@
 #include "kis_layer.h"
 #include "kis_selection_mask.h"
 
-
 KisActivateSelectionMaskCommand::KisActivateSelectionMaskCommand(KisSelectionMaskSP selectionMask, bool value)
     : m_selectionMask(selectionMask),
       m_value(value)
@@ -37,5 +36,4 @@ void KisActivateSelectionMaskCommand::undo()
         m_previousActiveMask->setActive(true);
     }
 }
-
 

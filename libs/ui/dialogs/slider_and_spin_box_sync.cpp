@@ -12,7 +12,6 @@
 #include "kis_debug.h"
 #include "kis_signals_blocker.h"
 
-
 SliderAndSpinBoxSync::SliderAndSpinBoxSync(KisDoubleSliderSpinBox *slider,
                                            QSpinBox *spinBox,
                                            IntFunction parentValueOp)

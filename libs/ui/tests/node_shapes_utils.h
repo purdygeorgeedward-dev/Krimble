@@ -88,4 +88,4 @@ QString collectGraphPatternReverse(KisNodeDummy *root)
     return result.trimmed();
 }
 
-#endif /* __NODE_SHAPES_UTILS_H */
+#endif

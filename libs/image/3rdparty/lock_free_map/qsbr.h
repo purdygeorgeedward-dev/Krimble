@@ -20,13 +20,13 @@ class QSBR
 private:
     struct Action {
         void (*func)(void*);
-        quint64 param[4]; // Size limit found experimentally. Verified by assert below.
+        quint64 param[4];
 
         Action() = default;
 
         Action(void (*f)(void*), void* p, quint64 paramSize) : func(f)
         {
-            KIS_ASSERT(paramSize <= sizeof(param)); // Verify size limit.
+            KIS_ASSERT(paramSize <= sizeof(param));
             memcpy(&param, p, paramSize);
         }
 
@@ -59,7 +59,6 @@ private:
                     action();
                 }
             } else {
-                // push elements back to the source
                 pool->mergeFrom(tmp);
             }
         }
@@ -117,4 +116,4 @@ public:
     }
 };
 
-#endif // QSBR_H
+#endif

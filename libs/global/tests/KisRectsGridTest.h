@@ -10,7 +10,6 @@
 #include <QTest>
 #include <QObject>
 
-
 class KisRectsGridTest : public QObject
 {
     Q_OBJECT
@@ -18,4 +17,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif // KISRECTSGRIDTEST_H
+#endif

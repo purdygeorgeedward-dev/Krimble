@@ -42,7 +42,6 @@ public:
 
         qint32 i;
 
-        //qreal sAlpha, dAlpha;
         qreal alpha;
 
         while (rows-- > 0) {

@@ -16,8 +16,6 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
-// we use a forked version of the algorithm
-//#include <boost/graph/boykov_kolmogorov_max_flow.hpp>
 #include "patched_boykov_kolmogorov_max_flow.hpp"
 
 #include <boost/graph/iteration_macros.hpp>
@@ -145,12 +143,6 @@ QVector<QPoint> splitIntoConnectedComponents(KisPaintDeviceSP dev,
     const QRect rect = dev->exactBounds() & boundingRect;
     if (rect.isEmpty()) return points;
 
-    /**
-     * Please note that since we modify the device inside
-     * clearNonZeroComponent() call, we must use a *writable*
-     * iterator, for not ending up with a lazy copied old version of a
-     * device.
-     */
     KisSequentialIterator dstIt(dev, rect);
 
     while (dstIt.nextPixel()) {
@@ -165,7 +157,6 @@ QVector<QPoint> splitIntoConnectedComponents(KisPaintDeviceSP dev,
 
     return points;
 }
-
 
 KeyStroke::KeyStroke()
     : isTransparent(false)

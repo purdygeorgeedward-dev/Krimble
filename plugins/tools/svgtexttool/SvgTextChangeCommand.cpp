@@ -35,7 +35,6 @@ void SvgTextChangeCommand::redo()
 {
     m_shape->update();
     KoSvgTextShapeMarkupConverter converter(m_shape);
-    // Hardcoded resolution?
     converter.convertFromSvg(m_svg, m_defs, m_shape->boundingRect(), 72.0);
     m_shape->update();
 }
@@ -44,7 +43,6 @@ void SvgTextChangeCommand::undo()
 {
     m_shape->update();
     KoSvgTextShapeMarkupConverter converter(m_shape);
-    // Hardcoded resolution?
     converter.convertFromSvg(m_oldSvg, m_oldDefs, m_shape->boundingRect(), 72.0);
     m_shape->update();
 }

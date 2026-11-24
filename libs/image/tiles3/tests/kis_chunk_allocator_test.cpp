@@ -11,7 +11,6 @@
 
 #include "../swap/kis_chunk_allocator.h"
 
-
 void KisChunkAllocatorTest::testOperations()
 {
     KisChunkAllocator allocator;
@@ -30,7 +29,6 @@ void KisChunkAllocatorTest::testOperations()
     QVERIFY(qFuzzyCompare(allocator.debugFragmentation(), 1./6));
 }
 
-
 #define NUM_TRANSACTIONS 30
 #define NUM_CHUNKS_ALLOC 15000
 #define NUM_CHUNKS_FREE 12000
@@ -43,7 +41,6 @@ quint64 KisChunkAllocatorTest::getChunkSize()
     quint64 deviation = m_rng.bounded(2 * CHUNK_DEV_SIZE);
     return CHUNK_AV_SIZE - CHUNK_DEV_SIZE + deviation;
 }
-
 
 qreal KisChunkAllocatorTest::measureFragmentation(qint32 transactions,
                                                   qint32 chunksAlloc,
@@ -79,9 +76,6 @@ void KisChunkAllocatorTest::testFragmentation()
     measureFragmentation(NUM_TRANSACTIONS, NUM_CHUNKS_ALLOC,
                          NUM_CHUNKS_FREE, true);
 
-    /**
-     * The following tests are too slow, so we disable them by default
-     */
     return;
 
     dbgKrita << "fragmentation(transactions)";
@@ -106,7 +100,6 @@ void KisChunkAllocatorTest::testFragmentation()
     }
 
 }
-
 
 SIMPLE_TEST_MAIN(KisChunkAllocatorTest)
 

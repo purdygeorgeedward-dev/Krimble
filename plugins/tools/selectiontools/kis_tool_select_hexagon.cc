@@ -34,8 +34,6 @@ namespace {
 
 const qreal s_sqrt3 = 1.7320508075688772;
 
-// The center of the hex cell that is nearest to a point, on the same lattice the hex overlay of View > Show > Hex draws (pointy-top: columns sqrt(3) x size apart, rows 1.5 x size
-// apart, every second row shifted half a column; flat-top: the same turned a quarter turn). size = center to corner, in image pixels.
 QPointF nearestHexCenter(const QPointF &p, qreal size, bool flatTop)
 {
     QPointF best = p;
@@ -75,7 +73,7 @@ QPointF nearestHexCenter(const QPointF &p, qreal size, bool flatTop)
     return best;
 }
 
-} // namespace
+}
 
 __KisToolSelectHexagonLocal::HexSettings __KisToolSelectHexagonLocal::readHexSettings()
 {
@@ -92,7 +90,6 @@ __KisToolSelectHexagonLocal::HexSettings __KisToolSelectHexagonLocal::readHexSet
 
 QPolygonF __KisToolSelectHexagonLocal::hexagonInRect(const QRectF &rect, bool flatTop)
 {
-    // the largest regular hexagon in the box: flat top is 2 R wide and sqrt(3) R high, pointed top is sqrt(3) R wide and 2 R high
     const qreal radius = flatTop ? qMin(rect.width() / 2.0, rect.height() / s_sqrt3)
                                  : qMin(rect.width() / s_sqrt3, rect.height() / 2.0);
     const QPointF center = rect.center();
@@ -104,7 +101,6 @@ QPolygonF __KisToolSelectHexagonLocal::hexagonInRect(const QRectF &rect, bool fl
     return polygon;
 }
 
-// The options of the tool: the orientation (Pointed top or Flat top), Snap to the hex grid, and the Lock.
 class KrimbleHexOptionsWidget : public QWidget
 {
 public:
@@ -145,7 +141,6 @@ public:
         });
     }
 
-    // reads the settings again (the lock may have been changed in View > Show > Lock Hex Settings, or by the other hex tool)
     void refresh()
     {
         const __KisToolSelectHexagonLocal::HexSettings s = __KisToolSelectHexagonLocal::readHexSettings();
@@ -155,7 +150,7 @@ public:
         m_orientation->setCurrentIndex(s.flatTop ? 1 : 0);
         m_snap->setChecked(s.snap);
         m_lock->setChecked(s.locked);
-        m_orientation->setEnabled(!s.locked && !s.snap);   // with snapping the hexagon is the grid's own, so the orientation is the grid's
+        m_orientation->setEnabled(!s.locked && !s.snap);
         m_snap->setEnabled(!s.locked);
         const QString gridText = i18n("Grid: %1, size %2 px (View > Show > Hex Size...)", s.gridFlat ? i18n("flat top") : i18n("pointed top"), qRound(s.gridSize));
         if (s.locked) {
@@ -206,14 +201,11 @@ void __KisToolSelectHexagonLocal::activate(const QSet<KoShape*> &shapes)
     }
 }
 
-// Locked or snapping: no rotation (the hexagon sits on the grid as it is).
 qreal __KisToolSelectHexagonLocal::hexRotationAngle()
 {
     return readHexSettings().fixedSize() ? 0.0 : getRotationAngle();
 }
 
-// The box of the hexagon. Free: the dragged box (with the tool's rotation). Snapping or locked: the box of one hex cell of the grid (the grid's size), centered on the nearest cell
-// when snapping, or on the point where the finger went down when only locked.
 QRectF __KisToolSelectHexagonLocal::createRect(const QPointF &start, const QPointF &end)
 {
     const HexSettings s = readHexSettings();
@@ -246,7 +238,6 @@ void __KisToolSelectHexagonLocal::paintRectangle(QPainter &gc, const QRectF &ima
     paintToolOutline(&gc, path);
 }
 
-
 KisToolSelectHexagon::KisToolSelectHexagon(KoCanvasBase *canvas):
     KisToolSelectBase<__KisToolSelectHexagonLocal>(canvas, i18n("Hexagon Selection"))
 {}
@@ -275,7 +266,6 @@ void KisToolSelectHexagon::finishRect(const QRectF& rect, qreal roundCornersX, q
         return;
     }
 
-    // always a pixel selection (the hexagon is not a vector shape)
     KisProcessingApplicator applicator(currentImage(),
                                        currentNode(),
                                        KisProcessingApplicator::NONE,

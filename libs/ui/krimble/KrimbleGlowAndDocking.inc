@@ -3,9 +3,9 @@
 static void krimbleSetButtonGlow(QAbstractButton *button, bool on)
 {
     if (on) {
-        if (button->graphicsEffect()) return;       // it has an effect already (this one, or another that is not ours)
+        if (button->graphicsEffect()) return;
         QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect(button);
-        glow->setColor(QColor(11, 135, 221, 230));  // the selection blue (#0b87dd)
+        glow->setColor(QColor(11, 135, 221, 230));
         glow->setBlurRadius(18);
         glow->setOffset(0, 0);
         button->setGraphicsEffect(glow);
@@ -14,45 +14,15 @@ static void krimbleSetButtonGlow(QAbstractButton *button, bool on)
     }
 }
 
-/*
-class KrimbleGlowFilter : public QObject
-{
-public:
-    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent) {}
-    void hook(QAbstractButton *button)
-    {
-        if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
-        if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
-        if (QByteArray(button->metaObject()->className()) == "KoToolBoxButton") return;   // the toolbox selection is flat, no glow
-        if (KoGroupButton *grouped = qobject_cast<KoGroupButton*>(button)) {
-            if (grouped->groupPosition() != KoGroupButton::NoGroup) return;   // it paints the Aqua-style selection itself
-        }
-        button->setProperty("krimbleGlowHooked", true);
-        QObject::connect(button, &QAbstractButton::toggled, button, [button](bool on) { krimbleSetButtonGlow(button, on); });
-        krimbleSetButtonGlow(button, button->isChecked());
-    }
-    bool eventFilter(QObject *watched, QEvent *event) override
-    {
-        if (event->type() == QEvent::Polish) {
-            if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
-        }
-        return false;
-    }
-};
-
-*/
-// a checked button draws the Aqua-style selection (KrimbleAquaPaint.h) under its icon and text, in place of the halo glow
 static bool krimbleAquaButtonEligible(QAbstractButton *button)
 {
-    // if (!button || !button->isCheckable() || !button->isChecked()) return false;
     if (!button) return false;
-    // one Aqua: every plain push button (OK, Cancel, Create, Copy...) is painted like the checked tool button
     if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
         if (!push->isCheckable() || push->isChecked()) return push->isEnabled() && !push->isFlat();
     }
     if (!button->isCheckable() || !button->isChecked()) return false;
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
-        if (tool->menu() && tool->popupMode() == QToolButton::MenuButtonPopup) return false;   // keeps its own look (the menu arrow part)
+        if (tool->menu() && tool->popupMode() == QToolButton::MenuButtonPopup) return false;
         return true;
     }
     return qobject_cast<QPushButton*>(button) != nullptr;
@@ -62,9 +32,16 @@ static void krimblePaintAquaButton(QAbstractButton *button)
 {
     QPainter p(button);
     const QRectF r = QRectF(button->rect()).adjusted(1, 1, -1, -1);
-    // krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10);
-    // krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10, button->isDown() ? QColor(11, 135, 221).darker(135) : QColor(11, 135, 221));
-    krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.22, button->isDown() ? QColor(11, 135, 221).darker(135) : QColor(11, 135, 221));   // a little darker while pressed
+    const qreal radius = qMin(r.width(), r.height()) * 0.22;
+    krimblePaintAqua(p, r, radius, button->isDown() ? QColor(0x00, 0x57, 0xe0) : QColor(11, 135, 221));
+    if (button->isDown()) {
+        p.save();
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.setPen(QPen(QColor(0x9b, 0xe8, 0xff), 3));
+        p.setBrush(Qt::NoBrush);
+        p.drawRoundedRect(r.adjusted(1.5, 1.5, -1.5, -1.5), radius - 1.5, radius - 1.5);
+        p.restore();
+    }
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         QStyleOptionToolButton opt;
         opt.initFrom(tool);
@@ -91,8 +68,6 @@ static void krimblePaintAquaButton(QAbstractButton *button)
     }
 }
 
-// Krimble 2026-11-23: paints the Aqua on the buttons it is installed on. One is installed on each hooked button, so the work is per button,
-// not a look at every paint of every widget in the app (George: "Change this back to once per widget.").
 class KrimbleAquaButtonPainter : public QObject
 {
 public:
@@ -101,78 +76,188 @@ public:
     {
         if (event->type() == QEvent::Paint) {
             QAbstractButton *button = static_cast<QAbstractButton*>(watched);
+            if (qApp->property("krimbleCyberTheme").toBool()) return false;
             if (krimbleAquaButtonEligible(button)) {
                 krimblePaintAquaButton(button);
-                return true;   // the button's own checked background is not drawn
+                return true;
             }
         }
         return false;
+    }
+};
+
+class KrimbleScrollBarGrip : public QObject
+{
+public:
+    explicit KrimbleScrollBarGrip(QObject *parent) : QObject(parent) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() != QEvent::Paint || m_busy) return false;
+        QScrollBar *bar = qobject_cast<QScrollBar*>(watched);
+        if (!bar || bar->maximum() <= bar->minimum()) return false;
+        m_busy = true;
+        watched->event(event);
+        m_busy = false;
+        QStyleOptionSlider opt;
+        opt.initFrom(bar);
+        opt.orientation = bar->orientation();
+        opt.minimum = bar->minimum();
+        opt.maximum = bar->maximum();
+        opt.sliderPosition = bar->sliderPosition();
+        opt.sliderValue = bar->value();
+        opt.pageStep = bar->pageStep();
+        opt.singleStep = bar->singleStep();
+        opt.upsideDown = bar->invertedAppearance();
+        opt.subControls = QStyle::SC_All;
+        const QRectF handle = bar->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSlider, bar);
+        if (handle.width() < 6 || handle.height() < 6) return true;
+        const QColor base = bar->palette().color(QPalette::Window);
+        const QColor light = base.lighter(165);
+        const QColor dark = base.darker(230);
+        QPainter p(bar);
+        const QRectF r = handle.adjusted(0.5, 0.5, -0.5, -0.5);
+        p.setPen(QPen(light, 1));
+        p.drawLine(r.topLeft(), r.topRight());
+        p.drawLine(r.topLeft(), r.bottomLeft());
+        p.setPen(QPen(dark, 1));
+        p.drawLine(r.bottomLeft(), r.bottomRight());
+        p.drawLine(r.topRight(), r.bottomRight());
+        const bool vertical = bar->orientation() == Qt::Vertical;
+        const qreal gap = 3.0;
+        const int ridges = qMax(2, int((vertical ? handle.height() : handle.width()) * 0.40 / gap));
+        const qreal across = (vertical ? handle.width() : handle.height()) * 0.55;
+        const QPointF c = handle.center();
+        for (int i = 0; i < ridges; ++i) {
+            const qreal offset = (i - (ridges - 1) / 2.0) * gap;
+            if (vertical) {
+                const qreal y = qRound(c.y() + offset);
+                p.setPen(QPen(light, 1));
+                p.drawLine(QPointF(c.x() - across / 2, y), QPointF(c.x() + across / 2, y));
+                p.setPen(QPen(dark, 1));
+                p.drawLine(QPointF(c.x() - across / 2, y + 1), QPointF(c.x() + across / 2, y + 1));
+            } else {
+                const qreal x = qRound(c.x() + offset);
+                p.setPen(QPen(light, 1));
+                p.drawLine(QPointF(x, c.y() - across / 2), QPointF(x, c.y() + across / 2));
+                p.setPen(QPen(dark, 1));
+                p.drawLine(QPointF(x + 1, c.y() - across / 2), QPointF(x + 1, c.y() + across / 2));
+            }
+        }
+        return true;
+    }
+private:
+    bool m_busy {false};
+};
+
+static void krimbleMenuBottomRoom(QMenu *menu)
+{
+    if (!menu) return;
+    menu->setProperty("krimbleMenuRoom", true);
+    menu->setContentsMargins(0, 0, 0, 16);
+}
+
+class KrimbleCyberTabPainter : public QObject
+{
+public:
+    explicit KrimbleCyberTabPainter(QObject *parent) : QObject(parent) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() != QEvent::Paint || !qApp->property("krimbleCyberTheme").toBool()) return false;
+        QTabBar *bar = qobject_cast<QTabBar*>(watched);
+        if (!bar) return false;
+        QPainter p(bar);
+        QFont font(QStringLiteral("Rajdhani"));
+        font.setWeight(QFont::DemiBold);
+        for (int i = 0; i < bar->count(); ++i) {
+            QRect r = bar->tabRect(i);
+            r.setWidth(r.width() - 1);
+            krimbleCyberPaintTab(p, QRectF(r), i == bar->currentIndex(), bar->tabText(i), font);
+        }
+        return true;
     }
 };
 
 class KrimbleGlowFilter : public QObject
 {
 public:
-    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent), m_painter(new KrimbleAquaButtonPainter(this)) {}
+    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent), m_painter(new KrimbleAquaButtonPainter(this)), m_grip(new KrimbleScrollBarGrip(this)) {}
+    void hookScrollBar(QScrollBar *bar)
+    {
+        if (!bar || bar->property("krimbleGripHooked").toBool()) return;
+        bar->setProperty("krimbleGripHooked", true);
+        bar->installEventFilter(m_grip);
+        bar->update();
+    }
     void hook(QAbstractButton *button)
     {
-        // if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
         if (!button || button->property("krimbleGlowHooked").toBool()) return;
-        if (!button->isCheckable() && !qobject_cast<QPushButton*>(button)) return;   // plain push buttons get the Aqua too
+        if (!button->isCheckable() && !qobject_cast<QPushButton*>(button)) return;
         if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
-            // only Qt's own push button: subclasses (color buttons and the like) and buttons with their own style sheet keep their look
             if (QByteArray(push->metaObject()->className()) != "QPushButton" || !push->styleSheet().isEmpty()) return;
         }
-        if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
-        if (QByteArray(button->metaObject()->className()) == "KoToolBoxButton") return;   // the toolbox selection is flat, no glow
+        if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;
+        if (QByteArray(button->metaObject()->className()) == "KoToolBoxButton") return;
         if (KoGroupButton *grouped = qobject_cast<KoGroupButton*>(button)) {
-            if (grouped->groupPosition() != KoGroupButton::NoGroup) return;   // it paints the Aqua-style selection itself
+            if (grouped->groupPosition() != KoGroupButton::NoGroup) return;
         }
         button->setProperty("krimbleGlowHooked", true);
-        // QObject::connect(button, &QAbstractButton::toggled, button, [button](bool on) { krimbleSetButtonGlow(button, on); });
-        // krimbleSetButtonGlow(button, button->isChecked());
-        krimbleSetButtonGlow(button, false);   // a halo from before is taken off
+        krimbleSetButtonGlow(button, false);
         QObject::connect(button, &QAbstractButton::toggled, button, [button](bool) { button->update(); });
-        button->installEventFilter(m_painter);   // this button's paints only
+        button->installEventFilter(m_painter);
         button->update();
     }
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (event->type() == QEvent::Polish) {
             if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
-            // 868th, 875th: column lines and the cast shadow on every menu (KrimbleMenuColumnDividers.h)
+            if (QScrollBar *bar = qobject_cast<QScrollBar*>(watched)) hookScrollBar(bar);
+            if (QTabBar *tabs = qobject_cast<QTabBar*>(watched)) {
+                if (qobject_cast<QMainWindow*>(tabs->parentWidget()) && !tabs->property("krimbleCyberTabs").toBool()) {
+                    tabs->setProperty("krimbleCyberTabs", true);
+                    tabs->installEventFilter(new KrimbleCyberTabPainter(tabs));
+                }
+            }
             if (QMenu *menu = qobject_cast<QMenu*>(watched)) {
+                if (qApp->property("krimbleSeeThroughMenus").toBool() && !menu->testAttribute(Qt::WA_TranslucentBackground)) menu->setAttribute(Qt::WA_TranslucentBackground);
                 if (!menu->property("krimbleMenuDecor").toBool()) {
                     menu->setProperty("krimbleMenuDecor", true);
                     menu->installEventFilter(new KrimbleMenuColumnDividers(menu));
-                    // Krimble Cyber (cyber-theme branch): see-through menus; the theme's border image draws their shape
-                    if (qApp->property("krimbleSeeThroughMenus").toBool()) menu->setAttribute(Qt::WA_TranslucentBackground);   // Cyber
-                    // Krimble 2026-11-23: room under the last item, bottom only (George: "The menus are chopped off short at the bottom
-                    // again."). Qt ignores padding-bottom on menus (tested in desktop Qt 5.15); the menu's own bottom margin works.
-                    menu->setContentsMargins(0, 0, 0, 16);
+                    krimbleMenuBottomRoom(menu);
                 }
             }
         }
-        // once per widget: Polish comes once, when a widget is first shown; buttons made before the filter was installed are hooked by
-        // krimbleInstallSelectionGlow. From the 840th to the 860th every paint of every widget in the app was looked at here.
+        if (event->type() == QEvent::Show) {
+            if (QMenu *menu = qobject_cast<QMenu*>(watched)) {
+                if (!menu->property("krimbleMenuRoom").toBool()) {
+                    krimbleMenuBottomRoom(menu);
+                    menu->resize(menu->sizeHint());
+                }
+            }
+        }
         return false;
     }
 private:
     KrimbleAquaButtonPainter *m_painter;
+    KrimbleScrollBarGrip *m_grip;
 };
 
 static void krimbleInstallSelectionGlow(KisMainWindow *win)
 {
+    Q_FOREACH (QWidget *krimbleWidget, QApplication::allWidgets()) {
+        if (QMenu *menu = qobject_cast<QMenu*>(krimbleWidget)) {
+            if (!menu->property("krimbleMenuRoom").toBool()) krimbleMenuBottomRoom(menu);
+        }
+    }
     if (win->findChild<KrimbleGlowFilter*>(QStringLiteral("krimbleGlowFilter"))) return;
     KrimbleGlowFilter *filter = new KrimbleGlowFilter(win);
     filter->setObjectName(QStringLiteral("krimbleGlowFilter"));
     qApp->installEventFilter(filter);
+    Q_FOREACH (QScrollBar *bar, win->findChildren<QScrollBar*>()) filter->hookScrollBar(bar);
     Q_FOREACH (QAbstractButton *button, win->findChildren<QAbstractButton*>()) {
         filter->hook(button);
     }
 }
 
-// View > Show > Hex (a check mark) and Hex Size...; Layer > New > Hex Pattern...
 static void krimbleInstallHexMenus(KisMainWindow *win)
 {
     static bool s_hexFollowHooked = false;
@@ -220,13 +305,12 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                         if (!deco) return;
                         deco->size = g_krimbleHexSize;
                         deco->flatTop = g_krimbleHexFlat;
-                        deco->lineWidth = g_krimbleHexLineWidth;   // task 41
+                        deco->lineWidth = g_krimbleHexLineWidth;
                         deco->lineColor = g_krimbleHexLineColor;
                         deco->setVisible(on);
                         KisViewManager *manager = win->viewManager();
                         KisCanvas2 *hexCanvas = (manager && win->activeView()) ? win->activeView()->canvasBase() : nullptr;
                         if (on && hexCanvas && hexCanvas->canvasWidget() && !krimbleHexLocked()) {
-                            // George: "Hex overlay should be pinch zoom then drop with a tap."
                             deco->adjusting = true;
                             KrimbleHexAdjustFilter *adjustFilter = new KrimbleHexAdjustFilter(hexCanvas->canvasWidget(), deco, hexCanvas);
                             adjustFilter->setOnDrop([win]() {
@@ -319,14 +403,14 @@ public:
                 copy.palette.setColor(QPalette::HighlightedText, QColor(230, 230, 230));
                 const QString title = copy.text;
                 copy.text = QString();
-                copy.subControls &= ~QStyle::SC_TitleBarSysMenu;   // the K is drawn below, pinned to the corner
+                copy.subControls &= ~QStyle::SC_TitleBarSysMenu;
                 QProxyStyle::drawComplexControl(control, &copy, painter, widget);
                 if (!titleBar->icon.isNull()) {
                     const int kSize = QProxyStyle::pixelMetric(QStyle::PM_SmallIconSize, titleBar, widget);
                     const qreal dpr = widget ? widget->devicePixelRatioF() : qApp->devicePixelRatio();
                     const QPixmap kPix = titleBar->icon.pixmap(kSize, kSize);
                     const QImage kImage = kPix.toImage().convertToFormat(QImage::Format_ARGB32);
-                    int kBlank = kImage.width();   // empty columns at the left of the K picture, in real pixels
+                    int kBlank = kImage.width();
                     for (int y = 0; y < kImage.height(); ++y) {
                         for (int x = 0; x < kBlank; ++x) {
                             if (qAlpha(kImage.pixel(x, y)) > 40) { kBlank = x; break; }
@@ -334,7 +418,7 @@ public:
                     }
                     if (kBlank >= kImage.width()) kBlank = 0;
                     const qreal kPixDpr = qMax<qreal>(1.0, kPix.devicePixelRatioF());
-                    const qreal kLeft = titleBar->rect.left() + 17.0 / qMax<qreal>(1.0, dpr) - kBlank / kPixDpr;   // the visible K starts 17 real pixels from the window's left edge
+                    const qreal kLeft = titleBar->rect.left() + 17.0 / qMax<qreal>(1.0, dpr) - kBlank / kPixDpr;
                     const QRectF kRect(kLeft, titleBar->rect.top() + (titleBar->rect.height() - kSize) / 2.0, kSize, kSize);
                     painter->drawPixmap(kRect, kPix, QRectF(QPointF(0, 0), QSizeF(kPix.size())));
                 }
@@ -354,8 +438,6 @@ public:
     }
 };
 
-// The image tabs: Qt's K is replaced by an empty picture of the same size (so the names stay where they are) and the K is
-// drawn after the tab bar, its visible left edge 17 real pixels from each tab's left edge, the same as the image window title bar.
 class KrimbleTabKFilter : public QObject
 {
 public:
@@ -384,7 +466,7 @@ public:
         const int kSize = iconSize.height();
         const QPixmap kPix = k.pixmap(kSize, kSize);
         const QImage kImage = kPix.toImage().convertToFormat(QImage::Format_ARGB32);
-        int kBlank = kImage.width();   // empty columns at the left of the K picture, in real pixels
+        int kBlank = kImage.width();
         for (int y = 0; y < kImage.height(); ++y) {
             for (int x = 0; x < kBlank; ++x) {
                 if (qAlpha(kImage.pixel(x, y)) > 40) { kBlank = x; break; }
@@ -436,15 +518,6 @@ protected:
             QMouseEvent *mouse = static_cast<QMouseEvent*>(event);
             if (mouse->buttons() & Qt::LeftButton) {
                 const QPoint p = mouse->globalPos();
-                if (!m_dragging) {
-                    m_startPos = p;
-                    m_others.clear();
-                    if (m_dock->objectName() != QLatin1String("ToolBox")) {
-                        Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
-                            if (other != m_dock && !other->isFloating() && other->isVisible()) m_others.append(other);
-                        }
-                    }
-                }
                 const QRect r(m_win->mapToGlobal(QPoint(0, 0)), m_win->size());
                 Qt::DockWidgetAreas allowed = Qt::NoDockWidgetArea;
                 if (p.x() - r.left() < Distance) allowed |= Qt::LeftDockWidgetArea;
@@ -462,15 +535,8 @@ protected:
                         m_reachClock.restart();
                     }
                     if (m_reachMask == Qt::NoDockWidgetArea || m_reachClock.elapsed() < DwellMs) {
-                        allowed = Qt::NoDockWidgetArea;       // not deliberate (yet): no side of the window (panels to tab with are added below)
+                        allowed = Qt::NoDockWidgetArea;
                     }
-                }
-                const bool farEnough = QLineF(QPointF(p), QPointF(m_startPos)).length() >= 120.0;
-                for (const QPointer<QDockWidget> &other : qAsConst(m_others)) {
-                    if (!farEnough) break;
-                    if (!other || other->isFloating() || !other->isVisible()) continue;
-                    const QRect otherRect(other->mapToGlobal(QPoint(0, 0)), other->size());
-                    if (otherRect.contains(p)) allowed |= m_win->dockWidgetArea(other);
                 }
                 if (m_dock->objectName() == QLatin1String("ToolBox")) allowed = Qt::NoDockWidgetArea;
                 if (!krimbleDragDockingOn()) allowed = Qt::NoDockWidgetArea;
@@ -481,7 +547,6 @@ protected:
             }
         } else if (event->type() == QEvent::MouseButtonRelease && m_dragging) {
             m_dragging = false;
-            m_others.clear();
             const QPoint releasePos = static_cast<QMouseEvent*>(event)->globalPos();
             const bool dwelled = m_reachMask != Qt::NoDockWidgetArea && m_reachClock.isValid() && m_reachClock.elapsed() >= DwellMs;
             m_reachMask = Qt::NoDockWidgetArea;
@@ -502,11 +567,6 @@ protected:
                 const int nearest = qMin(qMin(toLeft, toRight), qMin(toTop, toBottom));
                 const int reach = (nearest == toRight) ? 28 : 14;
                 if (nearest > reach) return;
-                // const Qt::DockWidgetArea area = (nearest == toLeft) ? Qt::LeftDockWidgetArea
-                //                               : (nearest == toRight) ? Qt::RightDockWidgetArea
-                //                               : (nearest == toTop) ? Qt::TopDockWidgetArea
-                //                               : Qt::BottomDockWidgetArea;
-                // window->addDockWidget(area, dock);
                 Qt::DockWidgetArea area = (nearest == toLeft) ? Qt::LeftDockWidgetArea
                                         : (nearest == toRight) ? Qt::RightDockWidgetArea
                                         : (nearest == toTop) ? Qt::TopDockWidgetArea
@@ -532,10 +592,8 @@ private:
     QMainWindow *m_win;
     QDockWidget *m_dock;
     bool m_dragging {false};
-    QPoint m_startPos;
-    QVector<QPointer<QDockWidget>> m_others;                 // the docked panels, found once when the drag starts
     Qt::DockWidgetAreas m_reachMask {Qt::NoDockWidgetArea};
-    QElapsedTimer m_reachClock;                              // since when
+    QElapsedTimer m_reachClock;
 };
 #endif
 
@@ -584,6 +642,4 @@ static void krimbleApplyXmlGuiLabels(KisMainWindow *win)
         }
     }
 }
-
-
 

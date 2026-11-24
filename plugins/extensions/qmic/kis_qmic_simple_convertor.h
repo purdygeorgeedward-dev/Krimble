@@ -21,22 +21,8 @@ public:
     static QString blendingModeToString(QString blendMode);
     static QString stringToBlendingMode(QString str);
 
-    /**
-     * A special function that removes all parenthesis from
-     * the layer name, since parenthesis are used in GMic to
-     * encode layer properties.
-     *
-     * The function basically replaces '(' and ')' symbols
-     * with \u0015 and \u0016 correspondingly.
-     */
     static QString nameToGMicName(QString name);
 
-    /**
-     * Decode the GMic-encoded name back into the one with
-     * parenthesis
-     *
-     * \see nameToGMicName()
-     */
     static QString gMicNameToName(QString name);
 
     static QImage convertToQImage(const KisQMicImage &gmicImage,
@@ -45,16 +31,13 @@ public:
                                   KisQMicImage &gmicImage,
                                   float gmicUnitValue = 1.0);
 
-    // output gmic image will have max channel 255.0
     static void convertToGmicImage(KisPaintDeviceSP dev,
                                    KisQMicImage &gmicImage,
                                    QRect rc = QRect());
-    // gmicMaxChannelValue indicates if the gmic image pixels rgb has range 0..255 or 0..1.0
     static void convertFromGmicImage(const KisQMicImage &gmicImage,
                                      KisPaintDeviceSP dst,
                                      float gmicMaxChannelValue);
 
-    /// Fast versions
     static void convertFromGmicFast(const KisQMicImage &gmicImage,
                                     KisPaintDeviceSP dst,
                                     float gmicUnitValue);

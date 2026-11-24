@@ -43,7 +43,7 @@ void KisLassoEnclosingProducer::finishOutline(const QVector<QPointF> &points)
     if (points.size() < 3) {
         return;
     }
-    
+
     KisPixelSelectionSP enclosingMask = new KisPixelSelection();
 
     KisPainter painter(enclosingMask);

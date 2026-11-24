@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_ACTION_MANAGER_TEST_H
 #define KIS_ACTION_MANAGER_TEST_H
 
@@ -19,4 +18,4 @@ private Q_SLOTS:
     void testTakeAction();
 };
 
-#endif // KIS_ACTION_MANAGER_TEST_H
+#endif

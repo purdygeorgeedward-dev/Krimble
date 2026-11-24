@@ -129,4 +129,3 @@ void KisDlgAdjLayerProps::slotConfigChanged()
     m_node->setDirty();
 }
 
-

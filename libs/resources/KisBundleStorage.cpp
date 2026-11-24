@@ -30,7 +30,6 @@ public:
     QScopedPointer<KoResourceBundle> bundle;
 };
 
-
 class BundleTagIterator : public KisResourceStorage::TagIterator
 {
 public:
@@ -77,7 +76,6 @@ private:
     QScopedPointer<QListIterator<KisTagSP> > m_tagIterator;
     KisTagSP m_tag;
 };
-
 
 KisBundleStorage::KisBundleStorage(const QString &location)
     : KisStoragePlugin(location)
@@ -132,7 +130,6 @@ bool KisBundleStorage::loadVersionedResource(KoResourceSP resource)
 
             sanitizeResourceFileNameCase(resource, fi.dir());
 
-            // Check for the thumbnail
             if ((resource->image().isNull() || resource->thumbnail().isNull()) && !resource->thumbnailPath().isNull()) {
                 QImage img(bundleSaveLocation  + "/" +  '/' + resource->thumbnailPath());
                 resource->setImage(img);
@@ -172,11 +169,7 @@ QSharedPointer<KisResourceStorage::ResourceIterator> KisBundleStorage::resources
 
     for (auto it = references.begin(); it != references.end(); ++it) {
         VersionedResourceEntry entry;
-        // it->resourcePath() contains paths like "brushes/ink.png" or "brushes/subfolder/splash.png".
-        // we need to cut off the first part and get "ink.png" in the first case,
-        // but "subfolder/splash.png" in the second case in order for subfolders to work
-        // so it cannot just use QFileInfo(verIt->url()).fileName() here.
-        QString path = QDir::fromNativeSeparators(it->resourcePath); // make sure it uses Unix separators
+        QString path = QDir::fromNativeSeparators(it->resourcePath);
         int folderEndIdx = path.indexOf("/");
         QString properFilenameWithSubfolders = path.right(path.length() - folderEndIdx - 1);
 
@@ -201,7 +194,7 @@ QSharedPointer<KisResourceStorage::ResourceIterator> KisBundleStorage::resources
         VersionedResourceEntry entry;
         entry.filename = info.fileName();
         entry.lastModified = info.lastModified();
-        entry.tagList = {}; // TODO
+        entry.tagList = {};
         entry.resourceType = resourceType;
         entries.append(entry);
     }

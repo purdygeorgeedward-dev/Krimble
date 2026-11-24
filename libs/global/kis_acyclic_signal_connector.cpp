@@ -8,7 +8,6 @@
 
 #include "kis_debug.h"
 
-
 KisAcyclicSignalConnector::KisAcyclicSignalConnector(QObject *parent)
     : QObject(parent),
       m_signalsBlocked(0)

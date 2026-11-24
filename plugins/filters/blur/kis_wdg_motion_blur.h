@@ -24,7 +24,7 @@ public:
     }
     void setConfiguration(const KisPropertiesConfigurationSP) override;
     KisPropertiesConfigurationSP configuration() const override;
-    
+
 private:
     Ui_WdgMotionBlur* m_widget;
 };

@@ -14,7 +14,6 @@
 class KisPainter;
 class KisPaintInformation;
 
-
 class KisBrushOpResources : public KisDabCacheUtils::DabRenderingResources
 {
 public:
@@ -28,4 +27,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISBRUSHOPRESOURCES_H
+#endif

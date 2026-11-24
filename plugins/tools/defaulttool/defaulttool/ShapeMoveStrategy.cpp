@@ -56,7 +56,6 @@ void ShapeMoveStrategy::handleMouseMove(const QPointF &point, Qt::KeyboardModifi
     QPointF diff = point - m_start;
 
     if (modifiers & Qt::ShiftModifier) {
-        // Limit change to one direction only
         diff = snapToClosestAxis(diff);
     } else {
         QPointF positionToSnap = point + m_initialOffset;

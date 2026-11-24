@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testExecutor();
 };
 
-#endif // KISDABRENDERINGQUEUETEST_H
+#endif

@@ -19,7 +19,6 @@
 #include <Document.h>
 #include <View.h>
 
-
 struct Window::Private {
     Private() {}
 
@@ -82,9 +81,6 @@ QList<View*> Window::views() const
 View *Window::addView(Document *document)
 {
     if (d->window && document) {
-        // Once the document is shown in the ui, it's owned by Krita
-        // If the Document instance goes out of scope, it shouldn't
-        // delete the owned image.
         document->setOwnsDocument(false);
         KisView *view = d->window->newView(document->document());
         return new View(view);
@@ -124,7 +120,6 @@ void Window::close()
     }
 }
 
-
 QAction *Window::createAction(const QString &id, const QString &text, const QString &menuLocation)
 {
     KisAction *action = d->window->viewManager()->actionManager()->createAction(id);
@@ -135,6 +130,4 @@ QAction *Window::createAction(const QString &id, const QString &text, const QStr
     action->setProperty("menulocation", menuLocation);
     return action;
 }
-
-
 

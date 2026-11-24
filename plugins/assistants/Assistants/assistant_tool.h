@@ -10,7 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-
 class AssistantToolPlugin : public QObject
 {
     Q_OBJECT

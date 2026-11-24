@@ -7,26 +7,19 @@
 #include "kis_pdf_import_widget.h"
 
 #define UNSTABLE_POPPLER_QT4
-// poppler's headers
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 #include <poppler-qt5.h>
 #else
 #include <poppler-qt6.h>
 #endif
 
-// Qt's headers
 #include <QRadioButton>
 
-// KDE's headers
 #include <kis_debug.h>
 
-// For ceil()
 #include <math.h>
 
-// For KoAspectButton
 #include <klocalizedstring.h>
-
-
 
 KisPDFImportWidget::KisPDFImportWidget(Poppler::Document* pdfDoc, QWidget * parent)
         : QWidget(parent)
@@ -34,7 +27,7 @@ KisPDFImportWidget::KisPDFImportWidget(Poppler::Document* pdfDoc, QWidget * pare
         , m_keepAspect(true)
 {
     setupUi(this);
-    m_pages.push_back(0); // The first page is selected
+    m_pages.push_back(0);
     updateMaxCanvasSize();
 
     for (int i = 1; i <= m_pdfDoc->numPages(); i++) {
@@ -53,7 +46,6 @@ KisPDFImportWidget::KisPDFImportWidget(Poppler::Document* pdfDoc, QWidget * pare
     connect(pixelAspectRatioBtn, SIGNAL(keepAspectRatioChanged(bool)), this, SLOT(slotAspectChanged(bool)));
 
 }
-
 
 KisPDFImportWidget::~KisPDFImportWidget()
 {
@@ -81,7 +73,7 @@ void KisPDFImportWidget::selectFirstPage(bool v)
             boolFirstPage->toggle();
         }
         m_pages.clear();
-        m_pages.push_back(0); // The first page is selected
+        m_pages.push_back(0);
         updateMaxCanvasSize();
     }
 }
@@ -103,7 +95,6 @@ void KisPDFImportWidget::updateSelectionOfPages()
     }
     updateMaxCanvasSize();
 }
-
 
 void KisPDFImportWidget::updateMaxCanvasSize()
 {

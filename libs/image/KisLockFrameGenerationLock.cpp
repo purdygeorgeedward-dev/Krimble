@@ -8,7 +8,6 @@
 
 #include <kis_image_animation_interface.h>
 
-
 KisLockFrameGenerationLockAdapter::KisLockFrameGenerationLockAdapter(KisImageAnimationInterface *interface)
     : m_interface(interface)
 {

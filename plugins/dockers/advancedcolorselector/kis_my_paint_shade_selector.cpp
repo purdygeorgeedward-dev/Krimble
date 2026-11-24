@@ -39,7 +39,6 @@ inline int sqr(int x);
 inline qreal sqr2(qreal x);
 inline int signedSqr(int x);
 
-
 KisMyPaintShadeSelector::KisMyPaintShadeSelector(QWidget *parent) :
         KisColorSelectorBase(parent),
         m_updateTimer(new QTimer(this))
@@ -57,11 +56,7 @@ KisMyPaintShadeSelector::KisMyPaintShadeSelector(QWidget *parent) :
 }
 
 void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
-    // Hint to the casual reader: some of the calculation here do not
-    // what Martin Renold originally intended. Not everything here will make sense.
-    // It does not matter in the end, as long as the result looks good.
 
-    // This selector was ported from MyPaint in 2010
     if (m_cachedColorSpace != colorSpace()) {
         m_realPixelCache = new KisPaintDevice(colorSpace());
         m_realCircleBorder = new KisPaintDevice(colorSpace());
@@ -86,7 +81,6 @@ void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
     QRect pickRectHighDPI = QRect(QPoint(0, 0), size()*devicePixelRatioF());
     KisSequentialIterator it(m_realPixelCache, pickRectHighDPI);
     KisSequentialIterator borderIt(m_realCircleBorder, pickRectHighDPI);
-
 
     while(it.nextPixel()) {
         borderIt.nextPixel();
@@ -122,21 +116,16 @@ void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
         qreal r = std::sqrt(qreal(sqr(dxs)+sqr(dys)));
 
         if (qMin(abs(dx), abs(dy)) < stripe_width) {
-            // horizontal and vertical lines
             bool horizontal = std::abs(dx) > std::abs(dy);
             dx = (dx/qreal(sizeHD))*255;
             dy = (dy/qreal(sizeHD))*255;
 
             h = 0;
-            // x-axis = value, y-axis = saturation
             v =    dx*v_factor + signedSqr(dx)*v_factor2;
             s = - (dy*s_factor + signedSqr(dy)*s_factor2);
-            // but not both at once
             if (horizontal) {
-                // horizontal stripe
                 s = 0.0;
             } else {
-                // vertical stripe
                 v = 0.0;
             }
         }
@@ -146,13 +135,10 @@ void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
             dy = (dy/qreal(sizeHD))*255;
 
             h = 0;
-            // x-axis = value, y-axis = saturation
             v =    dx*v_factor + signedSqr(dx)*v_factor2;
             s = - (dy*s_factor + signedSqr(dy)*s_factor2);
-            // both at once
         }
         else if (r < s_radiusHD+1) {
-            // hue
             if (dx > 0)
                 h = 90*sqr2(r/s_radiusHD);
             else
@@ -160,8 +146,7 @@ void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
             s = 256*(atan2f(std::abs(dxs),dys)/M_PI) - 128;
 
             if (r > s_radiusHD) {
-                // antialiasing boarder
-                qreal aaFactor = r-floor(r); // part after the decimal point
+                qreal aaFactor = r-floor(r);
                 aaFactor = 1-aaFactor;
 
                 qreal fh = m_colorH + h/360.0;
@@ -172,26 +157,22 @@ void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
                 fs = qBound(qreal(0.0), fs, qreal(1.0));
                 fv = qBound(qreal(0.01), fv, qreal(1.0));
                 KoColor color;
-                //KoColor color = converter()->fromHsvF(fh, fs, fv);
                 if(shadeMyPaintType=="HSV"){color = converter()->fromHsvF(fh, fs, fv);}
                 else if(shadeMyPaintType=="HSL"){color = converter()->fromHslF(fh, fs, fv);}
                 else if(shadeMyPaintType=="HSI"){color = converter()->fromHsiF(fh, fs, fv);}
                 else if(shadeMyPaintType=="HSY"){color = converter()->fromHsyF(fh, fs, fv, R, G, B);}
                 else{dbgKrita<<"MyPaint Color selector don't work right.";
                 color = converter()->fromHsvF(fh, fs, fv);}
-//dbgKrita<<color->toQcolor();
                 color.setOpacity(aaFactor);
                 Acs::setColorWithIterator(borderIt, color, borderPixelSize);
 
                 h = 180 + 180*atan2f(dys,-dxs)/M_PI;
                 v = 255*(r-s_radiusHD)/(diag-s_radiusHD) - 128;
-                s = 0; // overwrite the s value that was meant for the inside of the circle
-                // here we already have drawn the inside, and the value left should be just the background value
+                s = 0;
 
             }
         }
         else {
-            // background (hue+darkness gradient)
             h = 180 + 180*atan2f(dys,-dxs)/M_PI;
             v = 255*(r-s_radiusHD)/(diag-s_radiusHD) - 128;
         }
@@ -204,7 +185,6 @@ void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
         fs = qBound(qreal(0.0), fs, qreal(1.0));
         fv = qBound(qreal(0.01), fv, qreal(1.0));
         KoColor color;
-        //KoColor color = converter()->fromHsvF(fh, fs, fv);
         if(shadeMyPaintType=="HSV"){color = converter()->fromHsvF(fh, fs, fv);}
         else if(shadeMyPaintType=="HSL"){color = converter()->fromHslF(fh, fs, fv);}
         else if(shadeMyPaintType=="HSI"){color = converter()->fromHsiF(fh, fs, fv);}
@@ -227,7 +207,6 @@ void KisMyPaintShadeSelector::paintEvent(QPaintEvent *) {
 
     painter.drawImage(0, 0, renderedImage);
 }
-
 
 void KisMyPaintShadeSelector::mousePressEvent(QMouseEvent* e)
 {
@@ -294,8 +273,8 @@ void KisMyPaintShadeSelector::setColor(const KoColor &color) {
     B = cfg.readEntry("lumaB", 0.0722);
 
 	if(shadeMyPaintType=="HSV"){this->converter()->getHsvF(color, &m_colorH, &m_colorS, &m_colorV);}
-	if(shadeMyPaintType=="HSL"){this->converter()->getHslF(color, &m_colorH, &m_colorS, &m_colorV);}	
-	if(shadeMyPaintType=="HSI"){this->converter()->getHsiF(color, &m_colorH, &m_colorS, &m_colorV);}	
+	if(shadeMyPaintType=="HSL"){this->converter()->getHslF(color, &m_colorH, &m_colorS, &m_colorV);}
+	if(shadeMyPaintType=="HSI"){this->converter()->getHsiF(color, &m_colorH, &m_colorS, &m_colorV);}
 	if(shadeMyPaintType=="HSY"){this->converter()->getHsyF(color, &m_colorH, &m_colorS, &m_colorV, R, G, B);}
     m_lastRealColor = color;
     this->updateColorPreview(color);

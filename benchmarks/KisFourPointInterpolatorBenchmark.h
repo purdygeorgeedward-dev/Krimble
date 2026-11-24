@@ -24,4 +24,4 @@ private Q_SLOTS:
     void testBackwardInterpolatorSpecialCase();
 };
 
-#endif /* __KIS_FOUR_POINT_INTERPOLATOR_BENCHMARK_H */
+#endif

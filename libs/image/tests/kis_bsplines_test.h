@@ -22,4 +22,4 @@ private Q_SLOTS:
     void testNU2D();
 };
 
-#endif /* __KIS_BSPLINES_TEST_H */
+#endif

@@ -14,7 +14,6 @@
 
 #include "kis_debug.h"
 
-
 namespace KisPaintingTweaks {
 
 QRegion safeClipRegion(const QPainter &painter)
@@ -134,10 +133,6 @@ void dragColor(QColor *color, const QColor &baseColor, qreal threshold)
     }
 }
 
-// This does a simplified linearization and calculates the luma.
-// Krita has the ability to precisely calculate this value,
-// but that seems overkill when all we want to know is whether
-// it passes a certain gray threshold.
 static QMap<qreal, qreal> sRgbTRCToLinear {
     {0.0, 0.0},
     {0.1, 0.01002},

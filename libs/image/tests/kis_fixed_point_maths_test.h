@@ -19,4 +19,4 @@ private Q_SLOTS:
     void testConversionsNegative();
 };
 
-#endif /* __KIS_FIXED_POINT_MATHS_TEST_H */
+#endif

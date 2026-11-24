@@ -37,19 +37,16 @@ public:
 
     static int makeShortcut(LayerSelectionMode layerSelectionMode, SelectionOverrideMode selectionOverrideMode)
     {
-        // Store the layer selection mode on the second byte and the selection override mode on the first one
         return (layerSelectionMode << 8) | selectionOverrideMode;
     }
 
     static int layerSelectionMode(int shortcut)
     {
-        // Get the layer selection mode from the second byte
         return (shortcut >> 8) & 0xFF;
     }
 
     static int selectionOverrideMode(int shortcut)
     {
-        // Get the selection override mode from the first byte
         return shortcut & 0xFF;
     }
 
@@ -59,8 +56,6 @@ public:
         KisNodeSP activeNode = nodeManager->activeNode();
         KisNodeList finalSelectedNodes;
 
-        // Make the final list of nodes to select, excluding the group layers,
-        // if needed
         if (includeGroups) {
             finalSelectedNodes = nodesToSelect;
         } else {
@@ -71,7 +66,6 @@ public:
             }
         }
 
-        // Expand the group layers that contain newly selected nodes
         Q_FOREACH(KisNodeSP node, finalSelectedNodes) {
             KisNodeSP tmpNode = node->parent();
             while (tmpNode) {
@@ -82,7 +76,6 @@ public:
             }
         }
 
-        // Combine the list of nodes with the current selection
         if (selectionOverrideMode == SelectionOverrideMode_Add) {
             KisNodeList currentlySelectedNodes = nodeManager->selectedNodes();
             Q_FOREACH(KisNodeSP node, currentlySelectedNodes) {
@@ -92,12 +85,10 @@ public:
             }
         }
 
-        // Try to retain the previously selected node or select the top one otherwise
         if (!finalSelectedNodes.contains(activeNode)) {
             activeNode = finalSelectedNodes.last();
         }
 
-        // Select
         nodeManager->slotImageRequestNodeReselection(activeNode, finalSelectedNodes);
     }
 
@@ -164,7 +155,6 @@ void KisSelectLayerAction::begin(int shortcut, QEvent *event)
 
 void KisSelectLayerAction::inputEvent(QEvent *event)
 {
-    // Event not recognized
     if (!event || (event->type() != QEvent::MouseMove && event->type() != QEvent::TabletMove &&
                    event->type() != QTouchEvent::TouchUpdate && event->type() != QEvent::MouseButtonPress &&
                    event->type() != QEvent::TabletPress && event->type() != QTouchEvent::TouchBegin)) {
@@ -174,7 +164,6 @@ void KisSelectLayerAction::inputEvent(QEvent *event)
     const int layerSelectionMode = d->layerSelectionMode(d->shortcut);
     const int selectionOverrideMode = d->selectionOverrideMode(d->shortcut);
 
-    // Shortcut not recognized
     KIS_SAFE_ASSERT_RECOVER_RETURN(
         (layerSelectionMode == LayerSelectionMode_TopLayer ||
          layerSelectionMode == LayerSelectionMode_AllLayers ||
@@ -187,7 +176,6 @@ void KisSelectLayerAction::inputEvent(QEvent *event)
         inputManager()->canvas()->
         coordinatesConverter()->widgetToImage(eventPosF(event)).toPoint();
 
-    // First make a list with the nodes to be selected
     KisNodeList nodesToSelect;
 
     if (layerSelectionMode == LayerSelectionMode_TopLayer) {
@@ -197,7 +185,6 @@ void KisSelectLayerAction::inputEvent(QEvent *event)
         }
         nodesToSelect.append(foundNode);
     } else {
-        // Retrieve group nodes only if the mode is LayerSelectionMode_Ask
         const KisNodeList foundNodes = KisToolUtils::findNodes(
                                             inputManager()->canvas()->image()->root()->firstChild(),
                                             pos, false, layerSelectionMode == LayerSelectionMode_Ask);
@@ -208,14 +195,12 @@ void KisSelectLayerAction::inputEvent(QEvent *event)
 
         if (layerSelectionMode == LayerSelectionMode_AllLayers) {
             nodesToSelect = foundNodes;
-        } else { //LayerSelectionMode_Ask
+        } else {
             QWidget *canvasWidget = inputManager()->canvas()->canvasWidget();
             QMenu *menu = new QMenu(canvasWidget);
             menu->setAttribute(Qt::WA_DeleteOnClose);
             int numberOfLayers = 0;
 
-            // Traverse the list in reverse order so that the menu entries order
-            // resembles that of the layer stack
             for (int i = foundNodes.size() - 1; i >= 0; --i) {
                 KisNodeSP node = foundNodes[i];
                 int indentation = -1;
@@ -238,10 +223,8 @@ void KisSelectLayerAction::inputEvent(QEvent *event)
                 }
             }
 
-            // Add separator
             menu->addSeparator();
 
-            // Add "select all layers" menu item
             {
                 QAction *action = menu->addAction(i18nc("Menu entry for the select layer under cursor canvas input action",
                                                         "Select all layers"));
@@ -259,6 +242,5 @@ void KisSelectLayerAction::inputEvent(QEvent *event)
         }
     }
 
-    // Now select the nodes
     d->selectNodes(nodesToSelect, selectionOverrideMode, true);
 }

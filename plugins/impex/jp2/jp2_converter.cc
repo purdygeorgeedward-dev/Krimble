@@ -32,7 +32,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
-#include <list> 
+#include <list>
 #include <utility>
 
 #define J2K_CFMT 0
@@ -46,25 +46,16 @@ JP2Converter::JP2Converter(KisDocument *doc) {
 JP2Converter::~JP2Converter() {
 }
 
-/**
- * sample error callback expecting a FILE* client object
- * */
 static void error_callback(const char *msg, void *client_data) {
 	JP2Converter *converter = (JP2Converter*) client_data;
 	converter->addErrorString(msg);
 }
 
-/**
- * sample warning callback expecting a FILE* client object
- * */
 static void warning_callback(const char *msg, void *client_data) {
 	JP2Converter *converter = (JP2Converter*) client_data;
 	converter->addWarningString(msg);
 }
 
-/**
- * sample debug callback expecting no client object
- * */
 static void info_callback(const char *msg, void *client_data) {
 	JP2Converter *converter = (JP2Converter*) client_data;
 	converter->addInfoString(msg);
@@ -163,9 +154,7 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 	int32_t signedCorrection = 0;
 	uint32_t w=0, h=0;
 
-	// decompression parameters
 	opj_set_default_decoder_parameters(&parameters);
-	// Determine the type
 	parameters.decod_format = infile_format(file_str.constData());
 	if (parameters.decod_format == -1) {
 		addErrorString("Not a JPEG 2000 file.");
@@ -173,8 +162,6 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 		goto beach;
 	}
 
-	// Decode the file
-	/* get a decoder handle */
 	switch (parameters.decod_format) {
 	case J2K_CFMT: {
 		l_codec = opj_create_decompress(OPJ_CODEC_J2K);
@@ -190,7 +177,6 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 
 	opj_codec_set_threads( l_codec,QThread::idealThreadCount() );
 
-	/* setup the decoder decoding parameters using user parameters */
 	opj_setup_decoder(l_codec, &parameters);
 
 	l_stream = opj_stream_create_default_file_stream(file_str.constData(), 1);
@@ -200,7 +186,6 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 		goto beach;
 	}
 
-	// Setup an event handling
 	opj_set_info_handler(l_codec, info_callback, this);
 	opj_set_error_handler(l_codec, error_callback, this);
 	opj_set_warning_handler(l_codec, warning_callback, this);
@@ -211,7 +196,6 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 		goto beach;
 	}
 
-	/* Get the decoded image */
 	if (!(opj_decode(l_codec, l_stream, image)
 			&& opj_end_decompress(l_codec, l_stream))) {
 		addErrorString("Failed to decode image");
@@ -219,7 +203,6 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 		goto beach;
 	}
 
-	// Look for the colorspace
 	numComponents = image->numcomps;
 	if (image->numcomps == 0) {
 		addErrorString("Image must have at least one component");
@@ -327,7 +310,6 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 		goto beach;
 	}
 
-	// Create the image
 	w = (uint32_t)(image->x1 - image->x0);
 	h = (uint32_t)(image->y1 - image->y0);
 	if (m_image == 0) {
@@ -335,12 +317,10 @@ KisImportExportErrorCode JP2Converter::buildImage(const QString &filename) {
 				colorSpace, "built image");
 	}
 
-	// Create the layer
 	layer = new KisPaintLayer(m_image, m_image->nextLayerName(),
 			OPACITY_OPAQUE_U8);
 	m_image->addNode(layer);
 
-	// Set the data
 	it = layer->paintDevice()->createHLineIteratorNG(0, 0, w);
 	for (OPJ_UINT32 v = 0; v < image->y1; ++v) {
 		if (precision == 16 || precision == 12) {

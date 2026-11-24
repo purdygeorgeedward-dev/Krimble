@@ -10,7 +10,6 @@
 #include <QScopedPointer>
 #include <QObject>
 
-
 class KisOpenglCanvasDebugger : public QObject
 {
     Q_OBJECT
@@ -34,4 +33,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_OPENGL_CANVAS_DEBUGGER_H */
+#endif

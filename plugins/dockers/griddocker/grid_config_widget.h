@@ -57,7 +57,6 @@ private:
     KisGuidesConfig fetchGuiGuidesConfig() const;
     void setGuidesConfigImpl(const KisGuidesConfig &value);
 
-
 private:
     Ui::GridConfigWidget *ui;
 
@@ -68,4 +67,4 @@ private:
     bool m_isIsometricGridEnabled {true};
 };
 
-#endif // GRID_CONFIG_WIDGET_H
+#endif

@@ -16,4 +16,4 @@ QBitArray stringToFlags(const QString& string, int size=-1, char token='0', bool
 
 }
 
-#endif // _KIS_KRA_UTILS_
+#endif

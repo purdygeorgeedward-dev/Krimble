@@ -24,4 +24,4 @@ private Q_SLOTS:
     void testFillPatternHaveSelectionSelectionOnly();
 };
 
-#endif /* __FILL_PROCESSING_VISITOR_TEST_H */
+#endif

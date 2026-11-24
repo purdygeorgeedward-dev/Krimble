@@ -4,15 +4,11 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include <KoColor.h>
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>
 #include <KoCompositeOpRegistry.h>
 #include <KoColorModelStandardIds.h>
-
-//#define USE_LOCAL_BUILD_OF_OPS
-//#define BUILD_ONLY_BASIC_OPS
 
 #ifdef USE_LOCAL_BUILD_OF_OPS
 #include <KoCompositeOpGeneric2.h>
@@ -25,7 +21,6 @@
 
 #include "compositeops/KoColorSpaceBlendingPolicy.h"
 #include "compositeops/KoCompositeOpClampPolicy.h"
-
 
 #ifdef USE_LOCAL_BUILD_OF_OPS
 
@@ -125,7 +120,7 @@ struct OpsStorage {
             add<CFVividLight<Arg, ClampAsFloatHDR>>(cs, COMPOSITE_VIVID_LIGHT_HDR, KoCompositeOp::categoryLight());
         }
         add<CFFlatLight<Arg>    >(cs, COMPOSITE_FLAT_LIGHT  , KoCompositeOp::categoryLight());
-        add<CFPinLight<Arg>>(cs, COMPOSITE_PIN_LIGHT, KoCompositeOp::categoryLight()); // using HDR mode as default
+        add<CFPinLight<Arg>>(cs, COMPOSITE_PIN_LIGHT, KoCompositeOp::categoryLight());
         add<&cfLinearLight<Arg> >(cs, COMPOSITE_LINEAR_LIGHT, KoCompositeOp::categoryLight());
         add<&cfPNormA<Arg>      >(cs, COMPOSITE_PNORM_A     , KoCompositeOp::categoryLight());
         add<&cfPNormB<Arg>      >(cs, COMPOSITE_PNORM_B     , KoCompositeOp::categoryLight());
@@ -134,8 +129,8 @@ struct OpsStorage {
         add<&cfFogLightenIFSIllusions<Arg>>(cs, COMPOSITE_FOG_LIGHTEN_IFS_ILLUSIONS, KoCompositeOp::categoryLight());
         add<&cfEasyDodge<Arg>   >(cs, COMPOSITE_EASY_DODGE  , KoCompositeOp::categoryLight());
 
-        add<CFColorBurn<Arg>>(cs, COMPOSITE_BURN, KoCompositeOp::categoryDark()); // using HDR mode as default
-        add<CFLinearBurn<Arg, ClampAsFloatHDR>>(cs, COMPOSITE_LINEAR_BURN , KoCompositeOp::categoryDark()); // using HDR mode as default
+        add<CFColorBurn<Arg>>(cs, COMPOSITE_BURN, KoCompositeOp::categoryDark());
+        add<CFLinearBurn<Arg, ClampAsFloatHDR>>(cs, COMPOSITE_LINEAR_BURN , KoCompositeOp::categoryDark());
         add<&cfDarkenOnly<Arg> >(cs, COMPOSITE_DARKEN      , KoCompositeOp::categoryDark());
         add<CFGammaDark<Arg>   >(cs, COMPOSITE_GAMMA_DARK  , KoCompositeOp::categoryDark());
         add<&cfShadeIFSIllusions<Arg>>(cs, COMPOSITE_SHADE_IFS_ILLUSIONS, KoCompositeOp::categoryDark());
@@ -220,7 +215,6 @@ struct RgbOpsStorage {
         m_ops.insert(id, new KoCompositeOpGenericHSLFunctor<Traits, Functor>(cs, id, category));
     }
 
-
     void add(const KoColorSpace* cs) {
 
         add<CFTangentNormalmap  <HSYType,channels_type> >(cs, COMPOSITE_TANGENT_NORMALMAP  , KoCompositeOp::categoryMisc());
@@ -235,9 +229,8 @@ struct RgbOpsStorage {
         add<CFIncreaseLightness<HSYType,channels_type>>(cs, COMPOSITE_INC_LUMINOSITY, KoCompositeOp::categoryHSY());
         add<CFDecreaseLightness<HSYType,channels_type>>(cs, COMPOSITE_DEC_LUMINOSITY, KoCompositeOp::categoryHSY());
 
-
-        add<CFDarkerColor<HSYType, channels_type>>(cs, COMPOSITE_DARKER_COLOR, KoCompositeOp::categoryDark()); //darker color as PSD does it//
-        add<CFLighterColor<HSYType, channels_type>>(cs, COMPOSITE_LIGHTER_COLOR, KoCompositeOp::categoryLight()); //lighter color as PSD does it//
+        add<CFDarkerColor<HSYType, channels_type>>(cs, COMPOSITE_DARKER_COLOR, KoCompositeOp::categoryDark());
+        add<CFLighterColor<HSYType, channels_type>>(cs, COMPOSITE_LIGHTER_COLOR, KoCompositeOp::categoryLight());
 
         add<CFLambertLighting<HSIType,channels_type>>(cs, COMPOSITE_LAMBERT_LIGHTING, KoCompositeOp::categoryMix());
         add<CFLambertLightingGamma2_2<HSIType, channels_type>>(cs, COMPOSITE_LAMBERT_LIGHTING_GAMMA_2_2, KoCompositeOp::categoryMix());
@@ -294,7 +287,7 @@ RgbOpsStorage<KoRgbF32Traits> sF32RgbOps;
 
 }
 
-#endif /* USE_LOCAL_BUILD_OF_OPS */
+#endif
 
 const KoCompositeOp* createOp(const KoColorSpace *cs, const QString &id, bool isHDR)
 {
@@ -365,12 +358,7 @@ const KoCompositeOp* createOp(const KoColorSpace *cs, const QString &id, bool is
     }
 #else
 
-    /**
-     * Some of the blendmodes exist only "in theory". We test them only to make sure
-     * they are not actually needed in real life (exactly the same in SDR range and
-     * SDR/negative-preserving).
-     */
-    if (id == COMPOSITE_LINEAR_BURN && !isHDR) { // SDR-only, HDR is the default
+    if (id == COMPOSITE_LINEAR_BURN && !isHDR) {
         if (cs->colorDepthId() == Float32BitsColorDepthID) {
             using Traits = KoRgbF32Traits;
             using func = CFLinearBurn<float, ClampAsFloatSDR>;

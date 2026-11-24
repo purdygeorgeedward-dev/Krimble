@@ -51,7 +51,7 @@ class PaintDeviceStorage
 public:
     typedef const KisPaintDevice* StorageType;
 public:
-    PaintDeviceStorage(const KisPaintDevice *device, int /*width*/, int /*height*/, int /*pixelSize*/)
+    PaintDeviceStorage(const KisPaintDevice *device, int , int , int )
         : m_device(device)
     {
         m_deviceIt = m_device->createRandomConstAccessorNG();
@@ -77,9 +77,6 @@ private:
     KisRandomConstAccessorSP m_deviceIt;
     KisRandomAccessorSP m_marksIt;
 };
-
-
-/******************* class KisOutlineGenerator *******************/
 
 KisOutlineGenerator::KisOutlineGenerator(const KoColorSpace* cs, quint8 defaultOpacity)
     : m_cs(cs), m_defaultOpacity(defaultOpacity), m_simple(false)
@@ -128,12 +125,10 @@ QVector<QPolygon> KisOutlineGenerator::outlineImpl(typename StorageStrategy::Sto
                     }
 
                     forever {
-                        //qDebug() << "visit" << xOffset + col << yOffset + row << ppVar(currentEdge) << ppVar(lastEdge);
 
                         *storage.pickMark(col, row) |= 1 << currentEdge;
                         nextOutlineEdge(storage, &currentEdge, &row, &col, width, height);
 
-                        //While following a straight line no points need to be added
                         if (lastEdge != currentEdge) {
                             appendCoordinate(&path, col + xOffset, row + yOffset, currentEdge, lastEdge);
                             lastEdge = currentEdge;
@@ -141,7 +136,6 @@ QVector<QPolygon> KisOutlineGenerator::outlineImpl(typename StorageStrategy::Sto
 
                         if (row == y && col == x && currentEdge == startEdge) {
                             if (startEdge != BottomEdge) {
-                                // add last point of the polygon
                                 appendCoordinate(&path, col + xOffset, row + yOffset, NoEdge, NoEdge);
                             }
                             break;
@@ -247,8 +241,6 @@ void KisOutlineGenerator::appendCoordinate(QPolygon * path, int x, int y, EdgeTy
 {
     Q_UNUSED(prevEdge);
 
-    //const QPoint origPt(x, y);
-
     if (edge == TopEdge) {
         x++;
     } else if (edge == BottomEdge) {
@@ -257,8 +249,6 @@ void KisOutlineGenerator::appendCoordinate(QPolygon * path, int x, int y, EdgeTy
         x++;
         y++;
     }
-
-    //qDebug() <<"add" << ppVar(origPt) << ppVar(edge) << ppVar(prevEdge) << "-->" << QPoint(x, y);
 
     *path << QPoint(x, y);
 }

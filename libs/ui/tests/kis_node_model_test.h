@@ -16,7 +16,6 @@ class KisNameServer;
 class KisShapeController;
 class KisNodeModel;
 
-
 class KisNodeModelTest : public QObject, public TestUtil::EmptyNodesTest
 {
     Q_OBJECT

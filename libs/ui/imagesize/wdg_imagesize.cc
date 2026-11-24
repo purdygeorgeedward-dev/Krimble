@@ -57,7 +57,6 @@ public:
     }
 };
 
-
 static QString pixelsInchStr()
 {
     static QString str = i18n("Pixels/Inch");
@@ -76,17 +75,15 @@ static void krimbleCompactImageSizeWidgets(QWidget *root, Page *page)
     const QFontMetrics fm(root->font());
     const QList<QDoubleSpinBox *> spins = { page->pixelWidthDouble, page->pixelHeightDouble, page->printWidth, page->printHeight, page->printResolution };
     Q_FOREACH (QDoubleSpinBox *spin, spins) {
-        // what a spin box needs besides its text (frame, padding, arrows): its own width minus the width of the widest number it could ever show
         const int extra = spin->sizeHint().width() - qMax(fm.horizontalAdvance(spin->textFromValue(spin->maximum())), fm.horizontalAdvance(spin->textFromValue(spin->minimum())));
         spin->setMinimumWidth(0);
-        spin->setFixedWidth(fm.horizontalAdvance(QStringLiteral("00000.00")) + qMax(extra, 0));   // five digits and two decimals
+        spin->setFixedWidth(fm.horizontalAdvance(QStringLiteral("00000.00")) + qMax(extra, 0));
     }
     const QList<QComboBox *> unitBoxes = { page->pixelSizeUnit, page->printWidthUnit, page->printResolutionUnit };
     Q_FOREACH (QComboBox *box, unitBoxes) {
         int widest = 0;
         for (int i = 0; i < box->count(); ++i) widest = qMax(widest, fm.horizontalAdvance(box->itemText(i)));
-        const int extra = qMax(box->sizeHint().width() - widest, 0);   // arrow and padding
-        // the box that is shut is as wide as its usual text ("Pixels/Inch": "Pixels/Centimeter" is longer and was what made the box wide); the list that opens is as wide as its widest text
+        const int extra = qMax(box->sizeHint().width() - widest, 0);
         const int shown = qMax(fm.horizontalAdvance(QStringLiteral("0000")), (box == page->printResolutionUnit) ? qMin(widest, fm.horizontalAdvance(QStringLiteral("Pixels/Inch"))) : widest);
         box->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         box->setMinimumWidth(0);
@@ -107,7 +104,6 @@ static void krimbleCompactImageSizeWidgets(QWidget *root, Page *page)
             grid->setContentsMargins(4, 6, 4, 4);
         }
     }
-    // the contents are no wider than they need (and a little more): a window that holds them opens at that width, and not wider as it did (the blank band at the right)
     if (root->layout()) {
         root->layout()->invalidate();
         root->layout()->activate();
@@ -118,7 +114,6 @@ static void krimbleCompactImageSizeWidgets(QWidget *root, Page *page)
 WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolution)
     : KisOperationUIWidget(i18n("Image Size"), parent)
 {
-    // Store original size.
     m_originalSize.setWidth(width);
     m_originalSize.setHeight(height);
 
@@ -132,7 +127,7 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
     m_page->pixelFilterCmb->allowAuto(true);
     m_page->pixelFilterCmb->setToolTip(KisFilterStrategyRegistry::instance()->formattedDescriptions());
 
-    if (lastUsedFilter) { // Restore or Init..
+    if (lastUsedFilter) {
         m_page->pixelFilterCmb->setCurrent(lastUsedFilter->id());
     } else {
         m_page->pixelFilterCmb->setCurrent(KisCmbIDList::AutoOptionID);
@@ -143,22 +138,17 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
         m_page->pixelFilterCmb->setAutoHint(filterStrategy->name());
     });
 
-    /**
-     * Initialize Pixel Width and Height fields
-     */
-
     m_widthUnitManager = new KisDocumentAwareSpinBoxUnitManager(this);
     m_heightUnitManager = new KisDocumentAwareSpinBoxUnitManager(this, KisDocumentAwareSpinBoxUnitManager::PIX_DIR_Y);
 
     KisConfig cfg(true);
 
-    /// configure the unit to image length, default unit is pixel and printing units are forbidden.
     m_widthUnitManager->setUnitDimension(KisSpinBoxUnitManager::IMLENGTH);
     m_heightUnitManager->setUnitDimension(KisSpinBoxUnitManager::IMLENGTH);
 
-    m_widthUnitManager->syncWithOtherUnitManager(m_heightUnitManager); //sync the two managers, so that the units will be the same, but each manager will know a different reference for percents.
+    m_widthUnitManager->syncWithOtherUnitManager(m_heightUnitManager);
 
-    m_widthUnitManager->setApparentUnitFromSymbol("px"); //set unit to pixel.
+    m_widthUnitManager->setApparentUnitFromSymbol("px");
 
     m_page->pixelWidthDouble->setUnitManager(m_widthUnitManager);
     m_page->pixelHeightDouble->setUnitManager(m_heightUnitManager);
@@ -177,16 +167,10 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
         Q_EMIT sigDesiredSizeChanged(desiredWidth(), desiredHeight(), desiredResolution());
     });
 
-    /// add custom units
-
     int unitId = m_widthUnitManager->getApparentUnitId();
 
     m_page->pixelSizeUnit->setModel(m_widthUnitManager);
     m_page->pixelSizeUnit->setCurrentIndex(unitId);
-
-    /**
-     * Connect Pixel Unit switching controls
-     */
 
     KisAcyclicSignalConnector *pixelUnitConnector = new KisAcyclicSignalConnector(this);
     pixelUnitConnector->connectForwardInt(m_page->pixelSizeUnit, SIGNAL(currentIndexChanged(int)),
@@ -198,10 +182,6 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
 
     m_widthUnitManager->setApparentUnitFromSymbol(imSizeUnit);
 
-    /**
-     * Initialize Print Width, Height and Resolution fields
-     */
-
     m_printSizeUnitManager = new KisSpinBoxUnitManager(this);
 
     m_page->printWidth->setUnitManager(m_printSizeUnitManager);
@@ -212,14 +192,9 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
 
     m_page->printWidthUnit->setModel(m_printSizeUnitManager);
 
-    //TODO: create a resolution dimension in the unit manager.
     m_page->printResolutionUnit->addItem(pixelsInchStr());
     m_page->printResolutionUnit->addItem(pixelsCentimeterStr());
 
-
-    /**
-     * Initialize labels and layout
-     */
     KisSizeGroup *labelsGroup = new KisSizeGroup(this);
     labelsGroup->addWidget(m_page->lblPixelWidth);
     labelsGroup->addWidget(m_page->lblPixelHeight);
@@ -228,16 +203,7 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
     labelsGroup->addWidget(m_page->lblPrintHeight);
     labelsGroup->addWidget(m_page->lblResolution);
 
-
-    // KisSizeGroup *comboboxesGroup = new KisSizeGroup(this);
-    // comboboxesGroup->addWidget(m_page->pixelSizeUnit);
-    // comboboxesGroup->addWidget(m_page->printWidthUnit);
-    // comboboxesGroup->addWidget(m_page->printResolutionUnit);
     connect(this, SIGNAL(okClicked()), this, SLOT(accept()));
-
-    /**
-     * Initialize aspect ratio buttons and lockers
-     */
 
     m_page->pixelAspectRatioBtn->setKeepAspectRatio(true);
     m_page->printAspectRatioBtn->setKeepAspectRatio(true);
@@ -248,10 +214,6 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
 
     m_printSizeLocker = new KisAspectRatioLocker(this);
     m_printSizeLocker->connectSpinBoxes(m_page->printWidth, m_page->printHeight, m_page->printAspectRatioBtn);
-
-    /**
-     * Connect Keep Aspect Lock buttons
-     */
 
     KisAcyclicSignalConnector *constrainsConnector = new KisAcyclicSignalConnector(this);
     constrainsConnector->connectBackwardBool(
@@ -270,10 +232,6 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
         m_page->adjustPrintSizeSeparatelyCkb, SIGNAL(toggled(bool)),
         this, SLOT(slotAdjustSeparatelySwitched(bool)));
 
-    /**
-     * Connect Print Unit switching controls
-     */
-
     KisAcyclicSignalConnector *printUnitConnector = new KisAcyclicSignalConnector(this);
     printUnitConnector->connectForwardInt(
         m_page->printWidthUnit, SIGNAL(currentIndexChanged(int)),
@@ -283,13 +241,9 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
         m_printSizeUnitManager, SIGNAL(unitChanged(int)),
         m_page->printWidthUnit, SLOT(setCurrentIndex(int)));
 
-    /// connect resolution
     connect(m_page->printResolutionUnit, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotPrintResolutionUnitChanged()));
 
-    /**
-     * Create syncing connections between Pixel and Print values
-     */
     KisAcyclicSignalConnector *syncConnector = new KisAcyclicSignalConnector(this);
     syncConnector->connectForwardVoid(
         m_pixelSizeLocker, SIGNAL(sliderValueChanged()),
@@ -303,15 +257,11 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
         m_page->printResolution, SIGNAL(valueChanged(double)),
         this, SLOT(slotPrintResolutionChanged()));
 
-
-    /**
-     * Initialize printing values from the predefined image values
-     */
     QString printSizeUnit;
 
     if (QLocale().measurementSystem() == QLocale::MetricSystem) {
         printSizeUnit = "cm";
-    } else { // Imperial
+    } else {
         printSizeUnit = "in";
     }
 
@@ -322,9 +272,6 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
     setCurrentResolutionPPI(resolution);
     slotSyncPixelToPrintSize();
 
-    /**
-     * Initialize aspect ratio lockers with the current proportion.
-     */
     m_pixelSizeLocker->updateAspect();
     m_printSizeLocker->updateAspect();
 
@@ -386,7 +333,7 @@ KisFilterStrategy *WdgImageSize::filterType()
         filter = KisFilterStrategyRegistry::instance()->autoFilterStrategy(m_originalSize, QSize(desiredWidth(), desiredHeight()));
     } else {
         filter = KisFilterStrategyRegistry::instance()->value(filterID.id());
-        lastUsedFilter = filter;  // Save for next time!
+        lastUsedFilter = filter;
     }
 
     return filter;

@@ -17,23 +17,18 @@ import android.util.Log;
 
 import org.krimble.R;
 
-// Keeps Krimble running while it is open. Without it, Android counts Krimble as an idle app as soon as another app is
-// in front, and its low-memory killer ends it first (the "Last exit: LOW_MEMORY, CACHED" lines in Help > Show Krimble
-// Log...). A foreground service makes Android count Krimble as in use, so it is not ended to free memory.
 public class KeepAliveService extends Service {
 
     private static final String TAG = "KeepAliveService";
     private static final String CHANNEL_ID = "org.krimble.android.open";
     private static final int NOTIFICATION_ID = 7;
 
-    // what happened when it was last asked to start (shown in Help > Show Krimble Log...)
     static volatile String status = "never asked to start in this run";
 
     @Override
     public void onCreate() {
         super.onCreate();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Krimble is open", NotificationManager.IMPORTANCE_MIN);
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Don'tCrash", NotificationManager.IMPORTANCE_MIN);
             channel.setShowBadge(false);
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
@@ -47,7 +42,6 @@ public class KeepAliveService extends Service {
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
-        // return builder.setContentTitle("Krimble is open")
         return builder.setContentTitle("Don'tCrash")
                 .setContentText("Keeps Krimble open in the background")
                 .setSmallIcon(R.drawable.ic_save_notification)

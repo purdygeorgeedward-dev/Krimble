@@ -22,7 +22,6 @@ public:
 
     void storeCurrentWindows();
 
-
     QString defaultFileExtension() const override;
 
 protected:
@@ -37,14 +36,12 @@ protected:
 
 private:
 
-    // Only KisPart should be able to call restore() to make sure it contains the pointer to it
     void restore();
     friend class KisPart;
 
     struct Private;
     QScopedPointer<Private> d;
 };
-
 
 typedef QSharedPointer<KisSessionResource> KisSessionResourceSP;
 

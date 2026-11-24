@@ -12,7 +12,6 @@
 #include <QRectF>
 #include <KoUnit.h>
 
-
 class GutterWidthsConfig
 {
 public:
@@ -25,7 +24,6 @@ public:
 
 public:
 
-
     const KoUnit baseUnit;
 
     const qreal resolution;
@@ -34,10 +32,6 @@ public:
     const qreal diagonal;
     const qreal angleDegrees;
 
-
 };
 
-
-
-
-#endif // GUTTER_WIDTHS_CONFIG_H_
+#endif

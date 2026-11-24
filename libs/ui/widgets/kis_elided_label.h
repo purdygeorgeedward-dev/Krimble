@@ -12,14 +12,6 @@
 
 #include "kritaui_export.h"
 
-
-/**
- * A special QLabel subclass that makes the text elidable.
- *
- * Please use setLongText() instead of setText(). The latter one will
- * not work!
- */
-
 class KRITAUI_EXPORT KisElidedLabel : public QLabel
 {
 public:
@@ -40,4 +32,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_ELIDED_LABEL_H */
+#endif

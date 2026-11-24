@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISAPPIMAGEUPDATER_H
 #define KISAPPIMAGEUPDATER_H
 
@@ -15,7 +14,6 @@
 #include <kritagitversion.h>
 
 #include "kritaui_export.h"
-
 
 class QString;
 
@@ -57,4 +55,4 @@ private:
     QScopedPointer<QProcess> m_updateProcess;
 };
 
-#endif // KISAPPIMAGEUPDATER_H
+#endif

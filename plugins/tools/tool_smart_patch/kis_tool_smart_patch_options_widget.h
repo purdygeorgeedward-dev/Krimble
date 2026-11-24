@@ -16,7 +16,6 @@
 class KisCanvasResourceProvider;
 class KoColor;
 
-
 class KisToolSmartPatchOptionsWidget : public QWidget
 {
     Q_OBJECT
@@ -32,4 +31,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_TOOL_SMART_PATCH_OPTIONS_WIDGET_H */
+#endif

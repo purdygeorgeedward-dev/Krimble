@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include <stdio.h>
 #include "kis_tile_data.h"
 #include "kis_tile_data_store.h"
@@ -13,13 +12,10 @@
 #include "kis_tile_data_pooler.h"
 #include "kis_image_config.h"
 
-
 const qint32 KisTileDataPooler::MAX_NUM_CLONES = 16;
-const qint32 KisTileDataPooler::MAX_TIMEOUT = 60000; // 01m00s
-const qint32 KisTileDataPooler::MIN_TIMEOUT = 100; // 00m00.100s
+const qint32 KisTileDataPooler::MAX_TIMEOUT = 60000;
+const qint32 KisTileDataPooler::MIN_TIMEOUT = 100;
 const qint32 KisTileDataPooler::TIMEOUT_FACTOR = 2;
-
-//#define DEBUG_POOLER
 
 #ifdef DEBUG_POOLER
 #define DEBUG_CLONE_ACTION(td, numClones)                               \
@@ -75,7 +71,6 @@ const qint32 KisTileDataPooler::TIMEOUT_FACTOR = 2;
 #define DEBUG_ALLOC_CLONE(mem, totalMem)
 #define DEBUG_FREE_CLONE(freed, demanded)
 #endif
-
 
 KisTileDataPooler::KisTileDataPooler(KisTileDataStore *store, qint32 memoryLimit)
     : QThread()
@@ -184,7 +179,6 @@ void KisTileDataPooler::run()
         QThread::msleep(0);
         DEBUG_SIMPLE_ACTION("cycle started");
 
-
         KisTileDataStoreReverseIterator *iter = m_store->beginReverseIteration();
         QList<KisTileData*> beggars;
         QList<KisTileData*> donors;
@@ -192,7 +186,6 @@ void KisTileDataPooler::run()
 
         qint32 statRealMemory;
         qint32 statHistoricalMemory;
-
 
         getLists(iter, beggars, donors,
                  memoryOccupied,
@@ -224,7 +217,6 @@ void KisTileDataPooler::forceUpdateMemoryStats()
 
     qint32 statRealMemory;
     qint32 statHistoricalMemory;
-
 
     getLists(iter, beggars, donors,
              memoryOccupied,
@@ -317,7 +309,6 @@ void KisTileDataPooler::getLists(Iter *iter,
 
         memoryOccupied += clonesMetric(item);
 
-        // statistics gathering
         if (item->historical()) {
             statHistoricalMemory += item->pixelSize();
         } else {
@@ -357,7 +348,6 @@ bool KisTileDataPooler::processLists(QList<KisTileData*> &beggars,
 {
     bool hadWork = false;
 
-
     Q_FOREACH (KisTileData *item, beggars) {
         qint32 clonesNeeded = numClonesNeeded(item);
         qint32 clonesMemory = clonesMetric(item, clonesNeeded);
@@ -387,10 +377,6 @@ bool KisTileDataPooler::processLists(QList<KisTileData*> &beggars,
 
 void KisTileDataPooler::debugTileStatistics()
 {
-    /**
-     * Assume we are called from the inside of the loop.
-     * This means m_store is already locked
-     */
 
     qint64 preallocatedTiles=0;
 

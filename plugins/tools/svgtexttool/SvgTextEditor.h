@@ -13,7 +13,7 @@
 
 #include <kxmlguiwindow.h>
 #include <KoColor.h>
-#include <KoSvgText.h>//for the enums
+#include <KoSvgText.h>
 
 #include <BasicXMLSyntaxHighlighter.h>
 
@@ -91,4 +91,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif //TEXTNGSHAPECONFIGWIDGET_H
+#endif

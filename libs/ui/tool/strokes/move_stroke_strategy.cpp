@@ -30,14 +30,6 @@
 #include "commands_new/KisSimpleModifyTransformMaskCommand.h"
 #include "commands_new/KisLazyCreateTransformMaskKeyframesCommand.h"
 
-/* MoveNodeStrategyBase and descendants
- *
- * A set of strategies that define how to actually move
- * nodes of different types. Some nodes should be moved
- * with KisNodeMoveCommand2, others with KisTransaction,
- * transform masks with their own command.
- */
-
 struct MoveNodeStrategyBase
 {
     MoveNodeStrategyBase(KisNodeSP node)
@@ -58,10 +50,6 @@ protected:
 
         QRect dirtyRect = m_node->projectionPlane()->tightUserVisibleBounds();
 
-        /**
-         * Some layers, e.g. clones need an update to change extent(), so
-         * calculate the dirty rect manually
-         */
         QPoint currentOffset(m_node->x(), m_node->y());
         dirtyRect |= dirtyRect.translated(newOffset - currentOffset);
 
@@ -155,7 +143,6 @@ struct MovePaintableNodeStrategy : public MoveNodeStrategyBase
         : MoveNodeStrategyBase(node),
           m_transaction(node->paintDevice(), 0, -1, 0, KisTransaction::SuppressUpdates)
     {
-        // TODO: disable updates in the transaction
     }
 
     QRect moveNode(const QPoint &offset) override {
@@ -184,10 +171,6 @@ private:
     KisTransaction m_transaction;
 };
 
-/*******************************************************/
-/*    MoveStrokeStrategy::Private                      */
-/*******************************************************/
-
 struct MoveStrokeStrategy::Private {
     std::unordered_map<KisNodeSP, std::unique_ptr<MoveNodeStrategyBase>> strategy;
 };
@@ -203,10 +186,6 @@ void MoveStrokeStrategy::recursiveApplyNodes(const KisNodeList &nodes, Functor &
             });
     }
 }
-
-/*******************************************************/
-/*    MoveStrokeStrategy                               */
-/*******************************************************/
 
 MoveStrokeStrategy::MoveStrokeStrategy(KisNodeSelectionRecipe nodeSelection,
                                        KisUpdatesFacade *updatesFacade,
@@ -248,11 +227,6 @@ MoveStrokeStrategy::MoveStrokeStrategy(const MoveStrokeStrategy &rhs, int lod)
 
 void MoveStrokeStrategy::initStrokeCallback()
 {
-    /**
-     * Our LodN might have already prepared the list of nodes for us,
-     * so we should reuse it to avoid different nodes to be moved in
-     * LodN and Lod0 modes.
-     */
     if (m_updatesEnabled) {
         m_nodes = m_requestedNodeSelection.selectNodesToProcess();
 
@@ -261,10 +235,6 @@ void MoveStrokeStrategy::initStrokeCallback()
         }
 
         KritaUtils::filterContainer<KisNodeList>(m_nodes, [this](KisNodeSP node) {
-            /**
-             * We shouldn't try to transform standalone fully empty filter masks. That 
-             * just doesn't make sense.
-             */
             const bool isEmptyFilterMask = node->inherits("KisFilterMask") && node->paintDevice()
                 && node->paintDevice()->nonDefaultPixelArea().isEmpty();
 
@@ -316,18 +286,9 @@ void MoveStrokeStrategy::initStrokeCallback()
     KritaUtils::addJobBarrier(jobs, [this]() {
         QRect handlesRect;
 
-        /**
-         * Collect handles rect
-         */
         recursiveApplyNodes(m_nodes,
             [&handlesRect, this] (KisNodeSP node) {
                 if (node->inherits("KisFilterMask") && m_nodes.contains(node)) {
-                    /**
-                     * Since the mask is contained in `m_nodes`, we are explicitly
-                     * asked to transform it by the user, we should show all the non-
-                     * default pixels it has (since that is exactly what we are
-                     * transforming)
-                     */
                     if (node->paintDevice()) {
                         handlesRect |= node->paintDevice()->nonDefaultPixelArea();
                     }
@@ -355,9 +316,6 @@ void MoveStrokeStrategy::initStrokeCallback()
             }
         }
 
-        /**
-         * Create strategies and start the transactions when necessary
-         */
         recursiveApplyNodes(m_nodes,
             [this] (KisNodeSP node) {
                 if (dynamic_cast<KisTransformMask*>(node.data())) {
@@ -433,9 +391,6 @@ void MoveStrokeStrategy::cancelStrokeCallback()
 
                 m_dirtyRects[node] |= dirtyRect;
 
-                /// Q_EMIT updates not looking onto the
-                /// updatesEnabled switch, since that is
-                /// the end of the stroke
                 m_updatesFacade->refreshGraphAsync(node, dirtyRect);
             }
         });
@@ -470,10 +425,6 @@ void MoveStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
     Data *d = dynamic_cast<Data*>(data);
 
     if (!m_nodes.isEmpty() && d) {
-        /**
-         * NOTE: we do not care about threading here, because
-         * all our jobs are declared sequential
-         */
         m_finalOffset = d->offset;
         m_hasPostponedJob = true;
         tryPostUpdateJob(false);
@@ -542,7 +493,6 @@ bool checkSupportsLodMoves(KisNodeSP subtree)
             });
 }
 
-
 KisStrokeStrategy* MoveStrokeStrategy::createLodClone(int levelOfDetail)
 {
     KisNodeList nodesToCheck;
@@ -550,11 +500,6 @@ KisStrokeStrategy* MoveStrokeStrategy::createLodClone(int levelOfDetail)
     if (m_requestedNodeSelection.mode == KisNodeSelectionRecipe::SelectedLayer) {
         nodesToCheck = m_requestedNodeSelection.selectedNodes;
     } else if (!m_requestedNodeSelection.selectedNodes.isEmpty()){
-        /**
-         * Since this function is executed in the GUI thread, we cannot properly
-         * pick the layers. Therefore we should use pessimistic approach and
-         * check if there are non-lodn-capable nodes in the entire image.
-         */
         nodesToCheck.append(KisLayerUtils::findRoot(m_requestedNodeSelection.selectedNodes.first()));
     }
 

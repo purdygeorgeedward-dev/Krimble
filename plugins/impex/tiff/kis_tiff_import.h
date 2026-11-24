@@ -35,33 +35,22 @@ public:
 private:
     KisImportExportErrorCode readTIFFDirectory(KisDocument *m_doc, TIFF *image);
 
-    /**
-     * Imports the image from the TIFF descriptor.
-     */
     KisImportExportErrorCode readImageFromTiff(KisDocument *m_doc,
                                                TIFF *image,
                                                KisTiffBasicInfo &basicInfo);
 
-    /**
-     * Imports the image from the PSD descriptor.
-     */
     KisImportExportErrorCode readImageFromPsd(KisDocument *m_doc,
                                               TIFF *image,
                                               KisTiffBasicInfo &basicInfo);
 
 #ifdef TIFF_HAS_PSD_TAGS
-    /**
-     * Imports the image from the PSD descriptor attached.
-     * If this function is invoked, readTIFFDirectory will only
-     * parse the first image descriptor.
-     */
     KisImportExportErrorCode
     readImageFromPsdRecords(KisDocument *m_doc,
                      const KisTiffPsdLayerRecord &photoshopLayerRecord,
                      KisTiffPsdResourceRecord &photoshopImageResourceRecord,
                      QBuffer &photoshopLayerData,
                      const KisTiffBasicInfo &basicInfo);
-#endif // TIFF_HAS_PSD_TAGS
+#endif
 
     KisImageSP m_image;
     bool m_photoshopBlockParsed = false;

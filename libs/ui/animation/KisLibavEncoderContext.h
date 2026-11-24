@@ -41,8 +41,6 @@ public:
             outPixelFormat = AV_PIX_FMT_BGRA;
             break;
         default:
-            // The above are the only formats I can get the the recorder to
-            // produce, so I'm not gonna get experimental with this.
             outPixelFormat = AV_PIX_FMT_BGRA;
             inOutImage = inOutImage.convertToFormat(QImage::Format_ARGB32);
             if (inOutImage.isNull()) {
@@ -56,7 +54,6 @@ public:
 
     int getSwsFlags(const QString &scaleFilter) const
     {
-        // These are the values provided by KisDlgAnimationRenderer.
         if (scaleFilter.isEmpty() || scaleFilter == QStringLiteral("bilinear")) {
             return SWS_FAST_BILINEAR;
         } else if (scaleFilter == QStringLiteral("bicubic")) {
@@ -97,8 +94,6 @@ public:
     void setInternalErrorMessage(const QString &detail)
     {
         warnFile << "Media encoder error:" << detail;
-        // Internal encoder errors are only really useful for developers,
-        // so there's no point in translating them.
         setErrorMessage(i18n("Internal error (%1)", detail));
     }
 

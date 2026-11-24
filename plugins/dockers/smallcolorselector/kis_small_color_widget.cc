@@ -36,13 +36,12 @@
 
 #include <KisRootSurfaceInfoProxy.h>
 
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
-
+#endif
 
 struct KisSmallColorWidget::Private {
-    qreal hue; // 0 ... 1.0
-    qreal value; // 0 ... 1.0
-    qreal saturation; // 0 ... 1.0
+    qreal hue;
+    qreal value;
+    qreal saturation;
     bool updateAllowed;
     KisClickableGLImageWidget *hueWidget;
     KisClickableGLImageWidget *valueWidget;
@@ -62,7 +61,7 @@ struct KisSmallColorWidget::Private {
 
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
     KisRootSurfaceInfoProxy *rootSurfaceInfoProxy = nullptr;
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
     qreal effectiveRelativeDynamicRange() const {
         return hasHDR ? currentRelativeDynamicRange : 1.0;
@@ -77,9 +76,8 @@ struct KisSmallColorWidget::Private {
         } else if (KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS()) {
             KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(rootSurfaceInfoProxy, profile);
             profile = rootSurfaceInfoProxy->rootSurfaceProfile();
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
         } else {
-            // we are a normal QWidget's surface
             profile = displayColorConverter->displayConfig().profile;
         }
 
@@ -104,7 +102,6 @@ struct KisSmallColorWidget::Private {
                 colorSpace(RGBAColorModelID.id(), Float32BitsColorDepthID.id(), result->profile());
         }
 
-        // PQ color space we delinearize into linear one
         if (result
                 && result->colorModelId() == RGBAColorModelID
                 && result->profile()
@@ -148,8 +145,6 @@ KisSmallColorWidget::KisSmallColorWidget(QWidget* parent)
 
     }
 
-    // default color space means that the colors will be passed through to the GPU directly
-    // without any conversion
     const KisSurfaceColorSpaceWrapper colorSpace = KisSurfaceColorSpaceWrapper::DefaultColorSpace;
 
     d->hueWidget = new KisClickableGLImageWidget(colorSpace, this);
@@ -166,9 +161,6 @@ KisSmallColorWidget::KisSmallColorWidget(QWidget* parent)
 
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
     if (KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS()) {
-        /**
-         * If the platform is managed, then it can potentially be HDR
-         */
         d->hasHardwareHDR = true;
         d->rootSurfaceInfoProxy = new KisRootSurfaceInfoProxy(this, this);
         connect(d->rootSurfaceInfoProxy, &KisRootSurfaceInfoProxy::sigRootSurfaceProfileChanged,
@@ -222,7 +214,6 @@ void KisSmallColorWidget::setHSV(qreal h, qreal s, qreal v, bool notifyChanged)
     d->hue = h;
     d->value = v;
     d->saturation = s;
-    // TODO: remove and make acyclic!
     if (notifyChanged) {
         d->colorChangedSignalCompressor->start();
     }
@@ -300,8 +291,8 @@ void KisSmallColorWidget::slotUpdatePalettes()
 
 namespace {
 struct FillHPolicy {
-    static inline void getRGB(qreal /*hue*/, float xPortionCoeff, float /*yPortionCoeff*/,
-                              int x, int /*y*/, float *r, float *g, float *b) {
+    static inline void getRGB(qreal , float xPortionCoeff, float ,
+                              int x, int , float *r, float *g, float *b) {
 
         HSVToRGB(xPortionCoeff * x * 360.0f, 1.0, 1.0, r, g, b);
     }
@@ -370,7 +361,6 @@ void KisSmallColorWidget::uploadPaletteData(KisGLImageWidget *widget, const QSiz
             }
         }
 
-        // TODO: should we add caching for this space fetching?
         const KoColorSpace *dstColorSpace =
             KoColorSpaceRegistry::instance()->colorSpace(
                 RGBAColorModelID.id(),
@@ -379,7 +369,6 @@ void KisSmallColorWidget::uploadPaletteData(KisGLImageWidget *widget, const QSiz
 
         d->displayColorConverter->applyDisplayFilteringF32(device, dstColorSpace);
 
-        // the output device must have float16/rgba space
         KIS_SAFE_ASSERT_RECOVER_RETURN(device->pixelSize() == 8);
 
         memcpy(image.data(),
@@ -510,7 +499,6 @@ void KisSmallColorWidget::slotDisplayConfigurationChanged()
     d->valueWidget->setUseHandleOpacity(!d->hasHDR);
 
     slotUpdatePalettes();
-    // TODO: also set the currently selected color again
 }
 
 void KisSmallColorWidget::slotTellColorChanged()

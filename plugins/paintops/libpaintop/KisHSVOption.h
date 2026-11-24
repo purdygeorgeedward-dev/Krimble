@@ -11,7 +11,6 @@
 class KoColorTransformation;
 struct KisHSVOptionData;
 
-
 class PAINTOP_EXPORT KisHSVOption : public KisCurveOption
 {
 public:
@@ -32,4 +31,4 @@ private:
     mutable int m_paramId {-1};
 };
 
-#endif // KISHSVOPTION_H
+#endif

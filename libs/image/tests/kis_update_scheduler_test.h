@@ -32,5 +32,5 @@ private Q_SLOTS:
     void testLodSync();
 };
 
-#endif /* KIS_UPDATE_SCHEDULER_TEST_H */
+#endif
 

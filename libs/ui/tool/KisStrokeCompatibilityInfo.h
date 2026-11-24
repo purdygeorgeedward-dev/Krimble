@@ -15,9 +15,7 @@
 #include <KoCompositeOpRegistry.h>
 #include <QUuid>
 
-
 class KisResourcesSnapshot;
-
 
 struct KRITAUI_EXPORT KisStrokeCompatibilityInfo : public boost::equality_comparable<KisStrokeCompatibilityInfo>
 {
@@ -40,4 +38,4 @@ struct KRITAUI_EXPORT KisStrokeCompatibilityInfo : public boost::equality_compar
     QBitArray channelLockFlags;
 };
 
-#endif // KISSTROKECOMPATIBILITYINFO_H
+#endif

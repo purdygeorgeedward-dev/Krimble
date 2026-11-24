@@ -46,7 +46,7 @@ namespace KisGradientConversion
                 return stop;
             }
         }
-        
+
         color.toQColor(&stop.second);
         return stop;
     }
@@ -108,7 +108,7 @@ namespace KisGradientConversion
                 return stop;
             }
         }
-        
+
         color.toQColor(&stop.second);
         return stop;
     }
@@ -127,7 +127,7 @@ namespace KisGradientConversion
 
         for (KoGradientSegment *segment : gradient->segments()) {
             QGradientStop stop;
-            
+
             stop = toQGradientStop(
                 segment->startColor(), segment->startType(), segment->startOffset(),
                 canvasResourcesInterface
@@ -142,7 +142,7 @@ namespace KisGradientConversion
                 stops << stop;
                 lastStop = stop;
             }
-            
+
             stop = toQGradientStop(
                 segment->endColor(), segment->endType(), segment->endOffset(),
                 canvasResourcesInterface
@@ -161,7 +161,7 @@ namespace KisGradientConversion
 
         return stops;
     }
-    
+
     QGradient* toQGradient(KoAbstractGradientSP gradient, KoCanvasResourcesInterfaceSP canvasResourcesInterface)
     {
         if (!gradient) {
@@ -273,7 +273,7 @@ namespace KisGradientConversion
                                     KoCanvasResourcesInterfaceSP canvasResourcesInterface)
     {
         KoGradientStop stop;
-    
+
         stop.position = offset;
 
         if (type == FOREGROUND_ENDPOINT) {
@@ -320,7 +320,7 @@ namespace KisGradientConversion
 
         for (KoGradientSegment *segment : gradient->segments()) {
             KoGradientStop stop;
-            
+
             stop = toKoGradientStop(
                 segment->startColor(), segment->startType(), segment->startOffset(),
                 canvasResourcesInterface
@@ -332,7 +332,7 @@ namespace KisGradientConversion
                 lastStop.color = stop.color;
                 lastStop.position = stop.position;
             }
-            
+
             stop = toKoGradientStop(
                 segment->endColor(), segment->endType(), segment->endOffset(),
                 canvasResourcesInterface
@@ -374,7 +374,7 @@ namespace KisGradientConversion
         }
 
         segmentGradient->setValid(true);
-        
+
         return segmentGradient;
     }
 
@@ -435,7 +435,7 @@ namespace KisGradientConversion
             } else {
                 endType = COLOR_ENDPOINT;
             }
-            
+
             segmentGradient->createSegment(
                 INTERP_LINEAR, COLOR_INTERP_RGB,
                 stops[i].position, stops[i + 1].position, (stops[i].position + stops[i + 1].position) / 2,

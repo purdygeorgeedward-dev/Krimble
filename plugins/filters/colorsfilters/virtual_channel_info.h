@@ -10,22 +10,6 @@
 #include <KoChannelInfo.h>
 class KoColorSpace;
 
-
-/**
- * This class represents a virtual channel that can have a curve in
- * curves filter. Virtual channel can be of various types:
- *
- * - REAL --- represents a real color channel of the image,
- *            like R, G, B or A
- *
- * - LIGHTNESS --- lightness virtual channel: represents L channel
- *                 of the image separation into Lab.
- *
- * - ALL_COLORS --- represents a grouped channel, combining all the
- *                  color channels of the image. E.g. R+G+B of an RGB
- *                  image
- */
-
 class VirtualChannelInfo
 {
 public:
@@ -41,18 +25,8 @@ public:
 
     VirtualChannelInfo(Type type, int pixelIndex, KoChannelInfo *realChannelInfo, const KoColorSpace *cs);
 
-    /**
-     * \return a pointer to a KoChannelInfo structure *iff* the
-     *         channel type is 'REAL'. Returns null of all the
-     *         other types.
-     */
     KoChannelInfo* channelInfo() const;
 
-    /**
-     * Index of this channel in a pixel.
-     *
-     * \return -1 for all virtual channels.
-     */
     int pixelIndex() const;
 
     Type type() const;
@@ -73,4 +47,4 @@ private:
     int m_channelSizeOverride {4};
 };
 
-#endif /* __VIRTUAL_CHANNEL_INFO_H */
+#endif

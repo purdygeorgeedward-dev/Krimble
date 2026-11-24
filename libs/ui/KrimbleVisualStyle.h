@@ -1,12 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble Android visual refresh. Kept separate from layout and touch handling.
-// Krimble 2026-11-06: George: "Do the gradient effects on the whole app." The ChatGPT sheet (kept as KrimbleVisualStyle_chatgpt_74828b7.h.txt) with every color and every
-// gradient replaced by values SAMPLED from George's mockup pictures (the Picker, Mixer and QuickAdjust mockups), and the same effects added to the main window's menu bar,
-// menus, tool bars, headers, progress bars and tool tips (the ChatGPT sheet only styled dialogs). The Claude sheet from before the revert is kept as
-// KrimbleVisualStyle_before_revert_2026-11-06.h.txt.
-// Krimble 2026-11-06 (4th): George: "blue selections should go to a deeper blue." Every selected-state gradient (tabs, checked buttons, list rows, menu items, check boxes)
-// was #0585CE, #016CAC, #015C96, #01548C, #0165A5 (sampled from the Mixer mockup's selected tab); it is now #0B87DD, #0867B8, #0652AD, #05429D (the bottom is the
-// mockup's OK button blue).
 #pragma once
 
 #include <QString>
@@ -14,10 +6,6 @@
 inline QString krimbleVisualStyleSheet()
 {
     return QStringLiteral(R"KRIMBLE(
-
-
-
-
 
 QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
     background: #2c3554;

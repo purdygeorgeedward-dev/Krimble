@@ -12,7 +12,6 @@
 #include <kritaimage_export.h>
 #include <kis_undo_store.h>
 
-
 class KRITAIMAGE_EXPORT KisUndoAdapter : public QObject
 {
     Q_OBJECT
@@ -47,6 +46,5 @@ private:
     KisUndoStore *m_undoStore;
 };
 
-
-#endif // KIS_UNDO_ADAPTER_H_
+#endif
 

@@ -10,11 +10,6 @@
 #include <KisStoragePlugin.h>
 #include "kritaresources_export.h"
 
-/**
- * KisBundleStorage is KisStoragePlugin that can load resources 
- * from bundles. It can also manage overridden resources from bundles,
- * which are not stored in the bundles themselves.
- */
 class KRITARESOURCES_EXPORT KisBundleStorage : public KisStoragePlugin
 {
 public:
@@ -23,7 +18,6 @@ public:
 
     KisResourceStorage::ResourceItem resourceItem(const QString &url) override;
 
-    /// Note: this should find resources in a folder that override a resource in the bundle first
     bool loadVersionedResource(KoResourceSP resource) override;
     QString resourceMd5(const QString &url) override;
     QSharedPointer<KisResourceStorage::ResourceIterator> resources(const QString &resourceType) override;
@@ -32,8 +26,6 @@ public:
     QStringList metaDataKeys() const override;
     QVariant metaData(const QString &key) const override;
 
-    /// Add a resource to this bundle: note, the bundle itself should NOT be rewritten, but we need to
-    /// put these tags in a place in the file system
     bool saveAsNewVersion(const QString &resourceType, KoResourceSP resource) override;
 
     bool exportResource(const QString &url, QIODevice *device) override;
@@ -46,4 +38,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KISBUNDLESTORAGE_H
+#endif

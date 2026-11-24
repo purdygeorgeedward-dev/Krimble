@@ -12,12 +12,6 @@
 class KisPainter;
 class KisDistanceInformation;
 
-
-/**
- * The distance information should be associated with each
- * painting stroke individually, so we store and manipulate
- * with them together using KisPaintingStrokeInfo structure
- */
 class KRITAUI_EXPORT KisFreehandStrokeInfo {
 public:
     KisFreehandStrokeInfo();
@@ -28,11 +22,6 @@ public:
     KisPainter *painter;
     KisDistanceInformation *dragDistance;
 
-    /**
-     * The distance information of the associated LodN
-     * stroke. Returns zero if LodN stroke has already finished
-     * execution or does not exist.
-     */
     KisDistanceInformation* buddyDragDistance();
 
 private:
@@ -40,5 +29,4 @@ private:
     KisFreehandStrokeInfo *m_childStrokeInfo {0};
 };
 
-
-#endif // KISPAINTINGSTROKEDATA_H
+#endif

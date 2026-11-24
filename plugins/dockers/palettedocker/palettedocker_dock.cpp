@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "palettedocker_dock.h"
 
 #include <QPainter>
@@ -82,13 +81,11 @@ PaletteDockerDock::PaletteDockerDock( )
     m_ui->bnEditPalette->setDefaultAction(m_actEditPalette.data());
     m_ui->bnSavePalette->setDefaultAction(m_actSavePalette.data());
 
-    // to make sure their icons have the same size
     m_ui->bnRemove->setIconSize(QSize(16, 16));
     m_ui->bnRename->setIconSize(QSize(16, 16));
     m_ui->bnAdd->setIconSize(QSize(16, 16));
     m_ui->bnEditPalette->setIconSize(QSize(16, 16));
     m_ui->bnSavePalette->setIconSize(QSize(16, 16));
-
 
     m_ui->paletteView->setPaletteModel(m_model);
     m_ui->paletteView->setAllowModification(true);
@@ -141,10 +138,6 @@ PaletteDockerDock::PaletteDockerDock( )
 
         m_ui->paletteView->setAllowModification(false);
     }
-
-    //m_ui->bnUndo->setVisible(false);
-    //m_ui->bnRedo->setVisible(false);
-
 
     KoResourceServer<KoColorSet> *srv = KoResourceServerProvider::instance()->paletteServer();
     srv->addObserver(this);
@@ -281,7 +274,6 @@ void PaletteDockerDock::slotSetColorSet(KoColorSetSP colorSet)
         disconnect(m_currentColorSet->undoStack());
     }
 
-    // needs to save the palette before switching to another one
     if (m_paletteEditor->isModified() && m_currentColorSet != colorSet) {
         m_paletteEditor->saveNewPaletteVersion();
     }
@@ -345,7 +337,6 @@ void PaletteDockerDock::slotSavePalette()
     }
 }
 
-
 void PaletteDockerDock::slotAddColor()
 {
     if (m_resourceProvider) {
@@ -399,8 +390,6 @@ void PaletteDockerDock::slotUpdateLblPaletteName()
         else {
             m_actSavePalette.data()->setToolTip(i18nc("@tooltip", "Saving for document swatches (palettes) is done by saving the document."));
         }
-        // if the palette is not global, then let's not indicate that the changes has been made
-        // (it's easier than tracking whether the document has been saved or maybe exported etc.)
         if (m_paletteEditor->isModified() && isGlobal) {
             name = "* " + name;
             QFont font = m_ui->lblPaletteName->font();
@@ -456,7 +445,6 @@ void PaletteDockerDock::redo()
     slotUpdateLblPaletteName();
 }
 
-
 void PaletteDockerDock::slotFGColorResourceChanged(const KoColor &color)
 {
     if (!m_colorSelfUpdate) {
@@ -464,7 +452,7 @@ void PaletteDockerDock::slotFGColorResourceChanged(const KoColor &color)
     }
 }
 
-void PaletteDockerDock::slotStoragesChanged(const QString &/*location*/)
+void PaletteDockerDock::slotStoragesChanged(const QString & )
 {
     if (m_activeDocument.isNull()) {
         slotSetColorSet(0);

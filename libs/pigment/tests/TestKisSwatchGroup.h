@@ -34,5 +34,4 @@ private:
     QHash<QPair<int, int>, KisSwatch> testSwatches;
 };
 
-
-#endif /* TESTKISSWATCHGROUP_H */
+#endif

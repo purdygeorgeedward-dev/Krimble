@@ -44,4 +44,4 @@ struct Q_DECL_HIDDEN KisGaussRectangleMaskGenerator::Private
 
 };
 
-#endif // KIS_GAUSS_RECT_MASK_GENERATOR_P_H
+#endif

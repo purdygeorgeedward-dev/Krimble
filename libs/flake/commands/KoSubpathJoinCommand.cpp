@@ -10,7 +10,6 @@
 #include "kis_assert.h"
 #include "KoPathMergeUtils.h"
 
-
 KoSubpathJoinCommand::KoSubpathJoinCommand(const KoPathPointData &pointData1, const KoPathPointData &pointData2, KUndo2Command *parent)
         : KUndo2Command(parent)
         , m_pointData1(pointData1)
@@ -28,7 +27,6 @@ KoSubpathJoinCommand::KoSubpathJoinCommand(const KoPathPointData &pointData1, co
     KIS_ASSERT(!pathShape->isClosedSubpath(m_pointData2.pointIndex.first));
     KIS_ASSERT(m_pointData2.pointIndex.second == 0 ||
                m_pointData2.pointIndex.second == pathShape->subpathPointCount(m_pointData2.pointIndex.first) - 1);
-    //TODO check that points are not the same
 
     if (m_pointData2 < m_pointData1) {
         std::swap(m_pointData1, m_pointData2);
@@ -59,8 +57,6 @@ KoSubpathJoinCommand::~KoSubpathJoinCommand()
 {
 }
 
-
-
 void KoSubpathJoinCommand::redo()
 {
     KUndo2Command::redo();
@@ -71,9 +67,6 @@ void KoSubpathJoinCommand::redo()
 
     KIS_SAFE_ASSERT_RECOVER_RETURN(point1);
     KIS_SAFE_ASSERT_RECOVER_RETURN(point2);
-
-    // if the endpoint has a control point create a control point for the new segment to be
-    // at the symmetric position to the exiting one
 
     if (closeSubpathMode()) {
         KritaUtils::makeSymmetric(point1, false);
@@ -132,7 +125,6 @@ void KoSubpathJoinCommand::undo()
     KIS_SAFE_ASSERT_RECOVER_RETURN(point1);
     KIS_SAFE_ASSERT_RECOVER_RETURN(point2);
 
-    // restore the old end points
     if (closeSubpathMode()) {
         KritaUtils::restoreControlPoint(point1, true, m_savedControlPoint1);
         KritaUtils::restoreControlPoint(point2, false, m_savedControlPoint2);

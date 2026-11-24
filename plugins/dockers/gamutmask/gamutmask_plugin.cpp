@@ -36,7 +36,6 @@ public:
     }
 };
 
-
 GamutMaskPlugin::GamutMaskPlugin(QObject* parent, const QVariantList &):
     QObject(parent)
 {

@@ -19,4 +19,4 @@ public:
     KoColorTransformation* createTransformation(const KoColorSpace* colorSpace, QHash<QString, QVariant> parameters) const override;
 
 };
-#endif // KIS_DESATURATE_ADJUSTMENT_H
+#endif

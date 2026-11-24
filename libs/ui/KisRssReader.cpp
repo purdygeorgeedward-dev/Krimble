@@ -42,7 +42,6 @@ QString shortenHtml(QString html)
     return html.left(firstParaEnd);
 }
 
-
 KisRssReader::KisRssReader()
 {
 
@@ -67,7 +66,7 @@ RssItem KisRssReader::parseItem() {
             else if (m_streamReader.name() == QLatin1String("category"))
                 item.category = m_streamReader.readElementText();
             else if (m_streamReader.name() == QLatin1String("description"))
-                item.description = m_streamReader.readElementText(); //shortenHtml(streamReader.readElementText());
+                item.description = m_streamReader.readElementText();
             break;
         case QXmlStreamReader::EndElement:
             if (m_streamReader.name() == QLatin1String("item"))
@@ -97,7 +96,7 @@ RssItemList KisRssReader::parseStream(QXmlStreamReader &streamReader) {
                 QUrl favIconUrl(favIconString);
                 favIconUrl.setPath(QLatin1String("favicon.ico"));
                 blogIcon = favIconUrl.toString();
-                blogIcon = QString(); // XXX: fix the favicon on krita.org!
+                blogIcon = QString();
             }
             break;
         default:

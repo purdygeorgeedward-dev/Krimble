@@ -7,7 +7,6 @@
 
 #include "kis_properties_configuration.h"
 
-
 #include <kis_debug.h>
 #include <QDomDocument>
 #include <QString>
@@ -74,8 +73,6 @@ void KisPropertiesConfiguration::fromXML(const QDomElement &root)
         QString name = e.attribute("name");
         QString value = e.text();
 
-        // Older versions didn't have a "type" parameter,
-        // so fall back to the old behavior if it's missing.
         if (!e.hasAttribute("type")) {
             d->properties[name] = QVariant(value);
         } else if (e.attribute("type") == "bytearray") {
@@ -109,10 +106,10 @@ void KisPropertiesConfiguration::toXML(QDomDocument& doc, QDomElement& root) con
             text = cdataDoc.createCDATASection(cdataDoc.toString());
             type = "color";
         } else if(v.type() == QMetaType::QString ) {
-            text = doc.createCDATASection(v.toString());  // XXX: Unittest this!
+            text = doc.createCDATASection(v.toString());
             type = "string";
         } else if(v.type() == QMetaType::QByteArray ) {
-            text = doc.createTextNode(QString::fromLatin1(v.toByteArray().toBase64())); // Arbitrary Data
+            text = doc.createTextNode(QString::fromLatin1(v.toByteArray().toBase64()));
             type = "bytearray";
         } else {
             text = doc.createTextNode(v.toString());
@@ -132,7 +129,6 @@ QString KisPropertiesConfiguration::toXML() const
     toXML(doc, root);
     return doc.toString();
 }
-
 
 bool KisPropertiesConfiguration::hasProperty(const QString& name) const
 {
@@ -163,7 +159,6 @@ QVariant KisPropertiesConfiguration::getProperty(const QString & name) const
     return d->properties.value(name, QVariant());
 }
 
-
 int KisPropertiesConfiguration::getInt(const QString & name, int def) const
 {
     QVariant v = getProperty(name);
@@ -191,7 +186,6 @@ float KisPropertiesConfiguration::getFloat(const QString & name, float def) cons
     else
         return def;
 }
-
 
 bool KisPropertiesConfiguration::getBool(const QString & name, bool def) const
 {
@@ -443,8 +437,6 @@ bool KisPropertiesConfiguration::compareTo(const KisPropertiesConfiguration* rhs
 
     return true;
 }
-
-// --- factory ---
 
 struct Q_DECL_HIDDEN KisPropertiesConfigurationFactory::Private {
 };

@@ -16,9 +16,6 @@
 #include <kis_debug.h>
 #include <kis_meta_data_value.h>
 
-// ---- Generic conversion functions ---- //
-
-// Convert an exiv value to a KisMetaData value
 inline KisMetaData::Value
 #if EXIV2_TEST_VERSION(0,28,0)
 exivValueToKMDValue(const Exiv2::Value::UniquePtr &value, bool forceSeq, KisMetaData::Value::ValueType arrayType = KisMetaData::Value::UnorderedArray)
@@ -63,7 +60,7 @@ exivValueToKMDValue(const Exiv2::Value::AutoPtr &value, bool forceSeq, KisMetaDa
     }
     case Exiv2::asciiString:
     case Exiv2::string:
-    case Exiv2::comment: // look at kexiv2 for the problem about decoding correctly that tag
+    case Exiv2::comment:
         return {QString::fromStdString(value->toString())};
     case Exiv2::unsignedRational:
         if (value->count() == 1 && !forceSeq) {
@@ -111,16 +108,13 @@ exivValueToKMDValue(const Exiv2::Value::AutoPtr &value, bool forceSeq, KisMetaDa
     case Exiv2::langAlt:
     default: {
         dbgMetaData << "Unknown type id :" << value->typeId() << " value =" << value->toString().c_str();
-        // Q_ASSERT(false); // This point must never be reached !
         return {};
     }
     }
     dbgMetaData << "Unknown type id :" << value->typeId() << " value =" << value->toString().c_str();
-    // Q_ASSERT(false); // This point must never be reached !
     return {};
 }
 
-// Convert a QtVariant to an Exiv value
 inline Exiv2::Value *variantToExivValue(const QVariant &variant, Exiv2::TypeId type)
 {
     switch (type) {
@@ -159,7 +153,6 @@ inline Exiv2::Value *variantToExivValue(const QVariant &variant, Exiv2::TypeId t
         return new Exiv2::CommentValue(qPrintable(variant.toString()));
     default:
         dbgMetaData << "Unhandled type:" << type;
-        // Q_ASSERT(false);
         return nullptr;
     }
 }
@@ -175,7 +168,6 @@ Exiv2::Value *arrayToExivValue(const KisMetaData::Value &value)
     return exivValue;
 }
 
-/// Convert a KisMetaData to an Exiv value
 inline Exiv2::Value *kmdValueToExivValue(const KisMetaData::Value &value, Exiv2::TypeId type)
 {
     switch (value.type()) {
@@ -185,7 +177,6 @@ inline Exiv2::Value *kmdValueToExivValue(const KisMetaData::Value &value, Exiv2:
         return variantToExivValue(value.asVariant(), type);
     }
     case KisMetaData::Value::Rational:
-        // Q_ASSERT(type == Exiv2::signedRational || type == Exiv2::unsignedRational);
         if (type == Exiv2::signedRational) {
             return new Exiv2::RationalValue({value.asRational().numerator, value.asRational().denominator});
         } else {
@@ -212,11 +203,6 @@ inline Exiv2::Value *kmdValueToExivValue(const KisMetaData::Value &value, Exiv2:
         case Exiv2::asciiString:
             Q_FALLTHROUGH();
         case Exiv2::string: {
-            // Using toLatin1 here is not lossy for asciiString,
-            // but definitely is for string. IPTC allows UTF-8
-            // encoding which supersets ASCII. See:
-            // https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#iim-properties
-            // https://doc.qt.io/qt-5/qstring.html#toLatin1
             const QList<KisMetaData::Value> list = value.asArray();
             QStringList result;
             Q_FOREACH (const KisMetaData::Value &v, list) {
@@ -259,11 +245,8 @@ inline Exiv2::Value *kmdValueToExivValue(const KisMetaData::Value &value, Exiv2:
     return nullptr;
 }
 
-/// Convert a KisMetaData to an Exiv value, without knowing the targeted Exiv2::TypeId
-/// This function should be used for saving to XMP.
 inline Exiv2::Value *kmdValueToExivXmpValue(const KisMetaData::Value &value)
 {
-    // Q_ASSERT(value.type() != KisMetaData::Value::Structure);
     switch (value.type()) {
     case KisMetaData::Value::Invalid:
         return new Exiv2::DataValue(Exiv2::invalidTypeId);
@@ -276,7 +259,6 @@ inline Exiv2::Value *kmdValueToExivXmpValue(const KisMetaData::Value &value)
                 return new Exiv2::XmpTextValue("False");
             }
         } else {
-            // Q_ASSERT(var.canConvert(QMetaType::QString));
             return new Exiv2::XmpTextValue(var.toString().toLatin1().constData());
         }
     }
@@ -301,7 +283,6 @@ inline Exiv2::Value *kmdValueToExivXmpValue(const KisMetaData::Value &value)
             arrV->setXmpArrayType(Exiv2::XmpValue::xaAlt);
             break;
         default:
-            // Cannot happen
             ;
         }
         Q_FOREACH (const KisMetaData::Value &value, value.asArray()) {
@@ -320,9 +301,7 @@ inline Exiv2::Value *kmdValueToExivXmpValue(const KisMetaData::Value &value)
             if (it.key() != "x-default") {
                 exivVal = "lang=" + it.key() + ' ';
             }
-            // Q_ASSERT(it.value().type() == KisMetaData::Value::Variant);
             QVariant var = it.value().asVariant();
-            // Q_ASSERT(var.type() == QMetaType::QString);
             exivVal += var.toString();
             arrV->read(exivVal.toLatin1().constData());
         }

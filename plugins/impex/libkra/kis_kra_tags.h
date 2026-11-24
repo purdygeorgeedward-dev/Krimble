@@ -9,16 +9,11 @@
 #include <QString>
 #include <KisResourceTypes.h>
 
-/**
- * Tag definitions for our xml file format
- */
 namespace KRA
 {
 
-// mimetype
 const QString NATIVE_MIMETYPE = "application/x-kra";
 
-// xml tags
 const QString SEPARATOR = "/";
 const QString SHAPE_LAYER_PATH = "/shapelayers/";
 const QString EXIF_PATH = "/annotations/exif";
@@ -29,7 +24,7 @@ const QString LAYER_STYLES_PATH = "/annotations/layerstyles.asl";
 const QString ASSISTANTS_PATH = "/assistants/";
 const QString LAYER_PATH = "/layers/";
 const QString PALETTE_PATH = "/palettes/";
-const QString RESOURCE_PATH = "resources/"; // Note: intentionally not slash in front.
+const QString RESOURCE_PATH = "resources/";
 const QString STORYBOARD_PATH = "/storyboard/";
 const QString AUDIO_PATH = "/audio/";
 const QString ANIMATION_METADATA_PATH = "/animation/";
@@ -133,15 +128,13 @@ const QString CANVASPROJECTIONCOLOR = "ProjectionBackgroundColor";
 const QString COLORBYTEDATA = "ColorData";
 const QString COLORHISTORY = "ColorHistory";
 const QString COLORLIST = "ColorList";
-const QString SIMPLECOLORDATA = "SimpleColorData"; // easier 8-bit color data that works well with XML
+const QString SIMPLECOLORDATA = "SimpleColorData";
 const QString GLOBALASSISTANTSCOLOR = "GlobalAssistantsColor";
-const QString PALETTES = "Palettes"; // ResourceType::Palettes is lowercase, while the tag is uppercase
+const QString PALETTES = "Palettes";
 const QString RESOURCES = "resources";
 const QString MIRROR_AXIS = "MirrorAxis";
 const QString ANNOTATIONS = "Annotations";
 const QString ANNOTATION = "Annotation";
 }
-
-
 
 #endif

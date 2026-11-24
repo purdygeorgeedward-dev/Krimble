@@ -11,7 +11,6 @@
 #include <KisMpl.h>
 #include <boost/none.hpp>
 
-
 namespace {
 struct TaskStruct {
     int id = 0;
@@ -56,10 +55,6 @@ void KisIdleTasksManager::setImage(KisImageSP image)
 
 int KisIdleTasksManager::addIdleTask(KisIdleTaskStrokeStrategyFactory factory)
 {
-    /**
-     * TODO: don't restart the whole queue on the the task change, just
-     * restart the currently added task
-     */
 
     const int newId =
         !m_d->tasks.isEmpty() ?
@@ -89,7 +84,6 @@ void KisIdleTasksManager::removeIdleTask(int id)
 void KisIdleTasksManager::triggerIdleTask(int id)
 {
     {
-        // just verify that this tasks actually exists
         auto it = std::find_if(m_d->tasks.begin(), m_d->tasks.end(),
                                kismpl::mem_equal_to(&TaskStruct::id, id));
         KIS_SAFE_ASSERT_RECOVER_NOOP(it != m_d->tasks.end());
@@ -148,7 +142,6 @@ void KisIdleTasksManager::slotImageIsIdle()
 void KisIdleTasksManager::slotTaskIsCompleted()
 {
     if (m_d->queue.isEmpty()) {
-        // all tasks are completed!
     } else {
         if (m_d->idleWatcher.isIdle()) {
             slotImageIsIdle();

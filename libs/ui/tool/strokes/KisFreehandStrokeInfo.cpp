@@ -9,7 +9,6 @@
 #include <kis_painter.h>
 #include <kis_distance_information.h>
 
-
 KisFreehandStrokeInfo::KisFreehandStrokeInfo()
     : painter(new KisPainter())
     , dragDistance(new KisDistanceInformation())

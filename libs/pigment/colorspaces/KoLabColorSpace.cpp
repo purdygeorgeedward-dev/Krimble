@@ -34,7 +34,6 @@ KoLabColorSpace::KoLabColorSpace() :
     addChannel(new KoChannelInfo(i18n("b*"),        CHANNEL_B     * sizeof(quint16), CHANNEL_B, KoChannelInfo::COLOR, KoChannelInfo::UINT16, sizeof(quint16), QColor(200, 200, 200)));
     addChannel(new KoChannelInfo(i18n("Alpha"),     CHANNEL_ALPHA * sizeof(quint16), CHANNEL_ALPHA, KoChannelInfo::ALPHA, KoChannelInfo::UINT16, sizeof(quint16)));
 
-    // ADD, ALPHA_DARKEN, BURN, DIVIDE, DODGE, ERASE, MULTIPLY, OVER, OVERLAY, SCREEN, SUBTRACT
     addStandardCompositeOps<KoLabU16Traits>(this);
     addStandardDitherOps<KoLabU16Traits>(this);
 }
@@ -43,12 +42,10 @@ KoLabColorSpace::~KoLabColorSpace()
 {
 }
 
-
 QString KoLabColorSpace::colorSpaceId()
 {
     return QStringLiteral("LABA");
 }
-
 
 KoColorSpace* KoLabColorSpace::clone() const
 {
@@ -57,9 +54,6 @@ KoColorSpace* KoLabColorSpace::clone() const
 
 void KoLabColorSpace::fromQColor(const QColor& c, quint8 *dst) const
 {
-    // Convert between RGB and CIE-Lab color spaces
-    // Uses ITU-R recommendation BT.709 with D65 as reference white.
-    // algorithm contributed by "Mark A. Ruzon" <ruzon@CS.Stanford.EDU>
 
     int R, G, B, A;
     c.getRgb(&R, &G, &B, &A);
@@ -105,9 +99,6 @@ void KoLabColorSpace::fromQColor(const QColor& c, quint8 *dst) const
 
 void KoLabColorSpace::toQColor(const quint8 * src, QColor *c) const
 {
-    // Convert between RGB and CIE-Lab color spaces
-    // Uses ITU-R recommendation BT.709 with D65 as reference white.
-    // algorithm contributed by "Mark A. Ruzon" <ruzon@CS.Stanford.EDU>
     quint8 L, a, b, A;
     L = UINT16_TO_UINT8(src[CHANNEL_L]);
     a = UINT16_TO_UINT8(src[CHANNEL_A]);
@@ -226,7 +217,6 @@ void KoLabColorSpace::convertChannelToVisualRepresentation(const quint8 *src, qu
                             c = ColorSpaceTraits::math_trait::unitValueL * (0.5 + ((qreal)c - ColorSpaceTraits::math_trait::halfValueAB) / (2.0 * (ColorSpaceTraits::math_trait::unitValueAB - ColorSpaceTraits::math_trait::halfValueAB)));
                         }
                         break;
-                    // As per KoChannelInfo alpha channels are [0..1]
                     default:
                         c = ColorSpaceTraits::math_trait::unitValueL * (qreal)c / ColorSpaceTraits::math_trait::unitValue;
                         break;

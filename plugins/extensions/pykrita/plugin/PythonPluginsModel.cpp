@@ -113,7 +113,6 @@ Qt::ItemFlags PythonPluginsModel::flags(const QModelIndex& index) const
         result |= Qt::ItemIsUserCheckable;
     }
 
-    // Disable UI for broken modules
     if (!plugin->isBroken()) {
         result |= Qt::ItemIsEnabled;
     }

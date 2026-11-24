@@ -13,7 +13,6 @@
 
 #include <QWidget>
 
-
 class KoInteractionTool;
 class KisAspectRatioLocker;
 
@@ -24,7 +23,6 @@ public:
     explicit DefaultToolGeometryWidget(KoInteractionTool *tool, QWidget *parent = 0);
     ~DefaultToolGeometryWidget() override;
 
-    /// Sets the unit used by the unit aware child widgets
     void setUnit(const KoUnit &unit);
 
     bool useUniformScaling() const;

@@ -27,7 +27,6 @@
 
 #include "exr_converter.h"
 
-
 class KisExternalLayer;
 
 K_PLUGIN_FACTORY_WITH_JSON(ExportFactory, "krita_exr_export.json", registerPlugin<EXRExport>();)
@@ -40,19 +39,19 @@ EXRExport::~EXRExport()
 {
 }
 
-KisPropertiesConfigurationSP EXRExport::defaultConfiguration(const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisPropertiesConfigurationSP EXRExport::defaultConfiguration(const QByteArray & , const QByteArray & ) const
 {
     KisPropertiesConfigurationSP cfg = new KisPropertiesConfiguration();
     cfg->setProperty("flatten", false);
     return cfg;
 }
 
-KisConfigWidget *EXRExport::createConfigurationWidget(QWidget *parent, const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisConfigWidget *EXRExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray & ) const
 {
     return new KisWdgOptionsExr(parent);
 }
 
-KisImportExportErrorCode EXRExport::convert(KisDocument *document, QIODevice */*io*/,  KisPropertiesConfigurationSP configuration)
+KisImportExportErrorCode EXRExport::convert(KisDocument *document, QIODevice * ,  KisPropertiesConfigurationSP configuration)
 {
     Q_ASSERT(document);
     Q_ASSERT(configuration);
@@ -74,7 +73,6 @@ KisImportExportErrorCode EXRExport::convert(KisDocument *document, QIODevice */*
     if (!exrConverter.errorMessage().isNull()) {
         document->setErrorMessage(exrConverter.errorMessage());
     }
-
 
     dbgFile  << " Result =" << res;
     return res;
@@ -99,9 +97,6 @@ void EXRExport::initializeCapabilities()
             << QPair<KoID, KoID>(XYZAColorModelID, Float32BitsColorDepthID);
     addSupportedColorModels(supportedColorModels, "EXR");
 }
-
-
-
 
 void KisWdgOptionsExr::setConfiguration(const KisPropertiesConfigurationSP cfg)
 {

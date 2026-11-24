@@ -16,7 +16,6 @@ struct Q_DECL_HIDDEN KisResourceItemChooserSync::Private
     int baseLength;
 };
 
-
 KisResourceItemChooserSync::KisResourceItemChooserSync()
     : d(new Private)
 {
@@ -42,10 +41,4 @@ void KisResourceItemChooserSync::setBaseLength(int length)
     d->baseLength = qBound(25, length, 100);
     Q_EMIT baseLengthChanged(d->baseLength);
 }
-
-
-
-
-
-
 

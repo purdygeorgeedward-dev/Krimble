@@ -7,7 +7,6 @@
 #ifndef KISRUNNABLESTROKEJOBDATABASE_H
 #define KISRUNNABLESTROKEJOBDATABASE_H
 
-
 #include "kritaimage_export.h"
 #include "kis_stroke_job_strategy.h"
 #include "kis_runnable.h"
@@ -19,4 +18,4 @@ public:
                                  KisStrokeJobData::Exclusivity exclusivity = KisStrokeJobData::NORMAL);
 };
 
-#endif // KISRUNNABLESTROKEJOBDATABASE_H
+#endif

@@ -20,5 +20,4 @@ void KisBoundaryTest::testCreation()
     KisBoundary test(dev);
 }
 
-
 SIMPLE_TEST_MAIN(KisBoundaryTest)

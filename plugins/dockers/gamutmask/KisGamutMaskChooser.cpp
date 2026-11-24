@@ -25,22 +25,18 @@
 #include <KisResourceModelProvider.h>
 #include <KisResourceMetaDataModel.h>
 
-
-/// The resource item delegate for rendering the resource preview
 class KisGamutMaskDelegate: public QAbstractItemDelegate
 {
 public:
     KisGamutMaskDelegate(KisResourceMetaDataModel *metaDataModel, QObject * parent = 0) : QAbstractItemDelegate(parent)
-      , m_mode(KisGamutMaskChooser::ViewMode::THUMBNAIL) 
+      , m_mode(KisGamutMaskChooser::ViewMode::THUMBNAIL)
       , m_metaDataModel(metaDataModel)
     {
     }
     ~KisGamutMaskDelegate() override {}
 
-    /// reimplemented
     void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const override;
 
-    /// reimplemented
     QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex &) const override {
         return option.decorationSize;
     }
@@ -127,7 +123,6 @@ void KisGamutMaskDelegate::paint(QPainter * painter, const QStyleOptionViewItem 
         const int resourceId = index.data(Qt::UserRole + KisAbstractResourceModel::Id).toInt();
         const QString description = m_metaDataModel->metaDataValue(resourceId, descriptionKey).toString();
         if (!description.isEmpty() && !description.isNull()) {
-            // Font size may be in pixels (on Android) or points (everywhere else.)
             if (font.pixelSize() == -1) {
                 font.setPointSize(font.pointSize() - 1);
             } else {
@@ -161,8 +156,7 @@ void KisGamutMaskDelegate::paint(QPainter * painter, const QStyleOptionViewItem 
     painter->restore();
 }
 
-
-KisGamutMaskChooser::KisGamutMaskChooser(QWidget *parent) 
+KisGamutMaskChooser::KisGamutMaskChooser(QWidget *parent)
     : QWidget(parent)
 {
     m_delegate = new KisGamutMaskDelegate(KisResourceModelProvider::resourceMetadataModel(), this);
@@ -176,7 +170,6 @@ KisGamutMaskChooser::KisGamutMaskChooser(QWidget *parent)
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0,0,0,0);
 
-    // TODO: menu for view mode change
     QMenu* menu = new QMenu(this);
     menu->setStyleSheet("margin: 6px");
     menu->addSection(i18nc("@title Which elements to display (e.g., thumbnails or details)", "Display"));
@@ -198,7 +191,6 @@ KisGamutMaskChooser::KisGamutMaskChooser(QWidget *parent)
     action->setChecked(m_mode == KisGamutMaskChooser::DETAIL);
     action->setActionGroup(actionGroup);
 
-    // setting the view mode
     setViewMode(m_mode);
     m_itemChooser->showViewModeBtn(true);
     KisPopupButton* viewModeButton = m_itemChooser->viewModeButton();

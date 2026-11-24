@@ -27,4 +27,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISPAINTINGMODEOPTIONWIDGET_H
+#endif

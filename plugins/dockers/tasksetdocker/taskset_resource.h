@@ -4,14 +4,12 @@
  *  SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #ifndef TASKSET_RESOURCE_H
 #define TASKSET_RESOURCE_H
 
 #include <KoResource.h>
 #include <QStringList>
 #include <QVector>
-
 
 class TasksetResource : public KoResource
 {
@@ -37,11 +35,6 @@ public:
     void setActionList(const QStringList actions);
     QStringList actionList();
 
-    /**
-     * Krimble: one record per recorded step. Exactly one of `action`,
-     * `filterId`, or `operationId` is set; `configXml` carries the
-     * serialized parameters for the filter/operation cases.
-     */
     struct StepRecord {
         QString action;
         QString filterId;
@@ -61,4 +54,4 @@ private:
 
 typedef QSharedPointer<TasksetResource> TasksetResourceSP;
 
-#endif // TASKSET_RESOURCE_H
+#endif

@@ -25,13 +25,10 @@ public:
     virtual QModelIndex indexForTag(KisTagSP tag) const = 0;
     virtual KisTagSP tagForIndex(QModelIndex index = QModelIndex()) const = 0;
 
-    /// Retrieve a tag by url
     virtual KisTagSP tagForUrl(const QString& url) const = 0;
 
-    /// Add a new tag with a possibly empty list of resources to tag
     virtual KisTagSP addTag(const QString &tagName, const bool allowOverwrite, QVector<KoResourceSP> taggedResources)  = 0;
 
-    /// Add a tag, if it doesn't exist yet, with a possibly empty list of resources to tag
     virtual bool addTag(const KisTagSP tag, const bool allowOverwrite, QVector<KoResourceSP> taggedResources = QVector<KoResourceSP>()) = 0;
 
     virtual bool setTagActive(const KisTagSP tag) = 0;
@@ -39,7 +36,6 @@ public:
     virtual bool renameTag(const KisTagSP tag, const QString &newName, const bool allowOverwrite) = 0;
     virtual bool changeTagActive(const KisTagSP tag, bool active) = 0;
 };
-
 
 class KRITARESOURCES_EXPORT KisAllTagsModel
         : public QAbstractTableModel
@@ -59,8 +55,8 @@ public:
         KisTagRole,
     };
 
-    enum Ids { // to get actual id, you need to add s_fakeRowsCount
-        All = -2, // so it gets on top in the combobox
+    enum Ids {
+        All = -2,
         AllUntagged = -1,
     };
 
@@ -72,14 +68,11 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-// KisAllTagsModel API
-
     QModelIndex indexForTag(KisTagSP tag) const override;
     KisTagSP tagForIndex(QModelIndex index = QModelIndex()) const override;
 
     KisTagSP tagForUrl(const QString& tagUrl) const override;
 
-    // TODO: replace ALL occurrences of KoResourceSP here with the resource id's.
     KisTagSP addTag(const QString &tagName, const bool allowOverwrite, QVector<KoResourceSP> taggedResources) override;
     bool addTag(const KisTagSP tag, const bool allowOverwrite, QVector<KoResourceSP> taggedResources = QVector<KoResourceSP>()) override;
     bool setTagActive(const KisTagSP tag) override;
@@ -88,7 +81,6 @@ public:
     bool renameTag(const KisTagSP tag, const QString &newName, const bool allowOverwrite) override;
     bool changeTagActive(const KisTagSP tag, bool active) override;
 
-    // TODO: they can be static const variables, too, if it's better than functions
     static QString urlAll() { return "All"; }
     static QString urlAllUntagged() { return "All untagged"; }
 
@@ -145,9 +137,6 @@ public:
 
     void setStorageFilter(StorageFilter filter);
 
-
-    // KisAllTagsModel API
-
     QModelIndex indexForTag(KisTagSP tag) const override;
     KisTagSP tagForIndex(QModelIndex index = QModelIndex()) const override;
     KisTagSP addTag(const QString &tagName, const bool allowOverwrite, QVector<KoResourceSP> taggedResources) override;
@@ -168,7 +157,6 @@ private:
     friend class DlgDbExplorer;
     friend class TestTagModel;
 
-
     struct Private;
     Private *const d;
 
@@ -178,4 +166,4 @@ private:
 
 typedef QSharedPointer<KisAllTagsModel> KisAllTagsModelSP;
 
-#endif // KisAllTagsModel_H
+#endif

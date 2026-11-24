@@ -28,7 +28,6 @@ KisPaintopPresetIconLibrary::KisPaintopPresetIconLibrary(QWidget *parent): QWidg
     ui->sldLevels->setSingleStep(1.0);
     ui->sldLevels->setPrefix(i18n("Mid-gray level:"));
 
-
     m_baseModel = new QStandardItemModel();
     ui->vwBase->setModel(m_baseModel);
 
@@ -42,9 +41,6 @@ KisPaintopPresetIconLibrary::KisPaintopPresetIconLibrary(QWidget *parent): QWidg
     }
     ui->lblIconPreview->setPixmap(QPixmap::fromImage(m_background));
 
-
-    //empty default:
-
     QImage empty = QImage(200, 200, QImage::Format_ARGB32);
     empty.fill(Qt::transparent);
     m_baseModel->appendRow(new QStandardItem(QIcon(QPixmap::fromImage(empty)), NULL));
@@ -56,7 +52,6 @@ KisPaintopPresetIconLibrary::KisPaintopPresetIconLibrary(QWidget *parent): QWidg
         QStandardItem *image = new QStandardItem(QIcon(QPixmap::fromImage(pix)), NULL);
         m_baseModel->appendRow(image);
     }
-
 
     empty = QImage(40, 40, QImage::Format_ARGB32);
     empty.fill(Qt::transparent);
@@ -113,9 +108,6 @@ QImage KisPaintopPresetIconLibrary::getImage()
 
 QImage KisPaintopPresetIconLibrary::hueTransform(QImage img)
 {
-    //This is a super simple levels operation instead of a regular lightness adjustment.
-    //This is so that we can keep the contrasts in the icon instead of making it
-    //just darker or lighter.
     QVector<int> values(256);
     values.fill(255);
     int level = qMax(qMin( 28 + ( (int(ui->sldLevels->value()) + 50) * 2), 255), 0);
@@ -126,7 +118,6 @@ QImage KisPaintopPresetIconLibrary::hueTransform(QImage img)
         values[v] = qMax(qMin(int( (128.0 / qreal(255 - level)) *(v - level)+128.0), 255), 0);
     }
 
-    //This is very slow by Krita standards, but we cannot get hsv transforms, ad the image is only 200x200.
     for (int x = 0; x < img.width(); x++) {
         for (int y = 0; y < img.height(); y++) {
             QColor c = img.pixelColor(x, y);
@@ -146,5 +137,4 @@ void KisPaintopPresetIconLibrary::updateIcon()
 {
     ui->lblIconPreview->setPixmap(QPixmap::fromImage(getImage()));
 }
-
 

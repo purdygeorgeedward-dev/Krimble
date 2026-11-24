@@ -12,7 +12,6 @@
 
 #include "kis_types.h"
 
-
 namespace Ui {
 class KisDlgListPicker;
 }
@@ -45,4 +44,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_DLG_LIST_PICKER_H
+#endif

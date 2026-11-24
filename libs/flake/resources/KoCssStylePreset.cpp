@@ -89,7 +89,6 @@ KoSvgTextProperties KoCssStylePreset::properties(int ppi, bool removeKraProps) c
         props.removeProperty(KoSvgTextProperties::KraTextStyleResolution);
         props.removeProperty(KoSvgTextProperties::KraTextVersionId);
     }
-    // remove fill and stroke for now.
     props.removeProperty(KoSvgTextProperties::FillId);
     props.removeProperty(KoSvgTextProperties::StrokeId);
     props.removeProperty(KoSvgTextProperties::Opacity);
@@ -105,7 +104,6 @@ void KoCssStylePreset::setProperties(const KoSvgTextProperties &properties)
         return;
     d->properties = properties;
     QStringList fonts = d->properties.property(KoSvgTextProperties::FontFamiliesId).toStringList();
-    //TODO: Apparantly we cannot remove metadata, only set it to nothing...
     addMetaData(PRIMARY_FONT_FAMILY, fonts.value(0));
     setValid(true);
     setDirty(true);
@@ -164,22 +162,18 @@ KoShape* KoCssStylePreset::generateSampleShape() const
 
     bool removeParagraph = type == STYLE_TYPE_CHARACTER;
 
-    // Remove properties that cannot be edited.
     Q_FOREACH(KoSvgTextProperties::PropertyId p, modifiedProps.properties()) {
         if (KoSvgTextProperties::propertyIsBlockOnly(p) && removeParagraph) {
             modifiedProps.removeProperty(p);
         }
     }
-    // This one is added after removing, because otherwise, the type is removed...
     modifiedProps.setProperty(KoSvgTextProperties::KraTextStyleType, type);
     if (storedPPIResolution() > 0) {
         modifiedProps.setProperty(KoSvgTextProperties::KraTextStyleResolution, storedPPIResolution());
     } else {
         modifiedProps.removeProperty(KoSvgTextProperties::KraTextStyleResolution);
     }
-    // Always remove inline size, it is shape-specific.
     modifiedProps.removeProperty(KoSvgTextProperties::InlineSizeId);
-    // Remove fill and stroke for now as we have no widgets for them.
     modifiedProps.removeProperty(KoSvgTextProperties::FillId);
     modifiedProps.removeProperty(KoSvgTextProperties::StrokeId);
     modifiedProps.removeProperty(KoSvgTextProperties::PaintOrder);
@@ -189,11 +183,8 @@ KoShape* KoCssStylePreset::generateSampleShape() const
 
     sampleText->setPropertiesAtPos(-1, modifiedProps);
 
-
     if (type == STYLE_TYPE_PARAGRAPH) {
         const QSizeF sampleSize = d->paragraphSampleSize;
-        // For paragraph we'll add a shape, as those will allow wrapping,
-        // without being part of the properties like inline-size is.
         KoPathShape *inlineShape = new KoPathShape();
         inlineShape->moveTo(QPointF(0, 0));
         inlineShape->lineTo(QPointF(sampleSize.width(), 0));
@@ -206,11 +197,8 @@ KoShape* KoCssStylePreset::generateSampleShape() const
 
         return sampleText.release();
     } else {
-        /// For character the sample always needs to be set to be a child to
-        /// ensure that the character property doesn't include the default props.
         std::unique_ptr<KoSvgTextShape> newShape(new KoSvgTextShape());
         KoSvgTextProperties paraProps = KoSvgTextProperties::defaultProperties();
-        // Set whitespace rule to pre-wrap.
         paraProps.setProperty(KoSvgTextProperties::TextCollapseId, KoSvgText::Preserve);
         paraProps.setProperty(KoSvgTextProperties::TextWrapId, KoSvgText::Wrap);
         newShape->setPropertiesAtPos(-1, paraProps);
@@ -391,7 +379,6 @@ void KoCssStylePreset::setStoredPPIResolution(const int ppi)
     addMetaData(STORED_PPI, ppi);
 }
 
-
 KoResourceSP KoCssStylePreset::clone() const
 {
     return KoResourceSP(new KoCssStylePreset(*this));
@@ -419,7 +406,7 @@ bool KoCssStylePreset::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP re
 
     KoDocumentResourceManager manager;
     SvgParser parser(&manager);
-    parser.setResolution(QRectF(0,0,100,100), 72); // initialize with default values
+    parser.setResolution(QRectF(0,0,100,100), 72);
     parser.setResolveTextPropertiesForTopLevel(false);
     QSizeF fragmentSize;
 
@@ -465,7 +452,6 @@ bool KoCssStylePreset::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP re
             return true;
         }
     }
-
 
     return false;
 }
@@ -513,7 +499,6 @@ void KoCssStylePreset::updateThumbnail()
     painter.setShapes({shape.data()});
     painter.paint(img);
 
-    /// generate SVG sample.
     addMetaData(SAMPLE_SVG, generateSVG(shape.data()));
     updateAlignSample();
 

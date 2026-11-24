@@ -21,7 +21,6 @@ struct KisRollingMeanAccumulatorWrapper::Private {
     accumulator_set<qreal, stats<tag::lazy_rolling_mean> > accumulator;
 };
 
-
 KisRollingMeanAccumulatorWrapper::KisRollingMeanAccumulatorWrapper(int windowSize)
     : m_d(new Private(windowSize))
 {

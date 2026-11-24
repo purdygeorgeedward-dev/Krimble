@@ -40,123 +40,94 @@
 
 #include "psd_header.h"
 
-// additional layer information
-
-// LEVELS
-// Level record
 struct KRITAPSD_EXPORT psd_layer_level_record {
-    quint16 input_floor {0}; // (0...253)
-    quint16 input_ceiling {2}; // (2...255)
-    quint16 output_floor {0}; // 255). Matched to input floor.
-    quint16 output_ceiling {0}; // (0...255)
-    float gamma {0.0}; // Short integer from 10...999 representing 0.1...9.99. Applied to all image data.
+    quint16 input_floor {0};
+    quint16 input_ceiling {2};
+    quint16 output_floor {0};
+    quint16 output_ceiling {0};
+    float gamma {0.0};
 };
 
-// Levels settings files are loaded and saved in the Levels dialog.
 struct KRITAPSD_EXPORT psd_layer_levels {
-    psd_layer_level_record record[29]; // 29 sets of level records, each level containing 5 qint8 integers
-    // PS CS (8.0) Additional information
-    // At the end of the Version 2 file is the following information:
-    quint16 extra_level_count {0}; // Count of total level record structures. Subtract the legacy number of level record structures, 29, to determine how many are
-                               // remaining in the file for reading.
-    psd_layer_level_record *extra_record {nullptr}; // Additional level records according to count
+    psd_layer_level_record record[29];
+    quint16 extra_level_count {0};
+    psd_layer_level_record *extra_record {nullptr};
     quint8 lookup_table[3][256];
 };
 
-// CURVES
-// The following is the data for each curve specified by count above
 struct KRITAPSD_EXPORT psd_layer_curves_data {
-    quint16 channel_index {0}; // Before each curve is a channel index.
-    quint16 point_count {0}; // Count of points in the curve (qint8 integer from 2...19)
-    quint16 output_value[19]; // All coordinates have range 0 to 255
+    quint16 channel_index {0};
+    quint16 point_count {0};
+    quint16 output_value[19];
     quint16 input_value[19];
 };
 
-// Curves file format
 struct KRITAPSD_EXPORT psd_layer_curves {
-    quint16 curve_count {0}; // Count of curves in the file.
+    quint16 curve_count {0};
     psd_layer_curves_data *curve {nullptr};
     quint8 lookup_table[3][256];
 };
 
-// BRIGHTNESS AND CONTRAST
 struct KRITAPSD_EXPORT psd_layer_brightness_contrast {
     qint8 brightness {0};
     qint8 contrast {0};
-    qint8 mean_value {0}; // for brightness and contrast
+    qint8 mean_value {0};
     qint8 Lab_color {0};
     quint8 lookup_table[256];
 };
 
-// COLOR BALANCE
 struct KRITAPSD_EXPORT psd_layer_color_balance {
-    qint8 cyan_red[3]; // (-100...100). shadows, midtones, highlights
+    qint8 cyan_red[3];
     qint8 magenta_green[3];
     qint8 yellow_blue[3];
     bool preserve_luminosity {false};
     quint8 lookup_table[3][256];
 };
 
-// HUE/SATURATION
-// Hue/Saturation settings files are loaded and saved in PS¡¯s Hue/Saturation dialog
 struct KRITAPSD_EXPORT psd_layer_hue_saturation {
-    quint8 hue_or_colorization {0}; // 0 = Use settings for hue-adjustment; 1 = Use settings for colorization.
-    qint8 colorization_hue {0}; // PS 5.0: The actual values are stored for the new version. Hue is - 180...180, Saturation is 0...100, and Lightness is
-                            // -100...100.
-    qint8 colorization_saturation {0}; // PS 4.0: Three qint8 integers Hue, Saturation, and Lightness from ¨C100...100.
-    qint8 colorization_lightness {0}; // The user interface represents hue as ¨C180...180, saturation as 0...100, and Lightness as -100...1000, as the traditional
-                                  // HSB color wheel, with red = 0.
-    qint8 master_hue {0}; // Master hue, saturation and lightness values.
+    quint8 hue_or_colorization {0};
+    qint8 colorization_hue {0};
+    qint8 colorization_saturation {0};
+    qint8 colorization_lightness {0};
+    qint8 master_hue {0};
     qint8 master_saturation {0};
     qint8 master_lightness {0};
-    qint8 range_values[6][4]; // For RGB and CMYK, those values apply to each of the six hextants in the HSB color wheel: those image pixels nearest to red,
-                              // yellow, green, cyan, blue, or magenta. These numbers appear in the user interface from ¨C60...60, however the slider will
-                              // reflect each of the possible 201 values from ¨C100...100.
-    qint8 setting_values[6][3]; // For Lab, the first four of the six values are applied to image pixels in the four Lab color quadrants, yellow, green, blue,
-                                // and magenta. The other two values are ignored ( = 0). The values appear in the user interface from ¨C90 to 90.
+    qint8 range_values[6][4];
+    qint8 setting_values[6][3];
     quint8 lookup_table[6][360];
 };
 
-// SELECTIVE COLOR
-// Selective Color settings files are loaded and saved in PS¡¯s Selective Color dialog.
 struct KRITAPSD_EXPORT psd_layer_selective_color {
-    quint16 correction_method {0}; // 0 = Apply color correction in relative mode; 1 = Apply color correction in absolute mode.
-    qint8 cyan_correction[10]; // Amount of cyan correction. Short integer from ¨C100...100.
-    qint8 magenta_correction[10]; // Amount of magenta correction. Short integer from ¨C100...100.
-    qint8 yellow_correction[10]; // Amount of yellow correction. Short integer from ¨C100...100.
-    qint8 black_correction[10]; // Amount of black correction. Short integer from ¨C100...100.
+    quint16 correction_method {0};
+    qint8 cyan_correction[10];
+    qint8 magenta_correction[10];
+    qint8 yellow_correction[10];
+    qint8 black_correction[10];
 };
 
-// THRESHOLD
 struct KRITAPSD_EXPORT psd_layer_threshold {
-    quint16 level {1}; // (1...255)
+    quint16 level {1};
 };
 
-// INVERT
-// no parameter
-
-// POSTERIZE
 struct KRITAPSD_EXPORT psd_layer_posterize {
-    quint16 levels {2}; // (2...255)
+    quint16 levels {2};
     quint8 lookup_table[256];
 };
 
-// CHANNEL MIXER
 struct KRITAPSD_EXPORT psd_layer_channel_mixer {
     bool monochrome {false};
-    qint8 red_cyan[4]; // RGB or CMYK color plus constant for the mixer settings. 4 * 2 bytes of color with 2 bytes of constant.
-    qint8 green_magenta[4]; // (-200...200)
+    qint8 red_cyan[4];
+    qint8 green_magenta[4];
     qint8 blue_yellow[4];
     qint8 black[4];
     qint8 constant[4];
 };
 
-// PHOTO FILTER
 struct KRITAPSD_EXPORT psd_layer_photo_filter {
-    qint32 x_color {0}; // 4 bytes each for XYZ color
+    qint32 x_color {0};
     qint32 y_color {0};
     qint32 z_color {0};
-    qint32 density {0}; // (1...100)
+    qint32 density {0};
     bool preserve_luminosity {true};
 };
 
@@ -167,18 +138,12 @@ struct KRITAPSD_EXPORT psd_layer_solid_color {
     KoColor fill_color;
     const KoColorSpace *cs {nullptr};
 
-    // Used by ASL callback;
     void setColor(const KoColor &color) {
         fill_color = color;
         if (fill_color.colorSpace()->colorModelId() == cs->colorModelId()) {
             fill_color.setProfile(cs->profile());
         }
 
-        /**
-         * PSD files may be saved with a stripped profile that is not suitable for
-         * displaying, so we should convert such colors into some "universal" color
-         * space, so that we could actually manage it
-         */
         if (fill_color.profile() && !fill_color.profile()->isSuitableForOutput()) {
             fill_color.convertTo(KoColorSpaceRegistry::instance()->
                                  colorSpace(LABAColorModelID.id(), Float32BitsColorDepthID.id(), 0));
@@ -199,7 +164,7 @@ struct KRITAPSD_EXPORT psd_layer_solid_color {
         doc.setContent(cfg->toXML());
         return doc;
     }
-    
+
     bool loadFromConfig(KisFilterConfigurationSP cfg) {
         if (cfg->name() != "color") {
             return false;
@@ -207,7 +172,7 @@ struct KRITAPSD_EXPORT psd_layer_solid_color {
         fill_color = cfg->getColor("color");
         return true;
     }
-    
+
     QDomDocument getASLXML() {
         KisAslXmlWriter w;
         w.enterDescriptor("", "", "null");
@@ -241,15 +206,14 @@ struct KRITAPSD_EXPORT psd_layer_gradient_fill {
     QString style {QString("linear")};
     QString repeat {QString("none")};
     double scale {100.0};
-    bool reverse {false}; // Is gradient reverse
-    bool dithered {false}; // Is gradient dithered
+    bool reverse {false};
+    bool dithered {false};
     bool align_with_layer {false};
     QPointF offset;
     QDomDocument gradient;
-    int imageWidth {1}; // Set when loading.
+    int imageWidth {1};
     int imageHeight {1};
 
-    // Used by ASL callback;
     void setGradient(const KoAbstractGradientSP &newGradient) {
         QDomDocument document;
         QDomElement gradientElement = document.createElement("gradient");
@@ -291,7 +255,7 @@ struct KRITAPSD_EXPORT psd_layer_gradient_fill {
             style = "bilinear";
             repeat ="alternate";
         } else {
-            style = "square"; // diamond???
+            style = "square";
         }
     }
 
@@ -334,7 +298,6 @@ struct KRITAPSD_EXPORT psd_layer_gradient_fill {
         cfg->setProperty("start_position_x_units", "percent_of_width");
         cfg->setProperty("start_position_y_units", "percent_of_height");
 
-        // angle seems to go from -180 to +180;
         double fixedAngle = fmod(360.0 + angle, 360.0);
 
         double scaleModifier = 1.0;
@@ -361,8 +324,6 @@ struct KRITAPSD_EXPORT psd_layer_gradient_fill {
         cfg->setProperty("end_position_angle", fixedAngle);
 
         if (style == "linear") {
-            // linear has the problem that in Krita it rotates around the top-left,
-            // while in psd it rotates around the middle.
             QPointF center(imageWidth*0.5, imageHeight*0.5);
 
             QTransform rotate;
@@ -395,7 +356,7 @@ struct KRITAPSD_EXPORT psd_layer_gradient_fill {
         bool res = bool(gradient.setContent(cfg->getString("gradient", "")));
         dithered = cfg->getBool("dither");
         reverse = cfg->getBool("reverse");
-        align_with_layer = false; // not supported.
+        align_with_layer = false;
 
         style = cfg->getString("shape", "linear");
         repeat = cfg->getString("repeat", "none");
@@ -407,15 +368,12 @@ struct KRITAPSD_EXPORT psd_layer_gradient_fill {
             angle = cfg->getDouble("end_position_angle", 0.0);
             scale = cfg->getDouble("end_position_distance", 100.0);
         } else {
-            // assume cartesian
             QPointF end(cfg->getDouble("end_position_x", 1.0), cfg->getDouble("end_position_y", 1.0));
-            // calculate angle and scale.
             double width  = start.x() - end.x();
             double height = start.y() - end.y();
             angle = fmod(360.0 + kisRadiansToDegrees(atan2(width, height)), 360.0);
             scale = sqrt((width*width) + (height*height));
         }
-
 
         if (style == "linear") {
             QPointF center(imageWidth*0.5, imageHeight*0.5);
@@ -461,7 +419,6 @@ struct KRITAPSD_EXPORT psd_layer_gradient_fill {
         }
 
         scale /= fabs(scaleModifier);
-
 
         return res;
     }
@@ -641,7 +598,7 @@ struct KRITAPSD_EXPORT psd_layer_pattern_fill {
     QString patternID;
     KoPatternSP pattern;
     bool align_with_layer {false};
-    
+
     void setAngle(float Angl) {
         angle = Angl;
     }
@@ -668,16 +625,15 @@ struct KRITAPSD_EXPORT psd_layer_pattern_fill {
         catcher.subscribePoint(path + "/phase", std::bind(&psd_layer_pattern_fill::setOffset, data, std::placeholders::_1));
         catcher.subscribePatternRef(path + "/Ptrn", std::bind(&psd_layer_pattern_fill::setPatternRef, data, std::placeholders::_1, std::placeholders::_2));
     }
-    
+
     QDomDocument getFillLayerConfig() const {
         KisFilterConfigurationSP cfg;
         cfg = KisGeneratorRegistry::instance()->value("pattern")->defaultConfiguration(KisGlobalResourcesInterface::instance());
 
         cfg->setProperty("pattern", patternName);
         cfg->setProperty("fileName", QString(patternID + ".pat"));
-        cfg->setProperty("md5", ""); // Zero out MD5, PSD patterns are looked up by UUID in filename
+        cfg->setProperty("md5", "");
 
-        //angle is flipped for patterns in Krita.
         double fixedAngle = 360.0 - fmod(360.0 + angle, 360.0);
 
         cfg->setProperty("transform_scale_x", scale / 100);
@@ -704,8 +660,6 @@ struct KRITAPSD_EXPORT psd_layer_pattern_fill {
         pattern = res.resource<KoPattern>();
 
         patternName = cfg->getString("pattern", "");
-
-        // Pattern ID needs the pattern to be saved first.
 
         align_with_layer = false;
 
@@ -738,14 +692,11 @@ struct KRITAPSD_EXPORT psd_layer_pattern_fill {
     }
 
     void writeASL(KisAslXmlWriter &w) {
-        // pattern ref
         w.enterDescriptor("Ptrn", "", "Ptrn");
 
         w.writeText("Nm  ", patternName);
         w.writeText("Idnt", patternID);
         w.leaveDescriptor();
-
-        // end
 
         w.writeBoolean("Algn", align_with_layer);
         w.writeUnitFloat("Scl ", "#Prc", scale);
@@ -797,61 +748,61 @@ struct KRITAPSD_EXPORT psd_layer_pattern_fill {
 };
 
 struct KRITAPSD_EXPORT psd_layer_type_face {
-    qint8 mark {0}; // Mark value
-    qint32 font_type {0}; // Font type data
-    qint8 font_name[256]; // Pascal string of font name
-    qint8 font_family_name[256]; // Pascal string of font family name
-    qint8 font_style_name[256]; // Pascal string of font style name
-    qint8 script {0}; // Script value
-    qint32 number_axes_vector {0}; // Number of design axes vector to follow
-    qint32 *vector {nullptr}; // Design vector value
+    qint8 mark {0};
+    qint32 font_type {0};
+    qint8 font_name[256];
+    qint8 font_family_name[256];
+    qint8 font_style_name[256];
+    qint8 script {0};
+    qint32 number_axes_vector {0};
+    qint32 *vector {nullptr};
 };
 
 struct KRITAPSD_EXPORT psd_layer_type_style {
-    qint8 mark {0}; // Mark value
-    qint8 face_mark {0}; // Face mark value
-    qint32 size {0}; // Size value
-    qint32 tracking {0}; // Tracking value
-    qint32 kerning {0}; // Kerning value
-    qint32 leading {0}; // Leading value
-    qint32 base_shift {0}; // Base shift value
-    bool auto_kern {false}; // Auto kern on/off
-    bool rotate {false}; // Rotate up/down
+    qint8 mark {0};
+    qint8 face_mark {0};
+    qint32 size {0};
+    qint32 tracking {0};
+    qint32 kerning {0};
+    qint32 leading {0};
+    qint32 base_shift {0};
+    bool auto_kern {false};
+    bool rotate {false};
 };
 
 struct KRITAPSD_EXPORT psd_layer_type_line {
-    qint32 char_count {0}; // Character count value
-    qint8 orientation {0}; // Orientation value
-    qint8 alignment {0}; // Alignment value
-    qint8 actual_char {0}; // Actual character as a double byte character
-    qint8 style {0}; // Style value
+    qint32 char_count {0};
+    qint8 orientation {0};
+    qint8 alignment {0};
+    qint8 actual_char {0};
+    qint8 style {0};
 };
 
 struct KRITAPSD_EXPORT psd_layer_type_tool {
-    double transform_info[6]; // 6 * 8 double precision numbers for the transform information
-    qint8 faces_count {0}; // Count of faces
+    double transform_info[6];
+    qint8 faces_count {0};
     psd_layer_type_face *face {nullptr};
-    qint8 styles_count {0}; // Count of styles
+    qint8 styles_count {0};
     psd_layer_type_style *style {nullptr};
-    qint8 type {0}; // Type value
-    qint32 scaling_factor {0}; // Scaling factor value
-    qint32 character_count {0}; // Character count value
-    qint32 horz_place {0}; // Horizontal placement
-    qint32 vert_place {0}; // Vertical placement
-    qint32 select_start {0}; // Select start value
-    qint32 select_end {0}; // Select end value
-    qint8 lines_count {0}; // Line count
+    qint8 type {0};
+    qint32 scaling_factor {0};
+    qint32 character_count {0};
+    qint32 horz_place {0};
+    qint32 vert_place {0};
+    qint32 select_start {0};
+    qint32 select_end {0};
+    qint8 lines_count {0};
     psd_layer_type_line *line {nullptr};
     QColor color;
-    bool anti_alias {false}; // Anti alias on/off
+    bool anti_alias {false};
 };
 
 struct KRITAPSD_EXPORT psd_layer_type_shape {
     QTransform transform;
 
     QVariantHash engineData;
-    QRectF bounds; // bounding box of the text in pixels, relative to first baseline, absent in point text.
-    QRectF boundingBox; //no clue, maybe relative to topleft of first glyph(?), same size as bounds, absent in point text.
+    QRectF bounds;
+    QRectF boundingBox;
     int textIndex;
     QString text;
     bool isHorizontal {true};
@@ -888,13 +839,11 @@ struct KRITAPSD_EXPORT psd_layer_type_shape {
         catcher.subscribeRawData(path + "/TxLr/EngineData", std::bind(&psd_layer_type_shape::setEngineData, data, std::placeholders::_1));
         catcher.subscribeEnum(path + "/TxLr/Ornt", "Ornt", std::bind(&psd_layer_type_shape::setWritingMode, data, std::placeholders::_1));
 
-        // Older psd use Pnt as the unit, even though its pixel.
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Left", "#Pnt", std::bind(&psd_layer_type_shape::setLeft, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Top ", "#Pnt", std::bind(&psd_layer_type_shape::setTop, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Rght", "#Pnt", std::bind(&psd_layer_type_shape::setRight, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Btom", "#Pnt", std::bind(&psd_layer_type_shape::setBottom, data, std::placeholders::_1));
 
-        // Newer PS files use pxl as the unit, which is correct...
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Left", "#Pxl", std::bind(&psd_layer_type_shape::setLeft, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Top ", "#Pxl", std::bind(&psd_layer_type_shape::setTop, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Rght", "#Pxl", std::bind(&psd_layer_type_shape::setRight, data, std::placeholders::_1));
@@ -986,7 +935,7 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
 
     bool strokeEnabled {false};
     bool fillEnabled {true};
-    
+
     QPen pen;
     bool gradient{false};
 
@@ -994,16 +943,16 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
     bool strokeAdjust {false};
 
     QVector<double> dashPattern;
-    
+
     double opacity {1.0};
-    
+
     double resolution {72.0};
     bool pixelWidth {false};
 
     void setVersion(int version) {
         strokeVersion = version;
     }
-    
+
     void setStrokeEnabled(bool enabled) {
         strokeEnabled = enabled;
     }
@@ -1053,8 +1002,6 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
     }
 
     void appendToDashPattern(double val) {
-        // QPen doesn't like 0 in the dash pattern,
-        // even though it's necessary for some styles
         dashPattern.append(qMax(val, 1e-6));
     }
     void setOpacityFromPercentage(double o) {
@@ -1077,7 +1024,6 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
         catcher.subscribeBoolean(path + "/strokeStyle/fillEnabled", std::bind(&psd_vector_stroke_data::setFillEnabled, data, std::placeholders::_1));
 
         catcher.subscribeUnitFloat(path + "/strokeStyle/strokeStyleLineWidth", "#Pxl", std::bind(&psd_vector_stroke_data::setStrokeWidth, data, std::placeholders::_1));
-        //catcher.subscribeUnitFloat(path + "/strokeStyle/strokeStyleLineWidth", "#Pnt", std::bind(&psd_vector_stroke_data::setStrokePixel, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/strokeStyle/strokeStyleLineDashOffset", "#Pnt", std::bind(&psd_vector_stroke_data::setStrokeDashOffset, data, std::placeholders::_1));
         catcher.subscribeDouble(path + "/strokeStyle/strokeStyleMiterLimit", std::bind(&psd_vector_stroke_data::setStrokeMiterLimit, data, std::placeholders::_1));
 
@@ -1092,19 +1038,19 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
         catcher.subscribeUnitFloat(path + "/strokeStyle/strokeStyleOpacity", "#Prc", std::bind(&psd_vector_stroke_data::setOpacityFromPercentage, data, std::placeholders::_1));
         catcher.subscribeDouble(path + "/strokeStyle/strokeStyleResolution", std::bind(&psd_vector_stroke_data::setResolution, data, std::placeholders::_1));
     }
-    
+
     QDomDocument getASLXML() {
         KisAslXmlWriter w;
         w.enterDescriptor("", "", "strokeStyle");
-        
+
         w.writeInteger("strokeStyleVersion", 2);
         w.writeBoolean("strokeEnabled", strokeEnabled);
         w.writeBoolean("fillEnabled", fillEnabled);
-        
+
         w.writeUnitFloat("strokeStyleLineWidth", "#Pxl", pen.widthF() * (resolution / 72.0));
         w.writeUnitFloat("strokeStyleLineDashOffset ", "#Pnt", pen.dashOffset());
         w.writeDouble("strokeStyleMiterLimit", pen.miterLimit());
-        
+
         QString linecap = "strokeStyleButtCap";
         if (pen.capStyle() == Qt::SquareCap) {
             linecap = "strokeStyleSquareCap";
@@ -1119,13 +1065,12 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
         }
         w.writeEnum("strokeStyleLineCapType", "strokeStyleLineCapType", linecap);
         w.writeEnum("strokeStyleLineJoinType", "strokeStyleLineJoinType", linejoin);
-        
-        // Other values are "strokeStyleAlignInside" and "strokeStyleAlignOutside" but we don't support these.
+
         w.writeEnum("strokeStyleLineAlignment", "strokeStyleLineAlignment", "strokeStyleAlignCenter");
-        
+
         w.writeBoolean("strokeStyleScaleLock", false);
         w.writeBoolean("strokeStyleStrokeAdjust", false);
-        
+
         w.enterList("strokeStyleLineDashSet");
         Q_FOREACH(const double val, dashPattern) {
             if (val <= 1e-6) {
@@ -1135,12 +1080,10 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
             }
         }
         w.leaveList();
-        
+
         w.writeEnum("strokeStyleBlendMode", "BlnM", "Nrml");
         w.writeUnitFloat("strokeStyleOpacity ", "#Prc", opacity * 100.0);
-        
-        // Color Descriptor
-        // Missing is "patternLayer"
+
         if (gradient) {
             w.enterDescriptor("strokeStyleContent", "", "gradientLayer");
             psd_layer_gradient_fill fill;
@@ -1157,7 +1100,7 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
             fill.writeASL(w);
             w.leaveDescriptor();
         }
-        
+
         w.writeDouble("strokeStyleResolution", resolution);
 
         w.leaveDescriptor();
@@ -1188,7 +1131,7 @@ struct KRITAPSD_EXPORT psd_vector_stroke_data {
 };
 
 struct psd_vector_origination_data {
-    int originType = -1; ///< 1 = rect, 2 = rounded rect?, 3 = ? 4 = ? 5 = ellipse, 6 = ?, 7 = polygon, 8 = star, 9 = premade path shape.
+    int originType = -1;
 
     const QMap<int, QString> typeToName {
         {1, "RectangleShape"},
@@ -1197,18 +1140,18 @@ struct psd_vector_origination_data {
         {8, "StarShape"},
     };
 
-    QRectF originShapeBBox; ///< pre-transform bbox.
-    double originResolution = 72.0; ///< Resolution of the coordinates.
+    QRectF originShapeBBox;
+    double originResolution = 72.0;
     QTransform transform;
-    int originIndex = 0; // unknown, always 0.
+    int originIndex = 0;
 
-    QPolygonF originBoxCorners; ///< post-transform bbox as a polygon, seen on 1, 7, 8 and 9.
-    int originPolySides = 0; ///< Only for 7 and 8.
-    double originPolyStarRatio = 100.0; ///< Only for 8, percentage of small radius to big radius.
+    QPolygonF originBoxCorners;
+    int originPolySides = 0;
+    double originPolyStarRatio = 100.0;
     bool isStar = false;
-    double originPolyPixelHSF = 1.0; ///< Only 7 and 8, no clue.
-    QPolygonF originPolyPreviousTightBoxCorners; ///< Only 7 an 8, same as originBoxCorners.
-    QPolygonF originPolyTrueRectCorners;///< Only 7 an 8, same as originBoxCorners.
+    double originPolyPixelHSF = 1.0;
+    QPolygonF originPolyPreviousTightBoxCorners;
+    QPolygonF originPolyTrueRectCorners;
 
     void setOriginType(int type) {
         originType = type;
@@ -1310,8 +1253,6 @@ struct psd_vector_origination_data {
         return w.document();
     }
 
-
-
     QString shapeName () {
         return typeToName.value(originType, QString());
     }
@@ -1321,13 +1262,6 @@ struct psd_vector_origination_data {
         return p;
     }
 
-    /**
-     * For some reason, instead of putting the whole transformation into the
-     * transform, PSD instead creates a list points that represents the transformed
-     * bounding box. To get the original width and height and angle,
-     * one must first untransform this polygon and use it to determine the appropriate
-     * values.
-     */
     void OriginalSizeAndAngle(QSizeF &size, double &angle) {
         size = originShapeBBox.size();
         angle = QLineF(originShapeBBox.topLeft(), originShapeBBox.topRight()).angle();
@@ -1341,11 +1275,6 @@ struct psd_vector_origination_data {
     }
 };
 
-/**
- * @brief The PsdAdditionalLayerInfoBlock class implements the Additional Layer Information block
- *
- * See: https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_71546
- */
 class KRITAPSD_EXPORT PsdAdditionalLayerInfoBlock
 {
 public:
@@ -1377,7 +1306,7 @@ public:
 
     const PSDHeader &m_header;
     QString error;
-    QStringList keys; // List of all the keys that we've seen
+    QStringList keys;
 
     QString unicodeLayerName;
     QDomDocument layerStyleXml;
@@ -1385,7 +1314,7 @@ public:
     QVector<QDomDocument> embeddedPatterns;
     QVariantHash txt2Data;
 
-    quint16 labelColor{0}; // layer color.
+    quint16 labelColor{0};
 
     QDomDocument fillConfig;
     psd_fill_type fillType {psd_fill_solid_color};
@@ -1442,4 +1371,4 @@ private:
     UserMaskInfoBlockHandler m_userMaskBlockHandler;
 };
 
-#endif // PSD_ADDITIONAL_LAYER_INFO_BLOCK_H
+#endif

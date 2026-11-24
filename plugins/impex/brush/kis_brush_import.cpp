@@ -41,8 +41,7 @@ KisBrushImport::~KisBrushImport()
 {
 }
 
-
-KisImportExportErrorCode KisBrushImport::convert(KisDocument *document, QIODevice *io, KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisBrushImport::convert(KisDocument *document, QIODevice *io, KisPropertiesConfigurationSP )
 {
     QSharedPointer<KisColorfulBrush> brush;
 

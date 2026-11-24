@@ -45,7 +45,6 @@ KoPointerEvent* KisScratchPadEventFilter::createTabletEvent(QEvent *event)
     return new KoPointerEvent(tabletEvent, m_widgetToDocument.map(pos));
 }
 
-
 bool KisScratchPadEventFilter::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);

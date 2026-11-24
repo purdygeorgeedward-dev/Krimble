@@ -17,7 +17,6 @@
 #include <KisSmudgeLengthOptionModel.h>
 #include <KisWidgetConnectionUtils.h>
 
-
 struct KisSmudgeLengthOptionWidget::Private
 {
     Private(lager::cursor<KisSmudgeLengthOptionData> optionData,

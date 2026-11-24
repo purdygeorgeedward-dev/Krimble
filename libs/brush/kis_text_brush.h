@@ -15,7 +15,6 @@
 
 class KisTextBrushesPipe;
 
-
 class BRUSH_EXPORT KisTextBrush : public KisScalingSizeBrush
 {
 

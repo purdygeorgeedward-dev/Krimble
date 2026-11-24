@@ -18,10 +18,6 @@
 class KisCanvasResourceProvider;
 class KoColor;
 
-
-/**
- * @brief The KisToolLazyBrushOptionsWidget class
- */
 class KisToolLazyBrushOptionsWidget : public QWidget
 {
     Q_OBJECT
@@ -49,21 +45,20 @@ private Q_SLOTS:
     void slotCleanUpChanged(int value);
     void slotLimitToDeviceChanged(bool value);
 
-
     void slotUpdateNodeProperties();
 
 protected:
     void showEvent(QShowEvent *event) override;
     void hideEvent(QHideEvent *event) override;
 
-private /* methods */:
+private :
     static bool sortSwatchInfo(const KisSwatchGroup::SwatchInfo &first, const KisSwatchGroup::SwatchInfo &second);
 
-private /* member variables */:
+private :
     friend struct PaletteEventFilter;
 
     struct Private;
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_TOOL_LAZY_BRUSH_OPTIONS_WIDGET_H */
+#endif

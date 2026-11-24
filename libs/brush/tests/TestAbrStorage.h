@@ -8,7 +8,6 @@
 #ifndef TESTABRSTORAGE_H
 #define TESTABRSTORAGE_H
 
-
 #include <QObject>
 
 class TestAbrStorage : public QObject
@@ -22,4 +21,4 @@ private Q_SLOTS:
     void testResource();
 };
 
-#endif // TESTABRSTORAGE_H
+#endif

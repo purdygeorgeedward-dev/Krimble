@@ -31,7 +31,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(BugInfoFactory, "kritabuginfo.json", registerPlugin<BugInfo>();)
 
-
 BugInfo::BugInfo(QObject *parent, const QVariantList &)
         : KisActionPlugin(parent)
 {
@@ -55,7 +54,6 @@ BugInfo::BugInfo(QObject *parent, const QVariantList &)
     connect(actionCrashLog, SIGNAL(triggered()), this, SLOT(slotCrashLog()));
 #endif
 }
-
 
 BugInfo::~BugInfo()
 {

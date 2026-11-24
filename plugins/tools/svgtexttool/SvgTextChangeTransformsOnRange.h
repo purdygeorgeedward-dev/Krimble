@@ -10,7 +10,6 @@
 #include <KoSvgTextShape.h>
 #include "kritatoolsvgtext_export.h"
 
-
 class KRITATOOLSVGTEXT_EXPORT SvgTextChangeTransformsOnRange : public KUndo2Command
 {
 public:
@@ -30,10 +29,6 @@ public:
     int id() const override;
     bool mergeWith(const KUndo2Command *other) override;
 
-    /**
-     * @brief getTransformForOffset
-     * Function to get the expected transform, so we can test this command better.
-     */
     static QTransform getTransformForOffset(KoSvgTextShape *shape, int startPos, int endPos, QPointF delta, OffsetType type);
 private:
     KoSvgTextShape *m_textShape = nullptr;
@@ -45,4 +40,4 @@ private:
     KoSvgTextShapeMementoSP m_textData;
 };
 
-#endif // SVGTEXTCHANGETRANSFORMSONRANGE_H
+#endif

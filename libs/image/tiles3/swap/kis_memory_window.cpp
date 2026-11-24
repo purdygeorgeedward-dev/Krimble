@@ -17,10 +17,6 @@ KisMemoryWindow::KisMemoryWindow(const QString &swapDir, quint64 writeWindowSize
 {
     m_valid = true;
 
-    // swapDir will never be empty, as KisImageConfig::swapDir() always provides
-    // us with a (platform specific) default directory, even if none is explicitly
-    // configured by the user; also we do not want any logic that determines the
-    // default swap dir here.
     KIS_SAFE_ASSERT_RECOVER_NOOP(!swapDir.isEmpty());
 
     QDir d(swapDir);
@@ -88,20 +84,9 @@ bool KisMemoryWindow::adjustWindow(const KisChunkData &requestedChunk,
         adjustingWindow->chunk.setChunk(requestedChunk.m_begin, windowSize);
 
         if(adjustingWindow->chunk.m_end >= (quint64)m_file.size()) {
-            // Align by 32 bytes
             quint64 newSize = (adjustingWindow->chunk.m_end + 1 + 32) & (~31ULL);
 
 #ifdef Q_OS_WIN32
-            /**
-             * Workaround for Qt's "feature"
-             *
-             * On windows QFSEnginePrivate caches the value of
-             * mapHandle which is limited to the size of the file at
-             * the moment of its (handle's) creation. That is we will
-             * not be able to use it after resizing the file.  The
-             * only way to free the handle is to release all the
-             * mappings we have. Sad but true.
-             */
             if (otherWindow->chunk.size()) {
                 m_file.unmap(otherWindow->window);
             }
@@ -122,7 +107,6 @@ bool KisMemoryWindow::adjustWindow(const KisChunkData &requestedChunk,
         }
 
 #ifdef Q_OS_UNIX
-        // A workaround for https://bugreports.qt-project.org/browse/QTBUG-6330
         m_file.exists();
 #endif
 

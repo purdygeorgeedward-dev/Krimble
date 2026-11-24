@@ -19,17 +19,12 @@
 
 class KisPaletteView;
 
-/**
- * @brief The KisPaletteComboBox class
- * A combobox used with KisPaletteView
- *
- */
 class KRITAWIDGETS_EXPORT KisPaletteComboBox : public KisSqueezedComboBox
 {
     Q_OBJECT
 private:
 
-    typedef QPair<int, int> SwatchPosType; // first is column #, second is row #
+    typedef QPair<int, int> SwatchPosType;
     typedef QHash<SwatchPosType, int> PosIdxMapType;
 
 public:
@@ -61,4 +56,4 @@ private:
     QVector<KisSwatch> m_idxSwatchMap;
 };
 
-#endif // KISPALETTECOMBOBOX_H
+#endif

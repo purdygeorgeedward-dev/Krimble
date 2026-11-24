@@ -8,7 +8,6 @@
 
 #include <KoColorSpace.h>
 
-// --- KoCopyColorConversionTransformation ---
 KoCopyColorConversionTransformation::KoCopyColorConversionTransformation(const KoColorSpace* cs)
         : KoColorConversionTransformation(cs, cs, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags())
 {
@@ -18,7 +17,6 @@ void KoCopyColorConversionTransformation::transform(const quint8 *srcU8, quint8 
     memcpy(dstU8, srcU8, nPixels * srcColorSpace()->pixelSize());
 }
 
-// --- KoCopyColorConversionTransformationFactory ---
 KoCopyColorConversionTransformationFactory::KoCopyColorConversionTransformationFactory(const QString& _colorModelId, const QString& _depthId, const QString& _profileName) : KoColorConversionTransformationFactory(_colorModelId, _depthId, _profileName, _colorModelId, _depthId, _profileName)
 {}
 KoColorConversionTransformation* KoCopyColorConversionTransformationFactory::createColorTransformation(const KoColorSpace* srcColorSpace, const KoColorSpace* dstColorSpace, KoColorConversionTransformation::Intent renderingIntent, KoColorConversionTransformation::ConversionFlags conversionFlags) const

@@ -11,14 +11,12 @@
 #include <QTransform>
 #include "KoPointerEvent.h"
 
-
 struct KisTransformStrategyBase::Private
 {
     QTransform thumbToImageTransform;
     QImage originalImage;
     int decorationThickness = 1;
 };
-
 
 KisTransformStrategyBase::KisTransformStrategyBase()
     : m_d(new Private())

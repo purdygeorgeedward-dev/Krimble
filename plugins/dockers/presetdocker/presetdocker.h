@@ -12,9 +12,6 @@
 
 class KisViewManager;
 
-/**
- * Template of view plugin
- */
 class PresetDockerPlugin : public QObject
 {
     Q_OBJECT

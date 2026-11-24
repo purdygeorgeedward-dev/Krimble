@@ -14,7 +14,6 @@
 class KisCanvas2;
 class QToolButton;
 
-
 class KisToolTransformConfigWidget : public QWidget, private Ui::WdgToolTransform
 {
     Q_OBJECT
@@ -93,7 +92,6 @@ public Q_SLOTS:
 
     void slotSetMeshModeButtonClicked(bool);
 
-
     void slotEditCagePoints(bool value);
 
     void liquifySizeChanged(qreal value);
@@ -138,11 +136,11 @@ private:
     void resetUIOptions();
 
 protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;   // a mode chosen in the toolbox flyout (qApp property krimbleTransformModeRequest)
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
 private:
-    void krimbleSetFreeKind(int kind);   // Scale (0), Stretch (1) or Shear (2): the free transform with one gesture
+    void krimbleSetFreeKind(int kind);
     void krimbleApplyModeRequest();
     void krimblePublishMode(const ToolTransformArgs &config);
 
@@ -162,4 +160,4 @@ private:
     bool m_configChanged;
 };
 
-#endif /* __KIS_TOOL_TRANSFORM_CONFIG_WIDGET_H */
+#endif

@@ -58,7 +58,7 @@ void KarbonCalligraphyTool::paint(QPainter &painter, const KoViewConverter &conv
     if (m_selectedPath) {
         painter.save();
         painter.setRenderHints(QPainter::Antialiasing, false);
-        painter.setPen(Qt::red);   // TODO make configurable
+        painter.setPen(Qt::red);
         QRectF rect = m_selectedPath->boundingRect();
         QPointF p1 = converter.documentToView(rect.topLeft());
         QPointF p2 = converter.documentToView(rect.bottomRight());
@@ -94,7 +94,6 @@ void KarbonCalligraphyTool::mousePressEvent(KoPointerEvent *event)
     m_pointCount = 0;
     m_shape = new KarbonCalligraphicShape(m_caps);
     m_shape->setBackground(QSharedPointer<KoShapeBackground>(new KoColorBackground(canvas()->resourceManager()->foregroundColor().toQColor())));
-    //addPoint( event );
 }
 
 void KarbonCalligraphyTool::mouseMoveEvent(KoPointerEvent *event)
@@ -113,7 +112,6 @@ void KarbonCalligraphyTool::mouseReleaseEvent(KoPointerEvent *event)
     }
 
     if (m_pointCount == 0) {
-        // handle click: select shape (if any)
         if (event->point == m_lastPoint) {
             KoShapeManager *shapeManager = canvas()->shapeManager();
             KoShape *selectedShape = shapeManager->shapeAt(event->point);
@@ -128,8 +126,8 @@ void KarbonCalligraphyTool::mouseReleaseEvent(KoPointerEvent *event)
         m_isDrawing = false;
         return;
     } else {
-        m_endOfPath = false;    // allow last point being added
-        addPoint(event);        // add last point
+        m_endOfPath = false;
+        addPoint(event);
         m_isDrawing = false;
     }
 
@@ -140,7 +138,6 @@ void KarbonCalligraphyTool::mouseReleaseEvent(KoPointerEvent *event)
         canvas()->addCommand(cmd);
         canvas()->updateCanvas(m_shape->boundingRect());
     } else {
-        // don't leak shape when command could not be created
         delete m_shape;
     }
 
@@ -175,7 +172,6 @@ void KarbonCalligraphyTool::addPoint(KoPointerEvent *event)
     qreal width = calculateWidth(event->pressure());
     qreal angle = calculateAngle(m_speed, newSpeed);
 
-    // add the previous point
     m_shape->appendPoint(m_lastPoint, angle, width);
 
     m_speed = newSpeed;
@@ -183,7 +179,7 @@ void KarbonCalligraphyTool::addPoint(KoPointerEvent *event)
     canvas()->updateCanvas(m_shape->lastPieceBoundingRect());
 
     if (m_usePath && m_selectedPath) {
-        m_speed = QPointF(0, 0);    // following path
+        m_speed = QPointF(0, 0);
     }
 }
 
@@ -194,21 +190,19 @@ void KarbonCalligraphyTool::setAngle(KoPointerEvent *event)
         return;
     }
 
-    // setting m_angle to the angle of the device
     if (event->xTilt() != 0 || event->yTilt() != 0) {
         m_deviceSupportsTilt = true;
     }
 
     if (m_deviceSupportsTilt) {
         if (event->xTilt() == 0 && event->yTilt() == 0) {
-            return;    // leave as is
+            return;
         }
         if (event->x() == 0) {
             m_angle = M_PI / 2.0;
             return;
         }
 
-        // y is inverted in qt painting
         m_angle = std::atan(static_cast<double>(-event->yTilt()) / static_cast<double>(event->xTilt())) + M_PI / 2.0;
     } else {
         m_angle = event->rotation() + M_PI / 2.0;
@@ -217,7 +211,7 @@ void KarbonCalligraphyTool::setAngle(KoPointerEvent *event)
 
 QPointF KarbonCalligraphyTool::calculateNewPoint(const QPointF &mousePos, QPointF *speed)
 {
-    if (!m_usePath || !m_selectedPath) { // don't follow path
+    if (!m_usePath || !m_selectedPath) {
         QPointF force = mousePos - m_lastPoint;
         QPointF dSpeed = force / m_mass;
         *speed = m_speed * (1.0 - m_drag) + dSpeed;
@@ -227,7 +221,6 @@ QPointF KarbonCalligraphyTool::calculateNewPoint(const QPointF &mousePos, QPoint
     QPointF sp = mousePos - m_lastMousePos;
     m_lastMousePos = mousePos;
 
-    // follow selected path
     qreal step = QLineF(QPointF(0, 0), sp).length();
     m_followPathPosition += step;
 
@@ -246,9 +239,8 @@ QPointF KarbonCalligraphyTool::calculateNewPoint(const QPointF &mousePos, QPoint
 
 qreal KarbonCalligraphyTool::calculateWidth(qreal pressure)
 {
-    // calculate the modulo of the speed
     qreal speed = std::sqrt(pow(m_speed.x(), 2) + pow(m_speed.y(), 2));
-    qreal thinning =  m_thinning * (speed + 1) / 10.0; // can be negative
+    qreal thinning =  m_thinning * (speed + 1) / 10.0;
 
     if (thinning > 1) {
         thinning = 1;
@@ -270,7 +262,6 @@ qreal KarbonCalligraphyTool::calculateWidth(qreal pressure)
 
 qreal KarbonCalligraphyTool::calculateAngle(const QPointF &oldSpeed, const QPointF &newSpeed)
 {
-    // calculate the average of the speed (sum of the normalized values)
     qreal oldLength = QLineF(QPointF(0, 0), oldSpeed).length();
     qreal newLength = QLineF(QPointF(0, 0), newSpeed).length();
     QPointF oldSpeedNorm = !qFuzzyCompare(oldLength + 1, 1) ?
@@ -279,41 +270,35 @@ qreal KarbonCalligraphyTool::calculateAngle(const QPointF &oldSpeed, const QPoin
                 newSpeed / newLength : QPointF(0, 0);
     QPointF speed = oldSpeedNorm + newSpeedNorm;
 
-    // angle solely based on the speed
     qreal speedAngle = 0;
-    if (speed.x() != 0) { // avoid division by zero
+    if (speed.x() != 0) {
         speedAngle = std::atan(speed.y() / speed.x());
     } else if (speed.y() > 0) {
-        // x == 0 && y != 0
         speedAngle = M_PI / 2;
     } else if (speed.y() < 0) {
-        // x == 0 && y != 0
         speedAngle = -M_PI / 2;
     }
     if (speed.x() < 0) {
         speedAngle += M_PI;
     }
 
-    // move 90 degrees
     speedAngle += M_PI / 2;
 
     qreal fixedAngle = m_angle;
-    // check if the fixed angle needs to be flipped
     qreal diff = fixedAngle - speedAngle;
-    while (diff >= M_PI) { // normalize diff between -180 and 180
+    while (diff >= M_PI) {
         diff -= 2 * M_PI;
     }
     while (diff < -M_PI) {
         diff += 2 * M_PI;
     }
 
-    if (std::abs(diff) > M_PI / 2) { // if absolute value < 90
-        fixedAngle += M_PI;    // += 180
+    if (std::abs(diff) > M_PI / 2) {
+        fixedAngle += M_PI;
     }
 
     qreal dAngle = speedAngle - fixedAngle;
 
-    // normalize dAngle between -90 and +90
     while (dAngle >= M_PI / 2) {
         dAngle -= M_PI;
     }
@@ -346,7 +331,6 @@ void KarbonCalligraphyTool::activate(const QSet<KoShape*> &shapes)
     a = action("calligraphy_decrease_angle");
     connect(a, SIGNAL(triggered()), m_widget, SLOT(decreaseAngle()), Qt::UniqueConnection);
 
-
     useCursor(Qt::CrossCursor);
 }
 
@@ -369,12 +353,7 @@ void KarbonCalligraphyTool::deactivate()
 
 QList<QPointer<QWidget>> KarbonCalligraphyTool::createOptionWidgets()
 {
-    // if the widget don't exists yet create it
     QList<QPointer<QWidget> > widgets;
-
-    //KoFillConfigWidget *fillWidget = new KoFillConfigWidget(0);
-    //fillWidget->setWindowTitle(i18n("Fill"));
-    //widgets.append(fillWidget);
 
     m_widget = new KarbonCalligraphyOptionWidget();
     connect(m_widget, SIGNAL(usePathChanged(bool)),
@@ -410,7 +389,6 @@ QList<QPointer<QWidget>> KarbonCalligraphyTool::createOptionWidgets()
     connect(this, SIGNAL(pathSelectedChanged(bool)),
             m_widget, SLOT(setUsePathEnabled(bool)));
 
-    // sync all parameters with the loaded profile
     m_widget->emitAll();
     m_widget->setObjectName(i18nc("Object name of Calligraphy", "Calligraphy"));
     m_widget->setWindowTitle(i18nc("Tool Option title of Calligraphy", "Calligraphy"));
@@ -476,27 +454,21 @@ void KarbonCalligraphyTool::setCaps(double caps)
 
 void KarbonCalligraphyTool::updateSelectedPath()
 {
-    KoPathShape *oldSelectedPath = m_selectedPath; // save old value
+    KoPathShape *oldSelectedPath = m_selectedPath;
 
     KoSelection *selection = canvas()->shapeManager()->selection();
     if (selection) {
-        // null pointer if it the selection isn't a KoPathShape
-        // or if the selection is empty
         m_selectedPath =
                 dynamic_cast<KoPathShape *>(selection->firstSelectedShape());
 
-        // or if it's a KoPathShape but with no or more than one subpaths
         if (m_selectedPath && m_selectedPath->subpathCount() != 1) {
             m_selectedPath = 0;
         }
 
-        // or if there ora none or more than 1 shapes selected
         if (selection->count() != 1) {
             m_selectedPath = 0;
         }
 
-        // Q_EMIT signal it there wasn't a selected path and now there is
-        // or the other way around
         if ((m_selectedPath != 0) != (oldSelectedPath != 0)) {
             Q_EMIT pathSelectedChanged(m_selectedPath != 0);
         }

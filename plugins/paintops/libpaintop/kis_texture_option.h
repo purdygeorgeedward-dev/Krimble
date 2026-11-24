@@ -18,7 +18,6 @@
 
 #include "KisTextureMaskInfo.h"
 
-
 class KoPattern;
 class KoResource;
 class KisPropertiesConfiguration;
@@ -26,7 +25,6 @@ class KisResourcesInterface;
 
 #include <KisStandardOptions.h>
 #include <KisTextureOptionData.h>
-
 
 class PAINTOP_EXPORT KisTextureOption
 {
@@ -38,12 +36,6 @@ public:
 
     bool m_enabled {false};
 
-    /**
-     * @brief apply combine the texture map with the dab
-     * @param dab the colored, final representation of the dab, after mirroring and everything.
-     * @param offset the position of the dab on the image. used to calculate the position of the mask pattern
-     * @param info the paint information
-     */
     void apply(KisFixedPaintDeviceSP dab, const QPoint& offset, const KisPaintInformation & info);
     static QList<KoResourceLoadResult> prepareLinkedResources(const KisPropertiesConfigurationSP setting, KisResourcesInterfaceSP resourcesInterface);
     static QList<KoResourceLoadResult> prepareEmbeddedResources(const KisPropertiesConfigurationSP setting, KisResourcesInterfaceSP resourcesInterface);
@@ -78,4 +70,4 @@ private:
     KisCachedPaintDevice m_cachedPaintDevice;
 };
 
-#endif // KIS_TEXTURE_OPTION_H
+#endif

@@ -64,6 +64,5 @@ public:
     }
 };
 
-
-#endif //__selecttoolfreehand_h__
+#endif
 

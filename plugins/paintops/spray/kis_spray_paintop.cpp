@@ -23,7 +23,6 @@
 #include <kis_paintop_plugin_utils.h>
 #include <KoResourceLoadResult.h>
 
-
 KisSprayPaintOp::KisSprayPaintOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP node, KisImageSP image)
     : KisPaintOp(painter)
     , m_sprayOpOption(settings.data())
@@ -33,7 +32,7 @@ KisSprayPaintOp::KisSprayPaintOp(const KisPaintOpSettingsSP settings, KisPainter
     , m_opacityOption(settings.data(), node)
     , m_rateOption(settings.data())
     , m_node(node)
-    
+
 {
     Q_ASSERT(settings);
     Q_ASSERT(painter);
@@ -44,16 +43,12 @@ KisSprayPaintOp::KisSprayPaintOp(const KisPaintOpSettingsSP settings, KisPainter
     m_brushOption.readOptionSetting(settings, settings->resourcesInterface(), settings->canvasResourcesInterface());
 
     m_colorProperties.read(settings.data());
-    // create the actual distribution objects
     m_sprayOpOption.updateDistributions();
-    // first load tip properties as shape properties are dependent on diameter/scale/aspect
     m_shapeProperties.read(settings.data());
 
-    // TODO: what to do with proportional sizes?
     m_shapeDynamicsProperties.read(settings.data());
 
     if (!m_shapeProperties.enabled && !m_brushOption.brush()) {
-        // in case the preset does not contain the definition for KisBrush
         m_isPresetValid = false;
         dbgKrita << "Preset is not valid. Painting is not possible. Use the preset editor to fix current brush engine preset.";
     }
@@ -63,7 +58,6 @@ KisSprayPaintOp::KisSprayPaintOp(const KisPaintOpSettingsSP settings, KisPainter
 
     m_sprayBrush.setFixedDab(cachedDab());
 
-    // spacing
     if ((m_sprayOpOption.data.diameter * 0.5) > 1) {
         m_ySpacing = m_xSpacing = m_sprayOpOption.data.diameter * 0.5 * m_sprayOpOption.data.spacing;
     }
@@ -98,11 +92,8 @@ KisSpacingInformation KisSprayPaintOp::paintAt(const KisPaintInformation& info)
 
     qreal rotation = m_rotationOption.apply(info);
     m_opacityOption.apply(painter(), info);
-    // Spray Brush is capable of working with zero scale,
-    // so no additional checks for 'zero'ness are needed
     const qreal scale = m_sizeOption.apply(info);
     const qreal lodScale = KisLodTransform::lodToScale(painter()->device());
-
 
     m_sprayBrush.paint(m_dab,
                        m_node->paintDevice(),

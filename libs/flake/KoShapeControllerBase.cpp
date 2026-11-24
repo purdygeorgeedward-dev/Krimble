@@ -30,7 +30,6 @@ public:
             KoShapeFactoryBase *shapeFactory = registry->value(id);
             shapeFactory->newDocumentResourceManager(resourceManager);
         }
-        // read persistent application wide resources
         KSharedConfigPtr config =  KSharedConfig::openConfig();
         KConfigGroup miscGroup = config->group("Misc");
         const uint grabSensitivity = miscGroup.readEntry("GrabSensitivity", 24);

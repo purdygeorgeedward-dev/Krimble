@@ -25,4 +25,4 @@ private Q_SLOTS:
     void testNonStandardRange();
 };
 
-#endif // TESTKOPROGRESSUPDATER_H
+#endif

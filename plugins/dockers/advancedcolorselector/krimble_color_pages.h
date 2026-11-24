@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-08: the Sliders and Values pages of the Color panel, from the new mockups (George: "make the new tabs work just like the mockups"). The measurements are the mockups'
-// pixels converted to the card's 1178 design units (the card of each mockup scaled to the same width), see color_pages_measurements.md. Both pages are drawn at the same scale as
-// the Picker page (krimble_color_paint.h) and share its bottom part (the foreground and background colors, recent colors, the palette).
 #pragma once
 #include <QCoreApplication>
 #include <functional>
@@ -17,7 +14,6 @@
 #include "krimble_color_paint.h"
 #include "krimble_color_logo.h"
 
-// the color the panel is working on: opaque RGB, the alpha channel apart, and the hue to keep when a color is gray (a gray has no hue)
 struct KrimbleColorState
 {
     QColor color = QColor("#459ad3");
@@ -25,7 +21,6 @@ struct KrimbleColorState
     int hue = 204;
 };
 
-// the channels of each color model: 0 RGB, 1 HSV, 2 HSL, 3 CMYK, 4 Grayscale
 struct KrimbleChannels
 {
     static int count(int model) { return model == 3 ? 4 : (model == 4 ? 1 : 3); }
@@ -75,7 +70,6 @@ struct KrimbleChannels
         default: return qRound(0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue());
         }
     }
-    // the color after channel i of the model is set to v (the other channels as they are)
     static QColor withValue(int model, int i, int v, const QColor &c, int hint)
     {
         v = qBound(0, v, maximum(model, i));
@@ -104,9 +98,6 @@ struct KrimbleChannels
             return QColor(v, v, v);
         }
     }
-    // the color at fraction t (0 to 1) along the track of channel i. RGB tracks are the mockup's: the channel's own color fading to a pale tint of it (measured: #F80302 to #FED2D8 for R,
-    // #09E80C to #D0FED8 for G, #1010F9 to #A8AAFC for B); the others show what the channel does (hue: the rainbow; saturation: gray to the color; value and lightness: dark to light;
-    // the inks: white to the ink; gray: black to white)
     static QColor trackAt(int model, int i, const QColor &c, int hint, double t)
     {
         if (model == 0) {
@@ -125,14 +116,13 @@ struct KrimbleChannels
     }
 };
 
-// a channel bar: a pill track filled with the colors the channel runs through (left to right), a glossy ball
 class KrimbleSliderBar : public QWidget
 {
 public:
-    std::function<QColor(double)> trackColor;   // the color at 0 to 1 along the track (alpha included for the alpha track)
+    std::function<QColor(double)> trackColor;
     std::function<void(int)> onChanged;
     bool alphaTrack = false;
-    QColor ballOverride;   // the ball's own color when it is not the track's color at the ball (the RGB bars have the channel's color: the mockup's red, green and blue balls)
+    QColor ballOverride;
     int maximum = 255;
     explicit KrimbleSliderBar(QWidget *parent = nullptr) : QWidget(parent) { setCursor(Qt::PointingHandCursor); }
     void setValue(int v)
@@ -164,7 +154,6 @@ protected:
         p.drawRoundedRect(track, rad, rad);
         p.setPen(QPen(QColor(255, 255, 255, 70), 1.2));
         p.drawLine(QPointF(track.left() + rad, track.top() + 1.6), QPointF(track.right() - rad, track.top() + 1.6));
-        // the ball
         const double t = maximum > 0 ? double(m_value) / maximum : 0.0;
         const QPointF center(ballR + (width() - 2 * ballR) * t, h / 2);
         QColor ballColor = ballOverride.isValid() ? ballOverride : (trackColor ? trackColor(t) : QColor(Qt::gray));
@@ -187,12 +176,11 @@ private:
     int m_value = 0;
 };
 
-// Sliders page: the color model buttons at the left; at the right the channel sliders with their number boxes, then the color preview with HEX, copy and the alpha preview
 class KrimbleSlidersTop : public KrimbleColorBase
 {
 public:
     KrimbleColorState *state = nullptr;
-    std::function<void(const QColor &)> onColor;   // a new opaque color from a slider or a box
+    std::function<void(const QColor &)> onColor;
     std::function<void(int)> onAlpha;
     QLineEdit *hex = nullptr;
     QToolButton *copy = nullptr;
@@ -235,9 +223,8 @@ public:
         model = qBound(0, m, 4);
         refresh();
     }
-    int rows() const { return KrimbleChannels::count(model) + 1; }   // the channels and the alpha
+    int rows() const { return KrimbleChannels::count(model) + 1; }
 
-    // read the state into the bars, boxes and HEX
     void refresh()
     {
         if (!state) return;
@@ -271,7 +258,7 @@ public:
             } else {
                 m_bar[i]->maximum = 255;
                 m_bar[i]->alphaTrack = true;
-                m_bar[i]->ballOverride = QColor(240, 40, 190);   // the mockup's magenta ball
+                m_bar[i]->ballOverride = QColor(240, 40, 190);
                 m_spin[i]->setRange(0, 255);
                 m_bar[i]->setValue(state->alpha);
                 QSignalBlocker b(m_spin[i]);
@@ -333,7 +320,6 @@ protected:
         f.setPixelSize(qMax(8, qRound(35 * s)));
         p.setFont(f);
         const QColor label("#d9deee");
-        // the two groups
         paintGroup(p, r(14, 15, 274, 559), 14 * s);
         paintGroup(p, r(305, 18, 868, 556), 14 * s);
         p.setPen(label);
@@ -342,7 +328,6 @@ protected:
         p.setFont(fittedFont(f, tr("RGB Sliders"), 185 * s));
         p.drawText(r(334, 18, 500, 54), Qt::AlignLeft | Qt::AlignVCenter, tr("%1 Sliders").arg(KrimbleChannels::modelName(model)));
         p.setFont(f);
-        // the model buttons
         static const char *icons[] = {"model_rgb", "model_hsv", "model_hsl", "model_cmyk", "model_gray"};
         for (int i = 0; i < 5; ++i) {
             const QRectF rect = modelRect(i);
@@ -354,7 +339,6 @@ protected:
             p.drawText(QRectF(rect.left() + 98 * s, rect.top(), rect.width() - 100 * s, rect.height()), Qt::AlignLeft | Qt::AlignVCenter, KrimbleChannels::modelName(i));
             p.setFont(f);
         }
-        // the rows: the label, then the box frame (the bar and the number are widgets above)
         const int n = rows();
         const double firstY = 111.5;
         const double pitch = n >= 5 ? 53.0 : 64.4;
@@ -365,7 +349,6 @@ protected:
             p.drawText(r(300, cy - 25, 69, 50), Qt::AlignRight | Qt::AlignVCenter, name + QStringLiteral(":"));
             paintSpinFrame(p, r(1004.6, cy - 25.5, 149, 51));
         }
-        // the divider, Color Preview and its line, the preview parts
         paintBrightLine(p, 327, 355, 1154, s);
         p.setPen(label);
         p.setFont(fittedFont(f, tr("Color Preview"), 189 * s));
@@ -383,7 +366,6 @@ protected:
         p.drawLine(QPointF(975.5 * s, 443 * s), QPointF(975.5 * s, 551 * s));
         p.setPen(QPen(QColor(110, 125, 175, 95), 1.0));
         p.drawLine(QPointF(975.5 * s + 1.6, 443 * s), QPointF(975.5 * s + 1.6, 551 * s));
-        // the alpha preview: a checker with the color (with its alpha) in the middle and a white frame
         {
             const QRectF box = r(998, 437, 115, 116);
             paintChecker(p, box, 11 * s, 14 * s);
@@ -416,7 +398,6 @@ private:
     bool m_syncing = false;
 };
 
-// the nearest named color (the SVG color names) with "(custom)" when it is not exactly that color; and the web safe color (each channel a multiple of 51)
 inline QString krimbleColorName(const QColor &c)
 {
     QString best;
@@ -437,7 +418,6 @@ inline QString krimbleWebSafe(const QColor &c)
     return QColor(snap(c.red()), snap(c.green()), snap(c.blue())).name(QColor::HexRgb).toUpper();
 }
 
-// Values page: the color preview with its alpha at the left; at the right every color model as number boxes (RGB, HSV, HSL, CMYK), HEX, the color's name and its web safe color
 class KrimbleValuesTop : public KrimbleColorBase
 {
 public:
@@ -452,7 +432,6 @@ public:
 
     explicit KrimbleValuesTop(QWidget *parent = nullptr) : KrimbleColorBase(parent)
     {
-        // the boxes: RGB 0 to 2, HSV 3 to 5, HSL 6 to 8, CMYK 9 to 12, alpha 13 (0 to 255) and 14 (0 to 100)
         for (int i = 0; i < 15; ++i) {
             m_spin[i] = new QSpinBox(this);
             m_up[i] = makeButton();
@@ -513,7 +492,7 @@ public:
         f.setPixelSize(qMax(8, qRound(31 * s)));
         const int arrowW = qRound(38 * s);
         QFont narrowFont = f;
-        narrowFont.setPixelSize(qMax(7, qRound(26 * s)));   // the narrow boxes (the inks, the alpha) have smaller text so three digits fit
+        narrowFont.setPixelSize(qMax(7, qRound(26 * s)));
         auto place = [&](int i, const QRectF &whole) {
             const QRect w = whole.toAlignedRect();
             const bool narrow = i >= 9;
@@ -565,12 +544,10 @@ protected:
         p.setFont(fittedFont(f, tr("Color Values & Conversion"), 387 * s));
         p.drawText(r(361, 13, 700, 46), Qt::AlignLeft | Qt::AlignVCenter, tr("Color Values & Conversion"));
         p.setFont(f);
-        // the help mark of the group: a circle with a question mark
         p.setPen(QPen(QColor("#d9deee"), qMax<qreal>(1.5, 2.2 * s)));
         p.setBrush(Qt::NoBrush);
         p.drawEllipse(QPointF(1141.4 * s, 35 * s), 15 * s, 15 * s);
         p.drawText(QRectF(1126.4 * s, 20 * s, 30 * s, 30 * s), Qt::AlignCenter, QStringLiteral("?"));
-        // the preview and the alpha
         paintColorBox(p, r(46, 80, 237, 230), shown, 22 * s, s, true);
         {
             const QRectF box = r(113, 332, 112, 113);
@@ -601,7 +578,6 @@ protected:
             p.drawText(r(190.4, 504.6, 110 - 38 - 5, 37), Qt::AlignRight | Qt::AlignVCenter, QStringLiteral("%"));
             p.setFont(f);
         }
-        // the model rows
         static const char *rowIcons[5] = {"row_rgb", "model_hsv", "model_hsl", "model_cmyk", "row_hash"};
         static const double rowY[5] = {100.3, 164.8, 229.3, 294.8, 360.3};
         for (int m = 0; m < 5; ++m) {
@@ -630,11 +606,9 @@ protected:
                 }
             }
         }
-        // HEX
         paintField(p, r(568, 334.8, 333, 51), 9 * s);
         paintButton(p, r(900, 334.8, 49, 51), 11 * s);
         drawSymbol(p, QStringLiteral("copy"), r(900, 334.8, 49, 51).center(), 1.0);
-        // Color Info
         paintBrightLine(p, 361, 400, 1163, s);
         p.setPen(label);
         p.setFont(fittedFont(f, tr("Color Info"), 135 * s));
@@ -664,7 +638,6 @@ protected:
 
 private:
     static int rowFirst(int model) { return model == 0 ? 0 : (model == 1 ? 3 : (model == 2 ? 6 : 9)); }
-    // the box of channel c of a model row (the mockup's measured places)
     QRectF boxRect(int model, int c) const
     {
         static const double rowY[4] = {100.3, 164.8, 229.3, 294.8};
@@ -692,8 +665,6 @@ private:
     bool m_syncing = false;
 };
 
-// the tab strip above the card: Picker, Sliders, Values, Palette, History (measured in the Picker mockup: five tabs 220 units wide every 231, 75 tall; the selected one 235 x 82 with the
-// cyan outline and glow of every selected item)
 class KrimbleColorTabBar : public KrimbleColorBase
 {
 public:
@@ -702,7 +673,7 @@ public:
     double designHeight() const override { return 84.0; }
     explicit KrimbleColorTabBar(QWidget *parent = nullptr) : KrimbleColorBase(parent)
     {
-        QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);   // (not Fixed: a fixed height would be the size hint's, not the height the width asks for)
+        QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         policy.setHeightForWidth(true);
         setSizePolicy(policy);
     }
@@ -721,7 +692,6 @@ protected:
         f.setPixelSize(qMax(8, qRound(40 * s)));
         p.setFont(f);
         static const char *names[5] = {"Picker", "Sliders", "Values", "Palette", "History"};
-        // the unselected tabs first, then the selected one over its neighbors
         for (int i = 0; i < 5; ++i) {
             if (i == current) continue;
             const QRectF rect = tabRect(i, false);
@@ -754,13 +724,6 @@ protected:
             }
     }
 private:
-    // QRectF tabRect(int i, bool selected) const
-    // {
-    //     const double x = 31.0 + 231.0 * i;
-    //     return selected ? r(x - 7.5, 0, 235, 82) : r(x, 3, 220, 75);
-    // }
-    // 2026-11-08: George: "The tabs should fill the horizontal space." Five equal tabs from the left margin to the right margin (24 units each side, the line the logo's left edge is on),
-    // 8 units apart; the selected one is 5 units wider at each side.
     QRectF tabRect(int i, bool selected) const
     {
         const double margin = 24.0, gap = 8.0;
@@ -780,8 +743,6 @@ protected:
         QPainter p(this);
         const qreal dpr = devicePixelRatioF();
         const qreal thick = 3.0 / dpr, gap = 9.0 / dpr, mid = height() / 2.0;
-        // for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(0, mid + i * gap - thick / 2, width(), thick), QColor(150, 158, 190));
-        // the same grip lines as the panel title rows (3 real px lines on a 9 real px pitch, the title-row color), as many as fit the band, up to nine
         const int n = qBound(1, int((height() * dpr * 0.8 - 3.0) / 9.0) + 1, 9);
         QColor c = palette().color(QPalette::WindowText);
         c.setAlpha(150);
@@ -798,7 +759,6 @@ public:
         setObjectName(QStringLiteral("KrimbleStudioLogo"));
         const QString look = QStringLiteral(
             "QToolButton { background: #3a4470; border: 1px solid #6a78b0; border-radius: 2px; padding: 2px; }"
-            // "QToolButton:pressed { background: #0b87dd; }");
             "QToolButton:pressed { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee); }");
         m_float = new QToolButton(this);
         m_float->setIcon(KisIconUtils::loadIcon(QStringLiteral("docker_float")));
@@ -831,14 +791,6 @@ protected:
         if (!m_lines) { m_lines = new KrimbleBandGrabLines(this); m_lines->setAttribute(Qt::WA_TransparentForMouseEvents); m_lines->show(); }
         {
             const qreal dpr = devicePixelRatioF();
-            // int l = int(width() * 0.62), r = m_float->x() - qRound(12 * scale());
-            // const int most = int(120.0 / dpr);
-            // if (r - l > most) { const int extra = (r - l) - most; l += extra / 2; r -= extra - extra / 2; }
-            // Q_UNUSED(most);
-            // m_lines->setGeometry(l, 0, qMax(0, r - l), height());
-            // m_lines->setVisible(false);
-            // grip lines on the black part of the logo band, centered between the end of the letters and the float button
-            // The logo is drawn h = 1.2 x the band height tall, w = h x 900 / 211 wide, from x = 24 units - 0.0514 w; its letters end at 851 / 900 of the picture.
             const qreal lh = height() * 1.2, lw = lh * 900.0 / 211.0;
             const int lettersEnd = qRound(24 * scale() - 0.0514 * lw + lw * 851.0 / 900.0);
             const int margin = qRound(24.0 / dpr);
@@ -875,8 +827,6 @@ protected:
         }
         if (m_dragging && d && d->isFloating() && m_tornOff && (e->buttons() & Qt::LeftButton)) {
             d->move(m_dockFrom + (e->globalPos() - m_dragFrom));
-            // the panel's docking helper (KrimbleDockTolerance, on the panel) sees this drag as if the panel's own title row moved it,
-            // so a drag to the window's edge docks Color Lab again
             QMouseEvent moved(QEvent::MouseMove, d->mapFromGlobal(e->globalPos()), e->globalPos(), Qt::NoButton, e->buttons(), e->modifiers());
             QCoreApplication::sendEvent(d, &moved);
             m_moved = true;
@@ -919,13 +869,9 @@ protected:
         p.drawPath(band);
         const QPixmap logo = krimbleColorLabLogo();
         if (logo.isNull()) return;
-        // the picture has black space around the letters (they are about half its height): it is drawn larger than the band and clipped to it, so the letters fill the band
         const qreal h = height() * 1.2;
         const qreal w = h * logo.width() / logo.height();
         p.setClipPath(band);
-        // p.drawPixmap(QRectF((width() - w) / 2, (height() - h) / 2, w, h), logo, QRectF(logo.rect()));   // centered: against George's rule (2026-11-08)
-        // George's rule, 2026-11-08: "Do not center title logos. THIS IS A RULE. LEFT ALIGN." The left edge of the C is on the same line as the left edge of the first tab (23.5 units); the
-        // picture has about 5.1% of black space at its left, which is taken off.
         p.drawPixmap(QRectF(24 * s - 0.0514 * w, (height() - h) / 2, w, h), logo, QRectF(logo.rect()));
     }
 };

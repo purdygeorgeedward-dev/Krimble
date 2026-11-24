@@ -56,7 +56,7 @@ public:
             new KisResourcesSnapshot(image,
                                      fillNode,
                                      manager);
-        
+
         FillProcessingVisitor *visitor = new FillProcessingVisitor(0,
                                                                    image->globalSelection(),
                                                                    resources);
@@ -68,12 +68,12 @@ public:
         visitor->setFillThreshold(10);
         visitor->setOpacitySpread(0);
         visitor->setUnmerged(true);
-        
+
         KisProcessingApplicator applicator(image, fillNode,
                                            KisProcessingApplicator::NONE);
         applicator.applyVisitor(visitor);
         applicator.end();
-        
+
         image->waitForDone();
 
         QVERIFY(checkOneLayer(image, fillNode, testname, 500));

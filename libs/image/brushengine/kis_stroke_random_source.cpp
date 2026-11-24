@@ -25,7 +25,6 @@ struct KisStrokeRandomSource::Private
     KisPerStrokeRandomSourceSP lodNPerStrokeRandomSource;
 };
 
-
 KisStrokeRandomSource::KisStrokeRandomSource()
     : m_d(new Private)
 {
@@ -58,7 +57,6 @@ KisPerStrokeRandomSourceSP KisStrokeRandomSource::perStrokeSource() const
 {
     return m_d->levelOfDetail ? m_d->lodNPerStrokeRandomSource : m_d->lod0PerStrokeRandomSource;
 }
-
 
 int KisStrokeRandomSource::levelOfDetail() const
 {

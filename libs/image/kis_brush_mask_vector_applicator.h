@@ -79,12 +79,10 @@ void KisBrushMaskVectorApplicator<MaskGenerator, impl>::processVector(const QRec
     qreal random = 1.0;
     quint8 *dabPointer = m_d->device->data() + rect.y() * rect.width() * m_d->pixelSize;
     quint8 alphaValue = OPACITY_TRANSPARENT_U8;
-    // this offset is needed when brush size is smaller then fixed device size
     int offset = (m_d->device->bounds().width() - rect.width()) * m_d->pixelSize;
 
     int width = rect.width();
 
-    // We need to calculate with a multiple of the width of the simd register
     size_t alignOffset = 0;
     if (width % float_v::size != 0) {
         alignOffset = float_v::size - (width % float_v::size);
@@ -108,9 +106,7 @@ void KisBrushMaskVectorApplicator<MaskGenerator, impl>::processVector(const QRec
 
                 alphaValue = quint8((OPACITY_OPAQUE_U8 - buffer[x] * 255) * random);
 
-                // avoid computation of random numbers if density is full
                 if (m_d->density != 1.0) {
-                    // compute density only for visible pixels of the mask
                     if (alphaValue != OPACITY_TRANSPARENT_U8) {
                         if (!(m_d->density >= KisBrushMaskScalarApplicator<MaskGenerator, impl>::m_randomSource
                                                   .generateNormalized())) {
@@ -132,12 +128,12 @@ void KisBrushMaskVectorApplicator<MaskGenerator, impl>::processVector(const QRec
         } else {
             m_d->colorSpace->applyInverseNormedFloatMask(dabPointer, buffer, width);
             dabPointer += width * m_d->pixelSize;
-        } // endfor x
+        }
         dabPointer += offset;
-    } // endfor y
+    }
     xsimd::vector_aligned_free(buffer);
 }
 
-#endif /* !defined XSIMD_NO_SUPPORTED_ARCHITECTURE */
+#endif
 
-#endif /* KIS_BRUSH_VECTOR_APPLICATOR_H */
+#endif

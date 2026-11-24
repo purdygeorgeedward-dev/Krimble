@@ -12,7 +12,6 @@
 
 #include "kis_painting_assistant.h"
 
-
 class TestPerspectiveBasedAssistantHelper : public QObject
 {
     Q_OBJECT
@@ -24,4 +23,4 @@ private:
     QList<KisPaintingAssistantHandleSP> getHandles(QList<QPointF> points);
 };
 
-#endif /* __TEST_PERSPECTIVE_BASED_ASSISTANT_HELPER_H */
+#endif

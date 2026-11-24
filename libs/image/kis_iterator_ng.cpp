@@ -10,10 +10,6 @@ KisBaseConstIteratorNG::~KisBaseConstIteratorNG()
 {
 }
 
-//KisBaseIteratorNG::~KisBaseIteratorNG()
-//{
-//}
-
 KisHLineConstIteratorNG::~KisHLineConstIteratorNG()
 {
 }

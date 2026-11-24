@@ -221,7 +221,7 @@ void KisAslXmlWriter::writeColor(const QString &key, const KoColor &value)
 
         double v = qBound(0.0, KisDomUtils::toDouble(colorEl.attribute("g", "0.0")) * 100.0, 100.0);
         writeDouble("Gry ", v);
-    } else { // default to sRGB
+    } else {
         enterDescriptor(key, "", "RGBC");
 
         writeDouble("Rd  ", value.toQColor().red());
@@ -303,8 +303,6 @@ QString KisAslXmlWriter::writePattern(const QString &key, const KoPatternSP patt
 
     QString uuid = KisAslWriterUtils::getPatternUuidLazy(pattern);
     writeText("Idnt", uuid);
-
-    // Write pattern data
 
     QBuffer buffer;
     buffer.open(QIODevice::WriteOnly);
@@ -425,8 +423,6 @@ void KisAslXmlWriter::writeSegmentGradient(const QString &key, const KoSegmentGr
         types << type;
         middleOffsets << mid;
     }
-
-    // last segment
 
     if (!segments.isEmpty()) {
         const KoGradientSegment *lastSeg = segments.last();

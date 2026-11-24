@@ -45,27 +45,8 @@ extern "C" {
 
 #include "raqm-version.h"
 
-/**
- * raqm_t:
- *
- * This is the main object holding all state of the currently processed text as
- * well as its output.
- *
- * Since: 0.1
- */
 typedef struct _raqm raqm_t;
 
-/**
- * raqm_direction_t:
- * @RAQM_DIRECTION_DEFAULT: Detect paragraph direction automatically.
- * @RAQM_DIRECTION_RTL: Paragraph is mainly right-to-left text.
- * @RAQM_DIRECTION_LTR: Paragraph is mainly left-to-right text.
- * @RAQM_DIRECTION_TTB: Paragraph is mainly vertical top-to-bottom text.
- *
- * Base paragraph direction, see raqm_set_par_direction().
- *
- * Since: 0.1
- */
 typedef enum
 {
     RAQM_DIRECTION_DEFAULT,
@@ -74,19 +55,6 @@ typedef enum
     RAQM_DIRECTION_TTB
 } raqm_direction_t;
 
-/**
- * raqm_glyph_t:
- * @index: the index of the glyph in the font file.
- * @x_advance: the glyph advance width in horizontal text.
- * @y_advance: the glyph advance width in vertical text.
- * @x_offset: the horizontal movement of the glyph from the current point.
- * @y_offset: the vertical movement of the glyph from the current point.
- * @cluster: the index of original character in input text.
- * @ftface: the @FT_Face of the glyph.
- *
- * The structure that holds information about output glyphs, returned from
- * raqm_get_glyphs().
- */
 typedef struct raqm_glyph_t {
     unsigned int index;
     int x_advance;
@@ -214,9 +182,8 @@ raqm_version_atleast (unsigned int major,
                       unsigned int minor,
                       unsigned int micro);
 
-
 #ifdef __cplusplus
 }
 #endif
 #undef _RAQM_H_IN_
-#endif /* _RAQM_H_ */
+#endif

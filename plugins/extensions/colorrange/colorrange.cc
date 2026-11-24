@@ -39,13 +39,11 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(ColorRangeFactory, "kritacolorrange.json", registerPlugin<ColorRange>();)
 
-
 ColorRange::ColorRange(QObject *parent, const QVariantList &)
         : KisActionPlugin(parent)
 {
     KisAction* action = createAction("colorrange");
     connect(action, SIGNAL(triggered()), this, SLOT(slotActivated()));
-
 
     KisSignalMapper *mapper = new KisSignalMapper(this);
     connect(mapper, SIGNAL(mapped(int)), SLOT(selectOpaque(int)));
@@ -91,13 +89,6 @@ void ColorRange::selectOpaque(int id)
         selectOpaqueOnNode(node, SelectionAction(id));
 }
 
-/**
- * Krimble: Select > Similar, as in the industry standard.
- * Adds to the selection every pixel of the active layer whose colour is
- * within the Magic Wand's threshold of a colour inside the current selection.
- * Colours are kept in a 64 x 64 x 64 grid (4 levels per cell), grown by the
- * threshold per channel, then every pixel of the picture is looked up.
- */
 void ColorRange::selectSimilar()
 {
     KisViewManager *view = viewManager();
@@ -110,13 +101,12 @@ void ColorRange::selectSimilar()
 
     if (!view->blockUntilOperationsFinished(image)) return;
 
-    // Same tolerance as the Magic Wand (contiguous selection tool)
     KConfigGroup grp = KSharedConfig::openConfig()->group("KisToolSelectContiguous");
     int threshold = grp.hasKey("threshold") ? grp.readEntry("threshold", 8)
                                             : grp.readEntry("fuzziness", 8);
     threshold = qBound(1, threshold, 255);
 
-    const int N = 64;               // cells per channel
+    const int N = 64;
     const int radius = (threshold + 3) / 4;
 
     KisPixelSelectionSP result = new KisPixelSelection();
@@ -140,7 +130,6 @@ void ColorRange::selectSimilar()
         const QRect selRect = sel->selectedExactRect();
         if (selRect.isEmpty()) return;
 
-        // 1. Colours inside the selection
         QVector<quint8> grid(N * N * N, 0);
         bool sawTransparent = false;
         {
@@ -148,13 +137,12 @@ void ColorRange::selectSimilar()
             KisSequentialConstIterator sit(sel, selRect);
             while (it.nextPixel() && sit.nextPixel()) {
                 if (*sit.oldRawData() < 128) continue;
-                const quint8 *p = it.oldRawData();   // B, G, R, A
+                const quint8 *p = it.oldRawData();
                 if (p[3] < 128) { sawTransparent = true; continue; }
                 grid[((p[2] >> 2) * N + (p[1] >> 2)) * N + (p[0] >> 2)] = 1;
             }
         }
 
-        // 2. Grow by the threshold along each channel
         QVector<quint8> tmp(N * N * N);
         for (int axis = 0; axis < 3; ++axis) {
             const int stride = axis == 0 ? 1 : (axis == 1 ? N : N * N);
@@ -169,7 +157,6 @@ void ColorRange::selectSimilar()
             grid.swap(tmp);
         }
 
-        // 3. Every pixel of the picture
         const QRect rc = image->bounds();
         KisSequentialConstIterator it(rgb, rc);
         KisSequentialIterator oit(result, rc);
@@ -182,7 +169,6 @@ void ColorRange::selectSimilar()
         }
     }
 
-    // Added to the current selection, so its own edges stay as they were
     KisSelectionToolHelper helper(canvas, kundo2_i18n("Select Similar"));
     result->invalidateOutlineCache();
     helper.selectPixelSelection(result, SELECTION_ADD);

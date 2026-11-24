@@ -12,7 +12,6 @@
 
 #include "kis_sketch_paintop_settings_widget.h"
 
-
 class KisSketchPaintOpSettings : public KisBrushBasedPaintOpSettings
 {
 

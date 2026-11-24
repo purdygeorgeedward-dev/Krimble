@@ -185,7 +185,7 @@
 #include <QPlatformSurfaceEvent>
 #include <KisSRGBSurfaceColorSpaceManager.h>
 
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
 #if defined(Q_OS_ANDROID) && KRITA_QT_HAS_ANDROID_QPLATFORMSCREEN_DENSITY_ADJUSTMENT
 #include <KisAndroidScaling.h>
@@ -223,12 +223,6 @@ private:
 
 }
 
-/**
- * We cannot make the recursion info be a part of KisApplication,
- * because KisApplication also owns QQmlThread, which is destroyed
- * after KisApplication::Private, which makes QThreadStorage spit
- * a warning about being destroyed too early
- */
 Q_GLOBAL_STATIC(QThreadStorage<AppRecursionInfo>, s_recursionInfo)
 
 class KrimblePageListDelegate : public QStyledItemDelegate
@@ -255,7 +249,6 @@ public:
         const bool selected = opt.state & QStyle::State_Selected;
         const QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
         const QString text = index.data(Qt::DisplayRole).toString();
-        // the row's background (the highlight when selected), without the picture or the name
         QStyleOptionViewItem back(opt);
         back.icon = QIcon();
         back.text.clear();
@@ -278,8 +271,7 @@ public:
         font.setBold(true);
         const QFontMetrics metrics(font);
         const int textHeight = metrics.height();
-        // const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 4, side, side);
-        const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 5, side, side);   // 706th: 5 from the top, as the list's own delegate
+        const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 5, side, side);
         if (!icon.isNull()) {
             QPixmap pix = icon.pixmap(QSize(side, side), QIcon::Normal, QIcon::Off);
             const QSizeF logical = QSizeF(pix.size()) / pix.devicePixelRatio();
@@ -314,7 +306,7 @@ public:
     QPointer<KisSplashScreen> splashScreen;
     KisAutoSaveRecoveryDialog *autosaveDialog {0};
     KisLongPressEventFilter *longPressEventFilter {nullptr};
-    QPointer<KisMainWindow> mainWindow; // The first mainwindow we create on startup
+    QPointer<KisMainWindow> mainWindow;
     bool batchRun {false};
     QVector<QByteArray> earlyRemoteArguments;
     QVector<QString> earlyFileOpenEvents;
@@ -355,9 +347,6 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     , d(new Private)
 {
 #ifdef Q_OS_ANDROID
-    // The hardware renderer backend on Android doesn't support proper stacking,
-    // causing windows with QtQuick widgets to always stack behind everything
-    // else, including our own dialog decorations.
     qputenv("QT_QUICK_BACKEND", "software");
 
     installEventFilter(new KrimbleDialogKeeper(this));
@@ -374,7 +363,6 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     setWindowIcon(KisIconUtils::loadIcon("krita-branding"));
 #endif
 
-           // if style is set from config, try to load that
     KisConfig cfg(true);
     QString widgetStyleFromConfig = cfg.widgetStyle();
     QString defaultStyle = style()->objectName().toLower();
@@ -382,41 +370,28 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
         qApp->setStyle(widgetStyleFromConfig);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     } else if (defaultStyle == "macintosh" || defaultStyle == "windowsvista") {
-         // default to Fusion instead of styles that use native theming
         qApp->setStyle("fusion");
     }
 #else
     } else if (style()->objectName().toLower() == "macos" || defaultStyle == "windowsvista") {
-        // default to Fusion instead of styles that use native theming
         qApp->setStyle("fusion");
     }
 #endif
 
     qApp->setStyle(new KisWideDockSeparatorStyle(qApp->style()));
 #ifdef Q_OS_ANDROID
-    // A single visual skin for dialogs and controls. Do not change window flags,
-    // dialog movement, touch behavior, or the customizable toolbox layout.
     qApp->setStyleSheet(krimbleVisualStyleSheet());
 #endif
 
-    /**
-     * Load platform plugin for modifiers fetching
-     */
     {
         d->extendedModifiersPluginInterface.reset(KisPlatformPluginInterfaceFactory::instance()->createExtendedModifiersMapper());
     }
 
-    // store the style name
     qApp->setProperty(currentUnderlyingStyleNameProperty, style()->objectName());
     KisSynchronizedConnectionBase::registerSynchronizedEventBarrier(std::bind(&KisApplication::processPostponedSynchronizationEvents, this));
 
-
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
 
-    /**
-     * Automatically assign sRGB color space to all Krimble windows,
-     * which are not marked with a special tag.
-     */
     struct PlatformWindowCreationFilter : QObject
     {
         using QObject::QObject;
@@ -426,10 +401,6 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
                 QWidget *widget = qobject_cast<QWidget*>(watched);
                 if (!widget) return false;
 
-                /**
-                 * Check for the special tag that is set for the windows that handle
-                 * their color space themselves
-                 */
                 if (watched->property("krita_skip_srgb_surface_manager_assignment").toBool()) {
                     return false;
                 }
@@ -450,7 +421,7 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     };
 
     this->installEventFilter(new PlatformWindowCreationFilter(this));
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 }
 
 #if defined(Q_OS_WIN) && defined(ENV32BIT)
@@ -462,10 +433,6 @@ BOOL isWow64()
 {
     BOOL bIsWow64 = FALSE;
 
-    //IsWow64Process is not available on all supported versions of Windows.
-    //Use GetModuleHandle to get a handle to the DLL that contains the function
-    //and GetProcAddress to get a pointer to the function if available.
-
     fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(
                 GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
 
@@ -473,7 +440,6 @@ BOOL isWow64()
     {
         if (!fnIsWow64Process(GetCurrentProcess(),&bIsWow64))
         {
-            //handle error
         }
     }
     return bIsWow64;
@@ -483,8 +449,6 @@ BOOL isWow64()
 void KisApplication::initializeGlobals(const KisApplicationArguments &args)
 {
     Q_UNUSED(args)
-    // There are no globals to initialize from the arguments now. There used
-    // to be the `dpi` argument, but it doesn't do anything anymore.
 }
 
 void KisApplication::addResourceTypes()
@@ -507,7 +471,6 @@ void KisApplication::addResourceTypes()
     KoResourcePaths::addAssetType(ResourceType::SeExprScripts, "data", "/seexpr_scripts/", true);
 #endif
 
-    // Make directories for all resources we can save, and tags
     KoResourcePaths::saveLocation("data", "/asl/", true);
     KoResourcePaths::saveLocation("data", "/css_styles/", true);
     KoResourcePaths::saveLocation("data", "/input/", true);
@@ -517,7 +480,6 @@ void KisApplication::addResourceTypes()
     KoResourcePaths::saveLocation("data", "/preset_icons/tool_icons/", true);
     KoResourcePaths::saveLocation("data", "/preset_icons/emblem_icons/", true);
 }
-
 
 bool KisApplication::event(QEvent *event)
 {
@@ -531,7 +493,6 @@ bool KisApplication::event(QEvent *event)
     #endif
     return QApplication::event(event);
 }
-
 
 bool KisApplication::registerResources()
 {
@@ -559,7 +520,6 @@ bool KisApplication::registerResources()
                                                << KisMimeDatabase::mimeTypeForSuffix("xml")
                                                << KisMimeDatabase::mimeTypeForSuffix("sbz")));
 
-
     reg->add(new KisResourceLoader<KoPattern>(ResourceType::Patterns, ResourceType::Patterns, i18n("Patterns"), {"application/x-gimp-pattern", "image/x-gimp-pat", "application/x-gimp-pattern", "image/bmp", "image/jpeg", "image/png", "image/tiff"}));
     reg->add(new KisResourceLoader<KisWorkspaceResource>(ResourceType::Workspaces, ResourceType::Workspaces, i18n("Workspaces"), QStringList() << "application/x-krita-workspace"));
     reg->add(new KisResourceLoader<KoSvgSymbolCollectionResource>(ResourceType::Symbols, ResourceType::Symbols, i18n("SVG symbol libraries"), QStringList() << "image/svg+xml"));
@@ -569,7 +529,6 @@ bool KisApplication::registerResources()
 #if defined HAVE_SEEXPR
     reg->add(new KisResourceLoader<KisSeExprScript>(ResourceType::SeExprScripts, ResourceType::SeExprScripts, i18n("SeExpr Scripts"), QStringList() << "application/x-krita-seexpr-script"));
 #endif
-    // XXX: this covers only individual styles, not the library itself!
     reg->add(new KisResourceLoader<KisPSDLayerStyle>(ResourceType::LayerStyles,
                                                      ResourceType::LayerStyles,
                                                      i18nc("Resource type name", "Layer styles"),
@@ -583,7 +542,6 @@ bool KisApplication::registerResources()
 #ifndef Q_OS_ANDROID
     QString databaseLocation = KoResourcePaths::getAppDataLocation();
 #else
-    // Sqlite doesn't support content URIs (obviously). So, we make database location unconfigurable on android.
     QString databaseLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 #endif
 
@@ -602,7 +560,6 @@ bool KisApplication::registerResources()
 
 void KisApplication::loadPlugins()
 {
-    //    qDebug() << "loadPlugins();";
 
     KoShapeRegistry* r = KoShapeRegistry::instance();
     r->add(new KisShapeSelectionFactory());
@@ -616,9 +573,6 @@ void KisApplication::loadPlugins()
     KisMetadataBackendRegistry::instance();
 }
 
-// Krimble 2026-11-23: the bundled fonts (95 files, about 13 MB) are no longer loaded at every start. They are loaded the first time
-// they are needed: when a text tool is chosen, or before a file that can hold text (.kra, .ora, .psd, .svg, ...) is opened
-// (George: "we don't need extended fonts until the text tool loads."). The log says how long the loading took.
 static void krimbleLoadBundledFonts();
 void krimbleEnsureBundledFonts()
 {
@@ -676,7 +630,6 @@ static void krimbleLoadBundledFonts()
         else qWarning() << "Krimble: font could not be loaded:" << path;
     }
     qInfo() << "Krimble: bundled fonts found:" << files.size() << "loaded:" << loaded;
-    // files that ask for the classic fonts get the bundled look-alikes (same letter widths)
     QFont::insertSubstitutions(QStringLiteral("Times New Roman"), QStringList() << QStringLiteral("Liberation Serif"));
     QFont::insertSubstitutions(QStringLiteral("Times"), QStringList() << QStringLiteral("Liberation Serif"));
     QFont::insertSubstitutions(QStringLiteral("Arial"), QStringList() << QStringLiteral("Liberation Sans"));
@@ -707,8 +660,6 @@ bool KisApplication::start(const KisApplicationArguments &args)
     krimbleResetToolOptionsIfWanted();
 
     KisConfig cfg(false);
-
-    // krimbleLoadBundledFonts();   // at every start until 2026-11-23; now on first use (krimbleEnsureBundledFonts)
 
     auto iconsInMenuMode = cfg.iconsInMenu();
     if (iconsInMenuMode == KisConfig::IIM_Yes) {
@@ -756,8 +707,7 @@ bool KisApplication::start(const KisApplicationArguments &args)
 
     d->batchRun = (exportAs || exportSequence || !exportFileName.isEmpty());
     const bool needsMainWindow = (!exportAs && !exportSequence);
-    // only show the mainWindow when no command-line mode option is passed
-    bool showmainWindow = (!exportAs && !exportSequence); // would be !batchRun;
+    bool showmainWindow = (!exportAs && !exportSequence);
 
 #ifndef Q_OS_ANDROID
     const bool showSplashScreen = !d->batchRun && qEnvironmentVariableIsEmpty("NOSPLASH");
@@ -774,20 +724,17 @@ bool KisApplication::start(const KisApplicationArguments &args)
     themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
 #endif
 
-    ResetStarting resetStarting(d->splashScreen, args.filenames().count()); // remove the splash when done
+    ResetStarting resetStarting(d->splashScreen, args.filenames().count());
     Q_UNUSED(resetStarting);
 
-    // Make sure we can save resources and tags
     setSplashScreenLoadingText(i18n("Adding resource types..."));
     processEvents();
     addResourceTypes();
 
     setSplashScreenLoadingText(i18n("Loading plugins..."));
     processEvents();
-    // Load the plugins
     loadPlugins();
 
-    // Load all resources
     setSplashScreenLoadingText(i18n("Loading resources..."));
     processEvents();
     if (!registerResources()) {
@@ -796,10 +743,8 @@ bool KisApplication::start(const KisApplicationArguments &args)
 
     KisPart *kisPart = KisPart::instance();
     if (needsMainWindow) {
-        // show a mainWindow asap, if we want that
         setSplashScreenLoadingText(i18n("Loading Main Window..."));
         processEvents();
-
 
         bool sessionNeeded = true;
         auto sessionMode = cfg.sessionOnStartup();
@@ -867,32 +812,19 @@ bool KisApplication::start(const KisApplicationArguments &args)
         }
     }
 
-/*
-// Check for autosave files that can be restored, if we're not running a batch run (test)
-if (!d->batchRun) {
-    checkAutosaveFiles();
-}
-*/
-
-    setSplashScreenLoadingText(QString()); // done loading, so clear out label
+    setSplashScreenLoadingText(QString());
 #ifdef Q_OS_ANDROID
     KisAndroidDonations::setLoaded(true);
 #endif
     processEvents();
 
-    //configure the unit manager
     KisSpinBoxUnitManagerFactory::setDefaultUnitManagerBuilder(new KisDocumentAwareSpinBoxUnitManagerBuilder());
-    connect(this, &KisApplication::aboutToQuit, &KisSpinBoxUnitManagerFactory::clearUnitManagerBuilder); //ensure the builder is destroyed when the application leave.
-    //the new syntax slot syntax allow to connect to a non q_object static method.
+    connect(this, &KisApplication::aboutToQuit, &KisSpinBoxUnitManagerFactory::clearUnitManagerBuilder);
 
-    // Long-press emulation.
     KisConfigNotifier *cfgNotifier = KisConfigNotifier::instance();
     connect(cfgNotifier, &KisConfigNotifier::sigLongPressChanged, this, &KisApplication::slotSetLongPress);
     slotSetLongPress(cfg.longPressEnabled());
 
-    // Xiaomi workaround: their stylus inexplicably inputs page up and down keys
-    // when pressing stylus buttons. This flag causes the Android platform
-    // integration to turn those into right and middle clicks instead.
 #if KRITA_QT_HAS_ANDROID_EMULATE_MOUSE_BUTTONS_FOR_PAGE_UP_DOWN
     auto setPageUpDownMouseButtonEmulationWorkaround = [](bool enabled) {
         QCoreApplication::setKritaAttribute(KRITA_QATTRIBUTE_ANDROID_EMULATE_MOUSE_BUTTONS_FOR_PAGE_UP_DOWN, enabled);
@@ -907,7 +839,6 @@ if (!d->batchRun) {
 #if KRITA_QT_HAS_ANDROID_EMULATE_MOUSE_BUTTONS_FOR_HIGH_FUNCTION_KEYS
     QCoreApplication::setKritaAttribute(KRITA_QATTRIBUTE_ANDROID_EMULATE_MOUSE_BUTTONS_FOR_HIGH_FUNCTION_KEYS, true);
     auto setHighFunctionKeyMouseButtonEmulationWorkaround = [](bool enabled) {
-        // QCoreApplication::setKritaAttribute(KRITA_QATTRIBUTE_ANDROID_EMULATE_MOUSE_BUTTONS_FOR_HIGH_FUNCTION_KEYS, enabled);
     };
     connect(cfgNotifier,
             &KisConfigNotifier::sigUseHighFunctionKeyMouseButtonEmulationWorkaroundChanged,
@@ -916,10 +847,6 @@ if (!d->batchRun) {
     setHighFunctionKeyMouseButtonEmulationWorkaround(cfg.useHighFunctionKeyMouseButtonEmulationWorkaround());
 #endif
 
-    // Xiaomi workaround: historic tablet motion events are garbage, they just
-    // connect the actual points that the tablet sampled with a straight line
-    // and no pressure emulation, leading to jagged curves that don't get
-    // smoothed out. This flag disables reading those historic events.
 #if KRITA_QT_HAS_ANDROID_IGNORE_HISTORIC_TABLET_EVENTS
     auto setIgnoreHistoricTabletEventsWorkaround = [](bool enabled) {
         QCoreApplication::setKritaAttribute(KRITA_QATTRIBUTE_ANDROID_IGNORE_HISTORIC_TABLET_EVENTS, enabled);
@@ -931,7 +858,6 @@ if (!d->batchRun) {
     setIgnoreHistoricTabletEventsWorkaround(cfg.useIgnoreHistoricTabletEventsWorkaround());
 #endif
 
-    // Create a new image, if needed
     if (doNewImage) {
         KisDocument *doc = args.createDocumentFromArguments();
         if (doc) {
@@ -940,20 +866,15 @@ if (!d->batchRun) {
         }
     }
 
-    // Get the command line arguments which we have to parse
     int argsCount = args.filenames().count();
     if (argsCount > 0) {
-        // Loop through arguments
         for (int argNumber = 0; argNumber < argsCount; argNumber++) {
             QString fileName = args.filenames().at(argNumber);
-            // are we just trying to open a template?
             if (doTemplate) {
-                // called in mix with batch options? ignore and silently skip
                 if (d->batchRun) {
                     continue;
                 }
                 createNewDocFromTemplate(fileName, d->mainWindow);
-                // now try to load
             }
             else {
                 if (exportAs) {
@@ -979,7 +900,7 @@ if (!d->batchRun) {
                         return false;
                     }
 
-                    qApp->processEvents(); // For vector layers to be updated
+                    qApp->processEvents();
 
                     doc->setFileBatchMode(true);
                     doc->image()->waitForDone();
@@ -994,8 +915,8 @@ if (!d->batchRun) {
                     KisDocument *doc = kisPart->createDocument();
                     doc->setFileBatchMode(d->batchRun);
                     doc->openPath(fileName);
-                    qApp->processEvents(); // For vector layers to be updated
-                    
+                    qApp->processEvents();
+
                     if (!doc->image()->animationInterface()->hasAnimation()) {
                         errKrita << "This file has no animation." << Qt::endl;
                         QTimer::singleShot(0, this, SLOT(quit()));
@@ -1004,7 +925,6 @@ if (!d->batchRun) {
 
                     doc->setFileBatchMode(true);
                     int sequenceStart = 0;
-
 
                     qDebug() << ppVar(exportFileName);
                     KisAsyncAnimationFramesSaveDialog exporter(doc->image(),
@@ -1040,7 +960,6 @@ if (!d->batchRun) {
         }
     }
 
-    //add an image as file-layer
     if (!args.fileLayer().isEmpty()){
         if (d->mainWindow->viewManager()->image()){
             KisFileLayer *fileLayer = new KisFileLayer(d->mainWindow->viewManager()->image(), "",
@@ -1081,7 +1000,6 @@ if (!d->batchRun) {
 
     KisUsageLogger::writeSysInfo(KisUsageLogger::screenInformation());
 
-    // process File open event files
     if (!d->earlyFileOpenEvents.isEmpty()) {
         hideSplashScreen();
         Q_FOREACH(QString fileName, d->earlyFileOpenEvents) {
@@ -1091,7 +1009,6 @@ if (!d->batchRun) {
 
     verifyMetatypeRegistration();
 
-    // not calling this before since the program will quit there.
     return true;
 }
 
@@ -1125,26 +1042,18 @@ void KisApplication::hideSplashScreen()
     KisAndroidDonations::setLoaded(true);
 #endif
     if (d->splashScreen) {
-        // hide the splashscreen to see the dialog
         d->splashScreen->hide();
     }
 }
-
 
 bool KisApplication::notify(QObject *receiver, QEvent *event)
 {
     try {
         bool result = true;
 
-        /**
-         * KisApplication::notify() is called for every event loop processed in
-         * any thread, so we need to make sure our counters and postponed events
-         * queues are stored in a per-thread way.
-         */
         AppRecursionInfo &info = s_recursionInfo->localData();
 
         {
-            // QApplication::notify() can throw, so use RAII for counters
             AppRecursionGuard guard(&info);
 
             if (event->type() == KisSynchronizedConnectionBase::eventType()) {
@@ -1184,11 +1093,8 @@ void KisApplication::processPostponedSynchronizationEvents()
     AppRecursionInfo &info = s_recursionInfo->localData();
 
     while (!info.postponedSynchronizationEvents.empty()) {
-        // QApplication::notify() can throw, so use RAII for counters
         AppRecursionGuard guard(&info);
 
-        /// We must pop event from the queue **before** we call
-        /// QApplication::notify(), because it can throw!
         KisSynchronizedConnectionEvent typedEvent = info.postponedSynchronizationEvents.front();
         info.postponedSynchronizationEvents.pop();
 
@@ -1212,9 +1118,6 @@ bool KisApplication::isStoreApplication()
     }
 
 #ifdef Q_OS_WIN
-    // This is also true for user-installed MSIX, but that's
-    // likely only true in institutional situations, where
-    // we don't want to show the beginning banner either.
     if (KisWindowsPackageUtils::isRunningInPackage()) {
         return true;
     }
@@ -1232,10 +1135,6 @@ bool KisApplication::isStoreApplication()
 
 void KisApplication::verifyMetatypeRegistration()
 {
-    /**
-     * Verify that all our statically registered types are actually registered.
-     * This check is skipped in release builds, when HIDE_SAFE_ASSERTS is defined
-     */
 #if !defined(HIDE_SAFE_ASSERTS) || defined(CRASH_ON_SAFE_ASSERTS)
 
     auto verifyTypeRegistered = [] (const char *type) {
@@ -1289,7 +1188,6 @@ void KisApplication::executeRemoteArguments(QByteArray message, KisMainWindow *m
     const int argsCount = args.filenames().count();
     bool documentCreated = false;
 
-    // Create a new image, if needed
     if (doNewImage) {
         KisDocument *doc = args.createDocumentFromArguments();
         if (doc) {
@@ -1298,10 +1196,8 @@ void KisApplication::executeRemoteArguments(QByteArray message, KisMainWindow *m
         }
     }
     if (argsCount > 0) {
-        // Loop through arguments
         for (int argNumber = 0; argNumber < argsCount; ++argNumber) {
             QString filename = args.filenames().at(argNumber);
-            // are we just trying to open a template?
             if (doTemplate) {
                 documentCreated |= createNewDocFromTemplate(filename, mainWindow);
             }
@@ -1312,10 +1208,8 @@ void KisApplication::executeRemoteArguments(QByteArray message, KisMainWindow *m
         }
     }
 
-    //add an image as file-layer if called in another process and singleApplication is enabled
     if (!args.fileLayer().isEmpty()){
         if (argsCount > 0  && !documentCreated){
-            //arg was passed but document was not created so don't add the file layer.
             QMessageBox::warning(mainWindow, i18nc("@title:window", "Krimble:Warning"),
                                             i18n("Couldn't open file %1",args.filenames().at(argsCount - 1)));
         }
@@ -1341,10 +1235,8 @@ void KisApplication::executeRemoteArguments(QByteArray message, KisMainWindow *m
     }
 }
 
-
 void KisApplication::remoteArguments(const QString &message)
 {
-    // check if we have any mainwindow
     KisMainWindow *mw = qobject_cast<KisMainWindow*>(qApp->activeWindow());
 
     if (!mw && KisPart::instance()->mainWindows().size() > 0) {
@@ -1372,7 +1264,6 @@ void KisApplication::fileOpenRequested(const QString &url)
     d->mainWindow->openDocument(url, flags);
 }
 
-
 void KisApplication::slotSetLongPress(bool enabled)
 {
     if (enabled && !d->longPressEventFilter) {
@@ -1391,23 +1282,15 @@ void KisApplication::checkAutosaveFiles()
 
     QDir dir = KisAutoSaveRecoveryDialog::autoSaveLocation();
 
-    // Check for autosave files from a previous run. There can be several, and
-    // we want to offer a restore for every one. Including a nice thumbnail!
-
-    // Hidden autosave files
     QStringList filters = QStringList() << QString(".krita-*-*-autosave.kra");
 
-    // all autosave files for our application
     QStringList autosaveFiles = dir.entryList(filters, QDir::Files | QDir::Hidden);
 
-    // Visible autosave files
     filters = QStringList() << QString("krita-*-*-autosave.kra");
     autosaveFiles += dir.entryList(filters, QDir::Files);
 
-    // Allow the user to make their selection
     if (autosaveFiles.size() > 0) {
         if (d->splashScreen) {
-            // hide the splashscreen to see the dialog
             hideSplashScreen();
         }
         d->autosaveDialog = new KisAutoSaveRecoveryDialog(autosaveFiles, activeWindow());
@@ -1439,7 +1322,6 @@ void KisApplication::checkAutosaveFiles()
                 }
             }
         }
-        // cleanup
         delete d->autosaveDialog;
         d->autosaveDialog = nullptr;
     }
@@ -1496,19 +1378,18 @@ void KisApplication::resetConfig()
 
     KSharedConfigPtr config =  KSharedConfig::openConfig();
     config->markAsClean();
-    
-    // find user settings file
+
     const QString configPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
     QString kritarcPath = configPath + QStringLiteral("/kritarc");
-    
+
     QFile kritarcFile(kritarcPath);
-    
+
     if (kritarcFile.exists()) {
         if (kritarcFile.open(QFile::ReadWrite)) {
             QString backupKritarcPath = kritarcPath + QStringLiteral(".backup");
-    
+
             QFile backupKritarcFile(backupKritarcPath);
-    
+
             if (backupKritarcFile.exists()) {
                 backupKritarcFile.remove();
             }
@@ -1521,7 +1402,6 @@ void KisApplication::resetConfig()
                                       backupKritarcPath),
                                  QMessageBox::Ok, QMessageBox::Ok);
 
-            // clear file
             kritarcFile.rename(backupKritarcPath);
 
             kritarcFile.close();
@@ -1536,12 +1416,9 @@ void KisApplication::resetConfig()
         }
     }
 
-    // reload from disk; with the user file settings cleared,
-    // this should load any default configuration files shipping with the program
     config->reparseConfiguration();
     config->sync();
 
-    // Restore to default workspace
     KConfigGroup cfg = KSharedConfig::openConfig()->group("MainWindow");
 
     QString currentWorkspace = cfg.readEntry<QString>("CurrentWorkspace", "Default");
@@ -1582,7 +1459,6 @@ KisAndroidDonations *KisApplication::androidDonations()
 KisAndroidScaling *KisApplication::androidScaling()
 {
 #if KRITA_QT_HAS_ANDROID_QPLATFORMSCREEN_DENSITY_ADJUSTMENT
-    // Should get initialized during startup and not accessed before.
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(d->androidScaling, nullptr);
     return d->androidScaling;
 #else

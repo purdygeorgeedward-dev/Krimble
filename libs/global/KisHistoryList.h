@@ -23,16 +23,10 @@ public:
     {
     }
 
-    /**
-     * @return the number of elements in the list
-     */
     int size() const {
         return m_values.size();
     }
 
-    /**
-     * @return @pos's element of the history list
-     */
     T at(int pos) const {
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(pos < size(), T());
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(pos >= 0, T());
@@ -40,16 +34,6 @@ public:
         return m_values.at(pos);
     }
 
-    /**
-     * Add an element to the history list
-     *
-     * If an element already exists in the list, then this
-     * existing element is put into the top of the list (as
-     * recently used).
-     *
-     * If the number of elements exceeds the maxSize() value,
-     * the oldest element of the history list is removed.
-     */
     int append(const T& value) {
         auto it = std::find(m_values.begin(), m_values.end(), value);
 
@@ -62,20 +46,13 @@ public:
             }
         }
 
-        // return the index of just added color (always 0)
         return 0;
     }
 
-    /**
-     * Clear all historical elements from the list
-     */
     void clear() {
         m_values.clear();
     }
 
-    /**
-     * @return the maximum possible number of elements in the list
-     */
     int maxSize() const {
         return m_maxSize;
     }
@@ -88,10 +65,9 @@ public:
         return m_values.cend();
     }
 
-
 private:
     int m_maxSize = 0;
     std::deque<T> m_values;
 };
 
-#endif // KISHISTORYLIST_H
+#endif

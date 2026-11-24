@@ -18,7 +18,6 @@ class KoColorSpace;
 
 class QPainter;
 
-
 class KisColorSelectorComponent : public QObject
 {
     Q_OBJECT
@@ -30,25 +29,19 @@ public:
     void setGeometry(int x, int y, int width, int height);
     void paintEvent(QPainter*);
 
-    /// saves the mouse position, so that a blip can be created.
     virtual void mouseEvent(int x, int y);
 
-    /// return the color, that was selected by calling mouseEvent
     KoColor currentColor();
 
     int width() const;
     int height() const;
 
-    /// setConfiguration can be ignored (for instance ring and triangle, as they can have only one config)
     void setConfiguration(Parameter param, Type type);
 
-    /// set the color, blibs etc
     virtual void setColor(const KoColor& color);
 
-    /// force subsequent redraw of the component
     void setDirty();
 
-    /// returns true, if this component wants to grab the mouse (normally true, if containsPoint returns true)
     bool wantsGrab(int x, int y) {return containsPointInComponentCoords(x-m_x, y-m_y);}
 
     void setGamutMask(KoGamutMaskSP gamutMask);
@@ -57,37 +50,22 @@ public:
     void toggleGamutMask(bool state);
 
 public Q_SLOTS:
-    /// set hue, saturation, value or/and lightness
-    /// unused parameters should be set to -1
     void setParam(qreal hue, qreal hsvSaturation, qreal value, qreal hslSaturation, qreal lightness, qreal hsiSaturation, qreal intensity, qreal hsySaturation, qreal luma);
 Q_SIGNALS:
-    /// request for repaint, for instance, if the hue changes.
     void update();
-    /// -1, if unaffected
     void paramChanged(qreal hue, qreal hsvSaturation, qreal value, qreal hslSaturation, qreal lightness, qreal hsiSaturation, qreal intensity, qreal hsySaturation, qreal luma);
 protected:
     const KoColorSpace* colorSpace() const;
-    /// returns true, if ether the color space, the size or the parameters have changed since the last paint event
     bool isDirty() const;
 
-    /// this method must be overloaded to return the color at position x/y and draw a marker on that position
     virtual KoColor selectColor(int x, int y) = 0;
 
-    /// paint component using given painter
-    /// the component should respect width() and height() (eg. scale to width and height), but doesn't
-    /// have to care about x/y coordinates (top left corner)
     virtual void paint(QPainter*) = 0;
 
-    /// a subclass can implement this method, the default returns true if the coordinates are in the component rect
-    /// values for the subclasses are provided in component coordinates, eg (0,0) is top left of component
     virtual bool containsPointInComponentCoords(int x, int y) const;
 
-    /// a subclass can implement this method to note that the point, although it is in
-    /// containsPointInComponentCoords area, still cannot be selected as a color (e.g.
-    /// it is masked out). Default implementation always returns true.
     virtual bool allowsColorSelectionAtPoint(const QPoint &) const;
 
-    // Workaround for Bug 287001
     void setLastMousePosition(int x, int y);
 
     qreal m_hue {0.0};
@@ -117,4 +95,4 @@ private:
     KoColor m_lastSelectedColor;
 };
 
-#endif // KIS_COLOR_SELECTOR_COMPONENT_H
+#endif

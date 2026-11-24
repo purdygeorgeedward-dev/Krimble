@@ -14,14 +14,12 @@
 #include <kis_shared.h>
 #include <kis_shared_ptr.h>
 
-
 class PAINTOP_EXPORT KisBrushBasedPaintOpSettings : public KisOutlineGenerationPolicy<KisPaintOpSettings>
 {
 public:
     KisBrushBasedPaintOpSettings(KisResourcesInterfaceSP resourcesInterface);
     ~KisBrushBasedPaintOpSettings() override {}
 
-    ///Reimplemented
     bool paintIncremental() override;
 
     using KisPaintOpSettings::brushOutline;
@@ -70,4 +68,4 @@ private:
 class KisBrushBasedPaintOpSettings;
 typedef KisPinnedSharedPtr<KisBrushBasedPaintOpSettings> KisBrushBasedPaintOpSettingsSP;
 
-#endif // KIS_BRUSH_BASED_PAINTOP_SETTINGS_H
+#endif

@@ -23,17 +23,13 @@ public:
     KisSeExprScriptChooser(QWidget *parent = 0);
     ~KisSeExprScriptChooser() override;
 
-    /// Gets the currently selected resource
-    /// @returns the selected resource, 0 is no resource is selected
     KoResourceSP currentResource();
     void setCurrentScript(KoResourceSP resource);
     void setCurrentItem(int row);
-    /// determines whether the preview right or below the splitter
     void setPreviewOrientation(Qt::Orientation orientation);
 
 Q_SIGNALS:
 
-    /// Emitted when a resource was selected
     void resourceSelected(KoResourceSP resource);
     void updateItemSize();
 
@@ -47,5 +43,5 @@ private:
     KisResourceItemChooser *m_itemChooser;
 };
 
-#endif // KIS_SEEXPR_SCRIPT_CHOOSER_H_
+#endif
 

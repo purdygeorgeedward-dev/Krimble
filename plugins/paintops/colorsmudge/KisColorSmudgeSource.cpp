@@ -14,10 +14,6 @@ void KisColorSmudgeSource::readRect(const QRect &rect) {
     readRects({rect});
 }
 
-/**********************************************************************************/
-/*                 KisColorSmudgeSourcePaintDevice                                */
-/**********************************************************************************/
-
 KisColorSmudgeSourcePaintDevice::KisColorSmudgeSourcePaintDevice(KisOverlayPaintDeviceWrapper &overlayDevice, int overlayIndex)
     : m_overlayDevice(overlayDevice),
       m_overlayIndex(overlayIndex)
@@ -35,9 +31,6 @@ void KisColorSmudgeSourcePaintDevice::readBytes(quint8 *dstPtr, const QRect &rec
 const KoColorSpace *KisColorSmudgeSourcePaintDevice::colorSpace() const {
     return m_overlayDevice.overlayColorSpace();
 }
-/**********************************************************************************/
-/*                 KisColorSmudgeSourceImage                                      */
-/**********************************************************************************/
 
 KisColorSmudgeSourceImage::KisColorSmudgeSourceImage(KisImageSP image, KisOverlayPaintDeviceWrapper &overlayDevice)
         : m_image(image),

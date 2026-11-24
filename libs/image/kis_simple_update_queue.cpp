@@ -13,10 +13,6 @@
 #include "kis_full_refresh_walker.h"
 #include "kis_spontaneous_job.h"
 
-
-//#define ENABLE_DEBUG_JOIN
-//#define ENABLE_ACCUMULATOR
-
 #ifdef ENABLE_DEBUG_JOIN
     #define DEBUG_JOIN(baseRect, newRect, alpha)                     \
         dbgKrita << "Two rects were joined:\t"                       \
@@ -25,8 +21,7 @@
 
 #else
     #define DEBUG_JOIN(baseRect, newRect, alpha)
-#endif /* ENABLE_DEBUG_JOIN */
-
+#endif
 
 #ifdef ENABLE_ACCUMULATOR
     #define DECLARE_ACCUMULATOR() static qreal _baseAmount=0, _newAmount=0
@@ -38,8 +33,7 @@
     #define DECLARE_ACCUMULATOR()
     #define ACCUMULATOR_ADD(baseAmount, newAmount)
     #define ACCUMULATOR_DEBUG()
-#endif /* ENABLE_ACCUMULATOR */
-
+#endif
 
 KisSimpleUpdateQueue::KisSimpleUpdateQueue()
     : m_overrideLevelOfDetail(-1)
@@ -119,16 +113,6 @@ bool KisSimpleUpdateQueue::processOneJob(KisUpdaterContext &updaterContext)
     if (jobAdded) return true;
 
     if (!m_spontaneousJobsList.isEmpty()) {
-        /**
-         * WARNING: Please note that this still doesn't guarantee that
-         * the spontaneous jobs are exclusive, since updates and/or
-         * strokes can be added after them. The only thing it
-         * guarantees that two spontaneous jobs will not be executed
-         * in parallel.
-         *
-         * Right now it works as it is. Probably will need to be fixed
-         * in the future.
-         */
         qint32 numMergeJobs;
         qint32 numStrokeJobs;
         updaterContext.getJobsSnapshot(numMergeJobs, numStrokeJobs);
@@ -228,7 +212,6 @@ void KisSimpleUpdateQueue::addJob(KisNodeSP node, const QVector<QRect> &rects,
 
             walker = new KisFullRefreshWalker(cropRect, KisFullRefreshWalker::NoFilthyMode);
         }
-        /* else if(type == KisBaseRectsWalker::UNSUPPORTED) fatalKrita; */
 
         walker->collectRects(node, rc);
         if (!walker->isEmpty()) {
@@ -292,8 +275,6 @@ bool KisSimpleUpdateQueue::trySplitJob(KisNodeSP node, const QRect& rc,
     if(rc.width() <= m_patchWidth || rc.height() <= m_patchHeight)
         return false;
 
-    // a bit of recursive splitting...
-
     qint32 firstCol = rc.x() / m_patchWidth;
     qint32 firstRow = rc.y() / m_patchHeight;
 
@@ -330,11 +311,6 @@ bool KisSimpleUpdateQueue::tryMergeJob(KisNodeSP node, const QRect& rc,
     KisBaseRectsWalkerSP goodCandidate;
     KisBaseRectsWalkerSP item;
     KisWalkersListIterator iter(m_updatesList);
-
-    /**
-     * We add new jobs to the tail of the list,
-     * so it's more probable to find a good candidate here.
-     */
 
     iter.toBack();
 

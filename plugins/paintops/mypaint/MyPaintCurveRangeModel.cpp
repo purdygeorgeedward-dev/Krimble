@@ -24,7 +24,6 @@ namespace {
         };
     };
 
-
     auto curveToNormalizedCurve = lager::lenses::getset(
         [] (const std::tuple<QString, QRectF> &curveData)
         {
@@ -35,7 +34,7 @@ namespace {
             normalized.yLimit = qMax(qAbs(bounds.top()), qAbs(bounds.bottom()));
             normalized.xMax = bounds.right();
             normalized.xMin = bounds.left();
-            
+
             if (qFuzzyIsNull(normalized.yLimit)) {
                 points = {{0.0, 0.5, false}, {1.0, 0.5, false}};
             } else {
@@ -44,10 +43,9 @@ namespace {
                     it->setY(it->y() / (2.0 * normalized.yLimit) + 0.5);
                 }
             }
-            
+
             normalized.curve = KisCubicCurve(points).toString();
 
-            //qDebug() << "get" << std::get<0>(curveData) << "->" << normalized.curve << bounds;
             return normalized;
         },
         [] (std::tuple<QString, QRectF> curveData, const MyPaintCurveRangeModel::NormalizedCurve &normalizedCurve) {
@@ -65,13 +63,11 @@ namespace {
                                             normalizedCurve.xMax - normalizedCurve.xMin,
                                             2.0 * normalizedCurve.yLimit);
 
-            //qDebug() << "set" << std::get<0>(curveData) << "<-" << normalizedCurve.curve << std::get<1>(curveData);
             return curveData;
         }
     );
 
-} // namespace
-
+}
 
 using KisWidgetConnectionUtils::ToSpinBoxState;
 
@@ -121,10 +117,6 @@ KisCurveRangeModelFactory MyPaintCurveRangeModel::factory(qreal maxYRange, const
 
 std::tuple<QString, QRectF> MyPaintCurveRangeModel::reshapeCurve(std::tuple<QString, QRectF> curve)
 {
-    /**
-     * Krita's GUI doesn't support x-range more narrow than 0...1, so
-     * we should extend it if necessary
-     */
     std::get<1>(curve) |= QRect(0, -1, 1, 2);
 
     NormalizedCurve normalized = lager::view(curveToNormalizedCurve, curve);

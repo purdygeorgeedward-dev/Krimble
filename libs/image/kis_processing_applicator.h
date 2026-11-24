@@ -61,42 +61,15 @@ public:
                                KisStrokeJobData::Sequentiality sequentiality = KisStrokeJobData::SEQUENTIAL,
                                KisStrokeJobData::Exclusivity exclusivity = KisStrokeJobData::NORMAL);
 
-    /**
-     * This method emits all the final update signals of the stroke
-     * without actually ending the stroke. This can be used for
-     * long-running strokes which are kept open to implement preview
-     * of the actions.
-     *
-     * WARNING: you cannot add new commands/processings after the
-     * final signals has been emitted. You should either call end() or
-     * cancel().
-     */
     void explicitlyEmitFinalSignals();
 
     void end();
     void cancel();
 
-    /**
-     * Returns the underlying stroke.
-     * Useful if you want to inject additional jobs in the applicator.
-     */
     const KisStrokeId getStroke() const;
 
-    /**
-     * A future that notifies the caller when the whole processing
-     * stroke has been completed. The returned value shows if the
-     * stroke has been completed (true) or cancelled (false).
-     */
     std::future<bool> &&successfullyCompletedFuture();
 
-    /**
-     * @brief runSingleCommandStroke creates a stroke and runs \p cmd in it.
-     *        The text() field of \p cmd is used as a title of the stroke.
-     * @param image the image to run the stroke on
-     * @param cmd the command to be executed
-     * @param sequentiality sequentiality property of the command being executed (see strokes documentation)
-     * @param exclusivity sequentiality property of the command being executed (see strokes documentation)
-     */
     static void runSingleCommandStroke(KisImageSP image,
                                        KUndo2Command *cmd,
                                        KisStrokeJobData::Sequentiality sequentiality = KisStrokeJobData::SEQUENTIAL,
@@ -121,5 +94,4 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisProcessingApplicator::ProcessingFlags)
 
-
-#endif /* __KIS_PROCESSING_APPLICATOR_H */
+#endif

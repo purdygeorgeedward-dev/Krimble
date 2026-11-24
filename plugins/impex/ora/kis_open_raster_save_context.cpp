@@ -35,7 +35,6 @@ QString KisOpenRasterSaveContext::saveDeviceData(KisPaintDeviceSP dev, KisMetaDa
     return "";
 }
 
-
 void KisOpenRasterSaveContext::saveStack(const QDomDocument& doc)
 {
     if (m_store->open("stack.xml")) {

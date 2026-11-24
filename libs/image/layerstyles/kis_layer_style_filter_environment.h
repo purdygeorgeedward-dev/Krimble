@@ -21,7 +21,6 @@ class QBitArray;
 class KisCachedPaintDevice;
 class KisCachedSelection;
 
-
 class KRITAIMAGE_EXPORT KisLayerStyleFilterEnvironment
 {
 public:
@@ -48,4 +47,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_LAYER_STYLE_FILTER_ENVIRONMENT_H */
+#endif

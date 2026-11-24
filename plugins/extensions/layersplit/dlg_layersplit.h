@@ -13,10 +13,6 @@
 
 #include "wdg_layersplit.h"
 
-/**
- * This dialog allows the user to create a selection mask based
- * on a (range of) colors.
- */
 class DlgLayerSplit: public KoDialog
 {
 
@@ -52,4 +48,4 @@ private:
     KoColorSetSP m_palette {0};
 };
 
-#endif // DLG_LAYERSPLIT
+#endif

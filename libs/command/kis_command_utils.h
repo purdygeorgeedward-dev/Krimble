@@ -16,15 +16,6 @@
 namespace KisCommandUtils
 {
 
-    /**
-     * @brief The AggregateCommand struct is a command with delayed
-     * initialization. On first redo() populateChildCommands() is called
-     * and the descendants add the desired commands to the internal list.
-     * After that, the added commands are executed on every undo()/redo().
-     *
-     * This structure is used when the commands should be populated from
-     * the context of the stroke, not from the GUI thread.
-     */
     struct KRITACOMMAND_EXPORT AggregateCommand : public KUndo2Command {
         AggregateCommand(KUndo2Command *parent = 0);
         AggregateCommand(const KUndo2MagicString &text,
@@ -42,12 +33,6 @@ namespace KisCommandUtils
         KisSurrogateUndoStore m_store;
     };
 
-    /**
-     * @brief The LambdaCommand struct is a shorthand for creation of
-     * AggregateCommand commands using C++ lambda feature. Just pass
-     * a lambda object into a command and it will be called from within
-     * the context of the strokes thread to populate the command content.
-     */
     struct KRITACOMMAND_EXPORT LambdaCommand : public AggregateCommand {
         LambdaCommand(std::function<KUndo2Command*()> createCommandFunc);
         LambdaCommand(const KUndo2MagicString &text,
@@ -65,7 +50,6 @@ namespace KisCommandUtils
         std::function<KUndo2Command*()> m_createCommandFunc;
     };
 
-
     struct KRITACOMMAND_EXPORT SkipFirstRedoWrapper : public KUndo2Command {
         SkipFirstRedoWrapper(KUndo2Command *child = 0, KUndo2Command *parent = 0);
         void redo() override;
@@ -75,7 +59,6 @@ namespace KisCommandUtils
         bool m_firstRedo;
         QScopedPointer<KUndo2Command> m_child;
     };
-
 
     struct KRITACOMMAND_EXPORT SkipFirstRedoBase : public KUndo2Command {
         SkipFirstRedoBase(bool skipFirstRedo, KUndo2Command *parent = 0);
@@ -94,18 +77,17 @@ namespace KisCommandUtils
         bool m_firstRedo;
     };
 
-
     struct KRITACOMMAND_EXPORT FlipFlopCommand : public KUndo2Command {
         enum State {
-            INITIALIZING, // Before redo; after undo.
-            FINALIZING    // After redo; before undo.
+            INITIALIZING,
+            FINALIZING
         };
 
         FlipFlopCommand(State initialState, KUndo2Command *parent = 0);
         FlipFlopCommand(bool finalizing = false, KUndo2Command *parent = 0);
 
-        void redo() override; // partA -> redo command -> partB
-        void undo() override; // partB -> undo command -> partA
+        void redo() override;
+        void undo() override;
 
     protected:
         virtual void partA();
@@ -132,51 +114,11 @@ namespace KisCommandUtils
         QVector<KUndo2Command*> m_commands;
     };
 
-    /**
-     * A simple helper function for monadic composition of undo commands
-     *
-     * \p parent and \p cmd commands are composed into a single CompositeCommand
-     * command. The name of the new command is inherited from \p parent.
-     *
-     * If \p parent is already a CompositeCommand, then \p cmd is just
-     * appended to the end of of it.
-     *
-     * If \p parent is nullptr, then a mere \p cmd is returned
-     *
-     * WARNIGN: neither of the commands should have a parent! We simply
-     * cannot compose a command with a parent!
-     *
-     * Usage:
-     *
-     *        \code{.cpp}
-     *
-     *        KUndo2Command *cmd = nullptr;
-     *        if (propertyXChanged) {
-     *            cmd = composeCommands(cmd, new ChangePropertyXCommand(...));
-     *        }
-     *        if (propertyYChanged) {
-     *            cmd = composeCommands(cmd, new ChangePropertyYCommand(...));
-     *        }
-     *        if (propertyZChanged) {
-     *            cmd = composeCommands(cmd, new ChangePropertyZCommand(...));
-     *        }
-     *        if (cmd) {
-     *            m_view->undoAdapter()->addCommand(cmd);
-     *        }
-     *
-     *        \endcode
-     */
     KRITACOMMAND_EXPORT
     KUndo2Command* composeCommands(KUndo2Command *parent, KUndo2Command *cmd);
 
-    /**
-     * A simple function to merge down commands in iterative actions, like the
-     * ones we use in shape manipulations. The function takes ownership of \p cmd
-     * and either merges it into \p accumulatingCommand (if exists) or just
-     * sets the accumulating command to that command
-     */
     KRITACOMMAND_EXPORT
     void redoAndMergeIntoAccumulatingCommand(KUndo2Command *cmd, std::unique_ptr<KUndo2Command> &accumulatingCommand);
 }
 
-#endif /* __KIS_COMMAND_UTILS_H */
+#endif

@@ -7,7 +7,6 @@
 
 #include "TestAslStorage.h"
 
-
 #include <simpletest.h>
 
 #include <KoConfig.h>
@@ -22,9 +21,7 @@
 
 void TestAslStorage::initTestCase()
 {
-    // nothing to do
 }
-
 
 void TestAslStorage::testResourceIterator_data()
 {
@@ -33,10 +30,8 @@ void TestAslStorage::testResourceIterator_data()
     QTest::addColumn<int>("stylesCount");
 
     QTest::newRow("asl/test_all_style.asl") << TestUtil::fetchDataFileLazy("asl/test_all_style.asl") << 0 << 1;
-    //QTest::newRow("asl/test_all_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/test_all_with_pattern.asl") << 1 << 1;
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << 1 << 4;
     QTest::newRow("asl/freebie_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/testset/freebie_with_pattern.asl") << 1 << 1;
-
 
 }
 
@@ -60,7 +55,6 @@ void TestAslStorage::testResourceIterator()
         count++;
     }
     QCOMPARE(count, patternsCount);
-
 
     QSharedPointer<KisResourceStorage::ResourceIterator> iter2(storage.resources(ResourceType::LayerStyles));
 
@@ -94,10 +88,8 @@ void TestAslStorage::testTagIterator_data()
     QTest::addColumn<QString>("filename");
 
     QTest::newRow("asl/test_all_style.asl") << TestUtil::fetchDataFileLazy("asl/test_all_style.asl");
-    //QTest::newRow("asl/test_all_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/test_all_with_pattern.asl") << 1 << 1;
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl");
     QTest::newRow("asl/freebie_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/testset/freebie_with_pattern.asl");
-
 
 }
 
@@ -124,18 +116,14 @@ void TestAslStorage::testResourceItem_data()
 
     QTest::newRow("asl/test_all_style.asl") << TestUtil::fetchDataFileLazy("asl/test_all_style.asl") << "{0701cdb9-df8a-11e4-adaf-ce8e6f81a66e}";
 
-    //QTest::newRow("asl/test_all_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/test_all_with_pattern.asl") << 1 << 1;
-
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "8122fc0c-58b9-11d4-b895-a898787104c1.pat";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{81a5a778-bd9f-11d5-b8ba-b73f8571793d}";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{81a5a779-bd9f-11d5-b8ba-b73f8571793d}";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{81a5a77a-bd9f-11d5-b8ba-b73f8571793d}";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{4ae237f2-bda0-11d5-b8ba-b73f8571793d}";
 
-
     QTest::newRow("asl/freebie_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/testset/freebie_with_pattern.asl")  << "{47c8b792-b27f-11e1-a082-d6e8ee17595d}";
     QTest::newRow("asl/freebie_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/testset/freebie_with_pattern.asl")  << "47c8b78c-b27f-11e1-a082-d6e8ee17595d.pat";
-
 
 }
 
@@ -158,18 +146,14 @@ void TestAslStorage::testResource_data()
 
     QTest::newRow("asl/test_all_style.asl") << TestUtil::fetchDataFileLazy("asl/test_all_style.asl") << "{0701cdb9-df8a-11e4-adaf-ce8e6f81a66e}";
 
-    //QTest::newRow("asl/test_all_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/test_all_with_pattern.asl") << 1 << 1;
-
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "8122fc0c-58b9-11d4-b895-a898787104c1.pat";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{81a5a778-bd9f-11d5-b8ba-b73f8571793d}";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{81a5a779-bd9f-11d5-b8ba-b73f8571793d}";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{81a5a77a-bd9f-11d5-b8ba-b73f8571793d}";
     QTest::newRow("asl/multiple_styles.asl") << TestUtil::fetchDataFileLazy("asl/multiple_styles.asl") << "{4ae237f2-bda0-11d5-b8ba-b73f8571793d}";
 
-
     QTest::newRow("asl/freebie_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/testset/freebie_with_pattern.asl")  << "{47c8b792-b27f-11e1-a082-d6e8ee17595d}";
     QTest::newRow("asl/freebie_with_pattern.asl") << TestUtil::fetchDataFileLazy("asl/testset/freebie_with_pattern.asl")  << "47c8b78c-b27f-11e1-a082-d6e8ee17595d.pat";
-
 
 }
 
@@ -178,13 +162,11 @@ void TestAslStorage::testResource()
     QFETCH(QString, filename);
     QFETCH(QString, resource);
 
-
     KisAslStorage storage(filename);
     KoResourceSP res = storage.resource(resource);
     QVERIFY(res);
     QCOMPARE(res->filename(), resource);
 }
-
 
 SIMPLE_TEST_MAIN(TestAslStorage)
 

@@ -14,7 +14,6 @@
 #include "kritaimage_export.h"
 #include "kis_types.h"
 
-
 class KRITAIMAGE_EXPORT KisMemoryStatisticsServer : public QObject
 {
     Q_OBJECT
@@ -59,8 +58,6 @@ public:
         qint64 tilesPoolLimit;
     };
 
-
-
 public:
     KisMemoryStatisticsServer();
     ~KisMemoryStatisticsServer() override;
@@ -75,10 +72,9 @@ public Q_SLOTS:
 Q_SIGNALS:
     void sigUpdateMemoryStatistics();
 
-
 private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_MEMORY_STATISTICS_SERVER_H */
+#endif

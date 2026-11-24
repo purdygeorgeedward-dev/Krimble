@@ -15,7 +15,6 @@
 #include <KoIcon.h>
 #include "kis_assert.h"
 
-
 KisUtilityTitleBar::KisUtilityTitleBar(QWidget *parent)
     : KisUtilityTitleBar(new QLabel(i18n("Title"), parent), parent)
 {
@@ -24,7 +23,6 @@ KisUtilityTitleBar::KisUtilityTitleBar(QWidget *parent)
 KisUtilityTitleBar::KisUtilityTitleBar(QLabel *title, QWidget *parent)
     : QWidget(parent), d(new Private(this))
 {
-    // Set up main layout..
     d->mainLayout = new QHBoxLayout(this);
     QMargins margins = d->mainLayout->contentsMargins();
     margins.setTop(0);
@@ -33,7 +31,6 @@ KisUtilityTitleBar::KisUtilityTitleBar(QLabel *title, QWidget *parent)
     d->mainLayout->setContentsMargins(margins);
     d->mainLayout->setSpacing(0);
 
-    // Set up lock button
     d->lockButton = new KoDockWidgetTitleBarButton(this);
     d->lockButton->setCheckable(true);
     d->lockButton->setIcon(kisIcon("docker_lock_a"));
@@ -43,23 +40,18 @@ KisUtilityTitleBar::KisUtilityTitleBar(QLabel *title, QWidget *parent)
     d->lockButton->setStyleSheet("border: 0");
     d->lockButton->setFixedSize(QSize(22,22));
 
-
-    // Set up title..
     d->mainLayout->addWidget(title);
 
-    //QSpacerItem *spacerItem = new QSpacerItem(SPACING_UNIT * 2, 0);
     d->mainLayout->addSpacing(SPACING_UNIT * 2);
-    // Set up widget area..
     QWidget *widgetArea = new QWidget(this);
     widgetAreaLayout = new QHBoxLayout(widgetArea);
     widgetAreaLayout->setSpacing(0);
     widgetAreaLayout->setContentsMargins(0,0,0,0);
     d->mainLayout->addWidget(widgetArea);
 
-//     mainLayout->addSpacing(SPACING_UNIT * 2);
     d->mainLayout->insertSpacing(4, SPACING_UNIT * 2 );
 
-    {   // Controls/Decorations..
+    {
         QWidget *widget = new QWidget(this);
 
         QHBoxLayout *sublayout = new QHBoxLayout(widget);
@@ -68,7 +60,7 @@ KisUtilityTitleBar::KisUtilityTitleBar(QLabel *title, QWidget *parent)
 
         QDockWidget *dockWidget = qobject_cast<QDockWidget*>(parentWidget());
 
-        {   // Float button...
+        {
             QIcon floatIcon = kisIcon("docker_float");
             d->floatButton = new QPushButton(floatIcon, "", this);
             d->floatButton->setFlat(true);
@@ -78,7 +70,7 @@ KisUtilityTitleBar::KisUtilityTitleBar(QLabel *title, QWidget *parent)
             sublayout->addWidget(d->floatButton);
         }
 
-        {   // Close button...
+        {
             QIcon closeIcon = kisIcon("docker_close");
             d->closeButton = new QPushButton(closeIcon, "", this);
             d->closeButton->setFlat(true);
@@ -97,8 +89,6 @@ QWidget* KisUtilityTitleBar::widgetArea() {
 void KisUtilityTitleBar::setWidgetArea(QWidget* widgetArea) {
     QHBoxLayout *layout = dynamic_cast<QHBoxLayout*>(this->layout());
     KIS_SAFE_ASSERT_RECOVER_RETURN(layout);
-    // It's the third widget;
-    //     title, spacer, widgetArea, spacer, float/close
     layout->insertWidget(2, widgetArea);
 }
 
@@ -128,7 +118,6 @@ void KisUtilityTitleBar::setLocked(bool locked)
     d->floatButton->setEnabled(!locked);
     d->floatButton->setVisible(!locked);
 
-
     d->updateIcons();
     q->setProperty("Locked", locked);
 }
@@ -138,7 +127,6 @@ void KisUtilityTitleBar::Private::updateIcons()
     lockIcon = (!locked) ? kisIcon("docker_lock_a") : kisIcon("docker_lock_b");
     lockButton->setIcon(lockIcon);
 
-    // this method gets called when switching themes, so update all of the themed icons now
     floatButton->setIcon(kisIcon("docker_float"));
     closeButton->setIcon(kisIcon("docker_close"));
 

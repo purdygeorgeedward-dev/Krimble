@@ -9,7 +9,6 @@
 #include <KisCurveOption.h>
 #include <KisPaintThicknessOptionData.h>
 
-
 class KisPaintThicknessOption : public KisCurveOption
 {
 public:
@@ -25,4 +24,4 @@ private:
     KisPaintThicknessOptionData::ThicknessMode m_mode {KisPaintThicknessOptionData::OVERLAY};
 };
 
-#endif // KISPAINTTHICKNESSOPTION_H
+#endif

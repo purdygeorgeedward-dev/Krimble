@@ -63,11 +63,10 @@ int calculateNumberMemoryAllowedClones(KisImageSP image)
         return allowedMemory / cloneSize;
     }
 
-    return 0; // will become 1; either when the cloneSize = 0 or the allowedMemory is 0 or below
+    return 0;
 }
 
 }
-
 
 struct KisAsyncAnimationRenderDialogBase::Private
 {
@@ -102,7 +101,6 @@ struct KisAsyncAnimationRenderDialogBase::Private
     boost::optional<ProgressData> progressData;
     int progressDialogReentrancyCounter = 0;
 
-
     int numDirtyFramesLeft() const {
         return stillDirtyFrames.size() + framesInProgress.size();
     }
@@ -126,11 +124,6 @@ KisAsyncAnimationRenderDialogBase::regenerateRange(KisViewManager *viewManager)
     KisBlockBackgroundFrameGenerationLock populatorBlock(m_d->image->animationInterface());
 
     {
-        /**
-         * Since this method can be called from the places where no
-         * view manager is available, we need this manually crafted
-         * ugly construction to "try-lock-cancel" the image.
-         */
 
         bool imageIsIdle = true;
 
@@ -148,7 +141,6 @@ KisAsyncAnimationRenderDialogBase::regenerateRange(KisViewManager *viewManager)
             return RenderCancelled;
         }
     }
-
 
     if (!m_d->isBatchMode) {
         QWidget *parentWidget = viewManager ? viewManager->mainWindowAsQWidget() : 0;
@@ -189,24 +181,19 @@ KisAsyncAnimationRenderDialogBase::regenerateRange(KisViewManager *viewManager)
     const int oldWorkingThreadsLimit = m_d->image->workingThreadsLimit();
 
     for (int i = 0; i < numWorkers; i++) {
-        // reuse the image for one of the workers
         const bool lastWorker = (i == numWorkers - 1);
         KisImageSP image = m_d->image;
 
         if (!lastWorker) {
-            //Only the last-most worker should try to use the source image pointer. Others need a copy.
 
             if (m_d->asyncRenderers.size() == 0) {
-                // Copy source image when no renderers (aka no copies) exist, requires lock as image memory can be actively modified.
                 m_d->image->barrierLock(true);
                 image = m_d->image->clone(true);
                 m_d->image->unlock();
             } else {
-                // Copy a previous copy, shouldn't require lock since image is "fresh" and untouchable by other krita systems.
                 image = m_d->asyncRenderers[m_d->asyncRenderers.size() - 1].image->clone(true);
             }
         }
-
 
         image->setWorkingThreadsLimit(numThreadsPerWorker);
         KisAsyncAnimationRendererBase *renderer = createRenderer(image);
@@ -216,7 +203,6 @@ KisAsyncAnimationRenderDialogBase::regenerateRange(KisViewManager *viewManager)
 
         m_d->asyncRenderers.push_back(RendererPair(renderer, image));
     }
-
 
     tryInitiateFrameRegeneration();
     updateProgressLabel();
@@ -301,7 +287,6 @@ void KisAsyncAnimationRenderDialogBase::cancelProcessingImpl(KisAsyncAnimationRe
     updateProgressLabel();
 }
 
-
 void KisAsyncAnimationRenderDialogBase::tryInitiateFrameRegeneration()
 {
     bool hadWorkOnPreviousCycle = false;
@@ -348,18 +333,12 @@ void KisAsyncAnimationRenderDialogBase::updateProgressLabel()
         i18n("\n\nThe memory limit has been reached.\nThe number of frames saved simultaneously is limited to %1\n\n",
              m_d->asyncRenderers.size()));
 
-
     const QString progressLabel(i18n("%1\n\nElapsed: %2\nEstimated: %3\n\n%4",
                                      m_d->actionTitle,
                                      elapsedTimeString,
                                      estimatedTimeString,
                                      m_d->memoryLimitReached ? memoryLimitMessage : QString()));
     if (m_d->progressDialog) {
-        /**
-         * We should avoid reentrancy caused by explicit
-         * QApplication::processEvents() in QProgressDialog::setValue(), so use
-         * a compressor instead
-         */
         m_d->progressData = Private::ProgressData(processedFramesCount, progressLabel);
         m_d->progressDialogCompressor.start();
     }
@@ -371,14 +350,6 @@ void KisAsyncAnimationRenderDialogBase::updateProgressLabel()
 
 void KisAsyncAnimationRenderDialogBase::slotUpdateCompressedProgressData()
 {
-    /**
-     * Qt's implementation of QProgressDialog is a bit weird: it calls
-     * QApplication::processEvents() from inside setValue(), which means
-     * that our update method may reenter multiple times.
-     *
-     * This code avoids reentering by using a compressor and an explicit
-     * entrance counter.
-     */
 
     if (m_d->progressDialogReentrancyCounter > 0) {
         m_d->progressDialogCompressor.start();

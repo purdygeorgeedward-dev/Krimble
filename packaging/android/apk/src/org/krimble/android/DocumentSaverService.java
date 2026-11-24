@@ -138,9 +138,6 @@ public class DocumentSaverService extends Service {
             try {
                 JNIWrappers.saveState();
             } catch (UnsatisfiedLinkError e) {
-                // This can happen if the application has been unloaded and only
-                // this saver thread is left dangling. Since the application is
-                // gone, there's no documents left to save, so just bail out.
                 Log.w(TAG, "Unsatisfied link error while saving: " + e);
                 break;
             }
@@ -150,11 +147,6 @@ public class DocumentSaverService extends Service {
 
     private synchronized void startSaving() {
         if (mDocSaverThread == null) {
-            // Promote this to a so-called foreground service. This will keep
-            // the service running even when the application isn't in the
-            // foreground. For further foreground/background confusion, my
-            // Samsung tablet shows the notification for this service under a
-            // (pretty well-hidden) section called "background activities".
             if (mStartedInForeground) {
                 Log.w(TAG, "Already started in foreground, should not happen");
             } else {
@@ -167,9 +159,6 @@ public class DocumentSaverService extends Service {
                     tryStartServiceInForeground();
                 }
             }
-            // No matter if foregrounding succeeded or not, we spawn a thread to
-            // do the saving on. That will take care of un-foregrounding the
-            // service and nulling the member variable once it's finished.
             Log.i(TAG, "Starting save thread");
             mDocSaverThread =
                     new Thread(
@@ -202,30 +191,22 @@ public class DocumentSaverService extends Service {
             }
 
             if (needsThread) {
-                // This can be async, because foreground service are promised to run beyond process death.
-                // This has to be async, because we have to handle cancelling action.
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         waitForSaving();
-                        // if saving finished a long time ago, we will have to kill the app
                         stopSelf();
                     }
                 }).start();
             } else {
-                // We wait on Main thread. When we don't do this and use Background service, if the
-                // Activity is killed the Service is automatically destroyed without waiting for threads
-                // to start/finish.
                 waitForSaving();
                 stopSelf();
             }
 
         } else if (intent.getBooleanExtra(CANCEL_SAVING, false)) {
             Log.i(TAG, "cancel saving command received");
-            // without this Android will think we crashed
             stopSelf();
 
-            // TODO: Think about atomicity, which Qt doesn't support for Android
             killProcess(myPid());
 
         } else {
@@ -241,9 +222,6 @@ public class DocumentSaverService extends Service {
         waitForSaving();
 
         if (mKillProcess) {
-            // We cannot let the process sit around when the activity is
-            // destroyed. QtActivity depends on lot of statics. We also can't
-            // exit (libc) using Qt's methods because they crash.
             killProcess(myPid());
         }
         super.onDestroy();

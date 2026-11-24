@@ -15,9 +15,6 @@
 class KoPathTool;
 class KoPathShape;
 
-/**
-* @brief Strategy for deforming a segment of a path shape.
-*/
 class KoPathSegmentChangeStrategy : public KoInteractionStrategy
 {
 public:
@@ -30,9 +27,7 @@ public:
 private:
     QPointF m_originalPosition;
     QPointF m_lastPosition;
-    /// the accumulated point move amount
     QPointF m_move;
-    /// pointer to the path tool
     KoPathTool *m_tool;
     KoPathShape *m_path;
     KoPathSegment m_segment;
@@ -44,4 +39,4 @@ private:
     int m_originalSegmentDegree;
 };
 
-#endif // KOPATHSEGMENTCHANGESTRATEGY_H
+#endif

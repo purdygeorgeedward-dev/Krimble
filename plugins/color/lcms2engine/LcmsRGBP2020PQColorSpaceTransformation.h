@@ -21,7 +21,6 @@
 #endif
 #include <colorspaces/rgb_f32/RgbF32ColorSpace.h>
 
-
 namespace
 {
 
@@ -30,9 +29,6 @@ struct DstTraitsForSource {
     typedef KoRgbF32Traits result;
 };
 
-/**
- * If half format is present, we use it instead
- */
 #ifdef HAVE_OPENEXR
 template <>
 struct DstTraitsForSource<KoBgrU16Traits> {
@@ -229,4 +225,4 @@ public:
     }
 };
 
-#endif // LCMSRGBP2020PQCOLORSPACETRANSFORMATION_H
+#endif

@@ -11,11 +11,9 @@
 
 class KoShape;
 
-/// Factory for spiral shapes
 class SpiralShapeFactory : public KoShapeFactoryBase
 {
 public:
-    /// constructor
     SpiralShapeFactory();
     ~SpiralShapeFactory() override {}
     KoShape *createDefaultShape(KoDocumentResourceManager *documentResources = 0) const override;
@@ -23,4 +21,4 @@ public:
     QList<KoShapeConfigWidgetBase *> createShapeOptionPanels() override;
 };
 
-#endif /* KOSPIRALSHAPEFACTORY_H */
+#endif

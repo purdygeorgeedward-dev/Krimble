@@ -69,12 +69,9 @@ void ResourceManager::slotManageResources()
     dlg.exec();
 }
 
-
 #ifdef Q_OS_ANDROID
 void ResourceManager::slotManageSupporterBundles()
 {
-    // Gotta summon it like this, doing it with exec() causes kinetic scrolling
-    // to not work properly, requiring two fingers instead of one. No clue why.
     KisSupporterBundlesDialog *dlg = new KisSupporterBundlesDialog(qApp->activeWindow());
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->show();

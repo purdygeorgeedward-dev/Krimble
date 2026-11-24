@@ -42,4 +42,4 @@ private:
     VisibleCallback m_visibleFunc;
 };
 
-#endif /* __KIS_CALLBACK_BASED_PAINTOP_PROPERTY_H */
+#endif

@@ -14,9 +14,6 @@
 
 namespace xsimd
 {
-/***********************
- * Truncate-initialize *
- ***********************/
 
 template<typename V, typename T, typename A>
 inline batch<T, A> truncate_to_type(xsimd::batch<T, A> const &self) noexcept
@@ -34,25 +31,18 @@ inline batch<T, A> truncate_to_type(xsimd::batch<T, A> const &self) noexcept
         self);
 }
 
-// Mask to 0 elements of a vector.
 template<typename T, typename A>
 inline auto set_zero(const batch<T, A> &src, const batch_bool<T, A> &mask) noexcept
 {
     return xsimd::select(mask, xsimd::batch<T, A>(0), src);
 }
 
-// Mask to 1 elements of a vector.
 template<typename T, typename A>
 inline auto set_one(const batch<T, A> &src, const batch_bool<T, A> &mask) noexcept
 {
     return xsimd::select(mask, xsimd::batch<T, A>(1), src);
 }
 
-/**********************************
- * Sign-extending unaligned loads *
- **********************************/
-
-// Load `T::size` values from the array of `T2` elements.
 template<typename T, typename T2>
 inline T load_and_extend(const T2 *src) noexcept
 {
@@ -63,11 +53,6 @@ inline T load_and_extend(const T2 *src) noexcept
         T{});
 }
 
-/*************************************************
- * Type-inferred, auto-aligned memory allocation *
- *************************************************/
-
-// Allocate size bytes of memory aligned to `batch<T, A>::alignment()`.
 template<typename T, typename A>
 inline T *aligned_malloc(size_t size) noexcept
 {
@@ -76,51 +61,35 @@ inline T *aligned_malloc(size_t size) noexcept
     return reinterpret_cast<T *>(xsimd::aligned_malloc(size, T_v::arch_type::alignment()));
 }
 
-// Return the maximum of a list of templated values at compile time.
 template<size_t value, size_t... values>
 constexpr typename std::enable_if<sizeof...(values) == 0, size_t>::type max()
 {
     return value;
 }
 
-// Return the maximum of a list of templated values at compile time.
 template<size_t value, size_t... values>
 constexpr typename std::enable_if<sizeof...(values) != 0, size_t>::type max()
 {
     return std::max(value, max<values...>());
 }
 
-// Allocate memory for `sz` T items, aligned to the selected architecture's
-// alignment.
 template<typename T, typename A>
 inline T *vector_aligned_malloc(size_t sz) noexcept
 {
     return static_cast<T *>(xsimd::aligned_malloc(sz * sizeof(T), A::alignment()));
 }
 
-// Free allocated memory, hiding the `const_cast` if necessary.
 template<typename T>
 inline void vector_aligned_free(const T *ptr) noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return xsimd::aligned_free(const_cast<T *>(ptr));
 }
 
-/****************
- * Interleaving *
- ****************/
-
-// Return the tuple of interleaved batches `a` and `b`.
-// First element is the low half, second is the upper half.
 template<typename V>
 inline std::pair<V, V> interleave(const V &a, const V &b) noexcept
 {
     return {xsimd::zip_lo(a, b), xsimd::zip_hi(a, b)};
 }
-
-/**********************
- * Quadratic function *
- **********************/
 
 template<typename T, typename A>
 inline batch<T, A> pow2 (batch<T, A> const& self) noexcept
@@ -144,9 +113,8 @@ inline batch<B, A> bitwise_cast_compat(batch<T, A> const& x) noexcept
     return bitwise_cast<B>(x);
 }
 
-
 #endif
 
-}; // namespace xsimd
+};
 
 #endif

@@ -12,12 +12,6 @@
 class QEvent;
 class QPaintEvent;
 
-/**
- * @short A custom title bar button for dock widgets.
- *
- * Used in KoDockWidgetTitleBar but can be also used for similar
- * purposes inside other parents.
- */
 class KRITAWIDGETS_EXPORT KoDockWidgetTitleBarButton : public QAbstractButton
 {
     Q_OBJECT
@@ -26,8 +20,8 @@ public:
     explicit KoDockWidgetTitleBarButton(QWidget *parent = 0);
     ~KoDockWidgetTitleBarButton() override;
 
-    QSize sizeHint() const override; ///< reimplemented from QWidget
-    QSize minimumSizeHint() const override; ///< reimplemented from QWidget
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 
 protected:
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -43,4 +37,4 @@ private:
     Private * const d;
 };
 
-#endif // KODOCKWIDGETTITLEBARBUTTON_H_
+#endif

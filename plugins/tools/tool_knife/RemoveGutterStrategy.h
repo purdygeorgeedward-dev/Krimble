@@ -14,7 +14,6 @@
 
 class KoSelection;
 
-
 class RemoveGutterStrategy : public KoInteractionStrategy
 {
 public:
@@ -37,4 +36,4 @@ private:
 
 };
 
-#endif // REMOVEGUTTERSTRATEGY_H
+#endif

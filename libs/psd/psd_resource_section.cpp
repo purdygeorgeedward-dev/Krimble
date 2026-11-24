@@ -69,7 +69,6 @@ bool PSDImageResourceSection::write(QIODevice &io)
         error = "Resource Section is Invalid";
         return false;
     }
-    // First write all the sections
     QByteArray ba;
     QBuffer buf;
     buf.setBuffer(&ba);
@@ -84,12 +83,10 @@ bool PSDImageResourceSection::write(QIODevice &io)
 
     buf.close();
 
-    // Then get the size
     quint32 resourceBlockLength = ba.size();
     dbgFile << "resource section has size" << resourceBlockLength;
     psdwrite(io, resourceBlockLength);
 
-    // and write the whole buffer;
     return (io.write(ba.constData(), ba.size()) == resourceBlockLength);
 }
 

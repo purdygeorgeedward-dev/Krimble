@@ -53,7 +53,6 @@ KoShape *StarShape::cloneShape() const
     return new StarShape(*this);
 }
 
-
 void StarShape::setCornerCount(uint cornerCount)
 {
     if (cornerCount >= 3) {
@@ -129,16 +128,13 @@ void StarShape::moveHandleAction(int handleId, const QPointF &point, Qt::Keyboar
         QPointF tangentVector = point - handle;
         qreal distance = sqrt(tangentVector.x() * tangentVector.x() + tangentVector.y() * tangentVector.y());
         QPointF radialVector = handle - m_center;
-        // cross product to determine in which direction the user is dragging
         qreal moveDirection = radialVector.x() * tangentVector.y() - radialVector.y() * tangentVector.x();
-        // make the roundness stick to zero if distance is under a certain value
         float snapDistance = 3.0;
         if (distance >= 0.0) {
             distance = distance < snapDistance ? 0.0 : distance - snapDistance;
         } else {
             distance = distance > -snapDistance ? 0.0 : distance + snapDistance;
         }
-        // control changes roundness on both handles, else only the actual handle roundness is changed
         if (modifiers & Qt::ControlModifier) {
             m_roundness[handleId] = moveDirection < 0.0f ? distance : -distance;
         } else {
@@ -146,7 +142,6 @@ void StarShape::moveHandleAction(int handleId, const QPointF &point, Qt::Keyboar
         }
     } else {
         QPointF distVector = point - m_center;
-        // unapply scaling
         distVector.rx() /= m_zoomX;
         distVector.ry() /= m_zoomY;
         m_radius[handleId] = sqrt(distVector.x() * distVector.x() + distVector.y() * distVector.y());
@@ -161,7 +156,6 @@ void StarShape::moveHandleAction(int handleId, const QPointF &point, Qt::Keyboar
             m_angles[tip] += diffAngle - radianStep;
             m_angles[base] += diffAngle - radianStep;
         } else {
-            // control make the base point move freely
             if (modifiers & Qt::ControlModifier) {
                 m_angles[base] += diffAngle - 2 * radianStep;
             } else {
@@ -193,7 +187,6 @@ void StarShape::updatePath(const QSizeF &size)
         points[index]->unsetProperty(KoPathPoint::StopSubpath);
         points[index]->unsetProperty(KoPathPoint::CloseSubpath);
         if (m_roundness[cornerType] > 1e-10 || m_roundness[cornerType] < -1e-10) {
-            // normalized cross product to compute tangential vector for handle point
             QPointF tangentVector(cornerPoint.y() / m_radius[cornerType], -cornerPoint.x() / m_radius[cornerType]);
             points[index]->setControlPoint2(points[index]->point() - m_roundness[cornerType] * tangentVector);
             points[index]->setControlPoint1(points[index]->point() + m_roundness[cornerType] * tangentVector);
@@ -204,10 +197,8 @@ void StarShape::updatePath(const QSizeF &size)
         index++;
     }
 
-    // first path starts and closes path
     points[0]->setProperty(KoPathPoint::StartSubpath);
     points[0]->setProperty(KoPathPoint::CloseSubpath);
-    // last point stops and closes path
     points.last()->setProperty(KoPathPoint::StopSubpath);
     points.last()->setProperty(KoPathPoint::CloseSubpath);
 
@@ -250,7 +241,6 @@ void StarShape::setSize(const QSizeF &newSize)
     m_zoomX *= matrix.m11();
     m_zoomY *= matrix.m22();
 
-    // this transforms the handles
     KoParameterShape::setSize(newSize);
 
     m_center = computeCenter();

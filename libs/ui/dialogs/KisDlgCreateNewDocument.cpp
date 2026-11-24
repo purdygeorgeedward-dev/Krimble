@@ -16,7 +16,6 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-
 KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     : KisOpenPane(parent, KisImportExportManager::supportedMimeTypes(KisImportExportManager::Import), QStringLiteral("templates/"))
 {
@@ -29,7 +28,6 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     int h = cfg.defImageHeight();
 #ifdef Q_OS_ANDROID
     {
-        // the first New of each run: the size of the phone's screen in real pixels, the way the phone is held; after that the last size used
         static bool krimbleFirstNewThisRun = true;
         if (krimbleFirstNewThisRun) {
             krimbleFirstNewThisRun = false;
@@ -59,18 +57,15 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
 
     KisCustomImageWidget *krimbleCustomPage = new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed"));
     addCustomDocumentWidget(
-        // new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
         krimbleCustomPage,
         i18n("Custom Document"),
         "Custom Document",
-        // "document-new");
         "krimble-new-document");
 
    addCustomDocumentWidget(
         new KisImageFromClipboardWidget(this, 0, 0, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
         i18n("Create from Clipboard"),
         "Create from ClipBoard",
-        // "tab-new");
         "krimble-new-from-clipboard");
 
     connect(this, SIGNAL(documentSelected(KisDocument*)), KisPart::instance(), SLOT(startCustomDocument(KisDocument*)));
@@ -78,11 +73,16 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
 
 #ifdef Q_OS_ANDROID
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
-        const QSize screenSize = scr->availableGeometry().size();
-        const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
-        const int shortSide = qMin(screenSize.width(), screenSize.height());
-        resize(qMin(qMin(sizeHint().width(), int(screenSize.width() * 0.95)), int(shortSide * 0.75)),
-               qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
+        auto fitToScreen = [this, krimbleCustomPage, scr]() {
+            const QSize screenSize = scr->availableGeometry().size();
+            const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
+            resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
+                   qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
+            const QRect available = scr->availableGeometry();
+            move(available.center() - rect().center());
+        };
+        fitToScreen();
+        connect(scr, &QScreen::availableGeometryChanged, this, [fitToScreen]() { fitToScreen(); });
     }
 #endif
 }

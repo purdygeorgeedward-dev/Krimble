@@ -9,13 +9,11 @@
 #include <QMap>
 #include <QReadWriteLock>
 
-
 #include <KoColorSpace.h>
 
 #include "kis_painter.h"
 #include "kis_paint_device.h"
 #include "kis_layer_style_filter_environment.h"
-
 
 struct ProjectionStruct {
     KisPaintDeviceSP device;
@@ -31,7 +29,6 @@ struct KisMultipleProjection::Private
     QReadWriteLock lock;
     PlanesMap planes;
 };
-
 
 KisMultipleProjection::KisMultipleProjection()
     : m_d(new Private)

@@ -42,7 +42,7 @@ void KoLineStyleSelector::paintEvent(QPaintEvent *pe)
     option.initFrom(this);
     option.frame = hasFrame();
     QRect r = style()->subControlRect(QStyle::CC_ComboBox, &option, QStyle::SC_ComboBoxEditField, this);
-    if (!option.frame) // frameless combo boxes have smaller margins but styles do not take this into account
+    if (!option.frame)
         r.adjust(-14, 0, 14, 1);
 
     QPen pen = itemData(currentIndex(), Qt::DecorationRole).value<QPen>();

@@ -60,7 +60,6 @@ bool KoPathShapeFactory::supports(const QDomElement & e, KoShapeLoadingContext &
 
 void KoPathShapeFactory::newDocumentResourceManager(KoDocumentResourceManager *manager) const
 {
-    // we also need a MarkerCollection so add if it is not there yet
     if (!manager->hasResource(KoDocumentResourceManager::MarkerCollection)) {
         KoMarkerCollection *markerCollection = new KoMarkerCollection(manager);
         manager->setResource(KoDocumentResourceManager::MarkerCollection, QVariant::fromValue(markerCollection));

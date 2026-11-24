@@ -48,4 +48,4 @@ private:
     QPushButton *m_closeButton;
 };
 
-#endif // KISCLICKABLELABEL_H
+#endif

@@ -15,8 +15,6 @@ struct KisGLImageF16::Private : public QSharedData
     QByteArray data;
 };
 
-
-
 KisGLImageF16::KisGLImageF16()
     : m_d(new Private)
 {

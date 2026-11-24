@@ -39,4 +39,4 @@ private:
     QList<int> m_selectedTagIds;
 };
 
-#endif // DLG_EMBED_TAGS_H
+#endif

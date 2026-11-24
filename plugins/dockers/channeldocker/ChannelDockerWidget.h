@@ -7,7 +7,6 @@
 #ifndef CHANNELDOCKER_WIDGET_H
 #define CHANNELDOCKER_WIDGET_H
 
-
 #include <KisKineticScroller.h>
 
 #include <KisChannelsThumbnailsStrokeStrategyMetatypes.h>
@@ -42,6 +41,5 @@ private:
     QTableView *m_channelTable {nullptr};
     ChannelModel *m_model {nullptr};
 };
-
 
 #endif

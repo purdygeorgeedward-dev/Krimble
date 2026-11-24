@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisStoryboardThumbnailRenderScheduler.h"
 #include "KisAsyncStoryboardThumbnailRenderer.h"
 #include "kis_paint_device.h"
@@ -17,7 +16,6 @@ KisStoryboardThumbnailRenderScheduler::KisStoryboardThumbnailRenderScheduler(QOb
     , m_renderer(new KisAsyncStoryboardThumbnailRenderer(this))
     , m_currentFrame(-1)
 {
-    //connect signals to the renderer.
     connect(m_renderer, SIGNAL(sigNotifyFrameCompleted(int,KisPaintDeviceSP)), this, SLOT(slotFrameRegenerationCompleted(int, KisPaintDeviceSP)));
     connect(m_renderer, SIGNAL(sigFrameCancelled(int, KisAsyncAnimationRendererBase::CancelReason)), this, SLOT(slotFrameRegenerationCancelled(int)));
 }
@@ -88,12 +86,10 @@ void KisStoryboardThumbnailRenderScheduler::cancelFrameRendering(int frame)
 
 void KisStoryboardThumbnailRenderScheduler::slotStartFrameRendering()
 {
-    //if the renderer is idle start rendering the frames in queues
     if (!m_renderer->isActive()) {
         renderNextFrame();
     }
 }
-
 
 void KisStoryboardThumbnailRenderScheduler::slotFrameRegenerationCompleted(int frame, KisPaintDeviceSP contents)
 {
@@ -111,7 +107,6 @@ void KisStoryboardThumbnailRenderScheduler::sortAffectedFrameQueue()
 {
     int lastChangedFrame = m_changedFramesQueue[0];
 
-    //sort the affected queue based on proximity to the last changed frame.
     std::sort(m_affectedFramesQueue.begin(), m_affectedFramesQueue.end(),
                 [lastChangedFrame](const int &arg1, const int &arg2)
                 {

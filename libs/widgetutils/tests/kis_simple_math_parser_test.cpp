@@ -7,7 +7,7 @@
 #include "kis_simple_math_parser_test.h"
 
 #include "kis_num_parser.h"
-#include <qnumeric.h> // for qIsNaN
+#include <qnumeric.h>
 #include <QString>
 #include <QtMath>
 #include <simpletest.h>

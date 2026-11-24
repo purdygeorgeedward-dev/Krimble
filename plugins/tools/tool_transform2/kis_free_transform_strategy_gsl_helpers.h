@@ -56,4 +56,4 @@ namespace GSL
                                          const QPointF &movingPointDst);
 }
 
-#endif /* __KIS_FREE_TRANSFORM_STRATEGY_GSL_HELPERS_H */
+#endif

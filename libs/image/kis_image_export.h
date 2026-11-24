@@ -9,8 +9,6 @@
 
 #include "kritaimage_export.h"
 
-/* See https://reviews.llvm.org/D61118 */
-
 #if defined(__MINGW64__) || defined(__MINGW32__)
 #define KRITAIMAGE_EXPORT_TEMPLATE KRITAIMAGE_EXPORT
 #define KRITAIMAGE_EXPORT_INSTANCE

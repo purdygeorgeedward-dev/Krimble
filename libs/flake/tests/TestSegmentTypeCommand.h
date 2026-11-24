@@ -17,4 +17,4 @@ private Q_SLOTS:
     void changeToLine();
 };
 
-#endif // TESTSEGMENTTYPECOMMAND_H
+#endif

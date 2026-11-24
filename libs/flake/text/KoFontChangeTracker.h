@@ -8,11 +8,6 @@
 
 #include <QObject>
 
-/**
- * @brief The KoFontChangeTracker class
- * This class keeps track of the paths FontConfig is looking at,
- * and resets the font registry if they change.
- */
 class KoFontChangeTracker : public QObject
 {
     Q_OBJECT
@@ -20,7 +15,6 @@ public:
     explicit KoFontChangeTracker(QStringList paths, QObject *parent = nullptr);
     ~KoFontChangeTracker();
 
-    /// This should be called after fontregistry initialization is done to start the signal compressor.
     void resetChangeTracker();
 Q_SIGNALS:
     void sigUpdateConfig();
@@ -31,4 +25,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KOFONTCHANGETRACKER_H
+#endif

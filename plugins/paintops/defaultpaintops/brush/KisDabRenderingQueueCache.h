@@ -23,7 +23,6 @@ public:
     void getDabType(bool hasDabInCache,
                     KisDabCacheUtils::DabRenderingResources *resources,
                     const KisDabCacheUtils::DabRequestInfo &request,
-                    /* out */
                     KisDabCacheUtils::DabGenerationInfo *di,
                     bool *shouldUseCache) override;
 
@@ -34,4 +33,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISDABRENDERINGQUEUECACHE_H
+#endif

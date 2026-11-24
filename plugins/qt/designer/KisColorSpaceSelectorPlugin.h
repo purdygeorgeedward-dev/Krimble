@@ -33,4 +33,4 @@ private:
     bool m_initialized;
 };
 
-#endif // _KISCOLORSPACESELECTORPLUGIN_H_
+#endif

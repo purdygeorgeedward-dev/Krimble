@@ -58,7 +58,7 @@ struct ReverseCurveWrapper
 
     cmsToneCurve *reverseCurve {0};
 };
-} // namespace
+}
 
 class LcmsColorProfileContainer::Private
 {
@@ -128,12 +128,11 @@ LcmsColorProfileContainer::LcmsColorProfileContainer(IccColorProfile::Data *data
 QByteArray LcmsColorProfileContainer::lcmsProfileToByteArray(const cmsHPROFILE profile)
 {
     cmsUInt32Number  bytesNeeded = 0;
-    // Make a raw data image ready for saving
-    cmsSaveProfileToMem(profile, 0, &bytesNeeded); // calc size
+    cmsSaveProfileToMem(profile, 0, &bytesNeeded);
     QByteArray rawData;
     rawData.resize(bytesNeeded);
     if (rawData.size() >= (int)bytesNeeded) {
-        cmsSaveProfileToMem(profile, rawData.data(), &bytesNeeded); // fill buffer
+        cmsSaveProfileToMem(profile, rawData.data(), &bytesNeeded);
     } else {
         qWarning() << "Couldn't resize the profile buffer, system is probably running out of memory.";
         rawData.resize(0);
@@ -164,7 +163,6 @@ bool LcmsColorProfileContainer::init()
 
     d->profile = cmsOpenProfileFromMem((void *)d->data->rawData().constData(), d->data->rawData().size());
 
-
 #ifndef NDEBUG
     if (d->data->rawData().size() == 4096) {
         qWarning() << "Profile has a size of 4096, which is suspicious and indicates a possible misuse of QIODevice::read(int), check your code.";
@@ -178,7 +176,6 @@ bool LcmsColorProfileContainer::init()
         cmsGetProfileInfo(d->profile, cmsInfoDescription, cmsNoLanguage, cmsNoCountry, buffer, _BUFFER_SIZE_);
         d->name = QString::fromWCharArray(buffer);
 
-        //apparently this should give us a localised string??? Not sure about this.
         cmsGetProfileInfo(d->profile, cmsInfoModel, cmsNoLanguage, cmsNoCountry, buffer, _BUFFER_SIZE_);
         d->productDescription = QString::fromWCharArray(buffer);
 
@@ -193,16 +190,10 @@ bool LcmsColorProfileContainer::init()
         d->valid = (   profile_class != cmsSigNamedColorClass
                     && profile_class != cmsSigLinkClass);
 
-        //This is where obtain the whitepoint, and convert it to the actual white point of the profile in the case a Chromatic adaption tag is
-        //present. This is necessary for profiles following the v4 spec.
-        cmsCIEXYZ baseMediaWhitePoint;//dummy to hold copy of mediawhitepoint if this is modified by chromatic adaption.
+        cmsCIEXYZ baseMediaWhitePoint;
         cmsCIEXYZ *mediaWhitePointPtr;
         bool whiteComp[3];
         bool whiteIsD50;
-        // Possible bug in profiles: there are in fact some that says they contain that tag
-        //    but in fact the pointer is null.
-        //    Let's not crash on it anyway, and assume there is no white point instead.
-        //    BUG:423685
         if (cmsIsTag(d->profile, cmsSigMediaWhitePointTag)
                 && (mediaWhitePointPtr = (cmsCIEXYZ *)cmsReadTag(d->profile, cmsSigMediaWhitePointTag))) {
 
@@ -219,36 +210,24 @@ bool LcmsColorProfileContainer::init()
             if (cmsIsTag(d->profile, cmsSigChromaticAdaptationTag)
                     && (CAM1 = (cmsCIEXYZ *)cmsReadTag(d->profile, cmsSigChromaticAdaptationTag))
                     && whiteIsD50) {
-                //the chromatic adaption tag represent a matrix from the actual white point of the profile to D50.
 
-                //We first put all our data into structures we can manipulate.
                 double d3dummy [3] = {d->mediaWhitePoint.X, d->mediaWhitePoint.Y, d->mediaWhitePoint.Z};
                 QGenericMatrix<1, 3, double> whitePointMatrix(d3dummy);
                 QTransform invertDummy(CAM1[0].X, CAM1[0].Y, CAM1[0].Z, CAM1[1].X, CAM1[1].Y, CAM1[1].Z, CAM1[2].X, CAM1[2].Y, CAM1[2].Z);
-                //we then abuse QTransform's invert function because it probably does matrix inversion 20 times better than I can program.
-                //if the matrix is uninvertable, invertedDummy will be an identity matrix, which for us means that it won't give any noticeable
-                //effect when we start multiplying.
                 QTransform invertedDummy = invertDummy.inverted();
-                //we then put the QTransform into a generic 3x3 matrix.
                 double d9dummy [9] = {invertedDummy.m11(), invertedDummy.m12(), invertedDummy.m13(),
                                       invertedDummy.m21(), invertedDummy.m22(), invertedDummy.m23(),
                                       invertedDummy.m31(), invertedDummy.m32(), invertedDummy.m33()
                                      };
                 QGenericMatrix<3, 3, double> chromaticAdaptionMatrix(d9dummy);
-                //multiplying our inverted adaption matrix with the whitepoint gives us the right whitepoint.
                 QGenericMatrix<1, 3, double> result = chromaticAdaptionMatrix * whitePointMatrix;
-                //and then we pour the matrix into the whitepoint variable. Generic matrix does row/column for indices even though it
-                //uses column/row for initialising.
                 d->mediaWhitePoint.X = result(0, 0);
                 d->mediaWhitePoint.Y = result(1, 0);
                 d->mediaWhitePoint.Z = result(2, 0);
                 cmsXYZ2xyY(&d->whitePoint, &d->mediaWhitePoint);
             }
         }
-        //This is for RGB profiles, but it only works for matrix profiles. Need to design it to work with non-matrix profiles.
         cmsCIEXYZ *tempColorantsRed, *tempColorantsGreen, *tempColorantsBlue;
-        // Note: don't assume that cmsIsTag is enough to check for errors; check the pointers, too
-        // BUG:423685
         if (cmsIsTag(d->profile, cmsSigRedColorantTag) && cmsIsTag(d->profile, cmsSigRedColorantTag) && cmsIsTag(d->profile, cmsSigRedColorantTag)
                 && (tempColorantsRed = (cmsCIEXYZ *)cmsReadTag(d->profile, cmsSigRedColorantTag))
                 && (tempColorantsGreen = (cmsCIEXYZ *)cmsReadTag(d->profile, cmsSigGreenColorantTag))
@@ -257,17 +236,13 @@ bool LcmsColorProfileContainer::init()
             tempColorants.Red = *tempColorantsRed;
             tempColorants.Green = *tempColorantsGreen;
             tempColorants.Blue = *tempColorantsBlue;
-            //convert to d65, this is useless.
             cmsAdaptToIlluminant(&d->colorants.Red, cmsD50_XYZ(), &d->mediaWhitePoint, &tempColorants.Red);
             cmsAdaptToIlluminant(&d->colorants.Green, cmsD50_XYZ(), &d->mediaWhitePoint, &tempColorants.Green);
             cmsAdaptToIlluminant(&d->colorants.Blue, cmsD50_XYZ(), &d->mediaWhitePoint, &tempColorants.Blue);
-            //d->colorants = tempColorants;
             d->hasColorants = true;
         } else {
-            //qDebug()<<d->name<<": has no colorants";
             d->hasColorants = false;
         }
-        //retrieve TRC.
         if (cmsIsTag(d->profile, cmsSigRedTRCTag) && cmsIsTag(d->profile, cmsSigBlueTRCTag) && cmsIsTag(d->profile, cmsSigGreenTRCTag)) {
 
             d->redTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigRedTRCTag));
@@ -307,7 +282,6 @@ bool LcmsColorProfileContainer::init()
             d->cicpValues = ((cmsVideoSignalType *) cmsReadTag (d->profile, cmsSigcicpTag));
         }
 
-        // Check if the profile can convert (something->this)
         d->suitableForOutput = cmsIsIntentSupported(d->profile, INTENT_PERCEPTUAL, LCMS_USED_AS_OUTPUT);
         d->suitableForInput  = cmsIsIntentSupported(d->profile, INTENT_PERCEPTUAL, LCMS_USED_AS_INPUT);
 
@@ -328,7 +302,6 @@ bool LcmsColorProfileContainer::init()
                 QString name = QString::fromWCharArray(entry->Name, -1);
                 QString value =  QString::fromWCharArray(entry->Value, -1);
                 if (name.toLower() == "crwl") {
-                    // https://registry.color.org/dicttype-metadata/crwl
                     double hdrReferenceWhite = KisDomUtils::toDouble(value);
                     d->hdrReferenceWhite = std::make_optional(hdrReferenceWhite);
 
@@ -413,7 +386,7 @@ bool LcmsColorProfileContainer::supportsSaturation() const
 }
 bool LcmsColorProfileContainer::supportsAbsolute() const
 {
-    return d->isAbsoluteCLUT;//LCMS2 doesn't convert matrix shapers via absolute intent, because of V4 workflow.
+    return d->isAbsoluteCLUT;
 }
 bool LcmsColorProfileContainer::supportsRelative() const
 {
@@ -575,7 +548,6 @@ void LcmsColorProfileContainer::LinearizeFloatValueFast(QVector <double> & Value
     const qreal invScale = 1.0 / scale;
 
     if (d->hasColorants && hasTRC()) {
-        //we can only reliably delinearise in the 0-1.0 range, outside of that leave the value alone.
 
         if (!cmsIsToneCurveLinear(d->redTRC) && Value[0]<1.0) {
             quint16 newValue = cmsEvalToneCurve16(d->redTRC, Value[0] * scale);
@@ -602,7 +574,6 @@ void LcmsColorProfileContainer::DelinearizeFloatValueFast(QVector <double> & Val
     const qreal invScale = 1.0 / scale;
 
     if (d->hasColorants && hasTRC()) {
-        //we can only reliably delinearise in the 0-1.0 range, outside of that leave the value alone.
 
         if (!cmsIsToneCurveLinear(d->redTRC) && Value[0]<1.0) {
             quint16 newValue = cmsEvalToneCurve16(*d->redTRCReverse, Value[0] * scale);
@@ -691,7 +662,6 @@ bool LcmsColorProfileContainer::compareTRC(TransferCharacteristics characteristi
 
     cmsToneCurve *compareCurve = transferFunction(characteristics);
 
-    // Number of sweep samples across the curve
     for (uint32_t i = 0; i < 32; i++) {
         const float step = float(i) / 31.0f;
         calcValues[0] = cmsEvalToneCurveFloat(mainCurve, step);
@@ -709,7 +679,6 @@ cmsToneCurve *perceptualQuantizerDummy() {
     cmsFloat32Number CurveVals[1024];
     for (int i = 0; i < 1024; i++) {
         float val = float(i)/1023.0;
-        /// IMPORTANT: 125.0 is the maximum output of the curve and is controlled by the diffuse white!
         CurveVals[i] = (removeSmpte2048Curve(val)/125.0);
     }
     return cmsBuildTabulatedToneCurveFloat(NULL, 1024, CurveVals);
@@ -719,13 +688,11 @@ cmsToneCurve *LcmsColorProfileContainer::transferFunction(TransferCharacteristic
 {
     cmsToneCurve *mainCurve;
 
-    // Values courtesy of Elle Stone
     cmsFloat64Number srgb_parameters[5] =
     { 2.4, 1.0 / 1.055,  0.055 / 1.055, 1.0 / 12.92, 0.04045 };
     cmsFloat64Number rec709_parameters[5] =
     { 1.0 / 0.45, 1.0 / 1.099,  0.099 / 1.099,  1.0 / 4.5, 0.081 };
 
-    // The following is basically a precise version of rec709.
     cmsFloat64Number rec202012bit_parameters[5] =
     { 1.0 / 0.45, 1.0 / 1.0993,  0.0993 / 1.0993,  1.0 / 4.5, 0.0812 };
 
@@ -742,9 +709,7 @@ cmsToneCurve *LcmsColorProfileContainer::transferFunction(TransferCharacteristic
 
     switch (transferFunction) {
     case TRC_IEC_61966_2_4:
-        // Not possible in ICC due to lack of a*pow(bX+c,y) construct.
     case TRC_ITU_R_BT_1361:
-        // This is not possible in ICC due to lack of a*pow(bX+c,y) construct.
         qWarning() << "Neither IEC 61966 2-4 nor Bt. 1361 are supported, returning a rec 709 curve.";
         Q_FALLTHROUGH();
     case TRC_ITU_R_BT_709_5:
@@ -774,7 +739,6 @@ cmsToneCurve *LcmsColorProfileContainer::transferFunction(TransferCharacteristic
         mainCurve = cmsBuildParametricToneCurve(NULL, 8, log_100_sqrt);
         break;
     case TRC_A98:
-        // gamma 563/256
         mainCurve = cmsBuildGamma(NULL, 563.0 / 256.0);
         break;
     case TRC_PROPHOTO:
@@ -793,9 +757,7 @@ cmsToneCurve *LcmsColorProfileContainer::transferFunction(TransferCharacteristic
         return perceptualQuantizerDummy();
         break;
     case TRC_SMPTE_ST_428_1:
-        // Requires an a*X^y construction, not possible.
     case TRC_ITU_R_BT_2100_0_HLG:
-        // Hybrid log gamma.
         qWarning() << "Cannot generate an icc profile with this transfer function, will generate a linear profile";
         Q_FALLTHROUGH();
     case TRC_LINEAR:

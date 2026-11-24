@@ -35,7 +35,6 @@ public:
     {
     }
 
-
     QDebug printDebug(QDebug dbg) const
     {
 #ifndef NDEBUG

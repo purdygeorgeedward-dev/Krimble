@@ -4,14 +4,12 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISLAYERCOLLAPSECOMMAND_H
 #define KISLAYERCOLLAPSECOMMAND_H
 
 #include <kritaimage_export.h>
 #include <kundo2command.h>
 #include <kis_types.h>
-
 
 class KRITAIMAGE_EXPORT KisLayerCollapseCommand : public KUndo2Command
 {
@@ -28,4 +26,4 @@ private:
     bool m_oldValue;
     bool m_newValue;
 };
-#endif // KISLAYERCOLLAPSECOMMAND_H
+#endif

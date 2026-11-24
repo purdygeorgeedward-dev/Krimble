@@ -54,8 +54,7 @@ bool sortByIdAndReversedVersion(const KoJsonTrader::Plugin &lhs, const KoJsonTra
         (lhsId == rhsId && versionCompareLess(rhs, lhs));
 };
 
-} // namespace
-
+}
 
 class Q_DECL_HIDDEN KoPluginLoader::Private
 {
@@ -82,7 +81,6 @@ KoPluginLoader* KoPluginLoader::instance()
 
 void KoPluginLoader::load(const QString & serviceType, const PluginsConfig &config, QObject* owner, bool cache)
 {
-    // Don't load the same plugins again
     if (cache && d->loadedServiceTypes.contains(serviceType)) {
         return;
     }
@@ -91,28 +89,16 @@ void KoPluginLoader::load(const QString & serviceType, const PluginsConfig &conf
     QList<KoJsonTrader::Plugin> plugins = KoJsonTrader::instance()->query(serviceType, QString());
 
     {
-        /**
-         * First, remove all the duplicated plugins and keep only the ones with
-         * the highest version number
-         */
         std::sort(plugins.begin(), plugins.end(), &sortByIdAndReversedVersion);
         auto it = plugins.begin();
         while ((it = std::adjacent_find(it, plugins.end(), &idCompareEqual)) != plugins.end()) {
             warnPlugins << "Skipping duplicated plugin, id:" << idFromPlugin(*it)
                         << "version:" << versionFromPlugin(*it) << "filename:" << it->fileName();
-            /**
-             * Erasing an element in QList in Qt5 may invalidate the existing
-             * iterator, so we should derive the new position from the iterator
-             * returned by erase() method
-             */
             it = std::prev(plugins.erase(std::next(it)));
         }
     }
 
     if (config.isValid()) {
-        /**
-         * Then remove all the blacklisted plugins if necessary
-         */
         KConfigGroup configGroup(KSharedConfig::openConfig(), config.group);
         QStringList blackList = configGroup.readEntry(config.blacklist, QStringList());
 
@@ -126,12 +112,6 @@ void KoPluginLoader::load(const QString & serviceType, const PluginsConfig &conf
         }
     }
 
-    /**
-     * Now "load" all the plugins. If "owner" object is not provided, we just
-     * create the plugin object and immediately destroy it. Usually the constructor
-     * of this plugin will just populate some registry, so the object is not necessary
-     * anymore.
-     */
     for (KoJsonTrader::Plugin &plugin : plugins) {
         const QString pluginName = idFromPlugin(plugin);
         dbgPlugins << "loading" << pluginName;

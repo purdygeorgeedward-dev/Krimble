@@ -26,12 +26,6 @@ class KisViewManager;
 class KisPaletteEditor;
 class Ui_WdgDlgPaletteEditor;
 
-/**
- * @brief The KisDlgPaletteEditor class
- * a dialog used by the palette docker to make modifications to a palette.
- * it automatically uploads all changes into the resource server when
- * the change is accepted
- */
 class KRITAUI_EXPORT KisDlgPaletteEditor : public QDialog
 {
     Q_OBJECT
@@ -72,4 +66,4 @@ private:
     QPalette m_warnPalette;
 };
 
-#endif // KISKisDlgPaletteEditor_H
+#endif

@@ -14,6 +14,6 @@ namespace KisAndroidCrashHandler {
 
 KRITAGLOBAL_EXPORT void handler_init();
 
-} // namespace KisAndroidCrashHandler
+}
 
-#endif // __KISANDROIDCRASHHANDLER_H_
+#endif

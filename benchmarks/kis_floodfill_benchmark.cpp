@@ -34,10 +34,9 @@ void KisFloodFillBenchmark::initTestCase()
     int tilew = 38;
     int tileh = 56;
 
-    m_color.fromQColor(QColor(0,0,0,0)); // default pixel
+    m_color.fromQColor(QColor(0,0,0,0));
     m_deviceStandardFloodFill->fill( 0,0,GMP_IMAGE_WIDTH, GMP_IMAGE_HEIGHT,m_color.data() );
 
-    // fill the image with red ellipses (like some random dabs)
     m_color.fromQColor(Qt::red);
     KisPainter painter(m_deviceStandardFloodFill);
     painter.setFillStyle(KisPainter::FillStyleForegroundColor);
@@ -48,21 +47,16 @@ void KisFloodFillBenchmark::initTestCase()
     for (int i = 0; i < 100;i++){
         x = rand() % GMP_IMAGE_WIDTH;
         y = rand() % GMP_IMAGE_HEIGHT;
-        // plus 10 so that we don't fill the ellipse
         painter.paintEllipse(x+ 10, y+ 10, tilew, tileh);
     }
 
-    // copy to other tests
     m_deviceWithoutSelectionAsBoundary = new KisPaintDevice(m_colorSpace);
     m_deviceWithSelectionAsBoundary = new KisPaintDevice(m_colorSpace);
-
 
     KisPainter::copyAreaOptimized(QPoint(), m_deviceStandardFloodFill,
                                   m_deviceWithoutSelectionAsBoundary, m_deviceWithoutSelectionAsBoundary->exactBounds());
     KisPainter::copyAreaOptimized(QPoint(), m_deviceStandardFloodFill,
                                   m_deviceWithSelectionAsBoundary, m_deviceWithSelectionAsBoundary->exactBounds());
-
-    //m_deviceWithoutSelectionAsBoundary = m_deviceStandardFloodFill->
 
     const KoColorSpace* alphacs = KoColorSpaceRegistry::instance()->alpha8();
     KoColor defaultSelected = KoColor(alphacs);
@@ -82,30 +76,23 @@ void KisFloodFillBenchmark::benchmarkFlood()
     QBENCHMARK
     {
         KisFillPainter fillPainter(m_deviceStandardFloodFill);
-        //setupPainter(&fillPainter);
         fillPainter.setPaintColor( fg );
         fillPainter.setBackgroundColor( bg );
 
         fillPainter.beginTransaction(kundo2_noi18n("Flood Fill"));
 
-        //fillPainter.setProgress(updater->startSubtask());
         fillPainter.setOpacityToUnit();
-        // default
         fillPainter.setFillThreshold(15);
         fillPainter.setCompositeOpId(COMPOSITE_OVER);
         fillPainter.setCareForSelection(true);
         fillPainter.setWidth(GMP_IMAGE_WIDTH);
         fillPainter.setHeight(GMP_IMAGE_HEIGHT);
 
-        // fill twice
         fillPainter.fillColor(1, 1, m_deviceStandardFloodFill);
 
         fillPainter.deleteTransaction();
     }
 
-    // uncomment this to see the output
-    //QImage out = m_device->convertToQImage(m_colorSpace->profile(),0,0,GMP_IMAGE_WIDTH,GMP_IMAGE_HEIGHT);
-    //out.save("fill_output.png");
 }
 
 void KisFloodFillBenchmark::benchmarkFloodWithoutSelectionAsBoundary()
@@ -124,7 +111,6 @@ void KisFloodFillBenchmark::benchmarkFloodWithoutSelectionAsBoundary()
         fillPainter.beginTransaction(kundo2_noi18n("Flood Fill"));
 
         fillPainter.setOpacityToUnit();
-        // default
         fillPainter.setFillThreshold(15);
         fillPainter.setCompositeOpId(COMPOSITE_OVER);
         fillPainter.setCareForSelection(true);
@@ -155,7 +141,6 @@ void KisFloodFillBenchmark::benchmarkFloodWithSelectionAsBoundary()
         fillPainter.beginTransaction(kundo2_noi18n("Flood Fill"));
 
         fillPainter.setOpacityToUnit();
-        // default
         fillPainter.setFillThreshold(15);
         fillPainter.setCompositeOpId(COMPOSITE_OVER);
         fillPainter.setCareForSelection(true);
@@ -169,7 +154,6 @@ void KisFloodFillBenchmark::benchmarkFloodWithSelectionAsBoundary()
         fillPainter.deleteTransaction();
     }
 }
-
 
 void KisFloodFillBenchmark::cleanupTestCase()
 {

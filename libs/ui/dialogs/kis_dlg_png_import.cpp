@@ -5,7 +5,6 @@
  */
 #include "kis_dlg_png_import.h"
 
-
 #include <KoColorProfile.h>
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>

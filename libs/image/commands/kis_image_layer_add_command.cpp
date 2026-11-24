@@ -10,7 +10,6 @@
 
 #include <klocalizedstring.h>
 
-
 KisImageLayerAddCommand::KisImageLayerAddCommand(KisImageWSP image,
                                                  KisNodeSP layer,
                                                  KisNodeSP parent,

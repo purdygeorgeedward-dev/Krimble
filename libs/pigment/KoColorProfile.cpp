@@ -24,7 +24,6 @@ struct Q_DECL_HIDDEN KoColorProfile::Private {
 
 KoColorProfile::KoColorProfile(const QString &fileName) : d(new Private)
 {
-//     dbgPigment <<" Profile filename =" << fileName;
     d->fileName = fileName;
 }
 
@@ -48,7 +47,6 @@ bool KoColorProfile::save(const QString & filename)
     Q_UNUSED(filename);
     return false;
 }
-
 
 QString KoColorProfile::name() const
 {
@@ -88,7 +86,6 @@ ColorPrimaries KoColorProfile::getColorPrimaries() const
             QVector<KoColorimetryUtils::xyY> col = getColorantsxyY();
             if (col.size()<3) {
                 KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(col.size() < 3, PRIMARIES_UNSPECIFIED);
-                //too few colorants.
                 d->primaries = int(primaries);
                 return (primaries);
             }
@@ -106,7 +103,6 @@ ColorPrimaries KoColorProfile::getColorPrimaries() const
                 colorantsForType(check, wp2, compare);
                 if (compare.size() <3) {
                     KIS_SAFE_ASSERT_RECOVER(compare.size() < 3) { continue; }
-                    //too few colorants, skip.
                 }
                 compare.append(wp2);
                 match = true;
@@ -173,14 +169,11 @@ void KoColorProfile::colorantsForType(ColorPrimaries primaries,
     case PRIMARIES_UNSPECIFIED:
         break;
     case PRIMARIES_ITU_R_BT_470_6_SYSTEM_M:
-        // Unquantized.
         c = KoColorimetryUtils::Colorimetry::PAL_M;
         whitePoint = c.white().toxy();
         colorants = {c.red().toxy(), c.green().toxy(), c.blue().toxy()};
-        //Illuminant C
         break;
     case PRIMARIES_ITU_R_BT_470_6_SYSTEM_B_G:
-        // Unquantized.
         c = KoColorimetryUtils::Colorimetry::PAL;
         whitePoint = c.white().toxy();
         colorants = {c.red().toxy(), c.green().toxy(), c.blue().toxy()};
@@ -200,10 +193,8 @@ void KoColorProfile::colorantsForType(ColorPrimaries primaries,
         c = KoColorimetryUtils::Colorimetry::GenericFilm;
         whitePoint = c.white().toxy();
         colorants = {c.red().toxy(), c.green().toxy(), c.blue().toxy()};
-        //Illuminant C
         break;
     case PRIMARIES_ITU_R_BT_2020_2_AND_2100_0:
-        //prequantization courtesy of Elle Stone.
 
         if (prequantized) {
             whitePoint = {0.3127, 0.3290};
@@ -240,7 +231,6 @@ void KoColorProfile::colorantsForType(ColorPrimaries primaries,
     case PRIMARIES_PROPHOTO:
 
         if (prequantized) {
-            //prequantization courtesy of Elle Stone.
             whitePoint = {0.3457, 0.3585};
             colorants = {{0.7347, 0.2653}};
             colorants.append({0.1596, 0.8404});
@@ -255,7 +245,6 @@ void KoColorProfile::colorantsForType(ColorPrimaries primaries,
         break;
     case PRIMARIES_ADOBE_RGB_1998:
         if (prequantized) {
-            //prequantization courtesy of Elle Stone.
             whitePoint = {0.3127, 0.3290};
             colorants = {{0.639996511, 0.329996864}};
             colorants.append({0.210005295, 0.710004866});
@@ -269,7 +258,6 @@ void KoColorProfile::colorantsForType(ColorPrimaries primaries,
     case PRIMARIES_ITU_R_BT_709_5:
     default:
         if (prequantized) {
-            // Prequantized colorants, courtesy of Elle Stone
             whitePoint = {0.3127, 0.3290};
             colorants = {{0.639998686, 0.330010138}};
             colorants.append({0.300003784, 0.600003357});
@@ -286,20 +274,15 @@ void KoColorProfile::colorantsForType(ColorPrimaries primaries,
 
 TransferCharacteristics KoColorProfile::getTransferCharacteristics() const
 {
-    // Parse from an estimated gamma
     const QVector<double> estimatedTRC = getEstimatedTRC();
     const double error = 0.0001;
-    // Make sure the TRC is uniform across all channels
     const bool isUniformTRC = (estimatedTRC[0] == estimatedTRC[1] && estimatedTRC[0] == estimatedTRC[2]);
     if (d->characteristics == TRC_UNSPECIFIED && isUniformTRC && hasTRC()) {
         if (isLinear()) {
             d->characteristics = TRC_LINEAR;
         } else if (std::fabs(estimatedTRC[0] - (461.0 / 256.0)) < error) {
-            // ICC v2 u8Fixed8Number calculation
-            // Or can be prequantized as 1.80078125, courtesy of Elle Stone
             d->characteristics = TRC_GAMMA_1_8;
         } else if (std::fabs(estimatedTRC[0] - (563.0 / 256.0)) < error) {
-            // Or can be prequantized as 2.19921875, courtesy of Elle Stone
             d->characteristics = TRC_A98;
         } else if (std::fabs(estimatedTRC[0] - 1.8) < error) {
             d->characteristics = TRC_GAMMA_1_8;
@@ -310,7 +293,6 @@ TransferCharacteristics KoColorProfile::getTransferCharacteristics() const
         } else if (std::fabs(estimatedTRC[0] - 2.8) < error) {
             d->characteristics = TRC_ITU_R_BT_470_6_SYSTEM_B_G;
         } else {
-            // Escort to curve matching if no gamma is matched
             static constexpr std::array<TransferCharacteristics, 12> trcList = {{TRC_ITU_R_BT_709_5,
                                                                                  TRC_ITU_R_BT_470_6_SYSTEM_M,
                                                                                  TRC_ITU_R_BT_470_6_SYSTEM_B_G,

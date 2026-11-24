@@ -22,5 +22,5 @@ private:
     qint32 m_generator;
 };
 
-#endif // KIS_NAMESERVER_H_
+#endif
 

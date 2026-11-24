@@ -34,8 +34,6 @@ degrayPixel(rgba pixel)
   return -1 ;
 }
 
-/* ****************************************************************** */
-
 typedef const struct _convertParams {
   int bpp ;
   int shift[4] ;
@@ -57,14 +55,12 @@ static convertParams convertINDEXEDA  = { 2, {-1,ALPHA_SHIFT}, 0, colormap };
 static convertParams convertColormap  = { 3, {RGB_SHIFT}, 0, 0 };
 static convertParams convertChannel   = { 1, {ALPHA_SHIFT}, 0, 0 };
 
-/* ****************************************************************** */
-
 static inline int
 tileDirectoryOneLevel(struct tileDimensions *dim,uint32_t ptr, int* ptrOut)
 {
   if( ptr == 0 ) {
       *ptrOut = 0;
-    return XCF_OK; /* allowed by xcf, apparently */
+    return XCF_OK;
   }
   if( xcfL(ptr  ) != dim->c.r - dim->c.l ||
           xcfL(ptr+4) != dim->c.b - dim->c.t ) {
@@ -94,9 +90,6 @@ initTileDirectory(struct tileDimensions *dim,struct xcfTiles *tiles,
   }
   ptr = ptrOut;
   if( tiles->params == &convertChannel ) {
-    /* A layer mask is a channel.
-     * Skip a name and a property list.
-     */
      xcfString(ptr,&ptr);
     PropType type;
     int response;
@@ -117,11 +110,6 @@ initTileDirectory(struct tileDimensions *dim,struct xcfTiles *tiles,
     }
     ptr = ptrOut;
   }
-  /* The XCF format has a dummy "hierarchy" level which was
-   * once meant to mean something, but never happened. It contains
-   * the bpp value and a list of "level" pointers; but only the
-   * first level actually contains data.
-   */
   data = xcfL(ptr) ;
   if( xcfL(ptr) != tiles->params->bpp ) {
       FatalBadXCF("%" PRIuPTR " bytes per pixel for %s drawable",
@@ -143,8 +131,6 @@ initTileDirectory(struct tileDimensions *dim,struct xcfTiles *tiles,
   if (xcfCheckspace(ptr,dim->ntiles*4+4,"Tile directory at %" PRIX32,ptr) != XCF_OK) {
       return XCF_ERROR;
   }
-/*  if( xcfL(ptr + dim->ntiles*4) != 0 )
-    FatalBadXCF("Wrong sized tile directory at %" PRIX32,ptr);*/
 
 #define REUSE_RAW_DATA tiles->tileptrs = (uint32_t*)(xcf_file + ptr)
 #if defined(WORDS_BIGENDIAN) && defined(CAN_DO_UNALIGNED_WORDS)
@@ -225,8 +211,6 @@ initColormap(void) {
     return XCF_OK;
 }
 
-/* ****************************************************************** */
-
 struct Tile *
 newTile(struct rect r)
 {
@@ -293,8 +277,6 @@ fillTile(struct Tile *tile,rgba data)
     tile->summary = TILESUMMARY_UPTODATE ;
 }
 
-/* ****************************************************************** */
-
 static int
 copyStraightPixels(rgba *dest,unsigned npixels,
                    uint32_t ptr,convertParams *params)
@@ -334,7 +316,6 @@ copyRLEpixels(rgba *dest,unsigned npixels,uint32_t ptr,convertParams *params)
           ptr,params->bpp,npixels,base_pixel);
 #endif
 
-  /* This algorithm depends on the indexed byte always being the first one */
   if( params->shift[0] < -1 )
     base_pixel = 0 ;
   for( j = npixels ; j-- ; )
@@ -383,13 +364,6 @@ copyRLEpixels(rgba *dest,unsigned npixels,uint32_t ptr,convertParams *params)
   }
 #ifdef xDEBUG
   fprintf(stderr,"RLE decoding OK at %"PRIX32"\n",ptr);
-  /*
-  for( j = 0 ; j < npixels ; j++ ) {
-    if( j % 8 == 0 ) fprintf(stderr,"\n");
-    fprintf(stderr," %8x",dest[j]);
-  }
-  fprintf(stderr,"\n");
-  */
 #endif
     return XCF_OK;
 }
@@ -422,7 +396,6 @@ copyTilePixels(struct Tile *dest, uint32_t ptr,convertParams *params)
   return XCF_OK;
 }
 
-
 struct Tile *
 getMaskOrLayerTile(struct tileDimensions *dim, struct xcfTiles *tiles,
                    struct rect want)
@@ -449,7 +422,6 @@ getMaskOrLayerTile(struct tileDimensions *dim, struct xcfTiles *tiles,
     int tx = TILE_NUM(want.l - dim->c.l);
     int ty = TILE_NUM(want.t - dim->c.t);
     if( want.r == TILEXn(*dim,tx+1) && want.b == TILEYn(*dim,ty+1) ) {
-      /* The common case? An entire single tile from the layer */
         if (copyTilePixels(tile,tiles->tileptrs[tx + ty*dim->tilesx],tiles->params) != XCF_OK) {
             freeTile(tile);
             return XCF_PTR_EMPTY;
@@ -458,7 +430,6 @@ getMaskOrLayerTile(struct tileDimensions *dim, struct xcfTiles *tiles,
     }
   }
 
-  /* OK, we must construct the wanted tile as a jigsaw */
   {
     unsigned width = want.r-want.l ;
     rgba *pixvert = tile->pixels ;
@@ -477,7 +448,7 @@ getMaskOrLayerTile(struct tileDimensions *dim, struct xcfTiles *tiles,
       if( want.b > dim->c.b ) want.b = dim->c.b ;
       fillTile(tile,0);
     } else {
-      tile->summary = -1 ; /* I.e. whatever the jigsaw pieces say */
+      tile->summary = -1 ;
     }
 
 #ifdef xDEBUG
@@ -567,7 +538,7 @@ getLayerTile(struct xcfLayer *layer,const struct rect *where)
     return data ;
   if( layer->hasMask ) {
     struct Tile *mask = getMaskOrLayerTile(&layer->dim,&layer->mask,*where);
-    if (mask == XCF_PTR_EMPTY) { /* error */
+    if (mask == XCF_PTR_EMPTY) {
         freeTile(data);
         return XCF_PTR_EMPTY;
     }

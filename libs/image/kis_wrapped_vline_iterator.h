@@ -73,7 +73,7 @@ public:
 
                     m_iteratorColumnStart = KisWrappedRect::TOPRIGHT;
                     m_lastColumnCoord = m_splitRect->topRight().right();
-                } else /* if (m_iteratorColumnStart == KisWrappedRect::TOPRIGHT) */ {
+                } else {
                     m_iteratorColumnStart = KisWrappedRect::TOPLEFT;
                     m_lastColumnCoord = m_splitRect->topLeft().right();
 
@@ -107,12 +107,11 @@ public:
 private:
     KisWrappedRect *m_splitRect;
     QVector<IteratorTypeSP> *m_iterators;
-    int m_iteratorColumnStart; // may be either KisWrappedRect::TOPLEFT or KisWrappedRect::TOPRIGHT
+    int m_iteratorColumnStart;
     int m_lastColumnCoord;
 };
 
 #include "kis_wrapped_line_iterator_base.h"
 typedef KisWrappedLineIteratorBase<WrappedVLineIteratorStrategy, KisVLineIteratorNG> KisWrappedVLineIterator;
 
-
-#endif /* __KIS_WRAPPED_VLINE_ITERATOR_H */
+#endif

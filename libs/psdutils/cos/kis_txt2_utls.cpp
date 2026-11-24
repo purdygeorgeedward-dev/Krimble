@@ -104,8 +104,6 @@ QVariantHash uncompressStyleSheetFeatures(const QVariantHash object) {
         {"/50", "/RightAki"},
         {"/51", "/JiDori"},
         {"/52", "/NoBreak"},
-        //{"/53", "/FillColor"},
-        //{"/54", "/StrokeColor"},
 
         {"/55", "/Blend"},
         {"/56", "/FillFlag"},
@@ -135,7 +133,6 @@ QVariantHash uncompressStyleSheetFeatures(const QVariantHash object) {
         {"/76", "/StretchedAlternates"},
         {"/77", "/FillVisibleFlag"},
         {"/78", "/StrokeVisibleFlag"},
-        //{"/79", "/FillBackgroundColor"},
 
         {"/80", "/FillBackgroundFlag"},
         {"/81", "/UnderlineStyle"},
@@ -213,7 +210,6 @@ QVariantHash uncompressParagraphSheetFeatures(const QVariantHash object) {
 
         {"/30", "/TabStops"},
         {"/31", "/DefaultTabWidth"},
-        //{"/32", "/DefaultStyle"},
         {"/33", "/ParagraphDirection"},
         {"/34", "/JustificationMethod"},
 
@@ -309,8 +305,6 @@ QVariantHash uncompressTextFrameData(const QVariantHash object) {
         {"/9", "/Spacing"},
 
         {"/10", "/FirstBaseAlignment"},
-       // {"/11", "/PathData"},
-        //{"/12", ""},
         {"/13", "/_VerticalAlignment"},
     };
 
@@ -352,7 +346,6 @@ QVariantHash uncompressKeysTextFrameSet(const QVariantHash object) {
     const QMap<QString, QString> keyList {
         {"/0", "/_Position"},
         {"/1", "/Bezier"},
-        //{"/2", "/Data"},
         {"/97", "/UUID"}
     };
 
@@ -390,7 +383,6 @@ QVariantHash uncompressKeysKinsokuSet(const QVariantHash object) {
 
     const QMap<QString, QString> keyList {{"/0", "/Name"}, {"/5", "/Data"}};
     const QMap<QString, QString> idKeyList {{"/0", "/NoStart"}, {"/1", "/NoEnd"}, {"/2", "/Keep"}, {"/3", "/Hanging"}, {"/4", "/PredefinedTag"}};
-
 
     Q_FOREACH(QVariant val, resources) {
         QVariantHash resource = val.toHash().value("/0").toHash();
@@ -450,7 +442,6 @@ QVariantHash uncompressKeysFontSet(const QVariantHash object) {
     const QMap<QString, QString> keyList {{"/99", "/StreamTag"}, {"/97", "/UUID"}};
     const QMap<QString, QString> idKeyList {{"/0", "/Name"}, {"/2", "/Type"}, {"/4", "/MMAxis"}, {"/5", "/VersionString"}};
 
-
     Q_FOREACH(QVariant val, resources) {
         QVariantHash resource = val.toHash().value("/0").toHash();
         QVariantHash newResource;
@@ -508,8 +499,6 @@ QVariantHash uncompressKeysDocumentResources(const QVariantHash object) {
     }
     return newObject;
 }
-
-/*------- Document Objects ----------*/
 
 QVariantHash uncompressKeysTextModel(const QVariantHash object) {
     QVariantHash newObject;
@@ -591,7 +580,6 @@ QVariantHash uncompressGlyphStrikeDef(const QVariantHash object) {
 
     Q_FOREACH(QString key, object.keys()) {
         QVariant val = object.value(key);
-           // bounds,
          if (key == "/99") {
              newObject.insert("/StreamTag", val);
          } else if (key == "/1") {
@@ -713,7 +701,7 @@ QVariantHash uncompressStrikeDef(const QVariantHash object, bool flip = false) {
                  }
              }
              newObject.insert("/Children", newArray);
-         } else if (key == "/10" && (tag == "/F" || tag == "/FrameStrike")) { // only for frame strike.
+         } else if (key == "/10" && (tag == "/F" || tag == "/FrameStrike")) {
              newObject.insert("/Frame", val);
          } else {
              newObject.insert(key, val);
@@ -814,7 +802,6 @@ QVariantHash uncompressHiddenGlyphSettings(const QVariantHash object) {
 QVariantHash uncompressKeysDocumentSettings(const QVariantHash object) {
     QVariantHash newObject;
     const QMap<QString, QString> keyList {
-        //{"/0", "/HiddenGlyphFont"},
         {"/1", "/NormalStyleSheet"},
         {"/2", "/NormalParagraphSheet"},
         {"/3", "/SuperscriptSize"},
@@ -824,13 +811,8 @@ QVariantHash uncompressKeysDocumentSettings(const QVariantHash object) {
         {"/6", "/SubscriptPosition"},
         {"/7", "/SmallCapSize"},
         {"/8", "/UseSmartQuotes"},
-        //{"/9", "/SmartQuoteSets"},
 
-        //{"/10", ""},
         {"/11", "/GreekingSize"},
-        //{"/12", ""},
-        //{"/13", ""},
-        //{"/14", ""},
 
         {"/15", "/LinguisticSettings"},
         {"/16", "/UseSmartLists"},
@@ -899,8 +881,6 @@ QVariantHash KisTxt2Utils::uncompressKeys(QVariantHash doc)
     }
     return newDoc;
 }
-
-//-------------- Default Txt2 ----------------//
 
 static QVariantHash defaultFill {
     { "/StreamTag", "/SimplePaint"},
@@ -1153,8 +1133,6 @@ QVariantHash KisTxt2Utils::defaultTxt2()
     kinsokuSet.insert("/DisplayList", kinsokuDisplay);
     documentResources.insert("/KinsokuSet", kinsokuSet);
 
-    //QVariantHash listStyleSet;
-    //documentResources.insert("/ListStyleSet", listStyleSet);
     QVariantHash mojiKumiCodeToClassSet = {
         {"/Resources", QVariantList({
              QVariantHash({
@@ -1234,11 +1212,8 @@ QVariantHash KisTxt2Utils::defaultTxt2()
     textFrameSet.insert("/Resources", QVariantList());
     documentResources.insert("/TextFrameSet", textFrameSet);
 
-    // Document settings ----------
     QVariantHash DocumentSettings;
     DocumentSettings.insert("/DefaultStoryDir", 0);
-    // smart quote?
-    // alternate glyph?
     DocumentSettings.insert("/SubscriptPosition", 0.333);
     DocumentSettings.insert("/SubscriptSize", 0.583);
     DocumentSettings.insert("/SuperscriptPosition", 0.333);
@@ -1375,7 +1350,6 @@ QVariantHash KisTxt2Utils::tyShFromTxt2(const QVariantHash Txt2, const QRectF bo
         textObject = textObjects.value(textIndex).toHash();
     }
 
-
     const QVariantHash model = textObject.value("/Model").toHash();
     const QVariantHash view = textObject.value("/View").toHash();
 
@@ -1388,13 +1362,10 @@ QVariantHash KisTxt2Utils::tyShFromTxt2(const QVariantHash Txt2, const QRectF bo
     editor.insert("/Text", model.value("/Text"));
     engineDict.insert("/Editor", editor);
 
-
     engineDict.insert("/GridInfo", defaultGrid);
 
-    // paragraph
     const QVariantHash para = model.value("/ParagraphRun").toHash();
     const QVariantList paraRunArray = para.value("/RunArray").toList();
-    // if we want to go over each entry, here's the moment to do so.
     const int length = paraRunArray.value(0).toHash().value("/Length").toInt();
     const QVariantHash paraSheet = paraRunArray.value(0).toHash().value("/RunData").toHash()["/ParagraphSheet"].toHash();
     const QVariantHash paragraphStyle = simplifyParagraphSheet(paraSheet.value("/Features").toHash());
@@ -1409,7 +1380,7 @@ QVariantHash KisTxt2Utils::tyShFromTxt2(const QVariantHash Txt2, const QRectF bo
                                                 {"/Adjustments", paragraphAdjustments}
                                             }
                                             });
-    paragraphRun.insert("/IsJoinable", 1); //no idea what this means.
+    paragraphRun.insert("/IsJoinable", 1);
     paragraphRun.insert("/DefaultRunData", QVariantHash{
     {"/ParagraphSheet",
             QVariantHash{{"/DefaultStyleSheet", 0},
@@ -1439,13 +1410,12 @@ QVariantHash KisTxt2Utils::tyShFromTxt2(const QVariantHash Txt2, const QRectF bo
 
     styleRun.insert("/DefaultRunData", QVariantHash{{"/StyleSheet", QVariantHash{{"/StyleSheetData", QVariantHash()}} }});
     engineDict.insert("/StyleRun", styleRun);
-    // rendered data...
 
     const int frameIndex = view.value("/Frames").toList().value(0).toHash().value("/Resource").toInt();
     const QVariantHash textFrame = textFrames.value(frameIndex).toHash().value("/Resource").toHash();
     const QVariantHash textFrameData = textFrame.value("/Data").toHash();
     QVariantHash rendered;
-    int shapeType = textFrameData.value("/Type", QVariant(0)).toInt(); // 0 point, 1 paragraph, 2, text on path
+    int shapeType = textFrameData.value("/Type", QVariant(0)).toInt();
     int writingDirection = textFrameData.value("/LineOrientation", QVariant(0)).toInt();
     QVariantHash photoshop = QVariantHash {{"/ShapeType", qMax(1, shapeType)},
     {"/TransformPoint0", QVariantList({1.0, 0.0})},
@@ -1454,7 +1424,6 @@ QVariantHash KisTxt2Utils::tyShFromTxt2(const QVariantHash Txt2, const QRectF bo
     if (shapeType == 0) {
         photoshop["/PointBase"] = QVariantList({0.0, 0.0});
     } else if (shapeType == 1) {
-        // this is the bounding box of the paragraph shape.
         photoshop["/BoxBounds"] = QVariantList({0.0, 0.0, boundsInPx.width(), boundsInPx.height()});
     }
     QVariantHash renderChild = QVariantHash{
@@ -1467,7 +1436,6 @@ QVariantHash KisTxt2Utils::tyShFromTxt2(const QVariantHash Txt2, const QRectF bo
 
     engineDict.insert("/Rendered", rendered);
 
-    // storysheet
     const QVariantHash storySheet = textObject.value("/StorySheet").toHash();
     engineDict.insert("/UseFractionalGlyphWidths", storySheet.value("/UseFractionalGlyphWidths", QVariant(true)).toBool());
     engineDict.insert("/AntiAlias", storySheet.value("/AntiAlias", QVariant(1)).toInt());

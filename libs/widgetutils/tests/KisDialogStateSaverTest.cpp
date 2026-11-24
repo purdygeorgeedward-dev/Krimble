@@ -11,7 +11,6 @@
 #include <ksharedconfig.h>
 #include <kconfiggroup.h>
 
-
 void KisDialogStateSaverTest::testSave()
 {
     QWidget w;
@@ -50,6 +49,5 @@ void KisDialogStateSaverTest::testRestore()
     QCOMPARE(page.checkBox->isChecked(), true);
 
 }
-
 
 SIMPLE_TEST_MAIN(KisDialogStateSaverTest)

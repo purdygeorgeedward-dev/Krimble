@@ -17,7 +17,6 @@
 class KisViewManager;
 class KisProcessingApplicator;
 
-
 class WdgClonesArray : public QWidget, public Ui::WdgClonesArray
 {
     Q_OBJECT
@@ -65,4 +64,4 @@ private:
     bool m_isDirty {false};
 };
 
-#endif // DLG_CLONESARRAY
+#endif

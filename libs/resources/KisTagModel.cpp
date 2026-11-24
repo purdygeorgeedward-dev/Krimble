@@ -31,7 +31,6 @@ struct KisAllTagsModel::Private {
     int cachedRowCount {-1};
 };
 
-
 KisAllTagsModel::KisAllTagsModel(const QString &resourceType, QObject *parent)
     : QAbstractTableModel(parent)
     , d(new Private())
@@ -117,9 +116,9 @@ QVariant KisAllTagsModel::data(const QModelIndex &index, int role) const
     if (index.row() < s_fakeRowsCount) {
         if (index.row() == KisAllTagsModel::All + s_fakeRowsCount) {
             switch(role) {
-            case Qt::DisplayRole:   // fallthrough
-            case Qt::ToolTipRole:   // fallthrough
-            case Qt::StatusTipRole: // fallthrough
+            case Qt::DisplayRole:
+            case Qt::ToolTipRole:
+            case Qt::StatusTipRole:
             case Qt::WhatsThisRole:
             case Qt::UserRole + Name:
                 return i18n("All");
@@ -144,9 +143,9 @@ QVariant KisAllTagsModel::data(const QModelIndex &index, int role) const
             }
         } else if (index.row() == KisAllTagsModel::AllUntagged + s_fakeRowsCount) {
             switch(role) {
-            case Qt::DisplayRole:   // fallthrough
-            case Qt::ToolTipRole:   // fallthrough
-            case Qt::StatusTipRole: // fallthrough
+            case Qt::DisplayRole:
+            case Qt::ToolTipRole:
+            case Qt::StatusTipRole:
             case Qt::WhatsThisRole:
             case Qt::UserRole + Name:
                 return i18n("All untagged");
@@ -184,8 +183,8 @@ QVariant KisAllTagsModel::data(const QModelIndex &index, int role) const
                 }
                 return name;
             }
-            case Qt::ToolTipRole:   // fallthrough
-            case Qt::StatusTipRole: // fallthrough
+            case Qt::ToolTipRole:
+            case Qt::StatusTipRole:
             case Qt::WhatsThisRole:
             {
                 QVariant comment = d->query.value("translated_comment");
@@ -256,10 +255,7 @@ Qt::ItemFlags KisAllTagsModel::flags(const QModelIndex &index) const
 QModelIndex KisAllTagsModel::indexForTag(KisTagSP tag) const
 {
     if (!tag) return QModelIndex();
-    // For now a linear seek to find the first tag
     if (tag->id() < 0 && (tag->url() == urlAll() || tag->url() == urlAllUntagged())) {
-        // this must be either a fake tag id, or a "naked" tag
-        // TODO: do we even use "naked tags"? won't it be better to just use QStrings?
         return index(tag->id() + s_fakeRowsCount, 0);
     }
 
@@ -275,9 +271,6 @@ QModelIndex KisAllTagsModel::indexForTag(KisTagSP tag) const
             }
         }
         else {
-            // This is a naked tag, one that didn't come from the
-            // database.
-            // But not a "fake" tag (All or AllUntagged)!
             if (d->query.value("url").toString() == tag->url()
                     && d->query.value("resource_type") == d->resourceType) {
                 return index(d->query.at() + s_fakeRowsCount, 0);
@@ -344,7 +337,6 @@ KisTagSP KisAllTagsModel::addTag(const QString& tagName, const bool allowOverwri
     }
 }
 
-
 bool KisAllTagsModel::addTag(const KisTagSP tag, const bool allowOverwrite, QVector<KoResourceSP> taggedResources)
 {
     if (!tag) return false;
@@ -366,7 +358,7 @@ bool KisAllTagsModel::addTag(const KisTagSP tag, const bool allowOverwrite, QVec
         KisTagSP trueTag = tagForUrl(tag->url());
         r = setData(indexForTag(trueTag), QVariant::fromValue(true), Qt::UserRole + KisAllTagsModel::Active);
         untagAllResources(trueTag);
-        tag->setComment(trueTag->comment()); // id will be set later, comment and filename are the only thing left
+        tag->setComment(trueTag->comment());
         tag->setFilename(trueTag->filename());
     }
     else {
@@ -589,7 +581,6 @@ KisTagSP KisTagModel::tagForIndex(QModelIndex index) const
     return 0;
 }
 
-
 KisTagSP KisTagModel::addTag(const QString &tagName, const bool allowOverwrite, QVector<KoResourceSP> taggedResources)
 {
     KisAbstractTagModel *source = dynamic_cast<KisAbstractTagModel*>(sourceModel());
@@ -607,7 +598,6 @@ KisTagSP KisTagModel::tagForUrl(const QString& url) const
     }
     return 0;
 }
-
 
 bool KisTagModel::addTag(const KisTagSP tag, const bool allowOverwrite, QVector<KoResourceSP> taggedResources)
 {
@@ -654,7 +644,6 @@ bool KisTagModel::changeTagActive(const KisTagSP tag, bool active)
     }
     return false;
 }
-
 
 bool KisTagModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
@@ -721,7 +710,6 @@ bool KisTagModel::lessThan(const QModelIndex &source_left, const QModelIndex &so
 {
     const bool leftIsFakeRow = source_left.row() < s_fakeRowsCount;
     const bool rightIsFakeRow = source_right.row() < s_fakeRowsCount;
-    // Always sort fake rows ("All" and "All Untagged") above the rest.
     if (leftIsFakeRow && rightIsFakeRow) {
         return source_left.row() < source_right.row();
     } else if (leftIsFakeRow) {

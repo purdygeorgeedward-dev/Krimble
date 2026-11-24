@@ -120,7 +120,6 @@ void CssStylePresetEditDialog::slotUpdateTextProperties()
         const int sampleWidth = m_quickWidget->rootObject()->property("sampleWidth").toInt();
         const QSizeF sampleSize = QSizeF(sampleWidth, sampleHeight);
 
-
         bool shouldUpdateSample = (before != m_currentResource->beforeText()
                 || sample != m_currentResource->sampleText()
                 || after != m_currentResource->afterText())
@@ -167,7 +166,6 @@ void CssStylePresetEditDialog::slotUpdateDirty() {
 }
 
 void CssStylePresetEditDialog::slotUpdateStoreDPI() {
-    //Whenever we make it pixel relative, we'll set the resolution to 72 dpi.
     if (m_blockUpdates) return;
     if (!m_quickWidget->rootObject()) return;
     const bool makePixelRelative = m_quickWidget->rootObject()->property("makePixelRelative").toBool();

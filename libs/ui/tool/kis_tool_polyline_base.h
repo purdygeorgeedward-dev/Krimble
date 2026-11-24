@@ -73,9 +73,9 @@ private:
 
     QTimer *m_antsTimer {nullptr};
     qreal m_antsOffset {0.0};
-    bool m_firstPointJustPlaced {false};   // the press that is going on put down the first point
-    QPointF m_pressPoint;                  // where that press started (image pixels)
+    bool m_firstPointJustPlaced {false};
+    QPointF m_pressPoint;
     QPointer<QWidget> m_strokeBar;
 };
 
-#endif // KIS_TOOL_POLYLINE_BASE_H
+#endif

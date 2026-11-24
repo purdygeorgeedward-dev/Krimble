@@ -43,7 +43,6 @@ struct KRITAUI_NO_EXPORT KisFrameDataSerializer::Private
     }
 
     int generateFrameId() {
-        // TODO: handle wrapping and range compression
         return nextFrameId++;
     }
 
@@ -121,8 +120,6 @@ int KisFrameDataSerializer::saveFrame(const KisFrameDataSerializer::Frame &frame
         const int compressedSize =
             compression.compress(tile.data.data(), frameByteSize, buffer, maxBufferSize);
 
-        //ENTER_FUNCTION() << ppVar(compressedSize) << ppVar(frameByteSize);
-
         const bool isCompressed = compressedSize < frameByteSize;
         stream << isCompressed;
 
@@ -166,8 +163,6 @@ KisFrameDataSerializer::Frame KisFrameDataSerializer::loadFrame(int frameId, Kis
     stream >> frame.pixelSize;
     stream >> numTiles;
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(loadedFrameId == frameId, KisFrameDataSerializer::Frame());
-
-
 
     for (int i = 0; i < numTiles; i++) {
         FrameTile tile(pool);
@@ -308,7 +303,6 @@ bool processData(T *dst, const T *src, int numUnits)
     return unitsAreSame;
 }
 
-
 template<template <typename U> class OpPolicy>
 bool KisFrameDataSerializer::processFrames(KisFrameDataSerializer::Frame &dst, const KisFrameDataSerializer::Frame &src)
 {
@@ -328,7 +322,6 @@ bool KisFrameDataSerializer::processFrames(KisFrameDataSerializer::Frame &dst, c
 
         framesAreSame &= processData<OpPolicy>(dstDataPtr, srcDataPtr, numQWords);
 
-
         const int tailBytes = numBytes % 8;
         const quint8 *srcTailDataPtr = srcTile.data.data() + numBytes - tailBytes;
         quint8 *dstTailDataPtr = dstTile.data.data() + numBytes - tailBytes;
@@ -346,6 +339,5 @@ bool KisFrameDataSerializer::subtractFrames(KisFrameDataSerializer::Frame &dst, 
 
 void KisFrameDataSerializer::addFrames(KisFrameDataSerializer::Frame &dst, const KisFrameDataSerializer::Frame &src)
 {
-    // TODO: don't spend time on calculation of "framesAreSame" in this case
     (void) processFrames<std::plus>(dst, src);
 }

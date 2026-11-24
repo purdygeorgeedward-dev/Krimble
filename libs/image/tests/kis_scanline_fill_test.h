@@ -12,7 +12,6 @@
 class QColor;
 class KisFillInterval;
 
-
 class KisScanlineFillTest : public QObject
 {
     Q_OBJECT
@@ -38,4 +37,4 @@ private:
     void testGapClosingFillGeneral(QPoint seed, int gapSize);
 };
 
-#endif /* __KIS_SCANLINE_FILL_TEST_H */
+#endif

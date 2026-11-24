@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_IMAGE_CHANGE_VISIBILITY_COMMAND_H_
 #define KIS_IMAGE_CHANGE_VISIBILITY_COMMAND_H_
 

@@ -10,15 +10,9 @@
 #include <QtGlobal>
 #include "kritapigment_export.h"
 
-/**
- * A number of often-used conversions between color models
- */
-
-// 8-bit integer versions. RGBSL are 0-255, H is 0-360.
 KRITAPIGMENT_EXPORT void rgb_to_hsv(int R, int G, int B, int *H, int *S, int *V);
 KRITAPIGMENT_EXPORT void hsv_to_rgb(int H, int S, int V, int *R, int *G, int *B);
 
-// Floating point versions. RGBSL are 0-1, H is 0-360.
 KRITAPIGMENT_EXPORT void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
 KRITAPIGMENT_EXPORT void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
 
@@ -34,22 +28,12 @@ KRITAPIGMENT_EXPORT void hls_to_rgb(float h, float l, float s, quint8 * r, quint
 KRITAPIGMENT_EXPORT void rgb_to_hls(quint8 r, quint8 g, quint8 b, int * h, int * l, int * s);
 KRITAPIGMENT_EXPORT void hls_to_rgb(int h, int l, int s, quint8 * r, quint8 * g, quint8 * b);
 
-//HSI and HSY' functions.
-//These are modified to calculate a cylinder, this is good for color selectors sliders.
-//All eight expect 0.0-1.0 for all parameters.
-//HSI measures the Tone, Intensity, by adding the r, g and b components and then normalising that.
 KRITAPIGMENT_EXPORT void HSIToRGB(const qreal h, const qreal s, const qreal i, qreal *red, qreal *green, qreal *blue);
 KRITAPIGMENT_EXPORT void RGBToHSI(qreal r, qreal g, qreal b, qreal *h, qreal *s, qreal *i);
 
-//HSY' measures the tone, Luma, by weighting the r, g, and b components before adding them up.
-//The R, G, B refers to the weights, and defaults to the 601 rec for luma.
 KRITAPIGMENT_EXPORT void RGBToHSY( qreal r, qreal g, qreal b, qreal *h, qreal *s, qreal *y, qreal R=0.299, qreal G=0.587, qreal B=0.114);
 KRITAPIGMENT_EXPORT void HSYToRGB(const qreal h, const qreal s, const qreal y, qreal *red, qreal *green, qreal *blue, qreal R=0.299, qreal G=0.587, qreal B=0.114);
 
-
-//HCI and HCY' functions.
-//These are the original conversion functions, producing cones. Put in for completion.
-//There's HCI to RGB is based on the HCY to RGB one for now, it may not be correct.
 KRITAPIGMENT_EXPORT void HCIToRGB(const qreal h, const qreal s, const qreal i, qreal *red, qreal *green, qreal *blue);
 KRITAPIGMENT_EXPORT void RGBToHCI(const qreal r, const qreal g, const qreal b, qreal *h, qreal *c, qreal *i);
 
@@ -68,5 +52,5 @@ KRITAPIGMENT_EXPORT void xyYToXYZ(const qreal x, const qreal y, const qreal yY, 
 KRITAPIGMENT_EXPORT void CMYToCMYK(qreal *c, qreal *m, qreal *y, qreal *k);
 KRITAPIGMENT_EXPORT void CMYKToCMY(qreal *c, qreal *m, qreal *y, qreal *k);
 
-#endif // _KO_COLORCONVERSIONS_H_
+#endif
 

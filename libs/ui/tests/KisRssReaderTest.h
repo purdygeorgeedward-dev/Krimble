@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testParseData();
 };
 
-#endif // KISRSSREADERTEST_H
+#endif

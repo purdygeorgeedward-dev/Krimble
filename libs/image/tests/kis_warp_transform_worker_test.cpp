@@ -21,7 +21,6 @@ struct WarpTransformWorkerData {
         updater = pu.startSubtask();
 
         const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb8();
-        // QImage image(TestUtil::fetchDataFileLazy("test_transform_quality.png"));
         QImage image(TestUtil::fetchDataFileLazy("test_transform_quality_second.png"));
 
         dev = new KisPaintDevice(cs);
@@ -39,7 +38,6 @@ struct WarpTransformWorkerData {
         origPoints << 0.5 * (bounds.bottomLeft() + bounds.bottomRight());
         origPoints << 0.5 * (bounds.bottomLeft() + bounds.bottomRight()) + QPointF(-20, 0);
 
-
         transfPoints << bounds.topLeft();
         transfPoints << bounds.bottomLeft() + 0.6 * (bounds.topRight() - bounds.bottomLeft());
         transfPoints << bounds.topLeft() + 0.8 * (bounds.bottomRight() - bounds.topLeft());
@@ -49,7 +47,6 @@ struct WarpTransformWorkerData {
         transfPoints << 0.5 * (bounds.bottomLeft() + bounds.bottomRight()) + QPointF(-20, 0) + QPointF(-40,20);
     }
 
-
     KisPaintDeviceSP dev;
     QVector<QPointF> origPoints;
     QVector<QPointF> transfPoints;
@@ -57,7 +54,6 @@ struct WarpTransformWorkerData {
     KoUpdaterPtr updater;
     QRectF bounds;
 };
-
 
 void KisWarpTransformWorkerTest::test()
 {
@@ -85,12 +81,10 @@ void KisWarpTransformWorkerTest::testQImage()
     KoProgressUpdater pu(&bar);
     KoUpdaterPtr updater = pu.startSubtask();
 
-//    QImage image(TestUtil::fetchDataFileLazy("test_transform_quality.png"));
     QImage image(TestUtil::fetchDataFileLazy("test_transform_quality_second.png"));
     image.convertTo(QImage::Format_ARGB32);
 
     dbgKrita << ppVar(image.format());
-
 
     QVector<QPointF> origPoints;
     QVector<QPointF> transfPoints;
@@ -106,7 +100,6 @@ void KisWarpTransformWorkerTest::testQImage()
     origPoints << 0.5 * (bounds.bottomLeft() + bounds.bottomRight());
     origPoints << 0.5 * (bounds.bottomLeft() + bounds.bottomRight()) + QPointF(-20, 0);
 
-
     transfPoints << bounds.topLeft();
     transfPoints << bounds.bottomLeft() + 0.6 * (bounds.topRight() - bounds.bottomLeft());
     transfPoints << bounds.topLeft() + 0.8 * (bounds.bottomRight() - bounds.topLeft());
@@ -114,7 +107,6 @@ void KisWarpTransformWorkerTest::testQImage()
 
     transfPoints << 0.5 * (bounds.bottomLeft() + bounds.bottomRight()) + QPointF(40,20);
     transfPoints << 0.5 * (bounds.bottomLeft() + bounds.bottomRight()) + QPointF(-20, 0) + QPointF(-40,20);
-
 
     QImage result;
     QPointF newOffset;
@@ -160,13 +152,11 @@ void KisWarpTransformWorkerTest::testBackwardInterpolatorExtrapolation()
     std::rotate(dst.begin(), dst.begin() + 1, dst.end());
     KisFourPointInterpolatorBackward interp(src, dst);
 
-    // standard checks
     QCOMPARE(interp.map(QPointF(0,0)), QPointF(0,100));
     QCOMPARE(interp.map(QPointF(100,0)), QPointF(0,0));
     QCOMPARE(interp.map(QPointF(100,100)), QPointF(100,0));
     QCOMPARE(interp.map(QPointF(0,100)), QPointF(100,100));
 
-    // extrapolate!
     QCOMPARE(interp.map(QPointF(-10,0)), QPointF(0,110));
     QCOMPARE(interp.map(QPointF(0,-10)), QPointF(-10,100));
     QCOMPARE(interp.map(QPointF(-10,-10)), QPointF(-10,110));
@@ -196,6 +186,5 @@ void KisWarpTransformWorkerTest::testNeedChangeRects()
     QCOMPARE(KisAlgebra2D::sampleRectWithPoints(d.bounds.toAlignedRect()).size(), 9);
     QCOMPARE(worker.approxChangeRect(d.bounds.toAlignedRect()), QRect(-44,-44, 982,986));
 }
-
 
 SIMPLE_TEST_MAIN(KisWarpTransformWorkerTest)

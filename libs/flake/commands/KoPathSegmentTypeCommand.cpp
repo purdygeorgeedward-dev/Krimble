@@ -42,12 +42,10 @@ void KoPathSegmentTypeCommand::redo()
         KoPathSegment segment = pathShape->segmentByIndex(it->pointIndex);
 
         if (m_segmentType == Curve) {
-            // we change type to curve -> set control point positions
             QPointF pointDiff = segment.second()->point() - segment.first()->point();
             segment.first()->setControlPoint2(segment.first()->point() + pointDiff / 3.0);
             segment.second()->setControlPoint1(segment.first()->point() + pointDiff * 2.0 / 3.0);
         } else {
-            // we are changing type to line -> remove control points
             segment.first()->removeControlPoint2();
             segment.second()->removeControlPoint1();
         }
@@ -67,11 +65,9 @@ void KoPathSegmentTypeCommand::undo()
         const SegmentTypeData segmentData(m_segmentData.at(i));
 
         if (m_segmentType == Line) {
-            // change type back to curve -> reactivate control points and their positions
             segment.first()->setControlPoint2(pd.pathShape->documentToShape(segmentData.m_controlPoint2));
             segment.second()->setControlPoint1(pd.pathShape->documentToShape(segmentData.m_controlPoint1));
         } else {
-            // change back to line -> remove control points
             segment.first()->removeControlPoint2();
             segment.second()->removeControlPoint1();
         }
@@ -91,11 +87,9 @@ void KoPathSegmentTypeCommand::initialize(const QList<KoPathPointData> & pointDa
         KoPathSegment segment = it->pathShape->segmentByIndex(it->pointIndex);
         if (segment.isValid()) {
             if (m_segmentType == Curve) {
-                // don not change segment if already a curve
                 if (segment.first()->activeControlPoint2() || segment.second()->activeControlPoint1())
                     continue;
             } else {
-                // do not change segment if already a line
                 if (! segment.first()->activeControlPoint2() && ! segment.second()->activeControlPoint1())
                     continue;
             }
@@ -105,12 +99,10 @@ void KoPathSegmentTypeCommand::initialize(const QList<KoPathPointData> & pointDa
 
             KoPathShape * pathShape = segment.first()->parent();
 
-            // we are changing a curve to a line -> save control point positions
             if (m_segmentType == Line) {
                 segmentData.m_controlPoint2 = pathShape->shapeToDocument(segment.first()->controlPoint2());
                 segmentData.m_controlPoint1 = pathShape->shapeToDocument(segment.second()->controlPoint1());
             }
-            // save point properties
             segmentData.m_properties2 = segment.first()->properties();
             segmentData.m_properties1 = segment.second()->properties();
             m_segmentData.append(segmentData);

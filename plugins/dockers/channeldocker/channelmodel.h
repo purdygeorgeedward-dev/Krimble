@@ -17,7 +17,6 @@
 
 class KoColorSpace;
 
-
 class ChannelModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -35,16 +34,15 @@ public:
     void setCanvas(KisCanvas2* canvas);
     void setChannelThumbnails(const QVector<QImage> &channels, const KoColorSpace *cs);
 
-    //set maximum size of the thumbnail image. This should be set based on screen resolution, etc.
     void setThumbnailSizeLimit(QSize size);
     QSize thumbnailSizeLimit() const;
 
 public Q_SLOTS:
     void slotColorSpaceChanged(const KoColorSpace *colorSpace);
     void rowActivated(const QModelIndex &index);
-    void isolateChannel(int channelIndex);   // only this channel is shown (the alpha channel is not touched); the same as the double click (rowActivated)
-    void showAllChannels();                  // every channel is shown again
-    void loadChannelAsSelection(int channelIndex);   // the channel's values (of the picture as it looks, all layers) become the selection: light = selected
+    void isolateChannel(int channelIndex);
+    void showAllChannels();
+    void loadChannelAsSelection(int channelIndex);
 
 Q_SIGNALS:
     void channelFlagsChanged();
@@ -60,5 +58,4 @@ private:
     int m_channelCount;
 };
 
-
-#endif // CHANNELMODEL_H
+#endif

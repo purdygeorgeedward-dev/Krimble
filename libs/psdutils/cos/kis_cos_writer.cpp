@@ -13,19 +13,11 @@
 #include <QBuffer>
 
 const QMap<char, char> escape = {
-    // Turns out, Adobe text engine data only really escapes ( and ).
-    //{0x0a, 'n'},
-    //{0x0d, 'r'},
-    //{0x09, 't'},
-    //{0x08, 'b'}, // backspace
-    //{0x0c, 'f'},
     {0x28, '('},
     {0x29, ')'},
-    {0x5c, '\\'} // reverse solidus/backslash
+    {0x5c, '\\'}
 };
 
-// Because we can't differentiate between names and regular strings,
-// we'll just list the keys of the names whose value is also a name.
 static QStringList nameKeys {
     "/StreamTag",
     "/ListStyle",
@@ -58,11 +50,6 @@ void writeString(QIODevice &dev, const QVariant val, const QString name) {
         dev.write(")");
     }
 }
-/**
- * @brief writeVariant
- * @param prettyPrint -- whether to allow newlines and indentation or just a single space between values.
- * @param writeBrackets -- for some reason PSD stores the txt2 section without the outermost << and >>...
- */
 void writeVariant(QIODevice &dev, const QVariantHash object, int indent, bool prettyPrint, bool writeBrackets = true) {
     QByteArray indentStringOld(indent, QChar::Tabulation);
     QString newLine = prettyPrint? "\n": " ";

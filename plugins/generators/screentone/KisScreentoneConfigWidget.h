@@ -49,7 +49,7 @@ private:
 private Q_SLOTS:
     void slot_comboBoxPattern_currentIndexChanged(int);
     void slot_comboBoxShape_currentIndexChanged(int);
-    
+
     void slot_buttonSizeModeResolutionBased_toggled(bool checked);
     void slot_buttonSizeModePixelBased_toggled(bool checked);
     void slot_comboBoxUnits_currentIndexChanged(int index);

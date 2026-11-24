@@ -36,11 +36,6 @@ private:
     Private * const d;
 };
 
-/**
- * @brief The KoContactInfoDelegate class
- *
- * quick delegate subclass to allow a qcombobox for the type.
- */
 class KoContactInfoDelegate : public QStyledItemDelegate
 {
 public:
@@ -52,5 +47,4 @@ public:
     QStringList m_contactModes;
 };
 
-
-#endif // KOCONFIGAUTHORPAGE_H
+#endif

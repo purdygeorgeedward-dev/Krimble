@@ -19,4 +19,4 @@ public:
 
 };
 
-#endif // TOOL_LAZYBRUSH_H_
+#endif

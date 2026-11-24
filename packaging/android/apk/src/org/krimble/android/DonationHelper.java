@@ -36,15 +36,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// Note that for testing this stuff, your Google account needs to be added to
-// the "License Testers" in the Play Console and you need to test with a
-// "krita.org" package, not "krita.org.debug". To change the package name, edit
-// build.gradle and comment out the line `applicationIdSuffix ".debug"`.
 public class DonationHelper implements PurchasesUpdatedListener, BillingClientStateListener {
 
     private static final String TAG = "krita.DonationHelper";
 
-    // Keep this in sync with the enum clas State in KisAndroidDonations.h!
     private static final int STATE_UNKNOWN = 0;
     private static final int STATE_CHECKING = 1;
     private static final int STATE_UNAVAILABLE = 2;
@@ -180,14 +175,10 @@ public class DonationHelper implements PurchasesUpdatedListener, BillingClientSt
                 acknowledgePurchase(purchase);
                 break;
             case Purchase.PurchaseState.PENDING:
-                // Pending means the payment is still processing and could
-                // conceivably be declined in the future. We'll just treat this
-                // as a successful purchase, it's not worth the extra code.
                 Log.d(TAG, "Pending " + productIds + " with " + purchase);
                 addOwnedProductIds(productIds);
                 break;
             default:
-                // Ostensibly there's only an UNSPECIFIED_STATE left.
                 Log.d(TAG, "Unhandled " + productIds + " with " + purchase);
                 break;
         }
@@ -204,23 +195,6 @@ public class DonationHelper implements PurchasesUpdatedListener, BillingClientSt
     private void acknowledgePurchase(Purchase purchase) {
         if (purchase.isAcknowledged()) {
             Log.d(TAG, "Purchase already acknowledged");
-            /////////////////////////////////////////////////////////////////////
-            // Only uncomment for development, do not let this get released!
-            // This will "consume" the product, meaning the user will not have
-            // it anymore and it will become available for purchase again.
-            /////////////////////////////////////////////////////////////////////
-            // Log.w(TAG, "Developer consuming purchase " + purchase.getPurchaseToken());
-            // mBillingClient.consumeAsync(
-            //     com.android.billingclient.api.ConsumeParams.newBuilder()
-            //         .setPurchaseToken(purchase.getPurchaseToken())
-            //         .build(),
-            //     new com.android.billingclient.api.ConsumeResponseListener() {
-            //         @Override
-            //         public void onConsumeResponse(BillingResult billingResult, String purchaseToken) {
-            //             Log.d(TAG, "Developer consumed '" + purchaseToken + "':" + billingResult);
-            //             refreshPurchases();
-            //         }
-            //     });
         } else {
             try {
                 AcknowledgePurchaseParams params = AcknowledgePurchaseParams

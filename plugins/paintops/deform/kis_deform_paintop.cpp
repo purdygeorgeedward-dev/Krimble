@@ -31,9 +31,6 @@
 #include <KoCompositeOp.h>
 
 #ifdef Q_OS_WIN
-// quoting DRAND48(3) man-page:
-// These functions are declared obsolete by  SVID  3,
-// which  states  that rand(3) should be used instead.
 #define drand48() (static_cast<double>(qrand()) / static_cast<double>(RAND_MAX))
 #endif
 
@@ -67,8 +64,6 @@ KisDeformPaintOp::KisDeformPaintOp(const KisPaintOpSettingsSP settings, KisPaint
     }
     m_spacing = m_xSpacing;
 
-
-
 }
 
 KisDeformPaintOp::~KisDeformPaintOp()
@@ -95,10 +90,7 @@ KisSpacingInformation KisDeformPaintOp::paintAt(const KisPaintInformation& info)
 
     qreal rotation = m_rotationOption.apply(info);
 
-    // Deform Brush is capable of working with zero scale,
-    // so no additional checks for 'zero'ness are needed
     qreal scale = m_sizeOption.apply(info);
-
 
     rotation += m_brushSizeData.brushRotation;
     scale *= m_brushSizeData.brushScale;
@@ -115,7 +107,6 @@ KisSpacingInformation KisDeformPaintOp::paintAt(const KisPaintInformation& info)
                                  x, y
                                                         );
 
-    // this happens for the first dab of the move mode, we need more information for being able to move
     if (!mask) {
         return updateSpacingImpl(info);
     }

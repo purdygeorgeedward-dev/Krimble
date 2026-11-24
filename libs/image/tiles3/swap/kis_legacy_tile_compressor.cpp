@@ -26,7 +26,7 @@ bool KisLegacyTileCompressor::writeTile(KisTileSP tile, KisPaintDeviceWriter &st
     QScopedArrayPointer<quint8> headerBuffer(new quint8[bufferSize]);
 
     bool retval = writeHeader(tile, headerBuffer.data());
-    Q_ASSERT(retval);  // currently the code returns true unconditionally
+    Q_ASSERT(retval);
     if (!retval) {
         return false;
     }

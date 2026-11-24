@@ -190,7 +190,6 @@ RenderedFrames KisDlgImportVideoAnimation::renderFrames(const QDir& directory)
         }
     }
 
-    // Setup FFMpeg Command Args...
     args << "-ss" << QString::number(m_ui.startExportingAtSpinbox->value())
          << "-i" << m_videoInfo.file;
 
@@ -260,9 +259,8 @@ RenderedFrames KisDlgImportVideoAnimation::renderFrames(const QDir& directory)
                                             << "-of" << "compact=p=0:nk=1"
                                             << "-f" << "lavfi" << filter;
 
-
         QScopedPointer<KisFFMpegWrapper> ffmpeg(new KisFFMpegWrapper(this));
-        frameTimeList = {0}; // We always have a frame 0 here...
+        frameTimeList = {0};
         connect(ffmpeg.data(), &KisFFMpegWrapper::sigReadSTDOUT, [&](QByteArray arr) {
             QString out = QString(arr);
 
@@ -293,11 +291,9 @@ RenderedFrames KisDlgImportVideoAnimation::renderFrames(const QDir& directory)
     return frames;
 }
 
-
 QStringList KisDlgImportVideoAnimation::documentInfo() {
     QStringList documentInfoList;
 
-    // We're looking for a possible profile here, otherwise it gets generated. Then we get the name.
     QString profileColorSpace = RGBAColorModelID.id();
     QString profileName = KoColorSpaceRegistry::instance()->p709SRGBProfile()->name();
     if (m_videoInfo.colorTransfer != TRC_UNSPECIFIED && m_videoInfo.colorPrimaries != PRIMARIES_UNSPECIFIED) {
@@ -333,13 +329,12 @@ QStringList KisDlgImportVideoAnimation::makeVideoMimeTypesList()
     supportedMimeTypes << "image/gif";
     supportedMimeTypes << "image/apng";
     supportedMimeTypes << "image/png";
-    supportedMimeTypes << "video/quicktime"; // MOV
+    supportedMimeTypes << "video/quicktime";
     supportedMimeTypes << "video/ogg";
     supportedMimeTypes << "video/mp4";
     supportedMimeTypes << "video/mpeg";
     supportedMimeTypes << "video/webm";
 
-    // All files
     supportedMimeTypes << "application/octet-stream";
 
     return supportedMimeTypes;
@@ -354,7 +349,6 @@ QStringList KisDlgImportVideoAnimation::showOpenFileDialog()
 
     return dialog.filenames();
 }
-
 
 void KisDlgImportVideoAnimation::toggleInputControls(bool toggleBool)
 {
@@ -391,14 +385,12 @@ void KisDlgImportVideoAnimation::loadVideoFile(const QString &filename)
     textInfo.append(i18nc("video importer: video file statistics", "Frames: %1", QString::number(m_videoInfo.frames)));
     textInfo.append(i18nc("video importer: video file statistics", "FPS: %1", QString::number(m_videoInfo.fps)));
 
-
     if ( m_videoInfo.hasOverriddenFPS ) {
         textInfo.append(i18nc("video importer: video file statistics", "*<font size='0.5em'><em>*FPS not right in file. Modified to see full duration</em></font>"));
     }
 
     m_ui.fpsSpinbox->setValue( qCeil(m_videoInfo.fps) );
     m_ui.fileLoadedDetails->setText(textInfo.join("\n"));
-
 
     m_ui.videoPreviewSlider->setRange(0, m_videoInfo.frames);
     m_ui.currentFrameNumberInput->setRange(0, m_videoInfo.frames);
@@ -423,9 +415,7 @@ void KisDlgImportVideoAnimation::loadVideoFile(const QString &filename)
         updateVideoPreview();
     }
 
-
 }
-
 
 void KisDlgImportVideoAnimation::updateVideoPreview()
 {
@@ -460,7 +450,6 @@ void KisDlgImportVideoAnimation::updateVideoPreview()
     }
 }
 
-
 void KisDlgImportVideoAnimation::slotVideoTimerTimeout()
 {
     updateVideoPreview();
@@ -474,15 +463,13 @@ void KisDlgImportVideoAnimation::slotImportDurationChanged(qreal time)
     const KFormat format;
 
     const int resolution = m_videoInfo.width * m_videoInfo.height;
-    quint32 pixelSize = 4; //how do we even go about getting the bitdepth???
+    quint32 pixelSize = 4;
     if (m_activeView && m_ui.cmbDocumentHandler->currentIndex() > 0) {
         pixelSize = m_activeView->image()->colorSpace()->pixelSize() * 4;
     } else if (m_videoInfo.colorDepth == "U16"){
         pixelSize = 8;
     }
     const qint64 frames = std::lround(qreal(m_videoInfo.fps) * time + 2);
-    // Sometimes, the potential size of the file is so big (a feature length film taking easily 970 gib), that we cannot put it into a number.
-    // It's more efficient therefore to calculate the maximum amount of frames possible.
 
     const qint64 maxFrames = stats.totalMemoryLimit / resolution / pixelSize;
 
@@ -547,7 +534,6 @@ void KisDlgImportVideoAnimation::slotFrameNumberChanged(int frame)
 {
     CurrentFrameChanged(frame);
 }
-
 
 void KisDlgImportVideoAnimation::slotFFProbeFile()
 {
@@ -633,14 +619,12 @@ void KisDlgImportVideoAnimation::CurrentFrameChanged(int frame)
 {
     float currentSeconds = 0;
 
-    // update frame and seconds model data if they have changed
     if (m_currentFrame != frame ) {
         dbgFile << "Frame change to:" << frame;
         m_currentFrame = frame;
         currentSeconds = m_currentFrame / m_videoInfo.fps;
     }
 
-    // update UI components if they are out of sync
     if (m_currentFrame != m_ui.currentFrameNumberInput->value())
         m_ui.currentFrameNumberInput->setValue(m_currentFrame);
 
@@ -667,7 +651,6 @@ KisBasicVideoInfo KisDlgImportVideoAnimation::loadVideoInfo(const QString &input
         ffprobeJsonObj = ffprobe->ffprobe(inputFile, ffprobeInfo["path"].toString());
     }
 
-    // Attempt manual probing with ffmpeg itself if ffprobe is disable or if something went wrong with ffprobe.
     if ( !ffprobeInfo["enabled"].toBool() || ffprobeJsonObj["error"].toInt() == FFProbeErrorCodes::INVALID_JSON ) {
         KisFFMpegWrapper *ffmpeg = new KisFFMpegWrapper(this);
 
@@ -681,7 +664,6 @@ KisBasicVideoInfo KisDlgImportVideoAnimation::loadVideoInfo(const QString &input
     }
 
     if ( ffprobeJsonObj["error"].toInt() == FFProbeErrorCodes::UNSUPPORTED_CODEC) {
-        // If, after all of that, we still don't determine a supported codec then we'll back out.
         warnFFmpegFormatSupport();
         return {};
     } else if ( ffprobeJsonObj["error"].toInt() == FFProbeErrorCodes::NONE ) {
@@ -728,15 +710,12 @@ KisBasicVideoInfo KisDlgImportVideoAnimation::loadVideoInfo(const QString &input
         videoInfoData.colorPrimaries = KisFFMpegWrapper::colorPrimariesFromName(ffprobeSelectedStream["color_primaries"].toString());
         videoInfoData.colorTransfer = KisFFMpegWrapper::transferCharacteristicsFromName(ffprobeSelectedStream["color_transfer"].toString());
 
-        // bits_per_raw_sample was introduced in 2014.
         if (ffprobeSelectedStream.value("bits_per_raw_sample").toInt() > 8) {
             videoInfoData.colorDepth = Integer16BitsColorDepthID.id();
         } else {
             videoInfoData.colorDepth = Integer8BitsColorDepthID.id();
         }
 
-        // frame rate comes back in odd format...so we need to do a bit of work so it is more usable.
-        // data will come back like "50/3"
         QStringList rawFrameRate = ffprobeSelectedStream["r_frame_rate"].toString().split('/');
 
         if (!rawFrameRate.isEmpty())
@@ -746,7 +725,6 @@ KisBasicVideoInfo KisDlgImportVideoAnimation::loadVideoInfo(const QString &input
             videoInfoData.frames = ffprobeSelectedStream["nb_frames"].toString().toInt();
         }
 
-        // Get duration from stream, if it doesn't exist such as on VP8 and VP9, try to get it out of format
         if ( !ffprobeSelectedStream["duration"].isNull() ) {
             videoInfoData.duration = ffprobeSelectedStream["duration"].toString().toFloat();
         } else if ( !ffprobeFormat["duration"].isNull() ) {
@@ -790,7 +768,6 @@ KisBasicVideoInfo KisDlgImportVideoAnimation::loadVideoInfo(const QString &input
         }
     }
 
-    // if there is no data on frames but duration and fps exists like OGV, try to estimate it
     if ( videoInfoData.fps && videoInfoData.duration && !videoInfoData.frames ) {
         videoInfoData.frames = qCeil( videoInfoData.fps * videoInfoData.duration );
     }
@@ -806,8 +783,6 @@ KisBasicVideoInfo KisDlgImportVideoAnimation::loadVideoInfo(const QString &input
     const int frameRateDifference = qAbs(videoInfoData.fps - calculatedFrameRateByDuration);
 
     if (frameRateDifference > 1) {
-        // something is not right with the frame rate with this file, so let's use our calculated value
-        // to make  sure we get the whole duration
         videoInfoData.hasOverriddenFPS = true;
         videoInfoData.fps = calculatedFrameRateByDuration;
     } else {
@@ -816,5 +791,4 @@ KisBasicVideoInfo KisDlgImportVideoAnimation::loadVideoInfo(const QString &input
 
     return videoInfoData;
 }
-
 

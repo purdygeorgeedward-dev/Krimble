@@ -12,8 +12,6 @@
 #include <QActionGroup>
 #include <QAction>
 
-
-// Action group which keeps the actions in sync with the document's unit property
 class UnitActionGroup : public QActionGroup
 {
     Q_OBJECT
@@ -56,9 +54,6 @@ private Q_SLOTS:
                 action->setChecked(true);
                 break;
             }
-            // in case the new unit is not in the list of actions
-            // this ensures that the action currently checked is unchecked
-            // once the end of actions has been reached
             if (action->isChecked()) {
                 action->setChecked(false);
             }

@@ -30,16 +30,9 @@
 #ifndef DCRAW_SETTINGS_WIDGET_H
 #define DCRAW_SETTINGS_WIDGET_H
 
-// Qt includes
-
 #include <QtCore/QString>
 
-// KDE includes
-
 #include <kconfiggroup.h>
-
-// Local includes
-
 
 #include "rawdecodingsettings.h"
 #include "rexpanderbox.h"
@@ -72,9 +65,6 @@ public:
 
 public:
 
-    /**
-     * @param advSettings the default value is COLORSPACE
-     */
     explicit DcrawSettingsWidget(QWidget* const parent, int advSettings = COLORSPACE);
     ~DcrawSettingsWidget() override;
 
@@ -121,6 +111,6 @@ private:
     Private* const d;
 };
 
-} // NameSpace KDcrawIface
+}
 
-#endif /* DCRAW_SETTINGS_WIDGET_H */
+#endif

@@ -12,7 +12,6 @@ class TestInputDevice : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
-    // tests
     void testTabletConstructor();
     void testNoParameterConstructor();
     void testConstructorWithSingleReference();
@@ -22,7 +21,7 @@ private Q_SLOTS:
     void testMouse();
     void testStylus();
     void testEraser();
-    
+
 };
 
-#endif /* TESTINPUTDEVICE_H */
+#endif

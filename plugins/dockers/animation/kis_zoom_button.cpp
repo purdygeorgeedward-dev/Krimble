@@ -9,7 +9,6 @@
 #include <cmath>
 #include <QMouseEvent>
 
-
 KisZoomButton::KisZoomButton(QWidget *parent)
     : KisDraggableToolButton(parent)
 {

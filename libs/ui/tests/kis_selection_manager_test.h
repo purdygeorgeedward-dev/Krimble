@@ -31,7 +31,6 @@ private Q_SLOTS:
 
     void testScanline16bit();
 private:
-    // These come from a plugin and cannot be tested here
     void testFeatherSelection();
     void testGrowSelectionSimplified();
     void testShrinkSelectionUnlockedSimplified();
@@ -43,4 +42,4 @@ private:
 
 };
 
-#endif /* __KIS_SELECTION_MANAGER_TEST_H */
+#endif

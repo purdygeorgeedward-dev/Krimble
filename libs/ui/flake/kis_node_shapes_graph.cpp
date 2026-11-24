@@ -8,7 +8,6 @@
 
 #include "kis_node_shape.h"
 
-
 KisNodeShape* KisNodeShapesGraph::addNode(KisNodeSP node, KisNodeSP parent, KisNodeSP aboveThis)
 {
     KisNodeDummy *parentDummy = 0;
@@ -49,10 +48,6 @@ void KisNodeShapesGraph::removeNode(KisNodeSP node)
 
     m_dummiesGraph.removeNode(nodeDummy);
 
-    /**
-     * The shapes remove their children automatically,
-     * so the dummies do not own them. Delete them manually.
-     */
     KisNodeShape *tempShape = nodeDummy->nodeShape();
     ((KoShapeLayer*)tempShape)->setParent(0);
 

@@ -30,7 +30,6 @@ private:
     QPointF project(const QPointF& pt, const QPointF& strokeBegin) const;
     explicit SplineAssistant(const SplineAssistant &rhs, QMap<KisPaintingAssistantHandleSP, KisPaintingAssistantHandleSP> &handleMap);
 
-    /// used for getting the decoration so the bezier handles aren't drawn while editing
     KisCanvas2* m_canvas {nullptr};
 
 private:

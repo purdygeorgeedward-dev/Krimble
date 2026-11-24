@@ -40,7 +40,7 @@ KrzExport::~KrzExport()
 {
 }
 
-KisImportExportErrorCode KrzExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KrzExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     KisImageSP image = document->savingImage();
     KIS_ASSERT_RECOVER_RETURN_VALUE(image, ImportExportCodes::InternalError);
@@ -57,7 +57,6 @@ KisImportExportErrorCode KrzExport::convert(KisDocument *document, QIODevice *io
 
 void KrzExport::initializeCapabilities()
 {
-    // Kra supports everything, by definition
     KisExportCheckFactory *factory = 0;
     Q_FOREACH(const QString &id, KisExportCheckRegistry::instance()->keys()) {
         factory = KisExportCheckRegistry::instance()->get(id);
@@ -78,7 +77,6 @@ QString KrzExport::verify(const QString &fileName) const
     }
     return error;
 }
-
 
 #include <krz_export.moc>
 

@@ -6,7 +6,6 @@
 
 #include "kis_paintop_option.h"
 
-
 #include <QWidget>
 
 #include <klocalizedstring.h>
@@ -28,8 +27,6 @@ public:
     QString label;
     KisPaintOpOption::PaintopCategory category;
 
-    /// the configuration page is owned by the higher level
-    /// QStackWidget, so we shouldn't care about that
     QWidget *configurationPage {nullptr};
 
     bool updatesBlocked {false};
@@ -146,7 +143,6 @@ KisPaintOpOption::OptionalLodLimitationsReader KisPaintOpOption::effectiveLodLim
 
 KisPaintOpOption::OptionalLodLimitationsReader KisPaintOpOption::lodLimitationsReader() const
 {
-    // no limitations by default
     return std::nullopt;
 }
 

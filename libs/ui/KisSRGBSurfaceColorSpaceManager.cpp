@@ -15,7 +15,6 @@
 #include <KisPlatformPluginInterfaceFactory.h>
 #include <surfacecolormanagement/KisSurfaceColorManagerInterface.h>
 
-
 KisSRGBSurfaceColorSpaceManager::KisSRGBSurfaceColorSpaceManager(KisSurfaceColorManagerInterface *interface, QObject *parent)
     : KisCanvasSurfaceColorSpaceManager(interface, KisConfig::CanvasSurfaceMode::Rec709g22, KisDisplayConfig::optionsFromKisConfig(KisConfig(true)), parent)
 {

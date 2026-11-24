@@ -52,7 +52,6 @@
 
 #include "KisStorageChooserWidget.h"
 
-
 class Q_DECL_HIDDEN KisResourceItemChooser::Private
 {
 public:
@@ -62,26 +61,22 @@ public:
 
     QString resourceType;
 
-    // Top/Bottom bar
     KisTagFilterResourceProxyModel *tagFilterProxyModel {0};
     KisResourceTaggingManager *tagManager {0};
     KisPopupButton *viewModeButton {0};
     KisStorageChooserWidget *storagePopupButton {0};
 
-    // Resources view
     KisResourceItemListView *view {0};
     QSplitter *resourcesSplitter {0};
 
     QScrollArea *previewScroller {0};
     QLabel *previewLabel {0};
 
-    // Import and Export buttons
     QFrame* importExportBtns {0};
     QToolButton *importButton {0};
     QToolButton *deleteButton {0};
-    QButtonGroup *buttonGroup {0};  // does not seem to do much, maybe replace with std::array
+    QButtonGroup *buttonGroup {0};
 
-    // Custom Buttons
     QList<QAbstractButton*> customButtons;
 
     bool usePreview {false};
@@ -97,7 +92,6 @@ public:
     bool showViewModeBtn = true;
     bool showStoragePopupBtn = true;
 
-    // Horizontal Layout Widgets
     QSplitter* horzSplitter {0};
     QFrame* left {0};
     QFrame* right {0};
@@ -116,25 +110,21 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
     : QWidget(parent)
     , d(new Private(resourceType))
 {
-    // Tag manager
     d->tagFilterProxyModel = new KisTagFilterResourceProxyModel(resourceType, this);
     d->tagFilterProxyModel->sort(Qt::DisplayRole);
     d->tagManager = new KisResourceTaggingManager(resourceType, d->tagFilterProxyModel, this);
 
-    // Viewmode button
     d->viewModeButton = new KisPopupButton(this);
     d->viewModeButton->setToolTip(i18n("Display settings"));
     d->viewModeButton->setVisible(false);
     d->viewModeButton->setArrowVisible(false);
     d->viewModeButton->setAutoRaise(true);
 
-    // Storage button
     d->storagePopupButton = new KisStorageChooserWidget(resourceType, this);
     d->storagePopupButton->setToolTip(i18n("Storage Resources"));
     d->storagePopupButton->setAutoRaise(true);
     d->storagePopupButton->setArrowVisible(false);
 
-    // Resource List View
     d->view = new KisResourceItemListView(this);
     d->view->setObjectName("ResourceItemview");
     d->view->setStrictSelectionMode(true);
@@ -163,7 +153,6 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
     connect(d->view, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(contextMenuRequested(QPoint)));
     connect(d->view, SIGNAL(sigSizeChanged()), this, SLOT(updateView()));
 
-    // Splitter with resource views and preview scroller
     d->resourcesSplitter = new QSplitter(this);
     d->resourcesSplitter->addWidget(d->view);
     d->resourcesSplitter->setStretchFactor(0, 1);
@@ -189,7 +178,6 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
         }
     }
 
-    // Import and Export buttons
     d->importButton = new QToolButton(this);
     d->importButton->setToolTip(i18nc("@info:tooltip", "Import resource"));
     d->importButton->setAutoRaise(true);
@@ -206,7 +194,7 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
     d->buttonGroup->addButton(d->deleteButton, Button_Remove);
     connect(d->buttonGroup, SIGNAL(idClicked(int)), this, SLOT(slotButtonClicked(int)));
 
-    d->importExportBtns = new QFrame(this);  
+    d->importExportBtns = new QFrame(this);
     QHBoxLayout* importExportLayout = new QHBoxLayout(d->importExportBtns);
     importExportLayout->setAlignment(Qt::AlignmentFlag::AlignLeft);
     importExportLayout->setContentsMargins(0, 0, 0, 0);
@@ -218,19 +206,15 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
         layout->setSpacing(0);
     };
 
-    // Layout
     QGridLayout* thisLayout = new QGridLayout(this);
     thisLayout->setObjectName("ResourceChooser this");
     removePadding(thisLayout);
 
-    // Horizontal Layout
     {
-        // Splitter
         d->horzSplitter = new QSplitter(this);
         d->horzSplitter->setOrientation(Qt::Orientation::Horizontal);
         connect(d->horzSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(slotSaveSplitterState()));
 
-        // Horizontal 1 row
         d->left = new QFrame(this);
         QSizePolicy newPolicy = d->left->sizePolicy();
         newPolicy.setHorizontalStretch(2);
@@ -245,7 +229,6 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
         QHBoxLayout* rightLayout = new QHBoxLayout(d->right);
         rightLayout->setObjectName("ResourceChooser right");
 
-        // Horizontal 2 rows
         d->right2Rows = new QFrame(this);
         newPolicy = d->right2Rows->sizePolicy();
         newPolicy.setHorizontalStretch(0);
@@ -258,14 +241,12 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
         rightLayout2->addLayout(d->top);
         rightLayout2->addLayout(d->bot);
 
-        // Common style
         removePadding(leftLayout);
         removePadding(rightLayout);
         removePadding(rightLayout2);
         removePadding(d->top);
         removePadding(d->bot);
 
-        // Scroll buttons
         d->scroll_left = new QToolButton(this);
         d->scroll_left->setIcon(KisIconUtils::loadIcon("draw-arrow-back"));
         connect(d->scroll_left, &QToolButton::clicked, this, &KisResourceItemChooser::scrollBackwards);
@@ -273,7 +254,6 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
         d->scroll_right->setIcon(KisIconUtils::loadIcon("draw-arrow-forward"));
         connect(d->scroll_right, &QToolButton::clicked, this, &KisResourceItemChooser::scrollForwards);
 
-        // Hide
         d->scroll_left->hide();
         d->scroll_right->hide();
         d->left->hide();
@@ -282,10 +262,8 @@ KisResourceItemChooser::KisResourceItemChooser(const QString &resourceType, bool
         d->horzSplitter->hide();
     }
 
-    // Other
     updateView();
 
-    // Default Configuration
     updateButtonState();
     showViewModeBtn(false);
     showTaggingBar(false);
@@ -344,14 +322,8 @@ void KisResourceItemChooser::slotButtonClicked(int button)
                 KoResourceSP newResource = KisResourceUserOperations::importResourceFileWithUserInput(this, "", d->resourceType, filename);
 
                 if (previousResource && newResource && !currentResource()) {
-                    /// We have overridden the currently selected resource and
-                    /// nothing is selected now
                     setCurrentResource(newResource);
                 } else if (currentResource() == newResource) {
-                    /// We have overridden the currently selected resource and
-                    /// the model has managed to track the selection under it
-                    /// (that is not possible right now, but can theoretically
-                    /// happen under some circumstances)
                     const QModelIndex index = d->tagFilterProxyModel->indexForResource(newResource);
                     updatePreview(index);
                 }
@@ -375,7 +347,6 @@ void KisResourceItemChooser::slotButtonClicked(int button)
 
 void KisResourceItemChooser::showImportExportBtns(bool show)
 {
-    // assert(show == false);
     if (show) {
         d->importExportBtns->show();
     }
@@ -415,16 +386,12 @@ KoResourceSP KisResourceItemChooser::currentResource(bool includeHidden) const
 
 void KisResourceItemChooser::setCurrentResource(KoResourceSP resource)
 {
-    // don't update if the change came from the same chooser
     if (d->updatesBlocked) {
         return;
     }
     QModelIndex index = d->tagFilterProxyModel->indexForResource(resource);
     d->view->setCurrentIndex(index);
 
-    // The resource may currently be filtered out, but we want to be able
-    // to select it if the filter changes and includes the resource.
-    // Otherwise, activate() already took care of setting the current resource.
     if (!index.isValid()) {
         d->currentResource = resource;
     }
@@ -433,7 +400,6 @@ void KisResourceItemChooser::setCurrentResource(KoResourceSP resource)
 
 void KisResourceItemChooser::setCurrentResource(QString resourceName)
 {
-    // don't update if the change came from the same chooser
     if (d->updatesBlocked) {
         return;
     }
@@ -446,9 +412,6 @@ void KisResourceItemChooser::setCurrentResource(QString resourceName)
             if (resource->name() == resourceName) {
                 d->view->setCurrentIndex(index);
 
-                // The resource may currently be filtered out, but we want to be able
-                // to select it if the filter changes and includes the resource.
-                // Otherwise, activate() already took care of setting the current resource.
                 if (!index.isValid()) {
                     d->currentResource = resource;
                 }
@@ -573,7 +536,6 @@ void KisResourceItemChooser::updatePreview(const QModelIndex &idx)
         image = img;
     }
 
-    // Only convert to grayscale if it is rgb. Otherwise, it's gray already.
     if (d->grayscalePreview && !image.isGrayscale()) {
         QRgb *pixel = reinterpret_cast<QRgb *>(image.bits());
         for (int row = 0; row < image.height(); ++row) {
@@ -656,8 +618,6 @@ void KisResourceItemChooser::baseLengthChanged(int length)
 
 void KisResourceItemChooser::afterFilterChanged()
 {
-    // Note: Item model reset events silently reset the view's selection model too.
-    // This currently only covers models resets as part of filter changes.
     QModelIndex idx = d->tagFilterProxyModel->indexForResource(d->currentResource);
 
     if (idx.isValid()) {
@@ -682,7 +642,6 @@ bool KisResourceItemChooser::eventFilter(QObject *object, QEvent *event)
     }
     return QObject::eventFilter(object, event);
 }
-
 
 void KisResourceItemChooser::resizeEvent(QResizeEvent *event)
 {
@@ -722,8 +681,6 @@ void KisResourceItemChooser::applyVerticalLayout()
     d->view->setListViewMode(d->requestedViewMode);
     Q_EMIT listViewModeChanged(d->requestedViewMode);
 
-    // The horizontal layouts size the items based widget height not user configured base length
-    // so it needs to be restored when switching back to vertical layout
     KisResourceItemChooserSync *chooserSync = KisResourceItemChooserSync::instance();
     d->view->setItemSize(QSize(chooserSync->baseLength(), chooserSync->baseLength()));
 
@@ -748,13 +705,10 @@ void KisResourceItemChooser::changeLayoutBasedOnSize()
     if (d->isResponsive == false) {
         return;
     }
-    // Responsive Layout
     else {
-        // Vertical
         if (height() > 100) {
             applyVerticalLayout();
         }
-        // Horizontal 2 rows
         else if (height() > 60) {
 
             if (d->layout == Layout::Horizontal2Rows) {
@@ -766,17 +720,14 @@ void KisResourceItemChooser::changeLayoutBasedOnSize()
             d->view->setListViewMode(ListViewMode::IconStripHorizontal);
             Q_EMIT listViewModeChanged(ListViewMode::IconStripHorizontal);
 
-            // Left
             QLayout* leftLayout = d->left->layout();
             leftLayout->addWidget(d->resourcesSplitter);
 
-            // Right Top
             d->top->addWidget(d->scroll_left);
             d->top->addWidget(d->scroll_right);
             d->top->addWidget(d->tagManager->tagChooserWidget());
             d->top->addWidget(d->importExportBtns);
 
-            // Right Bot
             d->bot->addWidget(d->viewModeButton);
             d->bot->addWidget(d->storagePopupButton);
             d->bot->addWidget(d->tagManager->tagFilterWidget());
@@ -807,7 +758,6 @@ void KisResourceItemChooser::changeLayoutBasedOnSize()
                 slotSaveSplitterState();
             }
         }
-        // Horizontal 1 row
         else {
             if (d->layout == Layout::Horizontal1Row) {
                 return;
@@ -893,7 +843,6 @@ void KisResourceItemChooser::slotSaveSplitterState()
 
 void KisResourceItemChooser::updateView()
 {
-    /// helps to set icons here in case the theme is changed
     d->viewModeButton->setIcon(KisIconUtils::loadIcon("view-choose"));
     d->importButton->setIcon(koIcon("document-import-16"));
     d->deleteButton->setIcon(koIcon("edit-delete"));

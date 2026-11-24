@@ -13,9 +13,6 @@
 #include "ui_kis_wdg_options_tiff.h"
 
 class Ui_KisWdgOptionsTIFF;
-/**
-    @author Cyrille Berger <cberger@cberger.net>
-*/
 class KisTIFFOptionsWidget : public KisConfigWidget, public Ui::KisWdgOptionsTIFF
 {
     Q_OBJECT

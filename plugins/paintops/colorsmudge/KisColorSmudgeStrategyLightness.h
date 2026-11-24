@@ -17,7 +17,7 @@ public:
 
     KisColorSmudgeStrategyLightness(KisPainter *painter,
                                     bool smearAlpha,
-                                    bool useDullingMode, 
+                                    bool useDullingMode,
                                     KisPaintThicknessOptionData::ThicknessMode thicknessMode);
 
     void initializePainting() override;
@@ -50,5 +50,4 @@ private:
     KisPaintThicknessOptionData::ThicknessMode m_thicknessMode;
 };
 
-
-#endif //KRITA_KISCOLORSMUDGESTRATEGYLIGHTNESS_H
+#endif

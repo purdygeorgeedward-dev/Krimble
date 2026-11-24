@@ -47,4 +47,4 @@ protected:
     WdgBugInfo *m_page;
 };
 
-#endif // DLG_BUGINFO
+#endif

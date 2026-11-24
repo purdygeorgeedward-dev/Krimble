@@ -9,12 +9,6 @@
 
 #include <kis_current_outline_fetcher.h>
 
-/**
- * This is a policy class that adds an ability to have a Outline Generator
- * to a KisPaintOpSettings-based class.
- *
- * \see Andrei Alexandrescu "Modern C++ Design: Generic Programming and Design Patterns Applied"
- */
 template <class ParentClass>
 class KisOutlineGenerationPolicy : public ParentClass
 {
@@ -29,8 +23,6 @@ public:
     ~KisOutlineGenerationPolicy() override
     {
     }
-
-
 
     const KisCurrentOutlineFetcher *outlineFetcher() const
     {
@@ -47,4 +39,4 @@ private:
     KisCurrentOutlineFetcher m_outlineFetcher;
 };
 
-#endif /* __KIS_OUTLINE_GENERATION_POLICY_H */
+#endif

@@ -17,7 +17,6 @@
 
 #include <string>
 
-
 #if HAVE_BACKTRACE
 static QString maybeDemangledName(char *name)
 {
@@ -29,8 +28,6 @@ static QString maybeDemangledName(char *name)
         const int mangledNameEnd = in.indexOf('+', mangledNameStart + 2);
         if (mangledNameEnd >= 0) {
             int status;
-            // if we forget about this line and the one that undoes its effect we don't change the
-            // internal data of the QByteArray::fromRawData() ;)
             name[mangledNameEnd] = 0;
             char *demangled = abi::__cxa_demangle(name + mangledNameStart + 1, 0, 0, &status);
             name[mangledNameEnd] = '+';

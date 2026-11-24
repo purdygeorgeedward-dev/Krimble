@@ -19,8 +19,6 @@ QDebug KisBezierMeshDetails::operator<<(QDebug dbg, const BaseMeshNode &n) {
     return dbg.nospace();
 }
 
-
-
 void KisBezierMeshDetails::saveValue(QDomElement *parent, const QString &tag, const KisBezierMeshDetails::BaseMeshNode &node)
 {
     QDomDocument doc = parent->ownerDocument();

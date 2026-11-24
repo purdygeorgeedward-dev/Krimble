@@ -22,9 +22,9 @@ namespace {
 struct SurfaceFormatSelectionResult {
     const KoColorProfile *profile = nullptr;
     std::optional<KisSurfaceColorimetry::SurfaceDescription> requestedDescription;
-    QString errorMessage; // empty when no error
+    QString errorMessage;
 };
-} /* namespace */
+}
 
 struct KRITAUI_NO_EXPORT KisCanvasSurfaceColorSpaceManager::Private
 {
@@ -188,7 +188,6 @@ KisSurfaceColorimetry::RenderIntent KisCanvasSurfaceColorSpaceManager::Private::
 
     switch (options.first) {
         case INTENT_PERCEPTUAL:
-            // default value
             break;
         case INTENT_RELATIVE_COLORIMETRIC:
             intent =
@@ -250,8 +249,6 @@ selectSurfaceDescription(KisConfig::CanvasSurfaceMode requestedSurfaceMode, cons
     std::optional<SurfaceDescription> requestedDescription = SurfaceDescription();
     const KoColorProfile *profile = nullptr;
 
-    // we have our own definition of the Rec2020PQ space with
-    // the reference point fixed to 80 cd/m2
     auto makeKritaRec2020PQLuminance = []() {
         Luminance luminance;
         luminance.minLuminance = 0;
@@ -262,14 +259,9 @@ selectSurfaceDescription(KisConfig::CanvasSurfaceMode requestedSurfaceMode, cons
 
     if (requestedSurfaceMode == KisConfig::CanvasSurfaceMode::Preferred) {
         if (compositorPreferred.colorSpace.isHDR()) {
-            // we support HDR only via Rec2020PQ, so reset the color space to that
-            // (KWin 6.5+ reports gamma-2.2 as preferred color space for whatever
-            //  reason)
             requestedDescription->colorSpace.primaries = NamedPrimaries::primaries_bt2020;
             requestedDescription->colorSpace.transferFunction = NamedTransferFunction::transfer_function_st2084_pq;
         } else {
-            // we don't copy mastering properties, since they mean a different thing
-            // for the preferred space and outputs
             requestedDescription->colorSpace = compositorPreferred.colorSpace;
         }
 
@@ -286,25 +278,12 @@ selectSurfaceDescription(KisConfig::CanvasSurfaceMode requestedSurfaceMode, cons
         requestedDescription->colorSpace.primaries = NamedPrimaries::primaries_srgb;
         requestedDescription->colorSpace.transferFunction = NamedTransferFunction::transfer_function_gamma22;
         if (compositorPreferred.colorSpace.luminance) {
-            // rec709-g22 is considered as SDR in lcms, so we should our space to SDR range
             requestedDescription->colorSpace.luminance = compositorPreferred.colorSpace.luminance->clipToSdr();
         }
     } else if (requestedSurfaceMode == KisConfig::CanvasSurfaceMode::Rec709g10) {
         requestedDescription->colorSpace.primaries = NamedPrimaries::primaries_srgb;
         requestedDescription->colorSpace.transferFunction = NamedTransferFunction::transfer_function_ext_linear;
         if (compositorPreferred.colorSpace.luminance) {
-            /**
-             * Our definition of rec709-g10 is different from the one used in Wayland.
-             * Krita defines it as "value 1.0 is reference white" and everything above is
-             * HDR values. But Wayland declares it as "0.0...1.0 is the full HDR range" and
-             * reference white value being put somewhere inbetween. It technically allows
-             * Wayland to use 10-bit integer surfaces for rec709-g10 space, which is a bad
-             * idea in general (due to potential resolution limit). But given that Wayland/Mesa
-             * doesn't seem to support 16-bit float surfaces, that is the only option they have.
-             *
-             * Anyway, due to limitations of 10-bit integer surfaces in rec709-g10 mode,
-             * we just refuse to support that.
-             */
             requestedDescription->colorSpace.luminance = compositorPreferred.colorSpace.luminance->clipToSdr();
         }
     }
@@ -321,7 +300,6 @@ selectSurfaceDescription(KisConfig::CanvasSurfaceMode requestedSurfaceMode, cons
     }
 
     if (!this->interface->supportsSurfaceDescription(*requestedDescription)) {
-        // try pure sRGB
         requestedDescription->colorSpace.primaries = NamedPrimaries::primaries_srgb;
         requestedDescription->colorSpace.transferFunction = NamedTransferFunction::transfer_function_srgb;
 
@@ -344,7 +322,6 @@ selectSurfaceDescription(KisConfig::CanvasSurfaceMode requestedSurfaceMode, cons
     }
 
     if (!profile) {
-        // keep primaries, but change the transfer function to gamma22
         requestedDescription->colorSpace.transferFunction = NamedTransferFunction::transfer_function_gamma22;
         if (this->interface->supportsSurfaceDescription(*requestedDescription)) {
             auto request = colorSpaceToRequest(requestedDescription->colorSpace);
@@ -355,7 +332,6 @@ selectSurfaceDescription(KisConfig::CanvasSurfaceMode requestedSurfaceMode, cons
     }
 
     if (!profile) {
-        // try resetting primaries to srgb
         requestedDescription->colorSpace.primaries = NamedPrimaries::primaries_srgb;
         if (this->interface->supportsSurfaceDescription(*requestedDescription)) {
             auto request = colorSpaceToRequest(requestedDescription->colorSpace);
@@ -366,7 +342,6 @@ selectSurfaceDescription(KisConfig::CanvasSurfaceMode requestedSurfaceMode, cons
     }
 
     if (!profile) {
-        // now change the transfer function to srgb
         requestedDescription->colorSpace.transferFunction = NamedTransferFunction::transfer_function_srgb;
         if (this->interface->supportsSurfaceDescription(*requestedDescription)) {
             auto request = colorSpaceToRequest(requestedDescription->colorSpace);
@@ -404,7 +379,6 @@ void KisCanvasSurfaceColorSpaceManager::reinitializeSurfaceDescription(const Kis
 
         preferredIntent = RenderIntent::render_intent_perceptual;
 
-        // perceptual intent is guaranteed to be supported by the compositor
         KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->interface->supportsRenderIntent(preferredIntent));
     }
 
@@ -448,7 +422,7 @@ void KisCanvasSurfaceColorSpaceManager::reinitializeSurfaceDescription(const Kis
 
     KisDisplayConfig newDisplayConfig;
     newDisplayConfig.profile = profile;
-    newDisplayConfig.setOptions(newOptions); // TODO: think about failure to set the intent and infinite update loop
+    newDisplayConfig.setOptions(newOptions);
     newDisplayConfig.isHDR = requestedDescriptionIsHDR;
 
     KIS_SAFE_ASSERT_RECOVER(m_d->currentConfig.profile) {

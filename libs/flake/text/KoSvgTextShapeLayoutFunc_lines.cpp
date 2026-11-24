@@ -14,18 +14,6 @@
 namespace KoSvgTextShapeLayoutFunc
 {
 
-/**
- * @brief calculateLineHeight
- * calculate the total ascent and descent (including baseline-offset) of a charResult
- * and optionally only return it if it is larger than the provided ascent and descent
- * variable.
- * This is necessary for proper line-height calculation.
- * @param cr - char result with the data.
- * @param ascent - output ascent variable.
- * @param descent - output descent variable.
- * @param isHorizontal - whether it is horizontal.
- * @param compare - whether to only return the value if it is larger than the relative ascent or descent.
- */
 void calculateLineHeight(CharacterResult cr, double &ascent, double &descent, bool isHorizontal, bool compare)
 {
     QRectF lineHeightBox = cr.lineHeightBox().translated(cr.totalBaselineOffset());
@@ -46,11 +34,6 @@ void calculateLineHeight(CharacterResult cr, double &ascent, double &descent, bo
     }
 }
 
-/**
- * @brief addWordToLine
- * Small function used in break lines to quickly add a 'word' to the current
- * line. Returns the last added index.
- */
 void addWordToLine(QVector<CharacterResult> &result,
                    QPointF &currentPos,
                    QVector<int> &wordIndices,
@@ -95,10 +78,6 @@ void addWordToLine(QVector<CharacterResult> &result,
     wordIndices.clear();
 }
 
-/**
- * This offsets the last line by it's ascent, and then returns the last line's
- * descent.
- */
 static QPointF lineHeightOffset(KoSvgText::WritingMode writingMode,
                                 QVector<CharacterResult> &result,
                                 LineBox &currentLine,
@@ -107,19 +86,12 @@ static QPointF lineHeightOffset(KoSvgText::WritingMode writingMode,
 {
     QPointF lineTop;
     QPointF lineBottom;
-    QPointF correctionOffset; ///< This is for determining the difference between
-                              ///< a predicted line-height (for text-in-shape) and the actual line-height.
-                              ///< Note: this is required to be positive.
+    QPointF correctionOffset;
 
     if (currentLine.chunks.isEmpty()) {
         return QPointF();
     } else if (currentLine.chunks.size() == 1 && currentLine.actualLineTop == 0 &&
                currentLine.actualLineBottom == 0){
-        /**
-         * When the line is empty, but caused by a hardbreak, we will need to use that hardbreak
-         * to space the line. This can only be done at this point as it would otherwise need to use
-         * visible characters.
-         */
         QVector<int> chunkIndices = currentLine.chunks[0].chunkIndices;
         if (chunkIndices.size() > 0) {
             CharacterResult cr = result[chunkIndices.first()];
@@ -132,7 +104,6 @@ static QPointF lineHeightOffset(KoSvgText::WritingMode writingMode,
         }
     }
 
-    // We do qmin/qmax here so that later, the correction offset will not go below either value.
     const qreal expectedLineTop = writingMode == KoSvgText::HorizontalTB? qMin(currentLine.expectedLineTop, currentLine.actualLineTop):
                                                                           qMax(currentLine.expectedLineTop, currentLine.actualLineTop);
     if (writingMode == KoSvgText::HorizontalTB) {
@@ -145,8 +116,6 @@ static QPointF lineHeightOffset(KoSvgText::WritingMode writingMode,
         currentLine.baselineTop = QPointF(currentLine.actualLineTop, 0);
         currentLine.baselineBottom = QPointF(currentLine.actualLineBottom, 0);
         correctionOffset = QPointF(-expectedLineTop, 0) + currentLine.baselineTop;
-        // Note: while Vertical LR goes left-to-right in its lines, its lines themselves are
-        // oriented with the top pointed in the positive x direction.
         lineBottom = currentLine.baselineTop;
         lineTop = -currentLine.baselineBottom;
     } else {
@@ -188,7 +157,6 @@ static QPointF lineHeightOffset(KoSvgText::WritingMode writingMode,
     return resHandler.adjust(offset);
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 static void
 handleCollapseAndHang(QVector<CharacterResult> &result, LineChunk &chunk, bool ltr, bool isHorizontal)
 {
@@ -202,8 +170,6 @@ handleCollapseAndHang(QVector<CharacterResult> &result, LineChunk &chunk, bool l
             int lastIndex = it.previous();
             if (result.at(lastIndex).lineEnd == LineEdgeBehaviour::Collapse) {
                 result[lastIndex].hidden = true;
-                // We literally collapse the advance of the last collapsed white-space to ensure it may
-                // still be possible to track it by cursor movement.
                 result[lastIndex].advance = QPointF();
                 if (isHorizontal) {
                     result[lastIndex].inkBoundingBox.setWidth(0);
@@ -243,7 +209,6 @@ handleCollapseAndHang(QVector<CharacterResult> &result, LineChunk &chunk, bool l
     }
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 static void applyInlineSizeAnchoring(QVector<CharacterResult> &result,
                                      LineChunk &chunk,
                                      const KoSvgText::TextAnchor anchor,
@@ -286,7 +251,6 @@ static void applyInlineSizeAnchoring(QVector<CharacterResult> &result,
         }
     }
 
-
     if (anchor == KoSvgText::AnchorStart) {
         const qreal indent = isHorizontal ? textIndent.x() : textIndent.y();
         if (ltr) {
@@ -314,9 +278,6 @@ static void applyInlineSizeAnchoring(QVector<CharacterResult> &result,
     chunk.boundingBox.translate(shiftP);
 }
 
-/// Finalizing the line consists of several steps, like hang/collapse, anchoring
-/// into place and offsetting correctly. This can happen several times during a
-/// linebreak, hence this convenience function to handle this.
 void finalizeLine(QVector<CharacterResult> &result,
                   QPointF &currentPos,
                   LineBox &currentLine,
@@ -347,7 +308,7 @@ void finalizeLine(QVector<CharacterResult> &result,
 
         if (currentLine.justifyLine) {
             double hangingGlyphLength = isHorizontal? currentChunk->conditionalHangEnd.x(): currentChunk->conditionalHangEnd.y();
-            QPointF advanceLength; ///< Because we may have collapsed the last glyph, we'll need to recalculate the total advance;
+            QPointF advanceLength;
             bool first = true;
             Q_FOREACH (int j, visualToLogical.values()) {
                 if (!result.at(j).addressable || result.at(j).hidden) {
@@ -427,10 +388,8 @@ void finalizeLine(QVector<CharacterResult> &result,
             applyInlineSizeAnchoring(result, *currentChunk, anchor, anchorPoint, ltr, isHorizontal, currentLine.textIndent, resHandler);
         } else {
             if (!ltr) {
-                // RTL relies on the start being 0.0, so we need to align it to the startAnchor.
                 applyInlineSizeAnchoring(result, *currentChunk, KoSvgText::AnchorStart, currentChunk->length.p1(), ltr, isHorizontal, currentLine.textIndent, resHandler);
             } else {
-                // this adds a length for preformated text, only useful for debug.
                 currentChunk->length.setLength(isHorizontal? currentChunk->boundingBox.width(): currentChunk->boundingBox.height());
             }
         }
@@ -439,7 +398,6 @@ void finalizeLine(QVector<CharacterResult> &result,
     currentPos = lineOffset;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 QVector<LineBox> breakLines(const KoSvgTextProperties &properties,
                             const QMap<int, int> &logicalToVisual,
                             QVector<CharacterResult> &result,
@@ -456,7 +414,7 @@ QVector<LineBox> breakLines(const KoSvgTextProperties &properties,
 
     QVector<LineBox> lineBoxes;
 
-    QPointF endPos; ///< Used for hanging glyphs at the end of a line.
+    QPointF endPos;
 
     KoSvgText::TextIndentInfo textIndentInfo = properties.propertyOrDefault(KoSvgTextProperties::TextIndentId).value<KoSvgText::TextIndentInfo>();
     QPointF textIndent;
@@ -475,18 +433,17 @@ QVector<LineBox> breakLines(const KoSvgTextProperties &properties,
     LineBox currentLine(startPos, endPos, resHandler);
     currentLine.firstLine = true;
 
-    QVector<int> wordIndices; ///< 'word' in this case meaning characters
-                              ///< inbetween softbreaks.
-    QPointF wordAdvance; ///< Approximated advance of the current wordindices.
+    QVector<int> wordIndices;
+    QPointF wordAdvance;
 
-    QPointF currentPos = startPos; ///< Current position with advances of each character.
+    QPointF currentPos = startPos;
     if (!textIndentInfo.hanging && !inlineSize.isAuto) {
         currentLine.textIndent = textIndent;
         currentPos += currentLine.textIndent;
     }
-    QPointF lineOffset = startPos; ///< Current line offset.
+    QPointF lineOffset = startPos;
 
-    QVector<int> lineIndices; ///< Indices of characters in line.
+    QVector<int> lineIndices;
 
     QListIterator<int> it(logicalToVisual.keys());
     while (it.hasNext()) {
@@ -496,7 +453,7 @@ QVector<LineBox> breakLines(const KoSvgTextProperties &properties,
         if (!charResult.addressable) {
             continue;
         }
-        bool softBreak = false; ///< Whether to do a softbreak;
+        bool softBreak = false;
         bool doNotCountAdvance =
             ((charResult.lineEnd != LineEdgeBehaviour::NoChange)
              && !(currentLine.isEmpty() && wordIndices.isEmpty()));
@@ -514,9 +471,6 @@ QVector<LineBox> breakLines(const KoSvgTextProperties &properties,
             qreal lineLength = isHorizontal ? (currentPos - startPos + wordAdvance).x()
                                             : (currentPos - startPos + wordAdvance).y();
             if (!inlineSize.isAuto) {
-                // Sometimes glyphs are a fraction larger than you'd expect, but
-                // not enough to really break the line, so the following is a
-                // bit more stable than a simple compare.
                 if (abs(lineLength) - inlineSize.customValue > 0.01) {
                     softBreak = true;
                 } else {
@@ -550,8 +504,6 @@ QVector<LineBox> breakLines(const KoSvgTextProperties &properties,
             if (charResult.overflowWrap) {
                 qreal wordLength = isHorizontal ? wordAdvance.x() : wordAdvance.y();
                 if (!inlineSize.isAuto && wordLength > inlineSize.customValue) {
-                    // Word is too large, so we try to add it in
-                    // max-width-friendly-chunks.
                     wordAdvance = QPointF();
                     wordLength = 0;
                     QVector<int> partialWord;
@@ -631,4 +583,4 @@ QVector<LineBox> breakLines(const KoSvgTextProperties &properties,
     return lineBoxes;
 }
 
-} // namespace KoSvgTextShapeLayoutFunc
+}

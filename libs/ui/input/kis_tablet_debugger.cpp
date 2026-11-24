@@ -20,7 +20,6 @@
 
 Q_GLOBAL_STATIC(KisTabletDebugger, s_instance)
 
-
 inline QString button(const QWheelEvent &ev) {
     Q_UNUSED(ev);
     return "-";
@@ -87,7 +86,6 @@ QString KisTabletDebugger::exTypeToString(QEvent::Type type) {
         "unknown";
 }
 
-
 KisTabletDebugger::KisTabletDebugger()
     : m_debugEnabled(false)
 {
@@ -121,13 +119,11 @@ bool KisTabletDebugger::debugEnabled() const
 
 bool KisTabletDebugger::initializationDebugEnabled() const
 {
-    // FIXME: make configurable!
     return true;
 }
 
 bool KisTabletDebugger::debugRawTabletValues() const
 {
-    // FIXME: make configurable!
     return m_debugEnabled;
 }
 
@@ -232,7 +228,6 @@ template <class Event>
 
     s << "hires: " << qSetFieldWidth(8) << ev.globalPosF().x() << qSetFieldWidth(0) << "," << qSetFieldWidth(8) << ev.globalPosF().y() << qSetFieldWidth(0) << " ";
     s << "prs: " << qSetFieldWidth(4) << Qt::fixed << ev.pressure() << Qt::reset << " ";
-
 
     s << KisTabletDebugger::tabletDeviceToString(ev) << " ";
     s << KisTabletDebugger::pointerTypeToString(ev) << " ";

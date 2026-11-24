@@ -39,7 +39,6 @@ struct Q_DECL_HIDDEN KisOpenGLBufferCircularStorage::Private
     QOpenGLBuffer::Type type = QOpenGLBuffer::QOpenGLBuffer::VertexBuffer;
 };
 
-
 KisOpenGLBufferCircularStorage::KisOpenGLBufferCircularStorage()
     : KisOpenGLBufferCircularStorage(QOpenGLBuffer::VertexBuffer)
 {
@@ -125,7 +124,6 @@ void KisOpenGLBufferCircularStorage::addBuffersImpl(size_t buffersToAdd, int buf
     if (m_d->buffers.capacity() < newSize)
         m_d->buffers.reserve(newSize);
 
-    // overflow check for size()
     KIS_ASSERT(m_d->buffers.size() <= std::numeric_limits<int>::max());
 
     for (size_t i = 0; i < buffersToAdd; i++) {

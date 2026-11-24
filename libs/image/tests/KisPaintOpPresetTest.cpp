@@ -73,7 +73,6 @@ void KisPaintOpPresetTest::testLoadingEmbeddedResources()
     QSet<QString> realEmbeddedSignatures;
 
     Q_FOREACH (const KoResourceLoadResult &result, preset->sideLoadedResources(linkedResources)) {
-        //qDebug() << "side-loaded" << result.type() << result.signature();
         QCOMPARE(result.type(), KoResourceLoadResult::EmbeddedResource);
         QVERIFY(result.embeddedResource().isValid());
         QVERIFY(result.embeddedResource().sanityCheckMd5());
@@ -81,23 +80,13 @@ void KisPaintOpPresetTest::testLoadingEmbeddedResources()
         realSideLoadedSignatures << result.signature().md5sum;
     }
 
-    // check if clearing the side-loaded resources actually clears them
     preset->clearSideLoadedResources();
     QCOMPARE(preset->sideLoadedResources(linkedResources).size(), 0);
 
     Q_FOREACH (const KoResourceLoadResult &result, preset->linkedResources(linkedResources)) {
-        //qDebug() << "linked" << result.type() << result.signature();
 
-        /**
-         * The side-loaded resources are not yet loaded into linkedResources,
-         * so the call should return fail-link resources.
-         */
         QCOMPARE(result.type(), KoResourceLoadResult::FailedLink);
 
-        /**
-         * Linked resources in older versions may miss the MD5 sum, in which case
-         * just fall back to a filename
-         */
         realLinkedSignatures <<
             (!result.signature().md5sum.isEmpty() ?
                 result.signature().md5sum :
@@ -105,7 +94,6 @@ void KisPaintOpPresetTest::testLoadingEmbeddedResources()
     }
 
     Q_FOREACH (const KoResourceLoadResult &result, preset->embeddedResources(linkedResources)) {
-        //qDebug() << "embedded" << result.type() << result.signature();
         QCOMPARE(result.type(), KoResourceLoadResult::EmbeddedResource);
         realEmbeddedSignatures << result.signature().md5sum;
     }
@@ -125,8 +113,6 @@ void KisPaintOpPresetTest::testConflictingEmbeddedPatterns()
     int verticalPatternResourceId = -1;
 
     {
-        /// Firstly, load a preset that embeds a patterns with
-        /// "stripes-pat.png" name
 
         QString presetFileName(TestUtil::fetchDataFileLazy("conflicting-patterns/preset-stripes-vert.kpp"));
         QFile file(presetFileName);
@@ -147,8 +133,6 @@ void KisPaintOpPresetTest::testConflictingEmbeddedPatterns()
     }
 
     {
-        /// Secondly, load a preset that embeds the same pattern, it should reuse
-        /// the same pattern object
 
         QString presetFileName(TestUtil::fetchDataFileLazy("conflicting-patterns/preset-stripes-vert-v2.kpp"));
         QFile file(presetFileName);
@@ -164,13 +148,10 @@ void KisPaintOpPresetTest::testConflictingEmbeddedPatterns()
         QCOMPARE(loadedPattern->name(), "stripes-pat.png");
         QCOMPARE(loadedPattern->md5Sum(), "d3bc7abb7136295578c6b3af3da02fcc");
 
-        // Krita should reuse the same pattern object
         QCOMPARE(loadedPattern->resourceId(), verticalPatternResourceId);
     }
 
     {
-        /// Now load a preset that also embeds a "stripes-pat.png" pattern,
-        /// but a different one (with a different md5sum)
 
         QString presetFileName(TestUtil::fetchDataFileLazy("conflicting-patterns/preset-stripes-cross.kpp"));
         QFile file(presetFileName);
@@ -181,16 +162,12 @@ void KisPaintOpPresetTest::testConflictingEmbeddedPatterns()
 
         KisPaintOpPresetSP preset = resource.dynamicCast<KisPaintOpPreset>();
 
-        /// try to fetch the signature of the linked resource by loading
-        /// in an empty environment
         auto resourcesForEmptyEnvironment = preset->linkedResources(emptyLocalResources);
         QCOMPARE(resourcesForEmptyEnvironment.size(), 1);
         QCOMPARE(resourcesForEmptyEnvironment.first().type(), KoResourceLoadResult::FailedLink);
         const QString requiredMd5Sum = resourcesForEmptyEnvironment.first().signature().md5sum;
         QCOMPARE(requiredMd5Sum, "cca80dd27e4085ef089729462714e942");
 
-        // now try to load in real environment, it should fetch the correct
-        // deduplicated resource (with a different filename, but same MD5)
         KoPatternSP loadedPattern = preset->linkedResources(resourcesInterface).first().resource<KoPattern>();
         QVERIFY(loadedPattern);
         QCOMPARE(loadedPattern->md5Sum(), requiredMd5Sum);

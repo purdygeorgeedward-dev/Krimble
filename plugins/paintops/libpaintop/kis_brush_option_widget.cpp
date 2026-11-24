@@ -68,7 +68,6 @@ KisBrushOptionWidget::KisBrushOptionWidget(KisBrushOptionWidgetFlags flags)
 
     setObjectName("KisBrushOptionWidget");
 
-    // TODO: merge them into a single struct to avoid double updates
     lager::watch(m_d->brushData, std::bind(&KisBrushOptionWidget::emitSettingChanged, this));
     lager::watch(m_d->brushPrecisionData, std::bind(&KisBrushOptionWidget::emitSettingChanged, this));
     lager::watch(m_d->commonBrushSizeData, std::bind(&KisBrushOptionWidget::emitSettingChanged, this));
@@ -80,7 +79,6 @@ KisBrushSP KisBrushOptionWidget::brush() const
 {
     return m_brushSelectionWidget->brush();
 }
-
 
 void KisBrushOptionWidget::setImage(KisImageWSP image)
 {
@@ -140,7 +138,7 @@ lager::reader<BrushData> KisBrushOptionWidget::bakedBrushData() const
     return lager::with(m_d->brushData, m_d->commonBrushSizeData)
             .map([this] (BrushData data, qreal commonBrushSize) {
 
-        Q_UNUSED(commonBrushSize); // we keep it as a dep only for updates!
+        Q_UNUSED(commonBrushSize);
 
         data.autoBrush = m_d->autoBrushModel.bakedOptionData();
         data.predefinedBrush = m_d->predefinedBrushModel.bakedOptionData();

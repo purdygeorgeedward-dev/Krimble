@@ -11,11 +11,6 @@
 
 class QString;
 
-/**
- * A proxy interface for a real progress status reporting thing, either
- * a widget such as a KoProgressProxy childclass that also inherits this
- * interface, or something that prints progress to stdout.
- */
 class KRITAWIDGETUTILS_EXPORT KoProgressProxy
 {
 
@@ -29,6 +24,5 @@ public:
     virtual void setFormat(const QString &format) = 0;
     virtual void setAutoNestedName(const QString &name);
 };
-
 
 #endif

@@ -37,7 +37,6 @@ struct Q_DECL_HIDDEN KisLayerStyleProjectionPlane::Private
     KisCachedSelection cachedSelection;
     KisLayer *sourceLayer = 0;
 
-
     KisPSDLayerStyleSP style;
     bool canHaveChildNodes = false;
     bool dependsOnLowerNodes = false;
@@ -124,7 +123,6 @@ KisLayerStyleProjectionPlane::KisLayerStyleProjectionPlane(const KisLayerStylePr
     m_d->strokeStyle.reset(new KisStrokeLayerStyleFilterProjectionPlane(*rhs.m_d->strokeStyle, sourceLayer, m_d->style));
 }
 
-// for testing purposes only!
 KisLayerStyleProjectionPlane::KisLayerStyleProjectionPlane(KisLayer *sourceLayer, KisPSDLayerStyleSP layerStyle)
     : m_d(new Private)
 {
@@ -348,12 +346,6 @@ KisPaintDeviceList KisLayerStyleProjectionPlane::getLodCapableDevices() const
 
 QRect KisLayerStyleProjectionPlane::needRect(const QRect &rect, KisLayer::PositionToFilthy pos) const
 {
-    /**
-     * Need rect should also be adjust for the layers that generate their 'original'
-     * based on the contents of the underlying layers like KisAdjustmentLayer
-     *
-     * \see bug 390299
-     */
 
     QRect needRect = rect;
 
@@ -401,12 +393,6 @@ QRect KisLayerStyleProjectionPlane::accessRect(const QRect &rect, KisLayer::Posi
 
 QRect KisLayerStyleProjectionPlane::needRectForOriginal(const QRect &rect) const
 {
-    /**
-     * Need rect should also be adjust for the layers that generate their 'original'
-     * based on the contents of the child layers like KisGroupLayer
-     *
-     * \see bug 366419
-     */
 
     QRect needRect = rect;
 

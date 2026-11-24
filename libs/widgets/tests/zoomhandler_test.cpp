@@ -14,7 +14,6 @@
 #include "KoZoomHandler.h"
 #include "KoUnit.h"
 
-
 void zoomhandler_test::testConstruction()
 {
 
@@ -43,7 +42,7 @@ void zoomhandler_test::testApi()
     QCOMPARE( zoomHandler.zoomedResolutionX(), 50.);
     QCOMPARE( zoomHandler.zoomedResolutionY(), 60.);
 
-    zoomHandler.setZoom( 0.2 ); // is 20%
+    zoomHandler.setZoom( 0.2 );
     QCOMPARE( zoomHandler.zoomInPercent(), 20);
     QCOMPARE( zoomHandler.resolutionX(), 128. );
     QCOMPARE( zoomHandler.resolutionY(), 129. );
@@ -76,7 +75,6 @@ void zoomhandler_test::testViewToDocument()
     zoomHandler.setDpi( 100, 100 );
 
     QCOMPARE( zoomHandler.viewToDocument( QPointF( 0, 0 ) ), QPointF( 0, 0 ) );
-    // 100 view pixels are 72 postscript points at 100% zoom, 100ppi.
     QCOMPARE( zoomHandler.viewToDocument( QRectF( 0, 0, 100, 100 ) ), QRectF( 0, 0, 72, 72 ) );
     QCOMPARE( zoomHandler.viewToDocumentX( 0 ), 0. );
     QCOMPARE( zoomHandler.viewToDocumentY( 0 ), 0. );
@@ -95,6 +93,5 @@ void zoomhandler_test::testDocumentToView()
     QCOMPARE( zoomHandler.documentToViewY( 72 ), 100. );
 
 }
-
 
 QTEST_APPLESS_MAIN(zoomhandler_test)

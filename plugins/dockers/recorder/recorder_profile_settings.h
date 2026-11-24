@@ -24,7 +24,6 @@ public:
     explicit RecorderProfileSettings(QWidget *parent = nullptr);
     ~RecorderProfileSettings();
 
-    // returns true if profile changed
     bool editProfile(RecorderProfile *profile, const RecorderProfile &defaultProfile);
 
     void setPreview(const QString &preview);
@@ -44,4 +43,4 @@ private:
     Ui::RecorderProfileSettings *ui;
 };
 
-#endif // RECORDER_PROFILE_SETTINGS_H
+#endif

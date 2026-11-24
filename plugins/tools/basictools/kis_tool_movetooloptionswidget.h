@@ -4,7 +4,6 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
 #ifndef KIS_TOOL_MOVETOOLOPTIONSWIDGET_H
 #define KIS_TOOL_MOVETOOLOPTIONSWIDGET_H
 
@@ -70,4 +69,4 @@ private:
     KConfigGroup m_configGroup;
 };
 
-#endif // KIS_TOOL_MOVETOOLOPTIONSWIDGET_H
+#endif

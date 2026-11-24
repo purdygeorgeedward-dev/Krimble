@@ -12,7 +12,6 @@
 
 #include <KoColorSpaceRegistry.h>
 
-// Includes from krita/image
 #include <kis_adjustment_layer.h>
 #include <filter/kis_filter.h>
 #include <filter/kis_filter_registry.h>
@@ -25,7 +24,6 @@
 #include <kis_dom_utils.h>
 #include <kis_paint_layer.h>
 #include <kis_selection.h>
-
 
 #include "KisDocument.h"
 
@@ -67,9 +65,8 @@ void KisOpenRasterStackLoadVisitor::loadImage()
 
     QDomDocument doc = d->loadContext->loadStack();
 
-
     for (QDomNode node = doc.firstChild(); !node.isNull(); node = node.nextSibling()) {
-        if (node.isElement() && node.nodeName() == "image") { // it's the image root
+        if (node.isElement() && node.nodeName() == "image") {
             QDomElement subelem = node.toElement();
 
             int width = 0;
@@ -82,7 +79,7 @@ void KisOpenRasterStackLoadVisitor::loadImage()
                 height = subelem.attribute("h").toInt();
             }
 
-            d->xRes = 75.0/72; // Setting the default value of the X Resolution = 75ppi
+            d->xRes = 75.0/72;
             if (!subelem.attribute("xres").isNull()){
                 d->xRes = (KisDomUtils::toDouble(subelem.attribute("xres")) / 72);
             }
@@ -95,7 +92,7 @@ void KisOpenRasterStackLoadVisitor::loadImage()
             dbgFile << ppVar(width) << ppVar(height);
             d->image = new KisImage(d->undoStore, width, height, KoColorSpaceRegistry::instance()->rgb8(), "OpenRaster Image (name)");
             for (QDomNode node2 = node.firstChild(); !node2.isNull(); node2 = node2.nextSibling()) {
-                if (node2.isElement() && node2.nodeName() == "stack") { // it's the root layer !
+                if (node2.isElement() && node2.nodeName() == "stack") {
                     QDomElement subelem2 = node2.toElement();
                     loadGroupLayer(subelem2, d->image->rootLayer());
                     break;
@@ -124,21 +121,11 @@ void KisOpenRasterStackLoadVisitor::loadLayerInfo(const QDomElement& elem, KisLa
 
     QString compop = elem.attribute("composite-op");
     if (compop.startsWith("svg:")) {
-        //we don't have a 'composite op clear' despite the registry reserving a string for it, doesn't matter, ora doesn't use it.
-        //if (compop == "svg:clear") layer->setCompositeOpId(COMPOSITE_CLEAR);
         if (compop == "svg:src-over") layer->setCompositeOpId(COMPOSITE_OVER);
-        //not part of the spec.
-        //if (compop == "svg:dst-over") layer->setCompositeOpId(COMPOSITE_BEHIND);
-        //dst-in "The source that overlaps the destination, replaces the destination."
         if (compop == "svg:dst-in") layer->setCompositeOpId(COMPOSITE_DESTINATION_IN);
-        //dst-out "dst is placed, where it falls outside of the source."
         if (compop == "svg:dst-out") layer->setCompositeOpId(COMPOSITE_ERASE);
-        //src-atop "Destination which overlaps the source replaces the source. Source is placed elsewhere."
-        //this is basically our alpha-inherit.
         if (compop == "svg:src-atop") layer->disableAlphaChannel(true);
-        //dst-atop
         if (compop == "svg:dst-atop") layer->setCompositeOpId(COMPOSITE_DESTINATION_ATOP);
-        //plus is svg standard's way of saying addition... PS calls this linear dodge, btw, maybe make a similar alias?
         if (compop == "svg:plus") layer->setCompositeOpId(COMPOSITE_ADD);
         if (compop == "svg:multiply") layer->setCompositeOpId(COMPOSITE_MULT);
         if (compop == "svg:screen") layer->setCompositeOpId(COMPOSITE_SCREEN);
@@ -154,15 +141,12 @@ void KisOpenRasterStackLoadVisitor::loadLayerInfo(const QDomElement& elem, KisLa
         if (compop == "svg:luminosity") layer->setCompositeOpId(COMPOSITE_LUMINIZE);
         if (compop == "svg:hue") layer->setCompositeOpId(COMPOSITE_HUE);
         if (compop == "svg:saturation") layer->setCompositeOpId(COMPOSITE_SATURATION);
-        //Exclusion isn't in the official list.
-        //if (compop == "svg:exclusion") layer->setCompositeOpId(COMPOSITE_EXCLUSION);
     }
     else if (compop.startsWith("krita:")) {
         compop = compop.remove(0, 6);
         layer->setCompositeOpId(compop);
     }
     else {
-        // to fix old bugs in krita's ora export
         if (compop == "color-dodge") layer->setCompositeOpId(COMPOSITE_DODGE);
         if (compop == "difference") layer->setCompositeOpId(COMPOSITE_DIFF);
         if (compop == "svg:add") layer->setCompositeOpId(COMPOSITE_ADD);
@@ -211,9 +195,7 @@ void KisOpenRasterStackLoadVisitor::loadGroupLayer(const QDomElement& elem, KisG
                     const qreal opacity = KisDomUtils::toDouble(subelem.attribute("opacity", "1.0"));
                     KisImageSP pngImage = d->loadContext->loadDeviceData(filename);
                     if (pngImage) {
-                        // If ORA doesn't have resolution info, load the default value(75 ppi) else fetch from stack.xml
                         d->image->setResolution(d->xRes, d->yRes);
-                        // now get the device
                         KisPaintDeviceSP device = new KisPaintDevice(*pngImage->projection());
 
                         KisPaintLayerSP layer = new KisPaintLayer(groupLayer->image() , "", opacity * 255, device);

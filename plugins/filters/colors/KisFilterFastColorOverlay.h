@@ -32,4 +32,4 @@ public:
     KisFilterConfigurationSP defaultConfiguration(KisResourcesInterfaceSP resourcesInterface) const override;
 };
 
-#endif // KISFILTERFASTCOLOROVERLAY_H
+#endif

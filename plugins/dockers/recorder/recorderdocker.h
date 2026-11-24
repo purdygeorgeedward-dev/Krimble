@@ -12,9 +12,6 @@
 
 class KisViewManager;
 
-/**
- * Template of view plugin
- */
 class RecorderDockerPlugin : public QObject
 {
     Q_OBJECT

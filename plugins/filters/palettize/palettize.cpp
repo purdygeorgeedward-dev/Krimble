@@ -34,11 +34,6 @@ Palettize::Palettize(QObject *parent, const QVariantList &)
 
 #include "palettize.moc"
 
-
-/*******************************************************************************/
-/*                      KisFilterPalettizeConfiguration                        */
-/*******************************************************************************/
-
 class KisFilterPalettizeConfiguration : public KisFilterConfiguration
 {
 public:
@@ -82,10 +77,6 @@ public:
         return resources;
     }
 };
-
-/*******************************************************************************/
-/*                      KisPalettizeWidget                                     */
-/*******************************************************************************/
 
 KisPalettizeWidget::KisPalettizeWidget(QWidget* parent)
     : KisConfigWidget(parent)
@@ -183,10 +174,6 @@ KisConfigWidget* KisFilterPalettize::createConfigurationWidget(QWidget *parent, 
     return new KisPalettizeWidget(parent);
 }
 
-/*******************************************************************************/
-/*                      KisFilterPalettize                                     */
-/*******************************************************************************/
-
 KisFilterPalettize::KisFilterPalettize() : KisFilter(id(), FiltersCategoryAdjustId, i18n("&Indexed Color..."))
 {
     setColorSpaceIndependence(FULLY_INDEPENDENT);
@@ -198,7 +185,6 @@ KisFilterConfigurationSP KisFilterPalettize::factoryConfiguration(KisResourcesIn
 {
     return new KisFilterPalettizeConfiguration("palettize", 1, resourcesInterface);
 }
-
 
 KisFilterConfigurationSP KisFilterPalettize::defaultConfiguration(KisResourcesInterfaceSP resourcesInterface) const
 {
@@ -253,7 +239,6 @@ void KisFilterPalettize::processImpl(KisPaintDeviceSP device, const QRect& apply
     boost::geometry::index::rtree<SearchEntry, boost::geometry::index::quadratic<16>> rtree;
 
     if (palette) {
-        // Add palette colors to search tree
         quint16 index = 0;
         for (int row = 0; row < palette->rowCount(); ++row) {
             for (int column = 0; column < palette->columnCount(); ++column) {
@@ -263,7 +248,6 @@ void KisFilterPalettize::processImpl(KisPaintDeviceSP device, const QRect& apply
                     KoColor workColor = swatch.color().convertedTo(workColorspace);
                     SearchColor searchColor;
                     memcpy(&searchColor, workColor.data(), sizeof(SearchColor));
-                    // Don't add duplicates so won't dither between identical colors
                     std::vector<SearchEntry> result;
                     rtree.query(boost::geometry::index::contains(searchColor), std::back_inserter(result));
                     if (result.empty()) rtree.insert(SearchEntry(searchColor, {color, index, 0.0}));
@@ -283,12 +267,10 @@ void KisFilterPalettize::processImpl(KisPaintDeviceSP device, const QRect& apply
             KoColor workColor(pixel.oldRawData(), colorspace);
             workColor.convertTo(workColorspace);
 
-            // Find dither threshold
             double threshold = 0.5;
             if (ditherEnabled) {
                 threshold = ditherUtil.threshold(QPoint(pixel.x(), pixel.y()));
 
-                // Traditional per-channel ordered dithering
                 if (colorMode == ColorMode::PerChannelOffset) {
                     QVector<float> normalized(int(workColorspace->channelCount()));
                     workColorspace->normalisedChannelsValue(workColor.data(), normalized);
@@ -299,7 +281,6 @@ void KisFilterPalettize::processImpl(KisPaintDeviceSP device, const QRect& apply
                 }
             }
 
-            // Get candidate colors and their distances
             SearchColor searchColor;
             memcpy(reinterpret_cast<quint8 *>(&searchColor), workColor.data(), sizeof(SearchColor));
             std::vector<ColorCandidate> candidateColors;
@@ -312,10 +293,8 @@ void KisFilterPalettize::processImpl(KisPaintDeviceSP device, const QRect& apply
                 distanceSum += candidate.distance;
             }
 
-            // Select color candidate
             quint16 selected;
             if (ditherEnabled && colorMode == ColorMode::NearestColors) {
-                // Sort candidates by palette order for stable dither color ordering
                 const bool swap = candidateColors[0].index > candidateColors[1].index;
                 selected = swap ^ (candidateColors[swap].distance / distanceSum > threshold);
             }
@@ -324,7 +303,6 @@ void KisFilterPalettize::processImpl(KisPaintDeviceSP device, const QRect& apply
             }
             ColorCandidate &candidate = candidateColors[selected];
 
-            // Set alpha
             const double oldAlpha = colorspace->opacityF(pixel.oldRawData());
             double newAlpha = oldAlpha;
             if (alphaEnabled && !(!ditherEnabled && alphaMode == AlphaMode::Dither)) {
@@ -340,7 +318,6 @@ void KisFilterPalettize::processImpl(KisPaintDeviceSP device, const QRect& apply
             }
             colorspace->setOpacity(candidate.color.data(), newAlpha, 1);
 
-            // Copy color to pixel
             memcpy(pixel.rawData(), candidate.color.data(), colorspace->pixelSize());
         }
     }

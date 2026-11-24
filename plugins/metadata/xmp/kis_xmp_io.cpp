@@ -21,7 +21,6 @@
 #include <kis_meta_data_value.h>
 #include <KisUsageLogger.h>
 
-
 #include <kis_debug.h>
 
 KisXMPIO::KisXMPIO()
@@ -55,7 +54,7 @@ void saveStructure(Exiv2::XmpData &xmpData_,
 {
     std::string structPrefix = exiv2Prefix(structureSchema);
     for (QMap<QString, KisMetaData::Value>::const_iterator it = structure.begin(); it != structure.end(); ++it) {
-        Q_ASSERT(it.value().type() != KisMetaData::Value::Structure); // Can't nest structure
+        Q_ASSERT(it.value().type() != KisMetaData::Value::Structure);
         QString key = QString("%1/%2:%3").arg(name).arg(structPrefix.c_str()).arg(it.key());
         Exiv2::XmpKey ekey(prefix, key.toLatin1().constData());
         dbgMetaData << ppVar(key) << ppVar(ekey.key().c_str());
@@ -73,7 +72,6 @@ bool KisXMPIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Head
     Exiv2::XmpData xmpData_;
 
     for (const KisMetaData::Entry &entry : *store) {
-        // Check whether the prefix and namespace are know to exiv2
         std::string prefix = exiv2Prefix(entry.schema());
         dbgMetaData << "Saving " << entry.name();
 
@@ -99,7 +97,6 @@ bool KisXMPIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Head
                     || typeInfo->propertyType() == KisMetaData::TypeInfo::UnorderedArrayType
                     || typeInfo->propertyType() == KisMetaData::TypeInfo::AlternativeArrayType)
                 && typeInfo->embeddedPropertyType()->propertyType() == KisMetaData::TypeInfo::StructureType) {
-                // Here is the bad part, again we need to do it by hand
                 Exiv2::XmpTextValue tv;
                 switch (typeInfo->propertyType()) {
                 case KisMetaData::TypeInfo::OrderedArrayType:
@@ -112,10 +109,9 @@ bool KisXMPIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Head
                     tv.setXmpArrayType(Exiv2::XmpValue::xaAlt);
                     break;
                 default:
-                    // Cannot happen
                     ;
                 }
-                xmpData_.add(key, &tv); // set the array type
+                xmpData_.add(key, &tv);
                 const KisMetaData::TypeInfo *structureTypeInfo = typeInfo->embeddedPropertyType();
                 const KisMetaData::Schema *structureSchema = 0;
                 if (structureTypeInfo) {
@@ -145,9 +141,7 @@ bool KisXMPIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Head
                 }
             }
         }
-        // TODO property qualifier
     }
-    // Serialize data
     std::string xmpPacket_;
     try {
         Exiv2::XmpParser::encode(xmpPacket_, xmpData_);
@@ -155,7 +149,6 @@ bool KisXMPIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Head
         warnMetaData << "Couldn't encode the data, error =" << e.what();
         return false;
     }
-    // Save data into the IO device
     ioDevice->open(QIODevice::WriteOnly);
     if (headerType == KisMetaData::IOBackend::JpegHeader) {
         xmpPacket_ = "http://ns.adobe.com/xap/1.0/\0" + xmpPacket_;
@@ -184,10 +177,6 @@ bool parseTagName(const QString &tagString,
     }
 
     if (numSubNames == 2) {
-        /**
-         * We use Unicode-matching mode, because according to XML specification
-         * the name of an entity can contain Unicode characters.
-         */
         QRegularExpression regexp("([A-Za-z]\\w+)/([A-Za-z]\\w+):([A-Za-z]\\w+)");
         regexp.setPatternOptions(QRegularExpression::UseUnicodePropertiesOption);
 
@@ -239,7 +228,6 @@ bool KisXMPIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
     QByteArray arr = ioDevice->readAll();
     xmpPacket_.assign(arr.data(), arr.length());
     dbgMetaData << xmpPacket_.length();
-    //     dbgMetaData << xmpPacket_.c_str();
     Exiv2::XmpData xmpData_;
     if (Exiv2::XmpParser::decode(xmpData_, xmpPacket_) != 0) {
         warnMetaData << "Failed to decode as XMP";
@@ -253,9 +241,7 @@ bool KisXMPIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
         Exiv2::XmpKey key(it->key());
         dbgMetaData << key.groupName().c_str() << " " << key.tagName().c_str() << " " << key.ns().c_str();
         if ((key.groupName() == "exif" || key.groupName() == "tiff")
-            && key.tagName() == "NativeDigest") { // TODO: someone who has time to lose can look in adding support for
-                                                  // NativeDigest, it's undocumented use by the XMP SDK to check if exif
-                                                  // data has been changed while XMP hasn't been updated
+            && key.tagName() == "NativeDigest") {
             dbgMetaData << "dropped";
         } else {
             const KisMetaData::Schema *schema =
@@ -286,7 +272,6 @@ bool KisXMPIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
 
             KisMetaData::Value v;
             bool ignoreValue = false;
-            // Compute the value
             if (value->typeId() == Exiv2::xmpBag || value->typeId() == Exiv2::xmpSeq
                 || value->typeId() == Exiv2::xmpAlt) {
                 const KisMetaData::TypeInfo *embeddedTypeInfo = 0;
@@ -365,7 +350,6 @@ bool KisXMPIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
                 }
             }
 
-            // set the value
             if (isStructureEntry) {
                 structures[schema][structName][tagName] = v;
             } else if (isStructureInArrayEntry) {

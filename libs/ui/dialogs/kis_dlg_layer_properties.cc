@@ -32,7 +32,6 @@
 #include "commands_new/kis_saved_commands.h"
 #include "kis_post_execution_undo_adapter.h"
 
-
 struct KisDlgLayerProperties::Private
 {
     Private() : updatesCompressor(500, KisSignalCompressor::POSTPONE) {}
@@ -214,7 +213,7 @@ KisDlgLayerProperties::~KisDlgLayerProperties()
         macro->addCommand(toQShared(new KisLayerUtils::KisSimpleUpdateCommand(d->nodes, true)));
         adapter->addMacro(macro);
     }
-    else /* if (result() == QDialog::Rejected) */ {
+    else {
         Q_FOREACH(auto prop, d->allProperties()) {
             prop->setIgnored(true);
         }

@@ -18,9 +18,6 @@
 class QString;
 class KisFilterConfiguration;
 
-/**
- * XXX_DOCS
- */
 class KRITAIMAGE_EXPORT KisGeneratorRegistry : public QObject, public KoGenericRegistry<KisGeneratorSP>
 {
 
@@ -44,4 +41,4 @@ private:
     KisGeneratorRegistry operator=(const KisGeneratorRegistry&);
 };
 
-#endif // KIS_GENERATOR_REGISTRY_H_
+#endif

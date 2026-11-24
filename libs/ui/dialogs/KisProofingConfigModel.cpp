@@ -74,7 +74,6 @@ ComboBoxState calcIntentComboBoxState(KoColorConversionTransformation::Intent in
     values << i18nc("Color conversion intent", "Saturation");
     values << i18nc("Color conversion intent", "Absolute Colorimetric");
 
-    // no tooltops for now
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     toolTips << "" << "" << "" << "";
 #else

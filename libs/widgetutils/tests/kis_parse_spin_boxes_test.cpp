@@ -56,7 +56,7 @@ void KisParseSpinBoxesTest::testDoubleParseNormal()
     for (int i = 0; i < doubleExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, doubleExprs[i]);
         spinBox.clearFocus();
 
@@ -72,13 +72,10 @@ void KisParseSpinBoxesTest::testDoubleParseNormal()
 
     }
 
-
 }
 
 void KisParseSpinBoxesTest::testDoubleParseProblem()
 {
-
-    //error can happen with incomplete or incorrect expressions, inf or nan values.
 
     KisDoubleParseSpinBox spinBox;
     spinBox.setMaximum(9999.0);
@@ -87,7 +84,7 @@ void KisParseSpinBoxesTest::testDoubleParseProblem()
     for (int i = 0; i < doubleWrongExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, doubleWrongExprs[i]);
         spinBox.clearFocus();
 
@@ -117,7 +114,7 @@ void KisParseSpinBoxesTest::testDoubleParseWithSuffix(){
     for (int i = 0; i < doubleExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, doubleExprs[i]);
         spinBox.clearFocus();
 
@@ -133,7 +130,6 @@ void KisParseSpinBoxesTest::testDoubleParseWithSuffix(){
 
     }
 
-    //verify that the suffix don't appear in the clean text in case of error.
     for (int i = 0; i < doubleWrongExprs.size(); i++) {
 
         if (doubleWrongExprs[i].endsWith(suff)) {
@@ -141,7 +137,7 @@ void KisParseSpinBoxesTest::testDoubleParseWithSuffix(){
         }
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, doubleWrongExprs[i]);
         spinBox.clearFocus();
 
@@ -165,7 +161,7 @@ void KisParseSpinBoxesTest::testDoubleParseWithPrefix()
     for (int i = 0; i < doubleExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, doubleExprs[i]);
         spinBox.clearFocus();
 
@@ -181,7 +177,6 @@ void KisParseSpinBoxesTest::testDoubleParseWithPrefix()
 
     }
 
-    //verify that the prefix don't appear in the clean text in case of error.
     for (int i = 0; i < doubleWrongExprs.size(); i++) {
 
         if (doubleWrongExprs[i].endsWith(preff)) {
@@ -189,7 +184,7 @@ void KisParseSpinBoxesTest::testDoubleParseWithPrefix()
         }
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, doubleWrongExprs[i]);
         spinBox.clearFocus();
 
@@ -210,7 +205,7 @@ void KisParseSpinBoxesTest::testIntParseNormal()
     for (int i = 0; i < intExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, intExprs[i]);
         spinBox.clearFocus();
 
@@ -230,8 +225,6 @@ void KisParseSpinBoxesTest::testIntParseNormal()
 void KisParseSpinBoxesTest::testIntParseProblem()
 {
 
-    //errors can happen with incorrect or incomplete expressions, or division by 0.
-
     KisIntParseSpinBox spinBox;
     spinBox.setMaximum(999);
     spinBox.setMinimum(-999);
@@ -239,7 +232,7 @@ void KisParseSpinBoxesTest::testIntParseProblem()
     for (int i = 0; i < intWrongExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, intWrongExprs[i]);
         spinBox.clearFocus();
 
@@ -269,7 +262,7 @@ void KisParseSpinBoxesTest::testIntParseWithSuffix()
     for (int i = 0; i < intExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, intExprs[i]);
         spinBox.clearFocus();
 
@@ -284,7 +277,6 @@ void KisParseSpinBoxesTest::testIntParseWithSuffix()
         spinBox.setValue(0);
     }
 
-    //verify that the suffix don't appear in the clean text in case of error.
     for (int i = 0; i < intWrongExprs.size(); i++) {
 
         if (intWrongExprs[i].endsWith(suff)) {
@@ -292,7 +284,7 @@ void KisParseSpinBoxesTest::testIntParseWithSuffix()
         }
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, intWrongExprs[i]);
         spinBox.clearFocus();
 
@@ -315,7 +307,7 @@ void KisParseSpinBoxesTest::testIntParseWithPrefix()
     for (int i = 0; i < intExprs.size(); i++) {
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, intExprs[i]);
         spinBox.clearFocus();
 
@@ -330,7 +322,6 @@ void KisParseSpinBoxesTest::testIntParseWithPrefix()
         spinBox.setValue(0);
     }
 
-    //verify that the prefix don't appear in the clean text in case of error.
     for (int i = 0; i < intWrongExprs.size(); i++) {
 
         if (intWrongExprs[i].startsWith(preff)) {
@@ -338,7 +329,7 @@ void KisParseSpinBoxesTest::testIntParseWithPrefix()
         }
 
         spinBox.clearFocus();
-        spinBox.clear(); //clear all
+        spinBox.clear();
         QTest::keyClicks(&spinBox, intWrongExprs[i]);
         spinBox.clearFocus();
 

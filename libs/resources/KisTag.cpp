@@ -32,14 +32,14 @@ const QString KisTag::s_desktop {"[Desktop Entry]"};
 class KisTag::Private {
 public:
     bool valid {false};
-    QString url; // This is the actual tag
+    QString url;
     QString name;
     QString comment;
-    QMap<QString, QString> names; // The translated tag names
-    QMap<QString, QString> comments; // The translated tag comments
-    QStringList defaultResources; // The list of resources as defined in the tag file
-    QString resourceType; // The resource type this tag can be applied to
-    QString filename; // the original filename for the tag
+    QMap<QString, QString> names;
+    QMap<QString, QString> comments;
+    QStringList defaultResources;
+    QString resourceType;
+    QString filename;
     int id {-1};
     bool active{true};
 };
@@ -165,7 +165,6 @@ void KisTag::setUrl(const QString &url)
 {
     d->url = url;
 }
-
 
 QMap<QString, QString> KisTag::comments() const
 {

@@ -7,9 +7,7 @@
 #ifndef KOSWAPBGFGCOLOURS_H
 #define KOSWAPBGFGCOLOURS_H
 
-
 #include <KoDualColorButton.h>
-
 
 class KisCanvas2;
 

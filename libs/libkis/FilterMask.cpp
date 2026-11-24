@@ -15,7 +15,7 @@ FilterMask::FilterMask(KisImageSP image, QString name, Filter &filter, QObject *
 {
     KisFilterMask *mask = dynamic_cast<KisFilterMask*>(this->node().data());
     KIS_SAFE_ASSERT_RECOVER_RETURN(mask);
-    
+
     mask->setFilter(filter.filterConfig()->cloneWithResourcesSnapshot());
 }
 

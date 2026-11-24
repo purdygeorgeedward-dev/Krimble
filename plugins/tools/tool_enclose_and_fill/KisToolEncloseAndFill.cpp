@@ -153,7 +153,7 @@ bool KisToolEncloseAndFill::subtoolHasUserInteractionRunning() const
     if (!delegateTool()) {
         return false;
     }
-    
+
     if (m_enclosingMethod == Rectangle) {
         return reinterpret_cast<KisRectangleEnclosingProducer*>(delegateTool())->hasUserInteractionRunning();
     } else if (m_enclosingMethod == Ellipse) {
@@ -170,8 +170,6 @@ bool KisToolEncloseAndFill::subtoolHasUserInteractionRunning() const
 
 void KisToolEncloseAndFill::beginPrimaryAction(KoPointerEvent *event)
 {
-    // cannot use enclose and fill tool on non-painting layers.
-    // this logic triggers with multiple layer types like vector layer, clone layer, file layer, group layer
     if (currentNode().isNull() || currentNode()->inherits("KisShapeLayer") || nodePaintAbility() != NodePaintAbility::PAINT) {
         KisCanvas2 * kiscanvas = static_cast<KisCanvas2*>(canvas());
         kiscanvas->viewManager()->
@@ -311,8 +309,6 @@ void KisToolEncloseAndFill::slot_delegateTool_enclosingMaskProduced(KisPixelSele
     }
 
     if (m_reference != ColorLabeledLayers) {
-        // Reset this so that the device from color labeled layers gets
-        // regenerated when that mode is selected again
         m_referenceNodeList.reset();
     }
 
@@ -383,7 +379,6 @@ QWidget* KisToolEncloseAndFill::createOptionWidget()
 {
     loadConfiguration();
 
-    // Create widgets
     KisOptionButtonStrip *optionButtonStripEnclosingMethod =
         new KisOptionButtonStrip;
     m_buttonEnclosingMethodRectangle =
@@ -544,7 +539,6 @@ QWidget* KisToolEncloseAndFill::createOptionWidget()
 
     QPushButton *buttonReset = new QPushButton(i18nc("The 'reset' button in enclose and fill tool options", "Reset"));
 
-    // Set the tooltips
     m_buttonEnclosingMethodRectangle->setToolTip(i18n("Rectangle"));
     m_buttonEnclosingMethodEllipse->setToolTip(i18n("Ellipse"));
     m_buttonEnclosingMethodPath->setToolTip(i18n("Bezier Curve"));
@@ -579,7 +573,6 @@ QWidget* KisToolEncloseAndFill::createOptionWidget()
 
     buttonReset->setToolTip(i18n("Reset the options to their default values"));
 
-    // Construct the option widget
     m_optionWidget = new KisOptionCollectionWidget;
     m_optionWidget->setContentsMargins(0, 10, 0, 10);
     m_optionWidget->setSeparatorsVisible(true);
@@ -604,7 +597,6 @@ QWidget* KisToolEncloseAndFill::createOptionWidget()
     sectionReference->appendWidget("widgetLabels", widgetLabelsGroup);
     sectionReference->setWidgetVisible("widgetLabels", false);
     m_optionWidget->appendWidget("sectionReference", sectionReference);
-
 
     KisOptionCollectionWidgetWithHeader *sectionWhatToFill =
         new KisOptionCollectionWidgetWithHeader(
@@ -651,7 +643,6 @@ QWidget* KisToolEncloseAndFill::createOptionWidget()
 
     m_optionWidget->appendWidget("buttonReset", buttonReset);
 
-    // Initialize widgets
     if (m_enclosingMethod == Rectangle) {
         m_buttonEnclosingMethodRectangle->setChecked(true);
     } else if (m_enclosingMethod == Ellipse) {
@@ -722,7 +713,6 @@ QWidget* KisToolEncloseAndFill::createOptionWidget()
     m_widgetLabels->setSelection(m_selectedColorLabels);
     m_checkBoxUseActiveLayer->setChecked(m_useActiveLayer);
 
-    // Make connections
     connect(optionButtonStripEnclosingMethod,
             SIGNAL(buttonToggled(KoGroupButton *, bool)),
             SLOT(slot_optionButtonStripEnclosingMethod_buttonToggled(
@@ -794,7 +784,7 @@ QWidget* KisToolEncloseAndFill::createOptionWidget()
     connect(buttonReset,
             SIGNAL(clicked()),
             SLOT(slot_buttonReset_clicked()));
-    
+
     return m_optionWidget;
 }
 
@@ -1141,7 +1131,7 @@ void KisToolEncloseAndFill::slot_optionButtonStripFillWith_buttonToggled(
         m_optionWidget->widgetAs<KisOptionCollectionWidgetWithHeader*>("sectionFillWith");
     sectionFillWith->setWidgetVisible("sliderPatternScale", visible);
     sectionFillWith->setWidgetVisible("angleSelectorPatternRotation", visible);
-    
+
     m_fillType = button == m_buttonFillWithFG ? FillWithForegroundColor
                                               : (button == m_buttonFillWithBG ? FillWithBackgroundColor : FillWithPattern);
 
@@ -1281,7 +1271,7 @@ void KisToolEncloseAndFill::slot_optionButtonStripReference_buttonToggled(
     KisOptionCollectionWidgetWithHeader *sectionReference =
         m_optionWidget->widgetAs<KisOptionCollectionWidgetWithHeader*>("sectionReference");
     sectionReference->setWidgetVisible("widgetLabels", button == m_buttonReferenceLabeled);
-    
+
     m_reference = button == m_buttonReferenceCurrent ? CurrentLayer
                                                      : (button == m_buttonReferenceAll ? AllLayers : ColorLabeledLayers);
 
@@ -1360,9 +1350,6 @@ void KisToolEncloseAndFill::slot_colorSpaceChanged(const KoColorSpace *colorSpac
     }
     const KoColorSpace *compositionSpace = colorSpace;
     if (currentNode() && currentNode()->paintDevice()) {
-        // Currently, composition source is enough to determine the available blending mode,
-        // because either destination is the same (paint layers), or composition happens
-        // in source space (masks).
         compositionSpace = currentNode()->paintDevice()->compositionSourceColorSpace();
     }
     m_comboBoxCustomCompositeOp->validate(compositionSpace);

@@ -86,8 +86,6 @@ void KisZoomableScrollBar::handleWrap( const QPoint &accel, const QPoint &mouseC
         KisToolUtils::setCursorPos(QPoint(x, y));
         lastKnownPosition = QPoint(x, y) - accel;
 
-        //Important -- teleportation needs to caught to prevent high-acceleration
-        //values from QCursor::setPos being read in this event.
         catchTeleportCorrection = true;
     }
 }
@@ -160,7 +158,6 @@ void KisZoomableScrollBar::mousePressEvent(QMouseEvent *event)
     setCursor(Qt::BlankCursor);
 }
 
-
 void KisZoomableScrollBar::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint globalMouseCoord = mapToGlobal(event->pos());
@@ -184,8 +181,6 @@ void KisZoomableScrollBar::mouseMoveEvent(QMouseEvent *event)
 
 void KisZoomableScrollBar::mouseReleaseEvent(QMouseEvent *event)
 {
-    //If there's nowhere for our slider to  go, we should
-    //still Q_EMIT the slider release value.
     if (maximum() == minimum()) {
         Q_EMIT sliderReleased();
     }

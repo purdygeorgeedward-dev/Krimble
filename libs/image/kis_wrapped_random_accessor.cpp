@@ -8,7 +8,6 @@
 
 #include "kis_wrapped_rect.h"
 
-
 KisWrappedRandomAccessor::KisWrappedRandomAccessor(KisTiledDataManager *ktm,
                                                    qint32 offsetX, qint32 offsetY,
                                                    bool writable,

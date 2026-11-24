@@ -10,9 +10,6 @@
 #include "KisBezierUtils.h"
 #include "KisBezierPatchParamSpaceUtils.h"
 
-/**
- * A simple class that maps param-space point of a bezier patch into the source-range
- */
 struct KisBezierPatchParamToSourceSampler
 {
     using Range = KisBezierUtils::Range;
@@ -79,4 +76,4 @@ struct KisBezierPatchParamToSourceSampler
     }
 };
 
-#endif // KISBEZIERPATCHPARAMTOSOURCESAMPLER_H
+#endif

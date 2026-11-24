@@ -73,7 +73,6 @@ KisActionManager::~KisActionManager()
            QDomElement a = doc.createElement("Action");
            a.setAttribute("name", action->objectName());
 
-           // But seriously, XML is the worst format ever designed
            auto addElement = [&](QString title, QString content) {
                QDomElement newNode = doc.createElement(title);
                QDomText    newText = doc.createTextNode(content);
@@ -111,12 +110,6 @@ void KisActionManager::setView(QPointer<KisView> imageView)
 
 void KisActionManager::slotActionAddedToCollection(QAction *action)
 {
-    /**
-     * Small hack alert: not all the actions are still created by the manager and
-     * immediately added to the action collection. Some plugins add actions
-     * directly to the action collection when a document is created. Here we
-     * catch these cases
-     */
     KisActionRegistry::instance()->updateShortcut(action->objectName(), action);
 }
 
@@ -154,27 +147,21 @@ KisAction *KisActionManager::actionByName(const QString &name) const
     return 0;
 }
 
-
 KisAction *KisActionManager::createAction(const QString &name)
 {
-    KisAction *a = actionByName(name); // Check if the action already exists
+    KisAction *a = actionByName(name);
 
     if (a) {
         dbgAction << name << "already exists";
         return a;
     }
 
-    // There is some tension here. KisActionManager is supposed to be in control
-    // of global actions, but these actions are supposed to be duplicated. We
-    // will add them to the KisActionRegistry for the time being so we can get
-    // properly categorized shortcuts.
     a = new KisAction();
 
     KisActionRegistry *actionRegistry = KisActionRegistry::instance();
 
-    // Add extra properties
     actionRegistry->propertizeAction(name, a);
-    bool ok; // We will skip this check
+    bool ok;
     int activationFlags = actionRegistry->getActionProperty(name, "activationFlags").toInt(&ok, 2);
     int activationConditions = actionRegistry->getActionProperty(name, "activationConditions").toInt(&ok, 2);
     a->setActivationFlags((KisAction::ActivationFlags) activationFlags);
@@ -186,7 +173,6 @@ KisAction *KisActionManager::createAction(const QString &name)
 
 void KisActionManager::updateGUI()
 {
-    //TODO other flags
     KisAction::ActivationFlags flags;
 
     KisImageWSP image;
@@ -200,8 +186,6 @@ void KisActionManager::updateGUI()
         node = d->viewManager->activeNode();
         selectionManager = d->viewManager->selectionManager();
 
-        // if there are no views, that means no document is open.
-        // we cannot have nodes (selections), devices, or documents without a view
         if ( d->viewManager->viewCount() > 0 )
         {
             image = d->viewManager->image();
@@ -235,11 +219,8 @@ void KisActionManager::updateGUI()
 
     }
 
-    // is there a selection/mask?
-    // you have to have at least one view (document) open for this to be true
     if (node) {
 
-        // if a node exists, we know there is an active layer as well
         flags |= KisAction::ACTIVE_NODE;
 
         layer = qobject_cast<KisLayer*>(node.data());
@@ -250,7 +231,6 @@ void KisActionManager::updateGUI()
         if (node->inherits("KisTransparencyMask")) {
             flags |= KisAction::ACTIVE_TRANSPARENCY_MASK;
         }
-
 
         if (layer && layer->inherits("KisShapeLayer")) {
             flags |= KisAction::ACTIVE_SHAPE_LAYER;
@@ -309,7 +289,6 @@ void KisActionManager::updateGUI()
         conditions |= KisAction::OPENGL_ENABLED;
     }
 
-    // loop through all actions in action manager and determine what should be enabled
     Q_FOREACH (QPointer<KisAction> action, d->actions) {
         bool enable;
         if (action) {
@@ -317,7 +296,7 @@ void KisActionManager::updateGUI()
                 enable = true;
             }
             else {
-                enable = action->activationFlags() & flags; // combine action flags with updateGUI flags
+                enable = action->activationFlags() & flags;
             }
 
             enable = enable && (int)(action->activationConditions() & conditions) == (int)action->activationConditions();

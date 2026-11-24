@@ -19,10 +19,6 @@ public:
     KisSpinBoxUnitManager* buildUnitManager(QObject* parent) override;
 };
 
-/*!
- * \brief The KisDocumentAwareSpinBoxUnitManager class is a KisSpinBoxUnitManager that is able to connect to the current document to compute transformation for document relative units (the ones that depend of the resolution, or the size in pixels of the image).
- * \see KisSpinBoxUnitManager
- */
 class KRITAUI_EXPORT KisDocumentAwareSpinBoxUnitManager : public KisSpinBoxUnitManager
 {
     Q_OBJECT
@@ -32,27 +28,22 @@ public:
     enum PixDir {
         PIX_DIR_X,
         PIX_DIR_Y
-    }; //in case the image has not the same x and y resolution, indicate on which direction get the resolution.
+    };
 
-    //! \brief configure a KisDocumentAwareSpinBoxUnitManager for the given spinbox (make the manager a child of the spinbox and attach it to the spinbox).
     static void setDocumentAwarenessToExistingUnitSpinBox(KisDoubleParseUnitSpinBox* spinBox, bool setUnitFromOutsideToggle = false);
 
-    //! \brief create a unitSpinBox that is already document aware.
     static KisDoubleParseUnitSpinBox* createUnitSpinBoxWithDocumentAwareness(QWidget* parent = 0);
 
     KisDocumentAwareSpinBoxUnitManager(QObject *parent = 0, int pPixDir = PIX_DIR_X);
 
-    //! \see KisSpinBoxUnitManager
     qreal getConversionFactor(int dim, QString psymbol) const override;
-    //! \see KisSpinBoxUnitManager
     qreal getConversionConstant(int dim, QString symbol) const override;
 
 protected:
 
-    //! \see KisSpinBoxUnitManager
     virtual bool hasPercent(int unitDim) const override;
 
     PixDir pixDir;
 };
 
-#endif // KISDOCUMENTAWARESPINBOXUNITMANAGER_H
+#endif

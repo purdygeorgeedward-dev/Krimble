@@ -23,18 +23,13 @@ public:
 
     qreal operator()(qreal x, qreal y) const
     {
-        // Get the coordinates in template space
         QPointF p(
             x + std::round(m_template.screenPosition().x()),
             y + std::round(m_template.screenPosition().y())
         );
-        // Get the coordinates in screen space
         const QPointF screenPos = m_template.templateToScreenTransform().map(p);
-        // Get x/y indices in macrocell units or the current macrocell tile
-        // position
         const qreal a = -std::floor(screenPos.x() / static_cast<qreal>(m_template.macrocellSize().width()));
         const qreal b = -std::floor(screenPos.y() / static_cast<qreal>(m_template.macrocellSize().height()));
-        // Get the correspondent point in the (0, 0) macrocell tile
         p += QPointF(a * m_template.v1().x() + b * m_template.v2().x(), a * m_template.v1().y() + b * m_template.v2().y());
 
         const int i = static_cast<int>(std::floor(p.x())) + m_template.originOffset().x();
@@ -57,18 +52,13 @@ public:
 
     qreal operator()(qreal x, qreal y) const
     {
-        // Get the coordinates in screen space
         qreal xx, yy;
         m_template.imageToScreenTransform().map(x, y, &xx, &yy);
-        // Convert to coordinate inside the macrocell
         xx -= std::floor(xx / m_template.macrocellSize().width()) * m_template.macrocellSize().width();
         yy -= std::floor(yy / m_template.macrocellSize().height()) * m_template.macrocellSize().height();
-        // Get template coordinates
         QPointF templatePoint = m_template.screenToTemplateTransform().map(QPointF(xx, yy)) +
                                 m_template.originOffset();
-        
-        // Bilinear interpolation
-        // Get integer coordinates of the template points to use in the interpolation
+
         const int ix0 =
             templatePoint.x() < 0.0 ? m_template.templateSize().width() - 1 :
                 (templatePoint.x() >= m_template.templateSize().width() ? 0.0 :
@@ -79,19 +69,15 @@ public:
                     static_cast<int>(std::floor(templatePoint.y())));
         const int ix1 = ix0 == m_template.templateSize().width() - 1 ? 0 : ix0 + 1;
         const int iy1 = iy0 == m_template.templateSize().height() - 1 ? 0 : iy0 + 1;
-        // Get the template values for the points
         const qreal topLeftValue = m_template.templateData()[iy0 * m_template.templateSize().width() + ix0];
         const qreal topRightValue = m_template.templateData()[iy0 * m_template.templateSize().width() + ix1];
         const qreal bottomLeftValue = m_template.templateData()[iy1 * m_template.templateSize().width() + ix0];
         const qreal bottomRightValue = m_template.templateData()[iy1 * m_template.templateSize().width() + ix1];
-        // Get the fractional part of the point to use in the interpolation
         const qreal fractionalX = templatePoint.x() - std::floor(templatePoint.x());
         const qreal fractionalY = templatePoint.y() - std::floor(templatePoint.y());
-        // Perform bilinear interpolation
         const qreal a = topLeftValue * (1.0 - fractionalX) + topRightValue * fractionalX;
         const qreal b = bottomLeftValue * (1.0 - fractionalX) + bottomRightValue * fractionalX;
         const qreal c = a * (1.0 - fractionalY) + b * fractionalY;
-        // ----
         return c;
     }
 

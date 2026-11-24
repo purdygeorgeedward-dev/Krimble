@@ -21,11 +21,6 @@ bool KisCanvasUpdatesCompressor::putUpdateInfo(KisUpdateInfoSP info)
                 levelOfDetail == (*it)->levelOfDetail() &&
                 newUpdateRect.contains((*it)->dirtyImageRect())) {
 
-                /**
-                 * We should always remove the overridden update and put 'info' to the end
-                 * of the queue. Otherwise, the updates will become reordered and the canvas
-                 * may have tiles artifacts with "outdated" data
-                 */
                 it = m_updatesList.erase(it);
             } else {
                 ++it;

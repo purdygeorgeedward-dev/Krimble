@@ -36,10 +36,9 @@ public:
 
     void mouseMoveEvent(KoPointerEvent* event) override;
 
-
 protected:
     void paint(QPainter& gc, const KoViewConverter &converter) override;
-    
+
     QWidget* createOptionWidget() override;
 
 private:
@@ -88,7 +87,6 @@ private:
     KisToolMultiHandConfigWidget* customUI;
 };
 
-
 class KisToolMultiBrushFactory : public KisToolBrushFactory
 {
 
@@ -98,7 +96,6 @@ public:
 
         setToolTip(i18n("Multibrush Tool"));
 
-        // Temporarily
         setSection(ToolBoxSection::Shape);
         setIconName(koIconNameCStr("krita_tool_multihand"));
         setShortcut(QKeySequence(Qt::Key_Q));
@@ -114,4 +111,4 @@ public:
 
 };
 
-#endif /* __KIS_TOOL_MULTIHAND_H */
+#endif

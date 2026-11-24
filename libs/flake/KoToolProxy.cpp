@@ -39,14 +39,13 @@
 #include "kis_global.h"
 #include "kis_algebra_2d.h"
 
-
 KoToolProxyPrivate::KoToolProxyPrivate(KoToolProxy *p)
     : parent(p)
 {
     scrollTimer.setInterval(100);
 }
 
-void KoToolProxyPrivate::timeout() // Auto scroll the canvas
+void KoToolProxyPrivate::timeout()
 {
     Q_ASSERT(controller);
 
@@ -61,14 +60,12 @@ void KoToolProxyPrivate::timeout() // Auto scroll the canvas
     const QPointF mouseAreaBottomRightDoc = parent->widgetToDocument(mouseAreaBottomRightWidget);
     QRectF mouseAreaDoc(mouseAreaTopLeftDoc, mouseAreaBottomRightDoc);
 
-
     const QPointF oldPreferredCenter = controller->preferredCenter();
 
     controller->ensureVisibleDoc(mouseAreaDoc, true);
 
     const QPointF newPreferredCenter = controller->preferredCenter();
 
-    // if scrolling has happened, then just return!
     if (oldPreferredCenter == newPreferredCenter) {
         return;
     }
@@ -88,7 +85,6 @@ void KoToolProxyPrivate::checkAutoScroll(const KoPointerEvent &event)
     if (!event.isAccepted()) return;
     if (!isToolPressed) return;
     if (event.buttons() != Qt::LeftButton) return;
-
 
     widgetScrollPointDoc = event.point;
 
@@ -167,7 +163,6 @@ void KoToolProxy::countMultiClick(KoPointerEvent *ev, int eventType)
     }
 
     if (d->multiClickCount && d->multiClickTimeStamp.elapsed() < QApplication::doubleClickInterval()) {
-        // One more multiclick;
         d->multiClickCount++;
     } else {
         d->multiClickTimeStamp.start();
@@ -198,7 +193,6 @@ void KoToolProxy::countMultiClick(KoPointerEvent *ev, int eventType)
 
 void KoToolProxy::tabletEvent(QTabletEvent *event, const QPointF &point)
 {
-    // We get these events exclusively from KisToolProxy - accept them
     event->accept();
 
     KoInputDevice id(KoInputDevice::convertDeviceType(event),
@@ -221,7 +215,7 @@ void KoToolProxy::tabletEvent(QTabletEvent *event, const QPointF &point)
             d->activeTool->mouseMoveEvent(&ev);
         d->checkAutoScroll(ev);
     default:
-        ; // ignore the rest.
+        ;
     }
 
     d->mouseLeaveWorkaround = true;
@@ -235,9 +229,6 @@ void KoToolProxy::mousePressEvent(KoPointerEvent *ev)
     KoToolManager::instance()->priv()->switchInputDevice(id);
     d->mouseDownPoint = ev->pos();
 
-
-    // this tries to make sure another mouse press event doesn't happen
-    // before a release event happens
     if (d->isToolPressed) {
         mouseReleaseEvent(ev);
         d->scrollTimer.stop();
@@ -272,7 +263,6 @@ void KoToolProxy::mouseDoubleClickEvent(QMouseEvent *event, const QPointF &point
 
 void KoToolProxy::mouseDoubleClickEvent(KoPointerEvent *event)
 {
-    // let us handle it as any other mousepress (where we then detect multi clicks
     mousePressEvent(event);
 }
 
@@ -418,7 +408,6 @@ void KoToolProxy::setActiveTool(KoToolBase *tool)
 
 void KoToolProxy::touchEvent(QTouchEvent* event, const QPointF& point)
 {
-    // only one "touchpoint" events should be here
     KoPointerEvent ev(event, point);
 
     if (!d->activeTool) return;
@@ -434,7 +423,7 @@ void KoToolProxy::touchEvent(QTouchEvent* event, const QPointF& point)
     case Qt::TouchPointReleased:
         d->activeTool->mouseReleaseEvent(&ev);
         break;
-    default: // don't care
+    default:
         ;
     }
 
@@ -533,7 +522,6 @@ void KoToolProxy::processEvent(QEvent *e) const
             && (static_cast<QKeyEvent*>(e)->modifiers()==Qt::NoModifier ||
                 static_cast<QKeyEvent*>(e)->modifiers()==Qt::ShiftModifier
 #ifdef Q_OS_WIN
-            // we should disallow AltGr shortcuts if a text box is in focus
             || (static_cast<QKeyEvent*>(e)->modifiers()==(Qt::AltModifier | Qt::ControlModifier) &&
                 static_cast<QKeyEvent*>(e)->key() < Qt::Key_Escape)
 #endif
@@ -575,5 +563,4 @@ KoToolProxyPrivate *KoToolProxy::priv()
     return d;
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include "moc_KoToolProxy.cpp"

@@ -46,4 +46,4 @@ private:
     KisMirrorAxisSP decoration() const;
 };
 
-#endif // KIS_MIRROR_MANAGER_H
+#endif

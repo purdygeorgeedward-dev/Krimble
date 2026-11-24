@@ -34,7 +34,6 @@ struct KisAnimTimelineTimeHeader::Private
         , fps(12)
         , lastPressSectionIndex(-1)
     {
-        // Compressed configuration writing..
         const int compressorDelayMS = 100;
         zoomSaveCompressor.reset(
                     new KisSignalCompressorWithParam<qreal>(compressorDelayMS,
@@ -140,12 +139,9 @@ void KisAnimTimelineTimeHeader::setActionManager(KisActionManager *actionManager
     }
 }
 
-
 void KisAnimTimelineTimeHeader::paintEvent(QPaintEvent *e)
 {
     QHeaderView::paintEvent(e);
-
-    // Copied from Qt 4.8...
 
     if (count() == 0)
         return;
@@ -179,17 +175,11 @@ void KisAnimTimelineTimeHeader::paintEvent(QPaintEvent *e)
     start = qMin(start, end);
     end = qMax(tmp, end);
 
-    ///////////////////////////////////////////////////
-    /// Krita specific code. We should update in spans!
-
     const int spanStart = start - start % m_d->fps;
     const int spanEnd = end - end % m_d->fps + m_d->fps - 1;
 
     start = spanStart;
     end = qMin(count() - 1, spanEnd);
-
-    /// End of Krita specific code
-    ///////////////////////////////////////////////////
 
     QRect currentSectionRect;
     int logical;
@@ -197,9 +187,6 @@ void KisAnimTimelineTimeHeader::paintEvent(QPaintEvent *e)
     const int height = viewport()->height();
 
     for (int i = start; i <= end; ++i) {
-        // DK: cannot copy-paste easily...
-        // if (d->isVisualIndexHidden(i))
-        //     continue;
         painter.save();
         logical = logicalIndex(i);
         if (orientation() == Qt::Horizontal) {
@@ -222,7 +209,6 @@ void KisAnimTimelineTimeHeader::paintEvent(QPaintEvent *e)
 
 void KisAnimTimelineTimeHeader::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
-    // Base paint event should paint nothing in the sections area
 
     Q_UNUSED(painter);
     Q_UNUSED(rect);
@@ -312,7 +298,6 @@ int KisAnimTimelineTimeHeader::Private::calcSpanWidth(const int sectionWidth) {
         }
 
     } while (splitHappened);
-
 
     if (sectionWidth > minWidth) {
         spanWidth = 1;
@@ -486,12 +471,6 @@ void KisAnimTimelineTimeHeader::mousePressEvent(QMouseEvent *e)
                 model()->setHeaderData(logical, orientation(), QVariant(int(SEEK_FINALIZE | SEEK_PUSH_AUDIO)), KisTimeBasedItemModel::ScrubToRole);
             }
 
-            /* Fix for safe-assert involving kis_animation_curve_docker.
-             * There should probably be a more elegant way for dealing
-             * with reused timeline_ruler_header instances in other
-             * timeline views instead of simply animation_frame_view.
-             *
-             * This works for now though... */
             if(!m_d->actionMan){
                 return;
             }
@@ -507,7 +486,7 @@ void KisAnimTimelineTimeHeader::mousePressEvent(QMouseEvent *e)
 
             menu.addSeparator();
 
-            {   //Frame Columns Submenu
+            {
                 QMenu *frames = menu.addMenu(i18nc("@item:inmenu", "Keyframe Columns"));
                 KisActionManager::safePopulateMenu(frames, "insert_column_left", m_d->actionMan);
                 KisActionManager::safePopulateMenu(frames, "insert_column_right", m_d->actionMan);
@@ -515,7 +494,7 @@ void KisAnimTimelineTimeHeader::mousePressEvent(QMouseEvent *e)
                 KisActionManager::safePopulateMenu(frames, "insert_multiple_columns", m_d->actionMan);
             }
 
-            {   //Hold Columns Submenu
+            {
                 QMenu *hold = menu.addMenu(i18nc("@item:inmenu", "Hold Frame Columns"));
                 KisActionManager::safePopulateMenu(hold, "insert_hold_column", m_d->actionMan);
                 KisActionManager::safePopulateMenu(hold, "remove_hold_column", m_d->actionMan);

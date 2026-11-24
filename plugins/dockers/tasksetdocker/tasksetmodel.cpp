@@ -54,25 +54,24 @@ QVariant TasksetModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-QVariant TasksetModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
+QVariant TasksetModel::headerData(int , Qt::Orientation , int ) const
 {
     return i18n("Action");
 }
 
-
-int TasksetModel::rowCount(const QModelIndex& /*parent*/) const
+int TasksetModel::rowCount(const QModelIndex& ) const
 {
     return m_steps.count();
 }
 
-int TasksetModel::columnCount(const QModelIndex& /*parent*/) const
+int TasksetModel::columnCount(const QModelIndex& ) const
 {
     return 1;
 }
 
-Qt::ItemFlags TasksetModel::flags(const QModelIndex& /*index*/) const
+Qt::ItemFlags TasksetModel::flags(const QModelIndex& ) const
 {
-    Qt::ItemFlags flags = /*Qt::ItemIsSelectable |*/ Qt::ItemIsEnabled;
+    Qt::ItemFlags flags = Qt::ItemIsEnabled;
     return flags;
 }
 

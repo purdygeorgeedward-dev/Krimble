@@ -13,7 +13,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisViewManager.h"
 #include <QPrinter>
 
@@ -239,7 +238,7 @@ public:
     KisTypeOptionsBar *typeOptionsBar {nullptr};
 
     KisSignalAutoConnectionsStore viewConnections;
-    KSelectAction *actionAuthor {nullptr}; // Select action for author profile.
+    KSelectAction *actionAuthor {nullptr};
     KisAction *showPixelGrid {nullptr};
 
     QDeadlineTimer zoomRotationMessageTimer;
@@ -292,17 +291,14 @@ KisViewManager::KisViewManager(QWidget *parent, KisKActionCollection *_actionCol
     createActions();
     setupManagers();
 
-    // These initialization functions must wait until KisViewManager ctor is complete.
     d->statusBar.setup();
     d->persistentImageProgressUpdater =
             d->statusBar.progressUpdater()->startSubtask(1, "", true);
-    // reset state to "completed"
     d->persistentImageProgressUpdater->setRange(0,100);
     d->persistentImageProgressUpdater->setValue(100);
 
     d->persistentUnthreadedProgressUpdater =
             d->statusBar.progressUpdater()->startSubtask(1, "", true);
-    // reset state to "completed"
     d->persistentUnthreadedProgressUpdater->setRange(0,100);
     d->persistentUnthreadedProgressUpdater->setValue(100);
 
@@ -312,14 +308,10 @@ KisViewManager::KisViewManager(QWidget *parent, KisKActionCollection *_actionCol
     d->persistentUnthreadedProgressUpdaterRouter->setAutoNestNames(true);
     d->persistentUnthreadedProgressUpdaterRouter->start();
 
-    // just a clumsy way to mark the updater as completed, the subtask will
-    // be automatically deleted on completion...
     d->persistentUnthreadedProgressUpdaterRouter->startSubtask()->setProgress(100);
 
     d->controlFrame.setup(parent);
 
-
-    //Check to draw scrollbars after "Canvas only mode" toggle is created.
     this->showHideScrollbars();
 
     KoToolManager::instance()->initializeToolActions();
@@ -357,10 +349,8 @@ KisViewManager::KisViewManager(QWidget *parent, KisKActionCollection *_actionCol
     d->typeOptionsBar = new KisTypeOptionsBar(this);
     new KisBrushColorWells(this);
 
-    // Initialize the old imagesize plugin
     new ImageSize(this);
 }
-
 
 KisViewManager::~KisViewManager()
 {
@@ -375,7 +365,7 @@ KisViewManager::~KisViewManager()
     }
 
     cfg.writeEntry("baseLength", KisResourceItemChooserSync::instance()->baseLength());
-    cfg.writeEntry("CanvasOnlyActive", false); // We never restart in CanvasOnlyMode
+    cfg.writeEntry("CanvasOnlyActive", false);
     delete d;
 }
 
@@ -431,8 +421,6 @@ KisKActionCollection *KisViewManager::actionCollection() const
 
 void KisViewManager::slotViewAdded(KisView *view)
 {
-    // WARNING: this slot is called even when a view from another main windows is added!
-    //          Don't expect \p view be a child of this view manager!
 
     if (view->viewManager() == this && viewCount() == 0) {
         d->statusBar.showAllStatusBarItems();
@@ -441,8 +429,6 @@ void KisViewManager::slotViewAdded(KisView *view)
 
 void KisViewManager::slotViewRemoved(KisView *view)
 {
-    // WARNING: this slot is called even when a view from another main windows is removed!
-    //          Don't expect \p view be a child of this view manager!
 
     if (view->viewManager() == this && viewCount() == 0) {
         d->statusBar.hideAllStatusBarItems();
@@ -469,14 +455,11 @@ void KisViewManager::setCurrentView(KisView *view)
     d->currentImageView = imageView;
 
     if (imageView) {
-        /// idle tasks managed should be reconnected to the new image the first,
-        /// because other dockers may request it to recalculate stuff
         d->idleTasksManager.setImage(d->currentImageView->image());
 
         d->softProof->setChecked(imageView->softProofing());
         d->gamutCheck->setChecked(imageView->gamutCheck());
 
-        // Wait for the async image to have loaded
         KisDocument* doc = imageView->document();
 
         if (KisConfig(true).readEntry<bool>("EnablePositionLabel", false)) {
@@ -544,7 +527,6 @@ void KisViewManager::setCurrentView(KisView *view)
         d->viewConnections.addUniqueConnection(d->softProof, SIGNAL(toggled(bool)), view, SLOT(slotSoftProofing(bool)) );
         d->viewConnections.addUniqueConnection(d->gamutCheck, SIGNAL(toggled(bool)), view, SLOT(slotGamutCheck(bool)) );
 
-        // set up progress reporting
         doc->image()->compositeProgressProxy()->addProxy(d->persistentImageProgressUpdater);
         d->viewConnections.addUniqueConnection(&d->statusBar, SIGNAL(sigCancellationRequested()), doc->image(), SLOT(requestStrokeCancellation()));
 
@@ -720,7 +702,6 @@ bool KisViewManager::selectionEditable()
             return mask->isEditable();
         }
     }
-    // global selection is always editable
     return true;
 }
 
@@ -785,7 +766,6 @@ void KisViewManager::createActions()
     tAction->setAutoRepeat(false);
     connect(tAction, SIGNAL(toggled(bool)), this, SLOT(switchCanvasOnly(bool)));
 
-    //Workaround, by default has the same shortcut as mirrorCanvas
     KisAction *a = dynamic_cast<KisAction*>(actionCollection()->action("format_italic"));
     if (a) {
         a->setDefaultShortcut(QKeySequence());
@@ -831,9 +811,6 @@ void KisViewManager::createActions()
 
 void KisViewManager::setupManagers()
 {
-    // Create the managers for filters, selections, layers etc.
-    // XXX: When the current layer changes, call updateGUI on all
-    // managers
 
     d->filterManager.setup(actionCollection(), actionManager());
 
@@ -905,7 +882,6 @@ bool KisViewManager::KisViewManagerPrivate::blockUntilOperationsFinishedImpl(Kis
     return dialog.result() == QDialog::Accepted;
 }
 
-
 bool KisViewManager::blockUntilOperationsFinished(KisImageSP image)
 {
     return d->blockUntilOperationsFinishedImpl(image, false);
@@ -949,13 +925,11 @@ void KisViewManager::slotCreateCopy()
     mw->addViewAndNotifyLoadingCompleted(doc);
 }
 
-
 QMainWindow* KisViewManager::qtMainWindow() const
 {
     if (d->mainWindow)
         return d->mainWindow;
 
-    //Fallback for when we have not yet set the main window.
     QMainWindow* w = qobject_cast<QMainWindow*>(qApp->activeWindow());
     if(w)
         return w;
@@ -978,8 +952,6 @@ QString KisViewManager::canonicalPath()
 {
 #ifdef Q_OS_ANDROID
     QString path = QFileInfo(document()->localFilePath()).canonicalPath();
-    // if the path is based on a document tree then a directory would be returned. So check if it exists and more
-    // importantly check if we have permissions
     if (QDir(path).exists()) {
         return path;
     } else {
@@ -1012,21 +984,16 @@ void KisViewManager::slotSaveIncremental()
 
     QString fileName = QFileInfo(document()->localFilePath()).fileName();
 
-    // Find current version filenames
-    // v v Regexp to find incremental versions in the filename, taking our backup scheme into account as well
-    // Considering our incremental version and backup scheme, format is filename_001~001.ext
     QRegularExpression regex("_(\\d{1,4})([a-z])?([\\.|~])");
     QRegularExpressionMatch match;
     foundVersion = fileName.contains(regex, &match);
     isBackup = foundVersion ? match.captured(3) == "~" : false;
 
-    // If the filename has a version, prepare it for incrementation
     if (foundVersion) {
         version = match.captured(1);
         letter = match.captured(2);
     } else {
-        // ...else, simply add a version to it so the next loop works
-        QRegularExpression regex2("\\.\\w{2,4}$");  //  Heuristic to find file extension
+        QRegularExpression regex2("\\.\\w{2,4}$");
         QRegularExpressionMatch match = regex2.match(fileName);
         QString extensionPlusVersion = match.captured(0);
         extensionPlusVersion.prepend(version);
@@ -1034,7 +1001,6 @@ void KisViewManager::slotSaveIncremental()
         fileName.replace(regex2, extensionPlusVersion);
     }
 
-    // Prepare the base for new version filename
     int intVersion = version.toInt(0);
     ++intVersion;
     QString baseNewVersion = QString::number(intVersion);
@@ -1042,7 +1008,6 @@ void KisViewManager::slotSaveIncremental()
         baseNewVersion.prepend("0");
     }
 
-    // Check if the file exists under the new name and search until options are exhausted (test appending a to z)
     do {
         newVersion = baseNewVersion;
         newVersion.prepend("_");
@@ -1063,7 +1028,7 @@ void KisViewManager::slotSaveIncremental()
                 letter = 'a';
             }
         }
-    } while (fileAlreadyExists && letter != "{");  // x, y, z, {...
+    } while (fileAlreadyExists && letter != "{");
 
     if (letter == "{") {
         QMessageBox::critical(mainWindow(), i18nc("@title:window", "Couldn't save incremental version"), i18n("Alternative names exhausted, try manually saving with a higher number"));
@@ -1095,17 +1060,14 @@ void KisViewManager::slotSaveIncrementalBackup()
     QString path = canonicalPath();
     QString fileName = QFileInfo(document()->localFilePath()).fileName();
 
-    // First, discover if working on a backup file, or a normal file
     QRegularExpression regex("~(\\d{1,4})([a-z])?\\.");
     QRegularExpressionMatch match;
     workingOnBackup = fileName.contains(regex, &match);
 
     if (workingOnBackup) {
-        // Try to save incremental version (of backup), use letter for alt versions
         version = match.captured(1);
         letter = match.captured(2);
 
-        // Prepare the base for new version filename
         int intVersion = version.toInt(0);
         ++intVersion;
         QString baseNewVersion = QString::number(intVersion);
@@ -1114,7 +1076,6 @@ void KisViewManager::slotSaveIncrementalBackup()
             baseNewVersion.prepend("0");
         }
 
-        // Check if the file exists under the new name and search until options are exhausted (test appending a to z)
         do {
             newVersion = baseNewVersion;
             newVersion.prepend("~");
@@ -1131,7 +1092,7 @@ void KisViewManager::slotSaveIncrementalBackup()
                     letter = 'a';
                 }
             }
-        } while (fileAlreadyExists && letter != "{");  // x, y, z, {...
+        } while (fileAlreadyExists && letter != "{");
 
         if (letter == "{") {
             QMessageBox::critical(mainWindow(), i18nc("@title:window", "Couldn't save incremental backup"), i18n("Alternative names exhausted, try manually saving with a higher number"));
@@ -1140,19 +1101,17 @@ void KisViewManager::slotSaveIncrementalBackup()
         QFile::copy(path + '/' + fileName, path + '/' + backupFileName);
         document()->saveAs(path + '/' + fileName, document()->mimeType(), true);
     }
-    else { // if NOT working on a backup...
-        // Navigate directory searching for latest backup version, ignore letters
+    else {
         const quint8 HARDCODED_DIGIT_COUNT = 3;
         QString baseNewVersion = "000";
         QString backupFileName = QFileInfo(document()->localFilePath()).fileName();
-        QRegularExpression regex2("\\.\\w{2,4}$");  //  Heuristic to find file extension
+        QRegularExpression regex2("\\.\\w{2,4}$");
         QRegularExpressionMatch match = regex2.match(fileName);
         QString extensionPlusVersion = match.captured(0);
         extensionPlusVersion.prepend(baseNewVersion);
         extensionPlusVersion.prepend("~");
         backupFileName.replace(regex2, extensionPlusVersion);
 
-        // Save version with 1 number higher than the highest version found ignoring letters
         do {
             newVersion = baseNewVersion;
             newVersion.prepend("~");
@@ -1160,7 +1119,6 @@ void KisViewManager::slotSaveIncrementalBackup()
             backupFileName.replace(regex, newVersion);
             fileAlreadyExists = QFile(path + '/' + backupFileName).exists();
             if (fileAlreadyExists) {
-                // Prepare the base for new version filename, increment by 1
                 int intVersion = baseNewVersion.toInt(0);
                 ++intVersion;
                 baseNewVersion = QString::number(intVersion);
@@ -1170,7 +1128,6 @@ void KisViewManager::slotSaveIncrementalBackup()
             }
         } while (fileAlreadyExists);
 
-        // Save both as backup and on current file for interapplication workflow
         document()->setFileBatchMode(true);
         QFile::copy(path + '/' + fileName, path + '/' + backupFileName);
         document()->saveAs(path + '/' + fileName, document()->mimeType(), true);
@@ -1180,10 +1137,6 @@ void KisViewManager::slotSaveIncrementalBackup()
 
 void KisViewManager::disableControls()
 {
-    // prevents possible crashes, if somebody changes the paintop during dragging by using the mousewheel
-    // this is for Bug 250944
-    // the solution blocks all wheel, mouse and key event, while dragging with the freehand tool
-    // see KisToolFreehand::initPaint() and endPaint()
     d->controlFrame.paintopBox()->installEventFilter(&d->blockingEventFilter);
     Q_FOREACH (QObject* child, d->controlFrame.paintopBox()->children()) {
         child->installEventFilter(&d->blockingEventFilter);
@@ -1232,13 +1185,6 @@ void KisViewManager::switchCanvasOnly(bool toggled)
     }
 
 #ifdef Q_OS_ANDROID
-    // On Android, expanded tool bars will crash when canvas-only mode is
-    // toggled. To avoid this, we go looking for expanded toolbars and close
-    // them instead of switching the mode and hitting a crash. Note that this
-    // only works properly because we turn off main window animations on
-    // Android, since that means clicking the extension button will instantly
-    // hide the menu. With animations, the user could still trigger a crash if
-    // they tried switching the mode while the extension animation is running.
     QList<QToolBar *> toolBars = main->findChildren<QToolBar *>();
     bool wasToolBarPopupOpen = false;
     for (QToolBar *toolBar : toolBars) {
@@ -1276,45 +1222,13 @@ void KisViewManager::switchCanvasOnly(bool toggled)
                                              !main->canvasDetached();
 
     if (useCanvasOffsetCompensation) {
-        // The offset is calculated in two steps; this is the first step.
         if (toggled) {
-            /**
-             *  Capture the initial canvas position.
-             *
-             *  Going into a fullscreen mode is a multistage process that includes making
-             *  the window fullscreen. It means that it is not easy to catch a moment,
-             *  when the new state is "fully established". First, it hides the dockers, then
-             *  it hides the menu, then it makes the window fullscreen (hiding titlebar
-             *  and "start" menu). And these actions happen in the course of dozens of
-             *  milliseconds.
-             *
-             *  And since we cannot catch the moment when the new state is "fully
-             *  established" we use a heuristic (read "a hack") that just pre-scrolls
-             *  the canves into an expected offset. The prescroll offset is saved
-             *  **globally**, so that when exiting the fullscreen mode we would know
-             *  how big the new offset should (since we cannot get the real value of
-             *  it).
-             *
-             *  Here are the list of cases when this approach fails:
-             *
-             *  1) When the fullscreen window migrates to a different screen,
-             *     potentially with a different resolution (while being fullscreen)
-             *
-             *  2) When dockers or toolbars are visible, and the user resizes
-             *     them while the window is fullscreen.
-             *
-             *  In both the cases the saved offset in `d->canvasOnlyOffsetCompensation`
-             *  becomes invalid and the window jumps in an offset direction on exiting
-             *  the fullscreen mode.
-             */
             QPoint origin;
             if (toggleFullscreen) {
-                // We're windowed, so also capture the position of the window in the screen.
                 origin = main->geometry().topLeft() - main->screen()->geometry().topLeft();
             }
             d->canvasOnlyOffsetCompensation = d->currentImageView->mapTo(main, origin);
         } else {
-            // Restore the original canvas position. The result is more stable if we pan before showing the UI elements.
             d->currentImageView->canvasController()->pan(- d->canvasOnlyOffsetCompensation);
         }
     }
@@ -1352,8 +1266,6 @@ void KisViewManager::switchCanvasOnly(bool toggled)
         }
     }
 
-    // QT in windows does not return to maximized upon 4th tab in a row
-    // https://bugreports.qt.io/browse/QTBUG-57882, https://bugreports.qt.io/browse/QTBUG-52555, https://codereview.qt-project.org/#/c/185016/
     if (toggleFullscreen) {
         if(toggled) {
             main->setWindowState( main->windowState() | Qt::WindowFullScreen);
@@ -1377,7 +1289,6 @@ void KisViewManager::switchCanvasOnly(bool toggled)
     }
 
     if (options.hideToolbarFullscreen) {
-        // We already went searching for these on Android above.
 #ifndef Q_OS_ANDROID
         QList<QToolBar*> toolBars = main->findChildren<QToolBar*>();
 #endif
@@ -1403,21 +1314,11 @@ void KisViewManager::switchCanvasOnly(bool toggled)
             d->canvasOnlyOptions &&
             *d->canvasOnlyOptions == options) {
 
-            /**
-             * Restore state uses the current layout state of the window,
-             * but removal of the menu will be backed into this state after
-             * receiving of some events in the event queue. Hence we cannot
-             * apply the application of the saved state directly. We need to
-             * postpone that via the events queue.
-             *
-             * See https://bugs.kde.org/show_bug.cgi?id=475973
-             */
             QTimer::singleShot(0, this, [this] () {
                 this->mainWindow()->restoreState(d->canvasStateInCanvasOnlyMode);
             });
         }
 
-               // show a fading heads-up display about the shortcut to go back
         showFloatingMessage(i18n("Going into Canvas-Only mode.\nPress %1 to go back.",
                                  actionCollection()->action("view_show_canvas_only")->shortcut().toString(QKeySequence::NativeText)), QIcon(),
                             2000,
@@ -1431,20 +1332,17 @@ void KisViewManager::switchCanvasOnly(bool toggled)
 
     if (useCanvasOffsetCompensation && toggled) {
         const KoZoomMode::Mode mode = d->currentImageView->canvasController()->zoomState().mode;
-        
+
         const bool allowedZoomMode =
             (mode == KoZoomMode::ZOOM_CONSTANT) ||
             (mode == KoZoomMode::ZOOM_HEIGHT);
 
         if (allowedZoomMode) {
-            // Defer the pan action until the layout is fully settled in (including the menu bars, etc.).
             QTimer::singleShot(0, this, [this] () {
-                // Compensate by the difference of (after - before) layout.
                 d->canvasOnlyOffsetCompensation = d->currentImageView->mapTo(this->mainWindow(), QPoint()) - d->canvasOnlyOffsetCompensation;
                 d->currentImageView->canvasController()->pan(d->canvasOnlyOffsetCompensation);
             });
         } else {
-            // Nothing to restore.
             d->canvasOnlyOffsetCompensation = QPoint();
         }
     }
@@ -1476,20 +1374,12 @@ void KisViewManager::openResourcesDirectory()
     if (!folderInPrivateAppData.isEmpty()) {
 
         const auto pathToDisplay = [](const QString &path) {
-            // Due to how Unicode word wrapping works, the string does not
-            // wrap after backslashes in Qt 5.12. We don't want the path to
-            // become too long, so we add a U+200B ZERO WIDTH SPACE to allow
-            // wrapping. The downside is that we cannot let the user select
-            // and copy the path because it now contains invisible unicode
-            // code points.
-            // See: https://bugreports.qt.io/browse/QTBUG-80892
             return QDir::toNativeSeparators(path).replace(QChar('\\'), QStringLiteral(u"\\\u200B"));
         };
 
         QMessageBox mbox(qApp->activeWindow());
         mbox.setIcon(QMessageBox::Information);
         mbox.setWindowTitle(i18nc("@title:window resource folder", "Open Resource Folder"));
-        // Similar text is also used in kis_dlg_preferences.cc
 
         mbox.setText(i18nc("@info resource folder",
             "<p>You are using the Microsoft Store package version of Krita. "
@@ -1517,11 +1407,9 @@ void KisViewManager::openResourcesDirectory()
         if (mbox.clickedButton() == btnOpenPrivateAppData) {
             resourcePath = folderInPrivateAppData;
         } else if (mbox.clickedButton() == btnOpenUserAppData) {
-            // no-op: resourcePath = resourceDir.absolutePath();
         } else {
             return;
         }
-
 
     }
 #endif
@@ -1538,7 +1426,6 @@ void KisViewManager::updateIcons()
                 titlebar->updateIcons();
             }
             if (qobject_cast<KoToolDocker*>(dock)) {
-                // Tool options widgets icons are updated by KoToolManager
                 continue;
             }
             QObjectList objects;
@@ -1617,7 +1504,6 @@ QWidget *KisViewManager::mainWindowAsQWidget() const
 {
     return mainWindow();
 }
-
 
 void KisViewManager::showHideScrollbars()
 {
@@ -1718,7 +1604,6 @@ void KisViewManager::slotActivateTransformTool()
         KoToolBase* tool = KoToolManager::instance()->toolById(canvasBase(), "KisToolTransform");
 
         QSet<KoShape*> dummy;
-        // Start a new stroke
         tool->deactivate();
         tool->activate(dummy);
     }
@@ -1732,12 +1617,6 @@ void KisViewManager::slotToggleFgBg()
     KoColor newFg = d->canvasResourceManager.backgroundColor();
     KoColor newBg = d->canvasResourceManager.foregroundColor();
 
-    /**
-     * NOTE: Some of color selectors do not differentiate foreground
-     *       and background colors, so if one wants them to end up
-     *       being set up to foreground color, it should be set the
-     *       last.
-     */
     d->canvasResourceManager.setBackgroundColor(newBg);
     d->canvasResourceManager.setForegroundColor(newFg);
 }

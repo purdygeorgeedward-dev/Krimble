@@ -16,4 +16,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif /* __KIS_CATEGORIZED_LIST_MODEL_TEST_H */
+#endif

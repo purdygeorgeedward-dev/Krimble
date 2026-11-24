@@ -43,4 +43,4 @@ private:
     QSharedDataPointer<Private> m_d;
 };
 
-#endif // KISGLIMAGEF16_H
+#endif

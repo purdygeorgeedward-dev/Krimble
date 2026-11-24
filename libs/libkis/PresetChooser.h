@@ -16,12 +16,6 @@
 
 class Resource;
 
-/**
- * @brief The PresetChooser widget wraps the KisPresetChooser widget.
- * The widget provides for selecting brush presets. It has a tagging
- * bar and a filter field. It is not automatically synchronized with 
- * the currently selected preset in the current Windows.
- */
 class KRITALIBKIS_EXPORT PresetChooser : public KisPresetChooser
 {
     Q_OBJECT
@@ -31,27 +25,14 @@ public:
 
 public Q_SLOTS:
 
-    /**
-     * Make the given preset active.
-     */
     void setCurrentPreset(Resource *resource);
-    
-    /**
-     * @return a Resource wrapper around the currently selected
-     * preset. 
-     */
+
     Resource *currentPreset() const;
 
 Q_SIGNALS:
 
-    /**
-     * Emitted whenever a user selects the given preset.
-     */
     void presetSelected(Resource resource);
-    
-    /**
-     * Emitted whenever a user clicks on the given preset.
-     */
+
     void presetClicked(Resource resource);
 
 private Q_SLOTS:
@@ -60,4 +41,4 @@ private Q_SLOTS:
     void slotResourceClicked(KoResourceSP resource);
 };
 
-#endif // PRESETCHOOSER_H
+#endif

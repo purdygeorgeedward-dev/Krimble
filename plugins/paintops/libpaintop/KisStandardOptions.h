@@ -50,5 +50,4 @@ using KisLightnessStrengthOption = KisStandardOption<KisLightnessStrengthOptionD
 using KisStrengthOption = KisStandardOption<KisStrengthOptionData>;
 using KisMixOption = KisStandardOption<KisMixOptionData>;
 
-
-#endif // KISSTANDARDOPTIONS_H
+#endif

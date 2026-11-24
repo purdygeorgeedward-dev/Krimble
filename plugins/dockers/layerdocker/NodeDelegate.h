@@ -12,13 +12,6 @@ class NodeView;
 
 class KisNodeModel;
 
-/**
- * See KisNodeModel and NodeView.
- *
- * A delegate provides the gui machinery, using Qt's model/view terminology.
- * This class is owned by NodeView to do the work of generating the
- * graphical representation of each item.
- */
 class NodeDelegate: public QAbstractItemDelegate
 {
     Q_OBJECT
@@ -77,10 +70,8 @@ private:
     void drawSelectedButton(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index,
                             QStyle *style) const;
 
-    // In here we handle the intricacies required to tie the state of selection and "current" index.
     void changeSelectionAndCurrentIndex(const QModelIndex &index);
 
-    // The area taken by the color preview rect for some types of filter masks.
     QRect filterColorClickRect(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 public Q_SLOTS:

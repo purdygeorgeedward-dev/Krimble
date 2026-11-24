@@ -19,4 +19,4 @@ public:
     ~KisExifPlugin() override;
 };
 
-#endif // _KIS_EXIF_PLUGIN_H_
+#endif

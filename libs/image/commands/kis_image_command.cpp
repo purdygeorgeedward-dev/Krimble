@@ -11,8 +11,6 @@
 #include "kis_image.h"
 #include "kis_layer.h"
 
-
-
 KisImageCommand::KisImageCommand(const KUndo2MagicString& name, KisImageWSP image, KUndo2Command *parent)
     : KUndo2Command(name, parent)
     , m_image(image)
@@ -32,11 +30,6 @@ KisImageCommand::UpdateTarget::UpdateTarget(KisImageWSP image,
                                             const QRect &updateRect)
     : m_image(image), m_updateRect(updateRect)
 {
-    /**
-     * We are saving an index, but not shared pointer, because the
-     * target node may suddenly reincarnate into another type of a
-     * layer during the removal process
-     */
     m_removedNodeParent = removedNode->parent();
     m_removedNodeIndex = m_removedNodeParent ? m_removedNodeParent->index(removedNode) : -1;
 }

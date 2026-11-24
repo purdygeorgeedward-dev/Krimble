@@ -10,7 +10,6 @@
 #include <limits.h>
 #include <stdlib.h>
 
-
 #include <klocalizedstring.h>
 
 #include "KoChannelInfo.h"
@@ -29,13 +28,12 @@ KoRgbU8ColorSpace::KoRgbU8ColorSpace() :
                                           RGBAColorModelID,
                                           Integer8BitsColorDepthID)
 {
-    
+
     addChannel(new KoChannelInfo(i18n("Blue"),  0, 2, KoChannelInfo::COLOR, KoChannelInfo::UINT8, 1, QColor(0, 0, 255)));
     addChannel(new KoChannelInfo(i18n("Green"), 1, 1, KoChannelInfo::COLOR, KoChannelInfo::UINT8, 1, QColor(0, 255, 0)));
     addChannel(new KoChannelInfo(i18n("Red"),   2, 0, KoChannelInfo::COLOR, KoChannelInfo::UINT8, 1, QColor(255, 0, 0)));
     addChannel(new KoChannelInfo(i18n("Alpha"), 3, 3, KoChannelInfo::ALPHA, KoChannelInfo::UINT8));
 
-    // ADD, ALPHA_DARKEN, BURN, DIVIDE, DODGE, ERASE, MULTIPLY, OVER, OVERLAY, SCREEN, SUBTRACT
     addStandardCompositeOps<KoBgrU8Traits>(this);
     addStandardDitherOps<KoBgrU8Traits>(this);
 }
@@ -44,18 +42,15 @@ KoRgbU8ColorSpace::~KoRgbU8ColorSpace()
 {
 }
 
-
 QString KoRgbU8ColorSpace::colorSpaceId()
 {
     return QStringLiteral("RGBA");
 }
 
-
 KoColorSpace* KoRgbU8ColorSpace::clone() const
 {
     return new KoRgbU8ColorSpace();
 }
-
 
 void KoRgbU8ColorSpace::fromQColor(const QColor& c, quint8 *dst) const
 {
@@ -73,7 +68,7 @@ void KoRgbU8ColorSpace::toQColor(const quint8 * src, QColor *c) const
 
 void KoRgbU8ColorSpace::toHSY(const QVector<double> &channelValues, qreal *hue, qreal *sat, qreal *luma) const
 {
-    
+
     RGBToHSY(channelValues[0],channelValues[1],channelValues[2], hue, sat, luma);
 }
 

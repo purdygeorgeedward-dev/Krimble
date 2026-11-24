@@ -29,7 +29,6 @@
 #include "kis_paint_layer.h"
 #include <KisResourceUserOperations.h>
 
-
 KisCustomPattern::KisCustomPattern(QWidget *parent, const char* name, const QString& caption, KisViewManager* view)
     : KisWdgCustomPattern(parent, name)
     , m_view(view)
@@ -93,8 +92,6 @@ void KisCustomPattern::slotAddPredefined()
 {
     if (!m_pattern) return;
 
-    // Save in the directory that is likely to be: ~/.kde/share/apps/krita/patterns
-    // a unique file with this pattern name
     QString dir = KoResourceServerProvider::instance()->patternServer()->saveLocation();
 
     KoFileDialog dlg(this, KoFileDialog::SaveFile, "KisCustomPattern::slotAddPredefined");
@@ -105,7 +102,6 @@ void KisCustomPattern::slotAddPredefined()
     QString filename = dlg.filename();
 
     if (filename == "") {
-        // dialog was cancelled
         return;
     }
     bool hadToChangeFilename = false;
@@ -122,17 +118,17 @@ void KisCustomPattern::slotAddPredefined()
 
     bool overwrite = false;
     if (fi.exists()) {
-        if (hadToChangeFilename) { // if not, the File Dialog would show the warning
+        if (hadToChangeFilename) {
             if (QMessageBox::warning(this,  i18nc("@title:window", "Krita"), i18n("This pattern already exists. Do you want to overwrite it?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
                 overwrite = true;
             }
-        } else { // the File Dialog showed the warning and the user said "yeah fine"
+        } else {
             overwrite = true;
         }
     }
 
     if (!filename.isEmpty()) {
-        m_pattern->setFilename(fi.fileName()); // to make sure we include the suffix added earlier
+        m_pattern->setFilename(fi.fileName());
         if (!fi.exists()) {
             if (!KisResourceUserOperations::addResourceWithUserInput(this, m_pattern->clone().dynamicCast<KoPattern>())) {
                 qWarning() << "Could not add pattern with filename" << filename;
@@ -198,9 +194,6 @@ void KisCustomPattern::createPattern()
     }
     if (!cache) return;
 
-
-    // warn when creating large patterns
-
     QSize size = rc.size();
     if (size.height() > 1000 || size.width() > 1000) {
         lblWarning->setVisible(true);
@@ -211,9 +204,8 @@ void KisCustomPattern::createPattern()
     }
 
     QString dir = KoResourceServerProvider::instance()->patternServer()->saveLocation();
-    m_pattern = KoPatternSP(new KoPattern(cache->createThumbnailUncached(size.width(), size.height(), rc, /*oversample*/ 1,
+    m_pattern = KoPatternSP(new KoPattern(cache->createThumbnailUncached(size.width(), size.height(), rc, 1,
                                                                  KoColorConversionTransformation::internalRenderingIntent(),
                                                                  KoColorConversionTransformation::internalConversionFlags()), name, dir));
 }
-
 

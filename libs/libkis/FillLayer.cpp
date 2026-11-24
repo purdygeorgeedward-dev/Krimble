@@ -52,7 +52,6 @@ bool FillLayer::setGenerator(const QString &generatorName, InfoObject *config)
     KisGeneratorLayer *layer = dynamic_cast<KisGeneratorLayer*>(this->node().data());
     KIS_ASSERT_RECOVER_RETURN_VALUE(layer, false);
 
-    //getting the default configuration here avoids trouble with versioning.
     KisGeneratorSP generator = KisGeneratorRegistry::instance()->value(generatorName);
 
     if (generator) {

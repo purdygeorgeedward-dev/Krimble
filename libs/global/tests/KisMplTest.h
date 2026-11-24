@@ -29,4 +29,4 @@ private Q_SLOTS:
     void testMemberOperatorsAccumulateToKisSharedPtr();
 };
 
-#endif // KISMPLTEST_H
+#endif

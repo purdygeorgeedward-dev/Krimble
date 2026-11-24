@@ -27,7 +27,6 @@ static const qreal DEFAULT_LUMA_G = 0.7152;
 static const qreal DEFAULT_LUMA_B = 0.0722;
 static const qreal DEFAULT_LUMA_GAMMA = 2.2;
 
-// color scheme for the selector
 static const QColor COLOR_MIDDLE_GRAY = QColor(128,128,128,255);
 static const QColor COLOR_DARK = QColor(50,50,50,255);
 static const QColor COLOR_LIGHT = QColor(200,200,200,255);
@@ -39,4 +38,4 @@ static const QColor COLOR_MASK_OUTLINE = COLOR_LIGHT;
 static const QColor COLOR_MASK_CLEAR = COLOR_LIGHT;
 static const QColor COLOR_NORMAL_OUTLINE = COLOR_MIDDLE_GRAY;
 
-#endif // KIS_ARCS_CONSTANTS_H
+#endif

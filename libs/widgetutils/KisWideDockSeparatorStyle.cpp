@@ -31,8 +31,7 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 #endif
     if (metric == QStyle::PM_DockWidgetSeparatorExtent) {
 #ifdef Q_OS_ANDROID
-        // return QProxyStyle::pixelMetric(metric, option, widget);
-        return 0;   // no gap between a docked panel and the image area: the panel's shadow is its outer edge (KRIMBLE_DESIGN_RULES.md)
+        return 0;
 #else
         return QProxyStyle::pixelMetric(metric, option, widget) * 2;
 #endif
@@ -114,8 +113,6 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
         painter->restore();
         return;
 
-        // (3rd) draw nothing at all, and the older versions below, are kept, not deleted. They are not reached.
-        // (2nd) three larger dots (radius 3 logical pixels, which is about 8 device pixels: too big):
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
         painter->setPen(Qt::NoPen);

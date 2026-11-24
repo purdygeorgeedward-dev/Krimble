@@ -9,7 +9,6 @@
 #include <cmath>
 #include <algorithm>
 
-
 #include <QDomDocument>
 
 #include <KoColorSpaceConstants.h>
@@ -26,12 +25,9 @@
 #define M_SQRT_2 1.41421356237309504880
 
 #ifdef Q_OS_WIN
-// on windows we get our erf() from boost
 #include <boost/math/special_functions/erf.hpp>
 #define erf(x) boost::math::erf(x)
 #endif
-
-
 
 KisGaussRectangleMaskGenerator::KisGaussRectangleMaskGenerator(qreal diameter, qreal ratio, qreal fh, qreal fv, int spikes, bool antialiasEdges)
     : KisMaskGenerator(diameter, ratio, fh, fv, spikes, antialiasEdges, RECTANGLE, GaussId), d(new Private(antialiasEdges))
@@ -68,7 +64,7 @@ void KisGaussRectangleMaskGenerator::setScale(qreal scaleX, qreal scaleY)
     d->halfHeight = height * 0.5 - 2.5 * yfade;
     d->alphafactor = 255.0 / (4.0 * erf(d->halfWidth * d->xfade) * erf(d->halfHeight * d->yfade));
 
-    if (std::isnan(d->alphafactor)) d->alphafactor = 0.0f; // erf can return nan if ratio is 0
+    if (std::isnan(d->alphafactor)) d->alphafactor = 0.0f;
 
     d->fadeMaker.setLimits(0.5 * width, 0.5 * height);
 }

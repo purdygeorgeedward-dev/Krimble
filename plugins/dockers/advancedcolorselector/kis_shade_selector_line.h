@@ -82,4 +82,4 @@ private:
     KisColorSelectorBaseProxy* m_parentProxy {0};
 };
 
-#endif // KIS_SHADE_SELECTOR_LINE_H
+#endif

@@ -10,9 +10,6 @@
 
 #include <QStringListModel>
 
-/**
- * \brief A model providing a list of profiles available.
- */
 class KisInputProfileModel : public QStringListModel
 {
     Q_OBJECT
@@ -29,4 +26,4 @@ private Q_SLOTS:
     void profileNamesChanged();
 };
 
-#endif // KISINPUTPROFILEMODEL_H
+#endif

@@ -61,7 +61,6 @@ struct WheelPreferencesPopupUI: public QWidget, public Ui_wdgWheelPreferencesPop
     }
 };
 
-
 ArtisticColorSelectorDock::ArtisticColorSelectorDock()
     : QDockWidget(i18n("Artistic Color Selector"))
     , m_canvas(nullptr)
@@ -91,7 +90,6 @@ ArtisticColorSelectorDock::ArtisticColorSelectorDock()
     m_selectorUI->bnDockerPrefs->setIcon(KisIconUtils::loadIcon("configure-thicker"));
     m_selectorUI->bnDockerPrefs->setArrowVisible(false);
 
-    //preferences
     m_hsxButtons->addButton(m_preferencesUI->bnHsy, KisColor::HSY);
     m_hsxButtons->addButton(m_preferencesUI->bnHsi, KisColor::HSI);
     m_hsxButtons->addButton(m_preferencesUI->bnHsl, KisColor::HSL);

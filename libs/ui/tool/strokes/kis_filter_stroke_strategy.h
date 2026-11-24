@@ -55,13 +55,10 @@ public:
             return m_idleBarrierCookie;
         }
 
-
     private:
-        IdleBarrierData(IdleBarrierData &rhs, int /*levelOfDetail*/)
+        IdleBarrierData(IdleBarrierData &rhs, int )
             : KisStrokeJobData(rhs)
          {
-            // the cookie is used for preview only, therefore in
-            // instant preview mode we pass it to the lodn stroke
             rhs.m_idleBarrierCookie.swap(m_idleBarrierCookie);
          }
 
@@ -89,7 +86,6 @@ public:
 
     ~KisFilterStrokeStrategy() override;
 
-
     void initStrokeCallback() override;
     void doStrokeCallback(KisStrokeJobData *data) override;
     void cancelStrokeCallback() override;
@@ -102,4 +98,4 @@ private:
     Private* const m_d;
 };
 
-#endif /* __KIS_FILTER_STROKE_STRATEGY_H */
+#endif

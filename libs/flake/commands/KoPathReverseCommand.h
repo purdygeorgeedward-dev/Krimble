@@ -13,24 +13,16 @@
 
 class KoPathShape;
 
-/// The undo / redo command for reversing path directions
 class KRITAFLAKE_EXPORT KoPathReverseCommand : public KUndo2Command
 {
 public:
-    /**
-     * Command for reversing directions of a list of paths
-     * @param paths the list of paths to reverse
-     * @param parent the parent command used for macro commands
-     */
     explicit KoPathReverseCommand(const QList<KoPathShape*> &paths, KUndo2Command *parent = 0);
     ~KoPathReverseCommand() override;
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 private:
     class Private;
     Private * const d;
 };
 
-#endif // KOPATHREVERSECOMMAND_H
+#endif

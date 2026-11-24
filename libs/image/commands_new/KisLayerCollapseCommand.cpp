@@ -8,7 +8,6 @@
 
 #include <kis_node.h>
 
-
 KisLayerCollapseCommand::KisLayerCollapseCommand(KisNodeSP node, bool oldValue, bool newValue, KUndo2Command *parent)
     : KUndo2Command(newValue ? kundo2_i18n("Collapse node %1", node->name()) : kundo2_i18n("Expand node %1", node->name()), parent)
     , m_node(node)
@@ -37,7 +36,6 @@ bool KisLayerCollapseCommand::mergeWith(const KUndo2Command *other)
     const KisLayerCollapseCommand *cmd = dynamic_cast<const KisLayerCollapseCommand*>(other);
 
     if (cmd && cmd->m_node == m_node) {
-        // verify the commands are actually chained
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(m_newValue == cmd->m_oldValue, false);
 
         m_newValue = cmd->m_newValue;

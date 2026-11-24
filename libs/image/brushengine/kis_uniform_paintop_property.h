@@ -25,9 +25,6 @@ public:
         Combo
     };
 
-    /**
-     * @brief Hint to guess what this property is used for
-     */
     enum SubType {
         SubType_None = 0,
         SubType_Angle
@@ -81,4 +78,4 @@ extern template class KisCallbackBasedPaintopProperty<
 using KisUniformPaintOpPropertyCallback =
     KisCallbackBasedPaintopProperty<KisUniformPaintOpProperty>;
 
-#endif /* __KIS_UNIFORM_PAINT_OP_PROPERTY_H */
+#endif

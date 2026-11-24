@@ -17,9 +17,6 @@ class KisViewManager;
 #include <generator/kis_generator.h>
 #include <kis_thread_safe_signal_compressor.h>
 
-/**
- * Create a new generator layer
- */
 class KisDlgGeneratorLayer : public QDialog
 {
 public:
@@ -28,14 +25,6 @@ public:
 
 public:
 
-    /**
-     * Create a new generator layer
-     * @param defaultLayerName the proposed name for this layer
-     * @param arg_view the view manager
-     * @param parent the widget parent of this dialog
-     * @param glayer optional generator layer for editing
-     * @param previousConfig optional configuration of layer being edited.
-     */
     KisDlgGeneratorLayer(const QString &defaultLayerName, KisViewManager *arg_view,
                          QWidget *parent,
                          KisGeneratorLayerSP glayer,

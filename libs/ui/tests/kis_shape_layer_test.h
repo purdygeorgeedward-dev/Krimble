@@ -21,4 +21,4 @@ private Q_SLOTS:
     void testCloneScaledLayer();
 };
 
-#endif // KISSHAPELAYERTEST_H
+#endif

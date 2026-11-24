@@ -8,21 +8,14 @@
 
 #include <kundo2stack.h>
 
-
-/*****************************************************************/
-/*                KisSurrogateUndoStore                           */
-/*****************************************************************/
-
 KisSurrogateUndoStore::KisSurrogateUndoStore()
     : m_undoStack(new KUndo2Stack)
 {
-    // Use direct connection to avoid queueing the signal forwarding (BUG:447985)
     connect(m_undoStack, SIGNAL(indexChanged(int)), this, SIGNAL(historyStateChanged()), Qt::DirectConnection);
 }
 
 KisSurrogateUndoStore::~KisSurrogateUndoStore()
 {
-    // disconnect the signal to avoid the it being emitted on destruction
     disconnect(m_undoStack, SIGNAL(indexChanged(int)), this, SIGNAL(historyStateChanged()));
     delete m_undoStack;
 }
@@ -87,11 +80,6 @@ void KisSurrogateUndoStore::redoAll()
     }
 }
 
-
-/*****************************************************************/
-/*                KisDumbUndoStore                               */
-/*****************************************************************/
-
 const KUndo2Command* KisDumbUndoStore::presentCommand()
 {
     return 0;
@@ -99,18 +87,12 @@ const KUndo2Command* KisDumbUndoStore::presentCommand()
 
 void KisDumbUndoStore::undoLastCommand()
 {
-    /**
-     * Ermm.. Do we actually have one? We are dumb! ;)
-     */
 
     Q_EMIT historyStateChanged();
 }
 
 void KisDumbUndoStore::addCommand(KUndo2Command *command)
 {
-    /**
-     * Ermm.. Done with it! :P
-     */
     command->redo();
     delete command;
 
@@ -119,24 +101,15 @@ void KisDumbUndoStore::addCommand(KUndo2Command *command)
 
 void KisDumbUndoStore::beginMacro(const KUndo2MagicString& macroName)
 {
-    /**
-     * Yes, sir! >:)
-     */
     Q_UNUSED(macroName);
 }
 
 void KisDumbUndoStore::endMacro()
 {
-    /**
-     * Roger that! :)
-     */
 
     Q_EMIT historyStateChanged();
 }
 
 void KisDumbUndoStore::purgeRedoState()
 {
-    /**
-     * Erm... what? %)
-     */
 }

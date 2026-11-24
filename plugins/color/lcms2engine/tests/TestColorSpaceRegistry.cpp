@@ -128,46 +128,31 @@ void TestColorSpaceRegistry::testColorProfileAliasAddWhenProfileExists()
     const QString aliasDestination = registry->p2020G10Profile()->name();
     KIS_ASSERT(aliasSource != aliasDestination);
 
-    // add alias
     registry->addProfileAlias(aliasSource, aliasDestination);
 
     {
-        /**
-         * The alias is added but it takes no effect, since the actual profile
-         * with this name already exists
-         */
         auto *profile = registry->profileByName(aliasSource);
         QVERIFY(profile);
         QCOMPARE(profile->name(), aliasSource);
     }
 
-    // now remove the profile
     registry->removeProfile(originalProfile);
 
     {
-        /**
-         * The alias is active now!
-         */
         auto *profile = registry->profileByName(aliasSource);
         QVERIFY(profile);
         QCOMPARE(profile->name(), aliasDestination);
     }
 
-    // now remove the alias
     registry->removeProfileAlias(aliasSource);
 
     {
-        /**
-         * Nothing is found now. We have removed both, the profile and the alias
-         */
         auto *profile = registry->profileByName(aliasSource);
         QVERIFY(!profile);
     }
 
-    // restore the profile
     registry->addProfile(originalProfile);
     {
-        // no alias is present now
         auto *profile = registry->profileByName(aliasSource);
         QVERIFY(profile);
         QCOMPARE(profile->name(), aliasSource);
@@ -208,13 +193,6 @@ KIS_DECLARE_ADAPTED_LOCK(AliasRemovalLock, AliasRemovalAdapter)
 
 void TestColorSpaceRegistry::testColorProfileAliasOverrideByProfile()
 {
-    /**
-     * The profile aliases are considered 'weak', i.e. when a real
-     * profile with the same name is loaded, the alias gets overridden.
-     *
-     * When this explicit profile is unloaded, the alias is expected
-     * to be re-enabled again.
-     */
     auto *registry = KoColorSpaceRegistry::instance();
     const QString legacyProfileName = "High Dynamic Range UHDTV Wide Color Gamut Display (Rec. 2020) - SMPTE ST 2084 PQ EOTF";
     const QString legacyProfileFileName = "ITUR_2100_PQ_FULL.ICC";
@@ -247,7 +225,6 @@ void TestColorSpaceRegistry::testColorProfileAliasOverrideByProfile()
     }
 
     {
-        // the profile has overridden the alias
         auto *profile = registry->profileByName(aliasSource);
         QVERIFY(profile);
         QCOMPARE(profile->name(), aliasSource);
@@ -256,7 +233,6 @@ void TestColorSpaceRegistry::testColorProfileAliasOverrideByProfile()
     registry->removeProfile(const_cast<KoColorProfile*>(registry->profileByName(aliasSource)));
 
     {
-        // alias is active again
         auto *profile = registry->profileByName(aliasSource);
         QVERIFY(profile);
         QCOMPARE(profile->name(), aliasDestination);
@@ -265,7 +241,6 @@ void TestColorSpaceRegistry::testColorProfileAliasOverrideByProfile()
     registry->removeProfileAlias(aliasSource);
 
     {
-        // no alias exists anymore, hence no profile
         auto *profile = registry->profileByName(aliasSource);
         QVERIFY(!profile);
     }

@@ -77,4 +77,4 @@ struct DefaultValueTraits {
     static const IntType Redirect = 1;
 };
 
-#endif // MAPTRAITS_H
+#endif

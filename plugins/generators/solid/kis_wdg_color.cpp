@@ -30,7 +30,6 @@ KisWdgColor::~KisWdgColor()
     delete m_widget;
 }
 
-
 void KisWdgColor::setConfiguration(const KisPropertiesConfigurationSP config)
 {
     QVariant value;
@@ -48,5 +47,4 @@ KisPropertiesConfigurationSP KisWdgColor::configuration() const
     config->setProperty("color", v);
     return config;
 }
-
 

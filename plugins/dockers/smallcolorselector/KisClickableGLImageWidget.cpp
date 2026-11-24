@@ -110,14 +110,11 @@ QPointF KisClickableGLImageWidget::normalizePoint(const QPointF &pos) const
     return QPointF(croppedPoint.x() / width(), croppedPoint.y() / height());
 }
 
-
 namespace {
 QPen outerHandlePen(bool useOpacity) {
-    // opacity works unexpectedly in HDR mode, so let the user switch it off
     return QPen(QColor(0, 0, 0, useOpacity ? 180 : 255), 0);
 }
 QPen innerHandlePen(bool useOpacity) {
-    // opacity works unexpectedly in HDR mode, so let the user switch it off
     return QPen(QColor(255, 255, 255, useOpacity ? 180 : 255), 0);
 }
 }

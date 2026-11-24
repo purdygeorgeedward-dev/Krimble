@@ -47,7 +47,6 @@ void KisMaskGeneratorTest::testCircleSerialisation()
 void KisMaskGeneratorTest::testSquareSerialisation()
 {
 
-    // check consistency
     KisRectangleMaskGenerator cmg_1(5, 5, 5, 5, 5, false);
     KisRectangleMaskGenerator cmg_2(5, 5, 5, 5, 5, false);
     for (int i = 0; i < 10; ++i) {
@@ -71,7 +70,6 @@ void KisMaskGeneratorTest::testSquareSerialisation()
     doc2.appendChild(root2);
     cmg.toXML(doc2, root2);
 
-    // check serialization
     QCOMPARE(doc.toString(), doc2.toString());
     createQImageFromMask(cmg).save("square1.png");
     createQImageFromMask(*cmg2).save("square2.png");
@@ -128,7 +126,7 @@ void KisMaskGeneratorTest::testCopyCtorCurveCircle()
     KisCurveCircleMaskGenerator gen(50, 0.8,
                                     0.75, 0.85,
                                     2,
-                                    KisCubicCurve(), // linear
+                                    KisCubicCurve(),
                                     true);
     testCopyCtor(&gen);
 }
@@ -138,7 +136,7 @@ void KisMaskGeneratorTest::testCopyCtorCurveRect()
     KisCurveRectangleMaskGenerator gen(50, 0.8,
                                        0.75, 0.85,
                                        2,
-                                       KisCubicCurve(), // linear
+                                       KisCubicCurve(),
                                        true);
     testCopyCtor(&gen);
 }
@@ -160,6 +158,5 @@ void KisMaskGeneratorTest::testCopyCtorGaussRect()
                                        true);
     testCopyCtor(&gen);
 }
-
 
 SIMPLE_TEST_MAIN(KisMaskGeneratorTest)

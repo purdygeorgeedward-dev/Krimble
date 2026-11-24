@@ -24,4 +24,4 @@ private Q_SLOTS:
     void testDestructionAfterEmit();
 };
 
-#endif // KISSIGNALCOMPRESSORTEST_H
+#endif

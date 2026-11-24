@@ -21,5 +21,4 @@ void restoreControlPoint(KoPathPoint *pt, bool restoreFirst, boost::optional<QPo
 
 }
 
-
-#endif // KOPATHMERGEUTILS_H
+#endif

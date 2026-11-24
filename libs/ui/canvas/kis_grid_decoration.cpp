@@ -86,8 +86,6 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
         converter->documentToImage(updateArea) &
         imageRectInImagePixels;
 
-    // for angles. This will later be a combobox to select different types of options
-    // also add options to hide specific lines (vertical, horizontal, angle 1, etc
     KisGridConfig::GridType gridType = m_d->config.gridType();
 
     if (gridType == KisGridConfig::GRID_RECTANGULAR) {
@@ -95,13 +93,10 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
         qreal x1, y1, x2, y2;
         updateRectInImagePixels.getCoords(&x1, &y1, &x2, &y2);
 
-        // compensate the fact the getCoordt returns off-by-one pixel
-        // at the bottom right of the rect.
         x2++;
         y2++;
 
         if (m_d->config.xSpacingActive()) {
-            // vertical lines
             int offset = 0;
             if (m_d->config.offsetActive()) {
                 offset = m_d->config.offset().x();
@@ -121,13 +116,11 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
                 int w = offset + i * step;
 
                 gc.setPen(i % subdivision == 0 ? mainPen : subdivisionPen);
-                // we adjusted y2 to draw the grid correctly, clip it now...
                 gc.drawLine(QPointF(w, y1),QPointF(w, qMin(y2, qreal(imageRectInImagePixels.bottom() + 1))));
             }
         }
 
         if (m_d->config.ySpacingActive()) {
-            // horizontal lines
             int offset = 0;
             if (m_d->config.offsetActive()) {
                 offset = m_d->config.offset().y();
@@ -147,19 +140,15 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
                 int w = offset + i * step;
 
                 gc.setPen(i % subdivision == 0 ? mainPen : subdivisionPen);
-                // we adjusted x2 to draw the grid correctly, clip it now...
                 gc.drawLine(QPointF(x1, w),QPointF(qMin(x2, qreal(imageRectInImagePixels.right() + 1)), w));
             }
         }
     } else if (gridType == KisGridConfig::GRID_ISOMETRIC_LEGACY)  {
         qreal x1, y1, x2, y2;
 
-        // get true coordinates, not just the updateArea
         QRectF trueImageRect = converter->imageRectInImagePixels();
         trueImageRect.getCoords(&x1, &y1, &x2, &y2);
 
-        // compensate the fact the getCoordt returns off-by-one pixel
-        // at the bottom right of the rect.
         x2++;
         y2++;
 
@@ -174,20 +163,16 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
         gc.setClipping(true);
         gc.setClipRect(updateRectInImagePixels, Qt::IntersectClip);
 
-        // left angle
         if (m_d->config.angleLeftActive()) {
             const qreal gridXAngle = m_d->config.angleLeft();
-            const qreal bottomRightOfImageY = y2; // this should be the height of the image
+            const qreal bottomRightOfImageY = y2;
             qreal finalY = 0.0;
 
-            // figure out the spacing based off the angle. The spacing needs to be perpendicular to the angle,
-            // so we need to do a bit of trig to get the correct spacing.
             qreal correctedAngleSpacing = cellSpacing;
             if (gridXAngle > 0.0) {
                 correctedAngleSpacing = cellSpacing / qCos(qDegreesToRadians(gridXAngle));
                 gc.setRenderHints(QPainter::Antialiasing, true);
             } else {
-                // horizontal line: don't want to be antialiased
                 gc.setRenderHints(QPainter::Antialiasing, false);
             }
 
@@ -198,11 +183,9 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
                 const qreal w = (counter * correctedAngleSpacing) + offsetY + offset;
                 gc.setPen(mainPen);
 
-                // calculate where the ending point will be based off the angle
                 const qreal startingY = w;
                 const qreal horizontalDistance = x2;
 
-                // qTan takes radians, so convert first before sending it
                 const qreal length2 = qTan(qDegreesToRadians(gridXAngle)) * x2;
 
                 finalY = startingY - length2;
@@ -213,27 +196,21 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
             }
         }
 
-        // right angle (almost the same thing, except starting the lines on the right side)
         if (m_d->config.angleRightActive()) {
-            const qreal gridXAngle = m_d->config.angleRight(); // TODO: add another angle property
+            const qreal gridXAngle = m_d->config.angleRight();
             const qreal bottomLeftOfImageY = y2;
 
-            // figure out the spacing based off the angle
             qreal correctedAngleSpacing = cellSpacing;
             if (gridXAngle > 0.0) {
                 correctedAngleSpacing = cellSpacing / qCos(qDegreesToRadians(gridXAngle));
                 gc.setRenderHints(QPainter::Antialiasing, true);
             } else {
-                // horizontal line: don't want to be antialiased
                 gc.setRenderHints(QPainter::Antialiasing, false);
             }
 
-            // distance is the same (width of the image)
             const qreal horizontalDistance = x2;
-            // qTan takes radians, so convert first before sending it
             const qreal length2 = qTan(qDegreesToRadians(gridXAngle)) * horizontalDistance;
 
-            // let's get x, y of the line that starts in the top right corder
             const qreal yLower = 0.0;
             const qreal yHigher = yLower - length2;
 
@@ -247,7 +224,6 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
                 const qreal w = (counter * correctedAngleSpacing) + offsetY - offset + additionalOffset;
                 gc.setPen(mainPen);
 
-                // calculate where the ending point will be based off the angle
                 const qreal startingY = w;
 
                 finalY = startingY - length2;
@@ -260,12 +236,9 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
     } else if (gridType == KisGridConfig::GRID_ISOMETRIC)  {
         qreal x1, y1, xRight, yBottom;
 
-        // get true coordinates, not just the updateArea
         QRectF trueImageRect = converter->imageRectInImagePixels();
         trueImageRect.getCoords(&x1, &y1, &xRight, &yBottom);
 
-        // compensate the fact the getCoordt returns off-by-one pixel
-        // at the bottom right of the rect.
         xRight++;
         yBottom++;
 
@@ -281,18 +254,15 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
         gc.setClipping(true);
         gc.setClipRect(updateRectInImagePixels, Qt::IntersectClip);
 
-        // left angle
         if (trigoCache.correctedAngleLeftCellSize > 0 && m_d->config.angleLeftActive()) {
             if (m_d->config.angleLeft() > 0.0) {
                 gc.setRenderHints(QPainter::Antialiasing, true);
             } else {
-                // horizontal line: don't want to be antialiased
                 gc.setRenderHints(QPainter::Antialiasing, false);
             }
 
             const qreal length2 = trigoCache.tanAngleLeft * xRight;
 
-            // let's get x, y of the line that starts in the top right corner
             const qreal yLower = 0.0;
             const qreal yHigher = yLower - length2;
 
@@ -301,13 +271,11 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
 
             qreal finalY = 0.0;
 
-            // define line number used to determinate if is a subdivision or not
             int subdivisionIndex = qCeil(yHigher / trigoCache.correctedAngleLeftCellSize);
 
             qreal startingY = yLeftFirst + offsetY + offsetX + additionalOffset;
 
             while (finalY < yBottom) {
-                // calculate where the ending point will be based off the angle
                 finalY = startingY - length2;
 
                 gc.setPen(qAbs(subdivisionIndex) % subdivision == 0 ? mainPen : subdivisionPen);
@@ -318,18 +286,15 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
             }
         }
 
-        // right angle (almost the same thing, except starting the lines on the right side)
         if (trigoCache.correctedAngleRightCellSize > 0 && m_d->config.angleRightActive()) {
             if (m_d->config.angleRight() > 0.0) {
                 gc.setRenderHints(QPainter::Antialiasing, true);
             } else {
-                // horizontal line: don't want to be antialiased
                 gc.setRenderHints(QPainter::Antialiasing, false);
             }
 
             const qreal length2 = trigoCache.tanAngleRight * xRight;
 
-            // let's get x, y of the line that starts in the top right corner
             const qreal yLower = 0.0;
             const qreal yHigher = yLower - length2;
 
@@ -338,13 +303,11 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
 
             qreal finalY = 0.0;
 
-            // define line number used to determinate if is a subdivision or not
             int subdivisionIndex = qCeil(yHigher / trigoCache.correctedAngleRightCellSize);
 
             qreal startingY = yLeftFirst + offsetY - offsetX + additionalOffset;
 
             while (finalY < yBottom) {
-                // calculate where the ending point will be based off the angle
                 finalY = startingY - length2;
 
                 gc.setPen(qAbs(subdivisionIndex) % subdivision == 0 ? mainPen : subdivisionPen);
@@ -355,7 +318,6 @@ void KisGridDecoration::drawDecoration(QPainter& gc, const QRectF& updateArea, c
             }
         }
 
-        // vertical
         if (trigoCache.verticalSpace > 0) {
             QPen verticalPen = m_d->config.penVertical();
             if (verticalPen.style() != Qt::SolidLine) {

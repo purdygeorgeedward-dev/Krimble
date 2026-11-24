@@ -36,4 +36,4 @@ bool operator==(const MaskingBrushData &lhs, const MaskingBrushData &rhs);
 
 }
 
-#endif // KISMASKINGBRUSHOPTIONPROPERTIES_H
+#endif

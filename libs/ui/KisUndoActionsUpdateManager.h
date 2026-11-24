@@ -32,4 +32,4 @@ private:
     KisSignalAutoConnectionsStore m_documentConnections;
 };
 
-#endif // KISUNDOACTIONSUPDATEMANAGER_H
+#endif

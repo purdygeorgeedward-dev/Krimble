@@ -7,7 +7,6 @@
 #ifndef KIS_SPRAY_SHAPE_OPTION_DATA_H
 #define KIS_SPRAY_SHAPE_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 #include <kritapaintop_export.h>
@@ -25,14 +24,12 @@ struct KisSprayShapeOptionData : boost::equality_comparable<KisSprayShapeOptionD
 			&& lhs.proportional == rhs.proportional
 			&& lhs.imageUrl == rhs.imageUrl;
     }
-    
-    // particle type size
+
     quint8 shape;
     QSize size;
     bool enabled;
     bool proportional;
-    
-    // rotation
+
     QImage image;
     QString imageUrl;
 
@@ -42,4 +39,4 @@ struct KisSprayShapeOptionData : boost::equality_comparable<KisSprayShapeOptionD
     QSize effectiveSize(int diameter, qreal scale) const;
 };
 
-#endif // KIS_SPRAY_SHAPE_OPTION_DATA_H
+#endif

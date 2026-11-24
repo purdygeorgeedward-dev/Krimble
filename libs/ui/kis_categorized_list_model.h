@@ -65,13 +65,11 @@ public:
     KisCategorizedListModel(QObject *parent = 0)
         : __CategorizedListModelBase(parent)
     {
-        connect(&m_mapper, SIGNAL(rowChanged(int)), SLOT(slotRowChanged(int))); // helps with category expand menu
+        connect(&m_mapper, SIGNAL(rowChanged(int)), SLOT(slotRowChanged(int)));
         connect(&m_mapper, SIGNAL(beginInsertRow(int)), SLOT(slotBeginInsertRow(int)));
         connect(&m_mapper, SIGNAL(endInsertRow()), SLOT(slotEndInsertRow()));
         connect(&m_mapper, SIGNAL(beginRemoveRow(int)), SLOT(slotBeginRemoveRow(int)));
         connect(&m_mapper, SIGNAL(endRemoveRow()), SLOT(slotEndRemoveRow()));
-
-
 
     }
 
@@ -125,11 +123,10 @@ public:
             break;
         case Qt::CheckStateRole:
             Q_ASSERT(item->isCheckable());
-            item->setChecked(value.toInt() == Qt::Checked);            
-            break;        
+            item->setChecked(value.toInt() == Qt::Checked);
+            break;
         }
 
-        // dataChanged() needs a QVector even though we are just passing one
         QVector<int> roles;
         roles.append(role);
 
@@ -208,11 +205,6 @@ public:
     }
 
     QModelIndex indexOf(const Entry_Type& entry) const {
-        /**
-         * We don't use the source model's indexOf(), because
-         * the items might be duplicated and we need to return the
-         * topmost one in the sorted order.
-         */
 
         Entry_Type e;
 
@@ -257,4 +249,4 @@ private:
     TModel *m_model {nullptr};
 };
 
-#endif /* __KIS_CATEGORIZED_LIST_MODEL_H */
+#endif

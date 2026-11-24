@@ -86,10 +86,6 @@ QVector<QRect> KisColorSmudgeStrategyWithOverlay::paintDab(const QRect &srcRect,
     m_sourceWrapperDevice->readRects(readRects);
 
     if (m_imageOverlayDevice) {
-        /**
-         * If we have m_imageOverlayDevice set, then m_sourceWrapperOverlay points to it, not
-         * to the layer's overlay. Therefore, we should read from it as well.
-         */
         m_layerOverlayDevice->readRects(readRects);
     }
 

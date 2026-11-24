@@ -43,7 +43,6 @@ KisTextureChooser::KisTextureChooser(KisBrushTextureFlags flags, QWidget *parent
 
     offsetSliderY->setSuffix(i18n(" px"));
 
-
     QVector<std::pair<QString, int>> texturingModes;
 
     texturingModes
@@ -81,7 +80,6 @@ KisTextureChooser::KisTextureChooser(KisBrushTextureFlags flags, QWidget *parent
     QStringList cutOffPolicies;
     cutOffPolicies << i18n("Cut Off Disabled") << i18n("Cut Off Brush") << i18n("Cut Off Pattern");
     cmbCutoffPolicy->addItems(cutOffPolicies);
-
 
     cutoffSlider->setToolTip(i18n("When pattern texture values are outside the range specified"
                                   " by the slider, the cut-off policy will be applied."));

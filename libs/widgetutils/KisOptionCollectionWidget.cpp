@@ -39,7 +39,7 @@ public:
         m_separator->setFrameShape(QFrame::HLine);
         m_separator->setFrameShadow(QFrame::Sunken);
         m_separator->setFixedHeight(10);
-    
+
         QBoxLayout *layoutMain = new QBoxLayout(QBoxLayout::LeftToRight);
         layoutMain->setContentsMargins(0, 0, 0, 0);
         layoutMain->setSpacing(0);
@@ -148,7 +148,6 @@ struct KisOptionCollectionWidgetWithHeader::Private
             layoutPrimaryWidget->setContentsMargins(0, 0, 0, 0);
             return;
         }
-        // label.width + primaryWidget.size + 10px spacing + 4px extra (just in case)
         const int minimumHeaderWidth = label->minimumSizeHint().width() +
                                        primaryWidget->minimumSizeHint().width() +
                                        10 + 4;
@@ -187,7 +186,7 @@ struct KisOptionCollectionWidgetWithHeader::Private
             widgetCollection->setVisible(false);
         }
     }
-    
+
 };
 
 struct KisOptionCollectionWidget::Private
@@ -477,7 +476,7 @@ KisOptionCollectionWidgetWithHeader::KisOptionCollectionWidgetWithHeader(const Q
     , m_d(new Private(this))
 {
     m_d->label = new QLabel(title, this);
-    
+
     m_d->layoutPrimaryWidget = new QBoxLayout(QBoxLayout::LeftToRight);
     m_d->layoutPrimaryWidget->setSpacing(0);
     m_d->layoutPrimaryWidget->setContentsMargins(0, 0, 0, 0);
@@ -500,7 +499,7 @@ KisOptionCollectionWidgetWithHeader::KisOptionCollectionWidgetWithHeader(const Q
     layoutMain->setSpacing(5);
     layoutMain->setContentsMargins(0, 0, 0, 0);
     layoutMain->addLayout(m_d->layoutHeader, 0);
-    
+
     setLayout(layoutMain);
 }
 
@@ -514,7 +513,6 @@ QSize KisOptionCollectionWidgetWithHeader::minimumSizeHint() const
     }
 
     const QSize widgetListMinimumSizeHint = m_d->layoutWidgets->minimumSize();
-    // label.width + primaryWidget.size + 10px spacing + 4px extra (just in case)
     const int minimumHeaderWidth = m_d->label->minimumSizeHint().width() +
                                    (m_d->primaryWidget ? m_d->primaryWidget->minimumSizeHint().width() + 10 + 4 : 0);
     const QSize headerMinimumSizeHint =

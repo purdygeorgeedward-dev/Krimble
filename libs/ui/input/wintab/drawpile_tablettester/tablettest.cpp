@@ -14,8 +14,6 @@
 TabletTester::TabletTester(QWidget *parent)
     : QWidget(parent), m_mouseDown(false), m_tabletDown(false)
 {
-    // we don't explicitly update settings inside KisSpeedSmoother
-    // here because the tablet tester is created every time anew.
 
 }
 
@@ -40,13 +38,11 @@ void TabletTester::paintEvent(QPaintEvent *e)
     p.fillRect(0, 0, w, h, QColor(200, 200, 200));
     p.setPen(QColor(128, 128, 128));
 
-    // Draw grid
     for(int i=w/8;i<w;i+=w/8)
         p.drawLine(i, 0, i, h);
     for(int i=h/8;i<h;i+=h/8)
         p.drawLine(0, i, w, i);
 
-    // Draw paths
     if(!m_mousePath.isEmpty()) {
         p.setPen(QPen(Qt::red, 3));
         p.drawPolyline(m_mousePath);

@@ -16,13 +16,11 @@ class KisSharedPtr;
 class KisOpenGLUpdateInfo;
 typedef KisSharedPtr<KisOpenGLUpdateInfo> KisOpenGLUpdateInfoSP;
 
-
 class KRITAUI_EXPORT KisAbstractFrameCacheSwapper
 {
 public:
     virtual ~KisAbstractFrameCacheSwapper();
 
-    // WARNING: after transferring \p info to saveFrame() the object becomes invalid
     virtual void saveFrame(int frameId, KisOpenGLUpdateInfoSP info, const QRect &imageBounds) = 0;
     virtual KisOpenGLUpdateInfoSP loadFrame(int frameId) = 0;
 
@@ -35,4 +33,4 @@ public:
     virtual QRect frameDirtyRect(int frameId) const = 0;
 };
 
-#endif // KISABSTRACTFRAMECACHESWAPPER_H
+#endif

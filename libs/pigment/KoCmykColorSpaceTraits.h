@@ -10,10 +10,6 @@
 
 #include <KoCmykColorSpaceMaths.h>
 
-/** 
- * Base class for CMYK traits, it provides some convenient functions to
- * access CMYK channels through an explicit API.
- */
 template<typename _channels_type_>
 struct KoCmykTraits : public KoColorSpaceTrait<_channels_type_, 5, 4> {
     typedef _channels_type_ channels_type;
@@ -24,9 +20,6 @@ struct KoCmykTraits : public KoColorSpaceTrait<_channels_type_, 5, 4> {
     static const qint32 y_pos = 2;
     static const qint32 k_pos = 3;
 
-    /**
-     * An CMYK pixel
-     */
     struct Pixel {
         channels_type cyan;
         channels_type magenta;
@@ -34,42 +27,34 @@ struct KoCmykTraits : public KoColorSpaceTrait<_channels_type_, 5, 4> {
         channels_type black;
         channels_type alpha;
     };
-    /// @return the Cyan component
     inline static channels_type C(quint8* data) {
         channels_type* d = parent::nativeArray(data);
         return d[c_pos];
     }
-    /// Set the Cyan component
     inline static void setC(quint8* data, channels_type nv) {
         channels_type* d = parent::nativeArray(data);
         d[c_pos] = nv;
     }
-    /// @return the Magenta component
     inline static channels_type M(quint8* data) {
         channels_type* d = parent::nativeArray(data);
         return d[m_pos];
     }
-    /// Set the Magenta component
     inline static void setM(quint8* data, channels_type nv) {
         channels_type* d = parent::nativeArray(data);
         d[m_pos] = nv;
     }
-    /// @return the Yellow component
     inline static channels_type Y(quint8* data) {
         channels_type* d = parent::nativeArray(data);
         return d[y_pos];
     }
-    /// Set the Yellow component
     inline static void setY(quint8* data, channels_type nv) {
         channels_type* d = parent::nativeArray(data);
         d[y_pos] = nv;
     }
-    /// @return the Key component
     inline static channels_type k(quint8* data) {
         channels_type* d = parent::nativeArray(data);
         return d[k_pos];
     }
-    /// Set the Key component
     inline static void setK(quint8* data, channels_type nv) {
         channels_type* d = parent::nativeArray(data);
         d[k_pos] = nv;
@@ -124,7 +109,6 @@ struct KoCmykF16Traits : public KoCmykTraits<half> {
                                      ((qreal)c) / KoCmykColorSpaceMathsTraits<channels_type>::unitValueCMYK,
                                      (qreal)KoCmykColorSpaceMathsTraits<channels_type>::unitValueCMYK);
                 break;
-            // As per KoChannelInfo alpha channels are [0..1]
             case 4:
             default:
                 channels[i] = qBound((qreal)0,
@@ -201,7 +185,6 @@ struct KoCmykF32Traits : public KoCmykTraits<float> {
                                      ((qreal)c) / KoCmykColorSpaceMathsTraits<channels_type>::unitValueCMYK,
                                      (qreal)KoCmykColorSpaceMathsTraits<channels_type>::unitValueCMYK);
                 break;
-            // As per KoChannelInfo alpha channels are [0..1]
             case 4:
             default:
                 channels[i] = qBound((qreal)0,
@@ -276,7 +259,6 @@ struct KoCmykF64Traits : public KoCmykTraits<double> {
                                      ((qreal)c) / KoCmykColorSpaceMathsTraits<channels_type>::unitValueCMYK,
                                      (qreal)KoCmykColorSpaceMathsTraits<channels_type>::unitValueCMYK);
                 break;
-            // As per KoChannelInfo alpha channels are [0..1]
             case 4:
             default:
                 channels[i] = qBound((qreal)0,
@@ -313,7 +295,5 @@ struct KoCmykF64Traits : public KoCmykTraits<double> {
     }
 };
 
-
-
 #endif
-    
+

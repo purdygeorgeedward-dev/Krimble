@@ -44,8 +44,7 @@ void KisStorageFilterProxyModel::setFilter(KisStorageFilterProxyModel::FilterTyp
     d->filterType = filterType;
 }
 
-
-bool KisStorageFilterProxyModel::filterAcceptsColumn(int /*source_column*/, const QModelIndex &/*source_parent*/) const
+bool KisStorageFilterProxyModel::filterAcceptsColumn(int , const QModelIndex & ) const
 {
     return true;
 }

@@ -15,7 +15,6 @@
 #include "kis_stroke.h"
 #include "kis_image.h"
 
-
 #define SCOMPARE(s1, s2) QCOMPARE(QString(s1), QString(s2))
 
 #define COMPARE_WALKER(item, walker)            \
@@ -187,7 +186,6 @@ private:
     KisStrokeStrategy *m_parentStrokeStrategy = 0;
 };
 
-
 class KisTestingStrokeStrategy : public KisStrokeStrategy
 {
 public:
@@ -287,4 +285,4 @@ inline int cancelSeqNo(KisStrokeJob *job) {
     return pointer->seqNo();
 }
 
-#endif /* __SCHEDULER_UTILS_H */
+#endif

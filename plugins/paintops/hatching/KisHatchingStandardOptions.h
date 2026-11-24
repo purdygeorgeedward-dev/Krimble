@@ -40,4 +40,4 @@ inline qreal KisThicknessOption::apply(const KisPaintInformation & info) const
     return computeSizeLikeValue(info);
 }
 
-#endif // KISHATCHINGSTANDARDOPTIONS_H
+#endif

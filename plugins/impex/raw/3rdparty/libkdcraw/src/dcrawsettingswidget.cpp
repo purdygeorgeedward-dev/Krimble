@@ -34,10 +34,7 @@
 #define OPTIONCUSTOMWBGREENENTRY "Custom White Balance Green"
 #define OPTIONFOURCOLORRGBENTRY "Four Color RGB"
 #define OPTIONUNCLIPCOLORSENTRY "Unclip Color"
-// Wrong spelling, but do not fix it since it is a configuration key
-// krazy:cond=spelling
 #define OPTIONDONTSTRETCHPIXELSENTRY "Dont Stretch Pixels"
-// krazy:endcond=spelling
 #define OPTIONMEDIANFILTERPASSESENTRY "Median Filter Passes"
 #define OPTIONNOISEREDUCTIONTYPEENTRY "Noise Reduction Type"
 #define OPTIONNOISEREDUCTIONTHRESHOLDENTRY "Noise Reduction Threshold"
@@ -56,8 +53,6 @@
 #define OPTIONUSEWHITEPOINTENTRY "Use White Point"
 #define OPTIONWHITEPOINTENTRY "White Point"
 
-//-- Extended demosaicing settings ----------------------------------------------------------
-
 #define OPTIONDCBITERATIONSENTRY "Dcb Iterations"
 #define OPTIONDCBENHANCEFLENTRY "Dcb Enhance Filter"
 #define OPTIONEECIREFINEENTRY "Eeci Refine"
@@ -69,11 +64,7 @@
 
 #include "dcrawsettingswidget.h"
 
-// C++ includes
-
 #include <cmath>
-
-// Qt includes
 
 #include <QCheckBox>
 #include <QLabel>
@@ -83,11 +74,7 @@
 #include <QStyle>
 #include <QStandardPaths>
 
-// KDE includes
-
 #include <klocalizedstring.h>
-
-// Local includes
 
 #include "kdcraw.h"
 #include "rnuminput.h"
@@ -161,21 +148,13 @@ public:
         expoCorrectionHighlightLabel   = 0;
     }
 
-    /** Convert Exposure correction shift E.V value from GUI to Linear value needs by libraw decoder.
-     */
     double shiftExpoFromEvToLinear(double ev) const
     {
-        // From GUI : -2.0EV => 0.25
-        //            +3.0EV => 8.00
         return (1.55*ev + 3.35);
     }
 
-    /** Convert Exposure correction shift Linear value from liraw decoder to E.V value needs by GUI.
-     */
     double shiftExpoFromLinearToEv(double lin) const
     {
-        // From GUI : 0.25 => -2.0EV
-        //            8.00 => +3.0EV
         return ((lin-3.35) / 1.55);
     }
 
@@ -252,9 +231,6 @@ void DcrawSettingsWidget::setup(int advSettings)
 {
     setObjectName( QLatin1String("DCRawSettings Expander" ));
 
-    // ---------------------------------------------------------------
-    // DEMOSAICING Settings panel
-
     d->demosaicingSettings               = new QWidget(this);
     QGridLayout* const demosaicingLayout = new QGridLayout(d->demosaicingSettings);
 
@@ -318,30 +294,25 @@ void DcrawSettingsWidget::setup(int advSettings)
     d->RAWQualityLabel    = new QLabel(i18nc("@label:listbox", "Quality:"), d->demosaicingSettings);
     d->RAWQualityComboBox = new RComboBox(d->demosaicingSettings);
 
-    // Original dcraw demosaicing methods
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::BILINEAR, i18nc("@item:inlistbox Quality", "Bilinear"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::VNG,      i18nc("@item:inlistbox Quality", "VNG"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::PPG,      i18nc("@item:inlistbox Quality", "PPG"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::AHD,      i18nc("@item:inlistbox Quality", "AHD"));
 
-    // Extended demosaicing method from GPL2 pack
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::DCB,      i18nc("@item:inlistbox Quality", "DCB"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::PL_AHD,   i18nc("@item:inlistbox Quality", "AHD v2"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::AFD,      i18nc("@item:inlistbox Quality", "AFD"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::VCD,      i18nc("@item:inlistbox Quality", "VCD"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::VCD_AHD,  i18nc("@item:inlistbox Quality", "VCD & AHD"));
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::LMMSE,    i18nc("@item:inlistbox Quality", "LMMSE"));
-    // Extended demosaicing method from GPL3 pack
     d->RAWQualityComboBox->insertItem(RawDecodingSettings::AMAZE,    i18nc("@item:inlistbox Quality", "AMaZE"));
 
-    // If Libraw do not support GPL2 pack, disable entries relevant.
     if (!KDcraw::librawUseGPL2DemosaicPack())
     {
         for (int i=RawDecodingSettings::DCB ; i <=RawDecodingSettings::LMMSE ; ++i)
             d->RAWQualityComboBox->combo()->setItemData(i, false, Qt::UserRole-1);
     }
 
-    // If Libraw do not support GPL3 pack, disable entries relevant.
     if (!KDcraw::librawUseGPL3DemosaicPack())
     {
         d->RAWQualityComboBox->combo()->setItemData(RawDecodingSettings::AMAZE, false, Qt::UserRole-1);
@@ -358,8 +329,6 @@ void DcrawSettingsWidget::setup(int advSettings)
                                 "interpolation or color reconstruction, another common spelling is "
                                 "demosaicing. The following methods are available for demosaicing "
                                 "RAW images:</p>"
-
-                                // Original dcraw demosaicing methods
 
                                 "<p><ul><li><emphasis strong='true'>Bilinear</emphasis>: use "
                                 "high-speed but low-quality bilinear interpolation (default - for "
@@ -381,8 +350,6 @@ void DcrawSettingsWidget::setup(int advSettings)
                                 "Homogeneity-Directed interpolation. This method selects the "
                                 "direction of interpolation so as to maximize a homogeneity metric, "
                                 "thus typically minimizing color artifacts.</li>"
-
-                                // Extended demosaicing method
 
                                 "<li><emphasis strong='true'>DCB</emphasis>: DCB interpolation from "
                                 "linuxphoto.org project.</li>"
@@ -441,7 +408,6 @@ void DcrawSettingsWidget::setup(int advSettings)
                                 "sharpness.</li></ul></p>"));
     demosaicingLayout->addWidget(d->refineInterpolationBox, line, 0, 1, 2);
 
-    // If Libraw do not support GPL2 pack, disable options relevant.
     if (!KDcraw::librawUseGPL2DemosaicPack())
     {
         d->medianFilterPassesLabel->setEnabled(false);
@@ -450,9 +416,6 @@ void DcrawSettingsWidget::setup(int advSettings)
     }
 
     addItem(d->demosaicingSettings, KisIconUtils::loadIcon("kdcraw").pixmap(16, 16), i18nc("@label", "Demosaicing"), QString("demosaicing"), true);
-
-    // ---------------------------------------------------------------
-    // WHITE BALANCE Settings Panel
 
     d->whiteBalanceSettings               = new QWidget(this);
     QGridLayout* const whiteBalanceLayout = new QGridLayout(d->whiteBalanceSettings);
@@ -622,9 +585,6 @@ void DcrawSettingsWidget::setup(int advSettings)
 
     addItem(d->whiteBalanceSettings, KisIconUtils::loadIcon("kdcraw").pixmap(16, 16), i18nc("@label", "White Balance"), QString("whitebalance"), true);
 
-    // ---------------------------------------------------------------
-    // CORRECTIONS Settings panel
-
     d->correctionsSettings               = new QWidget(this);
     QGridLayout* const correctionsLayout = new QGridLayout(d->correctionsSettings);
 
@@ -711,9 +671,6 @@ void DcrawSettingsWidget::setup(int advSettings)
 
     addItem(d->correctionsSettings, KisIconUtils::loadIcon("kdcraw").pixmap(16, 16), i18nc("@label", "Corrections"), QString("corrections"), false);
 
-    // ---------------------------------------------------------------
-    // COLOR MANAGEMENT Settings panel
-
     d->colormanSettings               = new QWidget(this);
     QGridLayout* const colormanLayout = new QGridLayout(d->colormanSettings);
 
@@ -787,8 +744,6 @@ void DcrawSettingsWidget::setup(int advSettings)
 
     addStretch();
 
-    // ---------------------------------------------------------------
-
     connect(d->unclipColorComboBox, static_cast<void (RComboBox::*)(int)>(&RComboBox::activated),
             this, &DcrawSettingsWidget::slotUnclipColorActivated);
 
@@ -824,8 +779,6 @@ void DcrawSettingsWidget::setup(int advSettings)
 
     connect(d->expoCorrectionShiftSpinBox, &RDoubleNumInput::valueChanged,
             this, &DcrawSettingsWidget::slotExpoCorrectionShiftChanged);
-
-    // Wrapper to Q_EMIT signal when something is changed in settings.
 
     connect(d->inIccUrlEdit->lineEdit(), &QLineEdit::textChanged,
             this, &DcrawSettingsWidget::signalSettingsChanged);
@@ -968,7 +921,7 @@ void DcrawSettingsWidget::slotWhiteBalanceToggled(int v)
 
 void DcrawSettingsWidget::slotUnclipColorActivated(int v)
 {
-    if (v == 3)     // Reconstruct Highlight method
+    if (v == 3)
     {
         d->reconstructLabel->setEnabled(true);
         d->reconstructSpinBox->setEnabled(true);
@@ -1057,7 +1010,6 @@ void DcrawSettingsWidget::slotExposureCorrectionToggled(bool b)
 
 void DcrawSettingsWidget::slotExpoCorrectionShiftChanged(double ev)
 {
-    // Only enable Highligh exposure correction if Shift correction is >= 1.0, else this settings do not take effect.
     bool b = (ev >= 1.0);
 
     d->expoCorrectionHighlightLabel->setEnabled(b);
@@ -1082,7 +1034,6 @@ void DcrawSettingsWidget::slotRAWQualityChanged(int quality)
     {
         case RawDecodingSettings::DCB:
         case RawDecodingSettings::VCD_AHD:
-            // These options can be only available if Libraw use GPL2 pack.
             d->medianFilterPassesLabel->setEnabled(KDcraw::librawUseGPL2DemosaicPack());
             d->medianFilterPassesSpinBox->setEnabled(KDcraw::librawUseGPL2DemosaicPack());
             d->refineInterpolationBox->setEnabled(KDcraw::librawUseGPL2DemosaicPack());
@@ -1098,7 +1049,7 @@ void DcrawSettingsWidget::slotRAWQualityChanged(int quality)
             d->refineInterpolationBox->setEnabled(false);
             break;
 
-        default: // BILINEAR, VNG, PPG, AHD
+        default:
             d->medianFilterPassesLabel->setEnabled(true);
             d->medianFilterPassesSpinBox->setEnabled(true);
             d->refineInterpolationBox->setEnabled(false);
@@ -1157,7 +1108,7 @@ void DcrawSettingsWidget::setSettings(const RawDecodingSettings& settings)
         case 2:
             d->unclipColorComboBox->setCurrentIndex(2);
             break;
-        default:         // Reconstruct Highlight method
+        default:
             d->unclipColorComboBox->setCurrentIndex(3);
             d->reconstructSpinBox->setValue(settings.unclipColors-3);
             break;
@@ -1175,7 +1126,6 @@ void DcrawSettingsWidget::setSettings(const RawDecodingSettings& settings)
 
     int q = settings.RAWQuality;
 
-    // If Libraw do not support GPL2 pack, reset to BILINEAR.
     if (!KDcraw::librawUseGPL2DemosaicPack())
     {
         for (int i=RawDecodingSettings::DCB ; i <=RawDecodingSettings::LMMSE ; ++i)
@@ -1189,7 +1139,6 @@ void DcrawSettingsWidget::setSettings(const RawDecodingSettings& settings)
         }
     }
 
-    // If Libraw do not support GPL3 pack, reset to BILINEAR.
     if (!KDcraw::librawUseGPL3DemosaicPack() && (q == RawDecodingSettings::AMAZE))
     {
         q = RawDecodingSettings::BILINEAR;
@@ -1210,7 +1159,7 @@ void DcrawSettingsWidget::setSettings(const RawDecodingSettings& settings)
             break;
         default:
             d->medianFilterPassesSpinBox->setValue(settings.medianFilterPasses);
-            d->refineInterpolationBox->setChecked(false); // option not used.
+            d->refineInterpolationBox->setChecked(false);
             break;
     }
 
@@ -1279,7 +1228,7 @@ RawDecodingSettings DcrawSettingsWidget::settings() const
         case 2:
             prm.unclipColors = 2;
             break;
-        default:         // Reconstruct Highlight method
+        default:
             prm.unclipColors =  d->reconstructSpinBox->value()+3;
             break;
     }
@@ -1324,7 +1273,7 @@ RawDecodingSettings DcrawSettingsWidget::settings() const
             prm.NRChroThreshold = 0;
             break;
         }
-        default:    // IMPULSENR
+        default:
         {
             prm.NRThreshold     = d->NRSpinBox1->value();
             prm.NRChroThreshold = d->NRSpinBox2->value();
@@ -1375,8 +1324,6 @@ void DcrawSettingsWidget::writeSettings(KConfigGroup& group)
             group.writeEntry(OPTIONOUTPUTCOLORSPACEENTRY, (int)prm.outputColorSpace);
             group.writeEntry(OPTIONAUTOBRIGHTNESSENTRY, prm.autoBrightness);
 
-            //-- Extended demosaicing settings ----------------------------------------------------------
-
             group.writeEntry(OPTIONDCBITERATIONSENTRY, prm.dcbIterations);
             group.writeEntry(OPTIONDCBENHANCEFLENTRY, prm.dcbEnhanceFl);
             group.writeEntry(OPTIONEECIREFINEENTRY, prm.eeciRefine);
@@ -1420,8 +1367,6 @@ void DcrawSettingsWidget::readSettings(KConfigGroup& group)
                                                                                           (int)prm.outputColorSpace);
             prm.autoBrightness = group.readEntry(OPTIONAUTOBRIGHTNESSENTRY, prm.autoBrightness);
 
-            //-- Extended demosaicing settings ----------------------------------------------------------
-
             prm.dcbIterations = group.readEntry(OPTIONDCBITERATIONSENTRY, prm.dcbIterations);
             prm.dcbEnhanceFl = group.readEntry(OPTIONDCBENHANCEFLENTRY, prm.dcbEnhanceFl);
             prm.eeciRefine = group.readEntry(OPTIONEECIREFINEENTRY, prm.eeciRefine);
@@ -1436,4 +1381,4 @@ void DcrawSettingsWidget::readSettings(KConfigGroup& group)
     RExpanderBox::readSettings(group);
 }
 
-} // NameSpace KDcrawIface
+}

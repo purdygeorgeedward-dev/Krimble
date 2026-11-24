@@ -44,17 +44,10 @@ public:
 
     static KisWindowLayoutManager *instance();
 
-    /**
-     * When enabled, a workspace dedicated as primary is used for any main window which receives focus.
-     * Meanwhile, the workspace of that window is used for the window which originally had the primary workspace.
-     */
     bool primaryWorkspaceFollowsFocus() const;
     void setPrimaryWorkspaceFollowsFocus(bool enabled, QUuid primaryWindow);
     QUuid primaryWindowId() const;
 
-    /**
-     * When enabled, main windows will synchronize to keep the same document active
-     */
     bool isShowImageInAllWindowsEnabled() const;
     void setShowImageInAllWindowsEnabled(bool showInAll);
 

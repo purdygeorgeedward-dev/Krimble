@@ -29,4 +29,4 @@ private Q_SLOTS:
 
 };
 
-#endif // _KIS_RGBE_TEST_H
+#endif

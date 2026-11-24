@@ -12,18 +12,9 @@
 
 #include <kritaui_export.h>
 
-
 #include "canvas/KisCanvasAnimationState.h"
 #include <boost/optional.hpp>
 
-
-/**
- * @brief The KisPlaybackEngineQT class is an implementation of KisPlaybackEngine
- * that drives animation playback using simple Qt functionality alone.
- *
- * As of right now, this playback engine is used as a fallback for when KisPlaybackEngineMLT is unavailable,
- * invalid, or otherwise unwanted.
- */
 class KRITAUI_EXPORT KisPlaybackEngineQT : public KisPlaybackEngine
 {
     Q_OBJECT
@@ -47,14 +38,7 @@ public:
     PlaybackStats playbackStatistics() const override;
 
 protected Q_SLOTS:
-    /**
-     * @brief throttledDriverCallback handles signals from the internal driver
-     * that drives playback within this engine. It will either increment frame time,
-     * wrapping within bounds, and communicate with KisFrameDisplayProxy or use the
-     * driver's desired time to control which frame is visible...
-     */
     void throttledDriverCallback();
-
 
 protected:
     void setCanvas(KoCanvasBase* canvas) override;
@@ -65,4 +49,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISPLAYBACKENGINEQT_H
+#endif

@@ -55,11 +55,6 @@ private:
 template<typename T>
 class KisScalarTracker : public KisShared {
 public:
-    /**
-     * Create a tracker with the given window size.
-     * @param window The maximum number of elements to take into account for calculation
-     * of max, mean and variance values.
-     */
     KisScalarTracker(const QString &name, int windowSize = 500) :
         m_name(name),
         m_windowSize(windowSize),
@@ -73,10 +68,6 @@ public:
     virtual ~KisScalarTracker() {
     }
 
-    /**
-     * Add a scalar.
-     * @param value the scalar to be added.
-     */
     virtual void push(T value) {
         m_max.push(value);
         m_acc(value);
@@ -94,20 +85,10 @@ public:
     }
 
 protected:
-    /**
-     * Print out a message.
-     * @param message the message to print
-     */
     virtual void print(const QString &message) {
         qInfo() << qUtf8Printable(message);
     }
 
-    /**
-     * Formats a message for printing.
-     * @param mean the mean scalar in the window
-     * @param variance the variance of the scalar in the window
-     * @param max the max scalar in the window
-     */
     virtual QString format(qint64 mean, qint64 variance, qint64 max) {
         return QString("%1: mean %2 ms, var %3, max %4 ms").arg(m_name).arg(mean).arg(variance).arg(max);
     }
@@ -121,7 +102,6 @@ private:
 
     KisRollingMax<T> m_max;
 
-    // see https://svn.boost.org/trac10/ticket/11437
     typedef boost::accumulators::stats<
         boost::accumulators::tag::lazy_rolling_mean,
         boost::accumulators::tag::rolling_variance> stats;
@@ -129,32 +109,14 @@ private:
     boost::accumulators::accumulator_set<T, stats> m_acc;
 };
 
-/**
- * KisLatencyTracker tracks the time it takes events to reach a certain point in the program.
- */
-
 class KRITAGLOBAL_EXPORT KisLatencyTracker : public KisScalarTracker<qint64> {
 public:
-    /**
-     * Create a tracker with the given window size.
-     * @param window The maximum number of elements to take into account for calculation
-     * of max, mean and variance values.
-     */
     KisLatencyTracker(int windowSize = 500);
 
-    /**
-     * Register that an event with the given timestamp has arrived just now.
-     * @param timestamp Timestamp of the event that just arrived (the difference to the
-     * current time is the latency).
-     */
     virtual void push(qint64 timestamp) override;
 
 protected:
-    /**
-     * @return The timestamp of "right now" in a frame that is comparable to those
-     * timestamps given to push().
-     */
     virtual qint64 currentTimestamp() const = 0;
 };
 
-#endif //KRITA_KIS_SCALAR_TRACKER_H
+#endif

@@ -18,7 +18,6 @@
 #include "kis_smoothing_options.h"
 #include "kundo2magicstring.h"
 
-
 class KoPointerEvent;
 class KoCanvasResourceProvider;
 class KisPaintingInformationBuilder;
@@ -26,7 +25,6 @@ class KisStrokesFacade;
 class KisPostExecutionUndoAdapter;
 class KisPaintOp;
 class KisFreehandStrokeInfo;
-
 
 class KRITAUI_EXPORT KisToolFreehandHelper : public QObject
 {
@@ -47,16 +45,6 @@ public:
 
     void cursorMoved(const QPointF &cursorPos);
 
-    /**
-     * @param event The event
-     * @param pixelCoords The position of the KoPointerEvent, in pixel coordinates.
-     * @param resourceManager The canvas resource manager
-     * @param image The image
-     * @param currentNode The current node
-     * @param strokesFacade The strokes facade
-     * @param overrideNode The override node
-     * @param bounds The bounds
-     */
     void initPaint(KoPointerEvent *event,
                    const QPointF &pixelCoords,
                    KisImageWSP image,
@@ -73,12 +61,6 @@ public:
                                             KisPaintOpSettings::OutlineMode mode) const;
 
 Q_SIGNALS:
-    /**
-     * The signal is emitted when the outline should be updated
-     * explicitly by the tool. Used by Stabilizer option, because it
-     * paints on internal timer events instead of the on every paint()
-     * event
-     */
     void requestExplicitUpdateOutline();
 
 protected:
@@ -101,8 +83,6 @@ protected:
     virtual void createPainters(QVector<KisFreehandStrokeInfo*> &strokeInfos,
                                 const KisDistanceInformation &startDist);
 
-    // lo-level methods for painting primitives
-
     void paintAt(int strokeInfoId, const KisPaintInformation &pi);
 
     void paintLine(int strokeInfoId,
@@ -114,8 +94,6 @@ protected:
                           const QPointF &control1,
                           const QPointF &control2,
                           const KisPaintInformation &pi2);
-
-    // hi-level methods for painting primitives
 
     virtual void paintAt(const KisPaintInformation &pi);
 
@@ -130,7 +108,7 @@ protected:
 private:
     void paint(KisPaintInformation &info );
     void paintBezierSegment(KisPaintInformation pi1, KisPaintInformation pi2,
-                                                   QPointF tangent1, QPointF tangent2 
+                                                   QPointF tangent1, QPointF tangent2
                                                  );
 
     void stabilizerStart(KisPaintInformation firstPaintInfo);
@@ -153,4 +131,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_TOOL_FREEHAND_HELPER_H */
+#endif

@@ -14,7 +14,6 @@
 #include <KisActionPlugin.h>
 #include "kis_types.h"
 
-
 class ShearImage : public KisActionPlugin
 {
     Q_OBJECT
@@ -32,4 +31,4 @@ private Q_SLOTS:
     void slotShearAllLayers();
 };
 
-#endif // SHEARIMAGE_H
+#endif

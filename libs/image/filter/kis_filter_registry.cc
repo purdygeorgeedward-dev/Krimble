@@ -64,4 +64,3 @@ KisFilterSP KisFilterRegistry::fallbackFilter() const
     return value("gaussian blur");
 }
 
-

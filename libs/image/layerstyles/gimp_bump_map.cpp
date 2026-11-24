@@ -18,7 +18,6 @@
 
 #include <memory>
 
-
 typedef int gint;
 typedef qint32 gint32;
 typedef bool gboolean;
@@ -33,11 +32,11 @@ typedef double gdouble;
 
 typedef struct
 {
-  gint    lx, ly;       /* X and Y components of light vector */
-  gint    nz2, nzlz;    /* nz^2, nz*lz */
-  gint    background;   /* Shade for vertical normals */
-  gdouble compensation; /* Background compensation */
-  guchar  lut[256];     /* Look-up table for modes */
+  gint    lx, ly;
+  gint    nz2, nzlz;
+  gint    background;
+  gdouble compensation;
+  guchar  lut[256];
 } bumpmap_params_t;
 
 void bumpmap_init_params (bumpmap_params_t *params, const bumpmap_vals_t &bmvals);
@@ -50,8 +49,6 @@ bumpmap_row (const bumpmap_vals_t &bmvals,
              const guchar     *bm_row2,
              const guchar     *bm_row3,
              bumpmap_params_t *params);
-
-////////////////////////////////////////////////////////////////////
 
 void convertRow(quint8 *data, int width, const quint8 *lut)
 {
@@ -108,31 +105,24 @@ void bumpmap (KisPixelSelectionSP device,
 
 void bumpmap_init_params (bumpmap_params_t *params, const bumpmap_vals_t &bmvals)
 {
-  /* Convert to radians */
   const gdouble azimuth   = G_PI * bmvals.azimuth / 180.0;
   const gdouble elevation = G_PI * bmvals.elevation / 180.0;
 
   gint lz, nz;
   gint i;
 
-  /* Calculate the light vector */
   params->lx = cos (azimuth) * cos (elevation) * 255.0;
   params->ly = sin (azimuth) * cos (elevation) * 255.0;
   lz         = sin (elevation) * 255.0;
 
-  /* Calculate constant Z component of surface normal */
-  /*              (depth may be 0 if non-interactive) */
   nz           = (6 * 255) / qMax (bmvals.depth, 1);
   params->nz2  = nz * nz;
   params->nzlz = nz * lz;
 
-  /* Optimize for vertical normals */
   params->background = lz;
 
-  /* Calculate darkness compensation factor */
   params->compensation = sin(elevation);
 
-  /* Create look-up table for map type */
   for (i = 0; i < 256; i++)
     {
       gdouble n;
@@ -178,8 +168,6 @@ bumpmap_row (const bumpmap_vals_t &bmvals,
         gint shade;
         gint nx, ny;
 
-        /* Calculate surface normal from bump map */
-
         xofs2 = x;
         xofs1 = xofs2 - 1;
         xofs3 = xofs2 + 1;
@@ -188,8 +176,6 @@ bumpmap_row (const bumpmap_vals_t &bmvals,
               bm_row1[xofs3] - bm_row2[xofs3] - bm_row3[xofs3]);
         ny = (bm_row3[xofs1] + bm_row3[xofs2] + bm_row3[xofs3] -
               bm_row1[xofs1] - bm_row1[xofs2] - bm_row1[xofs3]);
-
-        /* Shade */
 
         if ((nx == 0) && (ny == 0)) {
             shade = params->background;
@@ -205,8 +191,6 @@ bumpmap_row (const bumpmap_vals_t &bmvals,
                     bmvals.ambient / 255;
             }
         }
-
-        /* Paint */
 
         if (bmvals.compensate) {
             int result  = shade / params->compensation;

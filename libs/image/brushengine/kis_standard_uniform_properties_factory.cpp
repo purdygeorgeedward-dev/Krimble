@@ -13,8 +13,6 @@
 
 namespace KisStandardUniformPropertiesFactory {
 
-
-
 KisUniformPaintOpPropertySP createProperty(const KoID &id,
                                            KisPaintOpSettingsRestrictedSP settings,
                                            KisPaintOpPresetUpdateProxy *updateProxy)
@@ -27,7 +25,6 @@ KisUniformPaintOpPropertySP createProperty(const QString &id,
                                            KisPaintOpPresetUpdateProxy *updateProxy)
 {
     KisUniformPaintOpPropertySP result;
-
 
     if (id == size.id()) {
         KisDoubleSliderBasedPaintOpPropertyCallback *prop =

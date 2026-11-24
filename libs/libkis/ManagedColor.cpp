@@ -27,7 +27,6 @@ ManagedColor::ManagedColor(QObject *parent)
     : QObject(parent)
     , d(new Private())
 {
-    // Default black rgb color
 }
 
 ManagedColor::ManagedColor(const QString &colorModel, const QString &colorDepth, const QString &colorProfile, QObject *parent)
@@ -39,7 +38,6 @@ ManagedColor::ManagedColor(const QString &colorModel, const QString &colorDepth,
         d->color = KoColor(colorSpace);
     }
 }
-
 
 ManagedColor::ManagedColor(KoColor color, QObject *parent)
     : QObject(parent)

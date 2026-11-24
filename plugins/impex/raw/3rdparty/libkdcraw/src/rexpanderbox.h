@@ -30,20 +30,13 @@
 #ifndef REXPANDERBOX_H
 #define REXPANDERBOX_H
 
-// Qt includes
-
 #include <QObject>
 #include <QPixmap>
 #include <QLabel>
 #include <QWidget>
 #include <QScrollArea>
 
-// KDE includes
-
 #include <kconfiggroup.h>
-
-// Local includes
-
 
 #include "rwidgetutils.h"
 
@@ -62,9 +55,7 @@ public:
 
 Q_SIGNALS:
 
-    /// Emitted when activated by left mouse click
     void leftClicked();
-    /// Emitted when activated, by mouse or key press
     void activated();
 
 protected:
@@ -73,8 +64,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 };
-
-// -------------------------------------------------------------------------
 
 class  RSqueezedClickLabel : public RAdjustableLabel
 {
@@ -97,8 +86,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 };
-
-// -------------------------------------------------------------------------
 
 class  RArrowClickLabel : public QWidget
 {
@@ -130,8 +117,6 @@ protected:
     int           m_size;
     int           m_margin;
 };
-
-// -------------------------------------------------------------------------
 
 class  RLabelExpander : public QWidget
 {
@@ -185,8 +170,6 @@ private:
     Private* const d;
 };
 
-// -------------------------------------------------------------------------
-
 class  RExpanderBox : public QScrollArea
 {
     Q_OBJECT
@@ -196,25 +179,11 @@ public:
     RExpanderBox(QWidget* const parent = 0);
     ~RExpanderBox() override;
 
-    /** Add RLabelExpander item at end of box layout with these settings :
-        'w'               : the widget hosted by RLabelExpander.
-        'pix'             : pixmap used as icon to item title.
-        'txt'             : text used as item title.
-        'objName'         : item object name used to read/save expanded settings to rc file.
-        'expandBydefault' : item state by default (expanded or not).
-     */
     void addItem(QWidget* const w, const QIcon &icon, const QString& txt,
                  const QString& objName, bool expandBydefault);
     void addItem(QWidget* const w, const QString& txt,
                  const QString& objName, bool expandBydefault);
 
-    /** Insert RLabelExpander item at box layout index with these settings :
-        'w'               : the widget hosted by RLabelExpander.
-        'pix'             : pixmap used as icon to item title.
-        'txt'             : text used as item title.
-        'objName'         : item object name used to read/save expanded settings to rc file.
-        'expandBydefault' : item state by default (expanded or not).
-     */
     void insertItem(int index, QWidget* const w, const QIcon &icon, const QString& txt,
                     const QString& objName, bool expandBydefault);
     void insertItem(int index, QWidget* const w, const QString& txt,
@@ -270,8 +239,6 @@ private:
     Private* const d;
 };
 
-// -------------------------------------------------------------------------
-
 class  RExpanderBoxExclusive : public RExpanderBox
 {
     Q_OBJECT
@@ -281,7 +248,6 @@ public:
     RExpanderBoxExclusive(QWidget* const parent = 0);
     ~RExpanderBoxExclusive() override;
 
-    /** Show one expander open at most */
     void setIsToolBox(bool b);
     bool isToolBox() const;
 
@@ -294,6 +260,6 @@ private:
     bool m_toolbox;
 };
 
-} // namespace KDcrawIface
+}
 
-#endif // REXPANDERBOX_H
+#endif

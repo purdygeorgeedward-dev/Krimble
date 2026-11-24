@@ -8,10 +8,6 @@
 
 #include "kis_node.h"
 
-/*******************************************************************************/
-/*                       ComplexSizeChangedSignal                              */
-/*******************************************************************************/
-
 ComplexSizeChangedSignal::ComplexSizeChangedSignal() {}
 
 ComplexSizeChangedSignal::ComplexSizeChangedSignal(QPointF _oldStillPoint, QPointF _newStillPoint)
@@ -30,11 +26,6 @@ ComplexSizeChangedSignal ComplexSizeChangedSignal::inverted() const {
     return ComplexSizeChangedSignal(newStillPoint, oldStillPoint);
 }
 
-
-/*******************************************************************************/
-/*                       ComplexNodeReselectionSignal                          */
-/*******************************************************************************/
-
 ComplexNodeReselectionSignal::ComplexNodeReselectionSignal() {}
 
 ComplexNodeReselectionSignal::ComplexNodeReselectionSignal(KisNodeSP _newActiveNode, KisNodeList _newSelectedNodes, KisNodeSP _oldActiveNode, KisNodeList _oldSelectedNodes)
@@ -48,11 +39,6 @@ ComplexNodeReselectionSignal::ComplexNodeReselectionSignal(KisNodeSP _newActiveN
 ComplexNodeReselectionSignal ComplexNodeReselectionSignal::inverted() const {
     return ComplexNodeReselectionSignal(oldActiveNode, oldSelectedNodes, newActiveNode, newSelectedNodes);
 }
-
-
-/*******************************************************************************/
-/*                       KisImageSignalType                                    */
-/*******************************************************************************/
 
 KisImageSignalType::KisImageSignalType() {}
 

@@ -27,7 +27,7 @@ KoColorDisplayRendererInterface::~KoColorDisplayRendererInterface()
 
 QImage KoDumbColorDisplayRenderer::toQImage(const KoColorSpace *srcColorSpace, const quint8 *data, QSize size, bool proofPaintColors) const
 {
-    Q_UNUSED(proofPaintColors); // dumb converter doesn't know a painting color space
+    Q_UNUSED(proofPaintColors);
     return srcColorSpace->convertToQImage(data, size.width(), size.height(), 0,
                                           KoColorConversionTransformation::internalRenderingIntent(),
                                           KoColorConversionTransformation::internalConversionFlags());

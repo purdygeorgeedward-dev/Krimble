@@ -45,10 +45,9 @@ inline std::vector<SensorData*> sensors(Data *data)
 
     result.push_back(&data->sensorPerspective);
 
-
     return result;
 }
-} // namespace detail
+}
 
 KisKritaSensorData::KisKritaSensorData()
     : sensorPressure(PressureId),
@@ -91,7 +90,7 @@ std::vector<KisSensorData *> KisKritaSensorPack::sensors()
     return detail::sensors(&m_data);
 }
 
-const KisKritaSensorData& KisKritaSensorPack::constSensorsStruct() const 
+const KisKritaSensorData& KisKritaSensorPack::constSensorsStruct() const
 {
     return m_data;
 }
@@ -136,7 +135,6 @@ bool KisKritaSensorPack::read(KisCurveOptionDataCommon &data, const KisPropertie
     const QString sensorDefinition = setting->getString(data.id.id() + "Sensor");
 
     if (sensorDefinition.isEmpty()) {
-        // noop
     } else if (!sensorDefinition.contains("sensorslist")) {
         QDomDocument doc;
         doc.setContent(sensorDefinition);
@@ -174,8 +172,6 @@ bool KisKritaSensorPack::read(KisCurveOptionDataCommon &data, const KisPropertie
                     sensor->isActive = true;
                     sensorsToReset.remove(sensor);
 
-                    /// due to legacy reasons we initialize common curve
-                    /// with the "last read curve value"
                     proposedCommonCurve = sensor->curve;
                 }
             }
@@ -187,8 +183,6 @@ bool KisKritaSensorPack::read(KisCurveOptionDataCommon &data, const KisPropertie
 
     data.useSameCurve = setting->getBool(data.id.id() + "UseSameCurve", true);
 
-    // Only load the old curve format if the curve wasn't saved by the sensor
-    // This will give every sensor the same curve.
     if (!sensorDefinition.contains("curve")) {
         if (setting->getBool("Custom" + data.id.id(), false)) {
             data.commonCurve = setting->getString("Curve" + data.id.id(), DEFAULT_CURVE_STRING);
@@ -215,7 +209,6 @@ bool KisKritaSensorPack::read(KisCurveOptionDataCommon &data, const KisPropertie
         sensor->reset();
     }
 
-    // At least one sensor needs to be active
     if (std::find_if(sensors.begin(), sensors.end(),
                      std::mem_fn(&KisSensorData::isActive)) == sensors.end()) {
 

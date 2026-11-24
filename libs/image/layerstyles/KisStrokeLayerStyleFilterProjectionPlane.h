@@ -10,7 +10,6 @@
 #include "kis_layer_style_filter_projection_plane.h"
 #include "krita_utils.h"
 
-
 class KisStrokeLayerStyleFilterProjectionPlane : public KisLayerStyleFilterProjectionPlane
 {
 public:
@@ -23,4 +22,4 @@ public:
 
 using KisStrokeLayerStyleFilterProjectionPlaneSP = QSharedPointer<KisStrokeLayerStyleFilterProjectionPlane>;
 
-#endif // KISSTROKELAYERSTYLEFILTERPROJECTIONPLANE_H
+#endif

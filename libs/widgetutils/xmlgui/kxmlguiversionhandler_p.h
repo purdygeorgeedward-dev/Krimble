@@ -11,17 +11,6 @@
 
 #include <QStringList>
 
-/**
- * @internal
- * Helper class for KisKXMLGUIClient::setXMLFile
- * Finds the xml file with the largest version number and takes
- * care of keeping user settings (from the most local file)
- * like action shortcuts or toolbar customizations.
- *
- * This is about handling upgrades (a new version of the application
- * has been installed, with a new xmlgui file, and the user might have
- * a local modified version of an older xmlgui file).
- */
 class KXmlGuiVersionHandler
 {
 public:
@@ -36,11 +25,11 @@ public:
         return m_doc;
     }
 
-    static QString findVersionNumber(const QString &xml);   // used by the unit test
+    static QString findVersionNumber(const QString &xml);
 
 private:
     QString m_file;
     QString m_doc;
 };
 
-#endif /* KisKXMLGUIVERSIONHANDLER_P_H */
+#endif

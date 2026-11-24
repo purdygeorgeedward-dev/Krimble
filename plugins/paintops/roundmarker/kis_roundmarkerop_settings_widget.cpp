@@ -16,14 +16,12 @@
 #include "KisSizeOptionWidget.h"
 #include "KisSpacingOptionWidget.h"
 
-
 KisRoundMarkerOpSettingsWidget::KisRoundMarkerOpSettingsWidget(QWidget* parent)
     : KisPaintOpSettingsWidget(parent)
 {
     namespace kpowu = KisPaintOpOptionWidgetUtils;
 
     setObjectName("roundmarker option widget");
-    //setPrecisionEnabled(true);
 
     addPaintOpOption(kpowu::createOptionWidget<KisRoundMarkerOpOptionWidget>());
     addPaintOpOption(kpowu::createOptionWidget<KisCompositeOpOptionWidget>());

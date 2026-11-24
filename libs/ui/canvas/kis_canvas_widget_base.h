@@ -31,13 +31,10 @@ public:
 
     ~KisCanvasWidgetBase() override;
 
-public: // KisAbstractCanvasWidget
+public:
 
     KoToolProxy *toolProxy() const override;
 
-    /**
-     * Draw the specified decorations on the view.
-     */
     void drawDecorations(QPainter & gc, const QRect &updateWidgetRect) const override;
 
     void addDecoration(KisCanvasDecorationSP deco) override;
@@ -51,18 +48,9 @@ public: // KisAbstractCanvasWidget
     void setWrapAroundViewingMode(bool value) override;
     void setWrapAroundViewingModeAxis(WrapAroundAxis value) override;
 
-    /**
-     * Returns the color of the border, i.e. the part of the canvas
-     * outside the image contents.
-     *
-     */
     QColor borderColor() const;
 
-    /**
-     * Returns one check of the background checkerboard pattern.
-     */
     static QImage createCheckersImage(qint32 checkSize = -1);
-
 
     KisCoordinatesConverter* coordinatesConverter() const;
 
@@ -75,18 +63,12 @@ public: // KisAbstractCanvasWidget
 protected:
     KisCanvas2 *canvas() const;
 
-    /**
-     * Event handlers to be called by derived canvas event handlers.
-     * All common event processing is carried out by these
-     * functions.
-     */
     QVariant processInputMethodQuery(Qt::InputMethodQuery query) const;
     void processInputMethodEvent(QInputMethodEvent *event);
     void processFocusInEvent(QFocusEvent *event);
     void processFocusOutEvent(QFocusEvent *event);
     void notifyConfigChanged();
 
-    /// To be implemented by the derived canvas
     virtual bool callFocusNextPrevChild(bool next) = 0;
 
 private:
@@ -95,4 +77,4 @@ private:
 
 };
 
-#endif // _KIS_CANVAS_WIDGET_BASE_
+#endif

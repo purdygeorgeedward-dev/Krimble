@@ -32,7 +32,6 @@ void KisInsertKeyframeCommand::undo()
     }
 }
 
-
 KisRemoveKeyframeCommand::KisRemoveKeyframeCommand(KisKeyframeChannel *channel, int time, KUndo2Command *parentCmd)
     : KUndo2Command(parentCmd),
       m_channel(channel),

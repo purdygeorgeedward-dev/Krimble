@@ -25,7 +25,6 @@ DbExplorer::DbExplorer(QObject *parent, const QVariantList &)
     connect(action, SIGNAL(triggered()), this, SLOT(slotDbExplorer()));
 }
 
-
 DbExplorer::~DbExplorer()
 {
 }

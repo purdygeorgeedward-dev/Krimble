@@ -11,23 +11,11 @@
 
 class StarShape;
 
-/// The undo / redo command for configuring a star shape
 class StarShapeConfigCommand : public KUndo2Command
 {
 public:
-    /**
-     * Configures a star shape
-     * @param star the star shape to configure
-     * @param cornerCount the number of corners to set
-     * @param innerRadius the inner radius
-     * @param outerRadius the outer radius
-     * @param convex indicates whether the star is convex or not
-     * @param parent the optional parent command
-     */
     StarShapeConfigCommand(StarShape *star, uint cornerCount, qreal innerRadius, qreal outerRadius, bool convex, KUndo2Command *parent = 0);
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 private:
     StarShape *m_star;
@@ -41,5 +29,5 @@ private:
     bool m_newConvex;
 };
 
-#endif // STARSHAPECONFIGCOMMAND_H
+#endif
 

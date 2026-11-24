@@ -151,18 +151,15 @@ KisBrushSelectionWidget::KisBrushSelectionWidget(int maxBrushSize,
     m_d->brushType.bind([this](int value) {m_buttonGroup->button(value)->setChecked(true); });
     connect(m_buttonGroup, &QButtonGroup::idClicked, [this] (int id) {m_d->brushType.set(id);});
 
-
     Q_FOREACH (QWidget *widget, m_chooserMap.values()) {
         m_minimumSize = m_minimumSize.expandedTo(widget->sizeHint());
     }
-
 
     setCurrentWidget(m_autoBrushWidget);
 
     uiWdgBrushChooser.sliderPrecision->setRange(1, 5);
     uiWdgBrushChooser.sliderPrecision->setSingleStep(1);
     uiWdgBrushChooser.sliderPrecision->setPageStep(1);
-
 
     if (flags & KisBrushOptionWidgetFlag::SupportsPrecision) {
         connectControl(uiWdgBrushChooser.sliderPrecision, &m_d->model, "precisionLevel");
@@ -181,7 +178,6 @@ KisBrushSelectionWidget::KisBrushSelectionWidget(int maxBrushSize,
     }
 }
 
-
 KisBrushSelectionWidget::~KisBrushSelectionWidget()
 {
 }
@@ -190,8 +186,6 @@ KisBrushSP KisBrushSelectionWidget::brush() const
 {
     KisBrushSP theBrush;
 
-    // Fallback to auto brush if no brush selected
-    // Can happen if there is no predefined brush found
     if (!theBrush)
         theBrush = m_autoBrushWidget->brush();
 

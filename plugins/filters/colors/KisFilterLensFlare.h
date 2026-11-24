@@ -46,7 +46,7 @@ public:
 
     void setConfiguration(const KisPropertiesConfigurationSP config) override;
     KisPropertiesConfigurationSP configuration() const override;
-    void setView(KisViewManager *view) override;   // to follow a finger dragged on the picture
+    void setView(KisViewManager *view) override;
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;

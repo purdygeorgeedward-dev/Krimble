@@ -15,7 +15,6 @@
 #include <kis_node.h>
 class KisIdleTasksManager;
 
-
 class KRITAUI_EXPORT KisLayerThumbnailCache : public QObject
 {
     Q_OBJECT
@@ -51,4 +50,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISLAYERTHUMBNAILCACHE_H
+#endif

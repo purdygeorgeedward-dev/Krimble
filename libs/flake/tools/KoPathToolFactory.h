@@ -9,7 +9,6 @@
 
 #include <KoToolFactoryBase.h>
 
-/// Factory for the KoPathTool
 class KoPathToolFactory : public KoToolFactoryBase
 {
 public:

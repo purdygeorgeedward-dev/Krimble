@@ -32,8 +32,6 @@ public:
 public Q_SLOTS:
     QColor modalColorDialog(QColor oldColor);
 
-
-
 private:
     QPointer<KisCanvas2> m_canvas;
     KisQQuickWidget *m_quickWidget {0};
@@ -42,4 +40,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // TEXTPROPERTIESDOCK_H
+#endif

@@ -8,7 +8,7 @@
 using namespace KisWidgetConnectionUtils;
 
 KisRoundMarkerOpOptionModel::KisRoundMarkerOpOptionModel(lager::cursor<KisRoundMarkerOpOptionData> _optionData)
-    : optionData(_optionData)    
+    : optionData(_optionData)
     , LAGER_QT(diameter) {_optionData[&KisRoundMarkerOpOptionData::diameter]}
     , LAGER_QT(spacing) {_optionData[&KisRoundMarkerOpOptionData::spacing]}
     , LAGER_QT(useAutoSpacing) {_optionData[&KisRoundMarkerOpOptionData::useAutoSpacing]}

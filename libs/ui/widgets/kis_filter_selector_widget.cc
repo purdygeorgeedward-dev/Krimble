@@ -32,7 +32,6 @@
 #include <KisKineticScroller.h>
 #include <KisGlobalResourcesInterface.h>
 
-// From krita/ui
 #include "kis_bookmarked_configurations_editor.h"
 #include "kis_bookmarked_filter_configurations_model.h"
 #include "kis_filters_model.h"
@@ -52,7 +51,6 @@ public:
 private:
     Q_DISABLE_COPY(ThumbnailBounds)
 };
-
 
 struct KisFilterSelectorWidget::Private {
     QWidget *currentCentralWidget {0};
@@ -231,7 +229,7 @@ void KisFilterSelectorWidget::setFilter(KisFilterSP f, KisFilterConfigurationSP 
     KisConfigWidget* widget =
             d->currentFilter->createConfigurationWidget(d->uiFilterSelector.centralWidgetHolder, d->paintDevice, d->usedForMask);
 
-    if (!widget) { // No widget, so display a label instead
+    if (!widget) {
         d->uiFilterSelector.comboBoxPresets->setEnabled(false);
         d->uiFilterSelector.pushButtonEditPresets->setEnabled(false);
         d->uiFilterSelector.btnXML->setEnabled(false);
@@ -263,12 +261,10 @@ void KisFilterSelectorWidget::setFilter(KisFilterSP f, KisFilterConfigurationSP 
         connect(d->currentFilterConfigurationWidget, SIGNAL(sigConfigurationUpdated()), this, SIGNAL(configurationChanged()));
     }
 
-    // Change the list of presets
     delete d->currentBookmarkedFilterConfigurationsModel;
     d->currentBookmarkedFilterConfigurationsModel = new KisBookmarkedFilterConfigurationsModel(d->thumb, f);
     d->uiFilterSelector.comboBoxPresets->setModel(d->currentBookmarkedFilterConfigurationsModel);
 
-    // Add the widget to the layout
     d->currentCentralWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     d->widgetLayout->addWidget(d->currentCentralWidget, 0 , 0);
 

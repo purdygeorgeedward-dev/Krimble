@@ -22,7 +22,6 @@ void KoSvgTextPathInfoChangeCommand::redo()
     KoShapeBulkActionLock lock(m_shape);
     KoSvgTextNodeIndex index = m_shape->topLevelNodeForPos(m_pos);
 
-
     if (m_newInfo.side != index.textPathInfo()->side) {
         KoSvgText::TextAnchor anchor = KoSvgText::TextAnchor(index.properties()->propertyOrDefault(KoSvgTextProperties::TextAnchorId).toInt());
         anchor = anchor == KoSvgText::AnchorStart? KoSvgText::AnchorEnd:

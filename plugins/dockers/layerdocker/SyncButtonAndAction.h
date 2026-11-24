@@ -42,4 +42,4 @@ private:
     QPointer<QAbstractButton> m_button;
 };
 
-#endif /* __SYNC_BUTTON_AND_ACTION_H */
+#endif

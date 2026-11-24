@@ -10,7 +10,6 @@
 
 #include "kis_debug.h"
 
-
 KisDraggableToolButton::KisDraggableToolButton(QWidget *parent)
     : QToolButton(parent),
       m_orientation(Qt::Horizontal)
@@ -41,7 +40,6 @@ int KisDraggableToolButton::continueDrag(const QPoint &pos)
         m_orientation = Qt::Horizontal;
     }
 
-    // people like it more when the they can zoom by dragging in both directions
     Q_UNUSED(m_orientation);
 
     value = diff.x() - diff.y();

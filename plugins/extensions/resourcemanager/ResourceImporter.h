@@ -26,8 +26,6 @@ public:
 public:
     void importResources(QString startPath = "");
 
-
-
 private Q_SLOTS:
 
 private:
@@ -35,13 +33,12 @@ private:
     void prepareModelsMap();
     void initialize();
 
-
     enum ImportFailureReason
     {
-        MimetypeResourceTypeUnknown, // when someone tries to import a .foo file
+        MimetypeResourceTypeUnknown,
         ResourceCannotBeLoaded,
-        CancelledByTheUser, // the user pressed Cancel when asked
-        StorageAlreadyExists, // bundle, asl or abr file already exists in that location
+        CancelledByTheUser,
+        StorageAlreadyExists,
     };
 
 private:
@@ -60,4 +57,4 @@ private:
 
 };
 
-#endif // RESOURCE_IMPORTER_H
+#endif

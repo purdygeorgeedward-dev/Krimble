@@ -18,7 +18,6 @@ class KisKShortcutSchemesEditor: public QHBoxLayout
 public:
     KisKShortcutSchemesEditor(KisShortcutsDialog *parent);
 
-    /** @return the currently selected scheme in the editor (may differ from current app's scheme.*/
     QString currentScheme();
 
 private Q_SLOTS:
@@ -28,7 +27,6 @@ private Q_SLOTS:
     void exportShortcutsScheme();
     void loadCustomShortcuts();
     void saveCustomShortcuts();
-    // void saveAsDefaultsForScheme();  //Not implemented
 
 Q_SIGNALS:
     void shortcutsSchemeChanged(const QString &);

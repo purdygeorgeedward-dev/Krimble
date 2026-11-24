@@ -25,4 +25,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KOSVGTEXTFLIPSHAPETYPECOMMAND_H
+#endif

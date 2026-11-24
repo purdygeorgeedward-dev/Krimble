@@ -1,10 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-07: the DPaint panel. George: "unified DPaint style with pixelated black icons for tools. Retro nostalgia." (gray bevelled buttons, black pixel icons, the way the
-// classic toolbox looked), "Build it the way it feels right. We can tweak it after a build to see it working." One panel (Window menu: DPaint) with: the tools in two columns
-// (switching to the tool and showing which one is active), UNDO / redo / CLR / select all, the color indicator (the background color as a box with the foreground color as a dot in
-// it: tap the dot for the foreground color, tap the box for the background color, long press to swap), and a palette of 256 colors shown as pages of 4 x 8 wells with arrows:
-// tap a well for the foreground color; RANGE then the first and the last well fills the wells between them with a blend (BACK undoes the last change); EDIT then a well changes
-// that well's color. The palette is saved with the program's settings. Everything is drawn here (no picture files).
 #pragma once
 
 #include <cmath>
@@ -32,7 +26,6 @@
 #include <kactioncollection.h>
 #include <KisViewManager.h>
 #include <kis_canvas2.h>
-
 
 static const char *const krimbleDpIcon_freehand[16] = {
     "................",
@@ -382,7 +375,6 @@ inline QColor faceColor() { return QColor(170, 170, 170); }
 inline QColor lightEdge() { return QColor(238, 238, 238); }
 inline QColor darkEdge() { return QColor(70, 70, 70); }
 
-// a 16 x 16 icon (# is a black pixel) drawn in the middle of an area, as large as a whole number of pixels per icon pixel allows
 inline void paintIcon(QPainter &p, const char *const *rows, const QRect &area)
 {
     const int cell = qMax(1, qMin(area.width(), area.height()) / 16);
@@ -399,7 +391,6 @@ inline void paintIcon(QPainter &p, const char *const *rows, const QRect &area)
     p.restore();
 }
 
-// the bevel: light edges at the top and the left, dark at the bottom and the right (swapped when pressed), a 2 px edge
 inline void paintBevel(QPainter &p, const QRect &r, bool pressed, const QColor &face)
 {
     p.save();
@@ -420,7 +411,6 @@ inline void paintBevel(QPainter &p, const QRect &r, bool pressed, const QColor &
 
 }
 
-// a gray bevelled button with a black pixel icon, or with a few letters; square when it has an icon
 class KrimbleDpButton : public QAbstractButton
 {
 public:
@@ -453,7 +443,6 @@ private:
     QString m_text;
 };
 
-// the color indicator: the background color as a box, the foreground color as a dot in the middle of it
 class KrimbleDpIndicator : public QWidget
 {
 public:
@@ -476,7 +465,7 @@ protected:
         p.fillRect(rect(), KrimbleDp::faceColor());
         const QRect box = rect().adjusted(3, 3, -3, -3);
         p.fillRect(box, m_bg);
-        p.setPen(KrimbleDp::darkEdge());                                    // an inset edge: dark at the top and the left, light at the bottom and the right
+        p.setPen(KrimbleDp::darkEdge());
         p.drawLine(box.topLeft(), box.topRight()); p.drawLine(box.topLeft(), box.bottomLeft());
         p.setPen(KrimbleDp::lightEdge());
         p.drawLine(box.bottomLeft(), box.bottomRight()); p.drawLine(box.topRight(), box.bottomRight());
@@ -489,7 +478,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override
     {
         m_hold.stop();
-        if (m_longPressed) return;                                          // the swap already happened
+        if (m_longPressed) return;
         const QRect dot = dotRect();
         const QPointF centre = dot.center();
         const qreal distance = std::hypot(event->pos().x() - centre.x(), event->pos().y() - centre.y());
@@ -503,7 +492,6 @@ private:
     QPoint m_pressPos;
 };
 
-// one page of the palette: 4 columns by 8 rows of touching wells with dark lines between them
 class KrimbleDpPalette : public QWidget
 {
 public:
@@ -513,7 +501,7 @@ public:
         setMinimumSize(48, 96);
     }
     bool hasHeightForWidth() const override { return true; }
-    int heightForWidth(int w) const override { return w * 2; }              // 4 x 8 wells, each as tall as wide
+    int heightForWidth(int w) const override { return w * 2; }
     QSize sizeHint() const override { return QSize(80, 160); }
     void setData(const QVector<QColor> *colors, int page) { m_colors = colors; m_page = page; update(); }
     void setMarks(int first, int second) { m_first = first; m_second = second; update(); }
@@ -556,10 +544,9 @@ public:
         auto *column = new QVBoxLayout(panel);
         column->setContentsMargins(3, 3, 3, 3);
         column->setSpacing(3);
-        panel->setStyleSheet(QStringLiteral("QWidget { background: #aaaaaa; }"));   // the gray of the classic toolbox
+        panel->setStyleSheet(QStringLiteral("QWidget { background: #aaaaaa; }"));
         panel->setMaximumWidth(104);
 
-        // tools, two columns: the tool id and its pixel icon
         struct ToolEntry { const char *id; const char *const *icon; const char *tip; };
         const ToolEntry tools[] = {
             { "KritaShape/KisToolBrush",      krimbleDpIcon_freehand, "Freehand" },
@@ -592,7 +579,6 @@ public:
             grid->addWidget(button, slot / 2, slot % 2);
             ++slot;
         }
-        // the actions: UNDO, redo, CLR, select all
         struct ActionEntry { const char *name; const char *const *icon; const char *tip; };
         const ActionEntry actions[] = {
             { "edit_undo",  krimbleDpIcon_undo,   "Undo" },
@@ -610,7 +596,6 @@ public:
         }
         column->addLayout(grid);
 
-        // the color indicator
         m_indicator = new KrimbleDpIndicator(panel);
         m_indicator->onForeground = [this]() {
             if (!m_canvas) return;
@@ -633,7 +618,6 @@ public:
         };
         column->addWidget(m_indicator);
 
-        // the palette: a page of 4 x 8 wells and the page arrows
         m_wells = new KrimbleDpPalette(panel);
         m_wells->setData(&m_palette, m_page);
         m_wells->onWell = [this](int index) { wellTapped(index); };
@@ -649,7 +633,6 @@ public:
         arrows->addWidget(left);
         arrows->addWidget(right);
         column->addLayout(arrows);
-        // RANGE, EDIT, BACK
         auto *editRow = new QHBoxLayout;
         editRow->setSpacing(0);
         m_rangeButton = new KrimbleDpButton(nullptr, QObject::tr("RANGE"), panel);
@@ -695,7 +678,6 @@ public:
         scroll->setWidget(panel);
         setWidget(scroll);
 
-        // follows the colors and the active tool changed elsewhere
         m_syncTimer.setInterval(350);
         QObject::connect(&m_syncTimer, &QTimer::timeout, this, [this]() {
             if (!m_canvas || !isVisible()) return;
@@ -761,7 +743,6 @@ private:
             setForeground(m_palette.at(index));
         }
     }
-    // the wells between the first and the last become a straight blend of the two (in RGB)
     void fillRange(int first, int second)
     {
         const int a = qMin(first, second), b = qMax(first, second);
@@ -775,7 +756,6 @@ private:
         savePalette();
         m_wells->update();
     }
-    // 256 colors: 16 grays, 16 bright colors, then 14 hues of 16 lightnesses; saved with the program's settings
     void loadPalette()
     {
         QSettings settings;

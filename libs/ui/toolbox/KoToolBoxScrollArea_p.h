@@ -43,7 +43,6 @@ public:
         m_scrollNext->setAutoFillBackground(true);
         m_scrollNext->setFocusPolicy(Qt::NoFocus);
         connect(m_scrollNext, &QToolButton::clicked, this, &KoToolBoxScrollArea::doScrollNext);
-        // These are for filtering the mouse wheel events:
         m_scrollPrev->installEventFilter(this);
         m_scrollNext->installEventFilter(this);
 
@@ -98,9 +97,7 @@ protected:
     bool event(QEvent *event) override
     {
         if (event->type() == QEvent::LayoutRequest) {
-            // LayoutRequest can be triggered by icon changes, so resize the toolbox
             layoutItems();
-            // The toolbox might have changed the sizeHint and minimumSizeHint
             updateGeometry();
         }
         return QScrollArea::event(event);
@@ -108,7 +105,6 @@ protected:
 
     bool eventFilter(QObject *watched, QEvent *event) override
     {
-        // The toolbuttons eat the wheel events, so we filter them for our use.
         if ((watched == m_scrollPrev || watched == m_scrollNext) && event->type() == QEvent::Wheel) {
             wheelEvent(static_cast<QWheelEvent *>(event));
             return true;
@@ -181,12 +177,6 @@ private:
 
     void updateScrollButtons()
     {
-        // We move the scroll buttons outside the widget rect instead of setting
-        // the visibility, because setting the visibility triggers a relayout
-        // of QAbstractScrollArea, which occasionally causes an offset bug when
-        // QScroller performs the overshoot animation. (Overshoot is done by
-        // moving the viewport widget, but the viewport position is reset during
-        // a relayout.)
         const int scrollButtonWidth = this->scrollButtonWidth();
         const QScrollBar *scrollbar = m_orientation == Qt::Vertical ? verticalScrollBar() : horizontalScrollBar();
         const bool canPrev = scrollbar->value() != scrollbar->minimum();
@@ -204,7 +194,6 @@ private:
             m_scrollNext->setArrowType(Qt::RightArrow);
             m_scrollNext->setGeometry(width() - scrollButtonWidth, canNext ? 0 : -height(), scrollButtonWidth, height());
         } else {
-            // Right-to-left is mirrored.
             m_scrollPrev->setArrowType(Qt::RightArrow);
             m_scrollPrev->setGeometry(width() - scrollButtonWidth, canPrev ? 0 : -height(), scrollButtonWidth, height());
             m_scrollNext->setArrowType(Qt::LeftArrow);
@@ -219,4 +208,4 @@ private:
     QToolButton *m_scrollNext;
 };
 
-#endif // KO_TOOLBOX_SCROLL_AREA_H
+#endif

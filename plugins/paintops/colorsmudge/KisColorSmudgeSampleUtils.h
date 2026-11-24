@@ -16,7 +16,6 @@
 #include "kis_fixed_paint_device.h"
 #include "KisColorSmudgeSource.h"
 
-
 namespace KisColorSmudgeSampleUtils {
 
 struct WeightedSampleWrapper
@@ -51,11 +50,7 @@ struct WeightedSampleWrapper
         }
     }
 
-
     bool shouldRestartWithBiggerRadius() const {
-        // if all the pixels we sampled appeared to be masked out
-        // we should ask the sampling algorithm to restart with
-        // bigger sampling radius
 
         return m_mixer->currentWeightsSum() < 128;
     }
@@ -105,32 +100,6 @@ struct AveragedSampleWrapper
     const int m_sampleStride;
 };
 
-/**
- * Sample color from \p srcRect in weighted way
- *
- * The function samples \p srcRect in an efficient way. It samples "random"
- * pixels using Halton sequence and waits until the sampled color "converges"
- * to stable value. The sampled area is defined by \p sampleRadiusValue.
- *
- * The way of weighting the pixels is defined by \p WeightingModeWrapper
- * template policy. If `WeightedSampleWrapper` is used, then the sampled color
- * is weighted by the passed brush mask in \p maskDab. If
- * `AveragedSampleWrapper` is used, then \p maskDab is **not** used and all
- * sampled pixels are averaged in a uniform way.
- *
- * \param sampleRadiusValue defines how many pixels are sampled. When
- * \p sampleRadiusValue is 0.0, only the central pixel is sampled. When
- * \p sampleRadiusValue is 1.0, the entire range of \p srcRect is sampled.
- * If `AveragedSampleWrapper` is used, then \p sampleRadiusValue may be
- * increased up to 3.0 to sample outside \p srcRect.
- *
- * When `WeightedSampleWrapper` is used, the sampler may sample more pixels
- * than actually requested by \p sampleRadiusValue. It may happen if all the
- * pixels in the sample radius area are masked out by \p maskDab.
- *
- * \param tempFixedDevice is a temporary device that may be used by the
- * function for internal purposes.
- */
 template<class WeightingModeWrapper>
 void sampleColor(const QRect &srcRect,
                  qreal sampleRadiusValue,
@@ -218,5 +187,4 @@ void sampleColor(const QRect &srcRect,
 
 }
 
-
-#endif //KRITA_KISCOLORSMUDGESAMPLEUTILS_H
+#endif

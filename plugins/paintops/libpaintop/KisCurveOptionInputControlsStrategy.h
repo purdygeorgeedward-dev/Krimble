@@ -58,5 +58,4 @@ public:
     using KisCurveOptionInputControlsStrategy::KisCurveOptionInputControlsStrategy;
 };
 
-
-#endif // KISCURVEOPTIONINPUTCONTROLSSTRATEGY_H
+#endif

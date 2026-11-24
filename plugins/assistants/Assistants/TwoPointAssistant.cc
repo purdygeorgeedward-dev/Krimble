@@ -52,16 +52,9 @@ QPointF TwoPointAssistant::project(const QPointF& point, const QPointF& strokeBe
     double best_dist = DBL_MAX;
     QList<int> possibleHandles;
 
-    // must be above or equal to 0;
-    // if useVertical, then last used point must be below 3, because 2 means vertical
-    //     and it's the last possible point here (sanity check)
-    // if !useVertical, then it must be below 2, because 2 means vertical
     bool isLastUsedPointCorrectNow = m_lastUsedPoint >= 0 && (m_useVertical ? m_lastUsedPoint < 3 : m_lastUsedPoint < 2);
 
     if (isLocal() && handles().size() == 5) {
-        // here we can just return since we don't want to do anything
-        // so we're returning a NaN
-        // but only if we don't have a point/axes it was already using
 
         QRectF rect = getLocalRect();
         bool insideLocalRect = rect.contains(point);
@@ -92,10 +85,6 @@ QPointF TwoPointAssistant::project(const QPointF& point, const QPointF& strokeBe
         QPointF pt = QPointF();
         QLineF snapLine = QLineF();
 
-        // TODO: Would be a good idea to generalize this whole routine
-        // in KisAlgebra2d, as it's all lifted from the vanishing
-        // point assistant and parallel ruler assistant, and by
-        // extension the perspective assistant...
         qreal dx = point.x() - strokeBegin.x();
         qreal dy = point.y() - strokeBegin.y();
 
@@ -175,7 +164,6 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
             pathCenter.addEllipse(ellipse);
             drawPath(gc, pathCenter, displayRenderInterface, isSnappingActive());
 
-            // Draw circle to represent center of vision
             if (handles().length() == 3 && handle == handles()[2]) {
                 const QLineF horizon = QLineF(*handles()[0],*handles()[1]);
                 QLineF normal = horizon.normalVector();
@@ -192,23 +180,20 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
 
         if (handles().size() <= 2) {
             QPainterPath path;
-            int tempDensity = m_gridDensity * 10; // the vanishing point density seems visibly more dense, hence let's make it less dense
+            int tempDensity = m_gridDensity * 10;
             QRect viewport = gc.viewport();
 
             for (int i = 0; i < handles().size(); i++) {
                 const QPointF p = initialTransform.map(*handles()[i]);
                 for (int currentAngle=0; currentAngle <= 180; currentAngle = currentAngle + tempDensity) {
 
-                    // determine the correct angle based on the iteration
                     float xPos = cos(currentAngle * M_PI / 180);
                     float yPos = sin(currentAngle * M_PI / 180);
                     float length = 100;
                     QPointF unit = QPointF(length*xPos, length*yPos);
 
-                    // find point
                     QLineF snapLine = QLineF(p, p + unit);
                     if (KisAlgebra2D::intersectLineRect(snapLine, viewport, false)) {
-                        // make a line from VP center to edge of canvas with that angle
 
                         path.moveTo(snapLine.p1());
                         path.lineTo(snapLine.p2());
@@ -216,16 +201,14 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
 
                     QLineF snapLine2 = QLineF(p, p - unit);
                     if (KisAlgebra2D::intersectLineRect(snapLine2, viewport, false)) {
-                        // make a line from VP center to edge of canvas with that angle
 
                         path.moveTo(snapLine2.p1());
                         path.lineTo(snapLine2.p2());
                     }
 
-
                 }
 
-                drawPreview(gc, path, displayRenderInterface);//and we draw the preview.
+                drawPreview(gc, path, displayRenderInterface);
 
             }
         }
@@ -241,11 +224,9 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
         const QPolygonF localPoly = (isLocal() && handles().size() == 5) ? initialTransform.map(QPolygonF(getLocalRect())) : QPolygonF();
         const QPolygonF viewportAndLocalPoly = !localPoly.isEmpty() ? QPolygonF(QRectF(viewport)).intersected(localPoly) : QRectF(viewport);
 
-
         QPainterPath path;
-        QPainterPath previewPath; // part of the preview, instead of the assistant itself
+        QPainterPath previewPath;
 
-        // draw the horizon
         if (assistantVisible == true || isEditing == true) {
             QLineF horizonLine = initialTransform.map(QLineF(p1,p2));
             KisAlgebra2D::cropLineToConvexPolygon(horizonLine, viewportAndLocalPoly, true, true);
@@ -253,10 +234,7 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
             path.lineTo(horizonLine.p2());
         }
 
-        // draw the VP-->mousePos lines
         if (isEditing == false && previewVisible == true && isSnappingActive() == true) {
-            // draw the line vp <-> mouse even outside of the local rectangle
-            // but only if the mouse pos is inside the rectangle
             QLineF snapMouse1 = QLineF(initialTransform.map(p1), mousePos);
             QLineF snapMouse2 = QLineF(initialTransform.map(p2), mousePos);
             KisAlgebra2D::cropLineToConvexPolygon(snapMouse1, viewportAndLocalPoly, false, true);
@@ -267,7 +245,6 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
             previewPath.lineTo(snapMouse2.p2());
         }
 
-        // draw the side handle bars
         if (isEditing == true && !sideHandles().isEmpty()) {
             path.moveTo(initialTransform.map(p1));
             path.lineTo(initialTransform.map(*sideHandles()[0]));
@@ -283,7 +260,6 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
             path.lineTo(initialTransform.map(*sideHandles()[7]));
         }
 
-        // draw the local rectangle
         if (showLocal && assistantVisible) {
             QPointF p1 = *handles()[(int)LocalFirstHandle];
             QPointF p3 = *handles()[(int)LocalSecondHandle];
@@ -298,12 +274,11 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
             path.lineTo(initialTransform.map(p1));
         }
 
-
         drawPreview(gc,previewPath, displayRenderInterface);
         drawPath(gc, path, displayRenderInterface, isSnappingActive());
 
         if (handles().size() >= 3 && isSnappingActive()) {
-            path = QPainterPath(); // clear
+            path = QPainterPath();
             const QPointF p3 = *handles()[2];
 
             qreal size = 0;
@@ -315,7 +290,6 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
             if ((vp_a.x() < 0 && vp_b.x() > 0) ||
                 (vp_a.x() > 0 && vp_b.x() < 0)) {
                 if (m_useVertical) {
-                    // Draw vertical line, but only if the center is between both VPs
                     QLineF vertical = initialTransform.map(inv.map(QLineF::fromPolar(1,90)));
                     if (!isEditing) vertical.translate(mousePos - vertical.p1());
                     KisAlgebra2D::cropLineToConvexPolygon(vertical, viewportAndLocalPoly, true, true);
@@ -325,20 +299,17 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
                     }
 
                     if (assistantVisible) {
-                        // Display a notch to represent the center of vision
                         path.moveTo(initialTransform.map(inv.map(QPointF(0,vp_a.y()-10))));
                         path.lineTo(initialTransform.map(inv.map(QPointF(0,vp_a.y()+10))));
                     }
                     drawPreview(gc,path, displayRenderInterface);
-                    path = QPainterPath(); // clear
+                    path = QPainterPath();
                 }
             }
 
             const QPointF upper = QPointF(0,vp_a.y() + size);
             const QPointF lower = QPointF(0,vp_a.y() - size);
 
-            // Set up the fading effect for the grid lines
-            // Needed so the grid density doesn't look distracting
             QColor color = canvasAssistantColor;
             QGradient fade = QLinearGradient(initialTransform.map(inv.map(upper)),
                                              initialTransform.map(inv.map(lower)));
@@ -355,25 +326,19 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
             const QList<QPointF> station_points = {upper, lower};
             const QList<QPointF> vanishing_points = {vp_a, vp_b};
 
-            // Draw grid lines above and below the horizon
             Q_FOREACH (const QPointF sp, station_points) {
 
-                // Draw grid lines towards each vanishing point
                 Q_FOREACH (const QPointF vp, vanishing_points) {
 
-                    // Interval between each grid line, uses grid density specified by user
                     const qreal initial_angle = QLineF(sp, vp).angle();
                     const qreal interval = size*m_gridDensity / cos((initial_angle - 90) * M_PI/180);
                     const QPointF translation = QPointF(interval, 0);
 
-                    // Draw grid lines originating from both the left and right of the central vertical line
                     Q_FOREACH (const int dir, QList<int>({-1, 1})) {
 
-                        // Limit at 300 grid lines per direction, reasonable even for m_gridDensity=0.1;
                         for (int i = 0; i <= 300; i++) {
                             const QLineF gridline = QLineF(sp + translation * i * dir, vp);
 
-                            // Don't bother drawing lines that are nearly parallel to horizon
                             const qreal angle = gridline.angle();
                             if (angle < 0.25 || angle > 359.75 || (angle < 180.25 && angle > 179.75)) {
                                 break;
@@ -395,7 +360,6 @@ void TwoPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, co
     }
 
     gc.restore();
-    //KisPaintingAssistant::drawAssistant(gc, updateRect, converter, cached, canvas, assistantVisible, previewVisible);
 }
 
 void TwoPointAssistant::drawCache(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool assistantVisible)

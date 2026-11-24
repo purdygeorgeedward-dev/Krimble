@@ -18,7 +18,6 @@
 #include <KisAirbrushOptionWidget.h>
 #include <KisPaintingModeOptionWidget.h>
 
-
 KisSketchPaintOpSettingsWidget::KisSketchPaintOpSettingsWidget(QWidget* parent)
     : KisBrushBasedPaintopOptionWidget(KisBrushOptionWidgetFlag::None, parent)
 {
@@ -47,7 +46,7 @@ KisSketchPaintOpSettingsWidget::~ KisSketchPaintOpSettingsWidget()
 KisPropertiesConfigurationSP  KisSketchPaintOpSettingsWidget::configuration() const
 {
     KisSketchPaintOpSettingsSP config = new KisSketchPaintOpSettings(resourcesInterface());
-    config->setProperty("paintop", "sketchbrush"); // XXX: make this a const id string
+    config->setProperty("paintop", "sketchbrush");
     writeConfiguration(config);
     return config;
 }

@@ -23,11 +23,9 @@
 #define M_SQRT_2 1.41421356237309504880
 
 #ifdef Q_OS_WIN
-// on windows we get our erf() from boost
 #include <boost/math/special_functions/erf.hpp>
 #define erf(x) boost::math::erf(x)
 #endif
-
 
 KisGaussCircleMaskGenerator::KisGaussCircleMaskGenerator(qreal diameter, qreal ratio, qreal fh, qreal fv, int spikes, bool antialiasEdges)
     : KisMaskGenerator(diameter, ratio, fh, fv, spikes, antialiasEdges, CIRCLE, GaussId),
@@ -37,7 +35,7 @@ KisGaussCircleMaskGenerator::KisGaussCircleMaskGenerator(qreal diameter, qreal r
     d->fade = 1.0 - (fh + fv) / 2.0;
 
     if (d->fade == 0.0) d->fade = 1e-6;
-    else if (d->fade == 1.0) d->fade = 1.0 - 1e-6; // would become undefined for fade == 0 or 1
+    else if (d->fade == 1.0) d->fade = 1.0 - 1e-6;
 
     d->center = (2.5 * (6761.0*d->fade-10000.0))/(M_SQRT_2*6761.0*d->fade);
     d->alphafactor = 255.0 / (2.0 * erf(d->center));

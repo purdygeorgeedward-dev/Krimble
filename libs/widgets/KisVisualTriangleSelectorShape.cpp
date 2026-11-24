@@ -20,17 +20,14 @@ KisVisualTriangleSelectorShape::KisVisualTriangleSelectorShape(KisVisualColorSel
     : KisVisualColorSelectorShape(parent, dimension, channel1, channel2),
       m_margin(margin)
 {
-    //qDebug() << "creating KisVisualTriangleSelectorShape" << this;
 }
 
 KisVisualTriangleSelectorShape::~KisVisualTriangleSelectorShape()
 {
-    //qDebug() << "deleting KisVisualTriangleSelectorShape" << this;
 }
 
-void KisVisualTriangleSelectorShape::setBorderWidth(int /*width*/)
+void KisVisualTriangleSelectorShape::setBorderWidth(int )
 {
-    // triangle doesn't have a 1-dimensional mode
 }
 
 QRect KisVisualTriangleSelectorShape::getSpaceForSquare(QRect geom)
@@ -50,7 +47,6 @@ QRect KisVisualTriangleSelectorShape::getSpaceForTriangle(QRect geom)
 
 QPointF KisVisualTriangleSelectorShape::convertShapeCoordinateToWidgetCoordinate(QPointF coordinate) const
 {
-    // margin serves to render the cursor, and triangle is rendered 1px larger than its active area
     qreal offset = m_margin + 1.0;
 
     qreal y = (coordinate.y() * (height() - 1 - 2 * offset)) + offset;
@@ -66,7 +62,6 @@ QPointF KisVisualTriangleSelectorShape::convertShapeCoordinateToWidgetCoordinate
 
 QPointF KisVisualTriangleSelectorShape::convertWidgetCoordinateToShapeCoordinate(QPointF coordinate) const
 {
-    // margin serves to render the cursor, and triangle is rendered 1px larger than its active area
     qreal offset = m_margin + 1.0;
 
     qreal x = 0.5;
@@ -99,8 +94,6 @@ QRegion KisVisualTriangleSelectorShape::getMaskMap()
 
 QImage KisVisualTriangleSelectorShape::renderAlphaMask() const
 {
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     const int deviceWidth = qCeil(width() * devicePixelRatioF());
     const int deviceHeight = qCeil(height() * devicePixelRatioF());
 
@@ -123,7 +116,6 @@ QImage KisVisualTriangleSelectorShape::renderAlphaMask() const
 
 void KisVisualTriangleSelectorShape::drawCursor(QPainter &painter)
 {
-    //qDebug() << this << "KisVisualTriangleSelectorShape::drawCursor: image needs update" << imagesNeedUpdate();
     QPointF cursorPoint = convertShapeCoordinateToWidgetCoordinate(getCursorPosition());
     QColor col = getColorFromConverter(getCurrentColor());
     QBrush fill(Qt::SolidPattern);

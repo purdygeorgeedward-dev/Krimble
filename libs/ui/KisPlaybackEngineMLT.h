@@ -17,21 +17,11 @@
 #include <QFileInfo>
 #include <boost/optional.hpp>
 
-
 enum PlaybackMode {
-    PLAYBACK_PUSH, // MLT is being pushed to, used during pause and stop state for scrubbing.
-    PLAYBACK_PULL // MLT is updating itself, we are getting regular updates from it about when we need to show our next frame.
+    PLAYBACK_PUSH,
+    PLAYBACK_PULL
 };
 
-/**
- * @brief The KisPlaybackEngineMLT class is an implementation of KisPlaybackEngine
- * that uses MLT (Media Lovin' Toolkit) to drive image frame changes and animation audio
- * with (hopefully) close to frame-perfect synchronization.
- *
- * If MLT is unavailable or unwanted, Krita can instead use KisPlaybackEngineQT
- * which may be simpler but has different characteristics and is not designed with
- * audio-video synchronization in mind.
- */
 class KRITAUI_EXPORT KisPlaybackEngineMLT : public KisPlaybackEngine
 {
     Q_OBJECT
@@ -60,31 +50,10 @@ protected Q_SLOTS:
     void unsetCanvas() override;
     void canvasDestroyed(QObject *canvas);
 
-    /**
-     * @brief throttledShowFrame
-     * @param frame
-     *
-     * In order to throttle calls from MLT to respect our
-     * playback mode, we need to redirect `showFrame` calls
-     * to this thread and enforce that we only allow MLT to
-     * show frames when we are in PULL mode.
-     */
     void throttledShowFrame(const int frame);
 
-    /**
-     * @brief throttledSetSpeed
-     * @param speed
-     *
-     * Because MLT needs to be stopped and restarted to change playback speed
-     * we use this function to limit the frequency of speed change requests.
-     */
     void throttledSetSpeed(const double speed);
 
-
-    /**
-     * @brief setAudioVolume
-     * @param volume (normalized)
-     */
     void setAudioVolume(qreal volumeNormalized);
 
 public:
@@ -92,11 +61,6 @@ public:
     FrameWaitingInterface* frameWaitingInterface();
 
 private:
-    /**
-     * @brief Sets up an MLT::Producer object in response to audio being
-     * added to a Krita document or when canvas changes.
-     * @param file: An optional file to be loaded by MLT.
-     */
     void setupProducer(boost::optional<QFileInfo> file);
 
     struct Private;
@@ -104,4 +68,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISPLAYBACKENGINEMLT_H
+#endif

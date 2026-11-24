@@ -83,4 +83,4 @@ private:
     QVector<int> rowChangedIndices;
 };
 
-#endif /* __TESTING_CATEGORIES_MAPPER_H */
+#endif

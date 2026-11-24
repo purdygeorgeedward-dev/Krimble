@@ -41,11 +41,9 @@ typedef struct
 {
     mlt_producer producer_internal;
     int audio_sample_rate = 0;
-    bool force_reset_audio_frequency_for_frames = false; // used for 'count' producer
+    bool force_reset_audio_frequency_for_frames = false;
 } private_data;
 
-/** Restricts frame index to within range by modulus wrapping (not clamping).
-*/
 static int restrict_range(int index, int min, int max)
 {
     const int span = max - min;
@@ -64,7 +62,6 @@ void scale_audio_frequency(mlt_producer producer, mlt_audio audio)
 {
     mlt_properties props = MLT_PRODUCER_PROPERTIES(producer);
 
-    // Scale the frequency to account for the dynamic speed (normalized).
     double SPEED = mlt_properties_get_double(props, "speed");
 
     KIS_SAFE_ASSERT_RECOVER(!qFuzzyIsNull(SPEED)) {
@@ -94,13 +91,6 @@ static int producer_get_audio(mlt_frame frame,
 
     struct mlt_audio_s audio;
 
-    /**
-     * MLT doesn't reset the requested frequency on every call, that is, if the
-     * underlying producer just passes through the frequency, it will eventually
-     * drop to zero and crash. AVformat resets the frequency every time to the
-     * value of the underlying media. Count producer doesn't reset the frequency
-     * by default, so we should reset it manually by passing negative values.
-     */
     if (pdata->force_reset_audio_frequency_for_frames) {
         *frequency = -1;
         *samples = -1;
@@ -132,7 +122,6 @@ static int producer_generate_silent_audio(mlt_frame frame,
     private_data *pdata = (private_data *) producer->child;
 
     {
-        // Get the producer fps
         double fps = mlt_producer_get_fps(producer);
 
         if (mlt_properties_get(MLT_FRAME_PROPERTIES(frame), "producer_consumer_fps"))
@@ -143,7 +132,7 @@ static int producer_generate_silent_audio(mlt_frame frame,
         int size = 0;
         *channels = *channels <= 0 ? 2 : *channels;
         *frequency = pdata->audio_sample_rate > 0 ? pdata->audio_sample_rate : 44100;
-        *samples = mlt_audio_calculate_frame_samples(fps, *frequency, position); //NOTE: Audio BUFFER_SIZE
+        *samples = mlt_audio_calculate_frame_samples(fps, *frequency, position);
         *format = *format == mlt_audio_none ? mlt_audio_s16 : *format;
 
         size = mlt_audio_format_size(*format, *samples, *channels);
@@ -152,13 +141,6 @@ static int producer_generate_silent_audio(mlt_frame frame,
         else
             *buffer = NULL;
 
-        /**
-         * Save the generated audio into the frame itself,
-         * since this overloaded function will not be called
-         * on the further calls to mlt_frame_get_audio (the
-         * pointer to the function was placed on the stack,
-         * which has already been taken)
-         */
         mlt_frame_set_audio(frame, *buffer, *format, size, mlt_pool_release);
     }
 
@@ -195,19 +177,6 @@ static int producer_get_frame(mlt_producer producer, mlt_frame_ptr frame, int in
         mlt_frame_push_audio(*frame, producer);
         mlt_frame_push_audio(*frame, (void*)producer_get_audio);
     } else {
-        /**
-         * Generate a slowed-down silence frame and reset
-         * the `test_audio` flag
-         *
-         * When the data stream ends, the AVformat library
-         * returns and empty frame, flagged with "test_audio"
-         * tag. Later on, when the consumer reads this frame,
-         * mlt_frame_get_audio() generates a frame of silence
-         * with 48kHz resolution. We cannot use this variant
-         * of silence, since it is not scaled. We need to
-         * generate our own version of silence, which is
-         * scaled according to our format.
-         */
         mlt_frame_push_audio(*frame, producer);
         mlt_frame_push_audio(*frame, (void*)producer_generate_silent_audio);
 
@@ -223,11 +192,6 @@ static void producer_property_changed( mlt_service owner, mlt_producer self, mlt
     const char *name = mlt_event_data_to_string(event_data);
     if (!name) return;
 
-    /**
-     * We don't use MLT's "speed" value for anything, but some
-     * MLT's functions may adjust the speed of the producer, e.g.
-     * when seeking. So we should keep the two values in sync.
-     */
     if (strcmp(name, "_speed") == 0) {
         const double speed = mlt_producer_get_speed(self);
         private_data* pdata = (private_data*)self->child;
@@ -241,9 +205,6 @@ static int producer_seek(mlt_producer producer, mlt_position position)
 
     int retval = mlt_producer_seek(pdata->producer_internal, position);
 
-    /**
-     * Update the position values of the parent producer
-     */
     mlt_properties_set_position(MLT_PRODUCER_PROPERTIES(producer),
                                 "_position",
                                 position);
@@ -268,61 +229,37 @@ static void producer_close(mlt_producer producer)
     free(producer);
 }
 
-/** Constructor for the producer.
-*/
 extern "C" void* producer_krita_init(mlt_profile profile,
                                  mlt_service_type type,
                                  const char *id,
                                  const void *arg)
 {
-    // Create a new producer object
     mlt_producer producer = mlt_producer_new(profile);
     private_data *pdata = (private_data *) calloc(1, sizeof(private_data));
 
     if (arg && producer && pdata) {
         mlt_properties producer_properties = MLT_PRODUCER_PROPERTIES(producer);
 
-        // Initialize the producer
         mlt_properties_set(producer_properties, "resource", (char*)arg);
         producer->child = pdata;
         producer->get_frame = producer_get_frame;
         producer->seek = producer_seek;
         producer->close = (mlt_destructor) producer_close;
 
-        // Get the resource to be passed to the clip producer
         char *resource = (char*)arg;
 
-        // Create internal producer
         pdata->producer_internal = mlt_factory_producer(profile, "abnormal", resource);
 
         if (pdata->producer_internal) {
             mlt_producer_set_speed(pdata->producer_internal, 1.0);
             mlt_properties internalProducerProps = MLT_PRODUCER_PROPERTIES(pdata->producer_internal);
 
-            /**
-             * We permanently set the EOF mode to "continue", because
-             * other modes have weird effects, like clipping the data when
-             * seeking or resetting the producer speed to null.
-             */
             mlt_properties_set_string(internalProducerProps, "eof", "continue");
 
             const char *serviceName = mlt_properties_get(internalProducerProps, "mlt_service");
 
             if (!strcmp(serviceName, "avformat")) {
-                /**
-                 * Disable caching of frames in avformat producer
-                 *
-                 * Caching in MLT library is broken. When a frame is taken from the
-                 * cache its "audio" property is not restored. It breaks the work
-                 * of "read-ahead" consumer thread, which also temporarily stores
-                 * this frame.
-                 */
                 mlt_properties_set_int(internalProducerProps, "noimagecache", 1);
-
-                /**
-                 * Fetch media sample rate to be able to generate correct
-                 * silence stream
-                 */
 
                 char key[200];
                 const int numberOfStreams = mlt_properties_get_int(internalProducerProps, "meta.media.nb_streams");
@@ -350,7 +287,7 @@ extern "C" void* producer_krita_init(mlt_profile profile,
     }
 
     const bool INVALID_CONTEXT = !producer || !pdata || !pdata->producer_internal;
-    if (INVALID_CONTEXT) { // Clean up early...
+    if (INVALID_CONTEXT) {
         if (pdata) {
             mlt_producer_close(pdata->producer_internal);
             free(pdata);

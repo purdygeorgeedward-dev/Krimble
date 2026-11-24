@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef _PARTICLE_BRUSH_H_
 #define _PARTICLE_BRUSH_H_
 
@@ -13,7 +12,6 @@
 #include <QPointF>
 
 #include "KisParticleOpOptionData.h"
-
 
 class KisParticleBrushProperties
 {
@@ -45,8 +43,6 @@ public:
     }
 
 private:
-    /// paints wu particle, similar to spray version but you can turn on respecting opacity of the tool and add weight to opacity
-    /// also the particle respects opacity in the destination pixel buffer
     void paintParticle(KisRandomAccessorSP writeAccessor, const KoColorSpace *cs,const QPointF &pos, const KoColor& color, qreal weight, bool respectOpacity);
 
     QVector<QPointF> m_particlePos;

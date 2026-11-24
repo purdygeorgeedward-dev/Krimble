@@ -41,7 +41,6 @@
 
 #include "kis_action_registry.h"
 
-// KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) :
 KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, bool classic) :
     QWidget(parent),
     m_colorHistoryAction(0),
@@ -62,18 +61,11 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     m_colorHistoryWidget = new KisColorHistory(this);
     m_commonColorsWidget = new KisCommonColors(this);
 
-    //default settings
-    //remember to also change the default in the ui file
-
-    //shade selector
-
-    // fallback settings button when the color selector is disabled
     m_fallbackSettingsButton->setIcon(KisIconUtils::loadIcon("configure"));
     m_fallbackSettingsButton->setIconSize(QSize(22,22));
     m_fallbackSettingsButton->setAutoRaise(true);
     m_fallbackSettingsButton->hide();
 
-    //layout
     m_widgetLayout = new QHBoxLayout(this);
     m_widgetLayout->setSpacing(0);
     m_widgetLayout->setContentsMargins(0, 0, 0, 0);
@@ -126,8 +118,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     m_krimbleStudio->setMaximumWidth(384);
     studioScroll->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     studioScroll->setWidget(m_krimbleStudio);
-    // Krimble 2026-11-23: the content always starts at the left edge: a narrow window cuts off the right side, never the left
-    // (George: "You just can't let ColorLab chop off the left edge of its own window.")
     connect(studioScroll->horizontalScrollBar(), &QScrollBar::valueChanged, studioScroll, [studioScroll](int v) {
         if (v != 0) studioScroll->horizontalScrollBar()->setValue(0);
     });
@@ -162,7 +152,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
 
     connect(m_colorSelectorContainer, SIGNAL(openSettings()), this, SLOT(openSettings()));
 
-    //Q_EMIT settingsChanged() if the settings are changed in krita preferences
     KisPreferenceSetRegistry *preferenceSetRegistry = KisPreferenceSetRegistry::instance();
     KisColorSelectorSettingsFactory* factory =
             dynamic_cast<KisColorSelectorSettingsFactory*>(preferenceSetRegistry->get("KisColorSelectorSettingsFactory"));
@@ -173,7 +162,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     connect(this,     SIGNAL(settingsChanged()), m_colorHistoryWidget,     SLOT(updateSettings()), Qt::UniqueConnection);
     connect(this,     SIGNAL(settingsChanged()), m_colorSelectorContainer, SIGNAL(settingsChanged()), Qt::UniqueConnection);
     connect(this,     SIGNAL(settingsChanged()), this,                     SLOT(update()), Qt::UniqueConnection);
-
 
     Q_EMIT settingsChanged();
 
@@ -235,14 +223,12 @@ void KisColorSelectorNgDockerWidget::openSettings()
     }
 }
 
-
 void KisColorSelectorNgDockerWidget::updateLayout()
 {
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("advancedColorSelector");
 
     bool showColorSelector = (bool) cfg.readEntry("showColorSelector", true);
 
-    //color patches
     bool m_lastColorsShow = cfg.readEntry("lastUsedColorsShow", true);
     KisColorPatches::Direction m_lastColorsDirection;
     if(cfg.readEntry("lastUsedColorsAlignment", false))
@@ -278,7 +264,6 @@ void KisColorSelectorNgDockerWidget::updateLayout()
         m_commonColorsWidget->show();
     }
 
-
     bool fallbackSettingsButtonVertical = true;
 
     if(m_lastColorsShow && m_lastColorsDirection==KisColorPatches::Vertical) {
@@ -299,7 +284,6 @@ void KisColorSelectorNgDockerWidget::updateLayout()
         fallbackSettingsButtonVertical = false;
     }
 
-    // prefer the vertical column, if patch components have different layout
     if (m_commonColorsDirection != m_lastColorsDirection) {
         fallbackSettingsButtonVertical = true;
     }

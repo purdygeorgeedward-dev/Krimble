@@ -9,12 +9,6 @@
 
 #include "kis_abstract_input_action.h"
 
-/**
- * \brief Tool Invocation action of KisAbstractInputAction.
- *
- * The Tool Invocation action invokes the current tool, for example,
- * using the brush tool, it will start painting.
- */
 class KisToolInvocationAction : public KisAbstractInputAction
 {
 public:
@@ -57,10 +51,9 @@ public:
 
     KisInputActionGroup inputActionGroup(int shortcut) const override;
 
-
 private:
     class Private;
     Private * const d;
 };
 
-#endif // KIS_TOOL_INVOCATION_ACTION_H
+#endif

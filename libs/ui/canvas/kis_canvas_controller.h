@@ -19,7 +19,6 @@ class KConfigGroup;
 class KisView;
 class KisCanvasState;
 
-
 class KRITAUI_EXPORT KisCanvasController : public KoCanvasControllerWidget
 {
     Q_OBJECT
@@ -110,10 +109,9 @@ Q_SIGNALS:
 Q_SIGNALS:
     void sigUsePrintResolutionModeChanged(bool value);
 
-
 private:
     struct Private;
     Private * const m_d;
 };
 
-#endif /* KIS_CANVAS_CONTROLLER_H */
+#endif

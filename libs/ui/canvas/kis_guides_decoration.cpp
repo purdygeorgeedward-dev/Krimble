@@ -39,7 +39,6 @@ const KisGuidesConfig& KisGuidesDecoration::guidesConfig() const
     return m_d->guidesConfig;
 }
 
-
 void KisGuidesDecoration::drawDecoration(QPainter &painter, const QRectF& updateArea, const KisCoordinatesConverter *converter, KisCanvas2 *canvas)
 {
     Q_UNUSED(canvas);

@@ -21,4 +21,4 @@ private:
     KisImage *q;
 };
 
-#endif // KISIMAGEGLOBALSELECTIONMANAGEMENTINTERFACE_H
+#endif

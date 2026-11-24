@@ -42,7 +42,7 @@ TransferCharacteristics namedTransferFunctionToPigmentTransferFunction(NamedTran
         case NamedTransferFunction::transfer_function_srgb:
             return TRC_IEC_61966_2_1;
         case NamedTransferFunction::transfer_function_ext_srgb:
-            return TRC_UNSPECIFIED; // unsupported!
+            return TRC_UNSPECIFIED;
         case NamedTransferFunction::transfer_function_st2084_pq:
             return TRC_ITU_R_BT_2100_0_PQ;
         case NamedTransferFunction::transfer_function_st428:
@@ -69,7 +69,7 @@ KoColorProfileQuery colorSpaceToRequest(ColorSpace cs)
         request.transfer =
             namedTransferFunctionToPigmentTransferFunction(std::get<NamedTransferFunction>(cs.transferFunction));
     } else if (std::holds_alternative<uint32_t>(cs.transferFunction)) {
-        auto gamma = std::get<uint32_t>(cs.transferFunction); // gamma * 10000
+        auto gamma = std::get<uint32_t>(cs.transferFunction);
         if (gamma == 10000) {
             request.transfer = TRC_LINEAR;
         } else if (gamma == 18000) {
@@ -82,8 +82,6 @@ KoColorProfileQuery colorSpaceToRequest(ColorSpace cs)
             request.transfer = TRC_ITU_R_BT_470_6_SYSTEM_B_G;
         }
     }
-
-    // any pq-space that is not bt2020pq is considered unsupported
 
     if (request.transfer == TRC_ITU_R_BT_2100_0_PQ &&
         request.primaries != PRIMARIES_ITU_R_BT_2020_2_AND_2100_0) {
@@ -99,4 +97,4 @@ KoColorProfileQuery colorSpaceToRequest(ColorSpace cs)
     return request;
 }
 
-} // namespace KisSurfaceColorimetry
+}

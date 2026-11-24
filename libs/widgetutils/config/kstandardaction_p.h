@@ -26,25 +26,6 @@ struct KStandardActionInfo {
     const char *psIconName;
 };
 
-
-/**
- * TODO: this file is wrong! QT_TRANSLATE_NOOP macro is **not** used by KDE macros,
- * hence the strings defined in `g_rgActionInfo` are **never** translated!
- *
- * Some of them work by pure coincidence, because kritamenu.action defines the exact
- * copies of them, which are extracted. Though these copies use "action" context, which
- * is explicitly requested in KStandardAction::create().
- *
- * Some others, like KStandardShortcut::ConfigureToolbars, work because the action is
- * explicitly created inside Krita in KisMainWindow::createActions() and propertized
- * via the strings from kritamenu.action.
- *
- * Ideally we should switch back to the upstream version of KConfigWidgets and reuse
- * the strings provided by KDE.
- */
-
-// clang-format off
-
 static constexpr KStandardActionInfo g_rgActionInfo[] = {
     { New,           KStandardShortcut::New, "file_new", QT_TRANSLATE_NOOP("KStandardActions", "&New"), QT_TRANSLATE_NOOP("KStandardActions", "Create new document"), "document-new" },
     { Open,          KStandardShortcut::Open, "file_open", QT_TRANSLATE_NOOP("KStandardActions", "&Open…"), QT_TRANSLATE_NOOP("KStandardActions", "Open an existing document"), "document-open" },
@@ -81,7 +62,6 @@ static constexpr KStandardActionInfo g_rgActionInfo[] = {
     { Redisplay,     KStandardShortcut::Reload, "view_redisplay", QT_TRANSLATE_NOOP("KStandardActions", "&Refresh"), QT_TRANSLATE_NOOP("KStandardActions", "Refresh document"), "view-refresh" },
 
     { Up,            KStandardShortcut::Up, "go_up", QT_TRANSLATE_NOOP("KStandardActions", "&Up"), QT_TRANSLATE_NOOP("KStandardActions", "Go up"), "go-up" },
-    // The following three have special i18n() needs for sLabel
     { Back,          KStandardShortcut::Back, "go_back", {}, {}, "go-previous" },
     { Forward,       KStandardShortcut::Forward, "go_forward", {}, {}, "go-next" },
     { Home,          KStandardShortcut::Home, "go_home", {}, {}, "go-home" },
@@ -109,8 +89,6 @@ static constexpr KStandardActionInfo g_rgActionInfo[] = {
     { ConfigureToolbars, KStandardShortcut::ConfigureToolbars, "options_configure_toolbars", QT_TRANSLATE_NOOP("KStandardActions", "Configure Tool&bars…"), {}, "configure-toolbars" },
     { ConfigureNotifications, KStandardShortcut::ConfigureNotifications, "options_configure_notifications", QT_TRANSLATE_NOOP("KStandardActions", "Configure &Notifications…"), {}, "preferences-desktop-notification" },
 
-    // the idea here is that Contents is used in menus, and Help in dialogs, so both share the same
-    // shortcut
     { HelpContents,  KStandardShortcut::Help, "help_contents", QT_TRANSLATE_NOOP("KStandardActions", "Krita &Handbook"), {}, "help-contents" },
     { WhatsThis,     KStandardShortcut::WhatsThis, "help_whats_this", QT_TRANSLATE_NOOP("KStandardActions", "What's &This?"), {}, "help-contextual" },
     { ReportBug,     KStandardShortcut::ReportBug, "help_report_bug", QT_TRANSLATE_NOOP("KStandardActions", "&Report Bug..."), {}, "tools-report-bug" },
@@ -119,9 +97,6 @@ static constexpr KStandardActionInfo g_rgActionInfo[] = {
     { AboutKDE,      KStandardShortcut::AccelNone, "help_about_kde", QT_TRANSLATE_NOOP("KStandardActions", "About &KDE"), {}, "kde" },
     { ActionNone,    KStandardShortcut::AccelNone, {}, {}, {}, {} },
     };
-
-
-// clang-format on
 
 inline const KStandardActionInfo *infoPtr(StandardAction id)
 {
@@ -141,7 +116,6 @@ static inline QStringList internal_stdNames()
     for (uint i = 0; g_rgActionInfo[i].id != ActionNone; i++)
         if (g_rgActionInfo[i].psLabel) {
             if (QByteArray(g_rgActionInfo[i].psLabel).contains("%1"))
-                // Prevents i18n from complaining about unsubstituted placeholder.
             {
                 result.append(i18n(g_rgActionInfo[i].psLabel, QString()));
             } else {

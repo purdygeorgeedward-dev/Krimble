@@ -69,7 +69,6 @@ private:
     KisIntParseSpinBox* m_intNumInput {nullptr};
 };
 
-
 class KRITAWIDGETS_EXPORT KisFloatColorInput : public KisColorInput
 {
     Q_OBJECT

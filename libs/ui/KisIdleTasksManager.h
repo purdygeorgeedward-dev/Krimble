@@ -10,49 +10,11 @@
 #include <KisIdleTaskStrokeStrategy.h>
 #include <QPointer>
 
-
-/**
- * A special per-main-window manager that handles  jobs that
- * should be run in the background while the user is idle. The
- * manager automatically restarts all the jobs when the image is
- * modified. E.g. updates the overview image or histogram.
- *
- * The manager is owned by KisViewManager, which automatically
- * connects it to the currently active image. When the image
- * becomes idle, the manager starts its tasks one-by-one.
- *
- * If you want to add a new task to the manager, just provide
- * a factory to addIdleTaskWithGuard() method. This factory
- * should create and return a stroke strategy for the idle
- * task to be run.
- *
- * The factory will be called by the task manager  every time
- * when it thinks that the idle task should be started.
- *
- *
- * addIdleTaskWithGuard() returns a TaskGuard handle, which
- * represents the registered task. It is a movable object
- * that will automatically de-register the idle task on
- * destruction.
- *
- * If your idle-task-factory is a lambda object, make sure
- * that the lifetime of the objects you capture into the
- * lambda's closure is longer than the lifetime of the
- * corresponding TaskGuard handle. In other words, if you
- * capture `this` into your lambda, make sure that
- * the corresponding `TaskGuard` also belongs to `this` or
- * destroyed manually in the destructor.
- */
 class KRITAUI_EXPORT KisIdleTasksManager : public QObject
 {
     Q_OBJECT
 
 public:
-    /**
-     * A simple **movable** handle that represents a task
-     * registered in the manager. When the handle is destroyed,
-     * the task it automatically de-registered.
-     */
     struct TaskGuard {
         TaskGuard() {}
         TaskGuard(int _taskId,
@@ -81,18 +43,10 @@ public:
             }
         }
 
-        /**
-         * @return true if the task is valid and registered at the manager
-         */
         bool isValid() const {
             return manager;
         }
 
-        /**
-         * Explicitly request restart of the task, e.g. explicitly
-         * restart recalculation of the overview image when the display
-         * profile is changed
-         */
         void trigger() {
             KIS_SAFE_ASSERT_RECOVER_RETURN(manager);
             manager->triggerIdleTask(taskId);
@@ -108,16 +62,6 @@ public:
 
     void setImage(KisImageSP image);
 
-    /**
-     * @brief Registers the factory for the idle task
-     *
-     * The manager will use this factory to start the task after
-     * every image modification.
-     *
-     * @param factory is a functor creating a KisIdleTaskStrokeStrategy
-     *                that will actually execute the task
-     * @return a TaskGuard object that can be used for task manipulations
-     */
     [[nodiscard]]
     TaskGuard addIdleTaskWithGuard(KisIdleTaskStrokeStrategyFactory factory);
 
@@ -138,4 +82,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISIDLETASKSMANAGER_H
+#endif

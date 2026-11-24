@@ -13,10 +13,6 @@
 
 class KoCanvasObserverBase;
 
-/**
- * KoCanvasSupervisor is an abstract class that can return a
- * list of canvas observers, such as dock widgets.
- */
 class KRITAFLAKE_EXPORT KoCanvasSupervisor
 {
 public:

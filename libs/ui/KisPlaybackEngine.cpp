@@ -29,8 +29,6 @@ public:
     bool dropFramesMode {true};
 };
 
-//=====
-
 KisPlaybackEngine::KisPlaybackEngine(QObject *parent)
     : QObject(parent)
     , m_d(new Private)
@@ -65,7 +63,7 @@ void KisPlaybackEngine::playPause()
     KisCanvasAnimationState* animationState = activeCanvas()->animationState();
 
     if (animationState->playbackState() == PLAYING) {
-        pause();  
+        pause();
     } else {
         play();
     }
@@ -152,14 +150,12 @@ void KisPlaybackEngine::nextKeyframe()
     }
 
     if (keyframes->keyframeAt(destinationTime)) {
-        // Jump to next key...
         if (animationState->playbackState() != STOPPED) {
             stop();
         }
 
         seek(destinationTime, SEEK_FINALIZE | SEEK_PUSH_AUDIO);
     } else {
-        // Jump ahead by estimated timing...
         const int activeKeyTime = keyframes->activeKeyframeTime(currentTime);
         const int previousKeyTime = keyframes->previousKeyframeTime(activeKeyTime);
 
@@ -275,8 +271,6 @@ bool KisPlaybackEngine::dropFrames() const
 
 int KisPlaybackEngine::frameWrap(int frame, int startFrame, int endFrame)
 {
-    // Since Krita has always considered the end frame as inclusive, we need
-    // to make sure our wrap method respects that as well.
     const int inclusiveEndFrame = endFrame + 1;
     frame = ((frame - startFrame) % (inclusiveEndFrame - startFrame)) + startFrame;
 
@@ -311,17 +305,6 @@ void KisPlaybackEngine::setCanvas(KoCanvasBase *p_canvas)
         connect(animState, &KisCanvasAnimationState::sigCancelPlayback,
                 this, &KisPlaybackEngine::stop);
 
-        /**
-         * TODO: This forced updates causes image recalculation on every document
-         * switch, which is weird and even causes some crashes on closing
-         * many documents at once (which is a separate bug it seems). Why
-         * document switch should forcefully regeneare the canvas?
-         */
-//        KisImageAnimationInterface* animInterface = m_d->activeCanvas->image()->animationInterface();
-//        KisFrameDisplayProxy* displayProxy = animState->displayProxy();
-//        if (animState->playbackState() != PLAYING) {
-//            displayProxy->displayFrame(animInterface->currentTime(), false);
-//        }
     }
 }
 

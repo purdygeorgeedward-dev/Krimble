@@ -30,8 +30,6 @@ KisHatchingPaintOpSettingsWidget:: KisHatchingPaintOpSettingsWidget(QWidget* par
     Q_UNUSED(canvasResourcesInterface)
     namespace kpowu = KisPaintOpOptionWidgetUtils;
 
-    //-------Adding widgets to the screen------------
-
     addPaintOpOption(kpowu::createOptionWidgetWithLodLimitations<KisHatchingOptionsWidget>());
     addPaintOpOption(kpowu::createOptionWidget<KisHatchingPreferencesWidget>());
     addPaintOpOption(kpowu::createOptionWidget<KisCompositeOpOptionWidget>());
@@ -57,7 +55,7 @@ KisHatchingPaintOpSettingsWidget::~ KisHatchingPaintOpSettingsWidget()
 KisPropertiesConfigurationSP  KisHatchingPaintOpSettingsWidget::configuration() const
 {
     KisHatchingPaintOpSettingsSP config = new KisHatchingPaintOpSettings(resourcesInterface());
-    config->setProperty("paintop", "hatchingbrush"); // XXX: make this a const id string
+    config->setProperty("paintop", "hatchingbrush");
     writeConfiguration(config);
     return config;
 }

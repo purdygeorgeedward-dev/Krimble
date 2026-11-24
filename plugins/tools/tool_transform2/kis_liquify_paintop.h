@@ -17,7 +17,6 @@ class KisDistanceInformation;
 class KisLiquifyProperties;
 class QPainterPath;
 
-
 class KisLiquifyPaintop
 {
 public:
@@ -27,15 +26,9 @@ public:
 
     KisSpacingInformation paintAt(const KisPaintInformation &pi);
 
-    /**
-     * Updates the spacing in currentDistance based on the provided information.
-     */
     void updateSpacing(const KisPaintInformation &info, KisDistanceInformation &currentDistance)
         const;
 
-    /**
-     * Updates the timing in currentDistance based on the provided information.
-     */
     void updateTiming(const KisPaintInformation &info, KisDistanceInformation &currentDistance)
         const;
 
@@ -54,4 +47,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_LIQUIFY_PAINTOP_H */
+#endif

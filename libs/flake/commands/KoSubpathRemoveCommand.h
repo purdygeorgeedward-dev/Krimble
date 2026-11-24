@@ -12,22 +12,13 @@
 #include "KoPathShape.h"
 #include "kritaflake_export.h"
 
-/// The undo / redo command for removing a subpath
 class KRITAFLAKE_EXPORT KoSubpathRemoveCommand : public KUndo2Command
 {
 public:
-    /**
-     * Create a new command to remove a subpath.
-     * @param pathShape the shape to work on.
-     * @param subpathIndex the index. See KoPathShape::removeSubpath()
-     * @param parent the parent command if the resulting command is a compound undo command.
-     */
     KoSubpathRemoveCommand(KoPathShape *pathShape, int subpathIndex, KUndo2Command *parent = 0);
     ~KoSubpathRemoveCommand() override;
 
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 
 private:
@@ -36,4 +27,4 @@ private:
     KoSubpath *m_subpath;
 };
 
-#endif // KOSUBPATHREMOVECOMMAND_H
+#endif

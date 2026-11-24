@@ -6,7 +6,6 @@
 
 #include "TestSvgParser.h"
 
-
 #include <QPainterPath>
 #include <simpletest.h>
 #include <svg/SvgUtil.h>
@@ -25,7 +24,6 @@
 #include <QDomDocument>
 #endif
 
-
 void TestSvgParser::testUnitPx()
 {
     const QString data =
@@ -38,7 +36,7 @@ void TestSvgParser::testUnitPx()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -63,7 +61,7 @@ void TestSvgParser::testUnitPxResolution()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -75,7 +73,6 @@ void TestSvgParser::testUnitPxResolution()
     QCOMPARE(shape->absolutePosition(KoFlake::TopLeft), QPointF(0,0));
     QCOMPARE(shape->absolutePosition(KoFlake::BottomRight), QPointF(5,10));
 }
-
 
 void TestSvgParser::testUnitPt()
 {
@@ -89,7 +86,7 @@ void TestSvgParser::testUnitPt()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 666 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 666 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -114,7 +111,7 @@ void TestSvgParser::testUnitIn()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 666 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 666 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -139,7 +136,7 @@ void TestSvgParser::testUnitPercentInitial()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 80, 80) /* px */, 144 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 80, 80) , 144 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -164,7 +161,7 @@ void TestSvgParser::testScalingViewport()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -190,14 +187,13 @@ void TestSvgParser::testScalingViewportNoScale()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
     QVERIFY(shape);
 
     QCOMPARE(shape->absoluteTransformation(), QTransform::fromTranslate(4, 4));
-    // Verify that the scale factors are exactly 1.0
     QVERIFY(shape->absoluteTransformation().m11() == 1.0);
     QVERIFY(shape->absoluteTransformation().m22() == 1.0);
     QCOMPARE(shape->outlineRect(), QRectF(0,0,12,32));
@@ -220,7 +216,7 @@ void TestSvgParser::testScalingViewportKeepMeet1()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -247,7 +243,7 @@ void TestSvgParser::testScalingViewportKeepMeet2()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -274,7 +270,7 @@ void TestSvgParser::testScalingViewportKeepMeetAlign()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -301,7 +297,7 @@ void TestSvgParser::testScalingViewportKeepSlice1()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -328,7 +324,7 @@ void TestSvgParser::testScalingViewportKeepSlice2()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -354,7 +350,7 @@ void TestSvgParser::testScalingViewportResolution()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -380,7 +376,7 @@ void TestSvgParser::testScalingViewportPercentInternal()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -393,7 +389,6 @@ void TestSvgParser::testScalingViewportPercentInternal()
     QCOMPARE(shape->absolutePosition(KoFlake::BottomLeft), QPointF(2,18));
     QCOMPARE(shape->absolutePosition(KoFlake::BottomRight), QPointF(8,18));
 }
-
 
 void TestSvgParser::testParsePreserveAspectRatio()
 {
@@ -459,7 +454,6 @@ void TestSvgParser::testParseTransform()
     }
 
     {
-        // forget about one brace
         QString str("translate(-111.0, 33) translate(-111.0, 33 matrix (1 1 0 0 1, 3), translate(1)"
                     "scale(0.5) rotate(10) rotate(10, 3 3) skewX(1) skewY(2)");
 
@@ -510,10 +504,6 @@ void TestSvgParser::testParseTransform()
 
 void TestSvgParser::testScalingViewportTransform()
 {
-    /**
-     * Note: 'transform' affects all the attributes of the *current*
-     * element, while 'viewBox' affects only the descendants!
-     */
 
     const QString data =
             "<svg width=\"5px\" height=\"10px\" viewBox=\"60 70 20 40\""
@@ -527,7 +517,7 @@ void TestSvgParser::testScalingViewportTransform()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -554,7 +544,7 @@ void TestSvgParser::testTransformNesting()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -581,7 +571,7 @@ void TestSvgParser::testTransformNestingGroups()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -606,7 +596,7 @@ void TestSvgParser::testTransformRotation1()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -631,7 +621,7 @@ void TestSvgParser::testTransformRotation2()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 72 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -642,8 +632,6 @@ void TestSvgParser::testTransformRotation2()
     QCOMPARE(shape->absolutePosition(KoFlake::TopLeft), QPointF(5,15));
     QCOMPARE(shape->absolutePosition(KoFlake::BottomRight), QPointF(25,5));
 }
-
-
 
 void TestSvgParser::testRenderStrokeNone()
 {
@@ -845,7 +833,6 @@ void TestSvgParser::testRenderStrokeLinecap()
 
 void TestSvgParser::testRenderStrokeMiterLimit()
 {
-    // TODO:seems like doesn't work!!
     qWarning() << "WARNING: Miter limit test is skipped!!!";
     return;
 
@@ -895,7 +882,6 @@ void TestSvgParser::testRenderStrokeDashArrayEvenOffset()
 
 void TestSvgParser::testRenderStrokeDashArrayOdd()
 {
-    // SVG 1.1: if the dasharray is odd, repeat it
 
     const QString data =
             "<svg width=\"30px\" height=\"30px\""
@@ -912,8 +898,6 @@ void TestSvgParser::testRenderStrokeDashArrayOdd()
 
 void TestSvgParser::testRenderStrokeDashArrayRelative()
 {
-    // SVG 1.1: relative to view box
-    // (40 x 50) * sqrt(2) => dash length = 5 px
 
     const QString data =
             "<svg width=\"42.4264px\" height=\"56.56854px\""
@@ -1000,7 +984,7 @@ void TestSvgParser::testRenderDisplayAttribute()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -1022,7 +1006,7 @@ void TestSvgParser::testRenderVisibilityAttribute()
                 "</svg>";
 
         SvgTester t (data);
-        t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+        t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
         t.run();
 
         KoShape *shape = t.findShape("testRect");
@@ -1042,7 +1026,7 @@ void TestSvgParser::testRenderVisibilityAttribute()
                 "</svg>";
 
         SvgTester t (data);
-        t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+        t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
         t.run();
 
         KoShape *shape = t.findShape("testRect");
@@ -1062,7 +1046,7 @@ void TestSvgParser::testRenderVisibilityAttribute()
                 "</svg>";
 
         SvgTester t (data);
-        t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+        t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
         t.run();
 
         KoShape *shape = t.findShape("testRect");
@@ -1086,7 +1070,7 @@ void TestSvgParser::testRenderVisibilityInheritance()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -1110,7 +1094,7 @@ void TestSvgParser::testRenderDisplayInheritance()
             "</svg>";
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 600, 400) /* px */, 144 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 600, 400) , 144 );
     t.run();
 
     KoShape *shape = t.findShape("testRect");
@@ -1139,8 +1123,6 @@ void TestSvgParser::testRenderStrokeWithInlineStyle()
 void TestSvgParser::testIccColor()
 {
 #ifdef Q_OS_WIN
-    // HACK: For reasons yet unknown, the profile unique id is different on Windows.
-    // See https://invent.kde.org/graphics/krita/-/commit/1191295a4618a93893987497e3c54e6f0c2fd025#note_634123
 #define PROFILE_UNIQUE_ID_HEX "84f64878faf21217362594685be031d5"
 #else
 #define PROFILE_UNIQUE_ID_HEX "133a66607cffeebdd64dd433ada9bf4e"
@@ -1169,8 +1151,6 @@ void TestSvgParser::testIccColor()
     };
     ScopedProfileRemover _profileRemover;
 
-    // This test works because the icc-color won't be loaded unless there's a profile for it,
-    // and the fill will be red if the icc-color is not loaded (it should be cyan).
     const QString data =
         "<svg width=\"30px\" height=\"30px\""
         "    xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
@@ -1347,8 +1327,6 @@ void TestSvgParser::testRenderFillLinearGradientTransformUserCoord()
 
 void TestSvgParser::testRenderFillLinearGradientRotatedShape()
 {
-    // DK: I'm not sure I fully understand if it is a correct transformation,
-    //     but inkscape opens the file in the same way...
 
     const QString data =
             "<svg width=\"30px\" height=\"30px\""
@@ -1373,8 +1351,6 @@ void TestSvgParser::testRenderFillLinearGradientRotatedShape()
 
 void TestSvgParser::testRenderFillLinearGradientRotatedShapeUserCoord()
 {
-    // DK: I'm not sure I fully understand if it is a correct transformation,
-    //     but inkscape opens the file in the same way...
 
     const QString data =
             "<svg width=\"30px\" height=\"30px\" viewBox=\"60 70 60 90\""
@@ -1559,7 +1535,6 @@ QTransform viewTransform(const QRectF &src, const QRectF &dst) {
 
 }
 
-
 void TestSvgParser::testRenderMeshGradient_bilinear_1by1_UserCoord()
 {
     QString data =
@@ -1607,7 +1582,6 @@ void TestSvgParser::testRenderMeshGradient_bilinear_1by1_UserCoord()
         "     x=\"0\""
         "     y=\"0\" />"
         "</svg>";
-
 
     SvgRenderTester t(data);
     t.setFuzzyThreshold(5);
@@ -1661,7 +1635,6 @@ void TestSvgParser::testRenderMeshGradient_bicubic_1by1_UserCoord()
         "     id=\"testRect\""
         "     style=\"fill:url(#meshgradient1989);fill-opacity:1\" />"
         "</svg>";
-
 
     SvgRenderTester t(data);
     t.setFuzzyThreshold(5);
@@ -1826,10 +1799,8 @@ void TestSvgParser::testRenderMeshGradient_bicubic_2by2_UserCoord()
 
 void TestSvgParser::testRenderMeshGradient_bilinear_1by1_Obb()
 {
-    // inkscape adds 1px border (unreliably) when the bbox doesn't the meshpatch's curves
     qWarning() << "WARNING: skipped, the edge couldn't be reliably verified";
     return;
-    // inkscape is _very_ weird with meshgradients in OBB coordinate system
     QString data =
         "<svg width=\"100px\" height=\"100px\""
         "   version=\"1.1\" id=\"svg8\" >"
@@ -1875,7 +1846,6 @@ void TestSvgParser::testRenderMeshGradient_bilinear_1by1_Obb()
 
 void TestSvgParser::testRenderMeshGradient_bicubic_2by2_Obb()
 {
-    // inkscape is _very_ weird with meshgradients in OBB coordinate system
     QString data =
         "<svg"
         "   version=\"1.1\""
@@ -1965,7 +1935,6 @@ void TestSvgParser::testRenderMeshGradient_bicubic_2by2_Obb()
         "     y=\"0\" />"
         "</svg>";
 
-
     SvgRenderTester t(data);
     t.setFuzzyThreshold(5);
     t.test_standard("meshgradient_bicubic_2by2", QSize(100, 100), 72);
@@ -2027,7 +1996,6 @@ void TestSvgParser::testRenderMeshGradient_MeshTransform_UserCoord()
 
 void TestSvgParser::testRenderMeshGradient_ShapeTransform_UserCoord()
 {
-    // QString data = fetchSvgFile("svg_render", "meshgradient_shapetransform_in_user");
     QString data =
         "<svg"
         "   width=\"100px\""
@@ -2075,7 +2043,6 @@ void TestSvgParser::testRenderMeshGradient_ShapeTransform_UserCoord()
         "     transform=\"matrix(-0.71410131,-0.70004237,0.70026385,-0.71388413,0,0)\" />"
         "</svg>";
 
-
     SvgRenderTester t(data);
     t.setFuzzyThreshold(5);
     t.test_standard("meshgradient_shapetransform_in_user", QSize(100, 100), 72);
@@ -2083,7 +2050,6 @@ void TestSvgParser::testRenderMeshGradient_ShapeTransform_UserCoord()
 
 void TestSvgParser::testRenderMeshGradient_MeshTransform_Obb()
 {
-    // inkscape is _very_ weird with meshgradients in OBB coordinate system
     QString data =
         "<svg"
         "   version=\"1.1\""
@@ -2144,7 +2110,6 @@ void TestSvgParser::testRenderMeshGradient_MeshTransform_Obb()
         "     style=\"fill:url(#meshgradient901);fill-opacity:1;filter:url(#filter859)\" />"
         "</svg>";
 
-
     SvgRenderTester t(data);
     t.setFuzzyThreshold(5);
     t.test_standard("meshgradient_meshtransform_in_obb", QSize(100, 100), 72);
@@ -2152,7 +2117,6 @@ void TestSvgParser::testRenderMeshGradient_MeshTransform_Obb()
 
 void TestSvgParser::testRenderMeshGradient_ShapeTransform_Obb()
 {
-    // inkscape is _very_ weird with meshgradients in OBB coordinate system
     QString data =
         "<svg"
         "   width=\"100px\""
@@ -2207,8 +2171,6 @@ void TestSvgParser::testRenderMeshGradient_ShapeTransform_Obb()
 
 void TestSvgParser::testRenderMeshGradient_transparent()
 {
-    // here I use Krita's output, due to my lack of knowledge about Inkscape's RGBA
-    // output format. But the results, have been verified - SZ
     QString data =
         "<svg"
         "   width=\"100px\""
@@ -2264,9 +2226,6 @@ void TestSvgParser::testRenderMeshGradient_transparent()
 
 void TestSvgParser::testRenderMeshGradient_reversed()
 {
-    // Not sure if this is part of specs, but this brings up an underlying problem:
-    // bounds in QPainterPath are inclusive on right and bottom side, so an extra 1px
-    // border is drawn.
     QString data =
         "<svg"
         "   id=\"svg856\""
@@ -2446,7 +2405,6 @@ void TestSvgParser::testManualRenderPattern_ContentObb_RefObb()
     fillPath.addRect(QRectF(0.6, 0.5, 0.1, 0.1));
     fillPath.addRect(QRectF(0.3, 0.4, 0.1, 0.1));
 
-
     const QRect bakedShapeRect(2,2,10,10);
     QTransform bakedTransform = QTransform::fromTranslate(10, 10) * QTransform::fromScale(2, 2);
 
@@ -2455,8 +2413,6 @@ void TestSvgParser::testManualRenderPattern_ContentObb_RefObb()
     QImage stampResult;
     QImage fillResult(QSize(60,60), QImage::Format_ARGB32);
     QPainter gc(&fillResult);
-
-    // Round trip to the same shape
 
     fillResult.fill(0);
     renderBakedPath(gc,
@@ -2470,8 +2426,6 @@ void TestSvgParser::testManualRenderPattern_ContentObb_RefObb()
 
     QVERIFY(TestUtil::checkQImage(stampResult, "svg_render", "render", "pattern_c_obb_r_obb_patch1"));
     QVERIFY(TestUtil::checkQImage(fillResult, "svg_render", "render", "pattern_c_obb_r_obb_fill1"));
-
-    // Move to a different shape
 
     QRect shape2OutlineRect(5,5,20,10);
     QTransform shape2Transform = QTransform::fromScale(2, 2) * QTransform::fromTranslate(5, 5);
@@ -2497,7 +2451,6 @@ void TestSvgParser::testManualRenderPattern_ContentUser_RefUser()
     QPainterPath fillPath;
     fillPath.addRect(QRect(2, 2, 6, 6));
     fillPath.addRect(QRect(8, 4, 3, 2));
-
 
     QTransform bakedTransform = QTransform::fromTranslate(10, 10) * QTransform::fromScale(2, 2);
     QPainterPath bakedFillPath = bakeShape(fillPath, bakedTransform);
@@ -2559,8 +2512,6 @@ void TestSvgParser::testManualRenderPattern_ContentObb_RefObb_Transform_Rotate()
     patternTransform.rotate(90);
     patternTransform = patternTransform * QTransform::fromTranslate(0.5, 0.0);
 
-    // Round trip to the same shape
-
     fillResult.fill(0);
     renderBakedPath(gc,
                     bakedFillPath, bakedTransform,
@@ -2591,7 +2542,6 @@ void TestSvgParser::testManualRenderPattern_ContentObb_RefObb_Transform_Rotate()
     QVERIFY(TestUtil::checkQImage(fillResult, "svg_render", "render", "pattern_c_obb_r_obb_rotate_fill2"));
 }
 
-
 void TestSvgParser::testManualRenderPattern_ContentView_RefObb()
 {
     const QRectF referenceRect(0, 0, 0.5, 1.0/3.0);
@@ -2600,7 +2550,6 @@ void TestSvgParser::testManualRenderPattern_ContentView_RefObb()
     QPainterPath fillPath;
     fillPath.addRect(QRect(30, 10, 20, 60));
     fillPath.addRect(QRect(50, 40, 20, 30));
-
 
     QRect shape1OutlineRect(10,20,40,120);
 
@@ -2651,7 +2600,6 @@ void TestSvgParser::testManualRenderPattern_ContentView_RefUser()
     QPainterPath fillPath;
     fillPath.addRect(QRect(30, 10, 20, 60));
     fillPath.addRect(QRect(50, 40, 20, 30));
-
 
     QRect shape1OutlineRect(10,20,40,120);
 
@@ -2782,7 +2730,6 @@ void TestSvgParser::testRenderPattern_r_User_c_View()
             "            <rect id=\"patternRect1\" x=\"30\" y=\"10\" width=\"20\" height=\"60\""
             "                fill=\"red\" stroke=\"none\" />"
 
-            // y is changed to 39 from 40 to fix a rounding issue!
             "            <rect id=\"patternRect2\" x=\"50\" y=\"39\" width=\"20\" height=\"30\""
             "                fill=\"red\" stroke=\"none\" />"
             "        </g>"
@@ -2876,14 +2823,6 @@ void TestSvgParser::testRenderPattern_r_User_c_View_Rotated()
 
 void TestSvgParser::testRenderPattern_r_Obb_c_View_Rotated()
 {
-    /**
-     * This test case differs from any application existent in the world :(
-     *
-     * Chrome and Firefox premultiply the patternTransform instead of doing post-
-     * multiplication. PS forgets to multiply the reference rect on it.
-     *
-     * So...
-     */
 
     const QString data =
             "<svg width=\"30px\" height=\"30px\""
@@ -3139,7 +3078,6 @@ void TestSvgParser::testRenderClipMask_Obb()
 
             "</defs>"
 
-
             "<g id=\"testRect\">"
             "    <rect id=\"testRect1\" x=\"5\" y=\"5\" width=\"15\" height=\"15\""
             "        fill=\"blue\" stroke=\"none\"/>"
@@ -3181,7 +3119,6 @@ void TestSvgParser::testRenderClipMaskOnGroup_Obb()
 
             "</defs>"
 
-
             "<g id=\"testRect\" mask=\"url(#Mask)\">"
             "    <rect id=\"testRect1\" x=\"5\" y=\"5\" width=\"15\" height=\"15\""
             "        fill=\"blue\" stroke=\"none\"/>"
@@ -3211,8 +3148,6 @@ void TestSvgParser::testRenderClipMask_User_Clip_Obb()
             "<svg width=\"30px\" height=\"30px\""
             "    xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"
 
-            //"<defs>"
-
             "    <linearGradient id=\"Gradient\" gradientUnits=\"objectBoundingBox\""
             "        x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\">"
 
@@ -3228,9 +3163,6 @@ void TestSvgParser::testRenderClipMask_User_Clip_Obb()
             "        <rect x=\"10\" y=\"10\" width=\"15\" height=\"15\" fill=\"url(#Gradient)\" />"
 
             "    </mask>"
-
-            //"</defs>"
-
 
             "<g id=\"testRect\">"
             "    <rect id=\"testRect1\" x=\"5\" y=\"5\" width=\"15\" height=\"15\""
@@ -3253,8 +3185,6 @@ void TestSvgParser::testRenderClipMask_User_Clip_User()
             "<svg width=\"30px\" height=\"30px\""
             "    xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"
 
-            //"<defs>"
-
             "    <linearGradient id=\"Gradient\" gradientUnits=\"objectBoundingBox\""
             "        x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\">"
 
@@ -3270,9 +3200,6 @@ void TestSvgParser::testRenderClipMask_User_Clip_User()
             "        <rect x=\"10\" y=\"10\" width=\"15\" height=\"15\" fill=\"url(#Gradient)\" />"
 
             "    </mask>"
-
-            //"</defs>"
-
 
             "<g id=\"testRect\">"
             "    <rect id=\"testRect1\" x=\"5\" y=\"5\" width=\"15\" height=\"15\""
@@ -3301,7 +3228,6 @@ void TestSvgParser::testRenderImage_AspectDefault()
 
             "    <rect id=\"testRect1\" x=\"5\" y=\"5\" width=\"15\" height=\"10\""
             "        fill=\"white\" stroke=\"none\"/>"
-
 
             "    <image x=\"5\" y=\"5\" width=\"15\" height=\"10\""
             "        xlink:href=\"svg_render/testing_ref_image.png\">"
@@ -3332,7 +3258,6 @@ void TestSvgParser::testRenderImage_AspectNone()
 
             "    <rect id=\"testRect1\" x=\"5\" y=\"5\" width=\"15\" height=\"10\""
             "        fill=\"white\" stroke=\"none\"/>"
-
 
             "    <image x=\"5\" y=\"5\" width=\"15\" height=\"10\""
             "        preserveAspectRatio=\"none\""
@@ -3365,7 +3290,6 @@ void TestSvgParser::testRenderImage_AspectMeet()
 
             "    <rect id=\"testRect1\" x=\"5\" y=\"5\" width=\"15\" height=\"10\""
             "        fill=\"white\" stroke=\"none\"/>"
-
 
             "    <image x=\"5\" y=\"5\" width=\"15\" height=\"10\""
             "        preserveAspectRatio=\"xMinYMin meet\""
@@ -3616,23 +3540,12 @@ void TestSvgParser::testDefsUseInheritance()
             "<svg width=\"30px\" height=\"30px\""
             "    xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
 
-
-
             "<g id=\"unrenderedRect\" fill=\"green\" >"
             "    <defs>"
             "        <rect id=\"testRect1\" x=\"1\" y=\"1\" width=\"15\" height=\"15\""
             "            stroke=\"none\"/>"
             "    </defs>"
             "</g>"
-
-
-            /**
-             * NOTES:
-             * 1) width/height attributes for <use> are not implemented yet
-             * 2) x and y are summed up
-             * 3) stroke="white" is overridden by the original templated object
-             * 4) fill="green" attribute from <defs> is not inherited
-             */
 
             "<g id=\"testRect\" fill=\"blue\" >"
             "    <use x=\"4\" y=\"4\" xlink:href=\"#testRect1\""
@@ -3655,22 +3568,12 @@ void TestSvgParser::testUseWithoutDefs()
             "<svg width=\"30px\" height=\"30px\""
             "    xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
 
-            // technical rect for rendering
             "<g id=\"testRect\">"
 
             "<g id=\"renderedRect1\" fill=\"green\" >"
             "    <rect id=\"testRect1\" x=\"1\" y=\"1\" width=\"15\" height=\"15\""
             "        stroke=\"none\"/>"
             "</g>"
-
-
-            /**
-             * NOTES:
-             * 1) width/height attributes for <use> are not implemented yet
-             * 2) x and y are summed up
-             * 3) stroke="white" is overridden by the original templated object
-             * 4) fill="green" attribute from <defs> is not inherited
-             */
 
             "<g id=\"renderedRect2\" fill=\"blue\" >"
             "    <use x=\"4\" y=\"4\" xlink:href=\"#testRect1\""
@@ -3880,7 +3783,6 @@ void TestSvgParser::testMarkersFillAsShape()
             "<path id=\"testRect\""
             "    style=\"fill:none;stroke:url(#testGrad) magenta;stroke-width:2px;marker-start:url(#SimpleRectMarker);marker-end:url(#SimpleRectMarker);marker-mid:url(#SimpleRectMarker);krita|marker-fill-method:auto\""
             "    d=\"M5,15 C5,5 25,5 25,15 L15,25\"/>"
-            //"    d=\"M5,15 L25,15\"/>"
 
             "</svg>";
 
@@ -3982,10 +3884,8 @@ void TestSvgParser::testMarkersOnClosedPath()
     t.test_standard_30px_72ppi("markers_on_closed_path", false);
 }
 
-
 void TestSvgParser::testGradientRecoveringTransform()
 {
-    // used for experimenting purposes only!
 
     QImage image(100,100,QImage::Format_ARGB32);
     image.fill(0);
@@ -3993,12 +3893,8 @@ void TestSvgParser::testGradientRecoveringTransform()
 
     painter.setPen(QPen(Qt::black, 0));
 
-
     QLinearGradient gradient(0, 0.5, 1, 0.5);
     gradient.setCoordinateMode(QGradient::ObjectBoundingMode);
-
-    //QLinearGradient gradient(0, 50, 100, 50);
-    //gradient.setCoordinateMode(QGradient::LogicalMode);
 
     gradient.setColorAt(0.0, Qt::red);
     gradient.setColorAt(1.0, Qt::blue);
@@ -4032,7 +3928,6 @@ void TestSvgParser::testGradientRecoveringTransform()
             QTransform::fromTranslate(mainShape.center().x(), mainShape.center().y());
     }
 
-
     {
         gradient.setCoordinateMode(QGradient::LogicalMode);
         QBrush brush(gradient);
@@ -4044,7 +3939,6 @@ void TestSvgParser::testGradientRecoveringTransform()
     painter.setTransform(smallShapeTransform);
     painter.drawRect(smallShape);
 
-    //image.save("gradient_recovering_transform.png");
 }
 
 void TestSvgParser::testMarkersAngularUnits()
@@ -4053,7 +3947,6 @@ void TestSvgParser::testMarkersAngularUnits()
             "<svg width=\"30px\" height=\"30px\""
             "    xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"
 
-            // start
             "<marker id=\"SimpleRectMarker1\""
             "    orient=\"45deg\" refY=\"12.5\" refX=\"12.5\" >"
 
@@ -4065,7 +3958,6 @@ void TestSvgParser::testMarkersAngularUnits()
             "        fill=\"white\" stroke=\"none\"/>"
             "</marker>"
 
-            // end
             "<marker id=\"SimpleRectMarker2\""
             "    orient=\"200grad\" refY=\"12.5\" refX=\"12.5\" >"
 
@@ -4077,7 +3969,6 @@ void TestSvgParser::testMarkersAngularUnits()
             "        fill=\"white\" stroke=\"none\"/>"
             "</marker>"
 
-            // mid
             "<marker id=\"SimpleRectMarker3\""
             "    orient=\"-1.57rad\" refY=\"12.5\" refX=\"12.5\" >"
 
@@ -4121,7 +4012,6 @@ void TestSvgParser::testSodipodiArcShape()
             "    sodipodi:ry=\"8.5\""
             "    sodipodi:start=\"5.5346039\""
             "    sodipodi:end=\"4.0381334\""
-            //"    d=\"m 20.043381,8.7327624 a 6.25,8.5 0 0 1 1.053863,9.4677386 6.25,8.5 0 0 1 -6.094908,4.794113 6.25,8.5 0 0 1 -5.5086474,-5.963709 6.25,8.5 0 0 1 2.0686234,-9.1530031 l 3.901975,6.6399611 z\" />"
             "    d=\" some weird unparsable text \" />"
 
             "</svg>";
@@ -4154,7 +4044,6 @@ void TestSvgParser::testSodipodiArcShapeOpen()
             "    sodipodi:ry=\"8.5\""
             "    sodipodi:start=\"5.5346039\""
             "    sodipodi:end=\"4.0381334\""
-            //"    d=\"m 20.043381,8.7327624 a 6.25,8.5 0 0 1 1.053863,9.4677386 6.25,8.5 0 0 1 -6.094908,4.794113 6.25,8.5 0 0 1 -5.5086474,-5.963709 6.25,8.5 0 0 1 2.0686234,-9.1530031 l 3.901975,6.6399611 z\" />"
             "    d=\" some weird unparsable text \" />"
 
             "</svg>";
@@ -4188,7 +4077,6 @@ void TestSvgParser::testKritaChordShape()
             "    krita:ry=\"8.5\""
             "    krita:start=\"5.5346039\""
             "    krita:end=\"4.0381334\""
-            //"    d=\"m 20.043381,8.7327624 a 6.25,8.5 0 0 1 1.053863,9.4677386 6.25,8.5 0 0 1 -6.094908,4.794113 6.25,8.5 0 0 1 -5.5086474,-5.963709 6.25,8.5 0 0 1 2.0686234,-9.1530031 l 3.901975,6.6399611 z\" />"
             "    d=\" some weird unparsable text \" />"
 
             "</svg>";
@@ -4222,7 +4110,6 @@ void TestSvgParser::testSodipodiChordShape()
             "    sodipodi:ry=\"8.5\""
             "    sodipodi:start=\"5.5346039\""
             "    sodipodi:end=\"4.0381334\""
-            //"    d=\"m 20.043381,8.7327624 a 6.25,8.5 0 0 1 1.053863,9.4677386 6.25,8.5 0 0 1 -6.094908,4.794113 6.25,8.5 0 0 1 -5.5086474,-5.963709 6.25,8.5 0 0 1 2.0686234,-9.1530031 l 3.901975,6.6399611 z\" />"
             "    d=\" some weird unparsable text \" />"
 
             "</svg>";
@@ -4234,9 +4121,6 @@ void TestSvgParser::testSodipodiChordShape()
     KoShape *shape = t.findShape("testRect");
     QVERIFY(dynamic_cast<KoParameterShape*>(shape));
 }
-
-
-
 
 void TestSvgParser::testDescAndTitleParsing()
 {
@@ -4256,7 +4140,7 @@ void TestSvgParser::testDescAndTitleParsing()
     const QString data = dataBefore + "<title>"+title+"</title>" + "<desc>"+description+"</desc>" + dataAfter;
 
     SvgTester t (data);
-    t.parser().setResolution(QRectF(0, 0, 380, 380) /* px */, 72 /* ppi */);
+    t.parser().setResolution(QRectF(0, 0, 380, 380) , 72 );
     t.run();
     KoShape *shape = t.findShape("testRect");
 

@@ -60,10 +60,6 @@ private:
     KisPaintInformation createPaintingInformation(KoPointerEvent *event,
                                                   int timeElapsed);
 
-    /**
-     * Defines how many discrete samples are stored in a precomputed array
-     * of different pressures.
-     */
     static const int LEVEL_OF_PRESSURE_RESOLUTION;
 
 private:
@@ -72,7 +68,7 @@ private:
     QScopedPointer<KisSpeedSmoother> m_speedSmoother;
     bool m_pressureDisabled;
     int m_maxAllowedSpeedValue = 30;
-    qreal m_tiltDirectionOffset = 0;  // [0, 360) degrees
+    qreal m_tiltDirectionOffset = 0;
 };
 
 class KRITAUI_EXPORT KisConverterPaintingInformationBuilder : public KisPaintingInformationBuilder
@@ -117,4 +113,4 @@ private:
     KisToolFreehand *m_tool;
 };
 
-#endif /* __KIS_PAINTING_INFORMATION_BUILDER_H */
+#endif

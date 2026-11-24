@@ -16,7 +16,6 @@
 
 namespace {
 
-
 class KisHatchingOptions: public QWidget, public Ui::WdgHatchingOptions
 {
 public:
@@ -28,7 +27,6 @@ public:
 
         angleKisAngleSelector           ->setIncreasingDirection(KisAngleGauge::IncreasingDirection_Clockwise);
 
-        //setRange(minimum, maximum, decimals)
         angleKisAngleSelector           -> setRange(-90.0, 90.0);
         angleKisAngleSelector           -> setDecimals(1);
         separationKisDoubleSliderSpinBox-> setRange(1.0, 30.0, 1);
@@ -46,9 +44,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisHatchingOptionsWidget::Private
 {
@@ -59,7 +55,6 @@ struct KisHatchingOptionsWidget::Private
 
     KisHatchingOptionsModel model;
 };
-
 
 KisHatchingOptionsWidget::KisHatchingOptionsWidget(lager::cursor<KisHatchingOptionsData> optionData)
     : KisPaintOpOption(i18n("Hatching options"), KisPaintOpOption::GENERAL, true)

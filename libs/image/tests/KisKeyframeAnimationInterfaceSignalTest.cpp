@@ -9,7 +9,6 @@
 #include <simpletest.h>
 #include <qsignalspy.h>
 
-
 void KisKeyframeAnimationInterfaceSignalTest::initTestCase()
 {
     m_image1 = new KisImage(0, 100, 100, nullptr, "image1");
@@ -23,7 +22,6 @@ void KisKeyframeAnimationInterfaceSignalTest::init()
 {
     m_channel->addKeyframe(0);
 
-    //delete all  keyframes other than 1st
     while (m_channel->keyframeAt(m_channel->firstKeyframeTime()) != m_channel->keyframeAt(m_channel->lastKeyframeTime())) {
         m_channel->removeKeyframe(m_channel->lastKeyframeTime());
     }
@@ -35,7 +33,6 @@ void KisKeyframeAnimationInterfaceSignalTest::testSignalFromKeyframeChannelToInt
 
     QCOMPARE(m_channel->keyframeCount(), 1);
 
-    //add keyframe
     qRegisterMetaType<const KisKeyframeChannel*>("const KisKeyframeChannel*");
     QSignalSpy spyFrameAdded(m_image1->animationInterface() , SIGNAL(sigKeyframeAdded(const KisKeyframeChannel*, int)));
     QVERIFY(spyFrameAdded.isValid());
@@ -43,7 +40,6 @@ void KisKeyframeAnimationInterfaceSignalTest::testSignalFromKeyframeChannelToInt
     m_channel->addKeyframe(2);
     QCOMPARE(spyFrameAdded.count(), 1);
 
-    //remove keyframe
     QSignalSpy spyFrameRemoved(m_image1->animationInterface() , SIGNAL(sigKeyframeRemoved(const KisKeyframeChannel*, int)));
     QVERIFY(spyFrameRemoved.isValid());
 
@@ -58,17 +54,14 @@ void KisKeyframeAnimationInterfaceSignalTest::testSignalOnImageReset()
 
     QCOMPARE(m_layer->image(), KisImageWSP(m_image2));
 
-    //test the connections between m_channel and new image's animation interface
     QVERIFY(!connect(m_channel, SIGNAL(sigAddedKeyframe(const KisKeyframeChannel*,int)), m_image2->animationInterface(), SIGNAL(sigKeyframeAdded(const KisKeyframeChannel*, int)), Qt::UniqueConnection));
 
-    //test signals from the old image on changing m_channel after image reset
     QSignalSpy spyFrameAdded(m_image1->animationInterface() , SIGNAL(sigKeyframeAdded(const KisKeyframeChannel*, int)));
     QVERIFY(spyFrameAdded.isValid());
-    
+
     QSignalSpy spyFrameRemoved(m_image1->animationInterface() , SIGNAL(sigKeyframeRemoved(const KisKeyframeChannel*, int)));
     QVERIFY(spyFrameRemoved.isValid());
 
-    //check if signal are emitted from the new image on changing m_channel
     QSignalSpy newSpyFrameAdded(m_image2->animationInterface() , SIGNAL(sigKeyframeAdded(const KisKeyframeChannel*, int)));
     QVERIFY(newSpyFrameAdded.isValid());
 

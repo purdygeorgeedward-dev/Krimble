@@ -12,7 +12,6 @@
 
 class QBitArray;
 
-
 class KisConvolutionPainterTest : public QObject
 {
     Q_OBJECT

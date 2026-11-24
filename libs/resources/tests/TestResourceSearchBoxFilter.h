@@ -11,7 +11,6 @@
 
 #include <KisResourceSearchBoxFilter.h>
 
-//Define mockup of a resource based on what we will be filtering for (tags, names, etc..)
 struct MockResource {
     MockResource(QString name, QStringList tags)
         : m_name(name)
@@ -27,7 +26,6 @@ struct MockResource {
     QString m_name;
     QStringList m_tags;
 };
-
 
 class TestResourceSearchBoxFilter : public QObject
 {
@@ -60,4 +58,4 @@ private:
 
 };
 
-#endif // TESTRESOURCESEARCHBOXFILTER_H
+#endif

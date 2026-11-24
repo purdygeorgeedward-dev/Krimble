@@ -44,7 +44,6 @@ KisMetaData::Value KisMetaDataTest::createListValue()
     return list;
 }
 
-
 #define TEST_SCHEMA(uriStr) \
     { \
         const Schema* schema = SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::uriStr); \
@@ -55,7 +54,6 @@ KisMetaData::Value KisMetaDataTest::createListValue()
         QCOMPARE(schema, SchemaRegistry::instance()->create(KisMetaData::Schema::uriStr, "tartampion")); \
         QCOMPARE(QString(schema->prefix() + ":hello"), schema->generateQualifiedName("hello")); \
     }
-
 
 void KisMetaDataTest::testSchemaBasic()
 {
@@ -68,8 +66,6 @@ void KisMetaDataTest::testSchemaBasic()
     TEST_SCHEMA(IPTCSchemaUri);
     TEST_SCHEMA(PhotoshopSchemaUri);
 }
-
-
 
 void KisMetaDataTest::testRationals()
 {
@@ -164,7 +160,6 @@ void KisMetaDataTest::testValueEquality()
     QVERIFY(createListValue() == createListValue());
 }
 
-
 #define TEST_VALUE_COPY(func) \
     { \
         Value v1 = func(); \
@@ -217,7 +212,6 @@ void KisMetaDataTest::testStore()
 
 void KisMetaDataTest::testFilters()
 {
-    // Test anonymizer
     {
         Store s;
         const KisMetaData::Filter* filter = FilterRegistry::instance()->get("Anonymizer");
@@ -299,7 +293,6 @@ void KisMetaDataTest::testTypeInfo()
     QVERIFY(TypeInfo::Private::LangArray->embeddedPropertyType() == TypeInfo::Private::Text);
     QVERIFY(TypeInfo::Private::LangArray->choices().size() == 0);
 
-    // Create List of integer Value
     QList< Value > goodIntegerList;
     goodIntegerList.push_back(createIntegerValue());
     goodIntegerList.push_back(createIntegerValue(12));
@@ -308,7 +301,6 @@ void KisMetaDataTest::testTypeInfo()
     badIntegerList.push_back(createStringValue());
     badIntegerList.push_back(createIntegerValue(12));
 
-    // Test OrderedArray
     const TypeInfo* arrOA1 = TypeInfo::Private::orderedArray(TypeInfo::Private::Integer);
     QVERIFY(arrOA1->propertyType() == TypeInfo::OrderedArrayType);
     QVERIFY(arrOA1->embeddedPropertyType() == TypeInfo::Private::Integer);
@@ -324,7 +316,6 @@ void KisMetaDataTest::testTypeInfo()
     QVERIFY(arrOA1->hasCorrectType(Value(goodIntegerList, Value::OrderedArray)));
     QVERIFY(!arrOA1->hasCorrectType(Value(badIntegerList, Value::OrderedArray)));
 
-    // Test UnorderedArray
     const TypeInfo* arrUOA1 = TypeInfo::Private::unorderedArray(TypeInfo::Private::Integer);
     QVERIFY(arrUOA1->propertyType() == TypeInfo::UnorderedArrayType);
     QVERIFY(arrUOA1->embeddedPropertyType() == TypeInfo::Private::Integer);
@@ -342,7 +333,6 @@ void KisMetaDataTest::testTypeInfo()
     QVERIFY(arrUOA1->hasCorrectType(Value(goodIntegerList, Value::UnorderedArray)));
     QVERIFY(!arrUOA1->hasCorrectType(Value(badIntegerList, Value::UnorderedArray)));
 
-    // Test AlternativeArray
     const TypeInfo* arrAA1 = TypeInfo::Private::alternativeArray(TypeInfo::Private::Integer);
     QVERIFY(arrAA1->propertyType() == TypeInfo::AlternativeArrayType);
     QVERIFY(arrAA1->embeddedPropertyType() == TypeInfo::Private::Integer);
@@ -362,7 +352,6 @@ void KisMetaDataTest::testTypeInfo()
     QVERIFY(arrAA1->hasCorrectType(Value(goodIntegerList, Value::AlternativeArray)));
     QVERIFY(!arrAA1->hasCorrectType(Value(badIntegerList, Value::AlternativeArray)));
 
-    // Test Choice
     QList< TypeInfo::Choice > choices;
     choices.push_back(TypeInfo::Choice(Value(12), "Hello"));
     choices.push_back(TypeInfo::Choice(Value(42), "World"));
@@ -396,9 +385,6 @@ void KisMetaDataTest::testTypeInfo()
     QVERIFY(cChoice->hasCorrectValue(createIntegerValue(12)));
     QVERIFY(!cChoice->hasCorrectValue(createIntegerValue(-12)));
     QVERIFY(cChoice->hasCorrectValue(createIntegerValue(42)));
-
-    // Test structure
-
 
 }
 
@@ -525,7 +511,6 @@ void KisMetaDataTest::testValidator()
     QCOMPARE(validator.countValidEntries(), 5);
     QCOMPARE(validator.invalidEntries().size(), 0);
 
-    // Unknown entry
     store.addEntry(Entry(exif, "azerty", createIntegerValue()));
     validator.revalidate();
     QCOMPARE(validator.countInvalidEntries(), 1);
@@ -533,7 +518,6 @@ void KisMetaDataTest::testValidator()
     QCOMPARE(validator.invalidEntries()[ exif->generateQualifiedName("azerty")].type(), Validator::Reason::UNKNOWN_ENTRY);
     store.removeEntry(exif, "azerty");
 
-    // Invalid type for rational
     store.addEntry(Entry(exif, "FNumber", createIntegerValue()));
     validator.revalidate();
     QCOMPARE(validator.countInvalidEntries(), 1);
@@ -541,7 +525,6 @@ void KisMetaDataTest::testValidator()
     QCOMPARE(validator.invalidEntries()[ exif->generateQualifiedName("FNumber")].type(), Validator::Reason::INVALID_TYPE);
     store.removeEntry(exif, "FNumber");
 
-    // Invalid type for integer
     store.addEntry(Entry(exif, "SubjectLocation", createStringValue()));
     validator.revalidate();
     QCOMPARE(validator.countInvalidEntries(), 1);
@@ -549,7 +532,6 @@ void KisMetaDataTest::testValidator()
     QCOMPARE(validator.invalidEntries()[ exif->generateQualifiedName("SubjectLocation")].type(), Validator::Reason::INVALID_TYPE);
     store.removeEntry(exif, "SubjectLocation");
 
-    // Invalid type for choice
     store.addEntry(Entry(exif, "SensingMethod", createStringValue()));
     validator.revalidate();
     QCOMPARE(validator.countInvalidEntries(), 1);
@@ -557,7 +539,6 @@ void KisMetaDataTest::testValidator()
     QCOMPARE(validator.invalidEntries()[ exif->generateQualifiedName("SensingMethod")].type(), Validator::Reason::INVALID_TYPE);
     store.removeEntry(exif, "SensingMethod");
 
-    // Invalid value for choice
     store.addEntry(Entry(exif, "SensingMethod", createIntegerValue(1242)));
     validator.revalidate();
     QCOMPARE(validator.countInvalidEntries(), 1);

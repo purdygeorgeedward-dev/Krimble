@@ -54,16 +54,6 @@
             <string>Image Size</string>
            </property>
            <layout class="QFormLayout" name="formLayout_3">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>P&amp;redefined:</string>
-              </property>
-              <property name="buddy">
-               <cstring>cmbPredefined</cstring>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0">
              <widget class="QLabel" name="lblWidth">
               <property name="text">
@@ -208,7 +198,7 @@
               </layout>
              </widget>
             </item>
-            <item row="0" column="1">
+            <item row="0" column="0" colspan="2">
              <widget class="QWidget" name="widget_4" native="true">
               <layout class="QGridLayout" name="gridLayout_5" columnstretch="1,1">
                <property name="leftMargin">
@@ -252,6 +242,16 @@
                    <number>0</number>
                   </property>
                   <item>
+                   <widget class="QToolButton" name="bnSavePreset">
+                    <property name="toolTip">
+                     <string>Save the current size as a preset</string>
+                    </property>
+                    <property name="autoRaise">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <spacer name="horizontalSpacer">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -265,40 +265,12 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QToolButton" name="bnLandscape">
+                   <widget class="QToolButton" name="bnOrientation">
                     <property name="toolTip">
-                     <string>Landscape</string>
+                     <string>Switch portrait and landscape</string>
                     </property>
                     <property name="text">
                      <string>...</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="autoExclusive">
-                     <bool>true</bool>
-                    </property>
-                    <property name="autoRaise">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QToolButton" name="bnPortrait">
-                    <property name="toolTip">
-                     <string>Portrait</string>
-                    </property>
-                    <property name="text">
-                     <string>...</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                    <property name="autoExclusive">
-                     <bool>true</bool>
                     </property>
                     <property name="autoRaise">
                      <bool>true</bool>
@@ -336,86 +308,32 @@
            </layout>
           </widget>
          </item>
+         <item>
+          <widget class="QGroupBox" name="grpMode">
+           <property name="title">
+            <string comment="Label of Color as color space in Create New Image dialogue">Color</string>
+           </property>
+           <layout class="QVBoxLayout">
+            <item>
+             <widget class="KisColorSpaceSelector" name="colorSpaceSelector" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
         </layout>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Save Image Size as:</string>
-         </property>
-         <property name="buddy">
-          <cstring>txtPredefinedName</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QGroupBox" name="grpMode">
-         <property name="title">
-          <string comment="Label of Color as color space in Create New Image dialogue">Color</string>
-         </property>
-         <layout class="QVBoxLayout">
-          <item>
-           <widget class="KisColorSpaceSelector" name="colorSpaceSelector" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QWidget" name="widget_6" native="true">
-         <layout class="QGridLayout" name="gridLayout">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item row="0" column="0">
-           <widget class="QLineEdit" name="txtPredefinedName">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="bnSaveAsPredefined">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Save the current dimensions</string>
-            </property>
-            <property name="text">
-             <string>&amp;Save</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -447,41 +365,6 @@
          </property>
          <property name="text">
           <string>untitled-1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Layers:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="KisIntParseSpinBox" name="intNumLayers">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Number of layers that the image will start with, including optional background layer.</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>200</number>
-         </property>
-         <property name="value">
-          <number>2</number>
          </property>
         </widget>
        </item>
@@ -590,35 +473,7 @@
          </layout>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2">
-        <widget class="QGroupBox" name="grpDescription">
-         <property name="title">
-          <string>Description:</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout_5">
-          <item row="0" column="0" colspan="2">
-           <widget class="QTextEdit" name="txtDescription">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <!-- Krimble 2026-11-07: George: "why is there a giant description area pushing it down?" It was 100 px tall at most, now 54 px (about three lines); it was 100: -->
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>54</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
       </layout>
-      <zorder>label_4</zorder>
-      <zorder>intNumLayers</zorder>
       <zorder>sliderOpacity</zorder>
       <zorder>lblColor</zorder>
       <zorder>cmbColor</zorder>
@@ -626,7 +481,6 @@
       <zorder>lblName</zorder>
       <zorder>txtName</zorder>
       <zorder>grpBackground</zorder>
-      <zorder>grpDescription</zorder>
      </widget>
     </widget>
    </item>
@@ -678,11 +532,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>KisIntParseSpinBox</class>
-   <extends>QSpinBox</extends>
-   <header>kis_int_parse_spin_box.h</header>
-  </customwidget>
-  <customwidget>
    <class>KisDoubleParseSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header>kis_double_parse_spin_box.h</header>
@@ -697,24 +546,20 @@
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>cmbPredefined</tabstop>
-  <tabstop>bnLandscape</tabstop>
-  <tabstop>bnPortrait</tabstop>
+  <tabstop>bnSavePreset</tabstop>
+  <tabstop>bnOrientation</tabstop>
   <tabstop>doubleWidth</tabstop>
   <tabstop>cmbWidthUnit</tabstop>
   <tabstop>doubleHeight</tabstop>
   <tabstop>cmbHeightUnit</tabstop>
   <tabstop>doubleResolution</tabstop>
   <tabstop>cmbResolutionUnit</tabstop>
-  <tabstop>txtPredefinedName</tabstop>
-  <tabstop>bnSaveAsPredefined</tabstop>
   <tabstop>txtName</tabstop>
-  <tabstop>intNumLayers</tabstop>
   <tabstop>cmbColor</tabstop>
   <tabstop>sliderOpacity</tabstop>
   <tabstop>radioBackgroundAsRaster</tabstop>
   <tabstop>radioBackgroundAsProjection</tabstop>
   <tabstop>radioBackgroundAsFill</tabstop>
-  <tabstop>txtDescription</tabstop>
  </tabstops>
  <resources/>
  <connections/>

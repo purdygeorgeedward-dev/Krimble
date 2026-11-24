@@ -20,7 +20,7 @@ struct KRITAWIDGETUTILS_EXPORT KisRecentFilesEntry
 {
     QUrl m_url;
     QString m_displayName;
-}; /* struct KisRecentFilesEntry */
+};
 
 class KRITAWIDGETUTILS_EXPORT KisRecentFilesManager : public QObject
 {
@@ -53,6 +53,6 @@ Q_SIGNALS:
     void fileAdded(const QUrl &url);
     void fileRemoved(const QUrl &url);
     void listRenewed();
-}; /* class KisRecentFileRegistry */
+};
 
-#endif /* KIS_RECENT_FILES_MANAGER_H */
+#endif

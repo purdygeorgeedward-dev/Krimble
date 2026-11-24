@@ -20,4 +20,4 @@ public:
 
 };
 
-#endif // _KARBONTOOLSPLUGIN_H_
+#endif

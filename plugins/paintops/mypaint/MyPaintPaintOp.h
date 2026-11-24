@@ -18,7 +18,6 @@
 
 class KisPainter;
 
-
 class KisMyPaintPaintOp : public KisPaintOp
 {
 
@@ -48,4 +47,4 @@ private:
     bool m_isStrokeStarted;
 };
 
-#endif // KIS_MY_PAINTOP_H_
+#endif

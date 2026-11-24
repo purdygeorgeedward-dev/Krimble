@@ -9,7 +9,6 @@
 #include <lager/constant.hpp>
 #include <lager/lenses.hpp>
 
-
 KisAutoBrushModel::KisAutoBrushModel(lager::cursor<CommonData> commonData, lager::cursor<AutoBrushData> autoBrushData, lager::cursor<qreal> commonBrushSizeData)
     : m_commonData(commonData),
       m_autoBrushData(autoBrushData),

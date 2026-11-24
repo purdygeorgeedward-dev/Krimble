@@ -7,33 +7,28 @@
 
 #include "kis_pdf_import.h"
 
-// poppler's headers
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 #include <poppler-qt5.h>
 #else
 #include <poppler-qt6.h>
 #endif
 
-// Qt's headers
 #include <QFile>
 #include <QImage>
 #include <QRadioButton>
 #include <QApplication>
 
-// KDE's headers
 #include <kis_debug.h>
 #include <kis_paint_device.h>
 #include <KoDialog.h>
 #include <kpluginfactory.h>
 #include <kpassworddialog.h>
 
-// calligra's headers
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>
 #include <KoProgressUpdater.h>
 #include <KoUpdater.h>
 
-// krita's headers
 #include <KisDocument.h>
 #include <kis_group_layer.h>
 #include <kis_image.h>
@@ -41,7 +36,6 @@
 #include <kis_transaction.h>
 #include <kis_cursor_override_hijacker.h>
 
-// plugins's headers
 #include "kis_pdf_import_widget.h"
 #include <KisImportExportErrorCode.h>
 
@@ -57,7 +51,7 @@ KisPDFImport::~KisPDFImport()
 {
 }
 
-KisImportExportErrorCode KisPDFImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisPDFImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     Poppler::Document* pdoc = Poppler::Document::loadFromData(io->readAll());
@@ -107,14 +101,12 @@ KisImportExportErrorCode KisPDFImport::convert(KisDocument *document, QIODevice 
         }
     }
 
-    // Create the krita image
     const KoColorSpace* cs = KoColorSpaceRegistry::instance()->rgb8();
     int width = wdg->intWidth->value();
     int height = wdg->intHeight->value();
     KisImageSP image = new KisImage(document->createUndoStore(), width, height, cs, "built image");
     image->setResolution(wdg->intResolution->value() / 72.0, wdg->intResolution->value() / 72.0);
 
-    // create a layer
     QList<int> pages = wdg->pages();
     for (QList<int>::const_iterator it = pages.constBegin(); it != pages.constEnd(); ++it) {
         KisPaintLayer* layer = new KisPaintLayer(image.data(),

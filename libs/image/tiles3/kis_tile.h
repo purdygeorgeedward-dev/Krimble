@@ -21,22 +21,11 @@
 #include "kis_tile_data.h"
 #include "kis_tile_data_store.h"
 
-//#define DEAD_TILES_SANITY_CHECK
-
 class KisTile;
 typedef KisSharedPtr<KisTile> KisTileSP;
 
 class KisMementoManager;
 
-
-/**
- * Provides abstraction to a tile.
- * + A tile contains a part of a PaintDevice,
- *   but only the individual pixels are accessible
- *   and that only via iterators.
- * + Actual tile data is stored in KisTileData that can be
- *   shared between many tiles
- */
 class KRITAIMAGE_EXPORT KisTile : public KisShared
 {
 public:
@@ -47,27 +36,10 @@ public:
     KisTile(const KisTile& rhs);
     ~KisTile();
 
-    /**
-     * This method is called by the hash table when the tile is
-     * disconnected from it. It means that from now on the tile is not
-     * associated with any particular datamanager. All the users of
-     * the tile (via shared pointers) may silently finish they work on
-     * this tile and leave it. No result will be saved. Used for
-     * threading purposes
-     */
     void notifyDetachedFromDataManager();
 
-    /**
-     * Sometimes the tile gets replaced with another tile. In this case
-     * we shouldn't notify memento manager that the tile has died. Just
-     * forget the link to the manager and bury it in peace.
-     */
     void notifyDeadWithoutDetaching();
 
-    /**
-     * Called by the hash table to notify that the tile has been attached
-     * to the data manager.
-     */
     void notifyAttachedToDataManager(KisMementoManager *mm);
 
 public:
@@ -80,8 +52,6 @@ public:
     void unlockForWrite();
     void unlockForRead() const;
 
-
-    /* this allows us work directly on tile's data */
     inline quint8 *data() const {
         return m_tileData->data();
     }
@@ -98,8 +68,6 @@ public:
 
     inline QRect extent() const {
         return m_extent;
-//QRect(m_col * KisTileData::WIDTH, m_row * KisTileData::HEIGHT,
-//                     KisTileData::WIDTH, KisTileData::HEIGHT);
     }
 
     inline KisTileSP next() const {
@@ -111,7 +79,6 @@ public:
     }
 
     inline qint32 pixelSize() const {
-        /* don't lock here as pixelSize is constant */
         return m_tileData->pixelSize();
     }
 
@@ -136,32 +103,15 @@ private:
     qint32 m_col;
     qint32 m_row;
 
-    /**
-     * Added for faster retrieving by processors
-     */
     QRect m_extent;
 
-    /**
-     * For KisTiledDataManager's hash table
-     */
     KisTileSP m_nextTile;
 
     QAtomicPointer<KisMementoManager> m_mementoManager;
 
-    /**
-     * This is a special mutex for guarding copy-on-write
-     * operations. We do not use lockless way here as it'll
-     * create too much overhead for the most common operations
-     * like "read the pointer of m_tileData".
-     */
     QMutex m_COWMutex;
 
-    /**
-     * This lock is used to ensure no one will read the tile data
-     * before it has been loaded from to the memory.
-     */
     mutable QMutex m_swapBarrierLock;
-
 
 #ifdef DEAD_TILES_SANITY_CHECK
     QAtomicInt m_sanityHasBeenDetached;
@@ -177,5 +127,5 @@ private:
 
 };
 
-#endif // KIS_TILE_H_
+#endif
 

@@ -8,7 +8,6 @@
 #ifndef TESTASLSTORAGE_H
 #define TESTASLSTORAGE_H
 
-
 #include <QObject>
 
 class TestAslStorage : public QObject
@@ -26,4 +25,4 @@ private Q_SLOTS:
     void testResource();
 };
 
-#endif // TESTASLSTORAGE_H
+#endif

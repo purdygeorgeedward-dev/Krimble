@@ -30,9 +30,6 @@ KoPatternSP createPattern(const QString &name, const QString &fileName)
 
     QPainter gc(&image);
 
-    /**
-     * Make sure that MD5 of every generated resource is different
-     */
     const QString hash = KoMD5Generator::generateHash(fileName.toLatin1());
     const QColor fillColor(
             hash.toLatin1()[0],
@@ -47,7 +44,6 @@ KoPatternSP createPattern(const QString &name, const QString &fileName)
                                        fileName));
     return pattern;
 }
-
 
 void KisLinkedPatternManagerTest::testRoundTrip_data()
 {
@@ -77,11 +73,6 @@ void KisLinkedPatternManagerTest::testRoundTrip()
 
     KisEmbeddedTextureData data1 = KisEmbeddedTextureData::fromPattern(pattern);
     data1.write(config.data());
-
-    /**
-     * Test if each of the four tags alone is enough to load the pattern.
-     * Basically, we test if each tag is round-tripped correctly
-     */
 
     if (loadMode != "old-md5") {
         config->removeProperty("Texture/Pattern/PatternMD5");
@@ -157,8 +148,6 @@ KisPropertiesConfigurationSP KisLinkedPatternManagerTest::createXML(SaveDataFlag
         QString patternMD5 = pattern->md5Sum();
         KIS_ASSERT(!patternMD5.isEmpty());
 
-        /// WARNING: KisPropertiesConfiguration saved QByteArray as a base64 string!
-        ///          We don't do this conversion manually here!
         setting->setProperty("Texture/Pattern/PatternMD5",
                              QString(QByteArray::fromHex(patternMD5.toLatin1()).toBase64()));
     }
@@ -189,7 +178,6 @@ void KisLinkedPatternManagerTest::testLoadingLegacyXML_data()
     QTest::addColumn<bool>("isOnServer");
     QTest::addColumn<SaveDataFlags>("saveDataFlags");
 
-
     QTest::newRow("lnk-filename") << true << (SaveFileName | SaveEmbeddedData);
     QTest::newRow("lnk-filename-with-path") << true << (SaveFileNameWithPath | SaveEmbeddedData);
     QTest::newRow("lnk-name") << true << (SaveName | SaveEmbeddedData);
@@ -213,7 +201,6 @@ void KisLinkedPatternManagerTest::testLoadingLegacyXML()
     QSharedPointer<KoPattern> basePattern(createPattern(name, fileName));
 
     if (isOnServer) {
-        // upload the resource to the server if requested
         KoResourceServerProvider::instance()->patternServer()->addResource(basePattern);
         QVERIFY(findOnServer(basePattern->md5Sum()));
     }
@@ -241,9 +228,6 @@ void KisLinkedPatternManagerTest::testLoadingLegacyXML()
             QCOMPARE(embeddedResource.signature().md5sum, basePattern->md5Sum());
         }
 
-        /// WARNING: it seems like mimeTypeForFile doesn't handle it gracefully
-        /// when the filename is empty. This code does **not** test handling of
-        /// this issue in the real code.
         const QString effectiveFileName =
                 !embeddedResource.signature().filename.isEmpty() ?
                     embeddedResource.signature().filename :
@@ -263,8 +247,6 @@ void KisLinkedPatternManagerTest::testLoadingLegacyXML()
         QVERIFY(resource);
         QCOMPARE(resource->name(), basePattern->name());
         QCOMPARE(resource->filename(), basePattern->filename());
-        // NOTE: md5 is explicitly set by the loading code, we cannot
-        //       verify it, since it can change after loading
 
         KoPatternSP loadedPattern = resource.dynamicCast<KoPattern>();
         QVERIFY(loadedPattern);

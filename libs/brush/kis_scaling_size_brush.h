@@ -10,7 +10,6 @@
 #include "kritabrush_export.h"
 #include "kis_brush.h"
 
-
 class BRUSH_EXPORT KisScalingSizeBrush : public KisBrush
 {
 public:
@@ -23,4 +22,4 @@ public:
     void setUserEffectiveSize(qreal value) override;
 };
 
-#endif // KISSCALINGSIZEBRUSH_H
+#endif

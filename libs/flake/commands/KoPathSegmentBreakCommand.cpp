@@ -32,7 +32,6 @@ KoPathSegmentBreakCommand::~KoPathSegmentBreakCommand()
 void KoPathSegmentBreakCommand::redo()
 {
     KUndo2Command::redo();
-    // a repaint before is needed as the shape can shrink during the break
     m_pointData.pathShape->update();
     if (m_startIndex.first != -1) {
         m_startIndex = m_pointData.pathShape->openSubpath(m_startIndex);

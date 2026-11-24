@@ -14,7 +14,6 @@
 #include "ui_wdghatchingoptions.h"
 #include "ui_wdghatchingpreferences.h"
 
-
 class KisHatchingPaintOpSettingsWidget : public KisBrushBasedPaintopOptionWidget
 {
     Q_OBJECT

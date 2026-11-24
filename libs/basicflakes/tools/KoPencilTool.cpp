@@ -136,7 +136,6 @@ void KoPencilTool::mouseReleaseEvent(KoPointerEvent *event)
     m_existingEndPoint = 0;
     m_hoveredPoint = 0;
 
-    // the original path may be different from the one added
     if (canvas() && m_shape) {
         canvas()->updateCanvas(m_shape->boundingRect());
     }
@@ -195,10 +194,8 @@ void KoPencilTool::addPoint(const QPointF & point)
     if (! m_shape)
         return;
 
-    // do a moveTo for the first point added
     if (m_points.empty())
         m_shape->moveTo(point);
-    // do not allow coincident points
     else if (point != m_points.last())
         m_shape->lineTo(point);
     else
@@ -234,11 +231,9 @@ void KoPencilTool::finish(bool closePath)
         else
             combineAngle = 0.50f;
 
-        //Add the first two points
         complete.append(m_points[0]);
         complete.append(m_points[1]);
 
-        //Now we need to get the angle of the first line
         float lastAngle = lineAngle(complete[0], complete[1]);
 
         uint pointCount = m_points.count();
@@ -332,8 +327,6 @@ QList<QPointer<QWidget> > KoPencilTool::createOptionWidgets()
     combineAngle->setMinimum(0.0);
     combineAngle->setValue(m_combineAngle);
     combineAngle->setSuffix(" deg");
-    // QT5TODO
-    //combineAngle->setLabel(i18n("Combine angle:"), Qt::AlignLeft | Qt::AlignVCenter);
     straightLayout->addWidget(combineAngle);
     straightLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -471,13 +464,11 @@ KoPathPoint* KoPencilTool::endPointAtPosition(const QPointF &position)
             if (path->isClosedSubpath(i))
                 continue;
             p = path->pointByIndex(KoPathPointIndex(i, 0));
-            // check start of subpath
             qreal d = squareDistance(position, path->shapeToDocument(p->point()));
             if (d < minDistance && d < maxDistance) {
                 nearestPoint = p;
                 minDistance = d;
             }
-            // check end of subpath
             p = path->pointByIndex(KoPathPointIndex(i, path->subpathPointCount(i) - 1));
             d = squareDistance(position, path->shapeToDocument(p->point()));
             if (d < minDistance && d < maxDistance) {
@@ -492,17 +483,10 @@ KoPathPoint* KoPencilTool::endPointAtPosition(const QPointF &position)
 
 bool KoPencilTool::connectPaths(KoPathShape *pathShape, KoPathPoint *pointAtStart, KoPathPoint *pointAtEnd)
 {
-    // at least one point must be valid
     if (!pointAtStart && !pointAtEnd)
         return false;
-    // do not allow connecting to the same point twice
     if (pointAtStart == pointAtEnd)
         pointAtEnd = 0;
-
-    // we have hit an existing path point on start/finish
-    // what we now do is:
-    // 1. combine the new created path with the ones we hit on start/finish
-    // 2. merge the endpoints of the corresponding subpaths
 
     uint newPointCount = pathShape->subpathPointCount(0);
     KoPathPointIndex newStartPointIndex(0, 0);
@@ -513,14 +497,12 @@ bool KoPencilTool::connectPaths(KoPathShape *pathShape, KoPathPoint *pointAtStar
     KoPathShape * startShape = pointAtStart ? pointAtStart->parent() : 0;
     KoPathShape * endShape = pointAtEnd ? pointAtEnd->parent() : 0;
 
-    // combine with the path we hit on start
     KoPathPointIndex startIndex(-1, -1);
     if (pointAtStart) {
         startIndex = startShape->pathPointIndex(pointAtStart);
         pathShape->combine(startShape);
         pathShape->moveSubpath(0, pathShape->subpathCount() - 1);
     }
-    // combine with the path we hit on finish
     KoPathPointIndex endIndex(-1, -1);
     if (pointAtEnd) {
         endIndex = endShape->pathPointIndex(pointAtEnd);
@@ -529,7 +511,6 @@ bool KoPencilTool::connectPaths(KoPathShape *pathShape, KoPathPoint *pointAtStar
             pathShape->combine(endShape);
         }
     }
-    // do we connect twice to a single subpath ?
     bool connectToSingleSubpath = (startShape == endShape && startIndex.first == endIndex.first);
 
     if (startIndex.second == 0 && !connectToSingleSubpath) {
@@ -541,25 +522,15 @@ bool KoPencilTool::connectPaths(KoPathShape *pathShape, KoPathPoint *pointAtStar
         endIndex.second = 0;
     }
 
-    // after combining we have a path where with the subpaths in the following
-    // order:
-    // 1. the subpaths of the pathshape we started the new path at
-    // 2. the subpath we just created
-    // 3. the subpaths of the pathshape we finished the new path at
-
-    // get the path points we want to merge, as these are not going to
-    // change while merging
     KoPathPoint * existingStartPoint = pathShape->pointByIndex(startIndex);
     KoPathPoint * existingEndPoint = pathShape->pointByIndex(endIndex);
 
-    // merge first two points
     if (existingStartPoint) {
         KoPathPointData pd1(pathShape, pathShape->pathPointIndex(existingStartPoint));
         KoPathPointData pd2(pathShape, pathShape->pathPointIndex(newStartPoint));
         KoPathPointMergeCommand cmd1(pd1, pd2);
         cmd1.redo();
     }
-    // merge last two points
     if (existingEndPoint) {
         KoPathPointData pd3(pathShape, pathShape->pathPointIndex(newEndPoint));
         KoPathPointData pd4(pathShape, pathShape->pathPointIndex(existingEndPoint));

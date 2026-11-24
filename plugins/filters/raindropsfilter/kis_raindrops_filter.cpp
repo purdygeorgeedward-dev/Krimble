@@ -51,41 +51,16 @@ KisRainDropsFilter::KisRainDropsFilter()
     setSupportsAdjustmentLayers(false);
 }
 
-// This method have been ported from Pieter Z. Voloshyn algorithm code.
-
-/* Function to apply the RainDrops effect (inspired from Jason Waltman code)
- *
- * data             => The image data in RGBA mode.
- * Width            => Width of image.
- * Height           => Height of image.
- * DropSize         => Raindrop size
- * number           => Maximum number of raindrops
- * fishEyes            => FishEye coefficient
- *
- * Theory           => This functions does several math's functions and the engine
- *                     is simple to understand, but a little hard to implement. A
- *                     control will indicate if there is or not a raindrop in that
- *                     area, if not, a fisheye effect with a random size (max=DropSize)
- *                     will be applied, after this, a shadow will be applied too.
- *                     and after this, a blur function will finish the effect.
- */
-
-
 void KisRainDropsFilter::processImpl(KisPaintDeviceSP device,
                                      const QRect& applyRect,
                                      const KisFilterConfigurationSP config,
                                      KoUpdater* progressUpdater ) const
 {
-    /**
-     * This case should be filtered out at the higher level, in
-     * KisFilter::process() or in KisFilterStrokeStrategy
-     */
     KIS_SAFE_ASSERT_RECOVER_RETURN(!applyRect.isEmpty());
 
     QPoint srcTopLeft = applyRect.topLeft();
     Q_ASSERT(device);
 
-    //read the filter configuration values from the KisFilterConfiguration object
     quint32 DropSize = config->getInt("dropSize", 80);
     quint32 number = config->getInt("number", 80);
     quint32 fishEyes = config->getInt("fishEyes", 30);
@@ -100,27 +75,25 @@ void KisRainDropsFilter::processImpl(KisPaintDeviceSP device,
 
     bool** BoolMatrix = CreateBoolArray(Width, Height);
 
-    int       i, j, k, l, m, n;                 // loop variables
-    int       Bright;                           // Bright value for shadows and highlights
-    int       x, y;                             // center coordinates
-    int       Counter = 0;                      // Counter (duh !)
-    int       NewSize;                          // Size of current raindrop
-    int       halfSize;                         // Half of the current raindrop
-    int       Radius;                           // Maximum radius for raindrop
-    int       BlurRadius;                       // Blur Radius
+    int       i, j, k, l, m, n;
+    int       Bright;
+    int       x, y;
+    int       Counter = 0;
+    int       NewSize;
+    int       halfSize;
+    int       Radius;
+    int       BlurRadius;
     int       BlurPixels;
 
-    double    r, a;                             // polar coordinates
-    double    OldRadius;                        // Radius before processing
-    double    NewfishEyes = (double)fishEyes * 0.01;  // FishEye Coefficients
+    double    r, a;
+    double    OldRadius;
+    double    NewfishEyes = (double)fishEyes * 0.01;
     double    s;
     double    R, G, B;
 
-    bool      FindAnother = false;              // To search for good coordinates
+    bool      FindAnother = false;
 
     const KoColorSpace * cs = device->colorSpace();
-
-    // Init boolean Matrix.
 
     for (i = 0 ; i < Width; ++i) {
         for (j = 0 ; j < Height; ++j) {
@@ -130,7 +103,7 @@ void KisRainDropsFilter::processImpl(KisPaintDeviceSP device,
 
     progressUpdater->setRange(0, number);
     KisRandomAccessorSP dstAccessor = device->createRandomAccessorNG();
-    
+
     for (uint NumBlurs = 0; NumBlurs <= number; ++NumBlurs) {
         NewSize = 5 + static_cast<int>(rng.bounded(1.0) * (DropSize - 5));
         halfSize = NewSize / 2;
@@ -292,9 +265,6 @@ void KisRainDropsFilter::processImpl(KisPaintDeviceSP device,
                         QColor color;
 
                         if (BlurPixels == 0) {
-                            // Coverity complains that it *is* possible
-                            // for BlurPixels to be 0, so let's make sure
-                            // Krita doesn't crash here
                             BlurPixels = 1;
                         }
 
@@ -312,15 +282,6 @@ void KisRainDropsFilter::processImpl(KisPaintDeviceSP device,
     FreeBoolArray(BoolMatrix, Width);
 }
 
-// This method have been ported from Pieter Z. Voloshyn algorithm code.
-
-/* Function to free a dynamic boolean array
- *
- * lpbArray          => Dynamic boolean array
- * Columns           => The number of array columns
- *
- * Theory            => An easy to understand 'for' statement
- */
 void KisRainDropsFilter::FreeBoolArray(bool** lpbArray, uint Columns) const
 {
     for (uint i = 0; i < Columns; ++i)
@@ -329,14 +290,6 @@ void KisRainDropsFilter::FreeBoolArray(bool** lpbArray, uint Columns) const
     free(lpbArray);
 }
 
-/* Function to create a bidimensional dynamic boolean array
- *
- * Columns           => Number of columns
- * Rows              => Number of rows
- *
- * Theory            => Using 'for' statement, we can alloc multiple dynamic arrays
- *                      To create more dimensions, just add some 'for's, ok?
- */
 bool** KisRainDropsFilter::CreateBoolArray(uint Columns, uint Rows) const
 {
     bool** lpbArray = 0;
@@ -356,22 +309,11 @@ bool** KisRainDropsFilter::CreateBoolArray(uint Columns, uint Rows) const
     return (lpbArray);
 }
 
-// This method have been ported from Pieter Z. Voloshyn algorithm code.
-
-/* This function limits the RGB values
- *
- * ColorValue        => Here, is an RGB value to be analyzed
- *
- * Theory            => A color is represented in RGB value (e.g. 0xFFFFFF is
- *                      white color). But R, G and B values have 256 values to be used
- *                      so, this function analyzes the value and limits to this range
- */
-
 uchar KisRainDropsFilter::LimitValues(int ColorValue) const
 {
-    if (ColorValue > 255)        // MAX = 255
+    if (ColorValue > 255)
         ColorValue = 255;
-    if (ColorValue < 0)          // MIN = 0
+    if (ColorValue < 0)
         ColorValue = 0;
     return ((uchar) ColorValue);
 }
@@ -394,7 +336,6 @@ KisFilterConfigurationSP KisRainDropsFilter::defaultConfiguration(KisResourcesIn
     config->setProperty("number", 80);
     config->setProperty("fishEyes", 30);
     config->setProperty("seed", QTime::currentTime().msec());
-
 
     return config;
 }

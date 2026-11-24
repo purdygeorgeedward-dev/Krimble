@@ -42,7 +42,7 @@ public:
 
     quint8 intensity8(const quint8 * src) const override;
     qreal intensityF(const quint8 * src) const override;
-    
+
     void toHSY(const QVector<double> &channelValues, qreal *hue, qreal *sat, qreal *luma) const override;
     QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const override;
     void toYUV(const QVector<double> &channelValues, qreal *y, qreal *u, qreal *v) const override;
@@ -109,4 +109,4 @@ public:
     QList<KoColorConversionTransformationFactory*> colorConversionLinksFromProfile(const KoColorProfile *profile) const override;
 };
 
-#endif // KO_STRATEGY_COLORSPACE_RGB_H_
+#endif

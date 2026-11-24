@@ -22,10 +22,6 @@
 
 #include "kritaglobal_export.h"
 
-/**
- * A KoID is a combination of a user-visible string and a string that uniquely
- * identifies a given resource across languages.
- */
 class KRITAGLOBAL_EXPORT KoID
 {
 private:
@@ -52,23 +48,8 @@ private:
 public:
     KoID();
 
-    /**
-     * Construct a KoID with the given id, and name, id is the untranslated
-     * official name of the id, name should be translatable as it will be used
-     * in the UI.
-     *
-     * @code
-     * KoID("id", i18n("name"))
-     * @endcode
-     */
     explicit KoID(const QString &id, const QString &name = QString());
 
-    /**
-     * Use this constructor for static KoID. as KoID("id", ki18n("name"));
-     * the name will be translated the first time it is needed. This is
-     * important because static objects are constructed before translations
-     * are initialized.
-     */
     explicit KoID(const QString &id, const KLocalizedString &name);
 
     KoID(const KoID &rhs);

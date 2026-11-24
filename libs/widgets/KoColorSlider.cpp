@@ -82,7 +82,7 @@ void KoColorSlider::drawContents( QPainter *painter )
     if( !d->upToDate || d->pixmap.isNull() || d->pixmap.width() != contentsRect_.width()
         || d->pixmap.height() != contentsRect_.height() )
     {
-        KoColor c = d->minColor; // smart way to fetch colorspace
+        KoColor c = d->minColor;
         QColor color;
 
         const quint8 *colors[2];

@@ -82,7 +82,6 @@ QString generateSVG(const QString &sample, const QString &fontFamily, QRectF &la
 }
 
 QMap<QString, QVariant> localeHashtoVariantMap(QHash<QLocale, QString> names) {
-    // Needs to be a map to be accessible in qml (see https://bugreports.qt.io/browse/QTBUG-62014)
     QMap<QString, QVariant> newNames;
     Q_FOREACH(const QLocale key, names.keys()) {
         newNames.insert(key.bcp47Name(), QVariant::fromValue(names.value(key)));

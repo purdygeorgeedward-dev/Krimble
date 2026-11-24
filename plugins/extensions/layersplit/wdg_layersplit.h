@@ -19,5 +19,4 @@ public:
 
 };
 
-
-#endif // WDG_LAYERSPLIT_H
+#endif

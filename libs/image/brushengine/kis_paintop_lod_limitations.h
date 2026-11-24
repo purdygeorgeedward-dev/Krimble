@@ -37,4 +37,4 @@ public:
 
 Q_DECLARE_METATYPE(KisPaintopLodLimitations);
 
-#endif /* __KIS_PAINTOP_LOD_LIMITATIONS_H */
+#endif

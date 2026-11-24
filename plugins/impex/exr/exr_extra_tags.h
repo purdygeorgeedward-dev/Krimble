@@ -10,5 +10,4 @@
 extern const char EXR_NAME[];
 extern const char EXR_KRITA_LAYERS[];
 
-
-#endif /* __EXR_EXTRA_TAGS_H */
+#endif

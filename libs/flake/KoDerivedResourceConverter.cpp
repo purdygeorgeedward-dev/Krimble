@@ -21,7 +21,6 @@ struct KoDerivedResourceConverter::Private
     bool invisibleChangeHappened = false;
 };
 
-
 KoDerivedResourceConverter::KoDerivedResourceConverter(int key, int sourceKey)
     : m_d(new Private(key, sourceKey))
 {
@@ -70,11 +69,6 @@ QVariant KoDerivedResourceConverter::writeToSource(const QVariant &value,
 
     if (hasChanged || value != fromSource(sourceValue)) {
         newSourceValue = toSource(value, sourceValue);
-        /**
-         * Some resources may be immutable, that is, writing to them will
-         * **not** alter the value. Example: size property of the Shape Brush
-         * (always 1.0)
-         */
         m_d->lastKnownValue = fromSource(newSourceValue);
     }
     if (changed) {

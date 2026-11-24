@@ -30,79 +30,32 @@ struct OptiRound {
     ALWAYS_INLINE static result_type roundScalar(const float value)
     {
 #ifdef __SSE__
-        // SSE/AVX instructions use round-to-even rounding rule so we
-        // should reuse it when possible
         return _mm_cvtss_si32(_mm_set_ss(value));
 #elif XSIMD_WITH_NEON64
         return vgetq_lane_s32(vcvtnq_s32_f32(vrndiq_f32(vdupq_n_f32(value))),
                               0);
 #elif XSIMD_WITH_NEON
-        /* origin:
-         * https://github.com/DLTcollab/sse2neon/blob/cad518a93b326f0f644b7972d488d04eaa2b0475/sse2neon.h#L4028-L4047
-         */
-        //  Contributors to this work are:
-        //   John W. Ratcliff <jratcliffscarab@gmail.com>
-        //   Brandon Rowlett <browlett@nvidia.com>
-        //   Ken Fast <kfast@gdeb.com>
-        //   Eric van Beurden <evanbeurden@nvidia.com>
-        //   Alexander Potylitsin <apotylitsin@nvidia.com>
-        //   Hasindu Gamaarachchi <hasindu2008@gmail.com>
-        //   Jim Huang <jserv@biilabs.io>
-        //   Mark Cheng <marktwtn@biilabs.io>
-        //   Malcolm James MacLeod <malcolm@gulden.com>
-        //   Devin Hussey (easyaspi314) <husseydevin@gmail.com>
-        //   Sebastian Pop <spop@amazon.com>
-        //   Developer Ecosystem Engineering
-        //   <DeveloperEcosystemEngineering@apple.com> Danila Kutenin
-        //   <danilak@google.com> François Turban (JishinMaster)
-        //   <francois.turban@gmail.com> Pei-Hsuan Hung <afcidk@gmail.com>
-        //   Yang-Hao Yuan <yanghau@biilabs.io>
-        //   Syoyo Fujita <syoyo@lighttransport.com>
-        //   Brecht Van Lommel <brecht@blender.org>
 
-        /*
-         * sse2neon is freely redistributable under the MIT License.
-         *
-         * Permission is hereby granted, free of charge, to any person obtaining
-         * a copy of this software and associated documentation files (the
-         * "Software"), to deal in the Software without restriction, including
-         * without limitation the rights to use, copy, modify, merge, publish,
-         * distribute, sublicense, and/or sell copies of the Software, and to
-         * permit persons to whom the Software is furnished to do so, subject to
-         * the following conditions:
-         *
-         * The above copyright notice and this permission notice shall be
-         * included in all copies or substantial portions of the Software.
-         *
-         * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-         * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-         * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-         * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-         * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-         * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-         * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-         * SOFTWARE.
-         */
         const auto nearbyint_as_int = [](const float v) {
             const auto a = vdupq_n_f32(v);
             const auto signmask = vdupq_n_u32(0x80000000);
             const auto half =
-                vbslq_f32(signmask, a, vdupq_n_f32(0.5f)); /* +/- 0.5 */
+                vbslq_f32(signmask, a, vdupq_n_f32(0.5f));
             const auto r_normal = vcvtq_s32_f32(
-                vaddq_f32(a, half)); /* round to integer: [a + 0.5]*/
+                vaddq_f32(a, half));
             const auto r_trunc =
-                vcvtq_s32_f32(a); /* truncate to integer: [a] */
+                vcvtq_s32_f32(a);
             const auto plusone = vreinterpretq_s32_u32(
                 vshrq_n_u32(vreinterpretq_u32_s32(vnegq_s32(r_trunc)),
-                            31)); /* 1 or 0 */
+                            31));
             const auto r_even =
                 vbicq_s32(vaddq_s32(r_trunc, plusone),
-                          vdupq_n_s32(1)); /* ([a] + {0,1}) & ~1 */
+                          vdupq_n_s32(1));
             const auto delta = vsubq_f32(
                 a,
-                vcvtq_f32_s32(r_trunc)); /* compute delta: delta = (a - [a]) */
+                vcvtq_f32_s32(r_trunc));
             const auto is_delta_half =
-                vceqq_f32(delta, half); /* delta == +/- 0.5 */
+                vceqq_f32(delta, half);
             return vbslq_s32(is_delta_half, r_even, r_normal);
         };
         return vgetq_lane_s32(nearbyint_as_int(value), 0);
@@ -157,9 +110,6 @@ struct KoStreamedMath {
     static_assert(int_v::size == uint_v::size, "the selected architecture does not guarantee vector size equality!");
     static_assert(uint_v::size == float_v::size, "the selected architecture does not guarantee vector size equality!");
 
-    /**
-     * Composes src into dst without using vector instructions
-     */
     template<bool useMask, bool useFlow, class Compositor, int pixelSize>
     static void genericComposite_novector(const KoCompositeOp::ParameterInfo &params)
     {
@@ -229,27 +179,11 @@ struct KoStreamedMath {
         return round_float_to_u8(float(b - a) * alpha + float(a));
     }
 
-    /**
-     * Get a vector containing first float_v::size values of mask.
-     * Each source mask element is considered to be a 8-bit integer
-     */
     static inline float_v fetch_mask_8(const quint8 *data)
     {
         return xsimd::batch_cast<float>(xsimd::load_and_extend<int_v>(data));
     }
 
-    /**
-     * Get an alpha values from float_v::size pixels 32-bit each
-     * (4 channels, 8 bit per channel).  The alpha value is considered
-     * to be stored in the most significant byte of the pixel
-     *
-     * \p aligned controls whether the \p data is fetched using aligned
-     *            instruction or not.
-     *            1) Fetching aligned data with unaligned instruction
-     *               degrades performance.
-     *            2) Fetching unaligned data with aligned instruction
-     *               causes \#GP (General Protection Exception)
-     */
     template<bool aligned>
     static inline float_v fetch_alpha_32(const void *data)
     {
@@ -258,18 +192,6 @@ struct KoStreamedMath {
         return xsimd::to_float(xsimd::bitwise_cast_compat<int>(data_i >> 24));
     }
 
-    /**
-     * Get color values from float_v::size pixels 32-bit each
-     * (4 channels, 8 bit per channel).  The color data is considered
-     * to be stored in the 3 least significant bytes of the pixel.
-     *
-     * \p aligned controls whether the \p data is fetched using aligned
-     *            instruction or not.
-     *            1) Fetching aligned data with unaligned instruction
-     *               degrades performance.
-     *            2) Fetching unaligned data with aligned instruction
-     *               causes \#GP (General Protection Exception)
-     */
     template<bool aligned>
     static inline void fetch_colors_32(const void *data, float_v &c1, float_v &c2, float_v &c3)
     {
@@ -284,14 +206,6 @@ struct KoStreamedMath {
         c3 = xsimd::to_float(xsimd::bitwise_cast_compat<int>((data_i) & mask));
     }
 
-    /**
-     * Pack color and alpha values to float_v::size pixels 32-bit each
-     * (4 channels, 8 bit per channel).  The color data is considered
-     * to be stored in the 3 least significant bytes of the pixel, alpha -
-     * in the most significant byte
-     *
-     * NOTE: \p data must be aligned pointer!
-     */
     static inline void
     write_channels_32(void *data, const float_v alpha, const float_v c1, const float_v c2, const float_v c3)
     {
@@ -316,11 +230,6 @@ struct KoStreamedMath {
         xsimd::store_unaligned(static_cast<typename int_v::value_type *>(data), (v1 | v2) | (v3 | v4));
     }
 
-    /**
-     * Composes src pixels into dst pixels. Is optimized for 32-bit-per-pixel
-     * colorspaces. Uses \p Compositor strategy parameter for doing actual
-     * math of the composition
-     */
     template<bool useMask, bool useFlow, class Compositor, int pixelSize>
     static void genericComposite(const KoCompositeOp::ParameterInfo &params)
     {
@@ -364,7 +273,6 @@ struct KoStreamedMath {
 #endif
 
         for (qint32 r = params.rows; r > 0; --r) {
-            // Hint: Mask is allowed to be unaligned
             const quint8 *mask = maskRowStart;
 
             const quint8 *src = srcRowStart;
@@ -375,10 +283,6 @@ struct KoStreamedMath {
             auto dstPtrValue = reinterpret_cast<uintptr_t>(dst);
             uintptr_t srcAlignment = srcPtrValue & pixelsAlignmentMask;
             uintptr_t dstAlignment = dstPtrValue & pixelsAlignmentMask;
-
-            // Uncomment if facing problems with alignment:
-            // Q_ASSERT_X(!(dstAlignment & 3), "Compositing",
-            //            "Pixel data must be aligned on pixels borders!");
 
             int blockAlign = params.cols;
             int blockAlignedVector = 0;
@@ -479,7 +383,7 @@ struct KoStreamedMath {
         dbgPigment << "I"
                    << "rows:" << params.rows << "\tpad(S):" << totalBlockAlign << "\tbav(V):" << totalBlockAlignedVector
                    << "\tbuv(V):" << totalBlockUnalignedVector << "\tres(S)"
-                   << totalBlockRest; // << srcAlignment << dstAlignment;
+                   << totalBlockRest;
 #endif
 
         if (!params.srcRowStride) {
@@ -605,27 +509,23 @@ struct PixelWrapper<quint16, _impl> {
 
     ALWAYS_INLINE void read(const void *src, float_v &dst_c1, float_v &dst_c2, float_v &dst_c3, float_v &dst_alpha)
     {
-        // struct PackedPixel {
-        //    float rrgg;
-        //    float bbaa;
-        // }
 #if XSIMD_VERSION_MAJOR < 10
         uint_v pixelsC1C2;
         uint_v pixelsC3Alpha;
         KoRgbaInterleavers<16>::deinterleave(src, pixelsC1C2, pixelsC3Alpha);
 #else
         const auto *srcPtr = static_cast<const typename uint_v::value_type *>(src);
-        const auto idx1 = xsimd::detail::make_sequence_as_batch<int_v>() * 2; // stride == 2
-        const auto idx2 = idx1 + 1; // offset 1 == 2nd members
+        const auto idx1 = xsimd::detail::make_sequence_as_batch<int_v>() * 2;
+        const auto idx2 = idx1 + 1;
 
         const auto pixelsC1C2 = uint_v::gather(srcPtr, idx1);
         const auto pixelsC3Alpha = uint_v::gather(srcPtr, idx2);
 #endif
 
-        dst_c1 = xsimd::to_float(xsimd::bitwise_cast_compat<int>(pixelsC1C2 & mask)); // r
-        dst_c2 = xsimd::to_float(xsimd::bitwise_cast_compat<int>((pixelsC1C2 >> 16) & mask)); // g
-        dst_c3 = xsimd::to_float(xsimd::bitwise_cast_compat<int>((pixelsC3Alpha & mask))); // b
-        dst_alpha = xsimd::to_float(xsimd::bitwise_cast_compat<int>((pixelsC3Alpha >> 16) & mask)); // a
+        dst_c1 = xsimd::to_float(xsimd::bitwise_cast_compat<int>(pixelsC1C2 & mask));
+        dst_c2 = xsimd::to_float(xsimd::bitwise_cast_compat<int>((pixelsC1C2 >> 16) & mask));
+        dst_c3 = xsimd::to_float(xsimd::bitwise_cast_compat<int>((pixelsC3Alpha & mask)));
+        dst_alpha = xsimd::to_float(xsimd::bitwise_cast_compat<int>((pixelsC3Alpha >> 16) & mask));
 
         dst_alpha *= uint16Rec1;
     }
@@ -795,7 +695,7 @@ struct PixelWrapper<float, _impl> {
         KoRgbaInterleavers<32>::deinterleave(src, dst_c1, dst_c2, dst_c3, dst_alpha);
 #else
         const auto srcPtr = reinterpret_cast<const typename float_v::value_type *>(src);
-        const auto idx1 = xsimd::detail::make_sequence_as_batch<int_v>() * 4; // stride == 4
+        const auto idx1 = xsimd::detail::make_sequence_as_batch<int_v>() * 4;
         const auto idx2 = idx1 + 1;
         const auto idx3 = idx1 + 2;
         const auto idx4 = idx1 + 3;
@@ -815,7 +715,7 @@ struct PixelWrapper<float, _impl> {
 #else
         auto dstPtr = reinterpret_cast<typename float_v::value_type *>(dst);
 
-        const auto idx1 = xsimd::detail::make_sequence_as_batch<int_v>() * 4; // stride == 4
+        const auto idx1 = xsimd::detail::make_sequence_as_batch<int_v>() * 4;
         const auto idx2 = idx1 + 1;
         const auto idx3 = idx1 + 2;
         const auto idx4 = idx1 + 3;
@@ -840,7 +740,7 @@ struct PixelWrapper<float, _impl> {
     }
 };
 
-#endif /* !defined(XSIMD_NO_SUPPORTED_ARCHITECTURE) */
+#endif
 
 namespace KoStreamedMathFunctions
 {
@@ -855,6 +755,6 @@ ALWAYS_INLINE void copyPixel(const quint8 *src, quint8 *dst)
 {
     std::memcpy(dst, src, pixelSize);
 }
-} // namespace KoStreamedMathFunctions
+}
 
-#endif /* __KOSTREAMED_MATH_H */
+#endif

@@ -10,7 +10,6 @@
 #include <KisGLImageWidget.h>
 #include <QScopedPointer>
 
-
 class KisClickableGLImageWidget : public KisGLImageWidget
 {
     Q_OBJECT
@@ -58,4 +57,4 @@ private:
     bool m_useHandleOpacity = true;
 };
 
-#endif // KISCLICKABLEGLIMAGEWIDGET_H
+#endif

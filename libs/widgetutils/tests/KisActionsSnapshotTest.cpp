@@ -15,18 +15,17 @@ void KisActionsSnapshotTest::testCreation()
         KisActionsSnapshot *snapshot = new KisActionsSnapshot();
         delete snapshot;
     }
-    
+
     {
         KisActionsSnapshot snapshot;
         Q_UNUSED(snapshot);
     }
-    
+
     {
         QScopedPointer<KisActionsSnapshot> snapshot;
         Q_UNUSED(snapshot);
     }
-    
-}
 
+}
 
 QTEST_GUILESS_MAIN(KisActionsSnapshotTest)

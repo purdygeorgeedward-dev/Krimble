@@ -14,7 +14,6 @@
 class KoShape;
 class KoShapeContainer;
 
-
 struct KRITAFLAKE_EXPORT KoAddRemoveShapeCommandImpl : public KisCommandUtils::FlipFlopCommand
 {
     KoAddRemoveShapeCommandImpl(KoShape *shape, KoShapeContainer *parent, State state, KUndo2Command *parentCommand);
@@ -39,4 +38,4 @@ struct KRITAFLAKE_EXPORT KoRemoveShapeCommand : public KoAddRemoveShapeCommandIm
     KoRemoveShapeCommand(KoShape *shape, KoShapeContainer *parent, KUndo2Command *parentCommand = 0);
 };
 
-#endif // KoAddRemoveShapeCommands_H
+#endif

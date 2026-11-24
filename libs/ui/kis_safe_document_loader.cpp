@@ -97,7 +97,6 @@ private Q_SLOTS:
 
         FileEntry &entry = m_fileEntries[path];
 
-        // re-add the file after QSaveFile optimization
         if (!m_watcher.files().contains(path)) {
 
             if (QFileInfo(path).exists()) {
@@ -131,7 +130,6 @@ private Q_SLOTS:
                 } else if (entry.state == Lost) {
                     m_lostCompressor.start();
                 }
-
 
 #if 0
                 const bool shouldSpitWarning =
@@ -180,7 +178,6 @@ private Q_SLOTS:
         }
     }
 
-
 Q_SIGNALS:
     void fileChanged(const QString &path);
     void fileExistsStateChanged(const QString &path, bool exists);
@@ -201,11 +198,10 @@ private:
 
 Q_GLOBAL_STATIC(FileSystemWatcherWrapper, s_fileSystemWatcher)
 
-
 struct KisSafeDocumentLoader::Private
 {
     Private()
-        : fileChangedSignalCompressor(500 /* ms */, KisSignalCompressor::POSTPONE)
+        : fileChangedSignalCompressor(500 , KisSignalCompressor::POSTPONE)
     {
     }
 
@@ -290,8 +286,6 @@ void KisSafeDocumentLoader::fileChangedCompressed(bool sync)
     m_d->initialFileSize = initialFileInfo.size();
     m_d->initialFileTimeStamp = initialFileInfo.lastModified();
 
-    // it may happen when the file is flushed by
-    // so other application
     if (!m_d->initialFileSize) return;
 
     m_d->isLoading = true;
@@ -305,7 +299,6 @@ void KisSafeDocumentLoader::fileChangedCompressed(bool sync)
             .arg(initialFileInfo.suffix());
 
     QFile::copy(m_d->path, m_d->temporaryPath);
-
 
     if (!sync) {
         QTimer::singleShot(100, Qt::CoarseTimer, this, SLOT(delayedLoadStart()));
@@ -332,7 +325,6 @@ void KisSafeDocumentLoader::delayedLoadStart()
         auto loadPathNatively = [&doc = m_d->doc](const QString &path) -> bool {
             const bool successfullyLoaded = doc->openPath(path, KisDocument::DontAddToRecent);
             if (successfullyLoaded) {
-                // Wait for required updates, if any. BUG: 448256
                 KisLayerUtils::forceAllDelayedNodesUpdate(doc->image()->root());
                 doc->image()->waitForDone();
             }
@@ -343,16 +335,6 @@ void KisSafeDocumentLoader::delayedLoadStart()
             QScopedPointer<KoStore> store(KoStore::createStore(m_d->temporaryPath, KoStore::Read));
             if (store && !store->bad()) {
                 if (store->open(QString("mergedimage.png"))) {
-                    /**
-                     * TODO: Ideally we should modify our KisDocument code
-                     * to allow loading from a QIODevice, but currently it
-                     * supports loading from a local file only. That is why
-                     * we just extract the PNG into a temporary file and
-                     * load it separately.
-                     *
-                     * NOTE: we cannot use QImage for loading, since it strips
-                     * the color profile attached to the PNG file
-                     */
                     qint64 totalWritten = 0;
                     const qint64 expectedFileSize = store->size();
                     QTemporaryFile temporaryFile(QDir::tempPath() + QLatin1String("/krita_merged_image_XXXXXX.png"));
@@ -365,19 +347,14 @@ void KisSafeDocumentLoader::delayedLoadStart()
                                 warnKrita << "Failed to read from mergedimage.png for the file layer's projection";
                                 break;
                             } else if (read == 0) {
-                                // End of file
                                 break;
                             } else {
-                                // Successful read, try to write it.
                                 qint64 written = temporaryFile.write(buffer.constData(), read);
                                 if (written < 0) {
-                                    // Write error.
                                     warnKrita << "Failed to write mergedimage.png into a temporary file for the file layer's projection"
                                               << temporaryFile.fileName() << ":" << temporaryFile.errorString();
                                     break;
                                 }
-                                // We may not have written as much as we read, but we handle
-                                // that at the end.
                                 totalWritten += written;
                             }
                         }
@@ -420,7 +397,6 @@ void KisSafeDocumentLoader::delayedLoadStart()
     m_d->isLoading = false;
 
     if (!successfullyLoaded) {
-        // Restart the attempt
         m_d->failureCount++;
         if (m_d->failureCount >= 3) {
             Q_EMIT loadingFailed();

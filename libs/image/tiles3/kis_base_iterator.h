@@ -1,4 +1,4 @@
-/* 
+/*
  *  SPDX-FileCopyrightText: 2010 Cyrille Berger <cberger@cberger.net>
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
@@ -29,7 +29,7 @@ protected:
     }
 
     KisTiledDataManager *m_dataManager;
-    qint32 m_pixelSize;        // bytes per pixel
+    qint32 m_pixelSize;
     bool m_writable;
     inline void lockTile(KisTileSP &tile) {
         if (m_writable)
@@ -38,7 +38,6 @@ protected:
             tile->lockForRead();
     }
     inline void lockOldTile(KisTileSP &tile) {
-        // Doesn't depend on current access type
         tile->lockForRead();
     }
     inline void unlockTile(KisTileSP &tile) {
@@ -67,7 +66,7 @@ protected:
     inline qint32 calcYInTile(qint32 y, qint32 row) const {
         return y - row * KisTileData::HEIGHT;
     }
-    
+
 private:
     KisIteratorCompleteListener *m_completeListener;
 };

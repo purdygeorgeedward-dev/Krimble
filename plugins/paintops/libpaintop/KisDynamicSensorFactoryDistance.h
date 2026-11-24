@@ -18,5 +18,4 @@ public:
     QString maximumLabel(int length) override;
 };
 
-
-#endif // KISDYNAMICSENSORFACTORYDISTANCE_H
+#endif

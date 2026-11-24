@@ -14,7 +14,6 @@
 #include "kis_action_manager.h"
 #include "kis_node.h"
 
-
 struct KisChangeFrameAction::Private
 {
 };

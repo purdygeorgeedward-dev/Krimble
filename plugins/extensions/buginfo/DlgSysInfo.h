@@ -10,7 +10,6 @@
 #include <KoDialog.h>
 #include "dlg_buginfo.h"
 
-
 class QSettings;
 
 class DlgSysInfo: public DlgBugInfo
@@ -31,4 +30,4 @@ public:
     QString captionText() override;
 };
 
-#endif // DLG_SYSINFO
+#endif

@@ -46,4 +46,4 @@ private:
     const KoColorSpace *m_cs;
 };
 
-#endif // KIS_ASCCDL_H
+#endif

@@ -43,7 +43,6 @@
 #include <KisGlobalResourcesInterface.h>
 #include "kis_node_manager.h"
 
-
 KisMaskManager::KisMaskManager(KisViewManager * view)
     : m_view(view)
     , m_imageView(0)
@@ -64,9 +63,6 @@ void KisMaskManager::setup(KisKActionCollection *actionCollection, KisActionMana
 
 void KisMaskManager::updateGUI()
 {
-    // XXX: enable/disable menu items according to whether there's a mask selected currently
-    // XXX: disable the selection mask item if there's already a selection mask
-    // YYY: doesn't KisAction do that already?
 }
 
 KisMaskSP KisMaskManager::activeMask()
@@ -102,7 +98,7 @@ void KisMaskManager::adjustMaskPosition(KisNodeSP node, KisNodeSP activeNode, bo
         parent = activeNode;
         above = activeNode->lastChild();
     } else if (activeNode->parent() && activeNode->parent()->allowAsChild(node)
-               && activeNode->parent()->parent() /* we don't want to add masks to root */) {
+               && activeNode->parent()->parent() ) {
         parent = activeNode->parent();
         above = activeNode;
     } else {
@@ -220,7 +216,6 @@ KisNodeSP KisMaskManager::createTransparencyMask(KisNodeSP activeNode, KisPaintD
     return mask;
 }
 
-
 KisNodeSP KisMaskManager::createFilterMask(KisNodeSP activeNode, KisPaintDeviceSP copyFrom, bool quiet, bool convertActiveNode)
 {
     if (!m_view->nodeManager()->canModifyLayer(activeNode)) return 0;
@@ -232,19 +227,12 @@ KisNodeSP KisMaskManager::createFilterMask(KisNodeSP activeNode, KisPaintDeviceS
         m_commandsAdapter->removeNode(activeNode);
     }
 
-    /**
-     * FIXME: We'll use layer's original for creation of a thumbnail.
-     * Actually, we can't use it's projection as newly created mask
-     * may be going to be inserted in the middle of the masks stack
-     */
     KisPaintDeviceSP originalDevice = mask->parent()->original();
-
 
     KisDlgAdjustmentLayer dialog(mask, mask.data(), originalDevice,
                                  mask->name(), i18n("New Filter Mask"),
                                  m_view, qApp->activeWindow());
 
-    // If we are supposed to not disturb the user, don't start asking them about things.
     if(quiet) {
         KisFilterConfigurationSP filter = KisFilterRegistry::instance()->values().first()->defaultConfiguration(KisGlobalResourcesInterface::instance());
         if (filter) {
@@ -271,7 +259,6 @@ KisNodeSP KisMaskManager::createFilterMask(KisNodeSP activeNode, KisPaintDeviceS
     return 0;
 }
 
-
 KisNodeSP KisMaskManager::createColorizeMask(KisNodeSP activeNode)
 {
     if (!m_view->nodeManager()->canModifyLayer(activeNode)) return 0;
@@ -282,7 +269,6 @@ KisNodeSP KisMaskManager::createColorizeMask(KisNodeSP activeNode)
     delete mask->setColorSpace(mask->parent()->colorSpace());
     return mask;
 }
-
 
 KisNodeSP KisMaskManager::createTransformMask(KisNodeSP activeNode)
 {
@@ -343,7 +329,6 @@ void KisMaskManager::maskProperties()
         if (! layer)
             return;
 
-
         KisPaintDeviceSP dev = layer->original();
         if (!dev) {
             return;
@@ -369,7 +354,6 @@ void KisMaskManager::maskProperties()
                                              configBefore->cloneWithResourcesSnapshot(),
                                              configAfter->cloneWithResourcesSnapshot());
 
-                // FIXME: check whether is needed
                 cmd->redo();
                 m_view->undoAdapter()->addCommand(cmd);
                 m_view->document()->setModified(true);
@@ -387,6 +371,5 @@ void KisMaskManager::maskProperties()
         }
 
     } else {
-        // Not much to show for transparency or selection masks?
     }
 }

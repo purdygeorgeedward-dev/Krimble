@@ -11,7 +11,6 @@
 
 #include "kis_dummies_facade.h"
 
-
 KisDummiesFacadeTest::~KisDummiesFacadeTest()
 {
 }

@@ -65,4 +65,4 @@ private:
     QCheckBox *m_preserveLuminosity;
 };
 
-#endif // KISFILTERPHOTOFILTER_H
+#endif

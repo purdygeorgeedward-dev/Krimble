@@ -21,7 +21,6 @@ class KisResourcesInterface;
 struct KisAirbrushOptionData;
 class KisSpacingOption;
 
-/// Internal
 class TextBrushInitializationWorkaround
 {
 public:
@@ -33,18 +32,11 @@ public:
 
     KisBrushSP tryGetBrush(const KisPropertiesConfigurationSP settings);
 
-
 private:
     KisBrushSP m_brush;
     KisPropertiesConfigurationSP m_settings;
 };
 
-
-/**
- * This is a base class for paintops that use a KisBrush or derived
- * brush to paint with. This is mainly important for the spacing
- * generation.
- */
 class PAINTOP_EXPORT KisBrushBasedPaintOp : public KisPaintOp
 {
 
@@ -63,13 +55,12 @@ public:
                                            const KisSpacingOption *spacingOption,
                                            const KisPaintInformation &pi) const;
 
-    ///Reimplemented, false if brush is 0
     bool canPaint() const override;
 
 #ifdef HAVE_THREADED_TEXT_RENDERING_WORKAROUND
     typedef int needs_preinitialization;
     static void preinitializeOpStatically(KisPaintOpSettingsSP settings);
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
     static QList<KoResourceLoadResult> prepareLinkedResources(const KisPaintOpSettingsSP settings, KisResourcesInterfaceSP resourcesInterface);
     static QList<KoResourceLoadResult> prepareEmbeddedResources(const KisPaintOpSettingsSP settings, KisResourcesInterfaceSP resourcesInterface);
@@ -77,7 +68,7 @@ public:
 private:
     KisSpacingInformation effectiveSpacing(qreal dabWidth, qreal dabHeight, qreal extraScale, bool isotropicSpacing, qreal rotation, bool axesFlipped) const;
 
-protected: // XXX: make private!
+protected:
     KisDabCache *m_dabCache;
     KisBrushSP m_brush;
 

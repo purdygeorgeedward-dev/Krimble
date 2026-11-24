@@ -80,11 +80,6 @@ xcfNextprop(uint32_t *master,uint32_t *body, PropType *typeOut)
         return XCF_ERROR;
       }
 
-      /* Surprise! Some older version of the Gimp computed the wrong length
-       * word, and the _reader_ always just reads three bytes per color
-       * and ignores the length tag! Duplicate this so we too can read
-       * the buggy XCF files.
-       */
       length = minlength = 4+3*ncolors;
       break;
     }
@@ -102,7 +97,7 @@ xcfNextprop(uint32_t *master,uint32_t *body, PropType *typeOut)
   }
   *master = ptr+8+length ;
   total = 8 + length + (type != PROP_END ? 8 : 0) ;
-  if( total < length ) { /* Check overwrap */
+  if( total < length ) {
     FatalBadXCF("Overlong property at %" PRIX32, ptr);
     return XCF_ERROR;
   }
@@ -138,12 +133,9 @@ xcfString(uint32_t ptr,uint32_t *after)
 
   if( use_utf8 ) return utf8master ;
 
-  /* We assume that the local character set includes ASCII...
-   * Check if conversion is needed at all
-   */
   for( i=0 ; ; i++ ) {
     if( i == length )
-      return utf8master ; /* Only ASCII after all */
+      return utf8master ;
     if( utf8master[i] == 0 ) {
       FatalBadXCF("String at %" PRIX32 " has embedded zeroes",ptr-4);
       return XCF_PTR_EMPTY;
@@ -161,7 +153,7 @@ xcfString(uint32_t ptr,uint32_t *after)
       sloppy_translation = 1 ;
     }
     if( cd == (iconv_t) -1 )
-      iconv_close(cd) ; /* Give up; perhaps iconv doesn't know UTF-8 */
+      iconv_close(cd) ;
     else
       while(1) {
         char *buffer = xcfmalloc(targetsize) ;
@@ -169,7 +161,7 @@ xcfString(uint32_t ptr,uint32_t *after)
         char *outbuf = buffer ;
         size_t incount = length ;
         size_t outcount = targetsize ;
-        while(1) { /* Loop for systems without //ICONV support */
+        while(1) {
           size_t result = iconv(cd,&inbuf,&incount,&outbuf,&outcount) ;
           if( result == (size_t)-1 && errno == EILSEQ &&
               sloppy_translation && outcount > 0 ) {
@@ -215,12 +207,8 @@ xcfString(uint32_t ptr,uint32_t *after)
   return utf8master ;
 }
 
-/* ****************************************************************** */
-
 int computeDimensions(struct tileDimensions *d)
 {
-  // [ CVE-2019-5086 and CVE-2019-5087 ]
-  // This part of code is the check to prevent integer overflow, see CVE-2019-5086 and CVE-2019-5087
 
   if ((d->c.l + d->width) * 4 > INT_MAX) {
     FatalBadXCF(("Width is too large (%d)! Stopping execution...\n"), (d->c.l + d->width));
@@ -231,7 +219,6 @@ int computeDimensions(struct tileDimensions *d)
     FatalBadXCF(("Height is too large (%d)! Stopping execution...\n"), (d->c.t + d->height));
     return XCF_ERROR;
   }
-  // [ CVE-2019-5086 and CVE-2019-5087 ]
 
   d->c.r = d->c.l + d->width ;
   d->c.b = d->c.t + d->height ;
@@ -292,7 +279,6 @@ getBasicXcfInfo(void)
       XCF.compression = xcf_file[data] ;
       break ;
     default:
-      /* Ignore unknown properties */
       break ;
     }
   }
@@ -372,7 +358,6 @@ getBasicXcfInfo(void)
         }
         break;
       default:
-        /* Ignore unknown properties */
         break ;
       }
     }

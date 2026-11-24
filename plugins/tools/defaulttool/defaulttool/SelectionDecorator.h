@@ -24,56 +24,22 @@ static const struct DecoratorIconPositions {
     QPoint uiOffset = QPoint(0, 40);
 } decoratorIconPositions;
 
-/**
- * The SelectionDecorator is used to paint extra user-interface items on top of a selection.
- */
 class SelectionDecorator
 {
 public:
-    /**
-     * Constructor.
-     * @param arrows the direction that needs highlighting. (currently unused)
-     * @param rotationHandles if true; the rotation handles will be drawn
-     * @param shearHandles if true; the shearhandles will be drawn
-     */
     SelectionDecorator(KoCanvasResourceProvider *resourceManager, KoColorDisplayRendererInterface *displayInterface);
     ~SelectionDecorator() {}
 
-    /**
-     * paint the decorations.
-     * @param painter the painter to paint to.
-     * @param converter to convert between internal and view coordinates.
-     */
     void paint(QPainter &painter, const KoViewConverter &converter);
 
-    /**
-     * set the selection that is to be painted.
-     * @param selection the current selection.
-     */
     void setSelection(KoSelection *selection);
 
-    /**
-     * set the radius of the selection handles
-     * @param radius the new handle radius
-     */
     void setHandleRadius(int radius);
 
-    /**
-     * set the thickness of decoration lines, used for HiDPI support.
-     * @param thickness -- the new thickness
-     */
     void setDecorationThickness(int thickness);
 
-    /**
-     * Set true if you want to render gradient handles on the canvas.
-     * Default value: false
-     */
     void setShowFillGradientHandles(bool value);
 
-    /**
-     * Set true if you want to render gradient handles on the canvas.
-     * Default value: false
-     */
     void setShowStrokeFillGradientHandles(bool value);
 
     void setShowFillMeshGradientHandles(bool value);

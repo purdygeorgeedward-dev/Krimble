@@ -8,7 +8,6 @@
 #include "kis_node.h"
 #include "kis_processing_visitor.h"
 
-
 KisProcessingCommand::KisProcessingCommand(KisProcessingVisitorSP visitor, KisNodeSP node, KUndo2Command *parent)
     : KUndo2Command(kundo2_noi18n("processing_command"), parent),
       m_visitor(visitor),

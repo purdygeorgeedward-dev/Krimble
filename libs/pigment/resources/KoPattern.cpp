@@ -34,18 +34,16 @@
 namespace
 {
 struct GimpPatternHeader {
-    quint32 header_size;  /*  header_size = sizeof (PatternHeader) + brush name  */
-    quint32 version;      /*  pattern file version #  */
-    quint32 width;        /*  width of pattern */
-    quint32 height;       /*  height of pattern  */
-    quint32 bytes;        /*  depth of pattern in bytes : 1, 2, 3 or 4*/
-    quint32 magic_number; /*  GIMP brush magic number  */
+    quint32 header_size;
+    quint32 version;
+    quint32 width;
+    quint32 height;
+    quint32 bytes;
+    quint32 magic_number;
 };
 
-// Yes! This is _NOT_ what my pat.txt file says. It's really not 'GIMP', but 'GPAT'
 quint32 const GimpPatternMagic = (('G' << 24) + ('P' << 16) + ('A' << 8) + ('T' << 0));
 }
-
 
 KoPattern::KoPattern(const QString& file)
     : KoResource(file)
@@ -59,7 +57,6 @@ KoPattern::KoPattern(const QImage &image, const QString &name, const QString &fi
     setName(name);
     setFilename(filename);
 }
-
 
 KoPattern::~KoPattern()
 {
@@ -82,7 +79,6 @@ bool KoPattern::loadPatFromDevice(QIODevice *dev)
     int dataSize = bytes.size();
     const char* data = bytes.constData();
 
-    // load Gimp patterns
     GimpPatternHeader bh;
     qint32 k;
     char* name;
@@ -116,9 +112,8 @@ bool KoPattern::loadPatFromDevice(QIODevice *dev)
         return false;
     }
 
-    // size -1 so we don't add the end 0 to the QString...
     QString newName = QString::fromUtf8(name, size - 1);
-    if (!newName.isEmpty()) { // if it's empty, it's better to leave the name that was there before (based on filename)
+    if (!newName.isEmpty()) {
         setName(newName);
     }
     delete[] name;
@@ -142,7 +137,6 @@ bool KoPattern::loadPatFromDevice(QIODevice *dev)
     k = bh.header_size;
 
     if (bh.bytes == 1) {
-        // Grayscale
         qint32 val;
         for (quint32 y = 0; y < bh.height; ++y) {
             QRgb* pixels = reinterpret_cast<QRgb*>( pattern.scanLine(y) );
@@ -156,12 +150,9 @@ bool KoPattern::loadPatFromDevice(QIODevice *dev)
                 pixels[x] = qRgb(val, val, val);
             }
         }
-        // It was grayscale, so make the pattern as small as possible
-        // by converting it to Indexed8
         pattern.convertTo(QImage::Format_Indexed8);
     }
     else if (bh.bytes == 2) {
-        // Grayscale + A
         qint32 val;
         qint32 alpha;
         for (quint32 y = 0; y < bh.height; ++y) {
@@ -179,7 +170,6 @@ bool KoPattern::loadPatFromDevice(QIODevice *dev)
         }
     }
     else if (bh.bytes == 3) {
-        // RGB without alpha
         for (quint32 y = 0; y < bh.height; ++y) {
             QRgb* pixels = reinterpret_cast<QRgb*>( pattern.scanLine(y) );
             for (quint32 x = 0; x < bh.width; ++x) {
@@ -194,7 +184,6 @@ bool KoPattern::loadPatFromDevice(QIODevice *dev)
             }
         }
     } else if (bh.bytes == 4) {
-        // Has alpha
         for (quint32 y = 0; y < bh.height; ++y) {
             QRgb* pixels = reinterpret_cast<QRgb*>( pattern.scanLine(y) );
             for (quint32 x = 0; x < bh.width; ++x) {
@@ -227,22 +216,13 @@ bool KoPattern::loadPatFromDevice(QIODevice *dev)
 
 bool KoPattern::savePatToDevice(QIODevice* dev) const
 {
-    // Header: header_size (24+name length),version,width,height,colordepth of brush,magic,name
-    // depth: 1 = greyscale, 2 = greyscale + A, 3 = RGB, 4 = RGBA
-    // magic = "GPAT", as a single uint32, the docs are wrong here!
-    // name is UTF-8 (\0-terminated! The docs say nothing about this!)
-    // _All_ data in network order, it seems! (not mentioned in gimp-2.2.8/devel-docs/pat.txt!!)
-    // We only save RGBA at the moment
-    // Version is 1 for now...
-
-
 
     GimpPatternHeader ph;
     QByteArray utf8Name = name().toUtf8();
     char const* name = utf8Name.data();
     int nameLength = qstrlen(name);
 
-    ph.header_size = qToBigEndian((quint32)sizeof(GimpPatternHeader) + nameLength + 1); // trailing 0
+    ph.header_size = qToBigEndian((quint32)sizeof(GimpPatternHeader) + nameLength + 1);
     ph.version = qToBigEndian((quint32)1);
     ph.width = qToBigEndian((quint32)width());
     ph.height = qToBigEndian((quint32)height());
@@ -256,7 +236,7 @@ bool KoPattern::savePatToDevice(QIODevice* dev) const
     if (wrote == -1)
         return false;
 
-    wrote = dev->write(name, nameLength + 1); // Trailing 0 apparently!
+    wrote = dev->write(name, nameLength + 1);
     if (wrote == -1)
         return false;
 
@@ -264,7 +244,6 @@ bool KoPattern::savePatToDevice(QIODevice* dev) const
     bytes.resize(width() * height() * 4);
     for (qint32 y = 0; y < height(); ++y) {
         for (qint32 x = 0; x < width(); ++x) {
-            // RGBA only
             QRgb pixel = m_pattern.pixel(x, y);
             bytes[k++] = static_cast<char>(qRed(pixel));
             bytes[k++] = static_cast<char>(qGreen(pixel));
@@ -325,7 +304,6 @@ bool KoPattern::saveToDevice(QIODevice *dev) const
     return result;
 }
 
-
 qint32 KoPattern::width() const
 {
     return m_pattern.width();
@@ -344,12 +322,10 @@ void KoPattern::setPatternImage(const QImage& image)
     setValid(true);
 }
 
-
 QString KoPattern::defaultFileExtension() const
 {
     return QString(".pat");
 }
-
 
 QImage KoPattern::pattern() const
 {

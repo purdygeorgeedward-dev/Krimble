@@ -15,9 +15,6 @@
 #define DEFAULT_STORE_SIZE (4096*MiB)
 #define DEFAULT_SLAB_SIZE (64*MiB)
 
-
-//#define DEBUG_SLAB_FAILS
-
 #ifdef DEBUG_SLAB_FAILS
 
 #define WINDOW_SIZE 2000
@@ -37,9 +34,7 @@
 #define REGISTER_FAIL()
 #define DEBUG_FAIL_COUNTER()
 
-#endif /* DEBUG_SLAB_FAILS */
-
-
+#endif
 
 class KisChunkData;
 
@@ -67,10 +62,6 @@ public:
     {
         Q_ASSERT(m_begin!=other.m_begin || m_end==other.m_end);
 
-        /**
-         * Chunks cannot overlap, so it is enough to check
-         * the beginning of the interval only
-         */
         return m_begin == other.m_begin;
     }
 
@@ -112,7 +103,6 @@ private:
     KisChunkDataListIterator m_iterator;
 };
 
-
 class KRITAIMAGE_EXPORT KisChunkAllocator
 {
 public:
@@ -140,12 +130,11 @@ private:
     quint64 m_storeMaxSize;
     quint64 m_storeSlabSize;
 
-
     KisChunkDataList m_list;
     KisChunkDataListIterator m_iterator;
     quint64 m_storeSize;
     DECLARE_FAIL_COUNTER()
 };
 
-#endif /* __KIS_CHUNK_ALLOCATOR_H */
+#endif
 

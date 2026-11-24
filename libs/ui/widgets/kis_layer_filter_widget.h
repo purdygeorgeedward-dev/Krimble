@@ -13,7 +13,6 @@
 
 #include "kritaui_export.h"
 
-
 class KRITAUI_EXPORT KisLayerFilterWidget : public QWidget
 {
     Q_OBJECT
@@ -41,9 +40,6 @@ public:
 
     QSize sizeHint() const override;
 
-    /* Show Event has to be overridden to
-     * correct for parent QMenu to properly
-     * resize. */
     void showEvent(QShowEvent *show) override;
 
 Q_SIGNALS:
@@ -62,7 +58,6 @@ public:
     void setSelectedColors(QList<int> colors);
     void setTextFilter(bool isTextFiltering);
 
-
 private:
     void paintEvent(QPaintEvent *paintEvent) override;
 
@@ -78,4 +73,4 @@ public:
     bool eventFilter(QObject *obj, QEvent *event) override;
 };
 
-#endif // KISLAYERFILTERWIDGET_H
+#endif

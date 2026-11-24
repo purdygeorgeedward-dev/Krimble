@@ -7,7 +7,6 @@
 
 #include "kis_properties_configuration.h"
 
-
 bool KisPaintingModeOptionData::read(const KisPropertiesConfiguration *setting)
 {
     hasPaintingModeProperty = setting->hasProperty("PaintOpAction");

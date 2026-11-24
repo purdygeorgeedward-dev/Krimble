@@ -39,6 +39,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-
-
-#endif // KISMASKINGBRUSHOPTION_H
+#endif

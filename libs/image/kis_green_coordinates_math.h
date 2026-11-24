@@ -19,24 +19,10 @@ public:
     KisGreenCoordinatesMath();
     ~KisGreenCoordinatesMath();
 
-    /**
-     * Prepare the transformation framework by computing internal
-     * coordinates of the points in cage.
-     *
-     * Please note that the points in \p points will later be accessed
-     * with indexes only.
-     */
     void precalculateGreenCoordinates(const QVector<QPointF> &originalCage, const QVector<QPointF> &points);
 
-    /**
-     * Precalculate coefficients of the destination cage. Should be
-     * called once for every cage change
-     */
     void generateTransformedCageNormals(const QVector<QPointF> &transformedCage);
 
-    /**
-     * Transform one point according to its index
-     */
     QPointF transformedPoint(int pointIndex, const QVector<QPointF> &transformedCage);
 
 private:
@@ -44,4 +30,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_GREEN_COORDINATES_MATH_H */
+#endif

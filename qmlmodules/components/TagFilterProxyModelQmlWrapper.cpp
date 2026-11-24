@@ -98,7 +98,6 @@ void TagFilterProxyModelQmlWrapper::setResourceType(const QString &type)
 QString TagFilterProxyModelQmlWrapper::resourceTypeName() const
 {
     if (d->resourceType.isEmpty()) return i18n("Resource");
-    // TODO: We should have separate translated entries for singular.
     return ResourceName::resourceTypeToName(d->resourceType);
 }
 
@@ -165,7 +164,6 @@ void TagFilterProxyModelQmlWrapper::addNewTag(const QString &newTagName, const i
         tagsp = d->tagModel->addTag(newTagName, false, vec);
 
     }
-    // TODO: figure out how to get a tag reactivated again, without doing too much code duplication :|
     if (resourceIdx.isValid()) {
         int resourceId = d->tagFilterProxyModel->data(resourceIdx, Qt::UserRole + KisResourceModel::Id).toInt();
         d->tagFilterProxyModel->tagResources(tagsp, {resourceId});
@@ -339,7 +337,6 @@ QVariant TagFilterProxyModelQmlWrapper::testName(const QString &name)
 
 void TagFilterProxyModelQmlWrapper::importResource()
 {
-    // Below copied from KisResourceItemChooser::slotButtonClicked
     QStringList mimeTypes = KisResourceLoaderRegistry::instance()->mimeTypes(d->resourceType);
     KoFileDialog dialog(QApplication::activeWindow(), KoFileDialog::OpenFiles, "OpenDocument");
     dialog.setMimeTypeFilters(mimeTypes);
@@ -352,8 +349,6 @@ void TagFilterProxyModelQmlWrapper::importResource()
             KoResourceSP newResource = KisResourceUserOperations::importResourceFileWithUserInput(QApplication::activeWindow(), "", d->resourceType, filename);
 
             if (previousResource && newResource && !currentResource()) {
-                /// We have overridden the currently selected resource and
-                /// nothing is selected now
                 QModelIndex index = d->tagFilterProxyModel->indexForResource(newResource);
                 setCurrentIndex(index.row());
             }
@@ -363,7 +358,6 @@ void TagFilterProxyModelQmlWrapper::importResource()
 
 void TagFilterProxyModelQmlWrapper::removeResource()
 {
-    // Below copied from KisResourceItemChooser::slotButtonClicked
     QModelIndex index = d->tagFilterProxyModel->indexForResource(d->currentResource);
     if (index.isValid()) {
         d->tagFilterProxyModel->setResourceInactive(index);
@@ -396,8 +390,6 @@ QVariant FontFamilyTagFilterModel::data(const QModelIndex &index, int role) cons
             const QString fallBack = sourceModel()->data(sourceIdx, Qt::UserRole + KisAbstractResourceModel::Name).toString();
             QString name = fallBack.isEmpty()? localizedNames.value("en").toString(): fallBack;
 
-            // the return type of KLocalizedString::languages() is different
-            // between Qt5 and Qt6, so just use `auto` to ignore that
             for (const auto &locale : KLocalizedString::languages()) {
                 bool found = false;
                 Q_FOREACH(const QString key, localizedNames.keys()) {

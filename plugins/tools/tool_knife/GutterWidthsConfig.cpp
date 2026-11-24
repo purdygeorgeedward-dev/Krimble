@@ -8,7 +8,6 @@
 #include <kis_algebra_2d.h>
 #include <kis_debug.h>
 
-
 GutterWidthsConfig::GutterWidthsConfig(KoUnit _baseUnit, qreal _resolution, qreal _horizontal, qreal _vertical, qreal _diagonal, qreal _angleDegrees)
     : baseUnit(_baseUnit)
     , resolution(_resolution)
@@ -18,7 +17,6 @@ GutterWidthsConfig::GutterWidthsConfig(KoUnit _baseUnit, qreal _resolution, qrea
     , angleDegrees(_angleDegrees)
 {
 }
-
 
 GutterWidthsConfig::GutterWidthsConfig(KoUnit _baseUnit, qreal _resolution, qreal _all, qreal _angleDegrees)
     : baseUnit(_baseUnit)
@@ -35,12 +33,10 @@ bool inRangeWrapped(qreal value, qreal min, qreal max, qreal rangeMax) {
     max = KisAlgebra2D::wrapValue(max, 0.0, rangeMax);
 
     if (min > max) {
-        return value > min || value < max; // range is on the edges instead of in the middle
+        return value > min || value < max;
     } else {
         return value > min && value < max;
     }
-
-
 
 }
 

@@ -26,4 +26,4 @@ struct KisSmudgeOverlayModeOptionData : boost::equality_comparable<KisSmudgeOver
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-#endif // KISSMUDGEOVERLAYMODEOPTIONDATA_H
+#endif

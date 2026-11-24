@@ -10,7 +10,6 @@
 #include "kis_debug.h"
 #include "kis_algebra_2d.h"
 
-
 KisConstrainedRect::KisConstrainedRect()
 {
 }
@@ -126,7 +125,7 @@ void KisConstrainedRect::moveHandle(HandleType handle, const QPoint &offset, con
     case Inside:
         useMoveOnly = true;
         break;
-    case None: // should never happen
+    case None:
         break;
     }
 
@@ -136,7 +135,6 @@ void KisConstrainedRect::moveHandle(HandleType handle, const QPoint &offset, con
             xOffsetFromSizeChange = -0.5;
             yOffsetFromSizeChange = -0.5;
         }
-
 
         QSize sizeDiff(offset.x() * xSizeCoeff * centeringSizeCoeff,
                        offset.y() * ySizeCoeff * centeringSizeCoeff);
@@ -153,7 +151,6 @@ void KisConstrainedRect::moveHandle(HandleType handle, const QPoint &offset, con
                 newSize.setWidth(widthFromHeightUnsignedRatio(newSize.height(), m_ratio, tempSize.width()));
             }
 
-            // see https://bugs.kde.org/show_bug.cgi?id=432036
             if (!m_canGrow && qAbs(newSize.width()) > m_cropRect.width()) {
                 newSize.setWidth(m_cropRect.width());
                 newSize.setHeight(heightFromWidthUnsignedRatio(newSize.width(), m_ratio, newSize.height()));
@@ -261,7 +258,7 @@ QPointF KisConstrainedRect::handleSnapPoint(HandleType handle, const QPointF &cu
         break;
     case Inside:
         break;
-    case None: // should never happen
+    case None:
         break;
     }
 

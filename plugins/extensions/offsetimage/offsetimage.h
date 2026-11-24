@@ -15,7 +15,6 @@
 
 class KUndo2MagicString;
 
-
 class OffsetImage : public KisActionPlugin
 {
     Q_OBJECT
@@ -35,4 +34,4 @@ private:
 
 };
 
-#endif // OFFSETIMAGE_H
+#endif

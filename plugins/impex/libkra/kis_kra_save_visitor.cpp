@@ -54,7 +54,6 @@
 #include "kis_colorize_dom_utils.h"
 #include "kis_dom_utils.h"
 
-
 using namespace KRA;
 
 KisKraSaveVisitor::KisKraSaveVisitor(KoStore *store, const QString & name, QMap<const KisNode*, QString> nodeFileNames)
@@ -112,7 +111,7 @@ bool KisKraSaveVisitor::visit(KisExternalLayer * layer)
         }
     }
     else if (KisFileLayer *fileLayer = dynamic_cast<KisFileLayer*>(layer)) {
-        Q_UNUSED(fileLayer); // We don't save data for file layers, but we still want to save the masks.
+        Q_UNUSED(fileLayer);
         result = true;
     }
     return result && visitAllInverse(layer);
@@ -184,7 +183,6 @@ bool KisKraSaveVisitor::visit(KisGeneratorLayer * layer)
 
 bool KisKraSaveVisitor::visit(KisCloneLayer *layer)
 {
-    // Clone layers do not have a profile
     if (!saveMetaData(layer)) {
         m_errorMessages << i18n("Failed to save the metadata for layer %1.", layer->name());
         return false;
@@ -337,7 +335,6 @@ struct FramedDevicePolicy
 bool KisKraSaveVisitor::savePaintDevice(KisPaintDeviceSP device,
                                         QString location)
 {
-    // Layer data
     KisConfig cfg(true);
     m_store->setCompressionEnabled(cfg.compressKra());
 
@@ -368,7 +365,6 @@ bool KisKraSaveVisitor::savePaintDevice(KisPaintDeviceSP device,
     m_store->setCompressionEnabled(true);
     return true;
 }
-
 
 template<class DevicePolicy>
 bool KisKraSaveVisitor::savePaintDeviceFrame(KisPaintDeviceSP device, QString location, DevicePolicy policy)
@@ -419,7 +415,6 @@ bool KisKraSaveVisitor::saveIccProfile(KisNode *node, const KoColorProfile *prof
         }
 
         if (annotation) {
-            // save layer profile
             if (m_store->open(getLocation(node, DOT_ICC))) {
                 m_store->write(annotation->annotation());
                 m_store->close();
@@ -503,7 +498,6 @@ bool KisKraSaveVisitor::saveMetaData(KisNode* node)
     KisMetaData::Store* metadata = (static_cast<KisLayer*>(node))->metaData();
     if (metadata->isEmpty()) return true;
 
-    // Serialize all the types of metadata there are
     KisMetaData::IOBackend *backend = KisMetadataBackendRegistry::instance()->get("xmp");
     if (!backend->supportSaving()) {
         dbgFile << "Backend " << backend->id() << " does not support saving.";
@@ -514,7 +508,6 @@ bool KisKraSaveVisitor::saveMetaData(KisNode* node)
     dbgFile << "going to save " << backend->id() << ", " << backend->name() << " to " << location;
 
     QBuffer buffer;
-    // not that the metadata backends every return anything but true...
     bool retval = backend->saveTo(metadata, &buffer);
 
     if (!retval) {

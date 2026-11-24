@@ -95,7 +95,6 @@ bool SmartCompressionDock::hasSelection() const
     return m_canvas && m_canvas->viewManager() && m_canvas->viewManager()->image() && m_canvas->viewManager()->image()->globalSelection();
 }
 
-// The picture as 8 bit RGB on white, at most about 1.5 million pixels (a larger picture is shrunk for the preview; its size is then estimated).
 static QImage krimblePreviewPicture(KisImageSP image, qreal *factor)
 {
     image->waitForDone();
@@ -118,8 +117,6 @@ static QImage krimblePreviewPicture(KisImageSP image, qreal *factor)
     return flat.convertToFormat(QImage::Format_RGB888);
 }
 
-// The Smart Selection: the starting selection that the user then edits. It is the area to COMPRESS: the flat blocks of the picture (sky, a plain panel, an empty background). The blocks
-// with detail (edges, text, texture) are not in it: they are what the film covers and what the compression leaves alone. (The same analysis as the Smart choice of the JPEG dialog.)
 void SmartCompressionDock::makeSmartSelection()
 {
     if (!m_canvas || !m_canvas->viewManager()) return;
@@ -141,7 +138,7 @@ void SmartCompressionDock::makeSmartSelection()
     }
     std::vector<uint8_t> compress = KrimbleSmart::detailMask(luminance.data(), bounds.width(), bounds.height(), m_panel->sensitivity());
     for (uint8_t &value : compress) {
-        value = uint8_t(255 - value);   // detail (protected) becomes 0, flat becomes 255 (selected)
+        value = uint8_t(255 - value);
     }
 
     KisPixelSelectionSP selection = new KisPixelSelection(new KisDefaultBounds(image));
@@ -150,8 +147,6 @@ void SmartCompressionDock::makeSmartSelection()
     helper.selectPixelSelection(selection, SELECTION_REPLACE);
 }
 
-// Regions mode: the film (it covers what is NOT selected: the protected area), the region tools, and, with no selection yet, the Smart Selection to start from. The protection is then
-// the selection ("Selection"); Whole Picture: no film, the tools are off.
 void SmartCompressionDock::onRegionsToggled(bool regions)
 {
     m_panel->setToolsEnabled(regions);
@@ -163,7 +158,6 @@ void SmartCompressionDock::onRegionsToggled(bool regions)
     schedulePreview();
 }
 
-// "Smart" chosen while in Regions mode: the selection starts again from the Smart Selection.
 void SmartCompressionDock::onProtectionChanged(int protect)
 {
     if (protect == SmartCompressionPanel::ProtectSmart && m_panel->isRegions()) makeSmartSelection();
@@ -175,7 +169,6 @@ void SmartCompressionDock::onSensitivityChanged(int)
     if (m_panel->isRegions() && m_panel->protect() == SmartCompressionPanel::ProtectSmart) makeSmartSelection();
 }
 
-// A region tool or action was used: the user is editing the selection, so the selection is what protects.
 void SmartCompressionDock::onSelectionTool(const QString &toolId)
 {
     m_panel->setProtect(SmartCompressionPanel::ProtectSelection);
@@ -213,8 +206,6 @@ void SmartCompressionDock::schedulePreview()
     if (isVisible()) m_previewTimer.start();
 }
 
-// The preview: the JPEG is made in memory with the panel's settings (quality, Extra Color, Grayscale, Progressive, the protection and the level) and read back; the panel shows the sizes
-// and the two pictures. Original = the size of the picture's file, or, for a picture that has none, its raw size.
 void SmartCompressionDock::updatePreview()
 {
     if (!m_canvas || !m_canvas->viewManager() || !m_canvas->viewManager()->image()) return;
@@ -233,7 +224,6 @@ void SmartCompressionDock::updatePreview()
         for (int x = 0; x < w; ++x) luminance[size_t(y) * w + x] = uint8_t((299 * line[x * 3] + 587 * line[x * 3 + 1] + 114 * line[x * 3 + 2]) / 1000);
     }
 
-    // the mask: above 127 is protected
     std::vector<uint8_t> mask(size_t(w) * h, 0);
     if (m_panel->protect() == SmartCompressionPanel::ProtectSmart) {
         mask = KrimbleSmart::detailMask(luminance.data(), w, h, m_panel->sensitivity());
@@ -246,7 +236,7 @@ void SmartCompressionDock::updatePreview()
         const QImage small = (w == bounds.width() && h == bounds.height()) ? selected : selected.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         for (int y = 0; y < h; ++y) {
             const uint8_t *line = small.constScanLine(y);
-            for (int x = 0; x < w; ++x) mask[size_t(y) * w + x] = uint8_t(255 - line[x]);   // selected = compress; not selected = protected
+            for (int x = 0; x < w; ++x) mask[size_t(y) * w + x] = uint8_t(255 - line[x]);
         }
     }
 
@@ -277,7 +267,6 @@ void SmartCompressionDock::updatePreview()
     m_panel->setPreview(originalThumb, compressedThumb, originalBytes, compressedBytes);
 }
 
-// Save JPEG...: the panel's settings are put where the JPEG save dialog finds them (it uses them once), and the export is opened.
 void SmartCompressionDock::onSave()
 {
     KConfigGroup group = KSharedConfig::openConfig()->group("KrimbleSmartCompression");

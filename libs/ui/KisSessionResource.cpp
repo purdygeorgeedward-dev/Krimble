@@ -15,13 +15,11 @@
 #include <KisViewManager.h>
 #include <KisMainWindow.h>
 
-
 struct KisSessionResource::Private
 {
     struct View
     {
         QUuid windowId;
-        // NOTE: path of the file without scheme
         QString file;
         KisPropertiesConfiguration viewConfig;
 
@@ -64,7 +62,6 @@ void KisSessionResource::restore()
 
     QMap<QString, KisDocument *> documents;
 
-    // Find documents which are already open so we don't need to reload them
     QList<QPointer<KisView>> oldViews = kisPart->views();
     Q_FOREACH(const QPointer<KisView> view, oldViews) {
         KisDocument *document = view->document();
@@ -94,12 +91,10 @@ void KisSessionResource::restore()
                 kisPart->addDocument(document);
                 documents.insert(path, document);
             }
-            //update profile
             QString profileName;
             profileName = d->profileName;
             window->viewManager()->changeAuthorProfile(profileName);
             window->viewManager()->slotUpdateAuthorProfileActions();
-
 
             KisView *view = window->newView(document);
             view->restoreViewState(viewData.viewConfig);
@@ -111,7 +106,6 @@ void KisSessionResource::restore()
     }
 
 }
-
 
 QString KisSessionResource::defaultFileExtension() const
 {
@@ -146,13 +140,11 @@ void KisSessionResource::saveXml(QDomDocument &doc, QDomElement &root) const
         QDomElement elem = doc.createElement("view");
 
         elem.setAttribute("window", view.windowId.toString());
-        // we convert to QUrl to maintain compatibility with Krita 4.4
         elem.setAttribute("src", QUrl::fromLocalFile(view.file).toString());
         view.viewConfig.toXML(doc, elem);
 
         root.appendChild(elem);
 
-        // Save profile
         KConfigGroup appAuthorGroup(KSharedConfig::openConfig(), "Author");
         QString profileName = appAuthorGroup.readEntry("active-profile", "");
 
@@ -180,7 +172,6 @@ void KisSessionResource::loadXml(const QDomElement &root) const
 
         d->views.append(view);
     }
-    //Load session
     d->profileName.clear();
     auto sessionElement = root.firstChildElement("session");
     d->profileName = QString(sessionElement.attribute("profile"));

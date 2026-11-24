@@ -12,7 +12,6 @@
 
 #include "kis_uniform_paintop_property.h"
 
-
 class KisUniformPaintOpPropertyWidget : public QWidget
 {
     Q_OBJECT
@@ -101,4 +100,4 @@ private:
     QComboBox *m_comboBox;
 };
 
-#endif /* __KIS_UNIFORM_PAINTOP_PROPERTY_WIDGET_H */
+#endif

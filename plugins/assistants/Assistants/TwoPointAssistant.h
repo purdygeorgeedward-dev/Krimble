@@ -26,7 +26,6 @@ public:
         LocalSecondHandle
     };
 
-
     TwoPointAssistant();
     QPointF adjustPosition(const QPointF& point, const QPointF& strokeBegin, const bool snapToAny, qreal moveThresholdPt) override;
     void adjustLine(QPointF &point, QPointF& strokeBegin) override;
@@ -42,24 +41,12 @@ public:
     double gridDensity();
     void setGridDensity(double density);
 
-    /* If true, it means the assistant will have three handles
-     * If false,
-     * */
     bool useVertical();
     void setUseVertical(bool value);
 
     bool isAssistantComplete() const override;
     bool canBeLocal() const override;
 
-    /* Generate a transform for converting handles into easier local
-       coordinate system that has the following properties:
-       - Rotated so horizon is perfectly horizontal
-       - Translated so 3rd handle is the origin
-       Parameters are the first VP, second VP, a 3rd point which
-       defines the center of vision, and lastly a reference to a size
-       variable which is the radius of the 90 degree cone of vision
-       (useful for computing snapping behaviour and drawing grid
-       lines) */
     QTransform localTransform(QPointF vp_a, QPointF vp_b, QPointF pt_c, qreal* size);
 
 protected:
@@ -68,7 +55,6 @@ protected:
 
     KisPaintingAssistantHandleSP firstLocalHandle() const override;
     KisPaintingAssistantHandleSP secondLocalHandle() const override;
-
 
 private:
     QPointF project(const QPointF& pt, const QPointF& strokeBegin, const bool snapToAny, qreal moveThreshold);
@@ -79,7 +65,7 @@ private:
     double m_gridDensity {1.0};
     bool m_useVertical {true};
 
-    int m_lastUsedPoint {-1}; // last used vanishing point
+    int m_lastUsedPoint {-1};
 
 };
 

@@ -15,9 +15,6 @@ namespace KisMetaData
 {
 class TypeInfo;
 class Value;
-/**
- * This class allow to parse from a string and return a value.
- */
 class KRITAMETADATA_EXPORT Parser
 {
     friend class TypeInfo;

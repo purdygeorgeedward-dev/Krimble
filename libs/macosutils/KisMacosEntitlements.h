@@ -12,36 +12,30 @@
 class KisMacosEntitlements : public QObject
 {
     Q_OBJECT
-    
+
 public:
 
     enum Entitlements {
-        Sandbox = 0, // com.apple.security.app-sandbox
-        BookmarkScopeApp, // com.apple.security.files.bookmarks.app-scope
-        BookmarkScopeDocument, // com.apple.security.files.bookmarks.document-scope
+        Sandbox = 0,
+        BookmarkScopeApp,
+        BookmarkScopeDocument,
         Other = 99
     };
 
-//    static KisMacosEntitlements *instance();
-    
     KisMacosEntitlements();
-    
+
     ~KisMacosEntitlements();
-    
-    
+
     void loadAvailableEntitlements(void);
 
     bool hasEntitlement(Entitlements);
 
     bool sandbox();
 
-    
 private:
-//    Q_DISABLE_COPY(KisMacosEntitlements)
-    
+
     class Private;
     const QScopedPointer<Private> m_d;
 };
 
-
-#endif /* KisMacosEntitlements_h */
+#endif

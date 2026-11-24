@@ -133,7 +133,7 @@ KoResourceServerProvider::~KoResourceServerProvider()
     delete d->stylePresetServer;
 #if defined HAVE_SEEXPR
     delete d->seExprScriptServer;
-#endif    
+#endif
 
     delete d;
 }

@@ -48,4 +48,4 @@ private:
     QTimer *m_hideTimer;
 };
 
-#endif // WGSELECTORPOPUP_H
+#endif

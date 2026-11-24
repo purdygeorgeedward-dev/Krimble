@@ -27,4 +27,4 @@ private:
                  const QString &valueSuffix);
 };
 
-#endif // KISDYNAMICSENSORFACTORYREGISTRY_H
+#endif

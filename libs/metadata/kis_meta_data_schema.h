@@ -39,13 +39,7 @@ private:
     Schema();
     Schema(const QString & _uri, const QString & _ns);
 public:
-    /**
-     * @return the \ref TypeInfo associated with a given a property ( @p _propertyName ).
-     */
     const TypeInfo* propertyType(const QString& _propertyName) const;
-    /**
-     * @return the \ref TypeInfo describing a given structure of that schema
-     */
     const TypeInfo* structure(const QString& _structureName) const;
 public:
     QString uri() const;

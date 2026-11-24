@@ -12,11 +12,6 @@
 #include <QIODevice>
 #include <kis_debug.h>
 
-/**
- * Restore the offset of the io device on exit from the current
- * namespace
- */
-
 class KisOffsetKeeper
 {
 public:
@@ -38,4 +33,4 @@ private:
     qint64 m_expectedPos;
 };
 
-#endif /* __KIS_OFFSET_KEEPER_H */
+#endif

@@ -51,4 +51,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // __KISCOLORPATCHESTABLEVIEW_H_
+#endif

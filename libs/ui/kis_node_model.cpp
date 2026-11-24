@@ -48,7 +48,6 @@
 #include "kis_signal_compressor.h"
 #include "KisLayerThumbnailCache.h"
 
-
 struct KisNodeModel::Private
 {
     Private() : updateCompressor(100, KisSignalCompressor::FIRST_ACTIVE) {}
@@ -217,8 +216,6 @@ void KisNodeModel::progressPercentageChanged(int, const KisNodeSP node)
 {
     if(!m_d->dummiesFacade) return;
 
-    // Need to check here as the node might already be removed, but there might
-    // still be some signals arriving from another thread
     if (m_d->dummiesFacade->hasDummyForNode(node)) {
         QModelIndex index = indexFromNode(node);
 
@@ -295,7 +292,6 @@ void KisNodeModel::setDummiesFacade(KisDummiesFacadeBase *dummiesFacade,
             m_d->nodeDisplayModeAdapter, SIGNAL(sigNodeDisplayModeChanged(bool,bool)),
             this, SLOT(slotNodeDisplayModeChanged(bool,bool)));
 
-        // cold initialization
         m_d->showGlobalSelection = m_d->nodeDisplayModeAdapter->showGlobalSelectionMask();
         m_d->showRootLayer = false;
     }
@@ -380,7 +376,6 @@ void KisNodeModel::slotBeginRemoveDummy(KisNodeDummy *dummy)
 {
     if (!dummy) return;
 
-    // FIXME: is it really what we want?
     m_d->updateCompressor.stop();
     m_d->updateQueue.clear();
 
@@ -430,7 +425,6 @@ void addChangedIndex(const QModelIndex &idx, QSet<QModelIndex> *indexes)
         addChangedIndex(idx.model()->index(i, 0, idx), indexes);
     }
 }
-
 
 void KisNodeModel::processUpdateQueue()
 {
@@ -501,7 +495,6 @@ QModelIndex KisNodeModel::parent(const QModelIndex &index) const
 
 QModelIndex KisNodeModel::sibling(int row, int column, const QModelIndex &idx) const
 {
-    // if it's just a different clone column, there's no need to lookup anything
     if (row == idx.row()) {
         if (column == idx.column()) {
             return idx;
@@ -522,7 +515,7 @@ QVariant KisNodeModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole: return node->name();
     case Qt::DecorationRole: return node->icon();
     case Qt::EditRole: return node->name();
-    case Qt::SizeHintRole: return m_d->image->size(); // FIXME
+    case Qt::SizeHintRole: return m_d->image->size();
     case Qt::ForegroundRole:
         return belongsToIsolatedGroup(node) &&
             !node->projectionLeaf()->isDroppedNode() ? QVariant() : QVariant(QColor(Qt::gray));
@@ -567,8 +560,6 @@ QVariant KisNodeModel::data(const QModelIndex &index, int role) const
         return node->isAnimated();
     }
     case KisNodeModel::InfoTextRole: {
-        // These layer types' opacity and blending modes cannot be changed,
-        // so there's little point in showing them
         if (node->inherits("KisFilterMask") ||
             node->inherits("KisTransparencyMask") ||
             node->inherits("KisTransformMask") ||
@@ -580,11 +571,10 @@ QVariant KisNodeModel::data(const QModelIndex &index, int role) const
         const QString opacityString = QString::number(opacity);
         const QString compositeOpId = node->compositeOpId();
         QString compositeOpDesc = "null";
-        // make sure the compositeOp exists to avoid crashing on specific layer undo
         if (node->compositeOp()) {
             compositeOpDesc = node->compositeOp()->description();
         }
-        QString defaultOpId = COMPOSITE_OVER;   // "normal";
+        QString defaultOpId = COMPOSITE_OVER;
         if (node->inherits("KisAdjustmentLayer")) {
             defaultOpId = COMPOSITE_COPY;
         }
@@ -609,7 +599,6 @@ QVariant KisNodeModel::data(const QModelIndex &index, int role) const
     case FilterMaskColorRole: {
         if (node->inherits("KisFilterMask")) {
             KisFilterMaskSP mask = qobject_cast<KisFilterMask*>(node.data());
-            // The main use case is "fastcoloroverlay" filter, to display its color in the UI.
             if (mask->filter()->hasProperty("color")) {
                 return mask->filter()->getColor("color").toQColor();
             }
@@ -628,19 +617,9 @@ QVariant KisNodeModel::data(const QModelIndex &index, int role) const
     }
     default:
 
-        /**
-         * The dummies are removed from the model asynchronously to the image operations,
-         * therefore we should make sure that `node->graphListener()` is still valid and
-         * this node is still present in the node graph.
-         */
         if (role >= int(KisNodeModel::BeginThumbnailRole) &&
             belongsToIsolatedGroup(node) &&
             node->graphListener()) {
-
-            /**
-             * WARNING: there is still a possible theoretical race condition if the node is
-             * removed from the image right here. We consider that as "improbable" atm.
-             */
 
             const int maxSize = role - int(KisNodeModel::BeginThumbnailRole);
 
@@ -662,7 +641,6 @@ Qt::ItemFlags KisNodeModel::flags(const QModelIndex &index) const
     if(!m_d->dummiesFacade || !index.isValid()) return Qt::ItemIsDropEnabled;
 
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsEditable;
-    // currently dummy columns are neither selectable nor drag&drop enabled
     if (index.column() == 0) {
         flags |=  Qt::ItemIsDragEnabled | Qt::ItemIsSelectable;
         if (m_d->dropEnabled.contains(index.internalId())) {
@@ -736,7 +714,6 @@ bool KisNodeModel::setData(const QModelIndex &index, const QVariant &value, int 
         break;
     case KisNodeModel::PropertiesRole:
         {
-            // don't record undo/redo for visibility, locked or alpha locked changes
             KisBaseNode::PropertyList proplist = value.value<KisBaseNode::PropertyList>();
             m_d->nodeManager->trySetNodeProperties(node, m_d->image, proplist);
             shouldUpdateRecursively = true;
@@ -805,8 +782,6 @@ QMimeData * KisNodeModel::mimeData(const QModelIndexList &indexes) const
     bool hasLockedLayer = false;
     KisNodeList nodes;
     Q_FOREACH (const QModelIndex &idx, indexes) {
-        // Although clone columns should not be selectable, make sure we only use column 0,
-        // because nodeFromIndex doesn't like duplicate list entries.
         if (idx.column() != 0) {
             continue;
         }
@@ -851,8 +826,6 @@ bool KisNodeModel::dropMimeData(const QMimeData * data, Qt::DropAction action, i
 
 bool KisNodeModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const {
     if (parent.isValid()) {
-        // drop occurred on an item. always return true as returning false will mess up
-        // QT5's drag handling (see KisNodeModel::setDropEnabled).
         return true;
     } else {
         return QAbstractItemModel::canDropMimeData(data, action, row, column, parent);
@@ -860,13 +833,6 @@ bool KisNodeModel::canDropMimeData(const QMimeData *data, Qt::DropAction action,
 }
 
 void KisNodeModel::setDropEnabled(const QMimeData *data) {
-    // what happens here should really happen in KisNodeModel::canDropMimeData(), but QT5
-    // will mess up if an item's Qt::ItemIsDropEnabled does not match what is returned by
-    // canDropMimeData; specifically, if we set the flag, but decide in canDropMimeData()
-    // later on that an "onto" drag is not allowed, QT will display an drop indicator for
-    // insertion, but not perform any drop when the mouse is released.
-
-    // the only robust implementation seems to set all flags correctly, which is done here.
 
     bool copyNode = false;
     KisNodeList nodes = KisMimeData::loadNodesFast(data, m_d->image, m_d->shapeController, copyNode);
@@ -890,7 +856,7 @@ void KisNodeModel::updateDropEnabled(const QList<KisNodeSP> &nodes, QModelIndex 
         if (dropEnabled) {
             m_d->dropEnabled.insert(idx.internalId());
         }
-        Q_EMIT dataChanged(idx, idx); // indicate to QT that flags() have changed
+        Q_EMIT dataChanged(idx, idx);
 
         if (hasChildren(idx)) {
             updateDropEnabled(nodes, idx);

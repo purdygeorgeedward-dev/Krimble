@@ -8,7 +8,6 @@
 
 #include "kis_desaturate_filter.h"
 
-
 #include <math.h>
 
 #include <stdlib.h>
@@ -61,7 +60,6 @@ KisConfigWidget *KisDesaturateFilter::createConfigurationWidget(QWidget *parent,
     Q_UNUSED(dev);
     return new KisDesaturateConfigWidget(parent);
 }
-
 
 KoColorTransformation* KisDesaturateFilter::createTransformation(const KoColorSpace* cs, const KisFilterConfigurationSP config) const
 {

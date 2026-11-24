@@ -47,7 +47,6 @@
 #include <kis_default_bounds.h>
 #include <KisImageResolutionProxy.h>
 
-
 KisFillPainter::KisFillPainter()
         : KisPainter()
 {
@@ -90,15 +89,11 @@ void KisFillPainter::fillSelection(const QRect &rc, const KoColor &color)
     bitBlt(rc.topLeft(), fillDevice, rc);
 }
 
-// 'regular' filling
-// XXX: This also needs renaming, since filling ought to keep the opacity and the composite op in mind,
-//      this is more eraseToColor.
 void KisFillPainter::fillRect(qint32 x1, qint32 y1, qint32 w, qint32 h, const KoColor& kc, quint8 opacity)
 {
     if (w > 0 && h > 0) {
-        // Make sure we're in the right colorspace
 
-        KoColor kc2(kc); // get rid of const
+        KoColor kc2(kc);
         kc2.convertTo(device()->colorSpace());
         quint8 * data = kc2.data();
         device()->colorSpace()->setOpacity(data, opacity, 1);
@@ -148,11 +143,6 @@ void KisFillPainter::fillRectNoCompose(const QRect &rc, const KoPatternSP patter
 
 void KisFillPainter::fillRectNoCompose(qint32 x1, qint32 y1, qint32 w, qint32 h, const KisPaintDeviceSP device, const QRect& deviceRect, const QTransform transform)
 {
-    /**
-     * Since this function doesn't do any kind of compositing, so the pixel size
-     * of the source and destination devices must be exactly the same. The color
-     * space should ideally be also the same.
-     */
     KIS_SAFE_ASSERT_RECOVER_RETURN(device->pixelSize() == this->device()->pixelSize());
     KIS_SAFE_ASSERT_RECOVER_NOOP(*device->colorSpace() == *this->device()->colorSpace());
 
@@ -161,7 +151,6 @@ void KisFillPainter::fillRectNoCompose(qint32 x1, qint32 y1, qint32 w, qint32 h,
     wrapped->setDefaultBounds(new KisWrapAroundBoundsWrapper(oldBounds, deviceRect));
     const bool oldSupportsWrapAroundMode = wrapped->supportsWraproundMode();
     wrapped->setSupportsWraparoundMode(true);
-
 
     KisPerspectiveTransformWorker worker(this->device(), transform, false, this->progressUpdater());
     worker.runPartialDst(device, this->device(), QRect(x1, y1, w, h));
@@ -229,8 +218,6 @@ void KisFillPainter::fillRect(qint32 x1, qint32 y1, qint32 w, qint32 h, const Ki
     addDirtyRect(tmpRc);
 }
 
-// flood filling
-
 void KisFillPainter::fillColor(int startX, int startY, KisPaintDeviceSP sourceDevice)
 {
     if (!m_useCompositing) {
@@ -263,7 +250,6 @@ void KisFillPainter::fillColor(int startX, int startY, KisPaintDeviceSP sourceDe
     } else {
         genericFillStart(startX, startY, sourceDevice);
 
-        // Now create a layer and fill it
         KisPaintDeviceSP filled = device()->createCompositionSourceDevice();
         Q_CHECK_PTR(filled);
         KisFillPainter painter(filled);
@@ -278,7 +264,6 @@ void KisFillPainter::fillPattern(int startX, int startY, KisPaintDeviceSP source
 {
     genericFillStart(startX, startY, sourceDevice);
 
-    // Now create a layer and fill it
     KisPaintDeviceSP filled = device()->createCompositionSourceDevice();
     Q_CHECK_PTR(filled);
     KisFillPainter painter(filled);
@@ -292,8 +277,6 @@ void KisFillPainter::genericFillStart(int startX, int startY, KisPaintDeviceSP s
 {
     Q_ASSERT(m_width > 0);
     Q_ASSERT(m_height > 0);
-
-    // Create a selection from the surrounding area
 
     KisPixelSelectionSP pixelSelection = createFloodSelection(startX, startY, sourceDevice,
                                                               (selection().isNull() ? 0 : selection()->pixelSelection()));
@@ -310,15 +293,6 @@ void KisFillPainter::genericFillEnd(KisPaintDeviceSP filled)
         return;
     }
 
-//  TODO: filling using the correct bound of the selection would be better, *but*
-//  the selection is limited to the exact bound of a layer, while in reality, we don't
-//  want that, since we want a transparent layer to be completely filled
-//     QRect rc = m_fillSelection->selectedExactRect();
-
-
-    /**
-     * Apply the real selection to a filled one
-     */
     KisSelectionSP realSelection = selection();
     QRect rc;
 
@@ -358,7 +332,6 @@ KisPixelSelectionSP KisFillPainter::createFloodSelection(KisPixelSelectionSP pix
         }
     }
     dbgImage << "Width: " << m_width << " Height: " << m_height;
-    // Otherwise the width and height should have been set
     Q_ASSERT(m_width > 0 && m_height > 0);
 
     QRect fillBoundsRect(0, 0, m_width, m_height);
@@ -401,8 +374,6 @@ KisPixelSelectionSP KisFillPainter::createFloodSelection(KisPixelSelectionSP pix
             KisShrinkSelectionFilter tiny(-m_sizemod, -m_sizemod, false);
             tiny.process(pixelSelection, pixelSelection->selectedRect());
         }
-        // Since the feathering already smooths the selection, the antiAlias
-        // is not applied if we must feather
         if (m_feather > 0) {
             KisFeatherSelectionFilter feathery(m_feather);
             feathery.process(pixelSelection, pixelSelection->selectedRect().adjusted(-m_feather, -m_feather, m_feather, m_feather));
@@ -637,8 +608,6 @@ QVector<KisStrokeJobData*> KisFillPainter::createSimilarColorsSelectionJobs(
                 updater->setProgress(33);
             }
 
-            // Since the feathering already smooths the selection, the antiAlias
-            // is not applied if we must feather
             if (feather > 0) {
                 KisFeatherSelectionFilter feathery(feather);
                 feathery.process(outSelection, outSelection->selectedRect().adjusted(-feather, -feather, feather, feather));

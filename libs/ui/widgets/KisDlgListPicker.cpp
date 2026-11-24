@@ -11,10 +11,9 @@
 
 #include <kstandardguiitem.h>
 
-
 struct KisDlgListPicker::Private
 {
-    
+
 };
 
 KisDlgListPicker::KisDlgListPicker(QString windowTitle, QString availableString, QString currentString,
@@ -49,7 +48,7 @@ KisDlgListPicker::KisDlgListPicker(QString windowTitle, QString availableString,
         i++;
     }
 
-    ui->lstAvailable->sortItems(); // sort alphabetically by name
+    ui->lstAvailable->sortItems();
 
     connect(ui->btnAdd, SIGNAL(clicked()), SLOT(slotMoveRight()));
     connect(ui->btnRemove, SIGNAL(clicked()), SLOT(slotMoveLeft()));

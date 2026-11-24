@@ -125,22 +125,16 @@ void KisToolInvocationAction::deactivate(int shortcut)
     Q_UNUSED(shortcut);
     if (!inputManager()) return;
 
-    // Revert UsingOtherColor
     if (d->isUsingOtherColor) {
         inputManager()->canvas()->resourceManager()->setUsingOtherColor(false);
     }
 
-    /**
-     * Activate call might have come before actual input manager or tool proxy
-     * was attached. So we may end up with null activatedToolProxy.
-     */
     if (d->activatedToolProxy) {
         d->activatedToolProxy->deactivateToolAction(KisTool::Primary);
         d->activatedToolProxy.clear();
     }
 
     if (shortcut != ActivateShortcut && shortcut != ConfirmShortcut && shortcut != CancelShortcut && shortcut != ActivateWithOtherColorShortcut && !d->deactivating) {
-        // Switching tool will force deactivation and will re-enter
         d->deactivating = true;
         KoToolManager::instance()->switchBackRequested();
         d->deactivating = false;
@@ -171,30 +165,11 @@ void KisToolInvocationAction::begin(int shortcut, QEvent *event)
         QKeyEvent releaseEvent(QEvent::KeyRelease, Qt::Key_Return, QFlags<Qt::KeyboardModifier>());
         inputManager()->toolProxy()->keyReleaseEvent(&releaseEvent);
 
-        /**
-         * All the tools now have a KisTool::requestStrokeEnd() method,
-         * so they should use this instead of direct filtering Enter key
-         * press. Until all the tools support it, we just duplicate the
-         * key event and the method call
-         */
         inputManager()->canvas()->image()->requestStrokeEnd();
 
-        /**
-         * Some tools would like to distinguish automated requestStrokeEnd()
-         * calls from explicit user actions. Just let them do it!
-         *
-         * Please note that this call should happen **after**
-         * requestStrokeEnd(). Some of the tools will switch to another
-         * tool on this request, and this (next) tool does not expect to
-         * get requestStrokeEnd() right after switching in.
-         */
         inputManager()->toolProxy()->explicitUserStrokeEndRequest();
 
     } else if (shortcut == CancelShortcut) {
-        /**
-         * The tools now have a KisTool::requestStrokeCancellation() method,
-         * so just request it.
-         */
 
         inputManager()->canvas()->image()->requestStrokeCancellation();
     }
@@ -203,8 +178,6 @@ void KisToolInvocationAction::begin(int shortcut, QEvent *event)
 void KisToolInvocationAction::end(QEvent *event)
 {
     if (d->active) {
-        // It might happen that the action is still running, while the
-        // canvas has been removed, which kills the toolProxy.
         KIS_SAFE_ASSERT_RECOVER_NOOP(d->runningToolProxy);
         if (d->runningToolProxy) {
             d->runningToolProxy->
@@ -247,8 +220,6 @@ bool KisToolInvocationAction::supportsHiResInputEvents(int shortcut) const
 
 bool KisToolInvocationAction::isShortcutRequired(int shortcut) const
 {
-    // These three shortcuts are pretty important for basic user interaction,
-    // so they should always exist.
     return (shortcut == ActivateShortcut || shortcut == ConfirmShortcut || shortcut == CancelShortcut);
 }
 

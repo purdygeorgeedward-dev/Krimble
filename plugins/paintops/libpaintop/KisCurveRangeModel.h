@@ -52,4 +52,4 @@ private:
     lager::constant<QString> m_yValueSuffix;
 };
 
-#endif // KISCURVERANGEMODEL_H
+#endif

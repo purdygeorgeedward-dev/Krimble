@@ -83,7 +83,6 @@ bool KisTiledDataManagerTest::checkTilesNotShared(KisTiledDataManager *srcDM,
 
 void KisTiledDataManagerTest::testUndoingNewTiles()
 {
-    // "growing extent bug"
 
     const QRect nullRect;
 
@@ -117,8 +116,6 @@ void KisTiledDataManagerTest::testPurgedAndEmptyTransactions()
 
     quint8 *buffer = new quint8[rect.width()*rect.height()];
 
-    // purged transaction
-
     KisMementoSP memento0 = srcDM.getMemento();
     srcDM.clear(clearRect1, &oddPixel1);
     srcDM.purgeHistory(memento0);
@@ -127,8 +124,6 @@ void KisTiledDataManagerTest::testPurgedAndEmptyTransactions()
     srcDM.readBytes(buffer, rect.x(), rect.y(), rect.width(), rect.height());
     QVERIFY(checkHole(buffer, oddPixel1, clearRect1,
                       defaultPixel, rect));
-
-    // one more purged transaction
 
     KisMementoSP memento1 = srcDM.getMemento();
     srcDM.clear(clearRect2, &oddPixel1);
@@ -144,8 +139,6 @@ void KisTiledDataManagerTest::testPurgedAndEmptyTransactions()
     QVERIFY(checkHole(buffer, oddPixel1, clearRect1 | clearRect2,
                       defaultPixel, rect));
 
-    // empty one
-
     KisMementoSP memento2 = srcDM.getMemento();
     srcDM.commit();
     srcDM.rollback(memento2);
@@ -153,9 +146,6 @@ void KisTiledDataManagerTest::testPurgedAndEmptyTransactions()
     srcDM.readBytes(buffer, rect.x(), rect.y(), rect.width(), rect.height());
     QVERIFY(checkHole(buffer, oddPixel1, clearRect1 | clearRect2,
                       defaultPixel, rect));
-
-
-    // now check that everything works still
 
     KisMementoSP memento3 = srcDM.getMemento();
     srcDM.setExtent(clearRect2);
@@ -170,7 +160,6 @@ void KisTiledDataManagerTest::testPurgedAndEmptyTransactions()
     srcDM.readBytes(buffer, rect.x(), rect.y(), rect.width(), rect.height());
     QVERIFY(checkHole(buffer, oddPixel1, clearRect1 | clearRect2,
                       defaultPixel, rect));
-
 
 }
 void KisTiledDataManagerTest::testUnversionedBitBlt()
@@ -200,7 +189,6 @@ void KisTiledDataManagerTest::testUnversionedBitBlt()
 
     delete[] buffer;
 
-    // Test whether tiles became shared
     QVERIFY(checkTilesShared(&srcDM, &dstDM, false, false, tilesRect));
 }
 
@@ -220,7 +208,6 @@ void KisTiledDataManagerTest::testVersionedBitBlt()
     QRect rect(0,0,512,512);
     QRect cloneRect(81,80,250,250);
     QRect tilesRect(2,2,3,3);
-
 
     KisMementoSP memento1 = srcDM1.getMemento();
     srcDM1.clear(rect, &oddPixel1);
@@ -324,10 +311,8 @@ void KisTiledDataManagerTest::testBitBltRough()
     QVERIFY(checkHole(buffer, oddPixel1, actualCloneRect,
                       oddPixel2, rect));
 
-    // Test whether tiles became shared
     QVERIFY(checkTilesShared(&srcDM, &dstDM, false, false, tilesRect));
 
-    // check bitBltRoughOldData
     KisMementoSP memento1 = srcDM.getMemento();
     srcDM.clear(rect, &oddPixel3);
     dstDM.bitBltRoughOldData(&srcDM, cloneRect);
@@ -351,7 +336,6 @@ void KisTiledDataManagerTest::testTransactions()
     KisTileSP tile00;
     KisTileSP oldTile00;
 
-    // Create a named transaction: versioning is enabled
     KisMementoSP memento1 = dm.getMemento();
     dm.clear(0, 0, 64, 64, &oddPixel1);
 
@@ -361,7 +345,6 @@ void KisTiledDataManagerTest::testTransactions()
     QVERIFY(memoryIsFilled(defaultPixel, oldTile00->data(), TILESIZE));
     tile00 = oldTile00 = 0;
 
-    // Create an anonymous transaction: versioning is disabled
     dm.commit();
     tile00 = dm.getTile(0, 0, false);
     oldTile00 = dm.getOldTile(0, 0);
@@ -371,14 +354,12 @@ void KisTiledDataManagerTest::testTransactions()
 
     dm.clear(0, 0, 64, 64, &oddPixel2);
 
-    // Versioning is disabled, i said! >:)
     tile00 = dm.getTile(0, 0, false);
     oldTile00 = dm.getOldTile(0, 0);
     QVERIFY(memoryIsFilled(oddPixel2, tile00->data(), TILESIZE));
     QVERIFY(memoryIsFilled(oddPixel2, oldTile00->data(), TILESIZE));
     tile00 = oldTile00 = 0;
 
-    // And the last round: named transaction:
     KisMementoSP memento2 = dm.getMemento();
     dm.clear(0, 0, 64, 64, &oddPixel3);
 
@@ -418,10 +399,6 @@ void KisTiledDataManagerTest::testPurgeHistory()
 
     dm.purgeHistory(memento1);
 
-    /**
-     * Nothing has changed in the visible state of the data manager
-     */
-
     tile00 = dm.getTile(0, 0, false);
     oldTile00 = dm.getOldTile(0, 0);
     QVERIFY(memoryIsFilled(oddPixel2, tile00->data(), TILESIZE));
@@ -432,23 +409,11 @@ void KisTiledDataManagerTest::testPurgeHistory()
 
     dm.purgeHistory(memento2);
 
-    /**
-     * We've removed all the history of the device, so it
-     * became "unversioned".
-     * NOTE: the return value for getOldTile() when there is no
-     * history present is a subject for change
-     */
-
     tile00 = dm.getTile(0, 0, false);
     oldTile00 = dm.getOldTile(0, 0);
     QVERIFY(memoryIsFilled(oddPixel2, tile00->data(), TILESIZE));
     QVERIFY(memoryIsFilled(oddPixel2, oldTile00->data(), TILESIZE));
     tile00 = oldTile00 = 0;
-
-    /**
-     * Just test we won't crash when the memento is not
-     * present in history anymore
-     */
 
     KisMementoSP memento3 = dm.getMemento();
     dm.clear(0, 0, 64, 64, &oddPixel3);
@@ -529,20 +494,12 @@ void KisTiledDataManagerTest::testUndoSetDefaultPixel()
     QVERIFY(memoryIsFilled(oddPixel2, tile10->data(), TILESIZE));
 }
 
-//#include <valgrind/callgrind.h>
-
 void KisTiledDataManagerTest::benchmarkReadOnlyTileLazy()
 {
     quint8 defaultPixel = 0;
     KisTiledDataManager dm(1, &defaultPixel);
 
-    /*
-     * See KisTileHashTableTraits2 for more details
-     */
-
     const qint32 numTilesToTest = 0x7fff;
-
-    //CALLGRIND_START_INSTRUMENTATION;
 
     QBENCHMARK_ONCE {
         for(qint32 i = 0; i < numTilesToTest; i++) {
@@ -550,7 +507,6 @@ void KisTiledDataManagerTest::benchmarkReadOnlyTileLazy()
         }
     }
 
-    //CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 class KisSimpleClass : public KisShared
@@ -567,8 +523,6 @@ void KisTiledDataManagerTest::benchmarkSharedPointers()
 {
     const qint32 numIterations = 2 * 1000000;
 
-    //CALLGRIND_START_INSTRUMENTATION;
-
     QBENCHMARK_ONCE {
         for(qint32 i = 0; i < numIterations; i++) {
             KisSimpleClassSP pointer = new KisSimpleClass;
@@ -576,7 +530,6 @@ void KisTiledDataManagerTest::benchmarkSharedPointers()
         }
     }
 
-    //CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 void KisTiledDataManagerTest::benchmarkCOWImpl()
@@ -587,13 +540,8 @@ void KisTiledDataManagerTest::benchmarkCOWImpl()
 
     KisTiledDataManager dm(pixelSize, defaultPixel);
 
-
     KisMementoSP memento1 = dm.getMemento();
 
-    /**
-     * Imagine a regular image of 4096x2048 pixels
-     * (64x32 tiles)
-     */
     for (int i = 0; i < 32; i++) {
         for (int j = 0; j < 64; j++) {
             KisTileSP tile = dm.getTile(j, i, true);
@@ -638,8 +586,6 @@ void KisTiledDataManagerTest::benchmarkCOWWithPooler()
     benchmarkCOWImpl();
 }
 
-/******************* Stress job ***********************/
-
 #ifdef LIMIT_LONG_TESTS
 #define NUM_CYCLES 10000
 #else
@@ -650,23 +596,8 @@ void KisTiledDataManagerTest::benchmarkCOWWithPooler()
 
 #define TILE_DIMENSION 64
 
-
-/**
- * The data manager has partial guarantees of reentrancy. That is
- * you can call any arbitrary number of methods concurrently as long
- * as their access areas do not intersect.
- *
- * Though the rule can be quite tricky -- some of the methods always
- * use entire image as their access area, so they cannot be called
- * concurrently in any circumstances.
- * The examples are: clear(), commit(), rollback() and etc...
- */
-
 #define run_exclusive(lock, _i) for(_i = 0, (lock).lockForWrite(); _i < 1; _i++, (lock).unlock())
 #define run_concurrent(lock, _i) for(_i = 0, (lock).lockForRead(); _i < 1; _i++, (lock).unlock())
-//#define run_exclusive(lock, _i) while(0)
-//#define run_concurrent(lock, _i) while(0)
-
 
 class KisStressJob : public QRunnable
 {
@@ -825,7 +756,6 @@ void applyToRect(const QRect &rc, Func func) {
     }
 }
 
-
 class LazyCopyingStressJob : public QRunnable
 {
 public:
@@ -847,14 +777,13 @@ public:
     void run() override {
         for(qint32 i = 0; i < m_numCycles; i++) {
 
-            //const int epoch = i % 100;
             int t;
 
             if (m_isWriter && 0) {
 
             } else {
-                const bool shouldClear = i % 5 <= 1; // 40% of requests are clears
-                const bool shouldWrite = i % 5 <= 3; // other 40% of requests are writes
+                const bool shouldClear = i % 5 <= 1;
+                const bool shouldWrite = i % 5 <= 3;
 
                 run_concurrent(m_dmExclusiveLock, t) {
                     if (shouldClear) {
@@ -961,7 +890,6 @@ void KisTiledDataManagerTest::stressTestExtentsColumn()
         bool m_isCreated = false;
     };
 
-
 #ifdef LIMIT_LONG_TESTS
     const int numThreads = 8;
     const int numWorkers = 32;
@@ -982,7 +910,7 @@ void KisTiledDataManagerTest::stressTestExtentsColumn()
     pool.waitForDone();
 
     QVERIFY(column.isEmpty());
-    QVERIFY(column.max() < column.min()); // really empty :)
+    QVERIFY(column.max() < column.min());
 }
 
 void KisTiledDataManagerTest::benchmarkQRegion()
@@ -1073,7 +1001,6 @@ void KisTiledDataManagerTest::benchmarkOverlappedKisRegion()
     timer.start();
 
 #if 0
-    // speed reference: executes for about 150 seconds! (150000ms)
     QRegion region;
     Q_FOREACH (const QRect &rc, rects) {
         region += rc;
@@ -1096,10 +1023,7 @@ void KisTiledDataManagerTest::benchmarkOverlappedKisRegion()
         }
     }
 
-
 #if 0
-    /// very slow sanity check for invariant: "all source rects are
-    /// represented in the deoverlapped set of rects"
 
     QVector<QRect> compressedRects = region.rects();
     int i = 0;

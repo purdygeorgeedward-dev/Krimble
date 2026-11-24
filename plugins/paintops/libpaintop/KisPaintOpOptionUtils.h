@@ -19,4 +19,4 @@ T loadOptionData(const KisPropertiesConfiguration *setting)
 }
 }
 
-#endif // KISPAINTOPOPTIONUTILS_H
+#endif

@@ -33,4 +33,4 @@ private:
     QObject *m_requestedBy;
 };
 
-#endif // KISMOVEBOUNDSCALCULATIONJOB_H
+#endif

@@ -44,4 +44,4 @@ class KoZoomInput : public QStackedWidget
         Private* const d;
 };
 
-#endif //KOZOOMINPUT_H
+#endif

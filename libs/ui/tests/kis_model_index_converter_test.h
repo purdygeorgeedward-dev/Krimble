@@ -15,7 +15,6 @@ class KisDummiesFacadeBase;
 class KisNodeModel;
 class KisModelIndexConverterBase;
 
-
 class KisModelIndexConverterTest : public QObject, public TestUtil::EmptyNodesTest
 {
     Q_OBJECT
@@ -59,4 +58,4 @@ private:
     KisModelIndexConverterBase *m_indexConverter;
 };
 
-#endif /* __KIS_MODEL_INDEX_CONVERTER_TEST_H */
+#endif

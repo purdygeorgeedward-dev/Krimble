@@ -19,4 +19,4 @@ private Q_SLOTS:
     void hangingTilesTest();
 };
 
-#endif /* __KIS_LOW_MEMORY_TESTS_H */
+#endif

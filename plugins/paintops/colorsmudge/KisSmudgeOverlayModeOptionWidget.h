@@ -29,4 +29,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSMUDGEOVERLAYMODEOPTIONWIDGET_H
+#endif

@@ -11,7 +11,6 @@
 
 #include "kis_transform_strategy_base.h"
 
-
 class KoPointerEvent;
 class KisCoordinatesConverter;
 class KoSnapGuide;
@@ -57,4 +56,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_SIMPLIFIED_ACTION_POLICY_STRATEGY_H */
+#endif

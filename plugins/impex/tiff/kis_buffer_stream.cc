@@ -73,7 +73,7 @@ uint32_t KisBufferStreamContigBelow16::nextValue()
         value = (value << toread) | (((*m_srcIt) >> (m_posinc)) & ((1 << toread) - 1));
         if (m_posinc == 0) {
             m_srcIt++;
-            m_lineOffset++; // we consumed a byte
+            m_lineOffset++;
             m_posinc = 8;
         }
     }
@@ -96,7 +96,7 @@ uint32_t KisBufferStreamContigBelow32::nextValue()
         value = (value) | ((((*m_srcIt) >> (m_posinc)) & ((1 << toread) - 1U)) << (m_depth - 8U - remain));
         if (m_posinc == 0) {
             m_srcIt++;
-            m_lineOffset++; // we consumed a byte
+            m_lineOffset++;
             m_posinc = 8U;
         }
     }
@@ -122,7 +122,7 @@ uint32_t KisBufferStreamContigAbove32::nextValue()
         }
         if (m_posinc == 0) {
             m_srcIt++;
-            m_lineOffset++; // we consumed a byte
+            m_lineOffset++;
             m_posinc = 8U;
         }
     }
@@ -229,21 +229,14 @@ uint32_t KisBufferStreamInterleaveUpsample::nextValue()
         m_current_sample++;
         if (m_current_sample % m_hsubsample == 0) {
             if (m_current_sample >= m_hsubsample * m_vsubsample) {
-                // Fix up the position of the luminance plane
-                // If it's already 0, the cursor has already looped (correctly)
-                // to the next line
                 if (streams[m_currentPlane]->x() != 0) {
                     streams[m_currentPlane]->moveToPos(
                         streams[m_currentPlane]->x(),
                         streams[m_currentPlane]->y() - m_vsubsample + 1);
                 }
-                // Move to Cb/Cr
                 m_currentPlane += 1;
                 m_current_sample = 0;
             } else {
-                // Go to next line
-                // If the position is already 0, we need to correct the row
-                // AND column
                 if (streams[m_currentPlane]->x() != 0) {
                     streams[m_currentPlane]->moveToPos(
                         streams[m_currentPlane]->x() - m_hsubsample,
@@ -265,7 +258,6 @@ uint32_t KisBufferStreamInterleaveUpsample::nextValue()
 
 void KisBufferStreamInterleaveUpsample::moveToPos(tsize_t x, tsize_t y)
 {
-    // Needs to subsample
     for (uint16_t i = 0; i < m_nb_samples; i++) {
         const tsize_t realX = i == 0 ? x : x / m_hsubsample;
         const tsize_t realY = i == 0 ? y : y / m_vsubsample;

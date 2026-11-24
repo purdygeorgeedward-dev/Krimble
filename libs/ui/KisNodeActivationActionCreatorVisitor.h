@@ -92,4 +92,4 @@ private:
 
 };
 
-#endif // KISNODEACTIVATIONACTIONCREATORVISITOR_H
+#endif

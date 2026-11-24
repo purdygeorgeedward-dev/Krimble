@@ -8,10 +8,9 @@
 
 #include <KisCurveOptionData.h>
 
-
 struct KisSmudgeRadiusOptionData : KisCurveOptionData
 {
     KisSmudgeRadiusOptionData();
 };
 
-#endif // KISSMUDGERADIUSOPTIONDATA_H
+#endif

@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #ifndef KIS_COLOR_SELECTOR_NG_DOCKER_WIDGET_H
 #define KIS_COLOR_SELECTOR_NG_DOCKER_WIDGET_H
 
@@ -55,8 +54,8 @@ private:
     QHBoxLayout* m_horizontalPatchesContainer;
     QVBoxLayout* m_sidebarLayout;
 
-    QHBoxLayout* m_verticalColorPatchesLayout; // vertical color patches should be added here
-    QVBoxLayout* m_horizontalColorPatchesLayout;//horizontal ----------"----------------------
+    QHBoxLayout* m_verticalColorPatchesLayout;
+    QVBoxLayout* m_horizontalColorPatchesLayout;
     QToolButton* m_fallbackSettingsButton;
 
     QPointer<KisCanvas2> m_canvas;

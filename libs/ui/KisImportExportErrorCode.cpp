@@ -8,19 +8,13 @@
 #include <KLocalizedString>
 #include <kis_assert.h>
 
-
-
 KisImportExportComplexError::KisImportExportComplexError(QFileDevice::FileError error) : m_error(error) { }
-
 
 QString KisImportExportComplexError::qtErrorMessage() const
 {
-    // Error descriptions in most cases taken from https://doc.qt.io/qt-5/qfiledevice.html
     QString unspecifiedError = i18n("An unspecified error occurred.");
     switch (m_error) {
         case QFileDevice::FileError::NoError :
-            // Returning this file error may mean that something is wrong in our code.
-            // Successful operation should return ImportExportCodes::OK instead.
             return i18n("The action has been completed successfully.");
         case QFileDevice::FileError::ReadError :
             return i18n("An error occurred when reading from the file.");
@@ -86,10 +80,6 @@ bool KisImportExportErrorCannotWrite::operator==(KisImportExportErrorCannotWrite
     return other.m_error == m_error;
 }
 
-
-
-
-
 KisImportExportErrorCode::KisImportExportErrorCode()
     : errorFieldUsed(None)
     , cannotRead()
@@ -127,7 +117,6 @@ KisImportExportErrorCode::KisImportExportErrorCode(const QString &message)
 
 bool KisImportExportErrorCode::isOk() const
 {
-    // if cannotRead or cannotWrite is "NoError", it means that something is wrong in our code
     return errorFieldUsed == CodeId && codeId == ImportExportCodes::OK;
 }
 
@@ -150,7 +139,6 @@ QString KisImportExportErrorCode::errorMessage() const
         return cannotWrite.errorMessage();
     } else if (errorFieldUsed == CodeId) {
         switch (codeId) {
-            // Reading
             case ImportExportCodes::FileNotExist:
                 return i18n("The file doesn't exist.");
             case ImportExportCodes::NoAccessToRead:
@@ -164,7 +152,6 @@ QString KisImportExportErrorCode::errorMessage() const
             case ImportExportCodes::ErrorWhileReading:
                 return i18n("Error occurred while reading from the file.");
 
-            // Writing
             case ImportExportCodes::CannotCreateFile:
                 return i18n("The file cannot be created.");
             case ImportExportCodes::NoAccessToWrite:
@@ -176,18 +163,15 @@ QString KisImportExportErrorCode::errorMessage() const
             case ImportExportCodes::FileFormatNotSupported:
                 return i18n("Krimble does not support this file format.");
 
-            // Both
             case ImportExportCodes::Cancelled:
                 return i18n("The action was cancelled by the user.");
 
-            // Other
             case ImportExportCodes::Failure:
                 return failureMessage.isEmpty() ? i18n("Unknown error.") : failureMessage;
             case ImportExportCodes::InternalError:
                 return internal;
             case ImportExportCodes::Busy:
                 return i18n("Image is busy.");
-            // OK
             case ImportExportCodes::OK:
                 return i18n("The action has been completed successfully.");
             default:
@@ -195,10 +179,8 @@ QString KisImportExportErrorCode::errorMessage() const
 
         }
     }
-    return internal; // errorFieldUsed = None
+    return internal;
 }
-
-
 
 bool KisImportExportErrorCode::operator==(KisImportExportErrorCode errorCode)
 {

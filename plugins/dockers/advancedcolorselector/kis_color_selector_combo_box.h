@@ -22,7 +22,6 @@ public:
     void hidePopup() override;
     void showPopup() override;
     KisColorSelectorConfiguration configuration() const;
-    //int m_model;
 protected:
     void paintEvent(QPaintEvent *e) override;
 public Q_SLOTS:

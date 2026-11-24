@@ -10,14 +10,10 @@
 
 #include <QObject>
 
-
 #include "kis_types.h"
 #include <KisImportExportErrorCode.h>
 
-
-// max number of pixels in one dimension of psd file
 extern const int MAX_PSD_SIZE;
-
 
 class KisDocument;
 

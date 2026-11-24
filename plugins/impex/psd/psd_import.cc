@@ -22,7 +22,7 @@ psdImport::~psdImport()
 {
 }
 
-KisImportExportErrorCode psdImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode psdImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     PSDLoader ib(document, importUserFeedBackInterface());
     KisImportExportErrorCode result = ib.buildImage(*io);

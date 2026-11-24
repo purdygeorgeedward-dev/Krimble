@@ -36,4 +36,4 @@ inline KisSensorPackInterface* QSharedDataPointer<KisSensorPackInterface>::clone
     return d->clone();
 }
 
-#endif // KISSENSORPACKINTERFACE_H
+#endif

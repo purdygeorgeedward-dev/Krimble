@@ -43,7 +43,6 @@ void processEvent(NSEvent *event)
     if (eventType == NSEventTypeKeyDown || eventType == NSEventTypeKeyUp) {
         unsigned short keyCode = [event keyCode];
 
-        // virtual kbd codes
         if(keyCode == 49) {
             extendedMods.setFlag(ExtendedModifiers::Space, (eventType == NSEventTypeKeyDown));
         } else if (keyCode == 15) {

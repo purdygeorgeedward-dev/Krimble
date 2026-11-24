@@ -39,12 +39,12 @@ void KisMirrorManager::setup(KisKActionCollection * collection)
     m_mirrorCanvas->setIcon(KisIconUtils::loadIcon("mirror-view"));
     collection->addAction("mirror_canvas", m_mirrorCanvas);
     collection->setDefaultShortcut(m_mirrorCanvas, QKeySequence(Qt::Key_M));
-    
+
     m_mirrorCanvasAroundCursor = new KToggleAction(i18n("Mirror View Around Cursor"), this);
     m_mirrorCanvasAroundCursor->setChecked(false);
     m_mirrorCanvasAroundCursor->setIcon(KisIconUtils::loadIcon("mirror-view-around-cursor"));
     collection->addAction("mirror_canvas_around_cursor", m_mirrorCanvasAroundCursor);
-    
+
     m_mirrorCanvasAroundCanvas = new KToggleAction(i18n("Mirror View Around Canvas"), this);
     m_mirrorCanvasAroundCanvas->setChecked(false);
     m_mirrorCanvasAroundCanvas->setIcon(KisIconUtils::loadIcon("mirror-view"));

@@ -32,12 +32,10 @@ bool KisParticlePaintOpSettings::paintIncremental()
     return data.paintingMode == enumPaintingMode::BUILDUP;
 }
 
-
 #include <brushengine/kis_slider_based_paintop_property.h>
 #include "kis_paintop_preset.h"
 #include "KisPaintOpPresetUpdateProxy.h"
 #include "kis_standard_uniform_properties_factory.h"
-
 
 QList<KisUniformPaintOpPropertySP> KisParticlePaintOpSettings::uniformProperties(KisPaintOpSettingsSP settings, QPointer<KisPaintOpPresetUpdateProxy> updateProxy)
 {

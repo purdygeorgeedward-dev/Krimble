@@ -68,7 +68,6 @@ PageBundleSaver::PageBundleSaver(KoResourceBundleSP bundle, QWidget *parent) :
 
         m_ui->lblDetails->setText(m_ui->lblDetails->text() + m_tags);
 
-
     } else {
         KisConfig cfg(true);
         m_ui->lblSaveLocation->setText(cfg.readEntry<QString>("BundleExportLocation", QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)));
@@ -105,7 +104,6 @@ void PageBundleSaver::showWarning()
 void PageBundleSaver::onCountUpdated()
 {
     DlgCreateBundle *wizard = qobject_cast<DlgCreateBundle*>(this->wizard());
-    // QString bundleDetails;
     m_resourceCount = "";
     QMap<QString, int> map = wizard->m_count;
     bool resPresent = false;

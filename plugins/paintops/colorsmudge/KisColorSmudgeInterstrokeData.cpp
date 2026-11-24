@@ -42,7 +42,6 @@ KUndo2Command *KisColorSmudgeInterstrokeData::endTransaction()
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(m_parentCommand, 0);
 
-    // the internal undo commands are owned by m_parentCommand
     (void) m_heightmapDeviceTransaction->endAndTake();
     (void) overlayDeviceWrapper.endTransaction();
 

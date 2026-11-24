@@ -26,9 +26,9 @@ namespace KisSpinBoxI18nHelper
             {}
         };
 
-    } /* namespace */
+    }
 
-} /* namespace KisSpinBoxI18nHelper */
+}
 
 Q_DECLARE_METATYPE(KisSpinBoxI18nHelper::HandlerWrapper)
 
@@ -39,7 +39,6 @@ namespace KisSpinBoxI18nHelper
         const auto changeHandler = [messageFn, spinBox](int value) {
             setText(spinBox, messageFn(value));
         };
-        // Apply prefix/suffix with existing value immediately.
         changeHandler(spinBox->value());
         QObject::connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged), changeHandler);
         spinBox->setProperty(HANDLER_PROPERTY_NAME, QVariant::fromValue(HandlerWrapper(changeHandler)));
@@ -87,4 +86,4 @@ namespace KisSpinBoxI18nHelper
         setTextGeneric(spinBox, textTemplate);
     }
 
-} /* namespace KisSpinBoxI18nHelper */
+}

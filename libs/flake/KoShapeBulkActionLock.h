@@ -68,4 +68,4 @@ public:
     static void bulkShapesUpdate(const UpdatesList &updates);
 };
 
-#endif /* KOSHAPEBULKACTIONLOCK_H */
+#endif

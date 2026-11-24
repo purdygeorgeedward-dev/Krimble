@@ -62,4 +62,4 @@ private:
     bool m_isReady {false};
 };
 
-#endif /* KISWAYLANDAPICOLORMANAGER_H */
+#endif

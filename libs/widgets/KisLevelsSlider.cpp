@@ -77,7 +77,7 @@ void KisLevelsSlider::setHandleColor(int handleIndex, const QColor &newColor)
     }
 
     m_handles[handleIndex].color = newColor;
-    
+
     update();
     Q_EMIT handleColorChanged(handleIndex, newColor);
 }
@@ -215,16 +215,13 @@ void KisLevelsSlider::paintEvent(QPaintEvent *e)
 
     QPainter painter(this);
     const QRect gradientRect_ = gradientRect();
-    // Gradient
     painter.save();
     paintGradient(painter, gradientRect_);
     painter.restore();
-    // Border
     QColor borderColor = palette().text().color();
     borderColor.setAlpha(64);
     painter.setPen(borderColor);
     painter.drawRect(gradientRect_.adjusted(0, 0, -1, -1));
-    // Handles
     const QVector<Handle> sortedHandles_ = sortedHandles();
     const int halfHandleWidth = handleWidth / 2;
     painter.save();
@@ -314,7 +311,6 @@ void KisLevelsSlider::wheelEvent(QWheelEvent *e)
         QWidget::wheelEvent(e);
     }
 }
-
 
 KisInputLevelsSlider::KisInputLevelsSlider(QWidget *parent)
     : KisLevelsSlider(parent)
@@ -420,7 +416,6 @@ void KisInputLevelsSlider::paintGradient(QPainter &painter, const QRect &rect)
     QImage gradientImage(rect.width(), 1, QImage::Format_ARGB32);
     const int halfGradientHeight = rect.height() / 2;
 
-    // Top gradient
     {
         QRgb *pixel = reinterpret_cast<QRgb*>(gradientImage.bits());
         for (int x = 0; x < gradientImage.width(); ++x, ++pixel) {
@@ -430,7 +425,6 @@ void KisInputLevelsSlider::paintGradient(QPainter &painter, const QRect &rect)
     }
     painter.drawImage(rect.adjusted(0, 0, 0, -(halfGradientHeight + (rect.height() & 1 ? 1 : 0))), gradientImage);
 
-    // Bottom gradient
     QVector<Handle> sortedHandles_ = sortedHandles();
     {
         const int endPos = static_cast<int>(qRound(sortedHandles_.first().position * static_cast<qreal>(gradientImage.width() - 1)) + 1);
@@ -449,7 +443,6 @@ void KisInputLevelsSlider::paintGradient(QPainter &painter, const QRect &rect)
     }
     painter.drawImage(rect.adjusted(0, halfGradientHeight, 0, 0), gradientImage);
 }
-
 
 KisInputLevelsSliderWithGamma::KisInputLevelsSliderWithGamma(QWidget *parent)
     : KisInputLevelsSlider(parent)
@@ -551,10 +544,6 @@ qreal KisInputLevelsSliderWithGamma::gammaToPosition() const
 {
     qreal relativePosition;
     const qreal log1_2 = std::log(0.5);
-    // the function would be "relativePosition = exp(gamma * ln(1/2)" but since
-    // we want to limit the gamma from 0.1 to 10 we map the gamma
-    // in a way such that "exp(max_gamma * ln(1/2)) = 1" and
-    // "exp(min_gamma * ln(1/2)) = 0"
     if (m_gamma > 1.0) {
         const qreal mappedPosition = std::exp(10.0 * log1_2);
         relativePosition = (std::exp(m_gamma * log1_2) - mappedPosition) / (1.0 - mappedPosition * 2.0);
@@ -569,10 +558,6 @@ qreal KisInputLevelsSliderWithGamma::positionToGamma() const
 {
     const qreal relativePosition = (handlePosition(1) - blackPoint()) / (whitePoint() - blackPoint());
     const qreal log1_2 = std::log(0.5);
-    // the function would be "gamma = ln(relativePosition) / ln(1/2)" but since
-    // we want to limit the gamma from 0.1 to 10 we map the relative position
-    // in a way such that "ln(min_relativePosition) / ln(1/2) = 10" and
-    // "ln(max_relativePosition) / ln(1/2) = 0.1"
     if (relativePosition < 0.5) {
         const qreal mappedPosition = std::exp(10.0 * log1_2);
         return std::log(mappedPosition + relativePosition - relativePosition * mappedPosition * 2.0) / log1_2;
@@ -582,7 +567,6 @@ qreal KisInputLevelsSliderWithGamma::positionToGamma() const
     }
 }
 
-
 KisOutputLevelsSlider::KisOutputLevelsSlider(QWidget *parent)
     : KisInputLevelsSlider(parent)
 {
@@ -591,7 +575,6 @@ KisOutputLevelsSlider::KisOutputLevelsSlider(QWidget *parent)
 
 KisOutputLevelsSlider::~KisOutputLevelsSlider()
 {}
-
 
 KisThresholdSlider::KisThresholdSlider(QWidget *parent)
     : KisInputLevelsSlider(parent)

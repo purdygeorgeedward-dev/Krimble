@@ -39,19 +39,14 @@ void KisCategorizedItemDelegate::paint(QPainter* painter, const QStyleOptionView
             const int iconSize = qMax(16, m_minimumItemHeight - 2);
             bool locked = index.data(__CategorizedListModelBase::isLockedRole).toBool();
 
-
             QIcon icon = locked ? KisIconUtils::loadIcon(koIconName("layer-locked")) : KisIconUtils::loadIcon(koIconName("layer-unlocked"));
 
-            // to be able to make an icon more transparent. we need to create a new image
-            // and use the QPainter to make a more transparent version of it.
             QImage image(iconSize, iconSize, QImage::Format_ARGB32_Premultiplied);
-            image.fill(Qt::transparent); // needs to happen, otherwise 'junk' pixels are used (looks bad)
+            image.fill(Qt::transparent);
 
             QPainter p(&image);
             p.setCompositionMode(QPainter::CompositionMode_Source);
 
-
-            // make unlocked icons more hidden
             if (locked) {
                 p.setOpacity(1.0);
             } else {
@@ -61,9 +56,7 @@ void KisCategorizedItemDelegate::paint(QPainter* painter, const QStyleOptionView
             p.drawPixmap(0, 0, icon.pixmap(iconSize, QIcon::Normal) );
             p.end();
 
-            icon = QIcon( QPixmap::fromImage(image) ); // the new icon is ready
-
-
+            icon = QIcon( QPixmap::fromImage(image) );
 
             sovi.decorationPosition = QStyleOptionViewItem::Right;
             sovi.decorationAlignment = Qt::AlignRight;
@@ -99,16 +92,11 @@ void KisCategorizedItemDelegate::paint(QPainter* painter, const QStyleOptionView
 
 QSize KisCategorizedItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    //on first calling this calculates the minimal height of the items
     if (m_minimumItemHeight == 0) {
         for(int i=0; i<index.model()->rowCount(); i++) {
             QSize indexSize = QStyledItemDelegate::sizeHint(option, index.model()->index(i, 0));
             m_minimumItemHeight = qMax(m_minimumItemHeight, indexSize.height());
 
-            /**
-             * Make all the items, including the ones having
-             * checkboxes look the same.
-             */
             QStyle *style = QApplication::style();
             QStyleOptionButton so;
             QSize size = style->sizeFromContents(QStyle::CT_CheckBox, &so, QSize(), 0);

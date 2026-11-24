@@ -67,9 +67,6 @@ protected:
 
     virtual void requestUpdateOutline(const QPointF &outlineDocPoint, const KoPointerEvent *event);
 
-    /** If the paint tool support outline like brushes, set to true.
-    *   If not (e.g. gradient tool), set to false. Default is false.
-    */
     void setSupportOutline(bool supportOutline) {
         m_supportOutline = supportOutline;
     }
@@ -86,10 +83,8 @@ protected:
 
     bool isEraser() const;
 
-    /// Add the tool-specific layout to the default option widget layout.
     void addOptionWidgetLayout(QLayout *layout);
 
-    /// Add a widget and a label to the current option widget layout.
     virtual void addOptionWidgetOption(QWidget *control, QWidget *label = nullptr);
 
     void showControl(QWidget *control, bool value);
@@ -97,9 +92,6 @@ protected:
 
     QWidget * createOptionWidget() override;
 
-    /**
-     * Quick help is a short help text about the way the tool functions.
-     */
     virtual QString quickHelp() const {
         return QString();
     }
@@ -142,10 +134,6 @@ private:
 
     bool m_supportOutline {false};
 
-    /**
-     * Used as a switch for sampleColor
-     */
-
     bool m_isOutlineEnabled;
     bool m_isOutlineVisible;
     KisToolUtils::StandardBrushSizes m_standardBrushSizes;
@@ -165,5 +153,5 @@ Q_SIGNALS:
     void sigPaintingFinished();
 };
 
-#endif // KIS_TOOL_PAINT_H_
+#endif
 

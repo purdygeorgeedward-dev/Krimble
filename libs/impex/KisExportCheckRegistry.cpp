@@ -38,46 +38,33 @@ KisExportCheckRegistry::KisExportCheckRegistry ()
 {
     KisExportCheckFactory *chkFactory = 0;
 
-    // Multilayer check
     chkFactory = new MultiLayerCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Multi transparency mask check
     chkFactory = new MultiTransparencyMaskCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Animation check
     chkFactory = new AnimationCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Compositions
     chkFactory = new CompositionsCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Layer styles
     chkFactory = new PSDLayerStyleCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Check the layers for the presence of exiv info: note this is also
-    // done for multilayer images even though jpeg, which supports exiv,
-    // only can handle one layer.
     chkFactory = new ExifCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Check for saving exiv info in multi layered images.
-    // This is specific to TIFF, which treats Exif as part of the file format itself.
     chkFactory = new TiffExifCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Check whether the image is sRGB
     chkFactory = new sRGBProfileCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Image size
     chkFactory = new ImageSizeCheckFactory();
     add(chkFactory->id(), chkFactory);
 
-    // Do all layer have the image colorspace
     chkFactory = new ColorModelHomogenousCheckFactory();
     add(chkFactory->id(), chkFactory);
 
@@ -95,17 +82,14 @@ KisExportCheckRegistry::KisExportCheckRegistry ()
             Q_ASSERT(!colorModelID.name().isEmpty());
             Q_ASSERT(!colorDepthID.name().isEmpty());
 
-            // Per layer color model/channel depth checks
             chkFactory = new ColorModelPerLayerCheckFactory(colorModelID, colorDepthID);
             add(chkFactory->id(), chkFactory);
 
-            // Image color model/channel depth checks
             chkFactory = new ColorModelCheckFactory(colorModelID, colorDepthID);
             add(chkFactory->id(), chkFactory);
         }
     }
 
-    // Node type checks
     chkFactory = new NodeTypeCheckFactory("KisCloneLayer", i18n("Clone Layer"));
     add(chkFactory->id(), chkFactory);
     chkFactory = new NodeTypeCheckFactory("KisGroupLayer", i18nc("A group of layers", "Group"));
@@ -129,13 +113,11 @@ KisExportCheckRegistry::KisExportCheckRegistry ()
     chkFactory = new NodeTypeCheckFactory("KisSelectionMask", i18n("Selection Mask"));
     add(chkFactory->id(), chkFactory);
 
-    // Fill layer/generator types.
     for (QString generatorId : KisGeneratorRegistry::instance()->keys()) {
         chkFactory = new FillLayerTypeCheckFactory(generatorId);
         add(chkFactory->id(), chkFactory);
     }
 
-    // Vector shapes
     chkFactory = new ShapeLayerTypeCheckFactory("KoPathShape");
     add(chkFactory->id(), chkFactory);
     chkFactory = new ShapeLayerTypeCheckFactory("KoPathShape", "RectangleShape");

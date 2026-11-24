@@ -23,7 +23,6 @@
 #include <kis_config.h>
 #include <kis_signals_blocker.h>
 
-
 #include "kis_icon_utils.h"
 
 struct KisInputConfigurationPage::Private {
@@ -63,7 +62,7 @@ KisInputConfigurationPage::KisInputConfigurationPage(QWidget *parent, Qt::Window
                 Qt::UniqueConnection);
     }
     checkForConflicts();
-    ui->configurationItemsArea->addStretch(20); // ensures listed input are on top
+    ui->configurationItemsArea->addStretch(20);
 
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(ui->scrollArea);
     if (scroller) {
@@ -86,7 +85,6 @@ void KisInputConfigurationPage::revertChanges()
 
 void KisInputConfigurationPage::checkForConflicts()
 {
-    // reset all of them first.
     Q_FOREACH (KisInputConfigurationPageItem *pageItem, m_d->actionInputConfigurationMap.values()) {
         pageItem->setWarningEnabled(false);
     }

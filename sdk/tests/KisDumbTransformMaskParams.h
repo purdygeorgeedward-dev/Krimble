@@ -10,7 +10,6 @@
 #include "kritatransformmaskstubs_export.h"
 #include "kis_transform_mask_params_interface.h"
 
-
 class QDomElement;
 
 class KRITATRANSFORMMASKSTUBS_EXPORT KisDumbTransformMaskParams : public KisTransformMaskParamsInterface
@@ -20,7 +19,6 @@ public:
     KisDumbTransformMaskParams(const QTransform &transform);
     KisDumbTransformMaskParams(bool isHidden);
     ~KisDumbTransformMaskParams() override;
-
 
     QTransform finalAffineTransform() const override;
     bool isAffine() const override;
@@ -36,7 +34,6 @@ public:
     void transformSrcAndDst(const QTransform &t) override;
     void translateDstSpace(const QPointF &offset) override;
 
-    // for testing purposes only
     QTransform testingGetTransform() const;
     void testingSetTransform(const QTransform &t);
 
@@ -55,4 +52,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISDUMBTRANSFORMMASKPARAMS_H
+#endif

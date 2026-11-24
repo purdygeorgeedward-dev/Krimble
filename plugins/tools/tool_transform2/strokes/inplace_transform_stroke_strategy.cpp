@@ -59,10 +59,8 @@
 #include "KisAnimAutoKey.h"
 #include "krita_utils.h"
 
-
 struct InplaceTransformStrokeStrategy::Private
 {
-    // initial conditions passed from the tool
     KisUpdatesFacade *updatesFacade;
     KisStrokeUndoFacade *undoFacade;
     ToolTransformArgs::TransformMode mode;
@@ -72,11 +70,10 @@ struct InplaceTransformStrokeStrategy::Private
     KisSelectionSP selection;
     KisPaintDeviceSP externalSource;
     KisNodeSP imageRoot;
-    int currentTime = -1; // NOTE: initialized asynchronously in initStrokeCallback!
+    int currentTime = -1;
     int previewLevelOfDetail = -1;
     bool forceLodMode = true;
 
-    // properties filled by initialization/transformation routines
     KisNodeList processedNodes;
     ToolTransformArgs initialTransformArgs;
     ToolTransformArgs currentTransformArgs;
@@ -115,20 +112,12 @@ struct InplaceTransformStrokeStrategy::Private
         return levelOfDetail > 0 ? prevDirtyPreviewRects : prevDirtyRects;
     }
 
-    // data for asynchronous updates
     boost::optional<ToolTransformArgs> pendingUpdateArgs;
     QElapsedTimer updateTimer;
     const int updateInterval = 30;
 
-    // temporary variable to share data between jobs at the initialization phase
     QVector<KisDecoratedNodeInterface*> disabledDecoratedNodes;
 
-    /**
-     * A special cookie-object, which blocks updates in transform mask
-     * modification commands until the stroke ends. As soon as the stroke
-     * ends, the object is destroyed and the transform mask modification
-     * commands start to behave normally.
-     */
     QSharedPointer<boost::none_t> commandUpdatesBlockerCookie;
 
     bool strokeCompletionHasBeenStarted = false;
@@ -138,7 +127,6 @@ struct InplaceTransformStrokeStrategy::Private
 
     bool convexHullHasBeenCalculated = false;
 };
-
 
 InplaceTransformStrokeStrategy::InplaceTransformStrokeStrategy(ToolTransformArgs::TransformMode mode,
                                                                const QString &filterId,
@@ -173,7 +161,6 @@ InplaceTransformStrokeStrategy::InplaceTransformStrokeStrategy(ToolTransformArgs
     }
     setMacroId(KisCommandUtils::TransformToolId);
 
-    // TODO: check if can be relaxed
     setNeedsExplicitCancel(true);
 }
 
@@ -188,9 +175,6 @@ void InplaceTransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
             m_d->pendingUpdateArgs = upd->args;
             tryPostUpdateJob(false);
         } else if (m_d->selection) {
-            // NOTE: selection is hidden during the transformation, so we
-            //       don't have to do any preview for that. We transform
-            //       that in one go in the end of the stroke.
 
             KisTransaction transaction(m_d->selection->pixelSelection());
 
@@ -260,7 +244,6 @@ void InplaceTransformStrokeStrategy::doCanvasUpdate(bool forceUpdate)
     KritaUtils::addJobBarrier(jobs, [this, args]() {
         m_d->currentTransformArgs = args;
         m_d->updateTimer.restart();
-        // sanity check that no job has been squeezed in between
         KIS_SAFE_ASSERT_RECOVER_RETURN(!m_d->pendingUpdateArgs);
     });
 
@@ -284,7 +267,6 @@ int InplaceTransformStrokeStrategy::calculatePreferredLevelOfDetail(const QRect 
 
 }
 
-
 void InplaceTransformStrokeStrategy::postProcessToplevelCommand(KUndo2Command *command)
 {
     KisTransformUtils::postProcessToplevelCommand(command,
@@ -299,8 +281,6 @@ void InplaceTransformStrokeStrategy::postProcessToplevelCommand(KUndo2Command *c
 
 QPolygon InplaceTransformStrokeStrategy::calculateConvexHull()
 {
-    // Best effort attempt to calculate the convex hull, mimicking the
-    // approach that computes srcRect in initStrokeCallback below
     KisPaintDeviceSP externalSource =
         m_d->externalSource ? m_d->externalSource :
         m_d->initialTransformArgs.externalSource() ?
@@ -317,17 +297,15 @@ QPolygon InplaceTransformStrokeStrategy::calculateConvexHull()
             if (node->inherits("KisGroupLayer")) continue;
 
             if (dynamic_cast<const KisTransformMask*>(node.data())) {
-                return QPolygon(); // Produce no convex hull if a KisTransformMask is present
+                return QPolygon();
             } else {
                 KisPaintDeviceSP device;
-                // Get the original device as per createCacheAndClearNode below
                 if (KisExternalLayer *extLayer = dynamic_cast<KisExternalLayer*>(node.data())) {
                     device = extLayer->projection();
                 } else {
                     device = node->paintDevice();
                 }
                 if (device) {
-                    // Use the original device to get the cached device containing the original image data
                     KisPaintDeviceSP toUse;
                     {
                         QMutexLocker l(&m_d->devicesCacheMutex);
@@ -337,17 +315,10 @@ QPolygon InplaceTransformStrokeStrategy::calculateConvexHull()
                             toUse = device;
                         }
                     }
-                    /* This sometimes does not agree with the original exactBounds
-                       because of colorspace changes between the original device
-                       and cached. E.g. When the defaultPixel changes as follows it
-                       triggers different behavior in calculateExactBounds:
-                       KoColor ("ALPHA", "Alpha":0) => KoColor ("GRAYA", "Gray":0, "Alpha":255) 
-                    */
                     const bool isConvertedSelection =
                         node->paintDevice() &&
                         node->paintDevice()->colorSpace()->colorModelId() == AlphaColorModelID &&
                         *toUse->colorSpace() == *node->paintDevice()->compositionSourceColorSpace();
-
 
                     QPolygon polygon = isConvertedSelection ?
                         KisConvexHull::findConvexHullSelectionLike(toUse) :
@@ -357,7 +328,6 @@ QPolygon InplaceTransformStrokeStrategy::calculateConvexHull()
 
                     numContributions += 1;
                 } else {
-                    // When can this happen?  Should it continue instead?
                     ENTER_FUNCTION() << "Bailing out, device was null" << ppVar(node);
                     return QPolygon();
                 }
@@ -369,7 +339,6 @@ QPolygon InplaceTransformStrokeStrategy::calculateConvexHull()
     }
     return QPolygon(points);
 }
-
 
 void InplaceTransformStrokeStrategy::initStrokeCallback()
 {
@@ -407,17 +376,11 @@ void InplaceTransformStrokeStrategy::initStrokeCallback()
         }
     }
 
-    // When placing an external source image, we never work recursively on any layer masks
     m_d->processedNodes = KisTransformUtils::fetchNodesList(m_d->mode, m_d->rootNodes, m_d->externalSource, m_d->selection);
 
     bool argsAreInitialized = false;
     QVector<KisStrokeJobData *> lastCommandUndoJobs;
 
-    // When externalSource is set, it means that we are initializing a new
-    // stroke following a newActivationWithExternalSource, thus we never try
-    // to reuse an existing transformation from the undo queue. However, when
-    // externalSource is not set, tryFetchArgsFromCommandAndUndo may still
-    // recover a previous stroke that referenced an external source.
     if (!m_d->forceReset && !m_d->externalSource) {
         if (KisTransformUtils::tryFetchArgsFromCommandAndUndo(&m_d->initialTransformArgs,
                                                               m_d->mode,
@@ -449,12 +412,6 @@ void InplaceTransformStrokeStrategy::initStrokeCallback()
 
     if (!lastCommandUndoJobs.isEmpty()) {
         KritaUtils::addJobBarrier(extraInitJobs, [this]() {
-            /**
-             * In case we are doing a continued action, we need to
-             * set initial update to the "very initial" state that
-             * was present before the previous stroke. So here we
-             * just override the rect calculated before
-             */
             KisBatchNodeUpdate updates;
 
             Q_FOREACH (KisNodeSP node, m_d->processedNodes) {
@@ -464,19 +421,11 @@ void InplaceTransformStrokeStrategy::initStrokeCallback()
             m_d->initialUpdatesBeforeClear = updates.compressed();
             *m_d->updateDataForUndo = m_d->initialUpdatesBeforeClear;
 
-            /**
-             * We need to make sure that the nodes will be successfully be
-             * transformed back in case the stroke will be finished before
-             * sigTransactionGenerated() signal is delivered.
-             */
             m_d->pendingUpdateArgs = m_d->initialTransformArgs;
         });
     }
 
     KritaUtils::addJobSequential(extraInitJobs, [this]() {
-        // When dealing with animated transform mask layers, create keyframe and save the command for undo.
-        // NOTE: for transform masks we create a keyframe no matter what the user
-        //       settings are
         Q_FOREACH (KisNodeSP node, m_d->processedNodes) {
             if (KisTransformMask* transformMask = dynamic_cast<KisTransformMask*>(node.data())) {
                 if (KisLazyCreateTransformMaskKeyframesCommand::maskHasAnimation(transformMask)) {
@@ -496,27 +445,17 @@ void InplaceTransformStrokeStrategy::initStrokeCallback()
     });
 
     KritaUtils::addJobSequential(extraInitJobs, [this]() {
-        /**
-          * We must request shape layers to rerender areas outside image bounds
-          */
         Q_FOREACH(KisNodeSP node, m_d->rootNodes) {
             KisLayerUtils::forceAllHiddenOriginalsUpdate(node);
         }
     });
 
     KritaUtils::addJobBarrier(extraInitJobs, [this]() {
-        /**
-          * We must ensure that the currently selected subtree
-          * has finished all its updates.
-          */
         Q_FOREACH(KisNodeSP node, m_d->rootNodes) {
             KisLayerUtils::forceAllDelayedNodesUpdate(node);
         }
     });
 
-    /// Disable all decorated nodes to generate outline
-    /// and preview correctly. We will enable them back
-    /// as soon as preview generation is finished.
     KritaUtils::addJobBarrier(extraInitJobs, [this]() {
         Q_FOREACH (KisNodeSP node, m_d->processedNodes) {
             KisDecoratedNodeInterface *decoratedNode = dynamic_cast<KisDecoratedNodeInterface*>(node.data());
@@ -538,15 +477,12 @@ void InplaceTransformStrokeStrategy::initStrokeCallback()
                 m_d->initialTransformArgs.externalSource() : 0;
 
         if (externalSource) {
-            // Start the transformation around the visible pixels of the external image
             srcRect = externalSource->exactBounds();
         } else if (m_d->selection) {
             srcRect = m_d->selection->selectedExactRect();
         } else {
             srcRect = QRect();
             Q_FOREACH (KisNodeSP node, m_d->processedNodes) {
-                // group layers may have a projection of layers
-                // that are locked and will not be transformed
                 if (node->inherits("KisGroupLayer")) continue;
 
                 if (const KisTransformMask *mask = dynamic_cast<const KisTransformMask*>(node.data())) {
@@ -556,16 +492,10 @@ void InplaceTransformStrokeStrategy::initStrokeCallback()
                 } else if (const KisTransparencyMask *mask = dynamic_cast<const KisTransparencyMask*>(node.data())) {
                     srcRect |= mask->selection()->selectedExactRect();
                 } else if (const KisFilterMask *mask = dynamic_cast<const KisFilterMask*>(node.data())) {
-                    /// Filter masks have special handling of transparency. Their filter
-                    /// may declare if they affect transparent pixels or not. In case of
-                    /// transformations we don't care about that, we should just transform
-                    /// non-default area of the mask.
                     if (mask->paintDevice()) {
                         srcRect |= mask->paintDevice()->nonDefaultPixelArea();
                     }
                 } else {
-                    /// We shouldn't include masks or layer styles into the handles rect,
-                    /// in the end, we process the paint device only
                     srcRect |= node->paintDevice() ? node->paintDevice()->exactBounds() : node->exactBounds();
                 }
             }
@@ -596,7 +526,6 @@ void InplaceTransformStrokeStrategy::initStrokeCallback()
         Q_EMIT sigTransactionGenerated(transaction, m_d->initialTransformArgs, this);
     });
 
-    /// recover back visibility of decorated nodes
     KritaUtils::addJobBarrier(extraInitJobs, [this]() {
         Q_FOREACH (KisDecoratedNodeInterface *decoratedNode, m_d->disabledDecoratedNodes) {
             decoratedNode->setDecorationsVisible(true);
@@ -784,17 +713,10 @@ void InplaceTransformStrokeStrategy::transformNode(KisNodeSP node, const ToolTra
 
                     executeAndAddCommand(cmd, Transform, KisStrokeJobData::CONCURRENT);
 
-                    /// we should make sure that the asynchronous shape regeneration
-                    /// has completed before we issue the updates a bit later
                     if (KisShapeLayer *shapeLayer = dynamic_cast<KisShapeLayer*>(extLayer)) {
                         shapeLayer->forceUpdateTimedNode();
                     }
 
-                    /**
-                     * Shape layer's projection may not be yet ready right
-                     * after transformation, because it need to do that in
-                     * the GUI thread, so we should approximate that.
-                     */
                     const QRect theoreticalNewDirtyRect =
                         kisGrowRect(t.mapRect(oldDirtyRect), 1);
 
@@ -888,7 +810,6 @@ void InplaceTransformStrokeStrategy::createCacheAndClearNode(KisNodeSP node)
     } else if (KisTransformMask *mask = dynamic_cast<KisTransformMask*>(node.data())) {
         KIS_SAFE_ASSERT_RECOVER_NOOP(!m_d->selection);
 
-        // NOTE: this action should be either sequential or barrier
         QMutexLocker l(&m_d->devicesCacheMutex);
         if (!m_d->transformMaskCacheHash.contains(mask)) {
 
@@ -910,8 +831,6 @@ void InplaceTransformStrokeStrategy::createCacheAndClearNode(KisNodeSP node)
             if (!m_d->devicesCacheHash.contains(device.data())) {
                 KisPaintDeviceSP cache;
 
-                // The image that will be transformed is linked to the original
-                // layer. We copy existing pixels or use an external source.
                 if (m_d->initialTransformArgs.externalSource()) {
                     cache = device->createCompositionSourceDevice(m_d->initialTransformArgs.externalSource());
                 } else if (m_d->selection) {
@@ -929,7 +848,6 @@ void InplaceTransformStrokeStrategy::createCacheAndClearNode(KisNodeSP node)
             }
         }
 
-        // Don't clear the selection or layer when the source is external
         if (m_d->initialTransformArgs.externalSource()) return;
 
         KisTransaction transaction(device);
@@ -962,7 +880,6 @@ void InplaceTransformStrokeStrategy::reapplyTransform(ToolTransformArgs args,
     KritaUtils::addJobBarrier(mutatedJobs, levelOfDetail,
                               [this, args, levelOfDetail, updateData, useHoldUI, commandGroup]() {
 
-        // it has its own dirty requests blocking inside
         undoTransformCommands(levelOfDetail);
 
         if (useHoldUI) {
@@ -991,11 +908,6 @@ void InplaceTransformStrokeStrategy::reapplyTransform(ToolTransformArgs args,
             executeAndAddCommand(new KisHoldUIUpdatesCommand(m_d->updatesFacade, KisCommandUtils::FlipFlopCommand::FINALIZING), commandGroup, KisStrokeJobData::BARRIER);
         }
 
-        /**
-         * We also Q_EMIT the updates manually, because KisUpdateCommandEx is
-         * still blocked by m_d->commandUpdatesBlockerCookie (for easy undo
-         * purposes)
-         */
         for (auto it = updateData->begin(); it != updateData->end(); ++it) {
             KisTransformMask *transformMask = dynamic_cast<KisTransformMask*>(it->first.data());
 
@@ -1027,7 +939,6 @@ void InplaceTransformStrokeStrategy::finalizeStrokeImpl(QVector<KisStrokeJobData
         m_d->commandUpdatesBlockerCookie.reset();
     });
 
-
     if (saveCommands) {
         KritaUtils::addJobBarrier(mutatedJobs, [this]() {
             notifyAllCommandsDone();
@@ -1051,13 +962,6 @@ void InplaceTransformStrokeStrategy::repopulateUI(QVector<KisStrokeJobData *> &m
 
 void InplaceTransformStrokeStrategy::finishAction(QVector<KisStrokeJobData *> &mutatedJobs)
 {
-    /**
-     * * Forward to cancelling should happen before the guard for
-     *   finalizingActionsStarted.
-     *
-     * * Transform masks may switch mode and become identity, that
-     *   shouldn't be cancelled.
-     */
     if (m_d->currentTransformArgs.isUnchanging() &&
         m_d->transformMaskCacheHash.isEmpty() &&
         !m_d->overriddenCommand) {
@@ -1067,12 +971,6 @@ void InplaceTransformStrokeStrategy::finishAction(QVector<KisStrokeJobData *> &m
     }
 
     if (m_d->previewLevelOfDetail > 0) {
-        /**
-         * Update jobs from level of detail updates may cause dirtying
-         * of the transform mask's static cache device. Therefore we must
-         * ensure that final update of the mask happens strictly after
-         * them.
-         */
         KritaUtils::addJobBarrier(mutatedJobs, [this]() { Q_UNUSED(this) });
 
         if (!m_d->transformMaskCacheHash.isEmpty()) {
@@ -1081,22 +979,12 @@ void InplaceTransformStrokeStrategy::finishAction(QVector<KisStrokeJobData *> &m
                     mask->overrideStaticCacheDevice(0);
                 }
 
-                /**
-                 * Transform masks don't have internal state switch for LoD mode,
-                 * therefore all the preview transformations must be cancelled
-                 * before applying the final command
-                 */
                 undoTransformCommands(m_d->previewLevelOfDetail);
             });
         }
 
         reapplyTransform(m_d->currentTransformArgs, mutatedJobs, 0, true);
 
-        /**
-         * We could have issues updates on lodN planes, which did not end
-         * up in the final lod0 update, so we should reupload lod0 data to
-         * the UI part manually.
-         */
         KritaUtils::addJobBarrier(mutatedJobs, [this]() { Q_UNUSED(this) });
         repopulateUI(mutatedJobs, m_d->updatesFacade, m_d->updatesFacade->bounds());
 
@@ -1109,7 +997,6 @@ void InplaceTransformStrokeStrategy::finishAction(QVector<KisStrokeJobData *> &m
     mutatedJobs << new UpdateTransformData(m_d->currentTransformArgs,
                                            UpdateTransformData::SELECTION);
 
-    // the rest of the transform finishing work cannot be cancelled...
     KritaUtils::addJobBarrier(mutatedJobs, [this]() {
         m_d->strokeCompletionHasBeenStarted = true;
 
@@ -1132,13 +1019,7 @@ void InplaceTransformStrokeStrategy::finishAction(QVector<KisStrokeJobData *> &m
 
 void InplaceTransformStrokeStrategy::cancelAction(QVector<KisStrokeJobData *> &mutatedJobs)
 {
-    /**
-     * It is too late to cancel anything, the transformation has been completed
-     * and its commands have been pushed into the undo adapter, so there is no
-     * way to stop that.
-     */
     if (m_d->strokeCompletionHasBeenStarted) return;
-
 
     KIS_SAFE_ASSERT_RECOVER_NOOP(m_d->transformMaskCacheHash.isEmpty() ||
                                  (m_d->transformMaskCacheHash.size() == 1 && m_d->processedNodes.size() == 1));
@@ -1152,7 +1033,6 @@ void InplaceTransformStrokeStrategy::cancelAction(QVector<KisStrokeJobData *> &m
             }
         });
 
-
         KritaUtils::addJobBarrier(mutatedJobs, [this]() {
             m_d->commandUpdatesBlockerCookie.reset();
             undoTransformCommands(0);
@@ -1160,11 +1040,6 @@ void InplaceTransformStrokeStrategy::cancelAction(QVector<KisStrokeJobData *> &m
         });
 
         if (m_d->previewLevelOfDetail > 0) {
-            /**
-             * We could have issues updates on lodN planes, which did not end
-             * up in the final lod0 update, so we should reupload lod0 data to
-             * the UI part manually.
-             */
             KritaUtils::addJobBarrier(mutatedJobs, [this]() { Q_UNUSED(this) });
             repopulateUI(mutatedJobs, m_d->updatesFacade, m_d->updatesFacade->bounds());
         }
@@ -1192,11 +1067,6 @@ void InplaceTransformStrokeStrategy::cancelAction(QVector<KisStrokeJobData *> &m
         reapplyTransform(m_d->initialTransformArgs, mutatedJobs, 0, true);
 
         if (m_d->previewLevelOfDetail > 0) {
-            /**
-             * We could have issues updates on lodN planes, which did not end
-             * up in the final lod0 update, so we should reupload lod0 data to
-             * the UI part manually.
-             */
             KritaUtils::addJobBarrier(mutatedJobs, [this]() { Q_UNUSED(this) });
             repopulateUI(mutatedJobs, m_d->updatesFacade, m_d->updatesFacade->bounds());
         }

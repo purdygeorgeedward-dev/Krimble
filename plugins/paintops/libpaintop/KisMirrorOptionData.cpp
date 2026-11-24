@@ -8,7 +8,6 @@
 const QString MIRROR_HORIZONTAL_ENABLED = "HorizontalMirrorEnabled";
 const QString MIRROR_VERTICAL_ENABLED = "VerticalMirrorEnabled";
 
-
 bool KisMirrorOptionMixInImpl::read(const KisPropertiesConfiguration *setting)
 {
     enableHorizontalMirror = setting->getBool(MIRROR_HORIZONTAL_ENABLED, false);

@@ -5,7 +5,6 @@
  */
 #include "widgets/kis_tool_options_popup.h"
 
-
 #include <QList>
 #include <QFont>
 #include <QAction>
@@ -22,7 +21,6 @@
 #include <kconfig.h>
 #include <klocalizedstring.h>
 
-
 #include "kis_config.h"
 #include "KisUiFont.h"
 
@@ -34,7 +32,7 @@ public:
 
     QList<QPointer<QWidget> > currentWidgetList;
     QSet<QWidget *> currentAuxWidgets;
-    QWidget *hiderWidget; // non current widgets are hidden by being children of this
+    QWidget *hiderWidget;
     QGridLayout *housekeeperLayout;
 
     void recreateLayout(const QList<QPointer<QWidget> > &optionWidgetList)
@@ -49,7 +47,6 @@ public:
 
         currentWidgetList = optionWidgetList;
 
-        // need to unstretch row that have previously been stretched
         housekeeperLayout->setRowStretch(housekeeperLayout->rowCount()-1, 0);
 
         int cnt = 0;
@@ -60,7 +57,7 @@ public:
         int specialCount = 0;
         Q_FOREACH (QPointer<QWidget> widget, currentWidgetList) {
             if (widget.isNull() || widget->objectName().isEmpty()) {
-                continue; // skip this docker in release build when assert don't crash
+                continue;
             }
 
             widget->setMinimumWidth(300);
@@ -96,7 +93,6 @@ public:
 
 };
 
-
 KisToolOptionsPopup::KisToolOptionsPopup(QWidget *parent)
     : QWidget(parent)
     , d(new Private())
@@ -114,7 +110,6 @@ KisToolOptionsPopup::KisToolOptionsPopup(QWidget *parent)
     d->hiderWidget = new QWidget(this);
     d->hiderWidget->setVisible(false);
 }
-
 
 KisToolOptionsPopup::~KisToolOptionsPopup()
 {

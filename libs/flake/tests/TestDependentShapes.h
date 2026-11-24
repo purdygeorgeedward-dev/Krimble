@@ -24,4 +24,4 @@ private Q_SLOTS:
     void testBulkActionLock();
 };
 
-#endif /* TESTDEPENDENTSHAPES_H */
+#endif

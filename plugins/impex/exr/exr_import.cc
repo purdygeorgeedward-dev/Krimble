@@ -25,7 +25,7 @@ exrImport::~exrImport()
 {
 }
 
-KisImportExportErrorCode exrImport::convert(KisDocument *document, QIODevice */*io*/,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode exrImport::convert(KisDocument *document, QIODevice * ,  KisPropertiesConfigurationSP )
 {
     EXRConverter ib(document, !batchMode());
     KisImportExportErrorCode result = ib.buildImage(filename());

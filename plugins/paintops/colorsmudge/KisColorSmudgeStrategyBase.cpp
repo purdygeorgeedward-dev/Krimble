@@ -12,10 +12,6 @@
 #include "kis_paint_device.h"
 #include "KisColorSmudgeSampleUtils.h"
 
-/**********************************************************************************/
-/*                 DabColoringStrategyMask                                        */
-/**********************************************************************************/
-
 bool KisColorSmudgeStrategyBase::DabColoringStrategyMask::supportsFusedDullingBlending() const
 {
     return true;
@@ -58,10 +54,6 @@ void KisColorSmudgeStrategyBase::DabColoringStrategyMask::blendInColorRate(const
                            colorRateOpacity);
 }
 
-/**********************************************************************************/
-/*                 DabColoringStrategyStamp                                       */
-/**********************************************************************************/
-
 void KisColorSmudgeStrategyBase::DabColoringStrategyStamp::setStampDab(KisFixedPaintDeviceSP device)
 {
     m_origDab = device;
@@ -75,7 +67,6 @@ void KisColorSmudgeStrategyBase::DabColoringStrategyStamp::blendInColorRate(cons
 {
     Q_UNUSED(paintColor);
 
-    // TODO: check correctness for composition source device (transparency masks)
     KIS_ASSERT_RECOVER_RETURN(*dstDevice->colorSpace() == *m_origDab->colorSpace());
 
     colorRateOp->composite(dstDevice->data(), dstRect.width() * dstDevice->pixelSize(),
@@ -106,10 +97,6 @@ void KisColorSmudgeStrategyBase::DabColoringStrategyStamp::blendInFusedBackgroun
     Q_UNUSED(colorRateOpacity);
 }
 
-/**********************************************************************************/
-/*                 KisColorSmudgeStrategyBase                                     */
-/**********************************************************************************/
-
 KisColorSmudgeStrategyBase::KisColorSmudgeStrategyBase(bool useDullingMode)
         : m_useDullingMode(useDullingMode)
 {
@@ -126,7 +113,6 @@ void KisColorSmudgeStrategyBase::initializePaintingImpl(const KoColorSpace *dstC
 
 const KoColorSpace *KisColorSmudgeStrategyBase::preciseColorSpace() const
 {
-    // verify that initialize() has already been called!
     KIS_ASSERT_RECOVER_RETURN_VALUE(m_smearOp, KoColorSpaceRegistry::instance()->rgb8());
 
     return m_smearOp->colorSpace();
@@ -276,7 +262,7 @@ void KisColorSmudgeStrategyBase::blendInBackgroundWithSmearing(KisFixedPaintDevi
 
         src->readBytes(tempDevice.data(), srcRect);
         m_smearOp->composite(dst->data(), dstRect.width() * dst->pixelSize(),
-                             tempDevice.data(), dstRect.width() * tempDevice.pixelSize(), // stride should be random non-zero
+                             tempDevice.data(), dstRect.width() * tempDevice.pixelSize(),
                              0, 0,
                              1, dstRect.width() * dstRect.height(),
                              smudgeRateOpacity);

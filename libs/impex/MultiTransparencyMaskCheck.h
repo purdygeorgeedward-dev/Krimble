@@ -11,7 +11,7 @@
 #include <KoID.h>
 #include <klocalizedstring.h>
 #include <kis_image.h>
-#include <kis_group_layer.h> 
+#include <kis_group_layer.h>
 #include <kis_layer_utils.h>
 
 class MultiTransparencyMaskCheck : public KisExportCheckBase
@@ -27,8 +27,8 @@ public:
     }
 
     bool checkNeeded(KisImageSP image) const override
-    {        
-        KisNodeSP layer = KisLayerUtils::recursiveFindNode(image->rootLayer(), 
+    {
+        KisNodeSP layer = KisLayerUtils::recursiveFindNode(image->rootLayer(),
             [] (KisNodeSP node)
             {
                 quint32 transparencyMasks = 0;
@@ -42,14 +42,14 @@ public:
                         }
                     }
                 }
-                    
+
                 return false;
             });
-        
+
         return (layer != 0);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -74,4 +74,4 @@ public:
     }
 };
 
-#endif // MultiTransparencyMaskCheck_H
+#endif

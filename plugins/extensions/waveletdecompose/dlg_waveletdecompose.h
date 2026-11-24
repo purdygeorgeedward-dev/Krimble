@@ -45,4 +45,4 @@ private:
 
 };
 
-#endif // DLG_WAVELETDECOMPOSE
+#endif

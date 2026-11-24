@@ -2,7 +2,7 @@
  *
  * This file was written by Henning Makholm <henning@makholm.net>
  * It is hereby in the public domain.
- * 
+ *
  * In jurisdictions that do not recognise grants of copyright to the
  * public domain: I, the author and (presumably, in those jurisdictions)
  * copyright holder, hereby permit anyone to distribute and use this code,
@@ -133,8 +133,6 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
   unsigned i ;
   int anyPartial ;
 
-  /* Find the layers to convert.
-   */
   if( spec->numLayers == 0 ) {
     spec->layers = XCF.layers ;
     spec->numLayers = XCF.numLayers ;
@@ -173,9 +171,6 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
     }
   }
 
-  /* Force the mode of the lowest visible layer to be Normal or Dissolve.
-   * That may not be logical, but the Gimp does it
-   */
   for( i=0; i < spec->numLayers; i++ ) {
     if( spec->layers[i].isVisible ) {
       if( spec->layers[i].mode != GIMP_DISSOLVE_MODE )
@@ -184,7 +179,6 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
     }
   }
 
-  /* Mimic the Gimp's behavior on indexed layers */
   if( XCF.type == GIMP_INDEXED && spec->gimpish_indexed ) {
     for( i=0; i<spec->numLayers; i++ )
       if( spec->layers[i].mode != GIMP_DISSOLVE_MODE )
@@ -192,7 +186,6 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
   } else
     spec->gimpish_indexed = 0 ;
 
-  /* compute dimensions of the window */
   if( spec->window_mode == AUTOCROP ) {
     int first = 1 ;
     for( i=0; i<spec->numLayers; i++ )
@@ -224,7 +217,7 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
   if( spec->window_mode != AUTOCROP ) {
     if( (spec->window_mode & MANUAL_OFFSET) == 0 )
       spec->dim.c.t = spec->dim.c.l = 0 ;
-    if( (spec->window_mode & MANUAL_CROP) == 0 ) {      
+    if( (spec->window_mode & MANUAL_CROP) == 0 ) {
       spec->dim.height = XCF.height ;
       spec->dim.width = XCF.width ;
     }
@@ -233,14 +226,11 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
     return XCF_ERROR;
   }
 
-  /* Turn off layers that we don't hit at all */
   for( i=0; i<spec->numLayers; i++ )
     if( spec->layers[i].isVisible &&
         disjointRects(spec->dim.c,spec->layers[i].dim.c) )
       spec->layers[i].isVisible = 0 ;
-  
-  /* See if there is a completely covering layer somewhere in the stack */
-  /* Also check if partial transparency is possible */
+
   anyPartial = 0 ;
   for( i=spec->numLayers; i-- ; ) {
     if( !spec->layers[i].isVisible )
@@ -253,10 +243,6 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
              (spec->layers[i].mode == GIMP_NORMAL_MODE ||
               spec->layers[i].mode == GIMP_NORMAL_NOPARTIAL_MODE ||
               spec->layers[i].mode == GIMP_DISSOLVE_MODE) ) {
-      /* This layer fills out the entire image.
-       * Turn off only lower layers, and note that we cannot have
-       * transparency at all.
-       */
       while(i) spec->layers[--i].isVisible = 0 ;
       if( spec->default_pixel != FORCE_ALPHA_CHANNEL )
         spec->default_pixel = NEWALPHA(colormap[0],255);
@@ -268,7 +254,6 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
       (!anyPartial || ALPHA(spec->default_pixel) >= 128) )
     spec->partial_transparency_mode = PARTIAL_TRANSPARENCY_IMPOSSIBLE ;
 
-  /* Initialize layers and print overview if we're verbose */
   for( i=spec->numLayers; i--; )
     if( spec->layers[i].isVisible ) {
         if (initLayer(&spec->layers[i]) != XCF_OK) {
@@ -288,8 +273,7 @@ complete_flatspec(struct FlattenSpec *spec, guesser guess_callback)
         fprintf(stderr," %s\n",spec->layers[i].name);
       }
     }
-  
-  /* Resolve color mode unless we wait until we have the entire image */
+
   if( spec->out_color_mode == COLOR_BY_CONTENTS &&
       !spec->process_in_memory ) {
     if( guess_callback )
@@ -306,11 +290,6 @@ analyse_colormode(struct FlattenSpec *spec,rgba **allPixels,
 {
   unsigned x,y ;
   int status ;
-  /* 8 - looking for any transparency
-   * 4 - looking for partially transparent pixels
-   * 2 - looking for pixels other than black and white
-   * 1 - looking for colored pixels
-   */
   int known_absent = 0 ;
   int assume_present = 0 ;
 
@@ -332,11 +311,10 @@ analyse_colormode(struct FlattenSpec *spec,rgba **allPixels,
   else if( spec->default_pixel == FORCE_ALPHA_CHANNEL ) assume_present |= 8 ;
 
   status = 15 - (known_absent | assume_present) ;
-  
+
   for( y=0; status && y<spec->dim.height; y++ ) {
     rgba *row = allPixels[y] ;
     if( (status & 3) != 0 ) {
-      /* We're still interested in color */
       for( x=0; status && x<spec->dim.width; x++ ) {
         if( NULLALPHA(row[x]) )
           status &= ~8 ;
@@ -344,15 +322,14 @@ analyse_colormode(struct FlattenSpec *spec,rgba **allPixels,
           rgba full = row[x] | (255 << ALPHA_SHIFT) ;
           if( !FULLALPHA(row[x]) ) status &= ~12 ;
           if( full == NEWALPHA(0,255) || full == NEWALPHA(-1,255) )
-            /* Black or white */ ;
+            ;
           else if( degrayPixel(row[x]) != -1 )
-            status &= ~2 ; /* gray */
+            status &= ~2 ;
           else
-            status &= ~3 ; /* color */
+            status &= ~3 ;
         }
       }
     } else {
-      /* Not interested in color */
       for( x=0; status && x<spec->dim.width; x++ ) {
         if( NULLALPHA(row[x]) )
           status &= ~8 ;
@@ -363,10 +340,10 @@ analyse_colormode(struct FlattenSpec *spec,rgba **allPixels,
   }
 
   status |= known_absent ;
-  
+
   switch( spec->out_color_mode ) {
-  case COLOR_INDEXED: /* The caller takes responsibility */
-  case COLOR_RGB: /* Everything is fine. */
+  case COLOR_INDEXED:
+  case COLOR_RGB:
     break ;
   case COLOR_GRAY:
     if( (status & 1) == 0 ) {
@@ -382,7 +359,7 @@ analyse_colormode(struct FlattenSpec *spec,rgba **allPixels,
       return XCF_ERROR;
     }
     break ;
-  case COLOR_BY_FILENAME: /* Should not happen ... */
+  case COLOR_BY_FILENAME:
   case COLOR_BY_CONTENTS:
     if( (status & 1) == 0 )
       spec->out_color_mode = COLOR_RGB ;
@@ -393,7 +370,7 @@ analyse_colormode(struct FlattenSpec *spec,rgba **allPixels,
     break ;
   }
 
-  if( (status & 12) == 12 ) /* No transparency found */
+  if( (status & 12) == 12 )
     spec->default_pixel = NEWALPHA(colormap[0],255);
   else if( (status & 12) == 4 )
     spec->partial_transparency_mode = PARTIAL_TRANSPARENCY_IMPOSSIBLE ;

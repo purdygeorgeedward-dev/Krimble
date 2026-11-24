@@ -9,8 +9,6 @@
 
 #include "kritaui_export.h"
 
-// Keep in sync with KisSupporterProduct.java!
-
 enum class KRITAUI_EXPORT KisSupporterProductType {
     OneTime,
     Subscription,

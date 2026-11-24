@@ -33,7 +33,6 @@ KisTIFFOptionsWidget::KisTIFFOptionsWidget(QWidget *parent)
     connect(flatten, SIGNAL(toggled(bool)), this, SLOT(flattenToggled(bool)));
     setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 
-    // See KisTIFFOptions::fromProperties
     kComboBoxCompressionType->addItem(i18nc("TIFF options", "None"), 0);
     kComboBoxCompressionType->addItem(
         i18nc("TIFF options", "JPEG DCT compression"),
@@ -135,13 +134,13 @@ void KisTIFFOptionsWidget::activated(int index)
 {
     const int data = kComboBoxCompressionType->itemData(index).value<int>();
     switch (data) {
-    case 1: // JPEG
+    case 1:
         codecsOptionsStack->setCurrentIndex(1);
         break;
-    case 2: // Deflate
+    case 2:
         codecsOptionsStack->setCurrentIndex(2);
         break;
-    case 4: // Pixar Log
+    case 4:
         codecsOptionsStack->setCurrentIndex(3);
         break;
     default:

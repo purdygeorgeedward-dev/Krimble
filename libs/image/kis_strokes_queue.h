@@ -24,7 +24,6 @@ class KisStrokeStrategy;
 class KisStrokeJobData;
 class KisPostExecutionUndoAdapter;
 
-
 class KRITAIMAGE_EXPORT KisStrokesQueue : public KisStrokesQueueMutatedJobInterface
 {
 public:
@@ -45,19 +44,8 @@ public:
                       bool externalJobsPending);
     bool needsExclusiveAccess() const;
 
-    /**
-     * Returns true if the strokes queue is empty, i.e. there are
-     * no stroke jobs pending
-     */
     bool isEmpty() const;
 
-    /**
-     * Works in the same way as isEmpty(), except that it will not
-     * wait on the mutex in case there is any contestion on the queue.
-     *
-     * If some other threads are contending on the queue, it will just
-     * return `false`, whatever the state of the queue is.
-     */
     bool isIdle() const;
 
     qint32 sizeMetric() const;
@@ -76,16 +64,10 @@ public:
     void setPostSyncLod0GUIPlaneRequestForResumeCallback(const std::function<void()> &callback);
     KisPostExecutionUndoAdapter* lodNPostExecutionUndoAdapter() const;
 
-    /**
-     * Notifies the queue, that someone else (neither strokes nor the
-     * queue itself have changed the image. It means that the caches
-     * should be regenerated
-     */
     void notifyUFOChangedImage();
 
     void debugDumpAllStrokes();
 
-    // interface for KisStrokeStrategy only!
     void addMutatedJobs(KisStrokeId id, const QVector<KisStrokeJobData*> list) final override;
 
 private:
@@ -107,4 +89,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_STROKES_QUEUE_H */
+#endif

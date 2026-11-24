@@ -11,7 +11,7 @@ KisAsynchronousStrokeUpdateHelper::KisAsynchronousStrokeUpdateHelper()
     : m_strokesFacade(0)
 {
     m_updateThresholdTimer.setSingleShot(false);
-    m_updateThresholdTimer.setInterval(80 /* ms */);
+    m_updateThresholdTimer.setInterval(80 );
     connect(&m_updateThresholdTimer, SIGNAL(timeout()), SLOT(slotAsyncUpdateCame()));
 }
 

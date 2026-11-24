@@ -36,8 +36,6 @@ void KisFilterPhotoFilter::processImpl(KisPaintDeviceSP device,
     const int density = config->getPropertyLazy("density", defaultDensity());
     const bool preserveLuminosity = config->getPropertyLazy("preserveLuminosity", defaultPreserveLuminosity());
 
-    // Translate our settings into the Fast Color Overlay settings and let it
-    // do the blend.
     KisFilterConfigurationSP overlayConfig =
         new KisFilterConfiguration(KisFilterFastColorOverlay::id().id(), 1, KisGlobalResourcesInterface::instance());
     overlayConfig->setProperty("color", color.toQColor());
@@ -65,7 +63,6 @@ KisFilterConfigurationSP KisFilterPhotoFilter::defaultConfiguration(KisResources
 
 QColor KisFilterPhotoFilter::defaultColor()
 {
-    // Warm orange, a typical "warming filter" color.
     return QColor(236, 138, 0);
 }
 

@@ -70,7 +70,7 @@ KoFallBackColorTransformation::~KoFallBackColorTransformation()
 
 void KoFallBackColorTransformation::transform(const quint8 *src, quint8 *dst, qint32 nPixels) const
 {
-    if (d->buffSize < nPixels) { // Expand the buffer if needed
+    if (d->buffSize < nPixels) {
         d->buffSize = nPixels;
         delete[] d->buff;
         d->buff = new quint8[ d->buffSize * d->fallBackColorSpace->pixelSize()];

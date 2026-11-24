@@ -13,7 +13,6 @@
 #include "operations/kis_filter_selection_operation.h"
 #include "dialogs/kis_dlg_stroke_selection_properties.h"
 
-
 struct KRITAUI_EXPORT KisSelectAllActionFactory : public KisNoParameterActionFactory {
     KisSelectAllActionFactory() : KisNoParameterActionFactory("select-all-ui-action") {}
     void run(KisViewManager *view) override;
@@ -35,12 +34,6 @@ struct KRITAUI_EXPORT KisFillActionFactory : public KisOperation
     void runFromXML(KisViewManager *view, const KisOperationConfiguration &config) override {
         run(config.getString("fill-source", "fg"), view);
     }
-    /**
-     * \p fillColor may be one of three variants:
-     * - "fg" --- foreground color
-     * - "bg" --- background color
-     * - "pattern" --- current pattern
-     */
     void run(const QString &fillSource, KisViewManager *view);
 };
 
@@ -115,6 +108,4 @@ struct KRITAUI_EXPORT KisStrokeBrushSelectionActionFactory : public  KisOperatio
     void run(KisViewManager *view, const StrokeSelectionOptions& params);
 };
 
-
-
-#endif /* __KIS_SELECTION_ACTION_FACTORIES_H */
+#endif

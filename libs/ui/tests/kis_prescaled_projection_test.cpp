@@ -146,15 +146,11 @@ void KisPrescaledProjectionTest::testCreation()
 
 void KisPrescaledProjectionTest::testScalingUndeferredSmoothingPixelForPixel()
 {
-    // Set up a nice image
     QImage qimage(QString(FILES_DATA_DIR) + '/' + "carrot.png");
 
-    // Undo adapter not necessary
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, qimage.width(), qimage.height(), cs, "projection test");
 
-    // 300 dpi recalculated to pixels per point (of which there are 72
-    // to the inch)
     image->setResolution(100 / 72 , 100 / 72);
 
     KisPaintLayerSP layer = new KisPaintLayer(image, "test", OPACITY_OPAQUE_U8, cs);
@@ -163,31 +159,25 @@ void KisPrescaledProjectionTest::testScalingUndeferredSmoothingPixelForPixel()
 
     KisPrescaledProjection projection;
     KisCoordinatesConverter converter;
-    
+
     converter.setImage(image);
     projection.setCoordinatesConverter(&converter);
     projection.setDisplayConfig(KisDisplayConfig());
     projection.setImage(image);
 
-    // pixel-for-pixel, at 100% zoom
     converter.setResolution(image->xRes(), image->yRes());
 
     testProjectionScenario(projection, &converter, "pixel_for_pixel");
 
 }
 
-
 void KisPrescaledProjectionTest::testScalingUndeferredSmoothing()
 {
-    // Set up a nice image
     QImage qimage(QString(FILES_DATA_DIR) + '/' + "carrot.png");
 
-    // Undo adapter not necessary
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, qimage.width(), qimage.height(), cs, "projection test");
 
-    // 300 dpi recalculated to pixels per point (of which there are 72
-    // to the inch)
     image->setResolution(100, 100);
 
     KisPaintLayerSP layer = new KisPaintLayer(image, "test", OPACITY_OPAQUE_U8, cs);
@@ -196,7 +186,7 @@ void KisPrescaledProjectionTest::testScalingUndeferredSmoothing()
 
     KisPrescaledProjection projection;
     KisCoordinatesConverter converter;
-    
+
     converter.setImage(image);
     projection.setCoordinatesConverter(&converter);
     projection.setDisplayConfig(KisDisplayConfig());
@@ -206,8 +196,6 @@ void KisPrescaledProjectionTest::testScalingUndeferredSmoothing()
 
 }
 
-//#include <valgrind/callgrind.h>
-
 void KisPrescaledProjectionTest::benchmarkUpdate()
 {
     QImage referenceImage(QString(FILES_DATA_DIR) + '/' + "carrot.png");
@@ -216,7 +204,6 @@ void KisPrescaledProjectionTest::benchmarkUpdate()
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, imageRect.width(), imageRect.height(), cs, "projection test");
 
-    // set up 300dpi
     image->setResolution(300 / 72 , 300 / 72);
 
     KisPaintLayerSP layer = new KisPaintLayer(image, "paint1", OPACITY_OPAQUE_U8, cs);
@@ -232,7 +219,6 @@ void KisPrescaledProjectionTest::benchmarkUpdate()
     projection.setDisplayConfig(KisDisplayConfig());
     projection.setImage(image);
 
-    // Emulate pixel size aspect canvas mapping
     converter.setResolution(image->xRes(), image->yRes());
 
     converter.setZoom(1.0);
@@ -247,8 +233,6 @@ void KisPrescaledProjectionTest::benchmarkUpdate()
     const qint32 numShifts = 25;
     const QPoint offset(dirtyRect.width(),dirtyRect.height());
 
-    //CALLGRIND_START_INSTRUMENTATION;
-
     QBENCHMARK {
         for(qint32 i = 0; i < numShifts; i++) {
             KisUpdateInfoSP tempInfo = projection.updateCache(dirtyRect);
@@ -258,10 +242,7 @@ void KisPrescaledProjectionTest::benchmarkUpdate()
         }
     }
 
-    //CALLGRIND_STOP_INSTRUMENTATION;
-
 }
-
 
 class PrescaledProjectionTester
 {
@@ -307,7 +288,6 @@ void KisPrescaledProjectionTest::testScrollingZoom100()
     QPoint pt;
     QVERIFY(TestUtil::compareQImages(pt, result, reference));
 
-    // Test actual scrolling
     t.converter.setDocumentOffset(QPoint(150,150));
     t.projection.viewportMoved(QPoint(-50,-50));
 
@@ -361,7 +341,6 @@ void KisPrescaledProjectionTest::testUpdates()
     t.converter.setCanvasWidgetSize(2*QSize(300,300));
     t.projection.notifyCanvasSizeChanged(2*QSize(300,300));
 
-
     t.converter.setZoom(0.50);
     t.projection.notifyCanvasStateChanged(KisCanvasState::fromConverter(t.converter));
 
@@ -384,8 +363,6 @@ void KisPrescaledProjectionTest::testUpdates()
     t.layer->setVisible(true);
     t.image->refreshGraphAsync();
     t.image->waitForDone();
-
-    // Update incrementally
 
     const int step = 73;
     const int patchOffset = -7;
@@ -415,38 +392,26 @@ void KisPrescaledProjectionTest::testUpdates()
 
 void KisPrescaledProjectionTest::testQtScaling()
 {
-    // See: https://bugreports.qt.nokia.com/browse/QTBUG-22827
 
-    /**
-     * Currently we rely on this behavior, so let's test for it.
-     */
-
-    // Create a canvas image
     QImage canvas(6, 6, QImage::Format_ARGB32);
     canvas.fill(0);
 
-    // Image we are going to scale down
     QImage image(7, 7, QImage::Format_ARGB32);
     QPainter imagePainter(&image);
     imagePainter.fillRect(QRect(0,0,7,7),Qt::green);
     imagePainter.end();
 
-
     QPainter gc(&canvas);
 
-    // Scale down transformation
     qreal scale = 3.49/7.0;
     gc.setTransform(QTransform::fromScale(scale,scale));
 
-    // Draw a rect scale*(7x7)
     gc.fillRect(QRectF(0,0,7,7), Qt::red);
 
-    // Draw an image scale*(7x7)
     gc.drawImage(QPointF(), image, QRectF(0,0,7,7));
 
     gc.end();
 
-    // Create an expected result
     QImage expectedResult(6, 6, QImage::Format_ARGB32);
     expectedResult.fill(0);
     QPainter expectedPainter(&expectedResult);
@@ -459,5 +424,4 @@ void KisPrescaledProjectionTest::testQtScaling()
 }
 
 SIMPLE_TEST_MAIN(KisPrescaledProjectionTest)
-
 

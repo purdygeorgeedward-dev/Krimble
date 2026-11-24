@@ -35,7 +35,6 @@ void KisCanvasDecoration::setView(QPointer<KisView>imageView)
     d->view = imageView;
 }
 
-
 const QString& KisCanvasDecoration::id() const
 {
     return d->id;

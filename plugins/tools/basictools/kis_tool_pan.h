@@ -31,7 +31,6 @@ private:
     QPoint m_lastPosition;
 };
 
-
 class KisToolPanFactory : public KoToolFactoryBase
 {
 public:
@@ -41,4 +40,4 @@ public:
     KoToolBase *createTool(KoCanvasBase *canvas) override;
 };
 
-#endif // KIS_TOOL_PAN_H_
+#endif

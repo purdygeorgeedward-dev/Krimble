@@ -44,7 +44,7 @@ public Q_SLOTS:
     void setUseTransParentCheckBox(bool use);
     void setUsePositionSlider(bool use);
     void setPositionSliderEnabled(bool enabled);
-    
+
 Q_SIGNALS:
     void positionChanged(qreal position);
     void colorTypeChanged(KisGradientWidgetsUtils::ColorType type);

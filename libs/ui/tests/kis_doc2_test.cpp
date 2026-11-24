@@ -21,8 +21,7 @@
 #include <testui.h>
 #include "KritaTransformMaskStubs.h"
 
-
-void silenceReignsSupreme(QtMsgType /*type*/, const QMessageLogContext &/*context*/, const QString &/*msg*/)
+void silenceReignsSupreme(QtMsgType , const QMessageLogContext & , const QString & )
 {
 }
 
@@ -37,7 +36,6 @@ void KisDocumentTest::testOpenImageTwiceInSameDoc()
     QString fname2 = QString(FILES_DATA_DIR) + '/' + "load_test.kra";
     QString fname = QString(FILES_DATA_DIR) + '/' + "load_test2.kra";
 
-
     Q_ASSERT(!fname.isEmpty());
     Q_ASSERT(!fname2.isEmpty());
 
@@ -46,7 +44,6 @@ void KisDocumentTest::testOpenImageTwiceInSameDoc()
     doc->loadNativeFormat(fname);
     doc->loadNativeFormat(fname2);
 }
-
 
 KISTEST_MAIN(KisDocumentTest)
 

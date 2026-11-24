@@ -7,7 +7,6 @@
 
 #include "kis_wavelet_noise_reduction.h"
 
-
 #include <cmath>
 
 #include <KoUpdater.h>
@@ -28,7 +27,6 @@ KisWaveletNoiseReduction::KisWaveletNoiseReduction()
     setSupportsPainting(false);
     setSupportsThreading(false);
 }
-
 
 KisWaveletNoiseReduction::~KisWaveletNoiseReduction()
 {
@@ -61,9 +59,6 @@ void KisWaveletNoiseReduction::processImpl(KisPaintDeviceSP device,
 
     KisMathToolbox mathToolbox;
 
-    //     dbgFilters << size <<"" << maxrectsize <<"" << srcTopLeft.x() <<"" << srcTopLeft.y();
-
-    //     dbgFilters <<"Transforming...";
     KisMathToolbox::KisWavelet* buff = 0;
     KisMathToolbox::KisWavelet* wav = 0;
 

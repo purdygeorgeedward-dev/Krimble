@@ -37,7 +37,7 @@ Q_SIGNALS:
 namespace KDcrawIface
 {
 class RawDecodingSettings;
-} // namespace KDcrawIface
+}
 
 class KisRawImport : public KisImportExportFilter
 {
@@ -59,5 +59,5 @@ private:
     WdgRawImport *m_rawWidget;
 };
 
-#endif // KIS_RAW_IMPORT_H_
+#endif
 

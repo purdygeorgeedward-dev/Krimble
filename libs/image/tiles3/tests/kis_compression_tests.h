@@ -38,5 +38,5 @@ private Q_SLOTS:
     void benchmarkDecompressionLzfTwoPass();
 };
 
-#endif /* KIS_COMPRESSION_TESTS_H */
+#endif
 

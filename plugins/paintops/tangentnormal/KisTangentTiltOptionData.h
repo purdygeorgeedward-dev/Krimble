@@ -6,7 +6,6 @@
 #ifndef KIS_TANGENTTILT_OPTION_DATA_H
 #define KIS_TANGENTTILT_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -41,4 +40,4 @@ struct KisTangentTiltOptionData : boost::equality_comparable<KisTangentTiltOptio
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_TANGENTTILT_OPTION_DATA_H
+#endif

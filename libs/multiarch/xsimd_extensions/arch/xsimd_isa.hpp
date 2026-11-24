@@ -12,7 +12,6 @@
 
 #include "../config/xsimd_arch.hpp"
 
-// Must come last to have access to all conversion specializations.
 #include "./xsimd_generic.hpp"
 
 #endif

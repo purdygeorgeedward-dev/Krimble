@@ -39,7 +39,6 @@ public:
     }
 };
 
-
 struct KisAirbrushOptionWidget::Private
 {
     Private(lager::cursor<KisAirbrushOptionData> optionData)
@@ -49,7 +48,6 @@ struct KisAirbrushOptionWidget::Private
 
     KisAirbrushOptionModel model;
 };
-
 
 KisAirbrushOptionWidget::KisAirbrushOptionWidget(lager::cursor<KisAirbrushOptionData> optionData, bool canIgnoreSpacing)
     : KisPaintOpOption(i18n("Airbrush"), KisPaintOpOption::COLOR, optionData[&KisAirbrushOptionData::isChecked])

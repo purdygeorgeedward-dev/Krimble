@@ -36,4 +36,4 @@ public:
     }
 };
 
-#endif /* __KIS_LOD_TRANSFORM_H */
+#endif

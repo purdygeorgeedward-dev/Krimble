@@ -11,7 +11,6 @@
 
 #include <kis_assert.h>
 
-
 namespace detail
 {
 
@@ -54,4 +53,4 @@ void KisDatabaseTransactionLockAdapter::commit()
     m_transactionStarted = false;
 }
 
-} // namespace detail
+}

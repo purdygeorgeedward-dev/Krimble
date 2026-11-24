@@ -161,13 +161,10 @@ void KisKraLoaderTest::testLoadAnimated()
     QCOMPARE(dev->defaultPixel(), red);
 }
 
-
-
 void KisKraLoaderTest::testImportFromWriteonly()
 {
     TestUtil::testImportFromWriteonly(KraMimetype);
 }
-
 
 void KisKraLoaderTest::testImportIncorrectFormat()
 {
@@ -195,7 +192,5 @@ void KisKraLoaderTest::testLoadingUncommonHdrProfileWithCicp()
     QCOMPARE(image->colorSpace()->profile()->getTransferCharacteristics(), TRC_ITU_R_BT_2100_0_PQ);
     QCOMPARE(*image->colorSpace()->profile()->hdrReferenceWhite(), 180.0);
 }
-
-
 
 KISTEST_MAIN(KisKraLoaderTest)

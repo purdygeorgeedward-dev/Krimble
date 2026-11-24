@@ -14,7 +14,6 @@
 
 #define ImageShapeId "ImageShape"
 
-
 class ImageShape : public KoShape, public SvgShape
 {
 public:
@@ -44,4 +43,4 @@ private:
     QSharedDataPointer<Private> m_d;
 };
 
-#endif // IMAGESHAPE_H
+#endif

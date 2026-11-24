@@ -18,8 +18,6 @@
 #include <quazip.h>
 #include <quazipfile.h>
 
-
-// copied from KisLiquifyTransformWorkerBenchmark
 KisLiquifyTransformWorker* getWorkerFromIODeviceXml(QIODevice* device)
 {
     QDomDocument doc;
@@ -31,7 +29,6 @@ KisLiquifyTransformWorker* getWorkerFromIODeviceXml(QIODevice* device)
     return KisLiquifyTransformWorker::fromXML(data);
 }
 
-// copied from KisLiquifyTransformWorkerBenchmark
 KisLiquifyTransformWorker* getWorkerFromXml(QString filename)
 {
 
@@ -39,7 +36,6 @@ KisLiquifyTransformWorker* getWorkerFromXml(QString filename)
     filename = TestUtil::fetchDataFileLazy(filename);
 
     ENTER_FUNCTION() << ppVar(filename);
-
 
     if (filename.endsWith("zip")) {
         QuaZip zipArchive(filename);
@@ -49,7 +45,6 @@ KisLiquifyTransformWorker* getWorkerFromXml(QString filename)
         if (filenames.length() < 1) {
             return nullptr;
         }
-        // it should be the first and only file
         QString correctFilename = filenames[0];
         if (!zipArchive.setCurrentFile(correctFilename)) {
             qWarning() << "Could not set current file" << zipArchive.getZipError() << correctFilename;
@@ -76,7 +71,6 @@ KisLiquifyTransformWorker* getWorkerFromXml(QString filename)
 
 }
 
-
 void KisLiquifyTransformWorkerTest::testPoints()
 {
     TestUtil::TestProgressBar bar;
@@ -96,7 +90,6 @@ void KisLiquifyTransformWorkerTest::testPoints()
     KisLiquifyTransformWorker worker(dev->exactBounds(),
                                      updater,
                                      pixelPrecision);
-
 
     QBENCHMARK_ONCE {
         worker.translatePoints(QPointF(100,100),
@@ -150,7 +143,6 @@ void KisLiquifyTransformWorkerTest::testPointsQImage()
                                      updater,
                                      pixelPrecision);
 
-
     worker.translatePoints(QPointF(100,100),
                            QPointF(50, 0),
                            50, false, 0.2);
@@ -176,7 +168,6 @@ void KisLiquifyTransformWorkerTest::testPointsQImage()
     QPointF newOffset;
     QImage result = worker.runOnQImage(image, QPointF(10, 10), imageToThumbTransform, &newOffset);
     dbgKrita << ppVar(newOffset);
-
 
     TestUtil::checkQImage(result, "liquify_transform_test", "liquify_qimage", "resultImage");
 }
@@ -216,7 +207,6 @@ void KisLiquifyTransformWorkerTest::testMaskRendering_data()
     QTest::addColumn<QString>("resultImageFilename");
     QTest::addColumn<bool>("isQImageTest");
 
-
     QTest::addRow("whole image") << "wholeImage" << "liquify_mask_rendering/liquify_mask_rendering_base_image.png" << "liquify_mask_rendering/liquify_mask_rendering_mask_config.zip" << "liquify_mask_rendering/liquify_mask_rendering_resultImage.png" << false;
     QTest::addRow("just small part inside") << "smallPart" << "liquify_mask_rendering/liquify_mask_rendering_base_image.png"
                                             << "liquify_mask_rendering/liquify_mask_rendering_small_change_mask_config.zip" << "liquify_mask_rendering/liquify_mask_rendering_small_change_resultImage.png" << false;
@@ -232,8 +222,6 @@ void KisLiquifyTransformWorkerTest::testMaskRendering_data()
     QTest::addRow("16bit small change") << "16bitSmall" << "liquify_mask_rendering/liquify_mask_rendering_16bit_base_image.png"
                            << "liquify_mask_rendering/liquify_mask_rendering_16bit_small_change_mask_config.zip" << "liquify_mask_rendering/liquify_mask_rendering_16bit_small_change_resultImage.png" << false;
 
-
-
     QTest::addRow("whole image, qimage") << "wholeImageQImage" << "liquify_mask_rendering/liquify_mask_rendering_base_image.png" << "liquify_mask_rendering/liquify_mask_rendering_mask_config.zip"
                                          << "liquify_mask_rendering/liquify_mask_rendering_qimage_resultImage.png" << true;
     QTest::addRow("just small part inside, qimage") << "smallPartQImage" << "liquify_mask_rendering/liquify_mask_rendering_base_image.png"
@@ -244,18 +232,7 @@ void KisLiquifyTransformWorkerTest::testMaskRendering_data()
     QTest::addRow("just small part inside with bg, qimage") << "smallPartBgQImage" << "liquify_mask_rendering/liquify_mask_rendering_base_with_background.png"
                                                     << "liquify_mask_rendering/liquify_mask_rendering_small_change_mask_config.zip" << "liquify_mask_rendering/liquify_mask_rendering_with_background_small_change_qimage_resultImage.png" << true;
 
-    /*
-    // Since the liquify transform worker only uses Qimage for instant preview, it only supports rgba 8bit images, so it won't work
-    QTest::addRow("16bit") << "liquify_mask_rendering/liquify_mask_rendering_16bit_base_image.png"
-                           << "liquify_mask_rendering/liquify_mask_rendering_16bit_mask_config.zip" << "liquify_mask_rendering/liquify_mask_rendering_16bit_resultImage.png" << true;
-
-    QTest::addRow("16bit small change") << "liquify_mask_rendering/liquify_mask_rendering_16bit_base_image.png"
-                           << "liquify_mask_rendering/liquify_mask_rendering_16bit_small_change_mask_config.zip" << "liquify_mask_rendering/liquify_mask_rendering_16bit_small_change_resultImage.png" << true;
-    */
-
-
 }
-
 
 QImage convertPaintDeviceTo16BitQImage(KisPaintDeviceSP dev, QSize size) {
     if (dev->pixelSize() != 2*4) {
@@ -268,7 +245,6 @@ QImage convertPaintDeviceTo16BitQImage(KisPaintDeviceSP dev, QSize size) {
         data = new quint8 [size.width() * size.height() * dev->pixelSize()];
     } catch (const std::bad_alloc&) {
         warnKrita << "KisPaintDevice::convertToQImage std::bad_alloc for " << size << " * " << dev->pixelSize();
-        //delete[] data; // data is not allocated, so don't free it
         return QImage();
     }
     Q_CHECK_PTR(data);
@@ -313,11 +289,8 @@ void KisLiquifyTransformWorkerTest::testMaskRendering()
     QFETCH(QString, resultImageFilename);
     QFETCH(bool, isQImageTest);
 
-
     QString tname = QTest::currentDataTag();
     ENTER_FUNCTION() << ppVar(tname);
-
-
 
     QString testName = shortTestName;
 
@@ -337,7 +310,6 @@ void KisLiquifyTransformWorkerTest::testMaskRendering()
         cs = KoColorSpaceRegistry::instance()->rgb16();
     }
 
-
     KisPaintDeviceSP dev = getPaintDeviceFromQImage(image, cs);
     KisPaintDeviceSP dstDev = new KisPaintDevice(dev->colorSpace());
 
@@ -350,7 +322,6 @@ void KisLiquifyTransformWorkerTest::testMaskRendering()
 
     } else {
         liquifyWorker->run(dev, dstDev);
-        //ENTER_FUNCTION() << ppVar(dstDev->exactBounds()) << ppVar(image.size());
 
         if (expected.format() == QImage::Format_RGBA64) {
             result = convertPaintDeviceTo16BitQImage(dstDev, image.size());
@@ -360,19 +331,15 @@ void KisLiquifyTransformWorkerTest::testMaskRendering()
         }
     }
 
-    //ENTER_FUNCTION() << ppVar(result);
-
-
     image.save(testName + "_handsaved_original.png");
     result.save(testName + "_handsaved_result.png");
     expected.save(testName + "_handsaved_expected.png");
-
 
     QPoint diffPoint;
     if (expected.format() == QImage::Format_RGBA64) {
         KisPaintDeviceSP expDev = getPaintDeviceFromQImage(expected, cs);
 
-        dstDev->crop(0, 0, expected.width(), expected.height()); // needed in case the transform would move the content out of the canvas
+        dstDev->crop(0, 0, expected.width(), expected.height());
         ENTER_FUNCTION() << "src = expDev, dst = dstDev";
         QVERIFY(TestUtil::comparePaintDevicesClever<uint16_t>(expDev, dstDev));
 

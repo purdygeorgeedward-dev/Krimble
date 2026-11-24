@@ -18,7 +18,6 @@
 #include <KoSelectedShapesProxy.h>
 #include "kis_shape_layer.h"
 
-
 struct KisNodeShape::Private
 {
 public:
@@ -37,14 +36,13 @@ KisNodeShape::KisNodeShape(KisNodeSP node)
     setSelectable(false);
 
     connect(node, SIGNAL(sigNodeChangedInternal()), SLOT(editabilityChanged()));
-    editabilityChanged();  // Correctly set the lock at loading
+    editabilityChanged();
 }
 
 KisNodeShape::~KisNodeShape()
 {
     if (KoToolManager::instance()) {
         KoCanvasController *canvasController = KoToolManager::instance()->activeCanvasController();
-        // If we're the active layer, we should tell the active selection we're dead meat.
         if (canvasController && canvasController->canvas()) {
             KoSelection *activeSelection = canvasController->canvas()->selectedShapesProxy()->selection();
             KoShapeLayer *activeLayer = activeSelection->activeLayer();
@@ -89,18 +87,11 @@ void KisNodeShape::editabilityChanged()
         }
     }
 
-    /**
-     * Editability of a child depends on the editability
-     * of its parent. So when we change one's editability,
-     * we need to search for active children and reactivate them
-     */
-
     KoCanvasController *canvasController = KoToolManager::instance()->activeCanvasController();
 
     if(canvasController && canvasController->canvas()) {
         KoSelection *activeSelection = canvasController->canvas()->selectedShapesProxy()->selection();
         KoShapeLayer *activeLayer = activeSelection->activeLayer();
-
 
         KisShapeLayer *shapeLayer = dynamic_cast<KisShapeLayer*>(m_d->node.data());
 
@@ -128,5 +119,4 @@ void KisNodeShape::setPosition(const QPointF &)
 void KisNodeShape::paint(QPainter &) const
 {
 }
-
 

@@ -40,4 +40,4 @@ struct KisHDRMetadataOptions
     QString generateFFMpegOptions() const;
 };
 
-#endif // KISHDRMETADATAOPTIONS_H
+#endif

@@ -25,7 +25,6 @@
 #include <KisSequentialIteratorProgress.h>
 #include "kis_lod_transform.h"
 
-
 KisSimpleNoiseReducer::KisSimpleNoiseReducer()
     : KisFilter(id(), FiltersCategoryNoiseId, i18n("&Gaussian Noise Reduction..."))
 {
@@ -76,18 +75,16 @@ void KisSimpleNoiseReducer::processImpl(KisPaintDeviceSP device,
 
     const KoColorSpace* cs = device->colorSpace();
 
-    // Compute the blur mask
     KisCircleMaskGenerator* kas = new KisCircleMaskGenerator(2*windowsize + 1, 1, windowsize, windowsize, 2, true);
 
     KisConvolutionKernelSP kernel = KisConvolutionKernel::fromMaskGenerator(kas);
     delete kas;
 
-    KisPaintDeviceSP interm = new KisPaintDevice(*device); // TODO no need for a full copy and then a transaction
+    KisPaintDeviceSP interm = new KisPaintDevice(*device);
     KisConvolutionPainter painter(interm);
     painter.beginTransaction();
     painter.applyMatrix(kernel, interm, srcTopLeft, srcTopLeft, applyRect.size(), BORDER_REPEAT);
     painter.deleteTransaction();
-
 
     KisSequentialConstIteratorProgress intermIt(interm, applyRect, progressUpdater);
     KisSequentialIterator dstIt(device, applyRect);

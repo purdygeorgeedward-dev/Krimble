@@ -31,8 +31,6 @@ public:
             fileTypeName = _fileTypeName;
             md5sum = _md5;
             resourceId = _resourceId;
-            // only necessary to provide if filename in bundle is different from the filename on disk
-            // for example for versioned resources
             filenameInBundle = _filenameInBundle.isEmpty() ? resourcePath : _filenameInBundle;
         }
 
@@ -44,35 +42,14 @@ public:
         QString filenameInBundle;
     };
 
-    /**
-     * @brief ResourceBundleManifest : Ctor
-     * @param xmlName the name of the XML file to be created
-     */
     KoResourceBundleManifest();
 
-    /**
-     * @brief ~ResourceBundleManifest : Dtor
-     */
     virtual ~KoResourceBundleManifest();
 
-
-    /**
-     * @brief load the ResourceBundleManifest from the given device
-     */
     bool load(QIODevice *device);
 
-    /**
-     * @brief save the ResourceBundleManifest to the given device
-     */
     bool save(QIODevice *device);
 
-    /**
-     * @brief addTag : Add a file tag as a child of the fileType tag.
-     * @param fileType the type of the file to be added
-     * @param fileName the name of the file to be added
-     * @param emptyFile true if the file is empty
-     * @return the element corresponding to the created tag.
-     */
     void addResource(const QString &fileType, const QString &fileName, const QStringList &tagFileList, const QString &md5, const int resourceId = -1, const QString filenameInBundle = "");
     void removeResource(ResourceReference &resource);
 
@@ -82,11 +59,6 @@ public:
 
     QList<ResourceReference> files(const QString &type = QString()) const;
 
-    /**
-     * @brief removeFile : remove a file from the manifest
-     * @param fileName : the name of the file to be removed
-     * @return the list of resource tags to be removed from meta file.
-     */
     void removeFile(QString fileName);
 
 private:
@@ -94,5 +66,4 @@ private:
     bool parseFileEntry(const QDomElement &e);
 };
 
-
-#endif 
+#endif

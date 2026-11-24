@@ -13,7 +13,6 @@
 #include <QMouseEvent>
 #include <resources/KoGamutMask.h>
 
-
 KisColorSelectorComponent::KisColorSelectorComponent(KisColorSelector* parent) :
     QObject(parent),
     m_hue(0),
@@ -111,7 +110,6 @@ void KisColorSelectorComponent::toggleGamutMask(bool state)
     update();
 }
 
-
 bool KisColorSelectorComponent::isDirty() const
 {
     return m_dirty || m_lastColorSpace!=colorSpace();
@@ -125,7 +123,7 @@ bool KisColorSelectorComponent::containsPointInComponentCoords(int x, int y) con
         return false;
 }
 
-bool KisColorSelectorComponent::allowsColorSelectionAtPoint(const QPoint & /*pt*/) const
+bool KisColorSelectorComponent::allowsColorSelectionAtPoint(const QPoint & ) const
 {
     return true;
 }
@@ -235,7 +233,6 @@ void KisColorSelectorComponent::setColor(const KoColor &color)
 
 void KisColorSelectorComponent::setLastMousePosition(int x, int y)
 {
-    // prevent movement due to rounding errors
     if (abs((int)m_lastX - x) > 1 || abs((int)m_lastY - y) > 1) {
         m_lastX = x;
         m_lastY = y;

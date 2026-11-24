@@ -31,7 +31,7 @@ public:
         return image->animationInterface()->hasAnimation();
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -55,4 +55,4 @@ public:
     }
 };
 
-#endif // AnimationCHECK_H
+#endif

@@ -59,7 +59,6 @@ void KisSpinboxColorSelector::slotSetColorSpace(const KoColorSpace *cs)
     }
 
     m_d->cs = cs;
-    //remake spinboxes
     delete m_d->layout;
     m_d->layout = new QFormLayout(this);
 
@@ -243,10 +242,6 @@ void KisSpinboxColorSelector::updateSpinboxesWithNewValues()
     QList<KoChannelInfo *> channels = KoChannelInfo::displayOrderSorted(m_d->cs->channels());
 
     int i;
-    /*while (QLayoutItem *item = this->layout()->takeAt(0))
-    {
-        item->widget()->blockSignals(true);
-    }*/
     for (i=0; i<m_d->spinBoxList.size(); i++) {
         m_d->spinBoxList.at(i)->blockSignals(true);
     }
@@ -275,10 +270,5 @@ void KisSpinboxColorSelector::updateSpinboxesWithNewValues()
     for (i=0; i<m_d->doubleSpinBoxList.size(); i++) {
         m_d->doubleSpinBoxList.at(i)->blockSignals(false);
     }
-    /*while (QLayoutItem *item = this->layout()->takeAt(0))
-    {
-        item->widget()->blockSignals(false);
-    }*/
 }
-
 

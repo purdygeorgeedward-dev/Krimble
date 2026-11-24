@@ -27,10 +27,8 @@ struct KrimbleVec3
     double dot(const KrimbleVec3 &o) const { return x * o.x + y * o.y + z * o.z; }
 };
 
-typedef std::array<double, 4> KrimblePlates;   // C, M, Y, K as 0 to 1
+typedef std::array<double, 4> KrimblePlates;
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// color math (D50, sRGB)
 namespace KrimbleColorMath {
 static const KrimbleVec3 kD50(0.96422, 1.0, 0.82521);
 
@@ -48,7 +46,7 @@ inline void xyzToLab(const KrimbleVec3 &v, double &L, double &a, double &b)
     a = 500.0 * (fx - fy);
     b = 200.0 * (fy - fz);
 }
-inline KrimbleVec3 xyYToXyz(double Y, double x, double y)   // Y in percent (100 = a perfect white)
+inline KrimbleVec3 xyYToXyz(double Y, double x, double y)
 {
     const double Yn = Y / 100.0;
     if (y <= 0.0) return {0, Yn, 0};
@@ -70,17 +68,13 @@ inline QColor xyzToSrgb(const KrimbleVec3 &v)
 }
 }
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ink colors
 struct KrimbleInkSet
 {
-    // the colors (XYZ, D50, 1.0 = a perfect white) of: 0 paper, 1 C, 2 M, 3 Y, 4 MY (red), 5 CY (green), 6 CM (blue), 7 CMY, 8 K (solid black ink on the paper)
     std::array<KrimbleVec3, 9> xyz;
     bool estimateOverprints = false;
 
     void setLab(int i, double L, double a, double b) { xyz[i] = KrimbleColorMath::labToXyz(L, a, b); }
     void labOf(int i, double &L, double &a, double &b) const { KrimbleColorMath::xyzToLab(xyz[i], L, a, b); }
-    // the overprints made from the single inks: the reflectances multiply (the paper's color divided out)
     void estimate()
     {
         auto mul = [&](const KrimbleVec3 &p, const KrimbleVec3 &q) { return KrimbleVec3(p.x * q.x / xyz[0].x, p.y * q.y / xyz[0].y, p.z * q.z / xyz[0].z); };
@@ -97,12 +91,10 @@ struct KrimbleInkSet
     {
         KrimbleInkSet s;
         if (name == QLatin1String("SWOP (Coated)")) {
-            // the values of the industry standard Ink Colors dialog for SWOP (Coated): Y (percent), x, y of C, M, Y, MY, CY, CM, CMY, paper, K
             static const double v[9][3] = {{83.02, .3149, .3321}, {26.25, .1673, .2328}, {14.50, .4845, .2396}, {71.20, .4357, .5013}, {14.09, .6075, .3191},
                                            {19.25, .2271, .5513}, {2.98, .2052, .1245}, {2.79, .3227, .2962}, {0.82, .3202, .3241}};
             for (int i = 0; i < 9; ++i) s.xyz[i] = KrimbleColorMath::xyYToXyz(v[i][0], v[i][1], v[i][2]);
         } else if (name == QLatin1String("ISO Coated (FOGRA39)")) {
-            // ISO 12647-2:2004 (paper type 1 and 2), the characterization data FOGRA39: CIE Lab D50
             s.setLab(0, 95, 0, -2);
             s.setLab(1, 55, -37, -50);
             s.setLab(2, 48, 74, -3);
@@ -115,7 +107,6 @@ struct KrimbleInkSet
             e.estimate();
             s.xyz[7] = e.xyz[7];
         } else if (name == QLatin1String("ISO Matte Coated (PC4)")) {
-            // the ISO 12647-2 / ICC printing condition PC4 (standard matte coated): paper and the colour aims of the 4 inks; the overprints are estimated
             s.setLab(0, 91, 0, 1);
             s.setLab(1, 56, -33, -42);
             s.setLab(2, 48, 68, -1);
@@ -131,22 +122,16 @@ struct KrimbleInkSet
     }
 };
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// dot gain
 struct KrimbleDotGain
 {
     static const int N = 13;
     static constexpr int kPoints[N] = {2, 4, 6, 8, 10, 20, 30, 40, 50, 60, 70, 80, 90};
-    bool curves = false;       // false: the Standard curve from percent; true: the table below
-    double percent = 20.0;     // the gain of a 50% dot
+    bool curves = false;
+    double percent = 20.0;
     bool allSame = true;
-    double table[4][N];        // the printed dot (percent) for a plate dot of kPoints[i], for C, M, Y, K (used when curves is true)
+    double table[4][N];
 
     KrimbleDotGain() { fillFromStandard(); }
-    // The Standard curve: the gain of a dot of plate area a is gain50 * sin(pi * a)^0.8 (most at 50%, none at 0 and 100%). The shape was fitted to the Dot Gain Curves table of the industry standard Custom CMYK
-    // dialog (a 23% curve: +10 at 10%, +16 at 20%, +21.5 at 30%, +23 at 50%, +15 at 80%, +8.5 at 90%; this gives +9, +15, +19, +23, +15, +9). The GRL formula of Viggiano,
-    // gain = 2 * gain50 * sqrt(a * (1 - a)), is the older open one; it has a flat top near 90% that a solver cannot climb, so it is not used. The printed dot never reaches 100% before the plate does
-    // (the curve is kept below a + (1 - a) * 0.98), which keeps it rising all the way.
     static double standard(double a, double gain50)
     {
         a = std::clamp(a, 0.0, 1.0);
@@ -158,7 +143,6 @@ struct KrimbleDotGain
         for (int ch = 0; ch < 4; ++ch)
             for (int i = 0; i < N; ++i) table[ch][i] = standard(kPoints[i] / 100.0, percent / 100.0) * 100.0;
     }
-    // a monotone cubic through (0, 0), the 13 points and (1, 1) (Fritsch and Carlson)
     double apply(int ch, double a) const
     {
         a = std::clamp(a, 0.0, 1.0);
@@ -184,21 +168,19 @@ struct KrimbleDotGain
 };
 constexpr int KrimbleDotGain::kPoints[KrimbleDotGain::N];
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// the profile: everything the Custom CMYK dialog sets
 struct KrimbleCmykProfile
 {
-    QString name;                 // empty: made from the settings, like "SWOP (Coated), 20%, GCR, Medium"
-    QString inkPreset = QStringLiteral("SWOP (Coated)");   // a preset's name, or "Custom"
+    QString name;
+    QString inkPreset = QStringLiteral("SWOP (Coated)");
     KrimbleInkSet inks;
     KrimbleDotGain dotGain;
-    bool gcr = true;              // false: UCR
-    QString blackGeneration = QStringLiteral("Medium");   // None, Light, Medium, Heavy, Maximum (GCR only)
-    double blackLimit = 100.0;    // percent
-    double totalLimit = 300.0;    // percent
-    double uca = 0.0;             // undercolor addition, percent (GCR only)
+    bool gcr = true;
+    QString blackGeneration = QStringLiteral("Medium");
+    double blackLimit = 100.0;
+    double totalLimit = 300.0;
+    double uca = 0.0;
     bool blackPointCompensation = true;
-    bool limitInkWhenEditing = true;   // when a plate of a CMYK palette swatch is edited, the ink limits hold
+    bool limitInkWhenEditing = true;
 
     KrimbleCmykProfile() { KrimbleInkSet::preset(inkPreset, inks); }
     QString autoName() const
@@ -259,8 +241,6 @@ struct KrimbleCmykProfile
     }
 };
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// the engine
 class KrimbleCmykEngine
 {
 public:
@@ -268,8 +248,7 @@ public:
     {
         m_inks = m_p.inks;
         if (m_inks.estimateOverprints) m_inks.estimate();
-        // the 16 overprints: index bits 1 = C, 2 = M, 4 = Y, 8 = K
-        const int map[8] = {0, 1, 2, 6 /*CM*/, 3 /*Y*/, 5 /*CY*/, 4 /*MY*/, 7 /*CMY*/};   // bits (C=1, M=2, Y=4) to the ink set's index
+        const int map[8] = {0, 1, 2, 6 , 3 , 5 , 4 , 7 };
         for (int i = 0; i < 8; ++i) m_prim[i] = m_inks.xyz[map[i]];
         const KrimbleVec3 w = m_inks.xyz[0], k = m_inks.xyz[8];
         for (int i = 0; i < 8; ++i)
@@ -281,7 +260,6 @@ public:
     }
     const KrimbleCmykProfile &profile() const { return m_p; }
 
-    // the color (XYZ, D50) that the four plates (0 to 1) print: dot gain, then the Neugebauer equations with the Demichel weights
     KrimbleVec3 forward(const KrimblePlates &plates) const
     {
         double a[4];
@@ -298,12 +276,10 @@ public:
 
     double totalInk(const KrimblePlates &p) const { return (p[0] + p[1] + p[2] + p[3]) * 100.0; }
 
-    // sRGB to plates
     KrimblePlates fromRgb(const QColor &color) const
     {
         return separate(sourceToPaper(KrimbleColorMath::srgbToXyz(color.toRgb())));
     }
-    // plates to sRGB
     QColor toRgb(const KrimblePlates &plates) const
     {
         return KrimbleColorMath::xyzToSrgb(paperToSource(forward(plates)));
@@ -312,7 +288,6 @@ public:
     KrimbleVec3 sourceXyz(const KrimblePlates &plates) const { return paperToSource(forward(plates)); }
     KrimblePlates separateLab(double L, double a, double b) const { return separate(sourceToPaper(KrimbleColorMath::labToXyz(L, a, b))); }
 
-    // the ink limits as a guard for plates that are typed in: the black is capped at the black ink limit and the total at the total ink limit (the plate that was just changed gives way)
     KrimblePlates limitInk(KrimblePlates p, int changed = -1) const
     {
         for (double &v : p) v = std::clamp(v, 0.0, 1.0);
@@ -324,7 +299,7 @@ public:
                 p[changed] = std::max(0.0, p[changed] - (sum - limit));
                 sum = p[0] + p[1] + p[2] + p[3];
             }
-            if (sum > limit + 1e-9) {   // still over: C, M, Y give the same amount each (black stays)
+            if (sum > limit + 1e-9) {
                 const double room = std::max(0.0, limit - p[3]);
                 const double cmy = p[0] + p[1] + p[2];
                 if (cmy > 0.0) { const double s = room / cmy; for (int i = 0; i < 3; ++i) p[i] *= std::min(1.0, s); }
@@ -334,7 +309,6 @@ public:
         return p;
     }
 
-    // the plates of a neutral ramp, from white (0) to black (1), for the Gray Ramp picture
     QVector<KrimblePlates> grayRamp(int steps) const
     {
         QVector<KrimblePlates> out;
@@ -345,8 +319,6 @@ public:
         return out;
     }
 
-    // the black generation: the FRACTION (0 to 1) of the gray component (the smallest of C, M, Y of the K = 0 separation) that black takes over. GCR starts at a gray level that the preset sets
-    // (Light 40%, Medium 20%, Heavy 10%, Maximum from the start, as in the industry standard Black Generation presets) and rises to the full replacement at the darkest.
     double blackFraction(double g, double neutrality) const
     {
         double g0 = 0.2, pw = 1.2;
@@ -359,12 +331,10 @@ public:
             const double u = std::clamp((g - g0) / (1.0 - g0), 0.0, 1.0);
             return std::pow(u, pw);
         }
-        // UCR: only dark, neutral colors get black ("skeleton" black); chromatic colors keep their C, M, Y
         g0 = 0.55; pw = 1.5;
         const double u = std::clamp((g - g0) / (1.0 - g0), 0.0, 1.0);
         return std::pow(u, pw) * neutrality;
     }
-    // the K plate that is as dark as C, M, Y all at g (the "gray component" in K plate terms)
     double equivalentBlack(double g) const
     {
         const double target = forward({g, g, g, 0.0}).y;
@@ -392,10 +362,8 @@ private:
         return {back(p.x, bd.x, m_paper.x, w.x), back(p.y, bd.y, m_paper.y, w.y), back(p.z, bd.z, m_paper.z, w.z)};
     }
 
-    // C, M, Y (least squares, Levenberg-Marquardt) so that the plates with the given K print the wanted color
     void solveLm(const KrimbleVec3 &target, double k, double *cmy, double *errOut = nullptr) const
     {
-        // the match is measured in CIE Lab (the error is the square of the color difference, delta E): the same error means the same visible difference in light and dark colors
         auto toLab = [](const KrimbleVec3 &v) { double L, a, b; KrimbleColorMath::xyzToLab(v, L, a, b); return KrimbleVec3(L, a, b); };
         const KrimbleVec3 targetLab = toLab(target);
         auto eval = [&](const double *q) { return toLab(forward({q[0], q[1], q[2], k})) - targetLab; };
@@ -434,7 +402,6 @@ private:
         for (int i = 0; i < 3; ++i) cmy[i] = q[i];
         if (errOut) *errOut = err;
     }
-    // C, M, Y for a chosen K: the Levenberg-Marquardt from three starting points (a guess that allows for the black, the hint the caller gives, and the middle), the best is kept
     void solveCmy(const KrimbleVec3 &target, double k, double *cmy, double *errOut = nullptr) const
     {
         double hint[3] = {cmy[0], cmy[1], cmy[2]};
@@ -455,7 +422,6 @@ private:
         for (int i = 0; i < 3; ++i) cmy[i] = best[i];
         if (errOut) *errOut = eb;
     }
-    // a first guess for C, M, Y when black is K: black dims every channel (the black ink's color over the paper's), so C, M, Y only have to make the wanted color divided by that
     void guessFor(const KrimbleVec3 &t, double k, double *cmy) const
     {
         const double a = m_p.dotGain.apply(m_p.dotGain.allSame ? 0 : 3, std::clamp(k, 0.0, 1.0));
@@ -479,7 +445,6 @@ private:
         return true;
     }
 
-    // a first guess for C, M, Y from the wanted color
     void guess(const KrimbleVec3 &t, double *cmy) const
     {
         const double rx = std::clamp(t.x / m_paper.x, 0.0, 1.0), ry = std::clamp(t.y / m_paper.y, 0.0, 1.0), rz = std::clamp(t.z / m_paper.z, 0.0, 1.0);
@@ -497,14 +462,13 @@ public:
         double cmy0[3];
         guess(target, cmy0);
         double err0 = 0.0;
-        solveCmy(target, 0.0, cmy0, &err0);               // the K = 0 separation
+        solveCmy(target, 0.0, cmy0, &err0);
         const double g = std::min({cmy0[0], cmy0[1], cmy0[2]});
         const double hi0 = std::max({cmy0[0], cmy0[1], cmy0[2]});
         const double neutrality = std::clamp(1.0 - (hi0 - g) / 0.35, 0.0, 1.0);
         const double klim = std::min(m_p.blackLimit, m_p.totalLimit) / 100.0;
         const double limit = m_p.totalLimit / 100.0;
 
-        // how well can this color be matched at all (with the best black)? a scan of K from 0 to the black limit; the black may not make the match worse than that
         const int scan = 8;
         double scanErr[scan + 1], scanCmy[scan + 1][3];
         double errBest = 1e9;
@@ -515,11 +479,9 @@ public:
             for (int a = 0; a < 3; ++a) scanCmy[j2][a] = c[a];
             errBest = std::min(errBest, scanErr[j2]);
         }
-        const double tol = std::max(0.8, errBest * 1.3);   // delta E squared: a black generation may be at most about one delta E worse than the best match
+        const double tol = std::max(0.8, errBest * 1.3);
         int jmin = 0;
         while (jmin < scan && scanErr[jmin] > tol) ++jmin;
-        // the least black that matches (colors darker than C, M, Y can print need some black): found between the scan steps by bisection, so that it changes smoothly with the color
-        // (before it was a multiple of one eighth of the black limit, which made the plates jump)
         double kmin = 0.0;
         double cmyMin[3] = {scanCmy[jmin][0], scanCmy[jmin][1], scanCmy[jmin][2]};
         if (jmin > 0) {
@@ -535,9 +497,6 @@ public:
             for (int a = 0; a < 3; ++a) cmyMin[a] = ok[a];
         }
 
-        // The wanted black: from the DARKNESS of the color (its lightness L* from the paper's to the darkest the inks print), a smooth curve from no black at the light end to the black limit at the
-        // darkest; the black generation presets set where the black starts and how fast it rises. The gray component (the smallest of C, M, Y of the K = 0 separation, over the largest) says how much
-        // of it a chromatic color gets, so vivid colors keep their C, M, Y. (Before, the black came from the gray component's plate level, which stops changing for colors darker than C, M, Y all solid.)
         const double bdY = m_p.blackPointCompensation ? m_black.y : 0.0;
         const double tl = std::clamp((target.y - bdY) / std::max(1e-9, m_paper.y - bdY), 0.0, 1.0);
         const double fl = tl > 216.0 / 24389.0 ? std::cbrt(tl) : ((24389.0 / 27.0) * tl + 16.0) / 116.0;
@@ -550,7 +509,7 @@ public:
             else if (m_p.blackGeneration == QLatin1String("Heavy")) { x0 = 0.10; pw = 1.4; }
             else if (m_p.blackGeneration == QLatin1String("Maximum")) { x0 = 0.0; pw = 1.0; }
         } else {
-            x0 = 0.55; pw = 1.5;   // UCR: only dark, neutral colors get black
+            x0 = 0.55; pw = 1.5;
             share = neutrality;
         }
         const double kWanted = x0 >= 1.0 ? 0.0 : klim * std::pow(std::clamp((darkness - x0) / (1.0 - x0), 0.0, 1.0), pw) * share;
@@ -561,7 +520,7 @@ public:
             double t[3] = {cmy[0], cmy[1], cmy[2]}, e = 0.0;
             solveCmy(target, k, t, &e);
             if (e <= tol) { for (int a = 0; a < 3; ++a) cmy[a] = t[a]; }
-            else {   // too much black for this color: the biggest K between the least black and the wanted that still matches
+            else {
                 double lo = kmin, up = k;
                 double ok[3] = {cmy[0], cmy[1], cmy[2]};
                 for (int it = 0; it < 14; ++it) {
@@ -576,8 +535,6 @@ public:
         } else {
             k = kmin;
         }
-        // the total ink guard: the smallest black (not below the one above) at which the total is within the limit and the color still matches. A scan in 24 steps finds the interval, then a bisection
-        // inside it finds the black (a continuous result; before it was the scan step itself, which made the plates jump). If no black matches, the best match within the limit is used.
         if (cmy[0] + cmy[1] + cmy[2] + k > limit + 1e-9) {
             const int steps = 24;
             double t[3] = {cmy[0], cmy[1], cmy[2]};
@@ -610,14 +567,13 @@ public:
             } else if (haveBest) {
                 k = bestK;
                 for (int a = 0; a < 3; ++a) cmy[a] = bestCmy[a];
-            } else {   // black is at its limit and the inks are still over: C, M, Y are reduced equally
+            } else {
                 k = lastK;
                 const double sum = lastCmy[0] + lastCmy[1] + lastCmy[2], room = std::max(0.0, limit - k);
                 const double sc = sum > 0.0 ? std::min(1.0, room / sum) : 1.0;
                 for (int a = 0; a < 3; ++a) cmy[a] = lastCmy[a] * sc;
             }
         }
-        // undercolor addition (GCR only): some C, M, Y put back under the black of neutral shadows
         if (m_p.gcr && m_p.uca > 0.0 && k > 0.0) {
             const double add = m_p.uca / 100.0 * (k / std::max(0.01, m_p.blackLimit / 100.0)) * neutrality;
             for (int a = 0; a < 3; ++a) cmy[a] = std::min(1.0, cmy[a] + add);
@@ -627,20 +583,18 @@ public:
         return {cmy[0], cmy[1], cmy[2], k};
     }
 
-    // the version before 2026-11-11 (kept, not used)
     KrimblePlates separateLegacy(const KrimbleVec3 &target) const
     {
         double cmy0[3];
         guess(target, cmy0);
         double err0 = 0.0;
-        solveCmy(target, 0.0, cmy0, &err0);               // the K = 0 separation
+        solveCmy(target, 0.0, cmy0, &err0);
         const double g = std::min({cmy0[0], cmy0[1], cmy0[2]});
         const double hi0 = std::max({cmy0[0], cmy0[1], cmy0[2]});
         const double neutrality = std::clamp(1.0 - (hi0 - g) / 0.35, 0.0, 1.0);
         const double klim = std::min(m_p.blackLimit, m_p.totalLimit) / 100.0;
         const double limit = m_p.totalLimit / 100.0;
 
-        // how well can this color be matched at all (with the best black)? a scan of K from 0 to the black limit; a black generation may not be worse than that match
         const int scan = 8;
         double scanErr[scan + 1], scanCmy[scan + 1][3];
         double errBest = 1e9;
@@ -651,9 +605,9 @@ public:
             for (int a = 0; a < 3; ++a) scanCmy[j2][a] = c[a];
             errBest = std::min(errBest, scanErr[j2]);
         }
-        const double tol = std::max(0.8, errBest * 1.3);   // delta E squared: a black generation may be at most about one delta E worse than the best match
+        const double tol = std::max(0.8, errBest * 1.3);
         int jmin = 0;
-        while (jmin < scan && scanErr[jmin] > tol) ++jmin;   // the least black that matches (colors darker than CMY can be need some black)
+        while (jmin < scan && scanErr[jmin] > tol) ++jmin;
         const double kmin = klim * jmin / scan;
 
         double k = std::clamp(blackFraction(g, neutrality) * equivalentBlack(g), kmin, klim);
@@ -663,7 +617,7 @@ public:
             double t[3] = {cmy[0], cmy[1], cmy[2]}, e = 0.0;
             solveCmy(target, k, t, &e);
             if (e <= tol) { for (int a = 0; a < 3; ++a) cmy[a] = t[a]; err = e; }
-            else {   // too much black for this color: the biggest K between the least black and the wanted that still matches
+            else {
                 double lo = kmin, up = k;
                 double ok[3] = {cmy[0], cmy[1], cmy[2]};
                 for (int it = 0; it < 14; ++it) {
@@ -679,7 +633,6 @@ public:
         } else {
             k = kmin;
         }
-        // the total ink guard
         if (cmy[0] + cmy[1] + cmy[2] + k > limit + 1e-9) {
             bool found = false;
             double bestK = k, bestCmy[3] = {cmy[0], cmy[1], cmy[2]}, bestErr = 1e9;
@@ -697,14 +650,13 @@ public:
                 }
             }
             if (found) { k = bestK; for (int a = 0; a < 3; ++a) cmy[a] = bestCmy[a]; }
-            else {   // black is at its limit and the inks are still over: C, M, Y are reduced equally
+            else {
                 k = lastK;
                 const double sum = lastCmy[0] + lastCmy[1] + lastCmy[2], room = std::max(0.0, limit - k);
                 const double s = sum > 0 ? std::min(1.0, room / sum) : 1.0;
                 for (int a = 0; a < 3; ++a) cmy[a] = lastCmy[a] * s;
             }
         }
-        // undercolor addition (GCR only): some C, M, Y put back under the black of neutral shadows
         if (m_p.gcr && m_p.uca > 0.0 && k > 0.0) {
             const double add = m_p.uca / 100.0 * (k / std::max(0.01, m_p.blackLimit / 100.0)) * neutrality;
             for (int a = 0; a < 3; ++a) cmy[a] = std::min(1.0, cmy[a] + add);
@@ -722,8 +674,6 @@ private:
     KrimbleVec3 m_black;
 };
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// the working profile (the one the Color Lab converts with) and the saved profiles (files in the app's data folder)
 class KrimbleCmykProfiles
 {
 public:
@@ -748,7 +698,6 @@ public:
         QSettings().setValue(QStringLiteral("Krimble/CmykProfile"), QJsonDocument(p.toJson()).toJson(QJsonDocument::Compact));
         ++version();
     }
-    // the engine of the working profile (made again when the profile changes)
     static const KrimbleCmykEngine &engine()
     {
         static int built = -1;

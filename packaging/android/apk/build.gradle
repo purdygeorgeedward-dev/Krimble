@@ -297,7 +297,8 @@ android {
     // def krimbleBuildNumber = 75   // 2026-11-23 (run 45158674034, commit 972169d1)
     // def krimbleBuildNumber = 76
     // def krimbleBuildNumber = 77   // 2026-11-23 cyber-theme: Cyber and Glass themes test build (run 45246744317)
-def krimbleBuildNumber = 78   // 2026-11-23 cyber-theme + krimble-cleanup fixes (George: "Can you add your fixes to that and build?")
+    // def krimbleBuildNumber = 78   // 2026-11-23 cyber-theme + krimble-cleanup fixes
+    def krimbleBuildNumber = 79   // 2026-11-23 krimble-cleanup, no Cyber (George: "Remove cyber theme for now." / "Build it.")
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {

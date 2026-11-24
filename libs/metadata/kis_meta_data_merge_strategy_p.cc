@@ -17,10 +17,6 @@
 
 using namespace KisMetaData;
 
-//-------------------------------------------//
-//------------ DropMergeStrategy ------------//
-//-------------------------------------------//
-
 DropMergeStrategy::DropMergeStrategy()
 {
 }
@@ -50,10 +46,6 @@ void DropMergeStrategy::merge(Store* dst, QList<const Store*> srcs, QList<double
     Q_UNUSED(score);
     dbgMetaData << "Drop meta data";
 }
-
-//---------------------------------------//
-//---------- DropMergeStrategy ----------//
-//---------------------------------------//
 
 PriorityToFirstMergeStrategy::PriorityToFirstMergeStrategy()
 {
@@ -91,9 +83,6 @@ void PriorityToFirstMergeStrategy::merge(Store* dst, QList<const Store*> srcs, Q
         }
     }
 }
-//-------------------------------------------//
-//------ OnlyIdenticalMergeStrategy ---------//
-//-------------------------------------------//
 
 OnlyIdenticalMergeStrategy::OnlyIdenticalMergeStrategy()
 {
@@ -140,10 +129,6 @@ void OnlyIdenticalMergeStrategy::merge(Store* dst, QList<const Store*> srcs, QLi
         }
     }
 }
-
-//-------------------------------------------//
-//------------ SmartMergeStrategy -----------//
-//-------------------------------------------//
 
 SmartMergeStrategy::SmartMergeStrategy()
 {
@@ -243,12 +228,9 @@ void SmartMergeStrategy::merge(Store* dst, QList<const Store*> srcs, QList<doubl
         dst->copyFrom(srcs[0]);
         return;
     }
-    // Initialize some schema
     const KisMetaData::Schema* dcSchema = KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::DublinCoreSchemaUri);
-//     const KisMetaData::Schema* psSchema = KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::PhotoshopSchemaUri);
     const KisMetaData::Schema* XMPRightsSchema = KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::XMPRightsSchemaUri);
     const KisMetaData::Schema* XMPSchema = KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::XMPSchemaUri);
-    // Sort the stores and scores
     {
         QMultiMap<double, const Store*> scores2srcs;
         for (int i = 0; i < scores.size(); ++i) {
@@ -258,14 +240,10 @@ void SmartMergeStrategy::merge(Store* dst, QList<const Store*> srcs, QList<doubl
         scores = scores2srcs.keys();
     }
 
-    // First attempt to see if one of the store has a higher score than the others
-    if (scores[0] > 2 * scores[1]) { // One of the store has a higher importance than the other ones
+    if (scores[0] > 2 * scores[1]) {
         dst->copyFrom(srcs[0]);
     } else {
-        // Merge exif info
 
-
-        // Election
         Q_FOREACH (const Store* store, srcs) {
             QList<QString> keys = store->keys();
             Q_FOREACH (const QString & key, keys) {
@@ -278,7 +256,6 @@ void SmartMergeStrategy::merge(Store* dst, QList<const Store*> srcs, QList<doubl
             }
         }
 
-        // Compute rating
         double rating = 0.0;
         double norm = 0.0;
         for (int i = 0; i < srcs.size(); i++) {
@@ -293,7 +270,6 @@ void SmartMergeStrategy::merge(Store* dst, QList<const Store*> srcs, QList<doubl
             dst->getEntry(XMPSchema, "Rating").value() = QVariant((int)(rating / norm));
         }
     }
-    // Merge the list of authors and keywords and other stuff
     mergeEntry(dst, srcs, dcSchema, "contributor");
     mergeEntry(dst, srcs, dcSchema, "creator");
     mergeEntry(dst, srcs, dcSchema, "publisher");

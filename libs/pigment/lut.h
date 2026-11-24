@@ -13,27 +13,9 @@ class LutKey;
 template<typename _InputT_>
 class FullLutKey;
 
-/**
- * Provide an implementation for a look-up table for a function. Do not use directly, instead
- * use @ref Lut when you are not interested in having the full look-up table or for floating
- * point, or use @ref FullLut for 8bits and 16bits when you want to have a full Lut.
- *
- * @code
- * struct MyFunction {
- *  inline static int compute(int i)
- *  {
- *    return 1-i;
- *  }
- * }
- * Lut<MyFunction, int, int> myLut;
- * @endcode
- */
 template<typename _FunctionT_, typename _OutputT_, typename _InputT_, typename _LutKeyT_ >
 class BaseLut {
   private:
-    /**
-     * Initialization of the table.
-     */
     inline void init()
     {
       int size = m_key.size();
@@ -44,22 +26,13 @@ class BaseLut {
       }
     }
   public:
-    /**
-     * Create the lut with the specific key.
-     */
     inline BaseLut(_LutKeyT_ key, _FunctionT_ function = _FunctionT_()) : m_key(key), m_function(function)
     {
       init();
     }
     inline ~BaseLut() {
-      // just leak on exit -- we get into trouble for explicitly
-      // deleting stuff from static objects, like registries
-      //delete[] m_table;
     }
   public:
-    /**
-     * @return the function value for parameter @p i
-     */
     inline _OutputT_ operator()(_InputT_ i) const
     {
       if(m_key.inrange(i))
@@ -74,15 +47,9 @@ class BaseLut {
     _FunctionT_ m_function;
 };
 
-/**
- * This Lut is limited to a range of values.
- */
 template<typename _FunctionT_, typename _OutputT_, typename _InputT_>
 class Lut : public BaseLut<_FunctionT_, _OutputT_, _InputT_, LutKey<_InputT_> > {
   public:
-    /**
-     * Create the lut between @p _min and @p _max .
-     */
     inline Lut(_InputT_ _min, _InputT_ _max, _FunctionT_ function = _FunctionT_()) :
         BaseLut<_FunctionT_, _OutputT_, _InputT_, LutKey<_InputT_> >( LutKey<_InputT_>(_min, _max), function)
     {
@@ -93,9 +60,6 @@ class Lut : public BaseLut<_FunctionT_, _OutputT_, _InputT_, LutKey<_InputT_> > 
     }
 };
 
-/**
- * This Lut has precomputed values for all elements.
- */
 template<typename _FunctionT_, typename _OutputT_, typename _InputT_>
 class FullLut : public BaseLut<_FunctionT_, _OutputT_, _InputT_, FullLutKey<_InputT_> > {
   public:
@@ -115,8 +79,6 @@ typedef uint8_t lut_uint8;
 typedef uint16_t lut_uint16;
 typedef uint32_t lut_uint32;
 #endif
-
-// integer specialization
 
 #define PARTIAL_LUT_INT_SPECIALIZATION(_INT_TYPE_)                                \
   template<>                                                                      \
@@ -196,14 +158,6 @@ PARTIAL_LUT_INT_SPECIALIZATION(lut_uint32)
 FULL_LUT_INT_SPECIALIZATION(lut_uint8, 0, 255)
 FULL_LUT_INT_SPECIALIZATION(lut_uint16, 0, 65535)
 
-// float specialization
-
-/**
- * This provide an implementation for a LutKey for floating point input values.
- *
- * Based on "High-speed Conversion of Floating Point Images to 8-bit" by Bill Spitzaks
- * (https://spitzak.github.io/conversion/sketches_0265.pdf)
- */
 template<>
 class LutKey<float> {
   public:
@@ -214,8 +168,6 @@ class LutKey<float> {
   public:
     LutKey(float min, float max, float precision) : m_min(min), m_max(max), m_precision(precision)
     {
-      // Those values where computed using the test_linear and setting the shift and then using
-      // the standard deviation.
       if (precision <= 0.000011809f) {
         m_min =  1;
         m_max = -1;
@@ -234,9 +186,9 @@ class LutKey<float> {
         m_min = precision;
       if ( -precision <= m_max && m_max <= 0.0)
         m_max = -precision;
-      
+
       IFNumber uf;
-      
+
       if(m_min > 0 && m_max > 0)
       {
         uf.f = m_min;
@@ -253,7 +205,7 @@ class LutKey<float> {
         m_tMin_n = uf.i >> m_shift;
         m_tMin_p = m_tMax_n;
         m_tMax_p = m_tMax_n;
-      } else { // m_min <0 && m_max > 0
+      } else {
         uf.f = precision;
         m_tMin_p = uf.i >> m_shift;
         uf.f = m_max;

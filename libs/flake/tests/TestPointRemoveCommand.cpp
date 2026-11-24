@@ -13,7 +13,6 @@
 #include <simpletest.h>
 #include <testflake.h>
 
-
 void TestPointRemoveCommand::redoUndoPointRemove()
 {
     KoPathShape path1;
@@ -159,7 +158,6 @@ void TestPointRemoveCommand::subpathRemoval()
     KUndo2Command *cmd = KoPathPointRemoveCommand::createCommand(pd, &shapeController);
     cmd->redo();
 
-    //Have to have one subpath left, so that it doesn't delete the whole shape
     QCOMPARE(path.subpathCount(), 1);
 }
 

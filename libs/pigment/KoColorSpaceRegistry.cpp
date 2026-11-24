@@ -39,12 +39,9 @@
 
 Q_GLOBAL_STATIC(KoColorSpaceRegistry, s_instance)
 
-
 struct Q_DECL_HIDDEN KoColorSpaceRegistry::Private {
 
-    // interface for KoColorConversionSystem
     struct ConversionSystemInterface;
-
 
     Private(KoColorSpaceRegistry *_q) : q(_q) {}
 
@@ -66,15 +63,6 @@ struct Q_DECL_HIDDEN KoColorSpaceRegistry::Private {
     const KoColorSpace *alphaF32Cs {nullptr};
     QReadWriteLock registrylock;
 
-    /**
-     * The function checks if a colorspace with a certain id and profile name can be found in the cache
-     * NOTE: the function doesn't take any lock but it needs to be called inside a d->registryLock
-     * locked either in read or write.
-     * @param csId The colorspace id
-     * @param profileName The colorspace profile name
-     * @retval KoColorSpace The matching colorspace
-     * @retval 0 Null pointer if not match
-     */
     const KoColorSpace* getCachedColorSpaceImpl(const QString & csId, const QString & profileName) const;
 
     QString idsToCacheName(const QString & csId, const QString & profileName) const;
@@ -84,20 +72,9 @@ struct Q_DECL_HIDDEN KoColorSpaceRegistry::Private {
 
     const KoColorSpace *lazyCreateColorSpaceImpl(const QString &csID, const KoColorProfile *profile);
 
-    /**
-     * Return a colorspace that works with the parameter profile.
-     * @param profileName the name of the KoColorProfile to be combined with the colorspace
-     * @return the wanted colorspace, or 0 when the cs and profile can not be combined.
-     */
     template<class LockPolicy = NormalLockPolicy>
     const KoColorSpace * colorSpace1(const QString &colorSpaceId, const QString &pName = QString());
 
-    /**
-     * Return a colorspace that works with the parameter profile.
-     * @param colorSpaceId the ID string of the colorspace that you want to have returned
-     * @param profile the profile be combined with the colorspace
-     * @return the wanted colorspace, or 0 when the cs and profile can not be combined.
-     */
     const KoColorSpace * colorSpace1(const QString &colorSpaceId, const KoColorProfile *profile);
 };
 
@@ -142,7 +119,6 @@ KoColorSpaceRegistry* KoColorSpaceRegistry::instance()
     return s_instance;
 }
 
-
 void KoColorSpaceRegistry::init()
 {
     d->rgbU8sRGB = 0;
@@ -162,7 +138,6 @@ void KoColorSpaceRegistry::init()
 
     addProfile(new KoDummyColorProfile);
 
-    // Create the built-in colorspaces
     QList<KoColorSpaceFactory *> localFactories;
     localFactories
             << new KoAlphaColorSpaceFactory()
@@ -189,7 +164,6 @@ void KoColorSpaceRegistry::init()
     configExtensions.group = "krita";
     KoPluginLoader::instance()->load("Krita/ColorSpaceExtension", configExtensions);
 
-
     dbgPigment << "Loaded the following colorspaces:";
     Q_FOREACH (const KoID& id, listKeys()) {
         dbgPigment << "\t" << id.id() << "," << id.name();
@@ -213,11 +187,9 @@ KoColorSpaceRegistry::~KoColorSpaceRegistry()
     }
     d->csMap.clear();
 
-    // deleting colorspaces calls a function in the cache
     delete d->colorConversionCache;
     d->colorConversionCache = nullptr;
 
-    // Delete the colorspace factories
     Q_FOREACH(KoColorSpaceFactory *f, d->colorSpaceFactoryRegistry.values()) {
         d->colorSpaceFactoryRegistry.remove(f->id());
         delete f;
@@ -235,11 +207,10 @@ void KoColorSpaceRegistry::add(KoColorSpaceFactory* item)
         QReadLocker l(&d->registrylock);
         auto connectionProfileRequests = d->colorConversionSystem->requiredConnectionProfilesFor(item);
 
-        // the actual connection profiles should be added without any lock held
         l.unlock();
 
         for (auto it = connectionProfileRequests.begin(); it != connectionProfileRequests.end(); ++it) {
-            const KoColorProfile *profile = this->profileFor(*it, true); // auto-generate all the required profiles
+            const KoColorProfile *profile = this->profileFor(*it, true);
             KIS_SAFE_ASSERT_RECOVER_NOOP(profile);
         }
     }
@@ -263,7 +234,6 @@ void KoColorSpaceRegistry::remove(KoColorSpaceFactory* item)
 
     Q_FOREACH (const QString& id, toremove) {
         d->csMap.remove(id);
-        // TODO: should not it delete the color space when removing it from the map ?
     }
     d->colorSpaceFactoryRegistry.remove(item->id());
 }
@@ -335,11 +305,10 @@ void KoColorSpaceRegistry::addProfile(KoColorProfile *p)
         QReadLocker l(&d->registrylock);
         auto connectionProfileRequests = d->colorConversionSystem->requiredConnectionProfilesFor(p);
 
-        // the actual connection profiles should be added without any lock held
         l.unlock();
 
         for (auto it = connectionProfileRequests.begin(); it != connectionProfileRequests.end(); ++it) {
-            const KoColorProfile *profile = this->profileFor(*it, true); // auto-generate all the required profiles
+            const KoColorProfile *profile = this->profileFor(*it, true);
             KIS_SAFE_ASSERT_RECOVER_NOOP(profile);
         }
 
@@ -360,7 +329,6 @@ void KoColorSpaceRegistry::addProfile(const KoColorProfile* profile)
 void KoColorSpaceRegistry::removeProfile(KoColorProfile* profile)
 {
     d->profileStorage.removeProfile(profile);
-    // FIXME: how about removing it from conversion system?
 }
 
 const KoColorSpace* KoColorSpaceRegistry::Private::getCachedColorSpaceImpl(const QString & csID, const QString & profileName) const
@@ -415,16 +383,13 @@ const KoColorProfile *KoColorSpaceRegistry::Private::profileForCsIdWithFallbackI
 {
     const KoColorProfile *profile = 0;
 
-    // last attempt at getting a profile, sometimes the default profile, like adobe cmyk isn't available.
     profile = profileStorage.profileByName(profileName);
     if (!profile) {
         dbgPigmentCSRegistry << "Profile not found :" << profileName;
 
-        // first try: default
         profile = profileStorage.profileByName(defaultProfileForCsIdImpl(csID));
 
         if (!profile) {
-            // second try: first profile in the list
             QList<const KoColorProfile *> profiles = profileStorage.profilesFor(colorSpaceFactoryRegistry.value(csID));
             if (profiles.isEmpty() || !profiles.first()) {
                 dbgPigmentCSRegistry << "Couldn't fetch a fallback profile:" << profileName;
@@ -443,15 +408,6 @@ const KoColorSpace *KoColorSpaceRegistry::Private::lazyCreateColorSpaceImpl(cons
 {
     const KoColorSpace *cs = 0;
 
-    /*
-     * We need to check again here, a thread requesting the same colorspace could've added it
-     * already, in between the read unlock and write lock.
-     * TODO: We also potentially changed profileName content, which means we maybe are going to
-     * create a colorspace that's actually in the space registry cache, but currently this might
-     * not be an issue because the colorspace should be cached also by the factory, so it won't
-     * create a new instance. That being said, having two caches with the same stuff doesn't make
-     * much sense.
-     */
     cs = getCachedColorSpaceImpl(csID, profile->name());
     if (!cs) {
         KoColorSpaceFactory *csf = colorSpaceFactoryRegistry.value(csID);
@@ -496,13 +452,11 @@ const KoColorSpace * KoColorSpaceRegistry::Private::colorSpace1(const QString &c
         }
 
         if (!profileName.isEmpty()) {
-            // quick attempt to fetch a cached color space
             cs = getCachedColorSpaceImpl(csID, profileName);
         }
     }
 
     if (!cs) {
-        // slow attempt to create a color space
         typename LockPolicy::WriteLocker l(&registrylock);
 
         const KoColorProfile *profile =
@@ -520,7 +474,6 @@ const KoColorSpace * KoColorSpaceRegistry::Private::colorSpace1(const QString &c
     return cs;
 }
 
-
 const KoColorSpace * KoColorSpaceRegistry::Private::colorSpace1(const QString &csID, const KoColorProfile *profile)
 {
     if (csID.isEmpty()) {
@@ -536,14 +489,11 @@ const KoColorSpace * KoColorSpaceRegistry::Private::colorSpace1(const QString &c
         cs = getCachedColorSpaceImpl(csID, profile->name());
     }
 
-    // the profile should have already been added to the registry by createColorProfile() method
     KIS_SAFE_ASSERT_RECOVER(profileStorage.containsProfile(profile)) {
-        // warning! locking happens inside addProfile!
         q->addProfile(profile);
     }
 
     if (!cs) {
-        // The profile was not stored and thus not the combination either
         QWriteLocker l(&registrylock);
         KoColorSpaceFactory *csf = colorSpaceFactoryRegistry.value(csID);
 
@@ -647,7 +597,6 @@ const KoColorSpace *KoColorSpaceRegistry::graya16(const KoColorProfile *profile)
     }
 }
 
-
 const KoColorSpace * KoColorSpaceRegistry::rgb8(const QString &profileName)
 {
     if (profileName.isEmpty()) {
@@ -727,9 +676,6 @@ const KoColorProfile *KoColorSpaceRegistry::p709SRGBProfile() const
 
 const KoColorProfile *KoColorSpaceRegistry::profileFor(const KoColorProfileQuery &query, const bool generate) const
 {
-    // We're currently disabling on-the-fly generation of PQ profiles, because it can cause
-    // some issues with inconsistent hdr-reference-white value, i.e. the user of this
-    // code may get nits value he/she didn't expect
     return profileForInternal(query, generate && query.transfer != TRC_ITU_R_BT_2100_0_PQ);
 }
 
@@ -798,7 +744,6 @@ const KoColorProfile *KoColorSpaceRegistry::profileForQColorSpace(const QColorSp
     ColorPrimaries primaries = mapQColorSpaceColorPrimaries.value(space.primaries(), PRIMARIES_UNSPECIFIED);
     TransferCharacteristics transfer = mapQColorSpaceColorTransfer.value(space.transferFunction(), TRC_UNSPECIFIED);
     if (space.transferFunction() == QColorSpace::TransferFunction::Gamma || (transfer == TRC_UNSPECIFIED && primaries == PRIMARIES_UNSPECIFIED)) {
-        // load icc profile.
         QByteArray profileData = space.iccProfile();
         profile = createColorProfile(RGBAColorModelID.id(), Integer8BitsColorDepthID.id(), profileData);
     } else {
@@ -806,17 +751,14 @@ const KoColorProfile *KoColorSpaceRegistry::profileForQColorSpace(const QColorSp
         profile = profileFor(KoColorProfileQuery(primaries, transfer));
     }
 #else
-    // We want to test RGB before testing wether we are dealing with a LUT, because we want to funnel rec2020 pq into loading our profile.
 
     if (space.colorModel() == QColorSpace::ColorModel::Rgb) {
         if (space.transferFunction() == QColorSpace::TransferFunction::Gamma) {
-            // load icc profile.
             QByteArray profileData = space.iccProfile();
             profile = createColorProfile(RGBAColorModelID.id(), Integer8BitsColorDepthID.id(), profileData);
         }
         ColorPrimaries primaries = mapQColorSpaceColorPrimaries.value(space.primaries(), PRIMARIES_UNSPECIFIED);
         TransferCharacteristics transfer = mapQColorSpaceColorTransfer.value(space.transferFunction(), TRC_UNSPECIFIED);
-        // In qt6.9 we can get the 'primary points'.
         if (!profile && (primaries != PRIMARIES_UNSPECIFIED) && transfer != TRC_UNSPECIFIED) {
             profile = profileFor(KoColorProfileQuery(primaries, transfer));
         }
@@ -836,7 +778,6 @@ const KoColorProfile *KoColorSpaceRegistry::profileForQColorSpace(const QColorSp
     }
 #endif
     if (!profile) {
-        // We might now have a non-qt supported colormodel. Let's load the raw data directly.
         KoColorSpaceEngine *engine = KoColorSpaceEngineRegistry::instance()->get("icc");
         if (engine) {
             QByteArray profileData = space.iccProfile();
@@ -870,8 +811,6 @@ QColorSpace KoColorSpaceRegistry::QColorSpaceForProfile(const KoColorProfile *pr
             && profile->getTransferCharacteristics() == TRC_ITU_R_BT_2100_0_PQ)) {
         return QColorSpace(QColorSpace::Bt2100Pq);
     }
-    // TODO: we'll need to fine tune the conversion between non "rec 2100" pq profiles and qcolorspace.
-    // Though, arguably, these probably don't show up in a QColorSpace way, and should roundtrip in the icc cicp values.
 #endif
     return QColorSpace::fromIccProfile(profile->rawData());
 }
@@ -894,7 +833,6 @@ QList<KoID> KoColorSpaceRegistry::colorDepthList(const KoID& colorModelId, Color
 {
     return colorDepthList(colorModelId.id(), option);
 }
-
 
 QList<KoID> KoColorSpaceRegistry::colorDepthList(const QString & colorModelId, ColorSpaceListVisibility option) const
 {
@@ -1033,15 +971,11 @@ QList<const KoColorSpace*> KoColorSpaceRegistry::allColorSpaces(ColorSpaceListVi
 {
     QList<const KoColorSpace*> colorSpaces;
 
-    // TODO: thread-unsafe code: the factories might change right after the lock in released
-    // HINT: used in a unittest only!
-
     d->registrylock.lockForRead();
     QList<KoColorSpaceFactory*> factories = d->colorSpaceFactoryRegistry.values();
     d->registrylock.unlock();
 
     Q_FOREACH (KoColorSpaceFactory* factory, factories) {
-        // Don't test with ycbcr for now, since we don't have a default profile for it.
         if (factory->colorModelId().id().startsWith("Y")) continue;
         if (visibility == AllColorSpaces || factory->userVisible()) {
             if (pSelection == OnlyDefaultProfile) {

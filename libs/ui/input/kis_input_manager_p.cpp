@@ -30,36 +30,6 @@
 
 #include <memory>
 
-
-/**
- * This hungry class EventEater encapsulates event masking logic.
- *
- * Its basic role is to kill synthetic mouseMove events sent by Xorg or Qt after
- * tablet events. Those events are sent in order to allow widgets that haven't
- * implemented tablet specific functionality to seamlessly behave as if one were
- * using a mouse. These synthetic events are *supposed* to be optional, or at
- * least come with a flag saying "This is a fake event!!" but neither of those
- * methods is trustworthy. (This is correct as of Qt 5.4 + Xorg.)
- *
- * Qt 5.4 provides no reliable way to see if a user's tablet is being hovered
- * over the pad, since it converts all tablethover events into mousemove, with
- * no option to turn this off. Moreover, sometimes the MouseButtonPress event
- * from the tapping their tablet happens BEFORE the TabletPress event. This
- * means we have to resort to a somewhat complicated logic. What makes this
- * truly a joke is that we are not guaranteed to observe TabletProximityEnter
- * events when we're using a tablet, either, you may only see an Enter event.
- *
- * Once we see tablet events heading our way, we can say pretty confidently that
- * every mouse event is fake. There are two painful cases to consider - a
- * mousePress event could arrive before the tabletPress event, or it could
- * arrive much later, e.g. after tabletRelease. The first was only seen on Linux
- * with Qt's XInput2 code, the solution was to hold onto mousePress events
- * temporarily and wait for tabletPress later, this is contained in git history
- * but is now removed. The second case is currently handled by the
- * eatOneMousePress function, which waits as long as necessary to detect and
- * block a single mouse press event.
- */
-
 static bool isMouseEventType(QEvent::Type t)
 {
     return (t == QEvent::MouseMove ||
@@ -103,7 +73,6 @@ bool KisInputManager::Private::EventEater::eventFilter(QObject* target, QEvent* 
     };
 
     if (peckish && event->type() == QEvent::MouseButtonPress
-        // Drop one mouse press following tabletPress or touchBegin
         && (static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)) {
         peckish = false;
         debugEvent(1);
@@ -132,28 +101,22 @@ bool KisInputManager::Private::EventEater::eventFilter(QObject* target, QEvent* 
 
     if (isMouseEventType(event->type()) &&
                (hungry
-            // On Mac, we need mouse events when the tablet is in proximity, but not pressed down
-            // since tablet move events are not generated until after tablet press.
             #ifndef Q_OS_MAC
                 || (eatSyntheticEvents && static_cast<QMouseEvent*>(event)->source() != Qt::MouseEventNotSynthesized)
             #endif
                 )) {
-        // Drop mouse events if enabled or event was synthetic & synthetic events are disabled
         debugEvent(2);
         return true;
     }
 
     if (eatTouchEvents && event->type() == QEvent::TouchBegin) {
-        // Drop touch events. If QEvent::TouchBegin is ignored, we won't
-        // receive further touch events until the next TouchBegin.
         debugTouchEvent(3);
         event->ignore();
         return true;
     }
 
-    return false; // All clear - let this one through!
+    return false;
 }
-
 
 void KisInputManager::Private::EventEater::activate()
 {
@@ -173,7 +136,6 @@ void KisInputManager::Private::EventEater::deactivate()
 
 void KisInputManager::Private::EventEater::eatOneMousePress()
 {
-    // Enable on other platforms if getting full-pressure splotches
     peckish = true;
 }
 
@@ -199,7 +161,7 @@ void KisInputManager::Private::setMaskSyntheticEvents(bool value)
 
 KisInputManager::Private::Private(KisInputManager *qq)
     : q(qq)
-    , moveEventCompressor(10 /* ms */,
+    , moveEventCompressor(10 ,
                           KisSignalCompressor::FIRST_ACTIVE,
                           KisSignalCompressor::ADDITIVE_INTERVAL)
     , priorityEventFilterSeqNo(0)
@@ -222,19 +184,10 @@ KisInputManager::Private::Private(KisInputManager *qq)
             return this->canvas ? this->canvas->inputActionGroupsMaskInterface()->inputActionGroupsMask() : AllActionGroup;
         });
 
-    /**
-     * On Windows and Linux we have a proper fix for this bug
-     * patched into our local version of Qt. We don't have a fix
-     * for macOS
-     */
 #ifdef Q_OS_MACOS
     useUnbalancedKeyPressEventWorkaround = true;
 #endif
 
-    /**
-     * In Linux distributions Qt is not patched, so we should
-     * use workaround for them
-     */
 #if defined Q_OS_LINUX &&  !KRITA_QT_HAS_UNBALANCED_KEY_PRESS_RELEASE_PATCH
     useUnbalancedKeyPressEventWorkaround = true;
 #endif
@@ -278,8 +231,6 @@ void KisInputManager::Private::CanvasSwitcher::addCanvas(KisCanvas2 *canvas)
     if (!canvasResolver.contains(canvasWidget)) {
         canvasResolver.insert(canvasWidget, canvas);
     } else {
-        // just a sanity cheek to find out if we are
-        // trying to add two canvases concurrently.
         KIS_SAFE_ASSERT_RECOVER_NOOP(d->canvas == canvas);
     }
 
@@ -317,7 +268,6 @@ bool isInputWidget(QWidget *w)
 {
     if (!w) return false;
 
-
     QList<QLatin1String> types;
     types << QLatin1String("QAbstractSlider");
     types << QLatin1String("QAbstractSpinBox");
@@ -344,8 +294,6 @@ bool KisInputManager::Private::CanvasSwitcher::eventFilter(QObject* object, QEve
             QFocusEvent *fevent = static_cast<QFocusEvent*>(event);
             KisCanvas2 *canvas = canvasResolver.value(object);
 
-            // only relevant canvases from the same main window should be
-            // registered in the switcher
             KIS_SAFE_ASSERT_RECOVER_BREAK(canvas);
 
             if (canvas != d->canvas) {
@@ -435,13 +383,7 @@ bool KisInputManager::Private::ProximityNotifier::eventFilter(QObject* object, Q
     switch (event->type()) {
     case QEvent::TabletEnterProximity:
         d->debugEvent<QEvent, false>(event);
-        // Tablet proximity events are unreliable AND fake mouse events do not
-        // necessarily come after tablet events, so this is insufficient.
-        // d->eventEater.eatOneMousePress();
 
-        // Qt sends fake mouse events instead of hover events, so not very useful.
-        // Don't block mouse events on tablet since tablet move events are not generated until
-        // after tablet press.
 #ifndef Q_OS_MACOS
         d->blockMouseEvents();
 #endif
@@ -467,7 +409,7 @@ bool KisInputManager::Private::ProximityNotifier::eventFilter(QObject* object, Q
             }
             break;
         }
-#endif /* Q_OS_WIN */
+#endif
     default:
         break;
     }
@@ -516,10 +458,6 @@ void KisInputManager::Private::addKeyShortcut(KisAbstractInputAction* action, in
     KisSingleActionShortcut *keyShortcut =
         new KisSingleActionShortcut(action, index);
 
-    //Note: Ordering is important here, Shift + V is different from V + Shift,
-    //which is the reason we use the last key here since most users will enter
-    //shortcuts as "Shift + V". Ideally this should not happen, but this is
-    //the way the shortcut matcher is currently implemented.
     QList<Qt::Key> allKeys = keys;
     Qt::Key key = allKeys.takeLast();
     QSet<Qt::Key> modifiers = QSet<Qt::Key>(allKeys.begin(), allKeys.end());
@@ -566,10 +504,6 @@ void KisInputManager::Private::addTouchShortcut(KisAbstractInputAction* action, 
 #ifndef Q_OS_MACOS
     case KisShortcutConfiguration::OneFingerTap:
     case KisShortcutConfiguration::OneFingerDrag:
-        // Touch painting takes precedence over one-finger touch shortcuts, so
-        // disable this type of shortcut when touch painting is active. Except
-        // touch hold shortcuts, since touching and holding in one spot does
-        // nothing otherwise and is therefore unambiguous.
         shortcut->setDisableOnTouchPainting(true);
         Q_FALLTHROUGH();
     case KisShortcutConfiguration::OneFingerHold:
@@ -604,7 +538,6 @@ void KisInputManager::Private::addTouchShortcut(KisAbstractInputAction* action, 
 
 bool KisInputManager::Private::addNativeGestureShortcut(KisAbstractInputAction* action, int index, KisShortcutConfiguration::GestureAction gesture)
 {
-    // Qt5 only implements QNativeGestureEvent for macOS
     Qt::NativeGestureType type;
     switch (gesture) {
 #ifdef Q_OS_MACOS
@@ -680,21 +613,6 @@ void KisInputManager::Private::blockMouseEvents()
 
 void KisInputManager::Private::allowMouseEvents()
 {
-    /**
-     * On Windows tablet events may arrive asynchronously to the
-     * mouse events (in WinTab mode). The problem is that Qt
-     * generates Enter/Leave and FocusIn/Out events via mouse
-     * events only. It means that TabletPress may come much before
-     * Enter and FocusIn event and start the stroke. In such a case
-     * we shouldn't unblock mouse events.
-     *
-     * See https://bugs.kde.org/show_bug.cgi?id=417040
-     *
-     * PS:
-     * Ideally, we should fix Qt to generate Enter/Leave and
-     * FocusIn/Out events based on tablet events as well, but
-     * it is a lot of work.
-     */
 #ifdef Q_OS_WIN32
     if (eventEater.hungry && matcher.hasRunningShortcut()) {
         return;
@@ -834,7 +752,6 @@ void KisInputManager::Private::fixShortcutMatcherModifiersState(QVector<Qt::Key>
     }
 
     Q_FOREACH (Qt::Key key, newKeys) {
-        // just replay the whole sequence
         {
             QKeyEvent kevent(QEvent::ShortcutOverride, key, modifiers);
             processUnhandledEvent(&kevent);
@@ -848,9 +765,6 @@ void KisInputManager::Private::fixShortcutMatcherModifiersState(QVector<Qt::Key>
 
 qint64 KisInputManager::Private::TabletLatencyTracker::currentTimestamp() const
 {
-    // on OS X, we need to compute the timestamp that compares correctly against the native event timestamp,
-    // which seems to be the msecs since system startup. On Linux with WinTab, we produce the timestamp that
-    // we compare against ourselves in QWindowSystemInterface.
 
     QElapsedTimer elapsed;
     elapsed.start();

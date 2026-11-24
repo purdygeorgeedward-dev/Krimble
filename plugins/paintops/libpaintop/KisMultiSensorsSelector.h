@@ -43,4 +43,4 @@ private:
     Private* const d;
 };
 
-#endif // KisMultiSensorsSelector_H
+#endif

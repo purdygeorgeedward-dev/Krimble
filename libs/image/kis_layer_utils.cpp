@@ -56,7 +56,6 @@
 #include "KisBatchUpdateLayerModificationCommand.h"
 #include "commands_new/KisChangeCloneLayersCommand.h"
 
-
 namespace KisLayerUtils {
 
 namespace Private {
@@ -91,7 +90,7 @@ namespace Private {
         QVector<KisSelectionMaskSP> selectionMasks;
 
         KisNodeSP dstNode;
-        KisPaintLayerSP rasterizedDstLayer; // is non-null when merging takes a rasterization path
+        KisPaintLayerSP rasterizedDstLayer;
 
         SwitchFrameCommand::SharedStorageSP storage;
         QSet<int> frames;
@@ -151,12 +150,6 @@ namespace Private {
                     fetchLayerFramesRecursive(currLayer);
             }
 
-            /**
-             * If source layer is not animated, then just merge that into the current frame
-             * only. See the other part of this feature in mergeDown() itself
-             *
-             * See https://bugs.kde.org/show_bug.cgi?id=475550
-             */
             if (!frames.isEmpty() && !currLayer->isAnimated()) {
                 frames.insert(image->animationInterface()->currentTime());
             }
@@ -290,7 +283,6 @@ namespace Private {
         KisPaintLayerSP targetPaintLayer() {
             return qobject_cast<KisPaintLayer*>(m_targetNode.data());
         }
-
 
         KisImageSP image() {
             return m_image;
@@ -428,15 +420,8 @@ namespace Private {
         DisableExtraCompositing(MergeMultipleInfoSP info) : m_info(info) {}
 
         void populateChildCommands() override {
-            /**
-             * We disable extra compositing only in case all the layers have
-             * the same compositing properties, therefore, we can just sum them using
-             * Normal blend mode
-             */
             if (m_info->nodesCompositingVaries) return;
 
-            // we should disable dirty requests on **redo only**, otherwise
-            // the state of the layers will not be recovered on undo
             m_info->image->disableDirtyRequests();
 
             Q_FOREACH (KisNodeSP node, m_info->allSrcNodes()) {
@@ -476,7 +461,6 @@ namespace Private {
 
                 return;
             }
-
 
             Q_FOREACH (KisNodeSP node, m_info->allSrcNodes()) {
                 if (KisLayerPropertiesIcons::nodeProperty(node, KisLayerPropertiesIcons::passThrough, false).toBool()) {
@@ -595,7 +579,6 @@ namespace Private {
         CreateMergedLayer(MergeDownInfoSP info) : m_info(info) {}
 
         void populateChildCommands() override {
-            // actual merging done by KisLayer::createMergedLayer (or specialized descendant)
             m_info->dstNode = m_info->currLayer->createMergedLayerTemplate(m_info->prevLayer);
 
             if (m_info->frames.size() > 0) {
@@ -663,10 +646,6 @@ namespace Private {
                 }
             }
 
-            /**
-             * First try to use fast-patch merge of layers of the same type
-             * (given that composition method is uniform)
-             */
             if (!compositionVaries && m_info->frames.isEmpty()) {
                 QList<KisLayerSP> layers;
                 Q_FOREACH(KisNodeSP node, m_info->allSrcNodes()) {
@@ -679,17 +658,10 @@ namespace Private {
                 }
 
                 if (!layers.isEmpty()) {
-                    /**
-                     * Blendmode and other properties are expected to be filled in by
-                     * the called function
-                     */
                     m_info->dstNode = layers.first()->tryCreateInternallyMergedLayerFromMutipleLayers(layers);
                 }
             }
 
-            /**
-             * If fast-path has failed, rasterize all nodes into a paint layer
-             */
             if (!m_info->dstNode) {
                 m_info->rasterizedDstLayer = new KisPaintLayer(m_info->image, mergedLayerName, OPACITY_OPAQUE_U8);
                 m_info->dstNode = m_info->rasterizedDstLayer;
@@ -727,7 +699,6 @@ namespace Private {
             : m_info(info), m_skipMergingSourceLayer(skipMergingSourceLayer) {}
 
         void populateChildCommands() override {
-            // actual merging done by KisLayer::createMergedLayer (or specialized descendant)
             m_info->currLayer->fillMergedLayerTemplate(m_info->dstLayer(), m_info->prevLayer, m_skipMergingSourceLayer);
         }
 
@@ -821,7 +792,7 @@ namespace Private {
         void undo() override {
             KisPaintDeviceSP srcDevice = m_info->node->paintDevice();
 
-            if (srcDevice->framesInterface()) { //Swap contents of all frames to reflect the pre-operation state.
+            if (srcDevice->framesInterface()) {
                 KisPaintDeviceSP tempPD = new KisPaintDevice(*m_cached, KritaUtils::CopySnapshot);
                 Q_FOREACH(const int& frame, srcDevice->framesInterface()->frames() ) {
                     if (m_cached->framesInterface()->frames().contains(frame)) {
@@ -862,7 +833,6 @@ namespace Private {
             KisRasterKeyframeChannel* channel = dynamic_cast<KisRasterKeyframeChannel*>(m_target->getKeyframeChannel(KisKeyframeChannel::Raster.id()));
             if (!channel)
                 return;
-
 
             KisPaintDeviceSP clone = new KisPaintDevice(*m_source->projection());
             KisRasterKeyframeSP key = channel->keyframeAt<KisRasterKeyframe>(m_frame);
@@ -921,15 +891,6 @@ namespace Private {
     {
     }
 
-    /**
-     * The removal of two nodes in one go may be a bit tricky, because one
-     * of them may be the clone of another. If we remove the source of a
-     * clone layer, it will reincarnate into a paint layer. In this case
-     * the pointer to the second layer will be lost.
-     *
-     * That's why we need to care about the order of the nodes removal:
-     * the clone --- first, the source --- last.
-     */
     void RemoveNodeHelper::safeRemoveMultipleNodes(KisNodeList nodes, KisImageSP image) {
         safeReplaceMultipleNodes(nodes, image, std::nullopt);
     }
@@ -946,7 +907,6 @@ namespace Private {
             const bool hasInheritAlpha = layer && layer->alphaChannelDisabled();
             return !normalCompositeMode && !hasInheritAlpha;
         };
-
 
         using Recipe = KisBatchUpdateLayerModificationCommand::Recipe;
         using RecipeSP = KisBatchUpdateLayerModificationCommand::RecipeSP;
@@ -976,7 +936,6 @@ namespace Private {
                 addCommandImpl(new KisActivateSelectionMaskCommand(mask, false));
             }
 
-            // relink all the clone layers onto the new replacement node
             if (replacementNode->relinkClones) {
                 QList<KisCloneLayerWSP> clones;
 
@@ -1012,7 +971,6 @@ namespace Private {
 
         addCommandImpl(new KisBatchUpdateLayerModificationCommand(image, updateRecipe, KisBatchUpdateLayerModificationCommand::FINALIZING));
 
-        // Hint: we shouldn't include that into the batch update since this layer doesn't trigger any updates
         if (lastLayer) {
             KisLayerSP newLayer = new KisPaintLayer(image.data(), image->nextLayerName(), OPACITY_OPAQUE_U8, image->colorSpace());
             addCommandImpl(new KisImageLayerAddCommand(image, newLayer,
@@ -1117,7 +1075,6 @@ namespace Private {
             }
         }
 
-
         void populateChildCommands() override {
             addCommand(new KisImageLayerAddCommand(m_image,
                                                        m_toAdd,
@@ -1137,7 +1094,6 @@ namespace Private {
         KisNodeSP m_putAfter;
 
     };
-
 
     void splitNonRemovableNodes(KisNodeList &nodesToRemove, KisNodeList &_nodesToHide)
     {
@@ -1191,21 +1147,6 @@ namespace Private {
                 putAfter = nodesToDelete.last();
             }
 
-            // Add the new merged node on top of the active node
-            // -- checking all parents if they are included in nodesToDelete
-            // Not every descendant is included in nodesToDelete even if in fact
-            //   they are going to be deleted, so we need to check it.
-            // If we consider the path from root to the putAfter node,
-            //    if there are any nodes marked for deletion, any node afterwards
-            //    is going to be deleted, too.
-            //   example:      root . . . . . ! ! . . ! ! ! ! . . . . putAfter
-            //   it should be: root . . . . . ! ! ! ! ! ! ! ! ! ! ! ! !putAfter
-            //   and here:     root . . . . X ! ! . . ! ! ! ! . . . . putAfter
-            //   you can see which node is "the perfect ancestor"
-            //   (marked X; called "parent" in the function arguments).
-            //   and here:     root . . . . . O ! . . ! ! ! ! . . . . putAfter
-            //   you can see which node is "the topmost deleted ancestor" (marked 'O')
-
             KisNodeSP node = putAfter->parent();
             bool foundDeletedAncestor = false;
             KisNodeSP topmostAncestorToDelete = nullptr;
@@ -1216,9 +1157,6 @@ namespace Private {
                         && !nodesToDelete.contains(node->parent())) {
                     foundDeletedAncestor = true;
                     topmostAncestorToDelete = node;
-                    // Here node is to be deleted and its parent is not,
-                    // so its parent is the one of the first not deleted (="perfect") ancestors.
-                    // We need the one that is closest to the top (root)
                 }
 
                 node = node->parent();
@@ -1229,7 +1167,7 @@ namespace Private {
                 putAfter = topmostAncestorToDelete;
             }
             else {
-                parent = putAfter->parent(); // putAfter (and none of its ancestors) is to be deleted, so its parent is the first not deleted ancestor
+                parent = putAfter->parent();
             }
 
         }
@@ -1244,7 +1182,6 @@ namespace Private {
                 KisNodeSP oldRoot = m_info->image->root();
                 KisNodeSP newRoot(new KisGroupLayer(m_info->image, "root", OPACITY_OPAQUE_U8));
 
-                // copy all fake nodes into the new image
                 KisLayerUtils::recursiveApplyNodes(oldRoot, [this, oldRoot, newRoot] (KisNodeSP node) {
                     if (node->isFakeNode() && node->parent() == oldRoot) {
                         addCommand(new KisImageLayerAddCommand(m_info->image,
@@ -1283,7 +1220,6 @@ namespace Private {
                                              m_info->selectionMasks,
                                              m_relinkClones}));
             }
-
 
         }
 
@@ -1445,14 +1381,10 @@ namespace Private {
         }
     }
 
-    /**
-     * \see a comment in mergeMultipleLayersImpl()
-     */
     void mergeDown(KisImageSP image, KisLayerSP layer, const KisMetaData::MergeStrategy* strategy, MergeFlags flags)
     {
         if (!layer->prevSibling()) return;
 
-        // XXX: this breaks if we allow free mixing of masks and layers
         KisLayerSP prevLayer = qobject_cast<KisLayer*>(layer->prevSibling().data());
 
         while (prevLayer && prevLayer->isFakeNode()) {
@@ -1474,8 +1406,6 @@ namespace Private {
         if (layer->visible() && prevLayer->visible()) {
             MergeDownInfoSP info(new MergeDownInfo(image, prevLayer, layer, flags));
 
-            // disable key strokes on all colorize masks, all onion skins on
-            // paint layers and wait until update is finished with a barrier
             applicator.applyCommand(new DisableColorizeKeyStrokes(info));
             applicator.applyCommand(new DisableOnionSkins(info));
             applicator.applyCommand(new KUndo2Command(), KisStrokeJobData::BARRIER);
@@ -1484,44 +1414,22 @@ namespace Private {
             applicator.applyCommand(new FillSelectionMasks(info));
             applicator.applyCommand(new CreateMergedLayer(info), KisStrokeJobData::BARRIER);
 
-            // NOTE: shape layer may have emitted spontaneous jobs during layer creation,
-            //       wait for them to complete!
             applicator.applyCommand(new RefreshDelayedUpdateLayers(info), KisStrokeJobData::BARRIER);
             applicator.applyCommand(new KUndo2Command(), KisStrokeJobData::BARRIER);
 
-            // in two-layer mode we disable pass through only when the destination layer
-            // is not a group layer
             applicator.applyCommand(new DisablePassThroughForHeadsOnly(info, true));
             applicator.applyCommand(new KUndo2Command(), KisStrokeJobData::BARRIER);
 
             if (info->frames.size() > 0) {
-                /**
-                 * Save the original time before we start switching is with
-                 * asynchronous SwitchFrameCommand.
-                 */
                 const int currentTimeOnStart = info->image->animationInterface()->currentTime();
 
                 foreach (int frame, info->frames) {
                     applicator.applyCommand(new SwitchFrameCommand(info->image, frame, false, info->storage));
 
                     applicator.applyCommand(new AddNewFrame(info, frame));
-                    /**
-                     * When switching frames we need to update the entire image, not
-                     * only the **new** extent of the layer, hence we pass `refresh_entire_image`
-                     * to the command to make sure that the entire image bounds rect is added
-                     * to the update rect
-                     */
                     applicator.applyCommand(new RefreshHiddenAreas(info, RefreshHiddenAreas::refresh_entire_image));
                     applicator.applyCommand(new RefreshDelayedUpdateLayers(info), KisStrokeJobData::BARRIER);
 
-                    /**
-                     * If source layer is **not** animated, then just merge that into the
-                     * current frame to avoid unintentional destruction of the animation
-                     * on the layer below. To merge the source into all the frames, just
-                     * make the source animated.
-                     *
-                     * See https://bugs.kde.org/show_bug.cgi?id=475550
-                     */
                     const bool skipMergingSourceLayer = !layer->isAnimated() &&
                             frame != currentTimeOnStart;
 
@@ -1628,7 +1536,6 @@ namespace Private {
         while (it != nodes.end()) {
             if ((!allowMasks && !qobject_cast<KisLayer*>(it->data())) ||
                 checkIsChildOf(*it, nodes)) {
-                //qDebug() << "Skipping node" << ppVar((*it)->name());
                 it = nodes.erase(it);
             } else {
                 ++it;
@@ -1655,9 +1562,6 @@ namespace Private {
             child = child->nextSibling();
         }
 
-        /**
-         * By the end of recursion \p inputNodes must be empty
-         */
         KIS_ASSERT_RECOVER_NOOP(root->parent() || inputNodes.isEmpty());
     }
 
@@ -1736,7 +1640,6 @@ namespace Private {
         return sortedNodes;
     }
 
-
     void addCopyOfNameTag(KisNodeSP node)
     {
         if (!KisImageConfig(true).renameDuplicatedLayers()) { return; }
@@ -1778,10 +1681,6 @@ namespace Private {
             if (node->visible()) {
                 visibleNodes << node;
             } else if (node->userLocked()) {
-                /**
-                 * When a layer is invisible and user-locked we should just skip
-                 * it and do neither merge nor remove it.
-                 */
             } else {
                 *invisibleNodes << node;
 
@@ -1874,31 +1773,6 @@ namespace Private {
         MergeMultipleInfoSP m_info;
     };
 
-    /**
-     * There might be two approaches for merging multiple layers:
-     *
-     * 1) Consider the selected nodes as a distinct "group" and merge them
-     *    as if they were isolated from the rest of the image. The key point
-     *    of this approach is that the look of the image will change, when
-     *    merging "weird" layers, like adjustment layers or layers with
-     *    non-normal blending mode.
-     *
-     * 2) Merge layers in a way to keep the look of the image as unchanged as
-     *    possible. With this approach one uses a few heuristics:
-     *
-     *       * when merging multiple layers with non-normal (but equal) blending
-     *         mode, first merge these layers together using Normal blending mode,
-     *         then set blending mode of the result to the original blending mode
-     *
-     *       * when merging multiple layers with different blending modes or
-     *         layer styles, they are first rasterized, and then laid over each
-     *         other with their own composite op. The blending mode of the final
-     *         layer is set to Normal, so the user could clearly see that he should
-     *         choose the correct blending mode.
-     *
-     * Krita uses the second approach: after merge operation, the image should look
-     * as if nothing has happened (if it is technically possible).
-     */
     void mergeMultipleLayersImpl(KisImageSP image, KisNodeList mergedNodes, KisNodeSP putAfter,
                                  bool flattenSingleLayer, const KUndo2MagicString &actionName,
                                  bool cleanupNodes = true, const QString layerName = QString(),
@@ -1921,28 +1795,17 @@ namespace Private {
         KisImageSignalVector emitSignals;
         emitSignals << ComplexNodeReselectionSignal(KisNodeSP(), KisNodeList(), KisNodeSP(), mergedNodes);
 
-
-
         KisNodeList originalNodes = mergedNodes;
         KisNodeList invisibleNodes;
         mergedNodes = filterInvisibleNodes(originalNodes, &invisibleNodes, &putAfter);
 
         if (mergedNodes.isEmpty()) return;
 
-
-        // make sure we don't add the new layer into a locked group
         KIS_SAFE_ASSERT_RECOVER_RETURN(putAfter->parent());
         while (putAfter->parent() && !putAfter->parent()->isEditable()) {
             putAfter = putAfter->parent();
         }
 
-        /**
-         * We have reached the root of the layer hierarchy and didn't manage
-         * to find a node that was editable enough for putting our merged
-         * result into it. That shouldn't happen in normal circumstances,
-         * unless the user chose to make the root layer visible and lock
-         * it manually.
-         */
         if (!putAfter->parent()) {
             return;
         }
@@ -1952,18 +1815,8 @@ namespace Private {
                                            emitSignals,
                                            actionName);
 
-
         if (!invisibleNodes.isEmpty() && cleanupNodes) {
 
-            /* If the putAfter node is invisible,
-             * we should instead pick one of the nodes
-             * to be merged to avoid a null putAfter
-             * after we remove all invisible layers from
-             * the image.
-             * (The assumption is that putAfter is among
-             * the layers to merge, so if it's invisible,
-             * it's going to be removed)
-             */
             if (!putAfter->visible()){
                 putAfter = mergedNodes.first();
             }
@@ -1978,12 +1831,6 @@ namespace Private {
         if (mergedNodes.size() > 1 || invisibleNodes.isEmpty()) {
             MergeMultipleInfoSP info(new MergeMultipleInfo(image, mergedNodes, flags));
 
-            // disable key strokes on all colorize masks, all onion skins on
-            // paint layers and wait until update is finished with a barrier
-            //
-            // when doing "new layer from visible" we should undo these changes
-            // before the action stops, because the source layers are **not**
-            // removed as a result of this action
             applicator.applyCommand(
                 new EphemeralCommandsWrapper(info,
                                              {
@@ -2005,12 +1852,6 @@ namespace Private {
                     applicator.applyCommand(new SwitchFrameCommand(info->image, frame, false, info->storage));
 
                     applicator.applyCommand(new AddNewFrame(info, frame));
-                    /**
-                     * When switching frames we need to update the entire image, not
-                     * only the **new** extent of the layer, hence we pass `refresh_entire_image`
-                     * to the command to make sure that the entire image bounds rect is added
-                     * to the update rect
-                     */
                     applicator.applyCommand(new RefreshHiddenAreas(info, RefreshHiddenAreas::refresh_entire_image));
                     applicator.applyCommand(new RefreshDelayedUpdateLayers(info), KisStrokeJobData::BARRIER);
                     applicator.applyCommand(new MergeLayersMultiple(info), KisStrokeJobData::BARRIER);
@@ -2023,7 +1864,6 @@ namespace Private {
                 applicator.applyCommand(new MergeLayersMultiple(info), KisStrokeJobData::BARRIER);
             }
 
-            //applicator.applyCommand(new MergeMetaData(info, strategy), KisStrokeJobData::BARRIER);
             if (cleanupNodes){
                 applicator.applyCommand(new CleanUpNodes(info, putAfter, flattenSingleLayer),
                                             KisStrokeJobData::SEQUENTIAL,
@@ -2123,7 +1963,7 @@ namespace Private {
     {
         QList<KisSelectionMaskSP> selectionMasks;
 
-        for (auto it = mergedNodes.begin(); it != mergedNodes.end(); /*noop*/) {
+        for (auto it = mergedNodes.begin(); it != mergedNodes.end(); ) {
             KisSelectionMaskSP mask = dynamic_cast<KisSelectionMask*>(it->data());
             if (!mask) {
                 it = mergedNodes.erase(it);
@@ -2146,7 +1986,6 @@ namespace Private {
                                            kundo2_i18n("Merge Selection Masks"));
 
         MergeMultipleInfoSP info(new MergeMultipleInfo(image, mergedNodes, None));
-
 
         applicator.applyCommand(new MergeSelectionMasks(info, putAfter));
         applicator.applyCommand(new CleanUpNodes(info, putAfter),
@@ -2177,7 +2016,6 @@ namespace Private {
         if (!activeNode) {
             activeNode = image->root()->lastChild();
         }
-
 
         KisNodeList mergedNodes;
         mergedNodes << image->root();
@@ -2323,13 +2161,6 @@ namespace Private {
         }
 
         if (!rootNode->isFakeNode() && !rootNode->projectionLeaf()->isMask()) {
-            // TODO: it would be better to count up changeRect inside
-            // node's extent() method
-            //
-            // NOTE: when flattening a group layer, we should take the change rect of the
-            // all the child layers as the source of the change. We are calculating
-            // the change rect **before** the update itself, therefore rootNode->exactBounds()
-            // is not yet prepared, hence its exact bounds still contail old values.
             currentRect |= rootNode->projectionPlane()->changeRect(rootNode->exactBounds() | currentRect);
         }
 
@@ -2352,7 +2183,7 @@ namespace Private {
             }
         }
     }
-} // namespace Private
+}
 
     void refreshHiddenAreaAsync(KisImageSP image, KisNodeSP rootNode, const QRect &preparedArea) {
         Private::refreshHiddenAreaAsync(image, rootNode, preparedArea, QRect());
@@ -2383,7 +2214,6 @@ namespace Private {
         bool hasNonNormalLayers = false;
         bool hasTransparentLayer = false;
 
-
         recursiveApplyNodes(image->root(),
             [&numLayers, &hasNonNormalLayers, &hasTransparentLayer, image] (KisNodeSP node) {
                 if (!node->inherits("KisLayer")) return;
@@ -2392,7 +2222,6 @@ namespace Private {
 
                 if (node->exactBounds().isEmpty()) return;
 
-                // this is only an approximation! it is not exact!
                 if (!hasTransparentLayer &&
                     node->exactBounds() != image->bounds()) {
 
@@ -2436,7 +2265,6 @@ namespace Private {
 
     std::future<KisNodeSP> convertToPaintLayer(KisImageSP image, KisNodeSP src)
     {
-        //Initialize all operation dependencies.
         ConvertToPaintLayerInfoSP info( new ConvertToPaintLayerInfo(image, src) );
 
         if (!info->hasTargetNode())
@@ -2467,8 +2295,6 @@ namespace Private {
                 return completed.get() ? node : KisNodeSP();
             });
     }
-
-    //===========================================================
 
     int fetchLayerActiveRasterFrameID(KisNodeSP node)
     {
@@ -2524,7 +2350,6 @@ namespace Private {
         return paintDevice->keyframeChannel()->clonesOf(node.data(), frameTime);
     }
 
-    /* Finds all frames matching a specific frame ID. useful to filter out duplicate frames. */
     QSet<int> fetchLayerRasterFrameTimesMatchingID(KisNodeSP node, const int frameID) {
         KIS_ASSERT(node);
         KisRasterKeyframeChannel* rasterChannel = dynamic_cast<KisRasterKeyframeChannel*>(node->getKeyframeChannel(KisKeyframeChannel::Raster.id(), false));
@@ -2591,17 +2416,13 @@ namespace Private {
         if (selectedTimes.isEmpty() || !node->supportsKeyframeChannel(KisKeyframeChannel::Raster.id()))
             return selectedTimes;
 
-        // Convert a set of selected keyframe times into set of selected "frameIDs"...
         QSet<int> selectedFrameIDs = KisLayerUtils::fetchLayerRasterIDsAtTimes(node, selectedTimes);
 
         if (filterActiveFrameID) {
-            // Current frame was already filtered e.g. during filter preview in `KisFilterManager::apply`...
-            // So let's remove it...
             const int currentActiveFrameID = KisLayerUtils::fetchLayerActiveRasterFrameID(node);
             selectedFrameIDs.remove(currentActiveFrameID);
         }
 
-        // Convert frameIDs to any arbitrary frame time associated with the frameID...
         QSet<int> uniqueFrameTimes = node->paintDevice()->framesInterface() ? KisLayerUtils::fetchLayerUniqueRasterTimesMatchingIDs(node, selectedFrameIDs) : QSet<int>();
 
         return uniqueFrameTimes;

@@ -102,7 +102,6 @@ void KisPaintingAssistantHandle::mergeWith(KisPaintingAssistantHandleSP handle)
         return;
     }
 
-
     Q_FOREACH (KisPaintingAssistant* assistant, handle->d->assistants) {
         if (!assistant->handles().contains(this)) {
             assistant->replaceHandle(handle, this);
@@ -125,7 +124,6 @@ struct KisPaintingAssistant::Private {
 
     KisPaintingAssistantHandleSP topLeft, bottomLeft, topRight, bottomRight, topMiddle, bottomMiddle, rightMiddle, leftMiddle;
 
-    // share everything except handles between the clones
     struct SharedData {
         QString id;
         QString name;
@@ -133,7 +131,6 @@ struct KisPaintingAssistant::Private {
         bool outlineVisible {true};
         bool isLocal {false};
         bool isLocked {false};
-        //The isDuplicating flag only exists to draw the duplicate button depressed when pressed
         bool isDuplicating {false};
         bool followBrushPosition {false};
         bool adjustedPositionValid {false};
@@ -144,7 +141,7 @@ struct KisPaintingAssistant::Private {
         QPointF editorWidgetOffset {QPointF(0, 0)};
 
         QPixmapCache::Key cached;
-        QRect cachedRect; // relative to boundingRect().topLeft()
+        QRect cachedRect;
 
         struct TranslationInvariantTransform {
             qreal m11 {0.0};
@@ -159,7 +156,7 @@ struct KisPaintingAssistant::Private {
             }
         } cachedTransform;
 
-        QColor assistantGlobalColorCache = QColor(Qt::red);     // color to paint with if a custom color is not set
+        QColor assistantGlobalColorCache = QColor(Qt::red);
 
         bool useCustomColor {false};
         QColor assistantCustomColor {KisConfig(true).defaultAssistantsColor()};
@@ -167,9 +164,8 @@ struct KisPaintingAssistant::Private {
 
     QSharedPointer<SharedData> s;
 
-
     const int previewLineWidth {1};
-    const int mainLineWidth {2}; // for "drawPath" etc.
+    const int mainLineWidth {2};
     const int errorLineWidth {2};
 
     int decorationThickness{1};
@@ -188,9 +184,6 @@ KisPaintingAssistant::Private::Private(const Private &rhs)
 
 void KisPaintingAssistant::copySharedData(KisPaintingAssistantSP assistant)
 {
-    // Clones do not get a copy of the shared data, so this function is necessary to copy
-    // the SharedData struct from the old assistant to this one. The function returns a
-    // reference to a new SharedData object copied from the original
     this->d->s = (QSharedPointer<KisPaintingAssistant::Private::SharedData>)new KisPaintingAssistant::Private::SharedData;
     QSharedPointer<KisPaintingAssistant::Private::SharedData> sd = assistant->d->s;
     *this->d->s = *sd;
@@ -268,7 +261,7 @@ KisPaintingAssistant::KisPaintingAssistant(
     Q_FOREACH (const KisPaintingAssistantHandleSP origHandle, rhs.d->sideHandles) {
         d->sideHandles << d->reuseOrCreateHandle(handleMap, origHandle, this);
     }
-#define _REUSE_H(name) d->name = d->reuseOrCreateHandle(handleMap, rhs.d->name, this, /* registerAssistant = */ false)
+#define _REUSE_H(name) d->name = d->reuseOrCreateHandle(handleMap, rhs.d->name, this, false)
     _REUSE_H(topLeft);
     _REUSE_H(bottomLeft);
     _REUSE_H(topRight);
@@ -358,7 +351,6 @@ void KisPaintingAssistant::setEditorWidgetOffset(QPointF offset)
 {
     d->s->editorWidgetOffset = offset;
 }
-
 
 void KisPaintingAssistant::drawPath(QPainter& painter, const QPainterPath &path, const KoColorDisplayRendererInterface *displayRenderInterface, bool isSnappingOn)
 {
@@ -531,7 +523,6 @@ void KisPaintingAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect,
 
     gc.drawPixmap(paintRect, cached, paintRect.translated(-widgetBound.topLeft() - d->s->cachedRect.topLeft()));
 
-
     if (canvas) {
         d->s->m_canvas = canvas;
     }
@@ -587,11 +578,8 @@ QByteArray KisPaintingAssistant::saveXml(QMap<KisPaintingAssistantHandleSP, int>
     xml.writeAttribute("editorWidgetOffset_X", QString::number((double)(d->s->editorWidgetOffset.x()), 'f', 3));
     xml.writeAttribute("editorWidgetOffset_Y", QString::number((double)(d->s->editorWidgetOffset.y()), 'f', 3));
 
+    saveCustomXml(&xml);
 
-
-    saveCustomXml(&xml); // if any specific assistants have custom XML data to save to
-
-    // write individual handle data
     xml.writeStartElement("handles");
     Q_FOREACH (const KisPaintingAssistantHandleSP handle, d->handles) {
         int id = handleMap.size();
@@ -606,7 +594,7 @@ QByteArray KisPaintingAssistant::saveXml(QMap<KisPaintingAssistantHandleSP, int>
         xml.writeEndElement();
     }
     xml.writeEndElement();
-    if (!d->sideHandles.isEmpty()) { // for vanishing points only
+    if (!d->sideHandles.isEmpty()) {
 	xml.writeStartElement("sidehandles");
 	QMap<KisPaintingAssistantHandleSP, int> sideHandleMap;
 	Q_FOREACH (KisPaintingAssistantHandleSP handle, d->sideHandles) {
@@ -646,7 +634,6 @@ void KisPaintingAssistant::loadXml(KoStore* store, QMap<int, KisPaintingAssistan
                 auto active = xml.attributes().value("active");
                 setSnappingActive( (active != "0")  );
 
-                // load custom shared assistant properties
                 if ( xml.attributes().hasAttribute("useCustomColor")) {
                     auto useCustomColor = xml.attributes().value("useCustomColor");
 
@@ -654,7 +641,6 @@ void KisPaintingAssistant::loadXml(KoStore* store, QMap<int, KisPaintingAssistan
                     if (useCustomColor.toString() == "1") {
                         usingColor = true;
                     }
-
 
                     setUseCustomColor(usingColor);
                 }
@@ -802,33 +788,22 @@ void KisPaintingAssistant::findPerspectiveAssistantHandleLocation() {
     uint vHole = 0,hHole = 0;
     KisPaintingAssistantHandleSP oppHandle;
     if (d->handles.size() == 4 && d->s->id == "perspective") {
-        //get the handle opposite to the first handle
         oppHandle = oppHandleOne();
-        //Sorting handles into two list, X sorted and Y sorted into hHandlesList and vHandlesList respectively.
         Q_FOREACH (const KisPaintingAssistantHandleSP handle,d->handles) {
             hHandlesList.append(handle);
             hHole = hHandlesList.size() - 1;
             vHandlesList.append(handle);
             vHole = vHandlesList.size() - 1;
-            /*
-             sort handles on the basis of X-coordinate
-             */
             while(hHole > 0 && hHandlesList.at(hHole -1).data()->x() > handle.data()->x()) {
                 hHandlesList.swapItemsAt(hHole - 1, hHole);
                 hHole = hHole - 1;
             }
-            /*
-             sort handles on the basis of Y-coordinate
-             */
             while(vHole > 0 && vHandlesList.at(vHole -1).data()->y() > handle.data()->y()) {
                 vHandlesList.swapItemsAt(vHole-1, vHole);
                 vHole = vHole - 1;
             }
         }
 
-        /*
-         give the handles their respective positions
-         */
         if(vHandlesList.at(0).data()->x() > vHandlesList.at(1).data()->x()) {
             d->topLeft = vHandlesList.at(1);
             d->topRight= vHandlesList.at(0);
@@ -846,9 +821,6 @@ void KisPaintingAssistant::findPerspectiveAssistantHandleLocation() {
             d->bottomRight = vHandlesList.at(3);
         }
 
-        /*
-         find if the handles that should be opposite are actually oppositely positioned
-         */
         if (( (d->topLeft == d->handles.at(0).data() && d->bottomRight == oppHandle) ||
               (d->topLeft == oppHandle && d->bottomRight == d->handles.at(0).data()) ||
               (d->topRight == d->handles.at(0).data() && d->bottomLeft == oppHandle) ||
@@ -873,21 +845,15 @@ void KisPaintingAssistant::findPerspectiveAssistantHandleLocation() {
             }
 
         }
-        /*
-         Setting the middle handles as needed
-         */
         if(!d->bottomMiddle && !d->topMiddle && !d->leftMiddle && !d->rightMiddle) {
-  
-            // Before re-adding the handles, clear old ones that have been
-            // potentially loaded from disk and not re-associated with the
-            // xxxMiddle pointers in d; otherwise those would stay in place.
+
             if(!d->sideHandles.isEmpty()) {
                 Q_FOREACH (KisPaintingAssistantHandleSP handle, d->sideHandles) {
                     handle->unregisterAssistant(this);
                 }
                 d->sideHandles.clear();
             }
-          
+
             d->bottomMiddle = new KisPaintingAssistantHandle((d->bottomLeft.data()->x() + d->bottomRight.data()->x())*0.5,
                                                              (d->bottomLeft.data()->y() + d->bottomRight.data()->y())*0.5);
             d->topMiddle = new KisPaintingAssistantHandle((d->topLeft.data()->x() + d->topRight.data()->x())*0.5,
@@ -896,7 +862,7 @@ void KisPaintingAssistant::findPerspectiveAssistantHandleLocation() {
                                                            (d->topRight.data()->y() + d->bottomRight.data()->y())*0.5);
             d->leftMiddle= new KisPaintingAssistantHandle((d->bottomLeft.data()->x() + d->topLeft.data()->x())*0.5,
                                                           (d->bottomLeft.data()->y() + d->topLeft.data()->y())*0.5);
-            
+
             addHandle(d->rightMiddle, HandleType::SIDE);
             addHandle(d->leftMiddle, HandleType::SIDE);
             addHandle(d->bottomMiddle, HandleType::SIDE);
@@ -1036,8 +1002,6 @@ QList<KisPaintingAssistantHandleSP> KisPaintingAssistant::sideHandles()
     return d->sideHandles;
 }
 
-
-
 bool KisPaintingAssistant::areTwoPointsClose(const QPointF& pointOne, const QPointF& pointTwo)
 {
     int m_handleSize = 16;
@@ -1052,7 +1016,6 @@ KisPaintingAssistantHandleSP KisPaintingAssistant::closestCornerHandleFromPoint(
         return 0;
     }
 
-
     if (areTwoPointsClose(point, pixelToView(topLeft()->toPoint()))) {
         return topLeft();
     } else if (areTwoPointsClose(point, pixelToView(topRight()->toPoint()))) {
@@ -1064,7 +1027,6 @@ KisPaintingAssistantHandleSP KisPaintingAssistant::closestCornerHandleFromPoint(
     }
     return 0;
 }
-
 
 QPointF KisPaintingAssistant::pixelToView(const QPoint pixelCoords) const
 {
@@ -1079,11 +1041,9 @@ QPointF KisPaintingAssistant::effectiveBrushPosition(const KisCoordinatesConvert
     if (d->s->followBrushPosition && d->s->adjustedPositionValid) {
         mousePos = converter->documentToWidget(d->s->adjustedBrushPosition);
     } else if (canvas) {
-        // FIXME: this may be simple and cheap, but it's only integer precision!
         mousePos= canvas->canvasWidget()->mapFromGlobal(QCursor::pos());
     } else {
-        //...of course, you need to have access to a canvas-widget for that.//
-        mousePos = QCursor::pos(); //this'll give an offset//
+        mousePos = QCursor::pos();
         dbgUI << "no canvas given for assistant, you may have passed arguments incorrectly:";
     }
     return mousePos;
@@ -1134,12 +1094,6 @@ QList<KisPaintingAssistantSP> KisPaintingAssistant::cloneAssistantList(const QLi
     }
     return clonedList;
 }
-
-
-
-/*
- * KisPaintingAssistantFactory classes
-*/
 
 KisPaintingAssistantFactory::KisPaintingAssistantFactory()
 {

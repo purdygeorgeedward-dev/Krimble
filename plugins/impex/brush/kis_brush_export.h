@@ -15,7 +15,6 @@
 #include <kis_config_widget.h>
 #include <kis_properties_configuration.h>
 
-
 class KisBrushExport : public KisImportExportFilter
 {
     Q_OBJECT

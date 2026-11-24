@@ -21,15 +21,14 @@ class KisBContrastBenchmark : public QObject
 private:
     const KoColorSpace * m_colorSpace;
     KoColor m_color;
-    KisPaintDeviceSP m_device;        
-    
-    
+    KisPaintDeviceSP m_device;
+
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
-    
+
     void benchmarkFilter();
-    
+
 };
 
 #endif

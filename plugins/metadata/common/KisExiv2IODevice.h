@@ -80,4 +80,4 @@ private:
     Exiv2::byte *m_mappedArea;
 };
 
-#endif // __KISEXIV2IODEVICE_H_
+#endif

@@ -14,7 +14,6 @@
 #include <kconfiggroup.h>
 #include <kstandardguiitem.h>
 
-
 #include <kis_icon.h>
 #include "KoColorSpace.h"
 #include "KoColorSpaceRegistry.h"
@@ -24,7 +23,6 @@
 #include "kis_color_selector.h"
 #include "kis_config.h"
 #include "kis_config_notifier.h"
-
 
 KisColorSelectorSettings::KisColorSelectorSettings(QWidget *parent) :
     KisPreferenceSet(parent),
@@ -39,7 +37,6 @@ KisColorSelectorSettings::KisColorSelectorSettings(QWidget *parent) :
 
     connect(ui->useDifferentColorSpaceCheckbox, SIGNAL(clicked(bool)), this, SLOT(useDifferentColorSpaceChecked(bool)));
 
-    /* color docker selector drop down */
     ui->dockerColorSettingsComboBox->addItem(i18n("Color Selector"));
     ui->dockerColorSettingsComboBox->addItem(i18n("Color Hotkeys"));
 
@@ -47,21 +44,17 @@ KisColorSelectorSettings::KisColorSelectorSettings(QWidget *parent) :
             qOverload<int>(&QComboBox::currentIndexChanged),
             this,
             &KisColorSelectorSettings::changedColorDocker);
-    // start off seeing advanced color selector properties
     ui->dockerColorSettingsComboBox->setCurrentIndex(0);
 
-    /* advanced color docker options */
     ui->dockerResizeOptionsComboBox->addItem(i18n("Change to a Horizontal Layout"));
     ui->dockerResizeOptionsComboBox->addItem(i18n("Hide Shade Selector"));
     ui->dockerResizeOptionsComboBox->addItem(i18n("Do Nothing"));
     ui->dockerResizeOptionsComboBox->setCurrentIndex(0);
 
-
     ui->zoomSelectorOptionComboBox->addItem(i18n("When Pressing Middle Mouse Button"));
     ui->zoomSelectorOptionComboBox->addItem(i18n("On Mouse Over"));
     ui->zoomSelectorOptionComboBox->addItem(i18n("Never"));
     ui->zoomSelectorOptionComboBox->setCurrentIndex(0);
-
 
     ui->colorSelectorTypeComboBox->addItem(i18n("HSV"));
     ui->colorSelectorTypeComboBox->addItem(i18n("HSL"));
@@ -69,8 +62,7 @@ KisColorSelectorSettings::KisColorSelectorSettings(QWidget *parent) :
     ui->colorSelectorTypeComboBox->addItem(i18n("HSY'"));
     ui->colorSelectorTypeComboBox->setCurrentIndex(0);
     connect( ui->colorSelectorTypeComboBox, SIGNAL(currentIndexChanged(int)),this, SLOT(changedACSColorSelectorType(int)));
-    changedACSColorSelectorType(0); // initialize everything to HSV at the start
-
+    changedACSColorSelectorType(0);
 
     ui->ACSshadeSelectorMyPaintColorModelComboBox->addItem(i18n("HSV"));
     ui->ACSshadeSelectorMyPaintColorModelComboBox->addItem(i18n("HSL"));
@@ -78,14 +70,12 @@ KisColorSelectorSettings::KisColorSelectorSettings(QWidget *parent) :
     ui->ACSshadeSelectorMyPaintColorModelComboBox->addItem(i18n("HSY'"));
     ui->ACSshadeSelectorMyPaintColorModelComboBox->setCurrentIndex(0);
 
-
     ui->ACSShadeSelectorTypeComboBox->addItem(i18n("MyPaint"));
     ui->ACSShadeSelectorTypeComboBox->addItem(i18n("Minimal"));
     ui->ACSShadeSelectorTypeComboBox->addItem(i18n("Do Not Show"));
     ui->ACSShadeSelectorTypeComboBox->setCurrentIndex(0);
-    changedACSShadeSelectorType(0); // show/hide UI elements for MyPaint settings
+    changedACSShadeSelectorType(0);
     connect( ui->ACSShadeSelectorTypeComboBox, SIGNAL(currentIndexChanged(int)),this, SLOT(changedACSShadeSelectorType(int)));
-
 
     ui->commonColorsAlignVertical->setChecked(true);
     ui->commonColorsAlignHorizontal->setChecked(true);
@@ -95,10 +85,8 @@ KisColorSelectorSettings::KisColorSelectorSettings(QWidget *parent) :
     changedACSColorAlignment(ui->commonColorsAlignHorizontal->isChecked());
     changedACSLastUsedColorAlignment(ui->lastUsedColorsAlignHorizontal->isChecked());
 
-
     connect(ui->colorSpace,                 SIGNAL(colorSpaceChanged(const KoColorSpace*)),
             ui->colorSelectorConfiguration, SLOT(setColorSpace(const KoColorSpace*)));
-
 
     connect(this, SIGNAL(hsxchanged(int)),
             ui->colorSelectorConfiguration, SLOT(setList(int)));
@@ -142,21 +130,17 @@ QString KisColorSelectorSettings::header()
     return QString(i18n("Color Selector Settings"));
 }
 
-
 QIcon KisColorSelectorSettings::icon()
 {
     return KisIconUtils::loadIcon("krimble-config-color-selector");
 }
 
-
 void KisColorSelectorSettings::savePreferences() const
 {
-    // write cfg
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("advancedColorSelector");
     KConfigGroup hsxcfg =  KSharedConfig::openConfig()->group("hsxColorSlider");
     KConfigGroup hotkeycfg =  KSharedConfig::openConfig()->group("colorhotkeys");
 
-    //  advanced color selector
     cfg.writeEntry("onDockerResize", ui->dockerResizeOptionsComboBox->currentIndex());
     cfg.writeEntry("zoomSelectorOptions", ui->zoomSelectorOptionComboBox->currentIndex() );
     cfg.writeEntry("zoomSize", ui->popupSize->value());
@@ -168,7 +152,6 @@ void KisColorSelectorSettings::savePreferences() const
     KisConfig kisconfig(false);
     kisconfig.setCustomColorSelectorColorSpace(colorSpace);
 
-    //color patches
     cfg.writeEntry("lastUsedColorsPerDocument", ui->lastUsedColorsPerDocument->isChecked());
     cfg.writeEntry("lastUsedColorsShow", ui->lastUsedColorsShow->isChecked());
     cfg.writeEntry("lastUsedColorsAlignment", ui->lastUsedColorsAlignVertical->isChecked());
@@ -189,10 +172,6 @@ void KisColorSelectorSettings::savePreferences() const
     cfg.writeEntry("commonColorsHeight", ui->commonColorsHeight->value());
     cfg.writeEntry("commonColorsAutoUpdate", ui->commonColorsAutoUpdate->isChecked());
 
-    //shade selector
-
-
-
     int shadeSelectorTypeIndex =  ui->ACSShadeSelectorTypeComboBox->currentIndex();
 
     if(shadeSelectorTypeIndex == 0) {
@@ -212,8 +191,6 @@ void KisColorSelectorSettings::savePreferences() const
 
     cfg.writeEntry("customSelectorBackgroundColor", ui->customColorBackgroundSelector->color().toQColor());
 
-    //mypaint model
-
     int shadeMyPaintComboBoxIndex  = ui->ACSshadeSelectorMyPaintColorModelComboBox->currentIndex();
     if (shadeMyPaintComboBoxIndex == 0 ) {
         cfg.writeEntry("shadeMyPaintType",   "HSV");
@@ -221,18 +198,15 @@ void KisColorSelectorSettings::savePreferences() const
         cfg.writeEntry("shadeMyPaintType",   "HSL");
     } else  if (shadeMyPaintComboBoxIndex == 2 ) {
         cfg.writeEntry("shadeMyPaintType",   "HSI");
-    } else {   // HSY
+    } else {
         cfg.writeEntry("shadeMyPaintType",   "HSY");
     }
-
-
 
     cfg.writeEntry("minimalShadeSelectorAsGradient", ui->minimalShadeSelectorAsGradient->isChecked());
     cfg.writeEntry("minimalShadeSelectorPatchCount", ui->minimalShadeSelectorPatchesPerLine->value());
     cfg.writeEntry("minimalShadeSelectorLineConfig",  ui->minimalShadeSelectorLineSettings->toString());
     cfg.writeEntry("minimalShadeSelectorLineHeight", ui->minimalShadeSelectorLineHeight->value());
 
-    //color selector
     KisColorSelectorComboBox* cstw = dynamic_cast<KisColorSelectorComboBox*>(ui->colorSelectorConfiguration);
     KIS_ASSERT(cstw);
 
@@ -240,13 +214,11 @@ void KisColorSelectorSettings::savePreferences() const
 
     cfg.writeEntry("hsxSettingType", ui->colorSelectorTypeComboBox->currentIndex());
 
-    //luma//
     cfg.writeEntry("lumaR", ui->l_lumaR->value());
     cfg.writeEntry("lumaG", ui->l_lumaG->value());
     cfg.writeEntry("lumaB", ui->l_lumaB->value());
     cfg.writeEntry("gamma", ui->SP_Gamma->value());
 
-    //hotkeys//
     hotkeycfg.writeEntry("steps_lightness", ui->sb_lightness->value());
     hotkeycfg.writeEntry("steps_saturation", ui->sb_saturation->value());
     hotkeycfg.writeEntry("steps_hue", ui->sb_hue->value());
@@ -266,16 +238,16 @@ void KisColorSelectorSettings::changedACSColorSelectorType(int index)
 {
     ui->lumaCoefficientGroupbox->setEnabled(false);
 
-    if (index == 0)     {  // HSV
+    if (index == 0)     {
         ui->ACSTypeDescriptionLabel->setText(i18n("Values goes from black to white, or black to the most saturated color. Saturation, in turn, goes from the most saturated color to white, gray or black."));
     }
-    else if (index == 1)     {  // HSL
+    else if (index == 1)     {
         ui->ACSTypeDescriptionLabel->setText(i18n("Lightness goes from black to white, with middle gray being equal to the most saturated color."));
     }
-    else if (index == 2)     {  // HSI
+    else if (index == 2)     {
         ui->ACSTypeDescriptionLabel->setText(i18n("Intensity maps to the sum of rgb components"));
     }
-    else {  // HSY'
+    else {
         ui->ACSTypeDescriptionLabel->setText(i18n("Luma(Y') is weighted by its coefficients which are configurable. Default values are set to 'rec 709'."));
         ui->lumaCoefficientGroupbox->setEnabled(true);
     }
@@ -285,11 +257,8 @@ void KisColorSelectorSettings::changedACSColorSelectorType(int index)
 
 }
 
-
 void KisColorSelectorSettings::changedACSColorAlignment(bool toggled)
 {
-    // this slot is tied to the horizontal radio button's state being changed
-    // you can infer the vertical state
 
     ui->lbl_commonColorsNumCols->setDisabled(toggled);
     ui->commonColorsNumCols->setDisabled(toggled);
@@ -300,8 +269,6 @@ void KisColorSelectorSettings::changedACSColorAlignment(bool toggled)
 
 void KisColorSelectorSettings::changedACSLastUsedColorAlignment(bool toggled)
 {
-    // this slot is tied to the horizontal radio button's state being changed
-    // you can infer the vertical state
 
     ui->lbl_lastUsedNumCols->setDisabled(toggled);
     ui->lastUsedColorsNumCols->setDisabled(toggled);
@@ -313,17 +280,17 @@ void KisColorSelectorSettings::changedACSLastUsedColorAlignment(bool toggled)
 void KisColorSelectorSettings::changedACSShadeSelectorType(int index)
 {
 
-    if (index == 0)     {  // MyPaint
+    if (index == 0)     {
         ui->minimalShadeSelectorGroup->hide();
         ui->myPaintColorModelLabel->show();
         ui->ACSshadeSelectorMyPaintColorModelComboBox->show();
 
-    } else if (index == 1) { // Minimal
+    } else if (index == 1) {
         ui->minimalShadeSelectorGroup->show();
         ui->myPaintColorModelLabel->hide();
         ui->ACSshadeSelectorMyPaintColorModelComboBox->hide();
 
-    }else { // do not show
+    }else {
         ui->minimalShadeSelectorGroup->hide();
         ui->myPaintColorModelLabel->hide();
         ui->ACSshadeSelectorMyPaintColorModelComboBox->hide();
@@ -335,22 +302,18 @@ void KisColorSelectorSettings::useDifferentColorSpaceChecked(bool enabled)
     ui->colorSpace->setEnabled(enabled);
 }
 
-void KisColorSelectorSettings::useCustomColorForSelector(bool enabled) 
+void KisColorSelectorSettings::useCustomColorForSelector(bool enabled)
 {
     ui->customColorBackgroundSelector->setEnabled(enabled);
 }
 
 void KisColorSelectorSettings::loadPreferences()
 {
-    //read cfg
-    //don't forget to also add a new entry to the default preferences
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("advancedColorSelector");
     KConfigGroup hsxcfg =  KSharedConfig::openConfig()->group("hsxColorSlider");
     KConfigGroup hotkeycfg =  KSharedConfig::openConfig()->group("colorhotkeys");
 
-
-    // Advanced color selector
     ui->dockerResizeOptionsComboBox->setCurrentIndex(  (int)cfg.readEntry("onDockerResize", 0) );
     ui->zoomSelectorOptionComboBox->setCurrentIndex(   (int) cfg.readEntry("zoomSelectorOptions", 0) );
     ui->popupSize->setValue(cfg.readEntry("zoomSize", 280));
@@ -370,8 +333,6 @@ void KisColorSelectorSettings::loadPreferences()
         }
     }
 
-
-    //color patches
     ui->lastUsedColorsPerDocument->setChecked(cfg.readEntry("lastUsedColorsPerDocument", false));
     ui->lastUsedColorsShow->setChecked(cfg.readEntry("lastUsedColorsShow", true));
     bool a = cfg.readEntry("lastUsedColorsAlignment", true);
@@ -396,14 +357,13 @@ void KisColorSelectorSettings::loadPreferences()
     ui->commonColorsHeight->setValue(cfg.readEntry("commonColorsHeight", 16));
     ui->commonColorsAutoUpdate->setChecked(cfg.readEntry("commonColorsAutoUpdate", false));
 
-    //shade selector
     QString shadeSelectorType=cfg.readEntry("shadeSelectorType", "Minimal");
 
     if ( shadeSelectorType == "MyPaint") {
         ui->ACSShadeSelectorTypeComboBox->setCurrentIndex(0);
     } else if (shadeSelectorType == "Minimal") {
         ui->ACSShadeSelectorTypeComboBox->setCurrentIndex(1);
-    } else {   // Hidden
+    } else {
         ui->ACSShadeSelectorTypeComboBox->setCurrentIndex(2);
     }
 
@@ -415,7 +375,6 @@ void KisColorSelectorSettings::loadPreferences()
     ui->useCustomColorForBackground->setChecked(cfg.readEntry("useCustomColorForBackground", false));
     connect(ui->useCustomColorForBackground, SIGNAL(clicked(bool)), this, SLOT(useCustomColorForSelector(bool)));
 
-    
     QColor storedColor = cfg.readEntry("customSelectorBackgroundColor", QColor(Qt::gray));
     KoColor c;
     c.fromQColor(storedColor);
@@ -431,10 +390,9 @@ void KisColorSelectorSettings::loadPreferences()
         ui->ACSshadeSelectorMyPaintColorModelComboBox->setCurrentIndex(1);
     } else  if (shadeMyPaintType == "HSI" ) {
         ui->ACSshadeSelectorMyPaintColorModelComboBox->setCurrentIndex(2);
-    } else {   // HSY
+    } else {
         ui->ACSshadeSelectorMyPaintColorModelComboBox->setCurrentIndex(3);
     }
-
 
     bool asGradient = cfg.readEntry("minimalShadeSelectorAsGradient", true);
     if(asGradient) ui->minimalShadeSelectorAsGradient->setChecked(true);
@@ -447,46 +405,36 @@ void KisColorSelectorSettings::loadPreferences()
     int hsxSettingType= (int)cfg.readEntry("hsxSettingType", 0);
     ui->colorSelectorTypeComboBox->setCurrentIndex(hsxSettingType);
 
-
-    //color selector
     KisColorSelectorComboBox* cstw = dynamic_cast<KisColorSelectorComboBox*>(ui->colorSelectorConfiguration);
     KIS_ASSERT(cstw);
-    cstw->setConfiguration(KisColorSelectorConfiguration::fromString(cfg.readEntry("colorSelectorConfiguration", "3|0|5|0"))); // triangle selector
+    cstw->setConfiguration(KisColorSelectorConfiguration::fromString(cfg.readEntry("colorSelectorConfiguration", "3|0|5|0")));
 
-    //luma values//
     ui->l_lumaR->setValue(cfg.readEntry("lumaR", 0.2126));
     ui->l_lumaG->setValue(cfg.readEntry("lumaG", 0.7152));
     ui->l_lumaB->setValue(cfg.readEntry("lumaB", 0.0722));
     ui->SP_Gamma->setValue(cfg.readEntry("gamma", 2.2));
 
-    //hotkeys//
     ui->sb_lightness->setValue(hotkeycfg.readEntry("steps_lightness", 10));
     ui->sb_saturation->setValue(hotkeycfg.readEntry("steps_saturation", 10));
     ui->sb_hue->setValue(hotkeycfg.readEntry("steps_hue", 36));
     ui->sb_rg->setValue(hotkeycfg.readEntry("steps_redgreen", 10));
     ui->sb_by->setValue(hotkeycfg.readEntry("steps_blueyellow", 10));
 
-
 }
 
 void KisColorSelectorSettings::loadDefaultPreferences()
 {
-    //set defaults
-    //if you change something, don't forget that loadPreferences should be kept in sync
 
-    // advanced color selector docker
     ui->dockerResizeOptionsComboBox->setCurrentIndex(0);
     ui->zoomSelectorOptionComboBox->setCurrentIndex(0);
     ui->popupSize->setValue(280);
     ui->chkShowColorSelector->setChecked(true);
-
 
     ui->useDifferentColorSpaceCheckbox->setChecked(false);
     ui->colorSpace->setCurrentColorModel(KoID("RGBA"));
     ui->colorSpace->setCurrentColorDepth(KoID("U8"));
     ui->colorSpace->setCurrentProfile(KoColorSpaceRegistry::instance()->rgb8()->profile()->name());
 
-    //color patches
     ui->lastUsedColorsShow->setChecked(true);
     ui->lastUsedColorsAlignVertical->setChecked(true);
     ui->lastUsedColorsAlignHorizontal->setChecked(false);
@@ -508,8 +456,7 @@ void KisColorSelectorSettings::loadDefaultPreferences()
     ui->commonColorsHeight->setValue(16);
     ui->commonColorsAutoUpdate->setChecked(false);
 
-    //shade selector
-    ui->ACSShadeSelectorTypeComboBox->setCurrentIndex(1); // Minimal
+    ui->ACSShadeSelectorTypeComboBox->setCurrentIndex(1);
 
     ui->ACSshadeSelectorMyPaintColorModelComboBox->setCurrentIndex(0);
 
@@ -525,21 +472,18 @@ void KisColorSelectorSettings::loadDefaultPreferences()
     ui->minimalShadeSelectorLineSettings->fromString("0|0.2|0|0|0|0|0;1|0|1|1|0|0|0;2|0|-1|1|0|0|0;");
     ui->minimalShadeSelectorLineHeight->setValue(10);
 
-    // set advanced color selector to use HSV
     ui->colorSelectorTypeComboBox->setCurrentIndex(0);
 
     KisColorSelectorComboBox* cstw = dynamic_cast<KisColorSelectorComboBox*>(ui->colorSelectorConfiguration);
     KIS_ASSERT(cstw);
 
-    cstw->setConfiguration(KisColorSelectorConfiguration("3|0|5|0")); // triangle selector
+    cstw->setConfiguration(KisColorSelectorConfiguration("3|0|5|0"));
 
-    //luma//
     ui->l_lumaR->setValue(0.2126);
     ui->l_lumaG->setValue(0.7152);
     ui->l_lumaB->setValue(0.0722);
     ui->SP_Gamma->setValue(2.2);
 
-    //hotkeys//
     ui->sb_lightness->setValue(10);
     ui->sb_saturation->setValue(10);
     ui->sb_hue->setValue(36);
@@ -572,6 +516,4 @@ KisColorSelectorSettingsDialog::KisColorSelectorSettingsDialog(QWidget *parent) 
     connect(buttonBox->button(QDialogButtonBox::RestoreDefaults),
             SIGNAL(clicked()),  m_widget, SLOT(loadDefaultPreferences()));
 }
-
-
 

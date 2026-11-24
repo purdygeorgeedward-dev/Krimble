@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 class KoCachedGradient : public KoAbstractGradient
 {
 
@@ -26,10 +25,6 @@ public:
         return KoResourceSP(new KoCachedGradient(m_subject, m_max + 1, m_colorSpace));
     }
 
-    /**
-    * Creates a QGradient from the gradient.
-    * The resulting QGradient might differ from original gradient
-    */
     QGradient* toQGradient() const override
     {
         return m_subject->toQGradient();
@@ -54,7 +49,6 @@ public:
         setGradient(gradient, steps, gradient->colorSpace());
     }
 
-    /// gets the color data at position 0 <= t <= 1
     const quint8* cachedAt(qreal t) const
     {
         qint32 tInt = t * m_max + 0.5;
@@ -66,13 +60,12 @@ public:
         }
     }
 
-    /// allow access to the actual color at position 0 <= t <= 1, instead of the cached color
     void colorAt(KoColor& color, qreal t) const override
     {
         m_subject->colorAt(color, t);
     }
-    void setColorSpace(const KoColorSpace* colorSpace) 
-    { 
+    void setColorSpace(const KoColorSpace* colorSpace)
+    {
         if (!m_colorSpace || *m_colorSpace != *colorSpace) {
             m_colorSpace = colorSpace;
             for (qint32 i = 0; i < m_colors.size(); i++) {

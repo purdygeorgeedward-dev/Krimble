@@ -10,8 +10,6 @@
 #include <QObject>
 #include <QRect>
 
-
-
 class KisConstrainedRect : public QObject
 {
     Q_OBJECT
@@ -91,4 +89,4 @@ private:
     QRect m_cropRect;
 };
 
-#endif /* __KIS_CONSTRAINED_RECT_H */
+#endif

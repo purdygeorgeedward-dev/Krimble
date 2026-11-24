@@ -85,8 +85,6 @@ struct KisDabCacheBase::Private {
     static qreal positiveFraction(qreal x);
 };
 
-
-
 KisDabCacheBase::KisDabCacheBase()
     : m_d(new Private())
 {

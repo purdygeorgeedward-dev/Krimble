@@ -12,8 +12,7 @@
 
 class KoColorSpace;
 
-
-using HistVector = std::vector<std::vector<quint32> >; //Don't use QVector here - it's too slow for this purpose
+using HistVector = std::vector<std::vector<quint32> >;
 
 struct HistogramData
 {
@@ -23,7 +22,6 @@ struct HistogramData
     float maximumValue {1.0};
 };
 Q_DECLARE_METATYPE(HistogramData)
-
 
 class HistogramComputationStrokeStrategy : public KisIdleTaskStrokeStrategy
 {
@@ -40,7 +38,6 @@ private:
     void initiateVector(HistVector &vec, const KoColorSpace* colorSpace);
 
 Q_SIGNALS:
-    //Emitted when thumbnail is updated and overviewImage is fully generated.
     void computationResultReady(HistogramData data);
 
 private:
@@ -48,4 +45,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // HISTOGRAMCOMPUTATIONSTROKESTRATEGY_H
+#endif

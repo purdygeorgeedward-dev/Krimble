@@ -51,13 +51,11 @@ void KoParameterShape::moveHandle(int handleId, const QPointF & point, Qt::Keybo
     }
 
     update();
-    // function to do special stuff
     moveHandleAction(handleId, documentToShape(point), modifiers);
 
     updatePath(size());
     update();
 }
-
 
 int KoParameterShape::handleIdAt(const QRectF & rect) const
 {
@@ -81,7 +79,6 @@ QPointF KoParameterShape::handlePosition(int handleId) const
 
 void KoParameterShape::paintHandles(KisHandlePainterHelper &handlesHelper)
 {
-
 
     QList<QPointF>::const_iterator it(d->handles.constBegin());
     for (; it != d->handles.constEnd(); ++it) {

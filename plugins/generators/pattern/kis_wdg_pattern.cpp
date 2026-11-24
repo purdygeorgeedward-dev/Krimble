@@ -62,15 +62,9 @@ KisWdgPattern::KisWdgPattern(QWidget* parent)
     m_widget->sliderAlignToPixelGridX->setRange(1, 20);
     m_widget->sliderAlignToPixelGridY->setRange(1, 20);
     KisSpinBoxI18nHelper::install(m_widget->sliderAlignToPixelGridX, [](int value) {
-        // i18n: This is meant to be used in a spinbox so keep the {n} in the text
-        //       and it will be substituted by the number. The text before will be
-        //       used as the prefix and the text after as the suffix
         return i18ncp("Horizontal pixel grid alignment prefix/suffix for spinboxes in pattern generator", "Every {n} repetition horizontally", "Every {n} repetitions horizontally", value);
     });
     KisSpinBoxI18nHelper::install(m_widget->sliderAlignToPixelGridY, [](int value) {
-        // i18n: This is meant to be used in a spinbox so keep the {n} in the text
-        //       and it will be substituted by the number. The text before will be
-        //       used as the prefix and the text after as the suffix
         return i18ncp("Vertical pixel grid alignment prefix/suffix for spinboxes in pattern generator", "Every {n} repetition vertically", "Every {n} repetitions vertically", value);
     });
 
@@ -99,7 +93,6 @@ KisWdgPattern::~KisWdgPattern()
 {
     delete m_widget;
 }
-
 
 void KisWdgPattern::setConfiguration(const KisPropertiesConfigurationSP config)
 {

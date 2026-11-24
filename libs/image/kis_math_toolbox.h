@@ -20,7 +20,7 @@
 #include "kis_paint_device.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable: 4290) // disable "C++ exception specification ignored" warning
+#pragma warning(disable: 4290)
 #endif
 
 #if !defined _MSC_VER
@@ -42,7 +42,6 @@ public:
             : coeffs(new float[nsize*nsize*ndepth])
             , size(nsize)
             , depth(ndepth) {
-            // XXX: Valgrind shows that these are being used without being initialised.
             for (quint32 i = 0; i < nsize * nsize * ndepth; ++i) {
                 coeffs[i] = 0;
             }
@@ -59,36 +58,12 @@ public:
 
     typedef KisFloatRepresentation KisWavelet;
 
-    /**
-     * This function initializes a wavelet structure
-     * @param lay the layer that will be used for the transformation
-     * @param rect the rectangular for transformation
-     */
     inline KisWavelet* initWavelet(KisPaintDeviceSP lay, const QRect&);
 
     inline uint fastWaveletTotalSteps(const QRect&);
 
-    /**
-     * This function reconstruct the layer from the information of a wavelet
-     * @param src layer from which the wavelet will be computed
-     * @param rect the rectangular for reconstruction
-     * @param buff if set to 0, the buffer will be initialized by the function,
-     * you might want to give a buff to the function if you want to use the same buffer
-     * in transformToWavelet and in untransformToWavelet, use initWavelet to initialize
-     * the buffer
-     */
     KisWavelet* fastWaveletTransformation(KisPaintDeviceSP src, const QRect&, KisWavelet* buff = 0);
 
-    /**
-     * This function reconstruct the layer from the information of a wavelet
-     * @param dst layer on which the wavelet will be untransform
-     * @param rect the rectangular for reconstruction
-     * @param wav the wavelet
-     * @param buff if set to 0, the buffer will be initialized by the function,
-     * you might want to give a buff to the function if you want to use the same buffer
-     * in transformToWavelet and in untransformToWavelet, use initWavelet to initialize
-     * the buffer
-     */
     void fastWaveletUntransformation(KisPaintDeviceSP dst, const QRect&, KisWavelet* wav, KisWavelet* buff = 0);
 
     bool getToDoubleChannelPtr(QList<KoChannelInfo *> cis, QVector<PtrToDouble>& f);
@@ -103,16 +78,8 @@ private:
     void wavetrans(KisWavelet* wav, KisWavelet* buff, uint halfsize);
     void waveuntrans(KisWavelet* wav, KisWavelet* buff, uint halfsize);
 
-    /**
-     * This function transform a paint device into a KisFloatRepresentation, this function is colorspace independent,
-     * for Wavelet, Pyramid and FFT the data is always the exact value of the channel stored in a float.
-     */
     void transformToFR(KisPaintDeviceSP src, KisFloatRepresentation*, const QRect&);
 
-    /**
-     * This function transform a KisFloatRepresentation into a paint device, this function is colorspace independent,
-     * for Wavelet, Pyramid and FFT the data is always the exact value of the channel stored in a float.
-     */
     void transformFromFR(KisPaintDeviceSP dst, KisFloatRepresentation*, const QRect&);
 
 };

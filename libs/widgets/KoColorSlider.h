@@ -23,9 +23,6 @@ public:
 
 public:
     void setColors( const KoColor& minColor, const KoColor& maxColor);
-    /**
-     * Return the current color
-     */
     KoColor currentColor() const;
 protected:
     void drawContents( QPainter* ) override;

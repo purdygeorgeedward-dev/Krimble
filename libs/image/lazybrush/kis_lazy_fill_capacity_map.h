@@ -17,7 +17,6 @@
 #include "kis_global.h"
 #include <KisRegion.h>
 
-
 class KisLazyFillCapacityMap
 {
     typedef KisLazyFillCapacityMap type;
@@ -97,8 +96,6 @@ public:
 
             Q_ASSERT(!srcLabelA && !srcLabelB);
 
-
-            // TODO: precalculate!
             const int k  = 2 * (map.m_mainRect.width() + map.m_mainRect.height());
 
             static const int unitValue = 256;
@@ -119,10 +116,6 @@ public:
                 map.m_mainAccessor->moveTo(src.x, src.y);
                 memcpy(map.m_srcPixelBuf.data(), map.m_mainAccessor->rawDataConst(), map.m_pixelSize);
                 map.m_mainAccessor->moveTo(dst.x, dst.y);
-
-                //const quint8 diff = map.m_colorSpace->differenceA((quint8*)map.m_srcPixelBuf.data(), map.m_mainAccessor->rawDataConst());
-                //const quint8 i0 = map.m_colorSpace->intensity8((quint8*)map.m_srcPixelBuf.data());
-                //const quint8 i1 = map.m_colorSpace->intensity8(map.m_mainAccessor->rawDataConst());
 
                 const quint8 i0 = *((quint8*)map.m_srcPixelBuf.data());
                 const quint8 i1 = *map.m_mainAccessor->rawDataConst();
@@ -165,4 +158,4 @@ private:
     KisLazyFillGraph m_graph;
 };
 
-#endif /* __KIS_LAZY_FILL_CAPACITY_MAP_H */
+#endif

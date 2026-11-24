@@ -23,4 +23,4 @@ private Q_SLOTS:
     void testMitchell();
 };
 
-#endif /* __KIS_FILTER_WEIGHTS_BUFFER_TEST_H */
+#endif

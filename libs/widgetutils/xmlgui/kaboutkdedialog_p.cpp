@@ -43,7 +43,6 @@ KisKAboutKdeDialog::KisKAboutKdeDialog(QWidget *parent)
     titleWidget->setPixmap(KisIconUtils::loadIcon(QStringLiteral("kde")).pixmap(48), KTitleWidget::ImageLeft);
 #endif
 
-
     QLabel *about = new QLabel;
     about->setMargin(10);
     about->setAlignment(Qt::AlignTop);
@@ -136,8 +135,6 @@ KisKAboutKdeDialog::KisKAboutKdeDialog(QWidget *parent)
     tabWidget->addTab(join, i18n("&Join KDE"));
 
 #ifdef Q_OS_MACOS
-    // MACOS store version should not contain external links to donations
-    // support KDE tab has been seen as a call to action.
     if (!KisMacosEntitlements().sandbox()) {
 #endif
     tabWidget->addTab(support, i18n("&Support KDE"));

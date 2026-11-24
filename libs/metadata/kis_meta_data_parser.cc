@@ -20,7 +20,6 @@ Parser::~Parser()
 #include <QRegularExpression>
 #include <QVariant>
 
-
 Value IntegerParser::parse(const QString& _v) const
 {
     return Value(_v.toInt());

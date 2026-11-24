@@ -12,18 +12,6 @@
 
 class KisSavedMacroCommand;
 
-
-/**
- * This undo store is supposed to be stacked with a KisPostExecutionUndoAdapter.
- *
- * That chain looks like:
- *    KisPostExecutionUndoAdapter ->
- *    KisMacroBasedUndoStore ->
- *    KisSavedMacroCommand;
- *
- * So the store calls redo() on every command that is added via
- * addCommand();
- */
 class KisMacroBasedUndoStore : public KisUndoStore
 {
 public:
@@ -42,4 +30,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_MACRO_BASED_UNDO_STORE_H */
+#endif

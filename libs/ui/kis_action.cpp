@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_action.h"
 #include "kis_action_manager.h"
 #include <QEvent>
@@ -50,16 +49,9 @@ KisAction::~KisAction()
     delete d;
 }
 
-// Using a dynamic QObject property is done for compatibility with KAction and
-// XmlGui. We may merge KisAction into the XmlGui code to make this unnecessary,
-// but that is probably a lot of work for little benefit. We currently store a
-// single default shortcut, but the old system used a list (to store default
-// primary/alternate shortcuts for local and global settings) so we marshal it
-// for compatibility.
 void KisAction::setDefaultShortcut(const QKeySequence &shortcut)
 {
     QList<QKeySequence> listifiedShortcut;
-    // Use the empty list to represent no shortcut
     if (shortcut != QKeySequence("")) {
         listifiedShortcut.append(shortcut);
     }

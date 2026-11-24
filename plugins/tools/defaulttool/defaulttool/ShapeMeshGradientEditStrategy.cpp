@@ -18,7 +18,6 @@ struct ShapeMeshGradientEditStrategy::Private {
     {
     }
 
-    // TODO: for snapping..
     QPointF start;
     KoShapeMeshGradientHandles::Handle startHandle;
     KoShapeMeshGradientHandles handles;
@@ -44,7 +43,6 @@ void ShapeMeshGradientEditStrategy::handleMouseMove(const QPointF &mouseLocation
                                                     Qt::KeyboardModifiers modifiers)
 {
     Q_UNUSED(modifiers);
-
 
     KisCommandUtils::redoAndMergeIntoAccumulatingCommand(
         m_d->handles.moveGradientHandle(m_d->startHandle, mouseLocation),

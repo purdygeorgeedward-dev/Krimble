@@ -95,7 +95,6 @@ KisResourceIterator::~KisResourceIterator()
 {
 }
 
-
 bool KisResourceIterator::hasNext() const
 {
     return d->currentRow < d->resourceModel->rowCount();

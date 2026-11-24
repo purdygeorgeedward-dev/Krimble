@@ -12,7 +12,6 @@
 
 class KoProgressProxy;
 
-
 class KRITAIMAGE_EXPORT KisQueuesProgressUpdater : public QObject
 {
     Q_OBJECT
@@ -38,4 +37,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_QUEUES_PROGRESS_UPDATER_H */
+#endif

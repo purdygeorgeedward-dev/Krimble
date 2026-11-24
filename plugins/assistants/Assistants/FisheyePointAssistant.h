@@ -14,7 +14,6 @@
 #include "Ellipse.h"
 #include <QObject>
 #include <QLineF>
-//class FisheyePoint;
 
 class FisheyePointAssistant : public KisPaintingAssistant
 {

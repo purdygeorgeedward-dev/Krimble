@@ -20,4 +20,4 @@ protected:
 
 };
 
-#endif // KISTOOLPAINTFACTORYBASE_H
+#endif

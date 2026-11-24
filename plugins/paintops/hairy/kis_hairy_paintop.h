@@ -54,4 +54,4 @@ private:
     void loadSettings();
 };
 
-#endif // KIS_HAIRYPAINTOP_H_
+#endif

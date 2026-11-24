@@ -187,7 +187,6 @@ bool Schema::Private::parseEltType(QDomElement &elt,
     }
     name = elt.attribute("name");
 
-    // TODO parse qualifier
     if (tagName == "integer") {
         entryInfo.propertyType = TypeInfo::Private::Integer;
     } else if (tagName == "boolean") {
@@ -336,8 +335,6 @@ const TypeInfo* Schema::Private::parseChoice(QDomElement& elt)
         if (choiceType->propertyType() == TypeInfo::IntegerType) {
             var = var.toInt();
         } else if (choiceType->propertyType() == TypeInfo::DateType) {
-            // TODO: QVariant date parser isn't very good with XMP date
-            // (it doesn't support YYYY and YYYY-MM)
             var = var.toDateTime();
         }
         choices.push_back(TypeInfo::Choice(Value(var), name));
@@ -377,7 +374,6 @@ const TypeInfo* Schema::structure(const QString& _structureName) const
 {
     return d->structures.value(_structureName);
 }
-
 
 QString Schema::uri() const
 {

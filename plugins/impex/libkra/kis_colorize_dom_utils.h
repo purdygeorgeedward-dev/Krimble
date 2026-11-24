@@ -21,4 +21,4 @@ namespace KisDomUtils {
                                       const QPoint &offset);
 }
 
-#endif /* __KIS_COLORIZE_DOM_UTILS_H */
+#endif

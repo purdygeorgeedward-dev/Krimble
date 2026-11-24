@@ -12,12 +12,6 @@
 
 class KisGuiContextCommandDelegate;
 
-/**
- * KisGuiContextCommand is a special command-wrapper which ensures
- * that the holding command is executed in the GUI thread only. Please
- * note that any activity done by the containing command must *not*
- * lead to the blocking on the image, otherwise you'll get a deadlock!
- */
 class KisGuiContextCommand : public QObject, public KUndo2Command
 {
     Q_OBJECT
@@ -36,4 +30,4 @@ private:
     QScopedPointer<KisGuiContextCommandDelegate> m_delegate;
 };
 
-#endif /* __KIS_GUI_CONTEXT_COMMAND_H */
+#endif

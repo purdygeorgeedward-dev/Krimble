@@ -6,47 +6,39 @@
 #ifndef KIS_IMPORT_EXPORT_ERROR_CODES_H
 #define KIS_IMPORT_EXPORT_ERROR_CODES_H
 
-
 #include <QFile>
 #include <QFileDevice>
 #include <QString>
 #include <kritaui_export.h>
 #include <QDebug>
 
-
 namespace ImportExportCodes
 {
 
     enum ErrorCodeID
     {
-        InternalError, // error that shouldn't happen; only inside ASSERTS
+        InternalError,
 
-        // Reading
-        FileNotExist, // there is no file with that name in that location,
-        NoAccessToRead, // Krita has no reading access to the file,
-        ErrorWhileReading, // there was an error that occurred during reading,
-        FileFormatIncorrect, // file format cannot be parsed,
-        FormatFeaturesUnsupported, // file format can be parsed, but some features are unsupported,
-        FormatColorSpaceUnsupported, // file format can be parsed, but color space of the image is unsupported
+        FileNotExist,
+        NoAccessToRead,
+        ErrorWhileReading,
+        FileFormatIncorrect,
+        FormatFeaturesUnsupported,
+        FormatColorSpaceUnsupported,
 
-        // Writing
-        CannotCreateFile, // file cannot be created
-        NoAccessToWrite, // Krita has no writing access to the file
-        ErrorWhileWriting, // there was an error that occurred during writing (can be insufficient memory, too, just we don't know)
-        InsufficientMemory, // there is not enough memory left
-        FileFormatNotSupported, // this file format is not supported by Krita
+        CannotCreateFile,
+        NoAccessToWrite,
+        ErrorWhileWriting,
+        InsufficientMemory,
+        FileFormatNotSupported,
 
-        // Both
-        Cancelled, // cancelled by a user
+        Cancelled,
 
-        // Other
-        Failure, // unspecified error
+        Failure,
 
-        // Could not save because a save operation was already going on
         Busy,
 
-        // OK
-        OK, // everything went ok
+        OK,
 
     };
 
@@ -81,7 +73,6 @@ struct KRITAUI_EXPORT KisImportExportErrorCannotWrite : KisImportExportComplexEr
 private:
     KisImportExportErrorCannotWrite();
 
-    //friend KisImportExportErrorCode::KisImportExportErrorCode(KisImportExportErrorCannotWrite code);
     friend class KisImportExportErrorCode;
 
 };
@@ -99,17 +90,13 @@ struct KRITAUI_EXPORT KisImportExportErrorCannotRead : KisImportExportComplexErr
 private:
     KisImportExportErrorCannotRead();
 
-    //friend KisImportExportErrorCode::KisImportExportErrorCode(KisImportExportErrorCannotRead code);
     friend class KisImportExportErrorCode;
 
 };
 
-
-
 class KRITAUI_EXPORT KisImportExportErrorCode
 {
 public:
-    // required by kis_async_action_feedback
     KisImportExportErrorCode();
 
     KisImportExportErrorCode(ImportExportCodes::ErrorCodeID code);
@@ -163,4 +150,4 @@ inline QDebug &operator<<(QDebug &d, const KisImportExportErrorCode &errorCode)
     return d;
 }
 
-#endif // KIS_IMPORT_EXPORT_ERROR_CODES_H
+#endif

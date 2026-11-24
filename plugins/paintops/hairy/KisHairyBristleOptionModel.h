@@ -33,4 +33,4 @@ public:
     LAGER_QT_CURSOR(bool, connectedPath);
 };
 
-#endif // KIS_HAIRYBRISTLE_OPTION_MODEL_H
+#endif

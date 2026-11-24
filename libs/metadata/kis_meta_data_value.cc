@@ -33,7 +33,6 @@ Value::Value() : d(new Private)
     d->type = Invalid;
 }
 
-
 Value::Value(const QVariant& variant) : d(new Private)
 {
     d->type = Value::Variant;
@@ -44,7 +43,7 @@ Value::Value(const QList<Value>& array, ValueType type) : d(new Private)
 {
     Q_ASSERT(type == OrderedArray || type == UnorderedArray || type == AlternativeArray || type == LangArray);
     d->value.array = new QList<Value>(array);
-    d->type = type; // TODO: I am hesitating about LangArray to keep them as array or convert them to maps
+    d->type = type;
 }
 
 Value::Value(const QMap<QString, Value>& structure) : d(new Private)
@@ -58,7 +57,6 @@ Value::Value(const KisMetaData::Rational& signedRational) : d(new Private)
     d->type = Value::Rational;
     d->value.rational = new KisMetaData::Rational(signedRational);
 }
-
 
 Value::Value(const Value& v) : d(new Private)
 {
@@ -90,7 +88,6 @@ Value& Value::operator=(const Value & v)
     }
     return *this;
 }
-
 
 Value::~Value()
 {
@@ -158,9 +155,7 @@ bool Value::setVariant(const QVariant& variant)
         return true;
     case Rational: {
         QRegularExpression rx("([^\\/]*)\\/([^\\/]*)");
-        // TODO: erm... did someone forgot to write actual code here?
 
-        // for now just safe assert and return a failure
         KIS_SAFE_ASSERT_RECOVER_NOOP(0 && "Rational metadata values are not implemented!");
         return false;
     }
@@ -211,7 +206,6 @@ QList<Value> Value::asArray() const
     }
     return QList<Value>();
 }
-
 
 bool Value::isArray() const
 {
@@ -387,7 +381,7 @@ QMap<QString, KisMetaData::Value> Value::asLangArray() const
     Q_ASSERT(d->type == LangArray);
     QMap<QString, KisMetaData::Value> langArray;
     Q_FOREACH (const KisMetaData::Value& val, *d->value.array) {
-        Q_ASSERT(val.d->propertyQualifiers.contains("xml:lang"));  // TODO probably worth to have an assert for this in the constructor as well
+        Q_ASSERT(val.d->propertyQualifiers.contains("xml:lang"));
         KisMetaData::Value valKeyVal = val.d->propertyQualifiers.value("xml:lang");
         Q_ASSERT(valKeyVal.type() == Variant);
         QVariant valKeyVar = valKeyVal.asVariant();

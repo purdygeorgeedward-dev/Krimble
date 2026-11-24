@@ -39,8 +39,6 @@ void TestKoStopGradient::TestSVGStopGradientLoading()
 
     gradient.setStops(stops);
 
-    // We need a better way to check if this worked.
-
     QString svgSerialization = gradient.saveSvgGradient();
     QVERIFY2(svgSerialization.contains("icc-color"), QString("icc-color not found in serialization of cmyk gradient.").toLatin1());
     QVERIFY2(svgSerialization.contains("color-profile"), QString("color-profile not found in serialization of cmyk gradient.").toLatin1());

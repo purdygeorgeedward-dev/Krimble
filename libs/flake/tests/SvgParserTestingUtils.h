@@ -31,9 +31,7 @@ struct SvgTester
 
         parser().setXmlBaseDir("./");
 
-
         savedData = data;
-        //printf("%s", savedData.toUtf8().data());
 
     }
 
@@ -122,7 +120,6 @@ struct SvgRenderTester : public SvgTester
 
     static void testRender(KoShape *shape, const QString &prefix, const QString &testName, const QSize canvasSize, qreal dpi, int fuzzyThreshold = 0, bool checkQImagePremultiplied = false) {
         QImage canvas(canvasSize, QImage::Format_ARGB32);
-        // 72 dpi => ~2834 dpm
         qreal inchesInMeter = 39.37007874;
         qreal dpm = dpi*inchesInMeter;
 
@@ -155,10 +152,9 @@ struct SvgRenderTester : public SvgTester
 
         QSize sizeInPx = canvasSize;
         QSizeF sizeInPt = QSizeF(canvasSize) * 72.0 / pixelsPerInch;
-        Q_UNUSED(sizeInPt); // used in some definitions only!
+        Q_UNUSED(sizeInPt);
 
-
-        parser().setResolution(QRectF(QPointF(), sizeInPx) /* px */, pixelsPerInch /* ppi */);
+        parser().setResolution(QRectF(QPointF(), sizeInPx) , pixelsPerInch );
         run();
 
 #ifdef USE_CLONED_SHAPES
@@ -175,7 +171,7 @@ struct SvgRenderTester : public SvgTester
             shapes = newShapes;
         }
 
-#endif /* USE_CLONED_SHAPES */
+#endif
 
 #ifdef USE_ROUND_TRIP
 
@@ -190,7 +186,6 @@ struct SvgRenderTester : public SvgTester
         QDomDocument prettyDoc;
         prettyDoc.setContent(savedData);
 
-
         qDebug();
         printf("\n=== Original: ===\n\n%s\n", prettyDoc.toByteArray(4).data());
         printf("\n=== Saved: ===\n\n%s\n", writeBuf.data().data());
@@ -199,13 +194,11 @@ struct SvgRenderTester : public SvgTester
         QVERIFY(doc.setContent(writeBuf.data()));
         root = doc.documentElement();
 
-        // reset the parser to avoid name conflicts
-
         m_parser.reset(new SvgParser(&resourceManager));
-        parser().setResolution(QRectF(QPointF(), sizeInPx) /* px */, pixelsPerInch /* ppi */);
+        parser().setResolution(QRectF(QPointF(), sizeInPx) , pixelsPerInch );
 
         run();
-#endif /* USE_ROUND_TRIP */
+#endif
 
         KoShape *shape = findShape("testRect");
         KIS_ASSERT(shape);
@@ -229,5 +222,4 @@ private:
     int m_checkQImagePremultiplied = false;
 };
 
-
-#endif // SVGPARSERTESTINGUTILS_H
+#endif

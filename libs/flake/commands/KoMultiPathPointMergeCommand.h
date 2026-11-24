@@ -17,7 +17,6 @@ class KoPathShape;
 class KoPathPointData;
 class KoShapeControllerBase;
 
-
 class KRITAFLAKE_EXPORT KoMultiPathPointMergeCommand : public KUndo2Command
 {
 public:
@@ -41,4 +40,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KOMULTIPATHPOINTMERGECOMMAND_H
+#endif

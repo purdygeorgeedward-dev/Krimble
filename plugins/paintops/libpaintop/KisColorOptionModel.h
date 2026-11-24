@@ -21,19 +21,19 @@ public:
     KisColorOptionModel(lager::cursor<KisColorOptionData> optionData);
 
     lager::cursor<KisColorOptionData> optionData;
-    
+
     LAGER_QT_CURSOR(bool, useRandomHSV);
     LAGER_QT_CURSOR(bool, useRandomOpacity);
     LAGER_QT_CURSOR(bool, sampleInputColor);
-    
+
     LAGER_QT_CURSOR(bool, fillBackground);
     LAGER_QT_CURSOR(bool, colorPerParticle);
     LAGER_QT_CURSOR(bool, mixBgColor);
-    
+
     LAGER_QT_CURSOR(int, hue);
     LAGER_QT_CURSOR(int, saturation);
     LAGER_QT_CURSOR(int, value);
-    
+
 };
 
-#endif // KIS_COLOR_OPTION_MODEL_H
+#endif

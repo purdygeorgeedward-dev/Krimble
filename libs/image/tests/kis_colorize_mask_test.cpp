@@ -32,8 +32,6 @@ struct ColorizeMaskTester
         src->fill(internalFillRect, KoColor(Qt::transparent, src->colorSpace()));
         src->fill(QRect(100, 10, 10, 130), KoColor(Qt::black, src->colorSpace()));
 
-        // KIS_DUMP_DEVICE_2(src, refRect, "src", "dd");
-
         mask = new KisColorizeMask(p.image, "mask1");
         p.image->addNode(mask, p.layer);
 
@@ -43,21 +41,18 @@ struct ColorizeMaskTester
             KisPaintDeviceSP key1 = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
             key1->fill(QRect(50,50,10,20), KoColor(Qt::black, key1->colorSpace()));
             mask->testingAddKeyStroke(key1, KoColor(Qt::green, src->colorSpace()));
-            // KIS_DUMP_DEVICE_2(key1, refRect, "key1", "dd");
         }
 
         {
             KisPaintDeviceSP key2 = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
             key2->fill(QRect(150,50,10,20), KoColor(Qt::black, key2->colorSpace()));
             mask->testingAddKeyStroke(key2, KoColor(Qt::red, src->colorSpace()));
-            // KIS_DUMP_DEVICE_2(key2, refRect, "key2", "dd");
         }
 
         {
             KisPaintDeviceSP key3 = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
             key3->fill(QRect(0,0,10,10), KoColor(Qt::black, key3->colorSpace()));
             mask->testingAddKeyStroke(key3, KoColor(Qt::blue, src->colorSpace()), true);
-            // KIS_DUMP_DEVICE_2(key3, refRect, "key3", "dd");
         }
 
         mask->resetCache();
@@ -65,9 +60,6 @@ struct ColorizeMaskTester
         mask->forceRegenerateMask();
         p.image->waitForDone();
 
-        // KIS_DUMP_DEVICE_2(mask->coloringProjection(), refRect, "coloring", "dd");
-        // KIS_DUMP_DEVICE_2(mask->paintDevice(), refRect, "paintDevice", "dd");
-        // KIS_DUMP_DEVICE_2(mask->testingFilteredSource(), refRect, "filteredSource", "dd");
     }
 
     QRect refRect;
@@ -77,7 +69,6 @@ struct ColorizeMaskTester
     QRect fillRect;
     QRect internalFillRect;
 };
-
 
 void KisColorizeMaskTest::test()
 {
@@ -89,8 +80,6 @@ void KisColorizeMaskTest::test()
 
     const QRect expectedFillRect(25,25,145,150);
 
-    // Check initial bounding rects
-
     QCOMPARE(t.mask->paintDevice()->exactBounds(), QRect(0,0,160,70));
     QCOMPARE(t.mask->coloringProjection()->exactBounds(), expectedFillRect);
     QCOMPARE(t.mask->testingFilteredSource()->exactBounds(), t.refRect);
@@ -99,13 +88,8 @@ void KisColorizeMaskTest::test()
     QCOMPARE(strokes[1].dev->exactBounds(), QRect(150,50,10,20));
     QCOMPARE(strokes[2].dev->exactBounds(), QRect(0,0,10,10));
 
-    // Move the t.mask: the filled area is also expected to be moved!
     t.mask->setX(5);
     t.mask->setY(7);
-
-    // KIS_DUMP_DEVICE_2(t.mask->coloringProjection(), t.refRect, "coloring2", "dd");
-    // KIS_DUMP_DEVICE_2(t.mask->paintDevice(), t.refRect, "paintDevice2", "dd");
-    // KIS_DUMP_DEVICE_2(t.mask->testingFilteredSource(), t.refRect, "filteredSource2", "dd");
 
     QCOMPARE(t.mask->paintDevice()->exactBounds(), QRect(5,7,160,70));
     QCOMPARE(t.mask->coloringProjection()->exactBounds(), expectedFillRect.translated(5, 7));
@@ -114,8 +98,6 @@ void KisColorizeMaskTest::test()
     QCOMPARE(strokes[0].dev->exactBounds(), QRect(55,57,10,20));
     QCOMPARE(strokes[1].dev->exactBounds(), QRect(155,57,10,20));
     QCOMPARE(strokes[2].dev->exactBounds(), QRect(5,7,10,10));
-
-    // Test changing t.mask color space
 
     const KoColorSpace *oldCS = KoColorSpaceRegistry::instance()->rgb8();
     const KoColorSpace *newCS = KoColorSpaceRegistry::instance()->lab16();
@@ -173,15 +155,9 @@ void KisColorizeMaskTest::testCrop()
 
     const QRect expectedFillRect(25,25,145,150);
 
-    // Check initial bounding rects
-
     QCOMPARE(t.mask->paintDevice()->exactBounds(), QRect(0,0,160,70));
     QCOMPARE(t.mask->coloringProjection()->exactBounds(), expectedFillRect);
     QCOMPARE(t.mask->testingFilteredSource()->exactBounds(), t.refRect);
-
-    // KIS_DUMP_DEVICE_2(t.mask->coloringProjection(), t.refRect, "coloring3", "dd");
-    // KIS_DUMP_DEVICE_2(t.mask->paintDevice(), t.refRect, "paintDevice3", "dd");
-    // KIS_DUMP_DEVICE_2(t.mask->testingFilteredSource(), t.refRect, "filteredSource3", "dd");
 
     QCOMPARE(strokes[0].dev->exactBounds(), QRect(50,50,10,20));
     QCOMPARE(strokes[1].dev->exactBounds(), QRect(150,50,10,20));
@@ -190,10 +166,6 @@ void KisColorizeMaskTest::testCrop()
     QRect cropRect(5,5,150,55);
     KisCropProcessingVisitor visitor(cropRect, true, true);
     t.mask->accept(visitor, t.p.image->undoAdapter());
-
-    // KIS_DUMP_DEVICE_2(t.mask->coloringProjection(), t.refRect, "coloring4", "dd");
-    // KIS_DUMP_DEVICE_2(t.mask->paintDevice(), t.refRect, "paintDevice4", "dd");
-    // KIS_DUMP_DEVICE_2(t.mask->testingFilteredSource(), t.refRect, "filteredSource4", "dd");
 
     QCOMPARE(t.mask->paintDevice()->exactBounds(), QRect(0,0,150,55));
     QCOMPARE(t.mask->coloringProjection()->exactBounds(), (expectedFillRect & cropRect).translated(-cropRect.topLeft()));

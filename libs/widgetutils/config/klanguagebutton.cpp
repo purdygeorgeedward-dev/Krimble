@@ -39,7 +39,7 @@ static void checkInsertPos(QMenu *popup, const QString &str, int &index)
         }
     }
 
-    index = a; // it doesn't really matter ... a == b here.
+    index = a;
 
     Q_ASSERT(a == b);
 }
@@ -187,20 +187,17 @@ void KLanguageButton::loadAllLanguages()
 
 void KLanguageButton::slotTriggered(QAction *a)
 {
-    //qDebug() << "slotTriggered" << index;
     if (!a) {
         return;
     }
 
     d->setCurrentItem(a);
 
-    // Forward event from popup menu as if it was emitted from this widget:
     Q_EMIT activated(d->current);
 }
 
 void KLanguageButton::slotHovered(QAction *a)
 {
-    //qDebug() << "slotHovered" << index;
 
     Q_EMIT highlighted(a->data().toString());
 }

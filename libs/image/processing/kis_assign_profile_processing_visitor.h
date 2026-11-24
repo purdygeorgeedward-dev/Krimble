@@ -33,4 +33,4 @@ private:
     const KoColorSpace *m_dstColorSpace;
 };
 
-#endif /* __KIS_ASSIGN_PROFILE_PROCESSING_VISITOR_H */
+#endif

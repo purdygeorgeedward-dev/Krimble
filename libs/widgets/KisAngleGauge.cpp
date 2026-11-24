@@ -33,7 +33,7 @@ KisAngleGauge::KisAngleGauge(QWidget* parent)
     m_d->increasingDirection = IncreasingDirection_CounterClockwise;
     m_d->isPressed = false;
     m_d->isMouseHover = false;
-    
+
     setFocusPolicy(Qt::WheelFocus);
 }
 
@@ -138,17 +138,14 @@ void KisAngleGauge::paintEvent(QPaintEvent *e)
         }
     }
 
-    // Background
     painter.setPen(Qt::transparent);
     painter.setBrush(backgroundColor);
     painter.drawEllipse(center, radius, radius);
 
-    // Axes lines
     painter.setPen(QPen(axesColor, 1.0, Qt::DotLine));
     painter.drawLine(center.x(), center.y() - radius + 1.0, center.x(), center.y() + radius - 1.0);
     painter.drawLine(center.x() - radius + 1.0, center.y(), center.x() + radius - 1.0, center.y());
 
-    // Outer circle
     if (this->hasFocus()) {
         painter.setPen(QPen(palette().color(QPalette::Highlight), 2.0));
     } else {
@@ -161,16 +158,13 @@ void KisAngleGauge::paintEvent(QPaintEvent *e)
     painter.setBrush(Qt::transparent);
     painter.drawEllipse(center, radius, radius);
 
-    // Angle line
     painter.setPen(QPen(angleLineColor, 1.0));
     painter.drawLine(center, d);
 
-    // Inner line marker
     painter.setPen(Qt::transparent);
     painter.setBrush(angleLineMarkerColor);
     painter.drawEllipse(center, lineMarkerRadius, lineMarkerRadius);
 
-    // Outer line marker
     painter.setBrush(angleLineMarkerColor);
     painter.drawEllipse(d, lineMarkerRadius, lineMarkerRadius);
 
@@ -200,7 +194,7 @@ void KisAngleGauge::mousePressEvent(QMouseEvent *e)
             m_d->increasingDirection == IncreasingDirection_CounterClockwise ? -delta.y() : delta.y(),
             delta.x()
         );
-    
+
     if (e->modifiers() & Qt::ControlModifier)  {
         const qreal sa = m_d->snapAngle * M_PI / 180.0;
         angle = std::round(angle / sa) * sa;
@@ -209,7 +203,7 @@ void KisAngleGauge::mousePressEvent(QMouseEvent *e)
     setAngle(angle * 180.0 / M_PI);
 
     m_d->isPressed = true;
-    
+
     e->accept();
 }
 
@@ -252,7 +246,7 @@ void KisAngleGauge::mouseMoveEvent(QMouseEvent *e)
     }
 
     setAngle(angle);
-    
+
     e->accept();
 }
 

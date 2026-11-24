@@ -8,7 +8,6 @@
 
 #include "kis_layer.h"
 
-
 #include <klocalizedstring.h>
 #include <QImage>
 #include <QBitArray>
@@ -47,7 +46,6 @@
 #include "kis_layer_utils.h"
 #include "kis_projection_leaf.h"
 #include "KisSafeNodeProjectionStore.h"
-
 
 class KisCloneLayersList {
 public:
@@ -99,7 +97,6 @@ public:
                 properties.setProperty("visible", true);
                 QList<KisNodeSP> masks = m_parent->childNodes(QStringList("KisSelectionMask"), properties);
 
-                // return the first visible mask
                 Q_FOREACH (KisNodeSP mask, masks) {
                     if (mask) {
                         m_selectionMask = dynamic_cast<KisSelectionMask*>(mask.data());
@@ -109,11 +106,9 @@ public:
                 m_isSelectionMaskValid = true;
             }
 
-            // return under write lock
             return m_selectionMask;
         }
 
-        // return under read lock
         return m_selectionMask;
     }
 
@@ -129,11 +124,9 @@ public:
                 m_isEffectMasksValid = true;
             }
 
-            // return under write lock
             return m_effectMasks;
         }
 
-        // return under read lock
         return m_effectMasks;
     }
 
@@ -176,7 +169,6 @@ struct Q_DECL_HIDDEN KisLayer::Private
 
     KisLayerMasksCache masksCache;
 };
-
 
 KisLayer::KisLayer(KisImageWSP image, const QString &name, quint8 opacity)
         : KisNode(image)
@@ -231,12 +223,6 @@ const KoColorSpace * KisLayer::colorSpace() const
 
 const KoCompositeOp * KisLayer::compositeOp() const
 {
-    /**
-     * FIXME: This function duplicates the same function from
-     * KisMask. We can't move it to KisBaseNode as it doesn't
-     * know anything about parent() method of KisNode
-     * Please think it over...
-     */
 
     KisNodeSP parentNode = parent();
     if (!parentNode) return 0;
@@ -287,7 +273,6 @@ KisBaseNode::PropertyList KisLayer::sectionModelProperties() const
     l << KisLayerPropertiesIcons::getProperty(KisLayerPropertiesIcons::inheritAlpha, alphaChannelDisabled());
 
     if (colorOverlayMask()) {
-        // Use an immutable property (with a string value), to hide it in the layer properties dialog.
         l << KisBaseNode::Property(KisLayerPropertiesIcons::colorOverlay, "true");
     }
 
@@ -338,7 +323,6 @@ bool KisLayer::alphaChannelDisabled() const
     return flags.count(true) == 0 && !m_d->channelFlags.isEmpty();
 }
 
-
 void KisLayer::setChannelFlags(const QBitArray & channelFlags)
 {
     Q_ASSERT(channelFlags.isEmpty() ||((quint32)channelFlags.count() == colorSpace()->channelCount()));
@@ -377,7 +361,6 @@ void KisLayer::setTemporary(bool t)
 
 void KisLayer::setImage(KisImageWSP image)
 {
-    // we own the projection device, so we should take care about it
     KisPaintDeviceSP projection = this->projection();
     if (projection && projection != original()) {
         projection->setDefaultBounds(new KisDefaultBounds(image));
@@ -438,33 +421,27 @@ void KisLayer::fillMergedLayerTemplate(KisLayerSP dstLayer, KisLayerSP prevLayer
             return;
         }
 
-        //Copy the pixels of previous layer with their actual alpha value
         prevLayer->disableAlphaChannel(false);
 
         prevLayer->projectionPlane()->apply(&gc, prevLayerProjectionExtent | imageSP->bounds());
 
-        //Restore the previous prevLayer disableAlpha status for correct undo/redo
         prevLayer->disableAlphaChannel(prevAlphaDisabled);
 
         if (!skipPaintingThisLayer) {
-            //Paint the pixels of the current layer, using their actual alpha value
             if (alphaDisabled == prevAlphaDisabled) {
                 this->disableAlphaChannel(false);
             }
 
             this->projectionPlane()->apply(&gc, layerProjectionExtent | imageSP->bounds());
 
-            //Restore the layer disableAlpha status for correct undo/redo
             this->disableAlphaChannel(alphaDisabled);
         }
     }
     else {
-        //Copy prevLayer
         KisPaintDeviceSP srcDev = prevLayer->projection();
         mergedDevice->makeCloneFrom(srcDev, srcDev->extent());
 
         if (!skipPaintingThisLayer) {
-            //Paint layer on the copy
             KisPainter gc(mergedDevice);
             gc.bitBlt(layerProjectionExtent.topLeft(), this->projection(), layerProjectionExtent);
         }
@@ -521,9 +498,6 @@ KisSelectionSP KisLayer::selection() const
     return KisSelectionSP();
 }
 
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-
 QList<KisEffectMaskSP> KisLayer::effectMasks() const
 {
     return m_d->masksCache.effectMasks();
@@ -534,7 +508,6 @@ QList<KisEffectMaskSP> KisLayer::effectMasks(KisNodeSP lastNode) const
     if (lastNode.isNull()) {
         return effectMasks();
     } else {
-        // happens rarely.
         return searchEffectMasks(lastNode);
     }
 }
@@ -573,7 +546,6 @@ bool KisLayer::hasEffectMasks() const
 KisFilterMaskSP KisLayer::colorOverlayMask() const
 {
     if (hasEffectMasks()) {
-        // Iterate the masks in reverse, the last element is on top of the stack.
         auto allMasks = effectMasks();
         for (auto iter = allMasks.rbegin(); iter != allMasks.rend(); ++iter) {
             if ((*iter)->inherits("KisFilterMask")) {
@@ -595,10 +567,6 @@ QRect KisLayer::masksChangeRect(const QList<KisEffectMaskSP> &masks,
 
     QRect prevChangeRect = requestedRect;
 
-    /**
-     * We set default value of the change rect for the case
-     * when there is no mask at all
-     */
     QRect changeRect = requestedRect;
 
     Q_FOREACH (const KisEffectMaskSP& mask, masks) {
@@ -622,7 +590,7 @@ QRect KisLayer::masksNeedRect(const QList<KisEffectMaskSP> &masks,
 
     QRect prevNeedRect = changeRect;
     QRect needRect;
-    
+
     for (qint32 i = masks.size() - 1; i >= 0; i--) {
         applyRects.push(prevNeedRect);
 
@@ -684,25 +652,13 @@ QRect KisLayer::applyMasks(const KisPaintDeviceSP source,
         bool changeRectVaries;
         bool needRectVaries;
 
-        /**
-         * FIXME: Assume that varying of the changeRect has already
-         * been taken into account while preparing walkers
-         */
         changeRectVaries = false;
         changeRect = requestedRect;
-        //changeRect = masksChangeRect(masks, requestedRect,
-        //                             changeRectVaries);
 
         needRect = masksNeedRect(masks, changeRect,
                                  applyRects, needRectVaries);
 
         if (!changeRectVaries && !needRectVaries) {
-            /**
-             * A bit of optimization:
-             * All filters will read/write exactly from/to the requested
-             * rect so we needn't create temporary paint device,
-             * just apply it onto destination
-             */
             Q_ASSERT(needRect == requestedRect);
 
             if (source != destination) {
@@ -713,17 +669,12 @@ QRect KisLayer::applyMasks(const KisPaintDeviceSP source,
                 const QRect maskApplyRect = applyRects.pop();
                 const QRect maskNeedRect =
                     applyRects.isEmpty() ? needRect : applyRects.top();
-                    
+
                 PositionToFilthy maskPosition = calculatePositionToFilthy(mask, filthyNode, const_cast<KisLayer*>(this));
                 mask->apply(destination, maskApplyRect, maskNeedRect, maskPosition, flags);
             }
             Q_ASSERT(applyRects.isEmpty());
         } else {
-            /**
-             * We can't eliminate additional copy-op
-             * as filters' behaviour may be quite insane here,
-             * so let them work on their own paintDevice =)
-             */
 
             KisPaintDeviceSP tempDevice = new KisPaintDevice(colorSpace());
             tempDevice->prepareClone(source);
@@ -782,9 +733,6 @@ QRect KisLayer::partialChangeRect(KisNodeSP lastNode, const QRect& rect)
     return changeRect;
 }
 
-/**
- * \p rect is a dirty rect in layer's original() coordinates!
- */
 void KisLayer::buildProjectionUpToNode(KisPaintDeviceSP projection, KisNodeSP lastNode, const QRect& rect)
 {
     QRect changeRect = partialChangeRect(lastNode, rect);
@@ -835,17 +783,12 @@ QRect KisLayer::userVisibleBoundsImpl(bool exactBounds) const
 {
     QRect changeRect = exactBounds ? this->exactBounds() : this->extent();
 
-    /// we do not use incomingChangeRect() here, because
-    /// exactBounds() already takes it into account (it
-    /// was used while preparing original())
-
     bool changeRectVaries;
     changeRect = outgoingChangeRect(changeRect);
     changeRect = masksChangeRect(effectMasks(), changeRect, changeRectVaries);
 
     return changeRect;
 }
-
 
 QRect KisLayer::tightUserVisibleBounds() const
 {
@@ -874,13 +817,6 @@ QRect KisLayer::changeRect(const QRect &rect, PositionToFilthy pos) const
         changeRect = outgoingChangeRect(changeRect);
         changeRect = masksChangeRect(effectMasks(), changeRect, changeRectVaries);
 
-        /**
-         * If the projection contains some dirty areas we should also
-         * add them to the change rect, because they might have
-         * changed. E.g. when a visibility of the mask has changed
-         * while the parent layer was invincible.
-         */
-
         if (!projectionToBeUpdated.isEmpty() &&
             !changeRect.contains(projectionToBeUpdated)) {
 
@@ -888,7 +824,6 @@ QRect KisLayer::changeRect(const QRect &rect, PositionToFilthy pos) const
         }
     }
 
-    // TODO: string comparison: optimize!
     if (pos != KisNode::N_FILTHY &&
         pos != KisNode::N_FILTHY_PROJECTION &&
         compositeOpId() != COMPOSITE_COPY) {

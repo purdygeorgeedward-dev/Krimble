@@ -23,5 +23,4 @@ public:
     KisPropertiesConfigurationSP configuration() const override;
 };
 
-
 #endif

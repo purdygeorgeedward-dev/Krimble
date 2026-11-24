@@ -8,19 +8,13 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-// Own
 #include "KoShapeStroke.h"
 
-// Posix
 #include <math.h>
 
-// Qt
 #include <QPainterPath>
 #include <QPainter>
 
-// Calligra
-
-// Flake
 #include "KoShape.h"
 #include "KoShapeSavingContext.h"
 #include "KoPathShape.h"
@@ -167,8 +161,6 @@ KoShapeStroke::KoShapeStroke()
         : d(new Private(this))
 {
     d->color = QColor(Qt::black);
-    // we are not rendering stroke with zero width anymore
-    // so lets use a default width of 1.0
     d->pen.setWidthF(1.0);
 }
 
@@ -209,17 +201,13 @@ void KoShapeStroke::strokeInsets(const KoShape *shape, KoInsets &insets) const
 {
     Q_UNUSED(shape);
 
-    // '0.5' --- since we draw a line half inside, and half outside the object.
     qreal extent = 0.5 * (d->pen.widthF() >= 0 ? d->pen.widthF() : 1.0);
 
-    // if we have square cap, we need a little more space
-    // -> sqrt((0.5*penWidth)^2 + (0.5*penWidth)^2)
     if (capStyle() == Qt::SquareCap) {
         extent *= M_SQRT2;
     }
 
     if (joinStyle() == Qt::MiterJoin) {
-        // miter limit in Qt is normalized by the line width (and not half-width)
         extent = qMax(extent, d->pen.widthF() * miterLimit());
     }
 
@@ -305,7 +293,6 @@ bool KoShapeStroke::compareStyleTo(const KoShapeStrokeModel *other)
     QPen pen1 = d->pen;
     QPen pen2 = stroke->d->pen;
 
-    // just a random color top avoid comparison of that property
     pen1.setColor(Qt::magenta);
     pen2.setColor(Qt::magenta);
 

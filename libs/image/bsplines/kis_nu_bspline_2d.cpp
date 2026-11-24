@@ -81,10 +81,6 @@ void KisNUBSpline2D::initializeSplineImpl(const QVector<float> &values)
 
 float KisNUBSpline2D::value(float x, float y) const
 {
-    /**
-     * The spline works for an open interval only, so include the last point
-     * explicitly
-     */
 
     if (x == m_d->maxX) {
         x -= x * std::numeric_limits<float>::epsilon();

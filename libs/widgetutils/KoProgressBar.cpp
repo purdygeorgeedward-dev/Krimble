@@ -24,7 +24,6 @@ void KoProgressBar::setValue(int value)
 {
     QProgressBar::setValue(value);
 
-    // we also show the bar if it is in undetermined state
     if (minimum() == maximum() ||
         (value >= minimum() && value < maximum())) {
 

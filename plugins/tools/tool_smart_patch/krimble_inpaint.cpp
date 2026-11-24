@@ -15,19 +15,18 @@ namespace {
 
 struct Level {
     int w = 0, h = 0, c = 3;
-    std::vector<float> img;       // the picture: known pixels are the truth, hole pixels are the current estimate
-    std::vector<uint8_t> hole;    // 1 = hole
-    std::vector<int> sat;         // summed-area table of the hole, (w+1) * (h+1)
-    std::vector<int> nx, ny;      // the nearest-neighbour field: for each pixel, the centre of the source patch
-    std::vector<float> dist;      // the mean squared difference of the match
-    std::vector<uint8_t> target;  // 1 = this pixel's patch overlaps the hole: it has a match to find
-    std::vector<int> sources;     // centres of the valid source patches (fully inside the picture and fully known), as y * w + x
-    int sx0 = 0, sy0 = 0, sx1 = 0, sy1 = 0;   // the window the sources may be taken from (around the hole): inclusive centre coordinates
-    std::vector<float> lp, hp;    // the picture split in two: the smooth colour (a box blur) and the detail (the picture minus the smooth colour)
-    std::vector<float> guide;     // the smooth colour of the hole: what the surroundings of the hole say it should be (re-solved at every level)
+    std::vector<float> img;
+    std::vector<uint8_t> hole;
+    std::vector<int> sat;
+    std::vector<int> nx, ny;
+    std::vector<float> dist;
+    std::vector<uint8_t> target;
+    std::vector<int> sources;
+    int sx0 = 0, sy0 = 0, sx1 = 0, sy1 = 0;
+    std::vector<float> lp, hp;
+    std::vector<float> guide;
 };
 
-// runs f(a, b) on `threads` pieces of [0, n)
 template <class F> void parallelFor(int n, int threads, F f)
 {
     if (threads <= 1 || n < 2 * threads) { f(0, n); return; }
@@ -55,7 +54,7 @@ void buildSat(Level &L)
     }
 }
 
-inline int holeCount(const Level &L, int x0, int y0, int x1, int y1)   // inclusive rectangle, inside the picture
+inline int holeCount(const Level &L, int x0, int y0, int x1, int y1)
 {
     const int W = L.w + 1;
     return L.sat[size_t(y1 + 1) * W + (x1 + 1)] - L.sat[size_t(y0) * W + (x1 + 1)] - L.sat[size_t(y1 + 1) * W + x0] + L.sat[size_t(y0) * W + x0];
@@ -68,16 +67,14 @@ inline bool validSource(const Level &L, int x, int y, int r)
     return holeCount(L, x - r, y - r, x + r, y + r) == 0;
 }
 
-// squared difference between the patch around (x, y) (clamped at the borders) and the source patch around (sx, sy); stops when it passes `cutoff`
-static float g_colorWeight = 0.15f;   // how much the difference of the smooth colours of two patches counts next to the difference of their detail
-static float g_patchSigma = 1.6f;     // the weight of a pixel inside a voting patch falls off with its distance from the centre of the patch (in pixels)
-static float g_gainMax = 3.0f;        // the detail of the hole may be raised at most this many times to match the detail around it
-static float g_windowFactor = 2.0f;   // the source window reaches this many times the shorter side of the hole beyond the hole
-static float g_coarseSharp = 2.0f;    // the sharpness of the vote on the coarse levels (the fine levels use Options::sharpness)
-static int g_blurRadius = 3;          // the radius of the box blur that separates the smooth colour from the detail
-static int g_relaxIters = 60;         // the smooth colour of the hole is relaxed this many times at every level
+static float g_colorWeight = 0.15f;
+static float g_patchSigma = 1.6f;
+static float g_gainMax = 3.0f;
+static float g_windowFactor = 2.0f;
+static float g_coarseSharp = 2.0f;
+static int g_blurRadius = 3;
+static int g_relaxIters = 60;
 
-// the picture split in the smooth colour (a box blur of radius g_blurRadius) and the detail
 void splitLowHigh(Level &L)
 {
     const int w = L.w, h = L.h, c = L.c, R = g_blurRadius;
@@ -86,7 +83,6 @@ void splitLowHigh(Level &L)
     std::vector<float> tmp(L.img.size());
     for (int y = 0; y < h; ++y) {
         for (int k = 0; k < c; ++k) {
-            // horizontal running sum with the border repeated
             float sum = 0.0f;
             for (int dx = -R; dx <= R; ++dx) sum += L.img[(size_t(y) * w + clampi(dx, 0, w - 1)) * c + k];
             for (int x = 0; x < w; ++x) {
@@ -109,9 +105,6 @@ void splitLowHigh(Level &L)
     }
 }
 
-// Seamless correction (membrane interpolation, as in seamless cloning): the estimate that came from the level above is kept, with all its detail, but its mismatch with the
-// known pixels at the edge of the hole is measured and spread smoothly into the hole (a Laplace solution), and subtracted. The colours at the edge are then right, and the
-// middle of a big hole keeps what the coarser level made of it.
 void correctBoundary(Level &L, int iterations)
 {
     const int w = L.w, h = L.h, c = L.c;
@@ -164,8 +157,7 @@ void correctBoundary(Level &L, int iterations)
         if (L.hole[i]) for (int k = 0; k < c; ++k) L.img[i * c + k] += corr[i * c + k];
 }
 
-#if 0   // replaced by correctBoundary(); kept for reference
-// the hole is relaxed toward the smooth solution (Laplace) with the known pixels of THIS level as the edge (not used any more: correctBoundary keeps the detail)
+#if 0
 void relaxHole(Level &L, int iterations)
 {
     const int w = L.w, h = L.h, c = L.c;
@@ -198,8 +190,6 @@ void relaxHole(Level &L, int iterations)
 inline float patchDist(const Level &L, int x, int y, int sx, int sy, int r, float cutoff)
 {
     (void)cutoff;
-    // The difference of the DETAIL of the two patches (the picture minus its smooth colour), plus, with a small weight, the difference of their smooth colour at the centre. The detail
-    // does not depend on the colour, so a patch of dark texture matches a patch of bright texture; the colour of the fill comes from the surroundings of the hole, not from the source.
     float ssd = 0.0f;
     const int c = L.c;
     for (int dy = -r; dy <= r; ++dy) {
@@ -223,8 +213,6 @@ inline float patchDist(const Level &L, int x, int y, int sx, int sy, int r, floa
     return ssd;
 }
 
-
-// the first fill of the smallest level: the hole is filled from its edge inward with the mean of the neighbours already filled
 void diffuseFill(Level &L)
 {
     std::vector<uint8_t> filled(L.hole.size());
@@ -259,10 +247,7 @@ void diffuseFill(Level &L)
     }
 }
 
-#if 0   // exemplar-based first stage (Criminisi et al. 2004): tried, copies wrong chunks on big holes; kept for reference
-// Exemplar-based filling (Criminisi, Perez, Toyama 2004): the hole is filled from its edge inward, one patch at a time. At each step the pixel of the edge with the highest priority
-// (many known pixels around it, and an image edge that runs into the hole) is chosen, its patch is matched against the known picture using only the pixels that are known, and the
-// unknown pixels are copied from the best match. Real pixels are copied, never averaged, so the result is sharp and the edges continue.
+#if 0
 void exemplarFill(Level &L, int r)
 {
     const int w = L.w, h = L.h, c = L.c;
@@ -275,14 +260,12 @@ void exemplarFill(Level &L, int r)
     auto knownAt = [&](int x, int y) { return (x < 0 || y < 0 || x >= w || y >= h) ? 1 : int(known[size_t(y) * w + x]); };
     int guard = 0;
     while (remaining > 0 && guard++ < int(n) + 10) {
-        // the pixel of the edge with the highest priority
         float bestP = -1.0f; int bx = -1, by = -1;
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
                 const size_t i = size_t(y) * w + x;
                 if (known[i]) continue;
-                if (!(knownAt(x - 1, y) || knownAt(x + 1, y) || knownAt(x, y - 1) || knownAt(x, y + 1))) continue;   // not on the edge
-                // confidence: the mean confidence of the patch
+                if (!(knownAt(x - 1, y) || knownAt(x + 1, y) || knownAt(x, y - 1) || knownAt(x, y + 1))) continue;
                 float cs = 0.0f; int cn = 0;
                 float gxBest = 0, gyBest = 0, gMag = 0;
                 for (int dy = -r; dy <= r; ++dy) {
@@ -291,7 +274,6 @@ void exemplarFill(Level &L, int r)
                         if (qx < 1 || qy < 1 || qx >= w - 1 || qy >= h - 1) continue;
                         const size_t q = size_t(qy) * w + qx;
                         ++cn; cs += conf[q];
-                        // the gradient where the pixel and its 8 neighbours are all known
                         if (!known[q]) continue;
                         bool all = true;
                         for (int ey = -1; ey <= 1 && all; ++ey) for (int ex = -1; ex <= 1; ++ex) if (!known[size_t(qy + ey) * w + (qx + ex)]) { all = false; break; }
@@ -302,23 +284,20 @@ void exemplarFill(Level &L, int r)
                     }
                 }
                 const float C = cn ? cs / cn : 0.0f;
-                // the direction of the edge of the hole (the normal): from the known mask
                 float nxm = 0, nym = 0;
                 for (int ey = -1; ey <= 1; ++ey) for (int ex = -1; ex <= 1; ++ex) { const float k = float(knownAt(x + ex, y + ey)); nxm += k * ex; nym += k * ey; }
                 const float nl = std::sqrt(nxm * nxm + nym * nym);
                 float D = 0.001f;
                 if (nl > 0 && gMag > 0) {
-                    // the isophote is perpendicular to the gradient; D = |isophote . normal|
                     const float ix = -gyBest, iy = gxBest, il = std::sqrt(ix * ix + iy * iy);
                     D = std::fabs((ix * nxm + iy * nym) / (il * nl)) * std::sqrt(gMag) / 255.0f + 0.001f;
                 }
-                static const float structureBase = getenv("KI_BASE") ? float(atof(getenv("KI_BASE"))) : 0.15f;   // temporary: for tests
+                static const float structureBase = getenv("KI_BASE") ? float(atof(getenv("KI_BASE"))) : 0.15f;
                 const float P = C * (structureBase + D);
                 if (P > bestP) { bestP = P; bx = x; by = y; }
             }
         }
         if (bx < 0) break;
-        // the known pixels of the patch (these decide the match)
         struct KP { int dx, dy; };
         std::vector<KP> kp;
         for (int dy = -r; dy <= r; ++dy)
@@ -327,7 +306,6 @@ void exemplarFill(Level &L, int r)
                 if (qx < 0 || qy < 0 || qx >= w || qy >= h) continue;
                 if (known[size_t(qy) * w + qx]) kp.push_back({dx, dy});
             }
-        // the best match among the sources
         float bestD = 1e30f; int bsx = -1, bsy = -1;
         for (int s : L.sources) {
             const int sx = s % w, sy = s / w;
@@ -356,11 +334,9 @@ void exemplarFill(Level &L, int r)
 
 #endif
 
-// The smooth first guess: the hole is the solution of the Laplace equation with the known pixels around it as the boundary (every hole pixel is the mean of its four neighbours).
-// That is what a stretched rubber sheet does: the colours at the nearest edges count the most, so a long thin hole is not averaged over its whole length.
 void harmonicFill(Level &L)
 {
-    diffuseFill(L);   // a first guess to start from
+    diffuseFill(L);
     const int w = L.w, h = L.h, c = L.c;
     int minX = w, minY = h, maxX = -1, maxY = -1;
     for (int y = 0; y < h; ++y) for (int x = 0; x < w; ++x) if (L.hole[size_t(y) * w + x]) { minX = std::min(minX, x); maxX = std::max(maxX, x); minY = std::min(minY, y); maxY = std::max(maxY, y); }
@@ -369,7 +345,6 @@ void harmonicFill(Level &L)
     const int iterations = std::min(6000, 20 + 3 * dim * dim);
     for (int it = 0; it < iterations; ++it) {
         float change = 0.0f;
-        // Gauss-Seidel with over-relaxation, in both directions of the sweep
         const bool fwd = (it & 1) == 0;
         for (int yy = minY; yy <= maxY; ++yy) {
             const int y = fwd ? yy : (maxY - (yy - minY));
@@ -385,7 +360,7 @@ void harmonicFill(Level &L)
                     if (y < h - 1) { acc += L.img[(i + w) * c + k]; ++n; }
                     const float target = acc / float(n);
                     const float old = L.img[i * c + k];
-                    const float v = old + 1.6f * (target - old);   // successive over-relaxation
+                    const float v = old + 1.6f * (target - old);
                     L.img[i * c + k] = v;
                     change = std::max(change, std::fabs(v - old));
                 }
@@ -398,7 +373,6 @@ void harmonicFill(Level &L)
 void prepareLevel(Level &L, int r, int margin)
 {
     buildSat(L);
-    // the window the sources are taken from: the box of the hole, grown by `margin`. Far-away patches that happen to have a similar colour are what makes a bad fill.
     int minX = L.w, minY = L.h, maxX = -1, maxY = -1;
     for (int y = 0; y < L.h; ++y)
         for (int x = 0; x < L.w; ++x)
@@ -406,7 +380,6 @@ void prepareLevel(Level &L, int r, int margin)
     L.sx0 = std::max(0, minX - margin); L.sy0 = std::max(0, minY - margin);
     L.sx1 = std::min(L.w - 1, maxX + margin); L.sy1 = std::min(L.h - 1, maxY + margin);
     L.target.assign(L.hole.size(), 0);
-    // a pixel is a target when a patch centred on it touches the hole
     for (int y = 0; y < L.h; ++y) {
         for (int x = 0; x < L.w; ++x) {
             const int x0 = std::max(0, x - r), y0 = std::max(0, y - r), x1 = std::min(L.w - 1, x + r), y1 = std::min(L.h - 1, y + r);
@@ -442,9 +415,6 @@ inline void tryCandidate(Level &L, size_t i, int x, int y, int sx, int sy, int r
     if (d < L.dist[i]) { L.dist[i] = d; L.nx[i] = sx; L.ny[i] = sy; }
 }
 
-// one PatchMatch pass over the targets: propagation from the two neighbours already visited, then a random search of shrinking size
-// one PatchMatch pass over the rows [rowA, rowB) of the level; several bands run at the same time (a band reads the matches of the neighbouring band while they are being
-// changed: that is how PatchMatch is usually parallelised, a stale value only costs a missed chance)
 void patchMatchPass(Level &L, int r, bool forward, int rowA, int rowB, std::mt19937 &rng)
 {
     const int y0 = forward ? rowA : rowB - 1, y1 = forward ? rowB : rowA - 1, ys = forward ? 1 : -1;
@@ -454,7 +424,6 @@ void patchMatchPass(Level &L, int r, bool forward, int rowA, int rowB, std::mt19
         for (int x = x0; x != x1; x += xs) {
             const size_t i = size_t(y) * L.w + x;
             if (!L.target[i]) continue;
-            // propagation
             const int px = x - xs, py = y - ys;
             if (px >= 0 && px < L.w && L.target[size_t(y) * L.w + px]) {
                 const size_t j = size_t(y) * L.w + px;
@@ -464,7 +433,6 @@ void patchMatchPass(Level &L, int r, bool forward, int rowA, int rowB, std::mt19
                 const size_t j = size_t(py) * L.w + x;
                 tryCandidate(L, i, x, y, L.nx[j], L.ny[j] + ys, r);
             }
-            // random search around the best so far
             for (int rad = maxR; rad >= 1; rad >>= 1) {
                 const int sx = L.nx[i] + int(rng() % (2 * rad + 1)) - rad;
                 const int sy = L.ny[i] + int(rng() % (2 * rad + 1)) - rad;
@@ -490,19 +458,16 @@ void patchMatchPassParallel(Level &L, int r, bool forward, int threads, std::mt1
     for (auto &th : pool) th.join();
 }
 
-// the vote: every pixel of the hole takes the weighted mean of what the matches of all the patches that cover it say it should be
 void vote(Level &L, int r, float sharpness, int threads)
 {
     const int c = L.c, w = L.w, h = L.h;
     const float norm = 1.0f / float((2 * r + 1) * (2 * r + 1) * c);
-    // the spread of the weights: from the distribution of the match distances
     std::vector<float> ds;
     for (size_t i = 0; i < L.target.size(); ++i) if (L.target[i]) ds.push_back(L.dist[i] * norm);
     if (ds.empty()) return;
     std::nth_element(ds.begin(), ds.begin() + ds.size() / 2, ds.end());
     const float sigma2 = std::max(ds[ds.size() / 2], 1.0f) / std::max(0.05f, sharpness);
 
-    // the weight of every match, and the weight of a pixel inside a patch (the centre counts more)
     std::vector<float> wgt(L.hole.size(), 0.0f);
     for (size_t i = 0; i < L.target.size(); ++i) if (L.target[i]) wgt[i] = std::exp(-(L.dist[i] * norm) / (2.0f * sigma2));
     const int P = 2 * r + 1;
@@ -511,9 +476,8 @@ void vote(Level &L, int r, float sharpness, int threads)
         for (int dx = -r; dx <= r; ++dx)
             spatial[size_t(dy + r) * P + (dx + r)] = std::exp(-float(dx * dx + dy * dy) / (2.0f * g_patchSigma * g_patchSigma));
 
-    // Gathering: the pixel t asks every patch that covers it. The pixels are independent of each other, so the rows can be done at the same time.
-    std::vector<float> hpNew(L.img.size(), 0.0f);      // the voted detail
-    std::vector<float> before(L.hole.size(), 0.0f);    // the energy of the detail of the copied pixels, before the averaging
+    std::vector<float> hpNew(L.img.size(), 0.0f);
+    std::vector<float> before(L.hole.size(), 0.0f);
     std::vector<float> wsum(L.hole.size(), 0.0f);
     parallelFor(h, threads, [&](int ya, int yb) {
         for (int y = ya; y < yb; ++y) {
@@ -545,9 +509,6 @@ void vote(Level &L, int r, float sharpness, int threads)
         }
     });
 
-    // Averaging many patches lowers the contrast of the detail (opposite strokes cancel). The energy of the detail of the copied pixels BEFORE they are averaged is compared with the
-    // energy of the average, and the detail of the hole is raised by the typical ratio (the median, so that no single pixel decides), up to g_gainMax. It can only give back what the copied
-    // patches had: a smooth source stays smooth, and nothing is invented from the strong edges around the hole.
     std::vector<float> ratios;
     for (size_t t = 0; t < L.hole.size(); ++t) {
         if (!L.hole[t] || wsum[t] <= 0.0f) continue;
@@ -562,7 +523,7 @@ void vote(Level &L, int r, float sharpness, int threads)
     }
     for (size_t t = 0; t < L.hole.size(); ++t) {
         if (!L.hole[t] || wsum[t] <= 0.0f) continue;
-        for (int k = 0; k < c; ++k) L.img[t * c + k] = L.guide[t * c + k] + gain * hpNew[t * c + k];   // the smooth colour of the guide plus the voted detail
+        for (int k = 0; k < c; ++k) L.img[t * c + k] = L.guide[t * c + k] + gain * hpNew[t * c + k];
     }
 }
 
@@ -609,22 +570,16 @@ inline float sampleBilinear(const Level &C, float fx, float fy, int k)
     return (1 - ay) * ((1 - ax) * at(x0, y0) + ax * at(x1, y0)) + ay * ((1 - ax) * at(x0, y1) + ax * at(x1, y1));
 }
 
-} // namespace
+}
 
 bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
-
-
-
-
-
 
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(1, opt.patchRadius);
     const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     std::mt19937 rng(opt.seed);
 
-    // level 0: the picture and the hole (grown by `expand` pixels)
     std::vector<Level> pyr(1);
     Level &L0 = pyr[0];
     L0.w = w; L0.h = h; L0.c = channels;
@@ -655,20 +610,16 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
     if (holeCountAll == 0) return true;
     if (holeCountAll >= size_t(w) * h) return false;
 
-    // the number of levels: the hole must be small (about 12 px across) at the smallest one, and the picture big enough to find patches in
     const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
     int levels = 1;
     while (levels < opt.maxLevels && (holeDim >> (levels - 1)) > 56 && std::min(w, h) >> levels >= 6 * (2 * r + 1)) ++levels;
     for (int i = 1; i < levels; ++i) pyr.push_back(downsample(pyr[i - 1]));
 
-    // from the smallest level to the full size
     for (int lv = levels - 1; lv >= 0; --lv) {
         Level &L = pyr[lv];
         const bool coarsest = (lv == levels - 1);
         if (coarsest) {
-            // filled below, by exemplarFill, once the sources are known
         } else {
-            // the estimate of the level above, enlarged, fills the hole here; the known pixels stay the truth
             const Level &C = pyr[lv + 1];
             for (int y = 0; y < L.h; ++y)
                 for (int x = 0; x < L.w; ++x) {
@@ -677,19 +628,16 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
                     for (int k = 0; k < L.c; ++k) L.img[i * L.c + k] = sampleBilinear(C, (x - 0.5f) / 2.0f, (y - 0.5f) / 2.0f, k);
                 }
         }
-        // the margin of the source window, in pixels of this level: 1.5 times the size of the hole, at least 40 px at full size
-        // (the shorter side of the hole decides, so that a long thin hole, a line of text for instance, does not search half the picture)
         const int holeShort = std::min(maxX - minX + 1, maxY - minY + 1);
         const int margin = std::max(6 * (2 * r + 1), int(std::max(g_windowFactor * holeShort, 48.0f)) >> lv);
         prepareLevel(L, r, margin);
         if (coarsest) {
-            // the first estimate: the smooth (Laplace) solution, or the exemplar fill
             harmonicFill(L);
         } else {
-            correctBoundary(L, g_relaxIters);   // what the level above made of the hole, with its detail, made to meet the edge of this level
+            correctBoundary(L, g_relaxIters);
         }
         splitLowHigh(L);
-        L.guide = L.lp;                          // the smooth colour of the estimate: the detail is voted on top of it
+        L.guide = L.lp;
         if (L.sources.empty()) continue;
         if (coarsest) {
             randomInit(L, r, rng);
@@ -712,8 +660,6 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
                     L.dist[i] = patchDist(L, x, y, sx, sy, r, 1e30f);
                 }
         }
-        // Seed the detail: one vote with equal weights, from the matches as they came (random on the smallest level, the matches of the level above on the others). Without it the estimate
-        // has no detail, the matching finds only smooth patches for it, and the fill stays a smooth blur.
         for (size_t i = 0; i < L.target.size(); ++i) if (L.target[i]) L.dist[i] = 1.0f;
         vote(L, r, 1.0f, T);
         splitLowHigh(L);
@@ -726,7 +672,6 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
             patchMatchPassParallel(L, r, (it & 1) == 0, T, rng);
             patchMatchPassParallel(L, r, (it & 1) != 0, T, rng);
             if (opt.progress && !opt.progress(float(levels - 1 - lv) / float(levels) + (float(it) / float(iterations)) / float(levels))) return false;
-            // the matches were measured against the old estimate: measure again against the one the vote makes
             const float sharp = (lv <= 1) ? opt.sharpness * ((lv == 0 && it >= iterations - 2) ? 2.0f : 1.0f) : std::min(opt.sharpness, g_coarseSharp);
             vote(L, r, sharp, T);
             splitLowHigh(L);
@@ -737,7 +682,6 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
         }
     }
 
-    // write the hole back (only the pixels the caller asked for, not the pixels of the grown edge unless they were in the hole)
     const Level &F = pyr[0];
     if (filledHole) for (size_t i = 0; i < F.hole.size(); ++i) filledHole[i] = F.hole[i] ? 1 : 0;
     for (size_t i = 0; i < F.hole.size(); ++i) {
@@ -748,29 +692,27 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
     return true;
 }
 
-
 namespace {
 
 struct PLevel {
     int w = 0, h = 0, c = 0;
-    std::vector<float> img;       // w * h * c
-    std::vector<uint8_t> hole;    // w * h, 1 = to be filled
-    std::vector<uint8_t> src;     // w * h, 1 = a patch centred here lies wholly in the known picture (a valid source)
-    std::vector<uint8_t> tgt;     // w * h, 1 = the patch centred here touches the hole (a target)
-    std::vector<int> nx, ny;      // the match of every target
-    std::vector<float> nd;        // its distance
-    std::vector<int> srcList;     // the valid sources, as indices
-    std::vector<float> conf;      // w * h: how much a pixel counts when patches are compared (known pixels 1; the guessed hole less)
-    std::vector<uint8_t> xf;      // w * h: index into the transform table
-    std::vector<float> bias;      // w * h * c
-    std::vector<int> freeR;       // w * h: Chebyshev distance to the nearest hole pixel or the edge of the picture
-    std::vector<int32_t> sat;     // (w + 1) * (h + 1) * c: sums of the picture (whole levels), for the mean colour of any window (the colour shift)
+    std::vector<float> img;
+    std::vector<uint8_t> hole;
+    std::vector<uint8_t> src;
+    std::vector<uint8_t> tgt;
+    std::vector<int> nx, ny;
+    std::vector<float> nd;
+    std::vector<int> srcList;
+    std::vector<float> conf;
+    std::vector<uint8_t> xf;
+    std::vector<float> bias;
+    std::vector<int> freeR;
+    std::vector<int32_t> sat;
 };
 
 void pBuild(PLevel &L, int r)
 {
     const int w = L.w, h = L.h;
-    // integral image of the hole, to test whole windows at once
     std::vector<int> sat(size_t(w + 1) * (h + 1), 0);
     for (int y = 0; y < h; ++y) {
         int row = 0;
@@ -779,7 +721,7 @@ void pBuild(PLevel &L, int r)
             sat[size_t(y + 1) * (w + 1) + (x + 1)] = sat[size_t(y) * (w + 1) + (x + 1)] + row;
         }
     }
-    auto holesIn = [&](int x0, int y0, int x1, int y1) {   // inclusive, clamped
+    auto holesIn = [&](int x0, int y0, int x1, int y1) {
         x0 = std::max(0, x0); y0 = std::max(0, y0); x1 = std::min(w - 1, x1); y1 = std::min(h - 1, y1);
         if (x1 < x0 || y1 < y0) return 0;
         return sat[size_t(y1 + 1) * (w + 1) + (x1 + 1)] - sat[size_t(y0) * (w + 1) + (x1 + 1)] - sat[size_t(y1 + 1) * (w + 1) + x0] + sat[size_t(y0) * (w + 1) + x0];
@@ -799,13 +741,11 @@ void pBuild(PLevel &L, int r)
     L.conf.assign(size_t(w) * h, 1.0f);
 }
 
-// how much the guessed hole counts in the comparisons: little while the guess is rough (the known picture around the hole decides what is copied), more as it improves
 void pSetConfidence(PLevel &L, float holeWeight)
 {
     for (size_t i = 0; i < L.hole.size(); ++i) L.conf[i] = L.hole[i] ? holeWeight : 1.0f;
 }
 
-// the distance between the patch around target (tx, ty) and the patch around source (sx, sy); pixels of the target patch outside the picture are skipped
 inline float pDist(const PLevel &L, int tx, int ty, int sx, int sy, int r, float cutoff)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -850,7 +790,6 @@ inline void pTry(PLevel &L, size_t i, int x, int y, int sx, int sy, int r)
     if (d < L.nd[i]) { L.nd[i] = d; L.nx[i] = sx; L.ny[i] = sy; }
 }
 
-// one PatchMatch pass over rows [ya, yb): propagation from the two neighbours already visited, then a random search of shrinking size around the current match
 void pPass(PLevel &L, int r, bool forward, int ya, int yb, unsigned seed)
 {
     std::mt19937 rng(seed);
@@ -883,8 +822,6 @@ void pMatch(PLevel &L, int r, int iterations, int threads, unsigned &seed)
     }
 }
 
-// The hole is rebuilt from the matches. `winner` false: every pixel is the weighted mean of what the patches that cover it say (weights from the match quality); used while the
-// matches are still being found. `winner` true: every pixel is taken from the one covering patch with the best match (sharp; the final rebuild).
 void pVote(PLevel &L, int r, bool winner, int threads)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -910,7 +847,6 @@ void pVote(PLevel &L, int r, bool winner, int threads)
                         if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
                         const size_t s = (size_t(L.ny[q] + dy) * w + (L.nx[q] + dx)) * c;
                         if (winner) {
-                            // the best match wins; a patch centred nearer the pixel wins a tie
                             const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
                             if (score < best) { best = score; for (int k = 0; k < c; ++k) acc[k] = L.img[s + k]; ws = 1.0f; }
                         } else {
@@ -926,10 +862,6 @@ void pVote(PLevel &L, int r, bool winner, int threads)
     L.img.swap(out);
 }
 
-// The final rebuild with the seam taken away. Every hole pixel is taken from its best covering patch (real pixels), and the same patches also predict the known pixels
-// in a thin ring around the hole. Where a prediction differs from the real pixel (a copied piece is a little lighter, darker or of another hue than this spot), that
-// difference is spread smoothly into the hole (a membrane, as in seamless cloning) and added, so the copied pixels meet the picture with no visible edge. Only a smooth
-// colour shift is added: the copied detail stays as sharp as it was.
 void pFinalSeamless(PLevel &L, int r, int threads)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -939,7 +871,7 @@ void pFinalSeamless(PLevel &L, int r, int threads)
         for (int y = ya; y < yb; ++y)
             for (int x = 0; x < w; ++x) {
                 const size_t p = size_t(y) * w + x;
-                if (!L.tgt[p]) continue;    // the hole and the ring of known pixels whose patches touch it
+                if (!L.tgt[p]) continue;
                 float best = 1e30f;
                 for (int dy = -r; dy <= r; ++dy) {
                     const int qy = y - dy;
@@ -949,8 +881,6 @@ void pFinalSeamless(PLevel &L, int r, int threads)
                         if (qx < 0 || qx >= w) continue;
                         const size_t q = size_t(qy) * w + qx;
                         if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
-                        // ring pixels (known): only patches CENTRED IN THE HOLE count. A patch centred on a known pixel near the hole is matched mostly by its known part
-                        // and predicts the ring almost exactly, which would hide the seam; the patches centred in the hole are the ones whose pixels were copied.
                         if (!L.hole[p] && !L.hole[q]) continue;
                         const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
                         if (score < best) {
@@ -963,7 +893,6 @@ void pFinalSeamless(PLevel &L, int r, int threads)
                 }
             }
     });
-    // the offset: fixed on the ring (real - predicted), unknown in the hole
     std::vector<float> off(L.img.size(), 0.0f);
     std::vector<uint8_t> fixedRing(L.hole.size(), 0);
     for (int y = 0; y < h; ++y)
@@ -980,10 +909,8 @@ void pFinalSeamless(PLevel &L, int r, int threads)
             fixedRing[p] = 1;
             for (int k = 0; k < c; ++k) off[p * c + k] = L.img[p * c + k] - pred[p * c + k];
         }
-    // the hole pixels take their best patch
     for (size_t p = 0; p < L.hole.size(); ++p)
         if (L.hole[p] && has[p]) for (int k = 0; k < c; ++k) L.img[p * c + k] = pred[p * c + k];
-    // the membrane: first an onion-peel guess, then over-relaxation (each hole value toward the mean of its four neighbours)
     std::vector<uint8_t> known(L.hole.size(), 0);
     for (size_t p = 0; p < known.size(); ++p) known[p] = fixedRing[p];
     std::vector<size_t> order;
@@ -1021,7 +948,7 @@ void pFinalSeamless(PLevel &L, int r, int threads)
             for (int j = 0; j < 4; ++j) {
                 if (nbx[j] < 0 || nby[j] < 0 || nbx[j] >= w || nby[j] >= h) continue;
                 const size_t q = size_t(nby[j]) * w + nbx[j];
-                if (!L.hole[q] && !fixedRing[q]) continue;   // the outer edge of the picture: free (no pull)
+                if (!L.hole[q] && !fixedRing[q]) continue;
                 for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
                 ++n;
             }
@@ -1065,7 +992,6 @@ PLevel pDown(const PLevel &F)
     return L;
 }
 
-// the first guess at the smallest size: the hole is filled from its edge inward, each pixel the mean of its neighbours that are already known or filled (onion peel)
 void pPeel(PLevel &L)
 {
     const int w = L.w, h = L.h, c = L.c;
@@ -1096,7 +1022,7 @@ void pPeel(PLevel &L)
     }
 }
 
-} // namespace
+}
 
 bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
@@ -1132,7 +1058,6 @@ bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, i
     if (holeCount == 0) return true;
     if (holeCount >= size_t(w) * h) return false;
 
-    // the levels: down until the hole is at most about 24 px across (or the picture gets too small to find patches in)
     const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
     int levels = 1;
     while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)) ++levels;
@@ -1154,7 +1079,6 @@ bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, i
                 L.nx[i] = s % L.w; L.ny[i] = s / L.w;
             }
         } else {
-            // the matches of the smaller size, carried up (doubled), each checked; the hole is then rebuilt from THIS size's own pixels
             const PLevel &C = pyr[size_t(lv + 1)];
             for (int y = 0; y < L.h; ++y)
                 for (int x = 0; x < L.w; ++x) {
@@ -1171,12 +1095,10 @@ bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, i
                     }
                     L.nx[i] = sx; L.ny[i] = sy;
                 }
-            // a first rebuild of the hole from the carried matches (the distances are not known yet: all equal)
             for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i]) L.nd[i] = 1.0f;
             pVote(L, r, false, T);
         }
         const int emIters = (lv == levels - 1) ? 10 : (lv == 0 ? 3 : 5);
-        // the guessed hole counts little at the smallest size (its first guess is only a peeled average), more on the bigger sizes (their guess came from real patches)
         pSetConfidence(L, (lv == levels - 1) ? 0.15f : 0.6f);
         pRemeasure(L, r, T);
         for (int it = 0; it < emIters; ++it) {
@@ -1199,10 +1121,9 @@ bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, i
     return true;
 }
 
-
 namespace {
 
-struct QXf { float a, b, c, d; float reach; float cost; };    // source offset = [a b; c d] * patch offset; reach: how far the patch reaches; cost: the penalty factor
+struct QXf { float a, b, c, d; float reach; float cost; };
 
 const std::vector<QXf> &qTable(int r)
 {
@@ -1225,10 +1146,9 @@ const std::vector<QXf> &qTable(int r)
                 table.push_back(t);
             }
     tableR = r;
-    return table;   // index 0 is the plain copy
+    return table;
 }
 
-// the distance (Chebyshev) of every pixel to the nearest hole pixel or the edge of the picture: a transformed source patch must lie wholly in the known picture
 void qFreeRadius(PLevel &L)
 {
     const int w = L.w, h = L.h;
@@ -1238,7 +1158,7 @@ void qFreeRadius(PLevel &L)
         for (int x = 0; x < w; ++x) {
             const size_t i = size_t(y) * w + x;
             if (L.hole[i]) { L.freeR[i] = 0; continue; }
-            int v = std::min(std::min(x + 1, y + 1), std::min(w - x, h - y));   // the edge of the picture
+            int v = std::min(std::min(x + 1, y + 1), std::min(w - x, h - y));
             if (x > 0) v = std::min(v, L.freeR[i - 1] + 1);
             if (y > 0) {
                 v = std::min(v, L.freeR[i - w] + 1);
@@ -1278,8 +1198,6 @@ inline void qSample(const PLevel &L, float fx, float fy, float *out)
         out[k] = (1 - ay) * ((1 - ax) * p00[k] + ax * p10[k]) + ay * ((1 - ax) * p01[k] + ax * p11[k]);
 }
 
-// the value the match of target q gives to the pixel at offset (dx, dy) from q (the transformed source, plus the colour shift). `nearest`: the source pixel nearest
-// to the transformed spot, not a blend of four (the final rebuild: a blend of four neighbours softens every turned or resized copy)
 inline void qValue(const PLevel &L, const std::vector<QXf> &tab, size_t q, int dx, int dy, float *out, bool nearest = false)
 {
     const QXf &t = tab[L.xf[q]];
@@ -1298,14 +1216,12 @@ inline void qValue(const PLevel &L, const std::vector<QXf> &tab, size_t q, int d
     for (int k = 0; k < L.c; ++k) out[k] += L.bias[q * L.c + k];
 }
 
-const float kMaxBias = 28.0f;      // the largest colour shift, per channel (of 255)
-const float kBiasCost = 0.35f;     // what a shift costs, next to the difference it removes
+const float kMaxBias = 28.0f;
+const float kBiasCost = 0.35f;
 
-// the sums of the picture, so that the mean colour of any window takes four reads (rebuilt whenever the hole is rebuilt)
 void qBuildSat(PLevel &L)
 {
     const int w = L.w, h = L.h, c = L.c;
-    // 32-bit integers (4 bytes a channel): at most 255 * 4 M pixels, below 2^31
     L.sat.assign(size_t(w + 1) * (h + 1) * c, 0);
     for (int y = 0; y < h; ++y) {
         int32_t row[4] = {0, 0, 0, 0};
@@ -1326,9 +1242,6 @@ inline void qMean(const PLevel &L, int x, int y, int rad, float *out)
     for (int k = 0; k < c; ++k) out[k] = float(double(L.sat[a + k] - L.sat[b + k] - L.sat[d + k] + L.sat[e + k]) / n);
 }
 
-// the distance between the target patch around (tx, ty) and the source patch at (sx, sy) copied with transform `ti`, after the colour shift (returned in `bias`):
-// the shift is the difference of the two patches' mean colours (the source's over its window at its own size), limited to kMaxBias; the patches are then
-// compared pixel by pixel (stopping early once past `cutoff`), and a large shift costs a little. Each transform costs its factor.
 float qDist(const PLevel &L, const std::vector<QXf> &tab, int tx, int ty, int sx, int sy, int ti, int r, float *bias, float cutoff = 1e30f)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -1388,7 +1301,6 @@ void qPass(PLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, 
         for (int x = sX; x != eX; x += st) {
             const size_t i = size_t(y) * w + x;
             if (!L.tgt[i]) continue;
-            // propagation: the neighbour's match, moved by one step in the neighbour's transform
             const int px = x - st, py = y - st;
             if (px >= 0 && px < w && L.tgt[size_t(y) * w + px]) {
                 const size_t q = size_t(y) * w + px;
@@ -1400,7 +1312,6 @@ void qPass(PLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, 
                 const QXf &t = tab[L.xf[q]];
                 qTry(L, tab, i, x, y, int(std::lround(float(L.nx[q]) + t.b * st)), int(std::lround(float(L.ny[q]) + t.d * st)), L.xf[q], r);
             }
-            // random search: around the current match, shrinking, with the same transform; and a few other transforms at the current spot
             for (int rad = maxR; rad >= 1; rad /= 2) {
                 const int sx = L.nx[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
                 const int sy = L.ny[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
@@ -1425,7 +1336,7 @@ void qMatch(PLevel &L, const std::vector<QXf> &tab, int r, int iterations, int t
 
 void qRemeasure(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
 {
-    qBuildSat(L);   // the picture (the hole) has changed since the last sums
+    qBuildSat(L);
     pParallel(int(L.tgt.size()), threads, [&](int a, int b) {
         for (int i = a; i < b; ++i) {
             const size_t u = size_t(i);
@@ -1438,7 +1349,6 @@ void qRemeasure(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
     });
 }
 
-// the hole rebuilt from the matches: the weighted mean of what the covering patches say (`winner` false), or the value of the one best covering patch (`winner` true)
 void qVote(PLevel &L, const std::vector<QXf> &tab, int r, bool winner, int threads)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -1480,7 +1390,6 @@ void qVote(PLevel &L, const std::vector<QXf> &tab, int r, bool winner, int threa
     L.img.swap(out);
 }
 
-// the final rebuild (each hole pixel from its best covering patch) with the seam taken away (see pFinalSeamless: the same, with the transformed, colour-shifted patches)
 void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -1605,7 +1514,7 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
     for (size_t p : holeList) for (int k = 0; k < c; ++k) L.img[p * c + k] += off[p * c + k];
 }
 
-} // namespace
+}
 
 bool inpaintStandardV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
@@ -1720,22 +1629,21 @@ bool inpaintStandardV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int
     return true;
 }
 
-
 namespace {
 
 struct RLevel {
     int w = 0, h = 0, c = 0;
-    std::vector<uint8_t> img;      // w * h * c
-    std::vector<uint8_t> hole;     // 1 = to be filled
-    std::vector<uint8_t> tgt;      // 1 = the patch centred here touches the hole
-    std::vector<int16_t> nx, ny;   // the match of every target
-    std::vector<float> nd;         // its distance
-    std::vector<uint8_t> xf;       // its transform (index into the table)
-    std::vector<int8_t> bias;      // its colour shift, per channel (w * h * c)
-    std::vector<uint16_t> freeR;   // Chebyshev distance to the nearest hole pixel or the picture's edge (capped at 65535)
-    std::vector<int32_t> sat;      // window sums of the picture ((w + 1) * (h + 1) * c)
-    float holeWeight = 1.0f;       // how much a hole pixel counts in the comparisons (known pixels count 1)
-    size_t sourceCount = 0;        // how many valid sources there are (plain copies)
+    std::vector<uint8_t> img;
+    std::vector<uint8_t> hole;
+    std::vector<uint8_t> tgt;
+    std::vector<int16_t> nx, ny;
+    std::vector<float> nd;
+    std::vector<uint8_t> xf;
+    std::vector<int8_t> bias;
+    std::vector<uint16_t> freeR;
+    std::vector<int32_t> sat;
+    float holeWeight = 1.0f;
+    size_t sourceCount = 0;
     inline float conf(size_t i) const { return hole[i] ? holeWeight : 1.0f; }
 };
 
@@ -1971,7 +1879,6 @@ void rRemeasure(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
     });
 }
 
-// the hole rebuilt as the weighted mean of what the covering patches say; only the hole's pixels are kept aside (not a copy of the whole picture)
 void rVote(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -2010,7 +1917,6 @@ void rVote(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
         for (int k = 0; k < c; ++k) L.img[holeList[hi] * c + k] = out[hi * c + k];
 }
 
-// the final rebuild with the seam taken away (see qFinalSeamless), worked only inside the hole's box (and the ring around it)
 void rFinalSeamless(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
 {
     const int c = L.c, w = L.w, h = L.h;
@@ -2021,7 +1927,7 @@ void rFinalSeamless(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
     if (bx1 < 0) return;
     bx0 = std::max(0, bx0 - 1); by0 = std::max(0, by0 - 1); bx1 = std::min(w - 1, bx1 + 1); by1 = std::min(h - 1, by1 + 1);
     const int bw = bx1 - bx0 + 1, bh = by1 - by0 + 1;
-    auto B = [&](int x, int y) { return size_t(y - by0) * bw + size_t(x - bx0); };   // index in the box
+    auto B = [&](int x, int y) { return size_t(y - by0) * bw + size_t(x - bx0); };
     std::vector<float> pred(size_t(bw) * bh * c, 0.0f), off(size_t(bw) * bh * c, 0.0f);
     std::vector<uint8_t> has(size_t(bw) * bh, 0), fixedRing(size_t(bw) * bh, 0);
     pParallel(bh, threads, [&](int ya, int yb) {
@@ -2090,7 +1996,7 @@ void rFinalSeamless(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
             }
         for (size_t b : wave) { known[b] = 1; changed = true; }
     }
-    std::vector<int> redBlack[2];   // box indices of the hole's pixels, by colour
+    std::vector<int> redBlack[2];
     size_t holeCount = 0;
     for (int y = by0; y <= by1; ++y)
         for (int x = bx0; x <= bx1; ++x)
@@ -2181,7 +2087,6 @@ void rPeel(RLevel &L)
     }
 }
 
-// a random valid source (a plain copy), found by trying random spots
 bool rRandomSource(const RLevel &L, const std::vector<QXf> &tab, std::mt19937 &rng, int &sx, int &sy)
 {
     for (int tries = 0; tries < 2000; ++tries) {
@@ -2203,10 +2108,9 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
     for (size_t i = 0; i < n; ++i) known[i] = L.hole[i] ? 0 : 1;
     std::vector<int> pending;
     for (size_t i = 0; i < n; ++i) if (L.hole[i]) pending.push_back(int(i));
-    const int pr = std::min(r, 3);   // the patch used for matching
+    const int pr = std::min(r, 3);
     const int kRandom = 2500;
     while (!pending.empty()) {
-        // the layer: hole pixels with a known 4-neighbour (if none has one, the nearest remaining pixel is taken so that the loop ends)
         std::vector<int> layer, rest;
         for (int i : pending) {
             const int x = i % w, y = i / w;
@@ -2232,7 +2136,7 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
                             for (int k = 0; k < c; ++k) { const float e = float(a[k]) - float(s[k]); sum += e * e; }
                             ++cnt;
                         }
-                        if (cnt > 0 && sum / cnt > best * 1.5f && sum > best * 2.0f) return 1e30f;   // clearly worse, stop early
+                        if (cnt > 0 && sum / cnt > best * 1.5f && sum > best * 2.0f) return 1e30f;
                     }
                     return cnt > 0 ? sum / float(cnt) : 1e30f;
                 };
@@ -2242,7 +2146,6 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
                     const float cst = cost(sx, sy, bestCost);
                     if (cst < bestCost) { bestCost = cst; bx = sx; by = sy; }
                 };
-                // the matches of the filled neighbours, shifted by the offset between the pixels
                 for (int dy = -1; dy <= 1; ++dy) for (int dx = -1; dx <= 1; ++dx) {
                     if (!dx && !dy) continue;
                     const int x = px + dx, y = py + dy;
@@ -2250,8 +2153,6 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
                     const size_t q = size_t(y) * w + x;
                     if (matchX[q] >= 0) tryCand(matchX[q] - dx, matchY[q] - dy);
                 }
-                // (a version that took half of the candidates from near the hole, as the industry standard's sampling window does, was tried and made the fill hazier on the cup and spoon
-                // pictures of tools/inpaint-bench: the nearby colours pull the match towards a smooth look; not used.)
                 for (int t = 0; t < kRandom; ++t) tryCand(int(rng() % unsigned(w)), int(rng() % unsigned(h)));
                 if (bx >= 0) {
                     for (int rad = std::max(w, h) / 4; rad >= 1; rad /= 2) {
@@ -2263,7 +2164,6 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
                 }
             }
         });
-        // take the layer in: copy the middle pixel of the best patch
         for (int p : layer) {
             if (matchX[size_t(p)] >= 0) {
                 const size_t s = size_t(matchY[size_t(p)]) * w + matchX[size_t(p)];
@@ -2275,12 +2175,12 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
     }
 }
 
-} // namespace
+}
 
 bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
-    if (w > 32767 || h > 32767) return inpaintStandardV2(pixels, holeIn, w, h, channels, opt, filledHole);   // the 16-bit match positions
+    if (w > 32767 || h > 32767) return inpaintStandardV2(pixels, holeIn, w, h, channels, opt, filledHole);
     const int r = std::max(2, std::min(5, opt.patchRadius));
     const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     const std::vector<QXf> &tab = qTable(r);
@@ -2342,7 +2242,6 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
         thickness = 2 * best - 1;
     }
     int levels = 1;
-    // while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)) ++levels;
     while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)
            && (thickness >> levels) >= 2 * (2 * r + 1)) ++levels;
     for (int i = 1; i < levels; ++i) pyr.push_back(rDown(pyr[size_t(i - 1)]));
@@ -2358,7 +2257,7 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
         std::mt19937 rng(seed + unsigned(lv));
         if (lv == levels - 1) {
             std::vector<int16_t> ringX, ringY;
-            rPeel(L);                                                   // a first guess for every pixel, replaced where the ring fill finds a match
+            rPeel(L);
             rRingFill(L, tab, r, seed + unsigned(lv), T, ringX, ringY);
             for (size_t i = 0; i < L.tgt.size(); ++i) {
                 if (!L.tgt[i]) continue;
@@ -2387,7 +2286,6 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
                     if (!rValid(L, sx, sy, tab[size_t(ti)])) { ti = 0; if (!rValid(L, sx, sy, tab[0])) rRandomSource(L, tab, rng, sx, sy); }
                     L.nx[i] = int16_t(sx); L.ny[i] = int16_t(sy); L.xf[i] = uint8_t(ti);
                 }
-            // the smaller size is no longer needed: its memory goes back
             RLevel freed;
             std::swap(C, freed);
             for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i]) L.nd[i] = 1.0f;
@@ -2405,7 +2303,7 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
             if (last) rFinalSeamless(L, tab, r, T);
             else { rVote(L, tab, r, T); rRemeasure(L, tab, r, T); }
         }
-        if (lv > 0) { std::vector<int32_t>().swap(L.sat); std::vector<uint16_t>().swap(L.freeR); }   // not needed by the bigger size
+        if (lv > 0) { std::vector<int32_t>().swap(L.sat); std::vector<uint16_t>().swap(L.freeR); }
     }
 
     const RLevel &F = pyr[0];
@@ -2417,4 +2315,4 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
     return true;
 }
 
-} // namespace KrimbleInpaint
+}

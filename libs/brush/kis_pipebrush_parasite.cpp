@@ -90,7 +90,6 @@ void KisPipeBrushParasite::init()
 void KisPipeBrushParasite::sanitize()
 {
     for (int i = 0; i < dim; i++) {
-        // In the 2 listed cases, we'd divide by 0!
         if (rank[i] == 0 &&
                 (selection[i] == KisParasite::Incremental
                  || selection[i] == KisParasite::Angular)) {
@@ -103,7 +102,6 @@ void KisPipeBrushParasite::sanitize()
 
 void KisPipeBrushParasite::setBrushesCount()
 {
-    // I assume ncells is correct. If it isn't, complain to the parasite header.
     if (rank[0] != 0) {
         brushesCount[0] = ncells / rank[0];
     }
@@ -123,13 +121,10 @@ void KisPipeBrushParasite::setBrushesCount()
 
 bool KisPipeBrushParasite::saveToDevice(QIODevice* dev) const
 {
-    // write out something like
-    // <count> ncells:<count> dim:<dim> rank0:<rank0> sel0:<sel0> <...>
 
     QTextStream stream(dev);
     KisPortingUtils::setUtf8OnStream(stream);
 
-    // XXX: FIXME things like step, placement and so are not added (nor loaded, as a matter of fact)"
     stream << ncells << " ncells:" << ncells << " dim:" << dim;
 
     for (int i = 0; i < dim; i++) {
@@ -157,8 +152,7 @@ bool KisPipeBrushParasite::saveToDevice(QIODevice* dev) const
     return true;
 }
 
-bool loadFromDevice(QIODevice */*dev*/)
+bool loadFromDevice(QIODevice * )
 {
-    // XXX: implement...
     return true;
 }

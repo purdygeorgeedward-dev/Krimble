@@ -28,4 +28,4 @@ public:
     QString look;
 };
 
-#endif // KISOCIOCONFIGURATION_H
+#endif

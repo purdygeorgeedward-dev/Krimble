@@ -16,7 +16,6 @@
 class KisPaintInformation;
 #include <kis_paint_information.h>
 
-
 class KRITAUI_EXPORT KisStabilizedEventsSampler
 {
 public:
@@ -71,5 +70,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-
-#endif /* __KIS_STABILIZED_EVENTS_SAMPLER_H */
+#endif

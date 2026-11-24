@@ -29,7 +29,6 @@ QVector<KoShapeMeshGradientHandles::Handle> KoShapeMeshGradientHandles::handles(
 
     for (int irow = 0; irow < mesharray->numRows(); ++irow) {
         for (int icol = 0; icol < mesharray->numColumns(); ++icol) {
-            // add corners as well
             result << getHandles(mesharray, SvgMeshPatch::Top, irow, icol);
 
             result << getBezierHandles(mesharray, SvgMeshPatch::Left, irow, icol);
@@ -50,8 +49,6 @@ QVector<KoShapeMeshGradientHandles::Handle> KoShapeMeshGradientHandles::handles(
         }
     }
 
-    // we get pointer events in points (pts, not logical), so we transform these now
-    // and then invert them while drawing handles (see SelectionDecorator).
     QTransform t = absoluteTransformation(g->gradientUnits());
     for (auto &handle: result) {
         handle.pos = t.map(handle.pos);
@@ -125,7 +122,6 @@ QVector<QPainterPath> KoShapeMeshGradientHandles::getConnectedPath(const Handle 
 
     QVector<QPainterPath> result;
 
-    // TODO(sh_zam): Handle OBB and user mode in and only in SvgMeshPatch
     const QTransform t = (gradient()->gradientUnits() == KoFlake::ObjectBoundingBox)
                            ? KisAlgebra2D::mapToRect(m_shape->outlineRect())
                            : QTransform();

@@ -59,7 +59,6 @@ KisTimeSpan KisTimeSpan::calculateNodeIdenticalFrames(const KisNode *node, int t
         node->keyframeChannels();
 
     Q_FOREACH (const KisKeyframeChannel *channel, channels) {
-        // Intersection
         range &= channel->identicalFrames(time);
     }
 
@@ -75,9 +74,6 @@ KisTimeSpan KisTimeSpan::calculateNodeAffectedFrames(const KisNode *node, int ti
     const QMap<QString, KisKeyframeChannel*> channels =
         node->keyframeChannels();
 
-    // TODO: channels should report to the image which channel exactly has changed
-    //       to avoid the dirty range to be stretched into infinity!
-
     if (channels.isEmpty() ||
         !channels.contains(KisKeyframeChannel::Raster.id())) {
         range = KisTimeSpan::infinite(0);
@@ -85,7 +81,6 @@ KisTimeSpan KisTimeSpan::calculateNodeAffectedFrames(const KisNode *node, int ti
     }
 
     Q_FOREACH (const KisKeyframeChannel *channel, channels) {
-        // Union
         range |= channel->affectedFrames(time);
     }
 
@@ -110,7 +105,6 @@ void saveValue(QDomElement *parent, const QString &tag, const KisTimeSpan &range
         }
     }
 }
-
 
 bool loadValue(const QDomElement &parent, const QString &tag, KisTimeSpan *range)
 {

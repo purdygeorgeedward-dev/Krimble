@@ -11,7 +11,6 @@
 #include <KoColor.h>
 #include "kis_iterator_ng.h"
 
-
 namespace Acs {
     enum ColorRole {Foreground, Background};
 
@@ -58,6 +57,4 @@ namespace Acs {
 
 }
 
-
-
-#endif /* __KIS_ACS_TYPES_H */
+#endif

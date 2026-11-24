@@ -15,4 +15,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif // KISFRAMECACHESTORETEST_H
+#endif

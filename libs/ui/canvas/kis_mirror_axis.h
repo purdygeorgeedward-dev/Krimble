@@ -51,4 +51,4 @@ private Q_SLOTS:
     void moveVerticalAxisToCenter();
 };
 
-#endif // KISMIRRORAXIS_H
+#endif

@@ -34,7 +34,6 @@
 
 #include <raqm.h>
 
-
 static QPainterPath convertFromFreeTypeOutline(FT_GlyphSlotRec *glyphSlot);
 static QImage convertFromFreeTypeBitmap(FT_GlyphSlotRec *glyphSlot);
 
@@ -49,57 +48,36 @@ static QString glyphFormatToStr(const FT_Glyph_Format _v)
     return s;
 }
 
-/**
- * @brief Embolden a glyph (synthesize bold) if the font does not have native
- * bold.
- *
- * @param ftface
- * @param charResult
- * @param x_advance Pointer to the X advance to be adjusted if needed.
- * @param y_advance Pointer to the Y advance to be adjusted if needed.
- */
 static void
 emboldenGlyphIfNeeded(const FT_Face ftface, const CharacterResult &charResult, int *x_advance, int *y_advance)
 {
     constexpr int WEIGHT_SEMIBOLD = 600;
     if (charResult.fontWeight >= WEIGHT_SEMIBOLD) {
-        // Simplest check: Bold fonts don't need to be embolden.
         if (ftface->style_flags & FT_STYLE_FLAG_BOLD) {
             return;
         }
 
-        // Variable fnots also don't need to be embolden.
         if (FT_HAS_MULTIPLE_MASTERS(ftface)) {
             return;
         }
 
-        // Some heavy weight classes don't cause FT_STYLE_FLAG_BOLD to be set,
-        // so we have to check the OS/2 and STAT table for its weight class to be sure.
         hb_font_t_sp hbFont(hb_ft_font_create_referenced(ftface));
         if (hb_style_get_value(hbFont.data(), HB_STYLE_TAG_WEIGHT) >= WEIGHT_SEMIBOLD) {
             return;
         }
 
-        // This code is somewhat inspired by Firefox.
         FT_Pos strength =
             FT_MulFix(ftface->units_per_EM, ftface->size->metrics.y_scale) / 48;
 
         if (ftface->glyph->format == FT_GLYPH_FORMAT_BITMAP) {
-            // This is similar to what FT_GlyphSlot_Embolden does.
 
-            // Round down to full pixel.
             strength &= ~63;
             if (strength == 0) {
-                // ... but it has to be at least one pixel.
                 strength = 64;
             }
 
             FT_GlyphSlot_Own_Bitmap(ftface->glyph);
 
-            // Embolden less vertically than horizontally. Especially if
-            // strength is only 1px, don't embolden vertically at all.
-            // Otherwise it makes the glyph way too heavy, especially for
-            // CJK glyphs in small sizes.
             const FT_Pos strengthY = strength - 64;
             FT_Bitmap_Embolden(ftface->glyph->library, &ftface->glyph->bitmap, strength, strengthY);
 
@@ -134,16 +112,6 @@ bool faceIsItalic(const FT_Face face) {
     return isItalic || isOblique;
 }
 
-/**
- * @brief Calculate the transformation matrices for an outline glyph, taking
- * synthesized italic into account.
- *
- * @param ftTF FT unit to 1/72 unit
- * @param currentGlyph
- * @param charResult
- * @param isHorizontal
- * @return std::pair<QTransform, QTransform> {outlineGlyphTf, glyphObliqueTf}
- */
 static std::pair<QTransform, QTransform> calcOutlineGlyphTransform(const QTransform &ftTF,
                                                                    const raqm_glyph_t &currentGlyph,
                                                                    const CharacterResult &charResult,
@@ -152,18 +120,11 @@ static std::pair<QTransform, QTransform> calcOutlineGlyphTransform(const QTransf
     QTransform outlineGlyphTf = QTransform::fromTranslate(currentGlyph.x_offset, currentGlyph.y_offset);
     QTransform glyphObliqueTf;
 
-    // Check whether we need to synthesize italic by shearing the glyph:
     if (charResult.fontStyle != QFont::StyleNormal && !faceIsItalic(currentGlyph.ftface)) {
-        // CSS Fonts Module Level 4, 2.4. Font style: the font-style property:
-        // For `oblique`, "lack of an <angle> represents 14deg".
         constexpr double SLANT_14DEG = 0.24932800284318069162403993780486;
         if (isHorizontal) {
             glyphObliqueTf.shear(SLANT_14DEG, 0);
         } else {
-            // For vertical mode, CSSWG says:
-            // - Skew around the centre
-            // - Right-side down and left-side up
-            // https://github.com/w3c/csswg-drafts/issues/2869
             glyphObliqueTf.shear(0, -SLANT_14DEG);
         }
         outlineGlyphTf *= glyphObliqueTf;
@@ -172,20 +133,9 @@ static std::pair<QTransform, QTransform> calcOutlineGlyphTransform(const QTransf
     return {outlineGlyphTf, glyphObliqueTf};
 }
 
-/**
- * @brief Helper class to load CPAL/COLR v0 color layers, functionally based
- * off the sample code in the freetype docs.
- */
 class ColorLayersLoader
 {
 public:
-    /**
-     * @brief Construct a ColorLayersLoader object. The first color layer is
-     * selected if there are any.
-     *
-     * @param face
-     * @param baseGlyph
-     */
     ColorLayersLoader(FT_Face face, FT_UInt baseGlyph)
         : m_face(face)
         , m_baseGlyph(baseGlyph)
@@ -197,23 +147,11 @@ public:
         m_haveLayers = moveNext();
     }
 
-    /**
-     * @brief Check whether there are color layers to be loaded.
-     */
     operator bool() const
     {
         return m_haveLayers && m_palette;
     }
 
-    /**
-     * @brief Load the current glyph layer.
-     *
-     * @param charResult
-     * @param faceLoadFlags
-     * @param x_advance Pointer to the X advance to be adjusted if needed.
-     * @param y_advance Pointer to the Y advance to be adjusted if needed.
-     * @return std::tuple<QPainterPath, QBrush, bool> {glyphOutline, layerColor, isForeGroundColor}
-     */
     std::tuple<QPainterPath, QBrush, bool>
     layer(const CharacterResult &charResult, const FT_Int32 faceLoadFlags, int *x_advance, int *y_advance)
     {
@@ -232,7 +170,6 @@ public:
             return {};
         }
         if (m_face->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
-            // Check whether we need to synthesize bold by emboldening the glyph:
             emboldenGlyphIfNeeded(m_face, charResult, x_advance, y_advance);
 
             const QPainterPath p = convertFromFreeTypeOutline(m_face->glyph);
@@ -243,12 +180,6 @@ public:
         }
     }
 
-    /**
-     * @brief Move to the next glyph layer.
-     *
-     * @return true if there are more layers.
-     * @return false if there are no more layers.
-     */
     bool moveNext()
     {
         m_haveLayers =
@@ -266,15 +197,6 @@ private:
     bool m_haveLayers;
 };
 
-
-/**
- * @brief Load the glyph if possible. The glyph is loaded into `charResult.glyph`.
- *
- * @return std::pair<QTransform, qreal>
- *   - QTransform glyphObliqueTf - The matrix for Italic (oblique) synthesis.
- *   - qreal bitmapScale - The scaling factor for color bitmap glyphs, otherwise always 1.0
- */
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTransform &ftTF,
                                                                     const FT_Int32 faceLoadFlags,
                                                                     const bool isHorizontal,
@@ -282,23 +204,15 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
                                                                     CharacterResult &charResult,
                                                                     const KoSvgText::TextRendering rendering)
 {
-    /// The matrix for Italic (oblique) synthesis of outline glyphs, or for
-    /// adjusting the bounding box of bitmap glyphs.
     QTransform glyphObliqueTf;
 
-    /// The scaling factor for color bitmap glyphs, otherwise always 1.0
     qreal bitmapScale = 1.0;
 
     if (currentGlyph.index == 0) {
-        // Missing glyph -- don't try to load the glyph from the font, we will
-        // draw a tofu block instead.
         debugFlake << "Missing glyph";
         return {glyphObliqueTf, bitmapScale};
     }
 
-    // Try to retrieve CPAL/COLR v0 color layers, this should be preferred over
-    // other glyph formats. Doing this first also allows us to skip loading the
-    // default outline glyph.
     if (ColorLayersLoader loader{currentGlyph.ftface, currentGlyph.index}) {
         Glyph::ColorLayers *colorGlyph = std::get_if<Glyph::ColorLayers>(&charResult.glyph);
         if (!colorGlyph) {
@@ -308,10 +222,8 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
             colorGlyph = &charResult.glyph.emplace<Glyph::ColorLayers>();
         }
 
-        /// The combined offset * italic * ftTf transform for outline glyphs.
         QTransform outlineGlyphTf;
 
-        // Calculate the transforms
         std::tie(outlineGlyphTf, glyphObliqueTf) =
             calcOutlineGlyphTransform(ftTF, currentGlyph, charResult, isHorizontal);
 
@@ -329,8 +241,6 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
             if (!p.isEmpty()) {
                 p = outlineGlyphTf.map(p);
                 if (charResult.visualIndex > -1) {
-                    // This is for glyph clusters, i.e. complex emoji. Do it
-                    // like how we handle unicode combining marks.
                     p = p.translated(charResult.advance);
                 }
                 colorGlyph->paths.append(p);
@@ -346,16 +256,13 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
             return {glyphObliqueTf, bitmapScale};
         }
 
-        // Check whether we need to synthesize bold by emboldening the glyph:
         emboldenGlyphIfNeeded(currentGlyph.ftface, charResult, &currentGlyph.x_advance, &currentGlyph.y_advance);
 
         if (currentGlyph.ftface->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
-            Glyph::Outline _discard; ///< Storage for discarded outline, must outlive outlineGlyph
+            Glyph::Outline _discard;
             Glyph::Outline *outlineGlyph = std::get_if<Glyph::Outline>(&charResult.glyph);
             if (!outlineGlyph) {
                 if (std::holds_alternative<Glyph::ColorLayers>(charResult.glyph)) {
-                    // Special case: possibly an empty glyph in the middle of a
-                    // combining color glyph, just discard the resulting path.
                     outlineGlyph = &_discard;
                 } else if (!std::holds_alternative<std::monostate>(charResult.glyph)) {
                     warnFlake << "Glyph contains other type than Outline:" << charResult.glyph.index();
@@ -365,10 +272,8 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
                 }
             }
 
-            /// The combined offset * italic * ftTf transform for outline glyphs.
             QTransform outlineGlyphTf;
 
-            // Calculate the transforms
             std::tie(outlineGlyphTf, glyphObliqueTf) =
                 calcOutlineGlyphTransform(ftTF, currentGlyph, charResult, isHorizontal);
 
@@ -376,10 +281,6 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
             glyph = outlineGlyphTf.map(glyph);
 
             if (charResult.visualIndex > -1) {
-                // this is for glyph clusters, unicode combining marks are always
-                // added. we could have these as separate paths, but there's no real
-                // purpose, and the svg standard prefers 'ligatures' to be treated
-                // as a single glyph. It simplifies things for us in any case.
                 outlineGlyph->path.addPath(glyph.translated(charResult.advance));
             } else {
                 outlineGlyph->path = glyph;
@@ -389,8 +290,6 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
 
             if (currentGlyph.ftface->glyph->format == FT_GLYPH_FORMAT_BITMAP) {
                 if (FT_HAS_COLOR(currentGlyph.ftface)) {
-                    // This applies the transform for CBDT bitmaps (e.g. Noto
-                    // Color Emoji) that was set in KoFontRegistry::configureFaces
                     FT_Matrix matrix;
                     FT_Vector delta;
                     FT_Get_Transform(currentGlyph.ftface, &matrix, &delta);
@@ -429,11 +328,8 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
             QImage image = convertFromFreeTypeBitmap(currentGlyph.ftface->glyph);
             bitmapGlyph->images.append(image);
 
-            // Check whether we need to synthesize italic by shearing the glyph:
             if (charResult.fontStyle != QFont::StyleNormal
                 && !(currentGlyph.ftface->style_flags & FT_STYLE_FLAG_ITALIC)) {
-                // Since we are dealing with a bitmap glyph, we'll just use a nice
-                // round floating point number.
                 constexpr double SLANT_BITMAP = 0.25;
                 QTransform shearTf;
                 QPoint shearAt;
@@ -446,7 +342,6 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
                     glyphObliqueTf.shear(0, -SLANT_BITMAP);
                     shearAt = QPoint(image.width() / 2, 0);
                 }
-                // We need to shear around the baseline, hence the translation.
                 bitmapTf = (QTransform::fromTranslate(-shearAt.x(), -shearAt.y()) * shearTf
                     * QTransform::fromTranslate(shearAt.x(), shearAt.y())) * bitmapTf;
             }
@@ -457,8 +352,6 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
                     bitmapTf,
                     rendering == KoSvgText::RenderingOptimizeSpeed ? Qt::FastTransformation : Qt::SmoothTransformation));
 
-                // This does the same as `QImage::trueMatrix` to get the image
-                // offset after transforming.
                 const QPoint offset = bitmapTf.mapRect(QRectF({0, 0}, srcSize)).toAlignedRect().topLeft();
                 currentGlyph.ftface->glyph->bitmap_left += offset.x();
                 currentGlyph.ftface->glyph->bitmap_top -= offset.y();
@@ -468,12 +361,6 @@ std::pair<QTransform, qreal> KoSvgTextShape::Private::loadGlyphOnly(const QTrans
     return {glyphObliqueTf, bitmapScale};
 }
 
-/**
- * @brief Load the glyph if possible and set the glyph bounding box and metrics.
- *
- * @return Whether the resulting charResult is valid.
- */
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 bool KoSvgTextShape::Private::loadGlyph(const KoSvgText::ResolutionHandler &resHandler,
                                         const FT_Int32 faceLoadFlags,
                                         const bool isHorizontal,
@@ -485,14 +372,10 @@ bool KoSvgTextShape::Private::loadGlyph(const KoSvgText::ResolutionHandler &resH
 {
     const QTransform ftTF = resHandler.freeTypeToPointTransform();
 
-    /// The matrix for Italic (oblique) synthesis of outline glyphs, or for
-    /// adjusting the bounding box of bitmap glyphs.
     QTransform glyphObliqueTf;
 
-    /// The scaling factor for color bitmap glyphs, otherwise always 1.0
     qreal bitmapScale = 1.0;
 
-    // Try to load the glyph
     std::tie(glyphObliqueTf, bitmapScale) = loadGlyphOnly(ftTF, faceLoadFlags, isHorizontal, currentGlyph, charResult, rendering);
 
     if (charResult.visualIndex == -1) {
@@ -535,8 +418,6 @@ bool KoSvgTextShape::Private::loadGlyph(const KoSvgText::ResolutionHandler &resH
         }
 
         if (std::holds_alternative<std::monostate>(charResult.glyph)) {
-            // For whatever reason we don't have a glyph for this char. Draw a
-            // tofu block for it.
             const auto height = ftTF.map(QPointF(currentGlyph.ftface->size->metrics.height, 0)).x() * 0.6;
             QPainterPath glyph = KisTofuGlyph::create(firstCodepoint, height);
             if (isHorizontal) {
@@ -623,7 +504,6 @@ QVector<QPointF> KoSvgTextShape::Private::getLigatureCarets(const KoSvgText::Res
 {
     QVector<QPointF> positions;
     const QTransform ftTF = resHandler.freeTypeToPointTransform();
-    // Ligature caret list only uses direction to determine whether horizontal or vertical.
     hb_direction_t dir = isHorizontal? HB_DIRECTION_LTR: HB_DIRECTION_TTB;
     hb_font_t_sp font(hb_ft_font_create_referenced(currentGlyph.ftface));
 
@@ -638,31 +518,24 @@ QVector<QPointF> KoSvgTextShape::Private::getLigatureCarets(const KoSvgText::Res
     return positions;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 static QPainterPath convertFromFreeTypeOutline(FT_GlyphSlotRec *glyphSlot)
 {
     QPointF cp = QPointF();
-    // convert the outline to a painter path
-    // This is taken from qfontengine_ft.cpp.
     QPainterPath glyph;
     glyph.setFillRule(Qt::WindingFill);
     int i = 0;
     for (int j = 0; j < glyphSlot->outline.n_contours; ++j) {
         int last_point = glyphSlot->outline.contours[j];
-        // qDebug() << "contour:" << i << "to" << last_point;
         QPointF start = QPointF(glyphSlot->outline.points[i].x, glyphSlot->outline.points[i].y);
-        if (!(glyphSlot->outline.tags[i] & 1)) { // start point is not on curve:
-            if (!(glyphSlot->outline.tags[last_point] & 1)) { // end point is not on curve:
-                // qDebug() << "  start and end point are not on curve";
+        if (!(glyphSlot->outline.tags[i] & 1)) {
+            if (!(glyphSlot->outline.tags[last_point] & 1)) {
                 start = (QPointF(glyphSlot->outline.points[last_point].x, glyphSlot->outline.points[last_point].y) + start) / 2.0;
             } else {
-                // qDebug() << "  end point is on curve, start is not";
                 start = QPointF(glyphSlot->outline.points[last_point].x, glyphSlot->outline.points[last_point].y);
             }
-            --i; // to use original start point as control point below
+            --i;
         }
         start += cp;
-        // qDebug() << "  start at" << start;
         glyph.moveTo(start);
         std::array<QPointF, 4> curve;
         curve[0] = start;
@@ -670,21 +543,15 @@ static QPainterPath convertFromFreeTypeOutline(FT_GlyphSlotRec *glyphSlot)
         while (i < last_point) {
             ++i;
             curve.at(n) = cp + QPointF(glyphSlot->outline.points[i].x, glyphSlot->outline.points[i].y);
-            // qDebug() << "    " << i << c[n] << "tag =" <<
-            // (int)g->outline.tags[i]
-            //                    << ": on curve =" << (bool)(g->outline.tags[i]
-            //                    & 1);
             ++n;
             switch (glyphSlot->outline.tags[i] & 3) {
             case 2:
-                // cubic bezier element
                 if (n < 4)
                     continue;
                 curve[3] = (curve[3] + curve[2]) / 2;
                 --i;
                 break;
             case 0:
-                // quadratic bezier element
                 if (n < 3)
                     continue;
                 curve[3] = (curve[1] + curve[2]) / 2;
@@ -695,7 +562,6 @@ static QPainterPath convertFromFreeTypeOutline(FT_GlyphSlotRec *glyphSlot)
             case 1:
             case 3:
                 if (n == 2) {
-                    // qDebug() << "  lineTo" << c[1];
                     glyph.lineTo(curve[1]);
                     curve[0] = curve[1];
                     n = 1;
@@ -707,13 +573,11 @@ static QPainterPath convertFromFreeTypeOutline(FT_GlyphSlotRec *glyphSlot)
                 }
                 break;
             }
-            // qDebug() << "  cubicTo" << c[1] << c[2] << c[3];
             glyph.cubicTo(curve[1], curve[2], curve[3]);
             curve[0] = curve[3];
             n = 1;
         }
         if (n == 1) {
-            // qDebug() << "  closeSubpath";
             glyph.closeSubpath();
         } else {
             curve[3] = start;
@@ -721,7 +585,6 @@ static QPainterPath convertFromFreeTypeOutline(FT_GlyphSlotRec *glyphSlot)
                 curve[2] = (2 * curve[1] + curve[3]) / 3;
                 curve[1] = (2 * curve[1] + curve[0]) / 3;
             }
-            // qDebug() << "  close cubicTo" << c[1] << c[2] << c[3];
             glyph.cubicTo(curve[1], curve[2], curve[3]);
         }
         ++i;

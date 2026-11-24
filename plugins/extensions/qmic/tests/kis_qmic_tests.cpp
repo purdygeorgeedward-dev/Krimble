@@ -137,7 +137,6 @@ void KisQmicTests::testConvertRGBqmic()
     }
 }
 
-
 void KisQmicTests::testConvertRGBAqmic()
 {
     KisPaintDeviceSP resultDev = new KisPaintDevice(KoColorSpaceRegistry::instance()->rgb8());
@@ -215,9 +214,7 @@ void KisQmicTests::testConvertToGmic()
         slowQImage.save("testConvertToGmic_slow.bmp");
     }
 
-
 }
-
 
 SIMPLE_TEST_MAIN(KisQmicTests)
 

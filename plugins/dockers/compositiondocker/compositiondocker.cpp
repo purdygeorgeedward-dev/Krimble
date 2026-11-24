@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 
-
 #include <kis_debug.h>
 #include <kpluginfactory.h>
 #include <klocalizedstring.h>
@@ -45,7 +44,7 @@ public:
     QDockWidget* createDockWidget() override
     {
         CompositionDockerDock * dockWidget = new CompositionDockerDock();
-        
+
         dockWidget->setObjectName(id());
 
         return dockWidget;
@@ -57,9 +56,7 @@ public:
     }
 private:
 
-
 };
-
 
 CompositionDockerPlugin::CompositionDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

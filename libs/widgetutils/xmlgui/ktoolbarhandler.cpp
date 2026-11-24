@@ -116,7 +116,6 @@ private:
             m_actionCollection);
         m_actionCollection->addAction(toolBar->objectName(), action);
 
-        // ## tooltips, whatsthis?
         m_toolBarActions.append(action);
     }
 
@@ -169,7 +168,7 @@ void ToolBarHandler::Private::init(KXmlGuiWindow *mw)
         QString completeDescription = QString::fromLatin1(guiDescription)
                                       .arg(QLatin1String(actionListName));
 
-        parent->setXML(completeDescription, false /*merge*/);
+        parent->setXML(completeDescription, false );
     }
 }
 
@@ -249,9 +248,7 @@ void ToolBarHandler::setupActions()
 
     d->toolBars = builder.toolBars();
 
-    // We have no XML file associated with our action collection, so load settings from KConfig
-    actionCollection()->readSettings(); // #233712
-
+    actionCollection()->readSettings();
 
     d->connectToActionContainers();
 }

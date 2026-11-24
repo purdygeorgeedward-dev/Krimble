@@ -2,7 +2,7 @@
  *
  * This file was written by Henning Makholm <henning@makholm.net>
  * It is hereby in the public domain.
- * 
+ *
  * In jurisdictions that do not recognise grants of copyright to the
  * public domain: I, the author and (presumably, in those jurisdictions)
  * copyright holder, hereby permit anyone to distribute and use this code,
@@ -38,8 +38,6 @@ void nls_init(void);
 # define __STDC_FORMAT_MACROS
 # include <inttypes.h>
 #else
-/* These legacy fall-backs will probably work on every system
- * that does not supply a inttypes.h ... */
 typedef unsigned char     uint8_t ;
 typedef unsigned long int uint32_t, uintptr_t;
 typedef signed char       int8_t ;
@@ -73,9 +71,6 @@ static inline uint32_t ntohl(uint32_t a) {
 #define strcasecmp strcmp
 #endif
 
-/* Read a single word value from the XCF file */
-
-/* Use + instead of | because that allows LEA instructions */
 #define xcfBE(a) ( ((uint32_t)xcf_file[(a)  ] << 24) + \
                    ((uint32_t)xcf_file[(a)+1] << 16) + \
                    ((uint32_t)xcf_file[(a)+2] << 8 ) + \
@@ -91,16 +86,8 @@ static inline uint32_t ntohl(uint32_t a) {
 # define xcfL(a) ((a) & 3 ? xcfBE(a) : ntohl(*(uint32_t *)(xcf_file + (a))))
 #endif
 
-/* ****************************************************************** */
-
-/* The following are exported from am OS-specific source file;
- * io-unix.c on unixish systems.
- */
 void read_or_mmap_xcf(const char* filename, const char *unzipper);
 void free_or_close_xcf(void);
-
-/* ****************************************************************** */
-/* utils.c */
 
 #define XCF_ERROR 1
 #define XCF_OK 0
@@ -122,7 +109,7 @@ void FatalUnsupportedXCF(const char* format,...)
      __ATTRIBUTE__((format(printf,1,2))) ;
 
 void gpl_blurb(void);
-     
+
 FILE* openout(const char*);
 int closeout(FILE *,const char*);
 
@@ -135,9 +122,6 @@ struct rect {
 #define disjointRects(A,B) \
   ((A).l >= (B).r || (A).r <= (B).l || (A).t >= (B).b || (A).b <= (B).t)
 
-/* ****************************************************************** */
-/* xcf-general.c */
-
 extern uint8_t *xcf_file ;
 extern size_t xcf_length ;
 extern int use_utf8 ;
@@ -149,15 +133,9 @@ int xcfOffset(uint32_t addr,int spaceafter, uint32_t* apparent);
 int xcfNextprop(uint32_t *master,uint32_t *body, PropType* type);
 const char* xcfString(uint32_t ptr,uint32_t *after);
 
-/* These are hardcoded in the Gimp sources: */
 #define TILE_SHIFT 6
 #define TILE_WIDTH (1<<TILE_SHIFT)
 #define TILE_HEIGHT (1<<TILE_SHIFT)
-/* These definitions of TILE_LEFT and TILE_TOP work correctly for negative
- * numbers, but on the other hand depend on TILE_WIDTH and TILE_HEIGHT
- * being powers of 2. That's okay, because the tile size cannot change
- * anyway.
- */
 #define TILE_LEFT(x) ((x) & -TILE_WIDTH)
 #define TILE_TOP(y) ((y) & -TILE_HEIGHT)
 #define TILE_NUM(x) ((x) >> TILE_SHIFT)
@@ -168,7 +146,6 @@ struct tileDimensions {
   unsigned tilesx, tilesy ;
   unsigned ntiles ;
 };
-/* computeDimensions assumes that width, height, c.l, and c.t are set */
 int computeDimensions(struct tileDimensions *);
 
 struct xcfTiles {
@@ -190,7 +167,7 @@ struct xcfLayer {
   int isGroup ;
   unsigned pathLength ;
   unsigned *path ;
-}; 
+};
 
 extern struct xcfImage {
   int version ;
@@ -204,4 +181,4 @@ extern struct xcfImage {
 
 int getBasicXcfInfo(void);
 
-#endif /* XCFTOOLS_H */
+#endif

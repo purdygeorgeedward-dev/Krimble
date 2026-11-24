@@ -26,4 +26,4 @@ private Q_SLOTS:
     void paramAtLength();
 };
 
-#endif // TESTPATHSEGMENT_H
+#endif

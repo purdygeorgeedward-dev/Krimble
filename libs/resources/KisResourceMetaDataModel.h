@@ -11,20 +11,6 @@
 
 #include "kritaresources_export.h"
 
-/**
- * \class KisResourceMetaDataModel is a simple class used for fetching
- * specific metadata for a resource. Internally it stores a prepared query
- * that can fetch particular metadata keys in an efficiant way.
- *
- * In contrast to \ref KisAbstractResourceModel::MetaData role in
- * the resource model this class allows fetching **individual** keys
- * from the resource's metadata. That is usually more efficient in
- * some cases.
- *
- * The rule of thumb: if you want to fetch **all** metadata for resource,
- * use \ref KisAbstractResourceModel::MetaData, if you want an individual
- * key, use \ref KisResourceMetaDataModel.
- */
 class KRITARESOURCES_EXPORT KisResourceMetaDataModel
 {
 public:
@@ -38,4 +24,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISRESOURCEMETADATAMODEL_H
+#endif

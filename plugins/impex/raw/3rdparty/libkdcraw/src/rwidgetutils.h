@@ -26,8 +26,6 @@
 #ifndef RWIDGETUTILS_H
 #define RWIDGETUTILS_H
 
-// Qt includes
-
 #include <QLabel>
 #include <QString>
 #include <QFrame>
@@ -38,16 +36,9 @@
 #include <QColor>
 #include <QPushButton>
 
-// Local includes
-
-
-
 namespace KDcrawIface
 {
 
-/** A widget to host an image into a label with an active url which can be 
- *  open to default web browser using simple mouse click.
- */
 class  RActiveLabel : public QLabel
 {
     Q_OBJECT
@@ -60,11 +51,6 @@ public:
     void updateData(const QUrl& url, const QImage& img);
 };
 
-// ------------------------------------------------------------------------------------
-
-/**
- * A widget to show an horizontal or vertical line separator 
- **/
 class  RLineWidget : public QFrame
 {
     Q_OBJECT
@@ -75,10 +61,6 @@ public:
     ~RLineWidget() override;
 };
 
-// ------------------------------------------------------------------------------------
-
-/** An Horizontal widget to host children widgets
- */
 class  RHBox : public QFrame
 {
     Q_OBJECT
@@ -103,10 +85,6 @@ protected:
     void childEvent(QChildEvent* e) override;
 };
 
-// ------------------------------------------------------------------------------------
-
-/** A Vertical widget to host children widgets
- */
 class  RVBox : public RHBox
 {
     Q_OBJECT
@@ -118,10 +96,6 @@ class  RVBox : public RHBox
     ~RVBox() override;
 };
 
-// ------------------------------------------------------------------------------------
-
-/** A label to show text adjusted to widget size
- */
 class  RAdjustableLabel : public QLabel
 {
     Q_OBJECT
@@ -148,10 +122,9 @@ private:
     void resizeEvent(QResizeEvent*) override;
     void adjustTextToLabel();
 
-    // Disabled methods from QLabel
-    QString text() const { return QString(); }; // Use adjustedText() instead.
-    void setText(const QString&) {};            // Use setAdjustedText(text) instead.
-    void clear() {};                            // Use setdjustedText(QString()) instead.
+    QString text() const { return QString(); };
+    void setText(const QString&) {};
+    void clear() {};
 
 private:
 
@@ -159,11 +132,6 @@ private:
     Private* const d;
 };
 
-// ------------------------------------------------------------------------------------
-
-/** A widget to chosse a single local file or path.
- *  Use line edit and file dialog properties to customize operation modes.
- */
 class  RFileSelector : public RHBox
 {
     Q_OBJECT
@@ -174,7 +142,7 @@ public:
     ~RFileSelector() override;
 
     QLineEdit* lineEdit()   const;
-    
+
     void setFileDlgMode(QFileDialog::FileMode mode);
     void setFileDlgFilter(const QString& filter);
     void setFileDlgTitle(const QString& title);
@@ -195,10 +163,6 @@ private:
     Private* const d;
 };
 
-// --------------------------------------------------------------------------------------
-
-/** A widget to draw progress wheel indicator over thumbnails.
- */
 class  WorkingPixmap
 {
 public:
@@ -216,10 +180,6 @@ private:
     QVector<QPixmap> m_frames;
 };
 
-// ------------------------------------------------------------------------------------
-
-/** A widget to chosse a color from a palette.
- */
 class  RColorSelector : public QPushButton
 {
     Q_OBJECT
@@ -228,7 +188,7 @@ public:
 
     explicit RColorSelector(QWidget* const parent=0);
     ~RColorSelector() override;
-    
+
     void setColor(const QColor& color);
     QColor color() const;
 
@@ -243,13 +203,13 @@ private Q_SLOTS:
 private:
 
     void paintEvent(QPaintEvent*) override;
-    
+
 private:
 
     class Private;
     Private* const d;
 };
 
-} // namespace KDcrawIface
+}
 
-#endif // RWIDGETUTILS_H
+#endif

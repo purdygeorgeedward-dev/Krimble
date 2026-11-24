@@ -20,7 +20,6 @@
 
 class KoColorProfile;
 
-
 class KRITAUI_EXPORT KisImageThumbnailStrokeStrategyBase : public KisIdleTaskStrokeStrategy
 {
     Q_OBJECT
@@ -60,13 +59,11 @@ class KRITAUI_EXPORT KisImageThumbnailStrokeStrategy : public KisImageThumbnailS
 public:
     using KisImageThumbnailStrokeStrategyBase::KisImageThumbnailStrokeStrategyBase;
 
-
 protected:
     virtual void reportThumbnailGenerationCompleted(KisPaintDeviceSP device, const QRect &rect);
 
 Q_SIGNALS:
-    //Emitted when thumbnail is updated and overviewImage is fully generated.
     void thumbnailUpdated(QImage pixmap);
 };
 
-#endif // KISIMAGETHUMBNAILSTROKESTRATEGY_H
+#endif

@@ -52,7 +52,6 @@
 #include "kis_layer_utils.h"
 #include "KisAnimAutoKey.h"
 
-
 TransformStrokeStrategy::TransformStrokeStrategy(ToolTransformArgs::TransformMode mode,
                                                  const QString &filterId,
                                                  bool forceReset,
@@ -137,17 +136,12 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
     TransformAllData *runAllData = dynamic_cast<TransformAllData*>(data);
     CalculateConvexHullData *cch = dynamic_cast<CalculateConvexHullData*>(data);
 
-
     if (runAllData) {
-        // here we only save the passed args, actual
-        // transformation will be performed during
-        // finish job
         m_savedTransformArgs = runAllData->config;
     } else if (ppd) {
         KisNodeSP rootNode = m_rootNodes[0];
         KisNodeList processedNodes = m_processedNodes;
         KisPaintDeviceSP previewDevice;
-
 
         if (processedNodes.size() > 1) {
             const QRect bounds = rootNode->image()->bounds();
@@ -159,15 +153,11 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                                                   rootNode->image()->colorSpace(),
                                                   "transformed_image");
 
-            // BUG: 413968
-            // Workaround: Group layers wouldn't properly render the right frame
-            // since `clonedImage` would always have a time value of 0.
             clonedImage->animationInterface()->explicitlySetCurrentTime(desiredAnimTime);
 
             KisNodeSP cloneRoot = clonedImage->rootLayer();
 
             Q_FOREACH(KisNodeSP node, processedNodes) {
-                // Masks with unselected parents can't be added.
                 if (!node->inherits("KisMask")) {
                     clonedImage->addNode(node->clone().data(), cloneRoot);
                 }
@@ -182,8 +172,6 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
             previewDevice = createDeviceCache(clonedImage->projection());
             previewDevice->setDefaultBounds(cloneRoot->projection()->defaultBounds());
 
-            // we delete the cloned image in GUI thread to ensure
-            // no signals are still pending
             makeKisDeleteLaterWrapper(clonedImage)->deleteLater();
         }
         else if (rootNode->childCount() || !rootNode->paintDevice()) {
@@ -205,18 +193,10 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                                                       group->colorSpace(),
                                                       "transformed_image");
 
-                // BUG: 413968
-                // Workaround: Group layers wouldn't properly render the right frame
-                // since `clonedImage` would always have a time value of 0.
                 clonedImage->animationInterface()->explicitlySetCurrentTime(desiredAnimTime);
 
                 KisGroupLayerSP clonedGroup = dynamic_cast<KisGroupLayer*>(group->clone().data());
 
-                // In case the group is pass-through, it needs to be disabled for the preview,
-                //   otherwise it will crash (no parent for a preview leaf).
-                // Also it needs to be done before setting the root layer for clonedImage.
-                // Result: preview for pass-through group is the same as for standard group
-                //   (i.e. filter layers in the group won't affect the layer stack for a moment).
                 clonedGroup->setPassThroughMode(false);
                 clonedImage->setRootLayer(clonedGroup);
 
@@ -242,16 +222,12 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                 previewDevice = createDeviceCache(clonedImage->projection());
                 previewDevice->setDefaultBounds(group->projection()->defaultBounds());
 
-                // we delete the cloned image in GUI thread to ensure
-                // no signals are still pending
                 makeKisDeleteLaterWrapper(clonedImage)->deleteLater();
 
             } else {
                 rootNode->projectionLeaf()->explicitlyRegeneratePassThroughProjection();
                 previewDevice = createDeviceCache(rootNode->projection());
             }
-
-
 
         } else {
             KisPaintDeviceSP cacheDevice = createDeviceCache(rootNode->paintDevice());
@@ -270,7 +246,6 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                 KisSequentialIterator dstIt(previewDevice, srcRect);
 
                 const int pixelSize = previewDevice->colorSpace()->pixelSize();
-
 
                 KisImageConfig cfg(true);
                 KoColor pixel(cfg.selectionOverlayMaskColor(), previewDevice->colorSpace());
@@ -331,11 +306,6 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                                       KisStrokeJobData::CONCURRENT,
                                       KisStrokeJobData::NORMAL);
 
-                    /**
-                     * Shape layer's projection may not be yet ready right
-                     * after transformation, because it need to do that in
-                     * the GUI thread, so we should approximate that.
-                     */
                     const QRect theoreticalNewDirtyRect =
                         kisGrowRect(t.mapRect(oldDirtyRect), 1);
 
@@ -356,10 +326,6 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
             }
         } else if (m_selection) {
 
-            /**
-             * We use usual transaction here, because we cannot calculate
-             * transformation for perspective and warp workers.
-             */
             KisTransaction transaction(m_selection->pixelSelection());
 
             KisProcessingVisitor::ProgressHelper helper(td->node);
@@ -380,9 +346,6 @@ void TransformStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
             }
             clearSelection(device);
 
-            /**
-             * Selection masks might have an overlay enabled, we should disable that
-             */
             if (KisSelectionMask *mask = dynamic_cast<KisSelectionMask*>(csd->node.data())) {
                 KisSelectionSP selection = mask->selection();
                 if (selection) {
@@ -447,8 +410,6 @@ void TransformStrokeStrategy::postProcessToplevelCommand(KUndo2Command *command)
 
 QPolygon TransformStrokeStrategy::calculateConvexHull()
 {
-    // Best effort attempt to calculate the convex hull, mimicking the
-    // approach that computes srcRect in initStrokeCallback below
     QVector<QPoint> points;
     if (m_selection) {
         points = KisConvexHull::findConvexHull(m_selection->pixelSelection());
@@ -458,7 +419,7 @@ QPolygon TransformStrokeStrategy::calculateConvexHull()
             if (node->inherits("KisGroupLayer")) continue;
 
             if (dynamic_cast<const KisTransformMask*>(node.data())) {
-                return QPolygon(); // Produce no convex hull if a KisTransformMask is present
+                return QPolygon();
             } else {
                 KisPaintDeviceSP device;
                 if (KisExternalLayer *extLayer = dynamic_cast<KisExternalLayer*>(node.data())) {
@@ -468,18 +429,11 @@ QPolygon TransformStrokeStrategy::calculateConvexHull()
                 }
                 if (device) {
                     KisPaintDeviceSP toUse;
-                    // Use the original device to get the cached device containing the original image data
                     if (haveDeviceInCache(device)) {
                         toUse = getDeviceCache(device);
                     } else {
                         toUse = device;
                     }
-                    /* This sometimes does not agree with the original exactBounds
-                       because of colorspace changes between the original device
-                       and cached. E.g. When the defaultPixel changes as follows it
-                       triggers different behavior in calculateExactBounds:
-                       KoColor ("ALPHA", "Alpha":0) => KoColor ("GRAYA", "Gray":0, "Alpha":255) 
-                    */
                     const bool isConvertedSelection =
                         node->paintDevice() &&
                         node->paintDevice()->colorSpace()->colorModelId() == AlphaColorModelID &&
@@ -492,7 +446,6 @@ QPolygon TransformStrokeStrategy::calculateConvexHull()
                     points += polygon;
                     numContributions += 1;
                 } else {
-                    // When can this happen?  Should it continue instead?
                     ENTER_FUNCTION() << "Bailing out, device was null" << ppVar(node);
                     return QPolygon();
                 }
@@ -566,9 +519,6 @@ void TransformStrokeStrategy::initStrokeCallback()
     extraInitJobs << lastCommandUndoJobs;
 
     KritaUtils::addJobSequential(extraInitJobs, [this]() {
-        // When dealing with animated transform mask layers, create keyframe and save the command for undo.
-        // NOTE: for transform masks we create a keyframe no matter what the user
-        //       settings are
         Q_FOREACH (KisNodeSP node, m_processedNodes) {
             if (KisTransformMask* transformMask = dynamic_cast<KisTransformMask*>(node.data())) {
                 if (KisLazyCreateTransformMaskKeyframesCommand::maskHasAnimation(transformMask)) {
@@ -588,27 +538,17 @@ void TransformStrokeStrategy::initStrokeCallback()
     });
 
     KritaUtils::addJobSequential(extraInitJobs, [this]() {
-        /**
-         * We must request shape layers to rerender areas outside image bounds
-         */
         Q_FOREACH(KisNodeSP node, m_rootNodes) {
             KisLayerUtils::forceAllHiddenOriginalsUpdate(node);
         }
     });
 
     KritaUtils::addJobBarrier(extraInitJobs, [this]() {
-        /**
-         * We must ensure that the currently selected subtree
-         * has finished all its updates.
-         */
         Q_FOREACH(KisNodeSP node, m_rootNodes) {
             KisLayerUtils::forceAllDelayedNodesUpdate(node);
         }
     });
 
-    /// Disable all decorated nodes to generate outline
-    /// and preview correctly. We will enable them back
-    /// as soon as preview generation is finished.
     KritaUtils::addJobBarrier(extraInitJobs, [this]() {
         Q_FOREACH (KisNodeSP node, m_processedNodes) {
             KisDecoratedNodeInterface *decoratedNode = dynamic_cast<KisDecoratedNodeInterface*>(node.data());
@@ -627,8 +567,6 @@ void TransformStrokeStrategy::initStrokeCallback()
         } else {
             srcRect = QRect();
             Q_FOREACH (KisNodeSP node, m_processedNodes) {
-                // group layers may have a projection of layers
-                // that are locked and will not be transformed
                 if (node->inherits("KisGroupLayer")) continue;
 
                 if (const KisTransformMask *mask = dynamic_cast<const KisTransformMask*>(node.data())) {
@@ -638,16 +576,10 @@ void TransformStrokeStrategy::initStrokeCallback()
                 } else if (const KisTransparencyMask *mask = dynamic_cast<const KisTransparencyMask*>(node.data())) {
                     srcRect |= mask->selection()->selectedExactRect();
                 } else if (const KisFilterMask *mask = dynamic_cast<const KisFilterMask*>(node.data())) {
-                    /// Filter masks have special handling of transparency. Their filter
-                    /// may declare if they affect transparent pixels or not. In case of
-                    /// transformations we don't care about that, we should just transform
-                    /// non-default area of the mask.
                     if (mask->paintDevice()) {
                         srcRect |= mask->paintDevice()->nonDefaultPixelArea();
                     }
                 } else {
-                    /// We shouldn't include masks or layer styles into the handles rect,
-                    /// in the end, we process the paint device only
                     srcRect |= node->paintDevice() ? node->paintDevice()->exactBounds() : node->exactBounds();
                 }
             }
@@ -686,7 +618,6 @@ void TransformStrokeStrategy::initStrokeCallback()
 
     extraInitJobs << new Data(new KisUpdateCommandEx(sharedData, m_updatesFacade, KisUpdateCommandEx::FINALIZING), false, Data::BARRIER);
 
-    /// recover back visibility of decorated nodes
     KritaUtils::addJobBarrier(extraInitJobs, [this]() {
         Q_FOREACH (KisDecoratedNodeInterface *decoratedNode, m_disabledDecoratedNodes) {
             decoratedNode->setDecorationsVisible(true);
@@ -709,15 +640,6 @@ void TransformStrokeStrategy::initStrokeCallback()
 
 void TransformStrokeStrategy::finishStrokeImpl(bool applyTransform, const ToolTransformArgs &args)
 {
-    /**
-     * Since our finishStrokeCallback() initiates new jobs,
-     * cancellation request may come even after
-     * finishStrokeCallback() (cancellations may be called
-     * until there are no jobs left in the stroke's queue).
-     *
-     * Therefore we should check for double-entry here and
-     * make sure the finalizing jobs are no cancellable.
-     */
 
     if (m_finalizingActionsStarted) return;
     m_finalizingActionsStarted = true;

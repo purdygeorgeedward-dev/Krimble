@@ -10,11 +10,10 @@
 #include "kis_image.h"
 #include "KisOverlayPaintDeviceWrapper.h"
 
-
 KisColorSmudgeStrategyStamp::KisColorSmudgeStrategyStamp(KisPainter *painter, KisImageSP image, bool smearAlpha,
                                                          bool useDullingMode, bool useOverlayMode)
         : KisColorSmudgeStrategyWithOverlay(painter, image, smearAlpha, useDullingMode, useOverlayMode)
-        , m_origDab(new KisFixedPaintDevice(m_layerOverlayDevice->overlayColorSpace())) // TODO: check compositionSourceColorSpace!
+        , m_origDab(new KisFixedPaintDevice(m_layerOverlayDevice->overlayColorSpace()))
 {
 }
 

@@ -15,7 +15,6 @@
 #include <kis_types.h>
 #include <testui.h>
 
-
 void KisDocumentReplaceTest::init()
 {
     m_doc = KisPart::instance()->createDocument();
@@ -37,11 +36,8 @@ void KisDocumentReplaceTest::testCopyFromDocument()
     KisImageSP anotherImage(anotherDoc->image());
     KisNodeSP root(anotherImage->rootLayer());
     anotherDoc->copyFromDocument(*(clonedDoc.data()));
-    // image pointer should not change
     QCOMPARE(anotherImage.data(), anotherDoc->image().data());
-    // root node should change
     QVERIFY(root.data() != anotherDoc->image()->rootLayer().data());
-    // node count should be the same
     QList<KisNodeSP> oldNodes, newNodes;
     KisLayerUtils::recursiveApplyNodes(clonedDoc->image()->root(), [&oldNodes](KisNodeSP node) { oldNodes << node; });
     KisLayerUtils::recursiveApplyNodes(anotherDoc->image()->root(), [&newNodes](KisNodeSP node) { newNodes << node; });

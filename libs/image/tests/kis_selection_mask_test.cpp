@@ -15,7 +15,6 @@
 #include "kis_selection_mask.h"
 #include "kis_group_layer.h"
 
-
 void KisSelectionMaskTest::testActivation()
 {
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -62,6 +61,5 @@ void KisSelectionMaskTest::testActivation()
     QCOMPARE(image->rootLayer()->selectionMask(), KisSelectionMaskSP(0));
 
 }
-
 
 SIMPLE_TEST_MAIN(KisSelectionMaskTest)

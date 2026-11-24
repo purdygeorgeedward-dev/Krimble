@@ -15,7 +15,6 @@
 #include "KoColor.h"
 #include "kis_display_color_converter.h"
 
-
 KisColorSelectorRing::KisColorSelectorRing(KisColorSelector *parent) :
     KisColorSelectorComponent(parent)
 {
@@ -37,7 +36,6 @@ bool KisColorSelectorRing::containsPointInComponentCoords(int x, int y) const
     int innerRadiusSquared = innerRadius();
     outerRadiusSquared*=outerRadiusSquared;
     innerRadiusSquared*=innerRadiusSquared;
-
 
     Eigen::Vector2i relativeVector(x-width()/2, y-height()/2);
 
@@ -68,8 +66,6 @@ void KisColorSelectorRing::paint(QPainter* painter)
                                height()/2 - (m_pixelCache.height()/(2*devicePixelRatioF)));
     painter->drawImage(startPoint, m_pixelCache);
 
-
-    // paint blip
     if(m_parent->displayBlip()) {
         qreal angle;
         int y_start, y_end, x_start, x_end;
@@ -127,7 +123,6 @@ void KisColorSelectorRing::setColor(const KoColor &color)
 
     Q_EMIT paramChanged(h, -1, -1, -1, -1, -1, -1, -1, -1);
 
-    // selector keeps the position on the ring if hue is undefined (when saturation is 0)
     if (!qFuzzyCompare(s, 0.0)) {
         m_lastHue=h;
     }
@@ -146,7 +141,6 @@ void KisColorSelectorRing::paintCache(qreal devicePixelRatioF)
 
     int outerRadiusHighDPI = outerRadius()*devicePixelRatioF;
     int innerRadiusHighDPI = innerRadius()*devicePixelRatioF;
-
 
     for(int x=0; x<cache.width(); x++) {
         for(int y=0; y<cache.height(); y++) {
@@ -168,15 +162,12 @@ void KisColorSelectorRing::paintCache(qreal devicePixelRatioF)
                     cache.setPixel(x, y, m_cachedColors.at(angle));
                 }
                 else {
-                    // draw antialiased border
                     qreal coef=1.;
                     if(currentRadius > outerRadiusHighDPI) {
-                        // outer border
                         coef-=currentRadius;
                         coef+=outerRadiusHighDPI;
                     }
                     else {
-                        // inner border
                         coef+=currentRadius;
                         coef-=innerRadiusHighDPI;
                     }
@@ -185,7 +176,6 @@ void KisColorSelectorRing::paintCache(qreal devicePixelRatioF)
                     int green=qGreen(m_cachedColors.at(angle));
                     int blue=qBlue(m_cachedColors.at(angle));
 
-                    // the format is premultiplied, so we have to take care of that
                     QRgb color = qRgba(red*coef, green*coef, blue*coef, 255*coef);
                     cache.setPixel(x, y, color);
                 }

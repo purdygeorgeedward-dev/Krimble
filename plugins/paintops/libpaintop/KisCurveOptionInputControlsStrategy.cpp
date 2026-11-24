@@ -19,8 +19,6 @@
 #include <KisCurveWidgetControlsManager.h>
 #include <KisCurveRangeModelInterface.h>
 
-
-
 template<typename SpinBox>
 KisCurveOptionInputControlsStrategy<SpinBox>::
 KisCurveOptionInputControlsStrategy(KisCurveRangeModelInterface *rangeInterface,

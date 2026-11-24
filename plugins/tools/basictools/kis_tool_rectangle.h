@@ -19,7 +19,6 @@
 #include <kis_tool_rectangle_base.h>
 #include <kis_icon.h>
 
-
 class QRect;
 
 class KoCanvasBase;
@@ -52,7 +51,6 @@ public:
         setSection(ToolBoxSection::PSOrder);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
         setIconName(koIconNameCStr("krita_tool_rectangle"));
-        //setShortcut( Qt::Key_F6 );
         setPriority(2);
         setToolBoxPriority(180);
     }
@@ -65,6 +63,5 @@ public:
 
 };
 
-
-#endif // __KIS_TOOL_RECTANGLE_H__
+#endif
 

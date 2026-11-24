@@ -46,7 +46,6 @@ KisImportExportErrorCode KisGIFImport::convert(KisDocument *document, QIODevice 
     bool result = false;
     QGIFLibHandler handler;
 
-
     handler.setDevice(io);
 
     if (!io->isReadable()) {
@@ -56,7 +55,6 @@ KisImportExportErrorCode KisGIFImport::convert(KisDocument *document, QIODevice 
     if (handler.canRead()) {
         result = handler.read(&img);
     } else {
-        // handler.canRead() checks for the flag in the file; if it can't read it, maybe the format is incorrect
         return ImportExportCodes::FileFormatIncorrect;
     }
 

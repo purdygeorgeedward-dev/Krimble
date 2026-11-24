@@ -152,7 +152,6 @@ void KisCageTransformWorkerTest::testCageCounterclockwiseUnity()
 
 #include <QtGlobal>
 
-
 QPointF generatePoint(const QRectF &rc, QRandomGenerator &rng)
 {
     qreal cx = rng.bounded(1.0);
@@ -195,7 +194,6 @@ void KisCageTransformWorkerTest::stressTestRandomCages()
                 transfPoints << generatePoint(bounds, rng);
             }
 
-            // no just hope it doesn't crash ;)
             KisCageTransformWorker worker(dev->region().boundingRect(),
                                           origPoints,
                                           updater,
@@ -262,7 +260,6 @@ void KisCageTransformWorkerTest::testTransformAsBase()
     QPointF b1(1.0, 0.0);
     QPointF b2(2.0, 0.0);
     QPointF result;
-
 
     t = QPointF(1.0, 0.0);
     b1 = QPointF(1.0, 0.0);

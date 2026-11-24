@@ -1,6 +1,3 @@
-/*
- * Krimble 2026-10-25: see KrimbleLogDialog.h.
- */
 #include "KrimbleLogDialog.h"
 
 #include <klocalizedstring.h>
@@ -20,7 +17,6 @@
 
 QString KrimbleLogDialog::summaryOf(const QString &logText, int maxSessions)
 {
-    // a session starts at "SESSION:"; the first piece is whatever comes before the first one
     const QStringList pieces = logText.split(QStringLiteral("SESSION:"));
     QStringList lines;
     int shown = 0, notClosed = 0, total = qMax(0, pieces.size() - 1);
@@ -34,7 +30,6 @@ QString KrimbleLogDialog::summaryOf(const QString &logText, int maxSessions)
         const QString title = piece.section(QLatin1Char('\n'), 0, 0).trimmed();
         QString line = QStringLiteral("%1. %2\n     %3").arg(shown).arg(title.left(110),
                        flagged ? QStringLiteral("ENDED WITHOUT CLOSING CORRECTLY") : (closed ? QStringLiteral("closed correctly") : QStringLiteral("still running, or no closing line")));
-        // "Last exit:" says why the run BEFORE this one ended (it is written near the top of this session)
         const QStringList pieceLines = piece.split(QLatin1Char('\n'));
         for (const QString &l : pieceLines) {
             const int at = l.indexOf(QStringLiteral("Last exit:"));
@@ -68,7 +63,6 @@ KrimbleLogDialog::KrimbleLogDialog(QWidget *parent, const QString &logPath, cons
         text += i18n("The log is empty or could not be read.");
     } else {
         text += summaryOf(whole, 12);
-        // the end of the log
         const QStringList all = whole.split(QLatin1Char('\n'));
         const int from = qMax(0, all.size() - 250);
         text += QStringLiteral("\n\n-------- ") + i18n("the end of the log (last %1 lines)", all.size() - from) + QStringLiteral(" --------\n");

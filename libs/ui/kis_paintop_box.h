@@ -52,27 +52,6 @@ class KisAction;
 class KisPresetSaveWidget;
 class KisAcyclicSignalConnector;
 
-/**
- * This widget presents all paintops that a user can paint with.
- * Paintops represent real-world tools or the well-known Shop
- * computer equivalents that do nothing but change color.
- *
- * To incorporate the dirty preset functionality and locked settings
- * the following slots are added
- *  void slotReloadPreset();
-    void slotGuiChangedCurrentPreset();
-    void slotSaveLockedOptionToPreset(KisPropertiesConfigurationSP p);
-    void slotDropLockedOption(KisPropertiesConfigurationSP p);
-    void slotDirtyPresetToggled(bool);
-    Every time a value is changed in a preset, the preset is made dirty through the onChange() function.
-    For Locked Settings however, a changed Locked Setting will not cause a preset to become dirty. That is
-    because it borrows its values from the KisLockedPropertiesServer.
-    Hence the dirty state of the Preset is kept consistent before and after a writeConfiguration operation in  most cases.
- * XXX: When we have a lot of paintops, replace the listbox
- * with a table, and for every category a combobox.
- *
- * XXX: instead of text, use pretty pictures.
- */
 class KRITAUI_EXPORT KisPaintopBox : public QWidget
 {
     Q_OBJECT
@@ -100,9 +79,6 @@ public:
     ~KisPaintopBox() override;
 
     void restoreResource(KoResourceSP resource);
-    /**
-     * Update the option widgets to the argument ones, removing the currently set widgets.
-     */
     void newOptionWidgets(const QList<QPointer<QWidget> > & optionWidgetList);
 
     KisFavoriteResourceManager *favoriteResourcesManager() { return m_favoriteResourceManager; }
@@ -118,9 +94,6 @@ public Q_SLOTS:
     void slotCanvasResourceChanged(int key, const QVariant& v);
     void resourceSelected(KoResourceSP resource);
 
-    /// This should take care of creating a new brush preset from scratch
-    /// It will either load the default brush preset for the engine,
-    /// or create a new empty preset if a default preset does not exist
     void slotCreatePresetFromScratch(QString paintop);
 
 private:
@@ -229,10 +202,8 @@ private:
     KisAction* lockActionY {0};
     KisAction* moveToCenterActionY {0};
 
-
     struct TabletToolID {
         TabletToolID(const KoInputDevice& dev) {
-            // Only the eraser is special, and we don't look at Cursor
             pointer = KoInputDevice::Pointer::Pen;
             if (dev.pointer() == KoInputDevice::Pointer::Eraser) {
                 pointer = KoInputDevice::Pointer::Eraser;
@@ -277,4 +248,4 @@ private:
     QString m_defaultPresetName;
 };
 
-#endif //KIS_PAINTOP_BOX_H_
+#endif

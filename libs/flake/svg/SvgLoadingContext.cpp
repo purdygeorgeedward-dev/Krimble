@@ -23,7 +23,6 @@
 #include "SvgStyleParser.h"
 #include "kis_debug.h"
 
-
 class Q_DECL_HIDDEN SvgLoadingContext::Private
 {
 public:
@@ -38,7 +37,6 @@ public:
     ~Private()
     {
         if (! gcStack.isEmpty() && !gcStack.top()->isResolutionFrame) {
-            // Resolution frame is usually the first and is not removed.
             warnFlake << "the context stack is not empty (current count" << gcStack.size() << ", expected 0)";
         }
         qDeleteAll(gcStack);
@@ -82,7 +80,6 @@ SvgGraphicsContext *SvgLoadingContext::currentGC() const
 SvgGraphicsContext *SvgLoadingContext::pushGraphicsContext(const QDomElement &element, bool inherit)
 {
     SvgGraphicsContext *gc;
-    // copy data from current context
     if (! d->gcStack.isEmpty() && inherit) {
         gc = new SvgGraphicsContext(*d->gcStack.top());
     } else {
@@ -91,12 +88,12 @@ SvgGraphicsContext *SvgLoadingContext::pushGraphicsContext(const QDomElement &el
 
     gc->textProperties = KoSvgTextProperties();
 
-    gc->filterId.clear(); // filters are not inherited
-    gc->clipPathId.clear(); // clip paths are not inherited
-    gc->clipMaskId.clear(); // clip masks are not inherited
-    gc->display = true; // display is not inherited
-    gc->opacity = 1.0; // opacity is not inherited
-    gc->paintOrder = QString(); //paint order is inherited by default
+    gc->filterId.clear();
+    gc->clipPathId.clear();
+    gc->clipMaskId.clear();
+    gc->display = true;
+    gc->opacity = 1.0;
+    gc->paintOrder = QString();
 
     if (!element.isNull()) {
         if (element.hasAttribute("transform")) {
@@ -171,7 +168,6 @@ QString SvgLoadingContext::relativeFilePath(const QString &href)
     if (info.isRelative())
         return href;
 
-
     if (!gc->xmlBaseDir.isEmpty()) {
         result = QDir(gc->xmlBaseDir).relativeFilePath(href);
     } else if (!d->initialXmlBaseDir.isEmpty()) {
@@ -237,7 +233,6 @@ void SvgLoadingContext::parseProfile(const QDomElement &element)
     const QString name = element.attribute("name");
 
     if (element.attribute("rendering-intent", "auto") != "auto") {
-        // WARNING: Krita does *not* treat rendering intents attributes of the profile!
         warnFlake << "WARNING: we do *not* treat rendering intents attributes of the profile!";
     }
 

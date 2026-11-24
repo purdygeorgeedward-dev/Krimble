@@ -34,10 +34,6 @@ class KisNodeJugglerCompressed;
 class KoProperties;
 class KisProcessingApplicator;
 
-/**
- * The node manager passes requests for new layers or masks on to the mask and layer
- * managers.
- */
 class KRITAUI_EXPORT KisNodeManager : public QObject
 {
 
@@ -52,12 +48,8 @@ public:
 
 Q_SIGNALS:
 
-    /// emitted whenever a node is selected.
     void sigNodeActivated(KisNodeSP node);
 
-    /// for the layer box: this sets the current node in the layerbox
-    /// without telling the node manager that the node is activated,
-    /// preventing loops (I think...)
     void sigUiNeedChangeActiveNode(KisNodeSP node);
 
     void sigUiNeedChangeSelectedNodes(const QList<KisNodeSP> &nodes);
@@ -67,35 +59,18 @@ public:
     void setup(KisKActionCollection * collection, KisActionManager* actionManager);
     void updateGUI();
 
-    /// Convenience function to get the active layer or mask
     KisNodeSP activeNode();
 
-    /// convenience function to get the active layer. If a mask is
-    /// active, it's parent layer is the active layer.
     KisLayerSP activeLayer();
 
-    /// Get the paint device the user wants to paint on now
     KisPaintDeviceSP activePaintDevice();
 
-    /**
-     * @return the active color space used for composition, meaning the color space
-     * of the active mask, or the color space of the parent of the active layer
-     */
     const KoColorSpace* activeColorSpace();
 
-    /**
-     * Sets the name for the node in a universal way (masks/layers)
-     */
     void setNodeName(KisNodeSP node, const QString &name);
 
-    /**
-     * Sets opacity for the node in a universal way (masks/layers)
-     */
     void setNodeOpacity(KisNodeSP node, qint32 opacity);
 
-    /**
-     * Sets compositeOp for the node in a universal way (masks/layers)
-     */
     void setNodeCompositeOp(KisNodeSP node, const KoCompositeOp* compositeOp);
 
     KisNodeList selectedNodes();
@@ -108,7 +83,6 @@ public:
 
     bool trySetNodeProperties(KisNodeSP node, KisImageSP image, KisBaseNode::PropertyList properties) const;
 
-
     bool canModifyLayers(KisNodeList nodes, bool showWarning = true);
     bool canModifyLayer(KisNodeSP node, bool showWarning = true);
 
@@ -117,59 +91,19 @@ public:
 
 public Q_SLOTS:
 
-    /**
-     * Explicitly activates \p node
-     * The UI will be noticed that active node has been changed.
-     * Both sigNodeActivated and sigUiNeedChangeActiveNode are emitted.
-     *
-     * WARNING: normally you needn't call this method manually. It is
-     * automatically called when a node is added to the graph. If you
-     * have some special cases when you need to activate a node, consider
-     * adding them to KisDummiesFacadeBase instead. Calling this method
-     * directly  should be the last resort.
-     *
-     * \see slotUiActivatedNode for comparison
-     */
     void slotNonUiActivatedNode(KisNodeSP node);
 
-    /**
-     * Activates \p node.
-     * All non-ui listeners are notified with sigNodeActivated,
-     * sigUiNeedChangeActiveNode is *not* emitted.
-     *
-     * \see activateNode
-     */
     void slotUiActivatedNode(KisNodeSP node);
 
-    /**
-     * Adds a list of nodes without searching appropriate position for
-     * it.  You *must* ensure that the nodes are allowed to be added
-     * to the parent, otherwise you'll get an assert.
-     */
     void addNodesDirect(KisNodeList nodes, KisNodeSP parent, KisNodeSP aboveThis);
 
-    /**
-     * Moves a list of nodes without searching appropriate position
-     * for it.  You *must* ensure that the nodes are allowed to be
-     * added to the parent, otherwise you'll get an assert.
-     */
     void moveNodesDirect(KisNodeList nodes, KisNodeSP parent, KisNodeSP aboveThis);
 
-    /**
-     * Copies a list of nodes without searching appropriate position
-     * for it.  You *must* ensure that the nodes are allowed to be
-     * added to the parent, otherwise you'll get an assert.
-     */
     void copyNodesDirect(KisNodeList nodes, KisNodeSP parent, KisNodeSP aboveThis);
 
-    /**
-     * Create new layer from actually visible
-     */
     void createFromVisible();
 
     void slotPinToTimeline(bool value);
-
-    // Isolation Mode..
 
     void toggleIsolateActiveNode();
     void setIsolateActiveLayerMode(bool checked);
@@ -178,13 +112,8 @@ public Q_SLOTS:
     void changeIsolationMode(bool isolateActiveLayer, bool isolateActiveGroup);
     void changeIsolationRoot(KisNodeSP isolationRoot);
 
-    /**
-     * Responds to external changes in isolation mode (i.e. from KisImage).
-     */
     void handleExternalIsolationChange();
     void reinitializeIsolationActionGroup();
-
-    // General Node Management..
 
     void moveNodeAt(KisNodeSP node, KisNodeSP parent, int index);
     KisNodeSP createNode(const QString& nodeType, bool quiet = false, KisPaintDeviceSP copyFrom = 0);
@@ -195,7 +124,6 @@ public Q_SLOTS:
     void nodesUpdated();
     void nodeProperties(KisNodeSP node);
     void nodePropertiesIgnoreSelection(KisNodeSP node);
-    /// pop up a window for changing the source of the selected Clone Layers
     void changeCloneSource();
     void nodeOpacityChanged(qreal opacity);
     void nodeCompositeOpChanged(const KoCompositeOp* op);
@@ -215,14 +143,8 @@ public Q_SLOTS:
     void activatePreviousSiblingNode();
     void switchToPreviouslyActiveNode();
 
-    /**
-     * move the active node up the nodestack.
-     */
     void raiseNode();
 
-    /**
-     * move the active node down the nodestack
-     */
     void lowerNode();
 
     void saveNodeAsImage();
@@ -237,13 +159,8 @@ public Q_SLOTS:
     void toggleAlphaLock();
     void toggleInheritAlpha();
 
-    /** Open a dialog to change layer's fast color overlay mask properties. */
     void colorOverlayMaskProperties(KisNodeSP node);
 
-    /**
-     * @brief slotSetSelectedNodes set the list of nodes selected in the layerbox. Selected nodes are not necessarily active nodes.
-     * @param nodes the selected nodes
-     */
     void slotSetSelectedNodes(const KisNodeList &nodes);
 
     void slotImageRequestNodeReselection(KisNodeSP activeNode, const KisNodeList &selectedNodes);
@@ -265,21 +182,13 @@ public Q_SLOTS:
 private Q_SLOTS:
 
     friend class KisNodeActivationActionCreatorVisitor;
-    /**
-     * @brief slotUiActivateNode inspects the sender to see which node needs to be activated.
-     */
     void slotUiActivateNode();
-
 
 public:
     void removeSingleNode(KisNodeSP node);
     KisLayerSP createPaintLayer();
 
 private:
-    /**
-     * Scales opacity from the range 0...1
-     * to the integer range 0...255
-     */
     qint32 convertOpacityToInt(qreal opacity);
     void removeSelectedNodes(KisNodeList selectedNodes);
     void slotSomethingActivatedNodeImpl(KisNodeSP node);

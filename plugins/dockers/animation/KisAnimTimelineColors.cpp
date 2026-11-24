@@ -19,7 +19,6 @@
 #include <QGlobalStatic>
 Q_GLOBAL_STATIC(KisAnimTimelineColors, s_instance)
 
-
 KisAnimTimelineColors::KisAnimTimelineColors()
 {
 }
@@ -40,7 +39,6 @@ QColor KisAnimTimelineColors::selectorColor() const
 
 QColor KisAnimTimelineColors::selectionColor() const
 {
-    //return qApp->palette().color(QPalette::Highlight);
     return selectorColor();
 }
 
@@ -88,7 +86,6 @@ QFont KisAnimTimelineColors::getOnionSkinsFont(const QString &maxString, const Q
 {
     QFont font = qApp->font();
 
-    // Font size may be in pixels (on Android) or points (everywhere else.)
     bool inPoints = font.pixelSize() == -1;
     while((inPoints ? font.pointSize() : font.pixelSize()) > 8) {
         QFontMetrics fm(font);

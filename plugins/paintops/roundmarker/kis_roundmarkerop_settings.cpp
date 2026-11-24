@@ -9,7 +9,6 @@
 #include <KisOptimizedBrushOutline.h>
 #include <QPointer>
 
-
 struct KisRoundMarkerOpSettings::Private
 {
     QList<KisUniformPaintOpPropertyWSP> uniformProperties;
@@ -66,7 +65,6 @@ KisOptimizedBrushOutline KisRoundMarkerOpSettings::brushOutline(const KisPaintIn
 
         KisRoundMarkerOpOptionData option;
         option.read(this);
-        // Adding 1 for the antialiasing/fade.
         const qreal radius = (0.5 * option.diameter) + 1;
 
         QPainterPath realOutline;

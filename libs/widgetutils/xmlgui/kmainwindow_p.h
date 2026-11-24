@@ -48,8 +48,6 @@ public:
     bool letDirtySettings;
     QEventLoopLocker locker;
 
-    // This slot will be called when the style KCM changes settings that need
-    // to be set on the already running applications.
     void _k_slotSettingsChanged(int category);
     void _k_slotSaveAutoSaveSize();
 

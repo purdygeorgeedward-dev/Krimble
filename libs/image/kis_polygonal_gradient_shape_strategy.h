@@ -13,7 +13,6 @@
 
 #include "kritaimage_export.h"
 
-
 class KRITAIMAGE_EXPORT KisPolygonalGradientShapeStrategy : public KisGradientShapeStrategy
 {
 public:
@@ -34,4 +33,4 @@ private:
     qreal m_scaleCoeff;
 };
 
-#endif /* __KIS_POLYGONAL_GRADIENT_SHAPE_STRATEGY_H */
+#endif

@@ -8,7 +8,6 @@
 
 #include <QtGlobal>
 
-
 KisStrokeJobData::KisStrokeJobData(Sequentiality sequentiality,
                                    Exclusivity exclusivity)
     : m_sequentiality(sequentiality),
@@ -78,5 +77,4 @@ KisStrokeJobStrategy::KisStrokeJobStrategy()
 KisStrokeJobStrategy::~KisStrokeJobStrategy()
 {
 }
-
 

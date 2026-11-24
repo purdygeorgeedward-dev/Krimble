@@ -41,7 +41,7 @@ private:
     QString m_colorModelId;
     KisHalftoneConfigPageWidget *m_intensityWidget;
     QVector<KisHalftoneConfigPageWidget*> m_channelWidgets;
-    
+
 private Q_SLOTS:
     void slot_comboBoxMode_currentIndexChanged(int index);
 };

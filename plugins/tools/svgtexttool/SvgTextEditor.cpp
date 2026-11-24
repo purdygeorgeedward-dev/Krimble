@@ -73,7 +73,6 @@ private:
 
 };
 
-
 SvgTextEditor::SvgTextEditor(QWidget *parent, Qt::WindowFlags flags)
     : KXmlGuiWindow(parent, flags)
     , m_page(new QWidget(this))
@@ -98,7 +97,6 @@ SvgTextEditor::SvgTextEditor(QWidget *parent, Qt::WindowFlags flags)
 
     if (cg.hasKey("WindowState")) {
         QByteArray state = cg.readEntry("State", QByteArray());
-        // One day will need to load the version number, but for now, assume 0
         restoreState(QByteArray::fromBase64(state));
     }
     if (cg.hasKey("Geometry")) {
@@ -125,14 +123,12 @@ SvgTextEditor::SvgTextEditor(QWidget *parent, Qt::WindowFlags flags)
     }
 
     setAcceptDrops(true);
-    //setStandardToolBarMenuEnabled(true);
     setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
 
     m_syntaxHighlighter = new BasicXMLSyntaxHighlighter(m_textEditorWidget.svgTextEdit);
     m_textEditorWidget.svgTextEdit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
     createActions();
-    // If we have customized the toolbars, load that first
     setLocalXMLFile(KoResourcePaths::locateLocal("data", "svgtexttool.xmlgui"));
     setXMLFile(":/kxmlgui5/svgtexttool.xmlgui");
 
@@ -150,7 +146,6 @@ SvgTextEditor::~SvgTextEditor()
     ba = saveGeometry();
     g.writeEntry("Geometry", ba.toBase64());
 }
-
 
 void SvgTextEditor::setInitialShape(KoSvgTextShape *shape)
 {
@@ -291,7 +286,6 @@ void SvgTextEditor::replace()
     }
 }
 
-
 void SvgTextEditor::zoomOut()
 {
     m_currentEditor->zoomOut();
@@ -310,7 +304,6 @@ void SvgTextEditor::setSettings()
     settingsDialog.setMainWidget(settingsPage);
     textSettings.setupUi(settingsPage);
 
-    // get the settings and initialize the dialog
     KConfigGroup cfg(KSharedConfig::openConfig(), "SvgTextTool");
 
     QColor background = cfg.readEntry("colorEditorBackground", qApp->palette().window().color());
@@ -366,7 +359,6 @@ void SvgTextEditor::setSettings()
         applySettings();
     }
 }
-
 
 void SvgTextEditor::setModified(bool modified)
 {
@@ -433,14 +425,11 @@ QAction *SvgTextEditor::createAction(const QString &name, const char *member)
     return action;
 }
 
-
 void SvgTextEditor::createActions()
 {
-    // File: new, open, save, save as, close
     KStandardAction::save(this, SLOT(save()), actionCollection());
     KStandardAction::close(this, SLOT(slotCloseEditor()), actionCollection());
 
-    // Edit
     KStandardAction::undo(this, SLOT(undo()), actionCollection());
     KStandardAction::redo(this, SLOT(redo()), actionCollection());
     KStandardAction::cut(this, SLOT(cut()), actionCollection());
@@ -453,8 +442,6 @@ void SvgTextEditor::createActions()
     KStandardAction::findPrev(this, SLOT(findPrev()), actionCollection());
     KStandardAction::replace(this, SLOT(replace()), actionCollection());
 
-    // View
-    // WISH: we cannot zoom-in/out in rech-text mode
     m_svgTextActions << KStandardAction::zoomOut(this, SLOT(zoomOut()), actionCollection());
     m_svgTextActions << KStandardAction::zoomIn(this, SLOT(zoomIn()), actionCollection());
 
@@ -462,11 +449,6 @@ void SvgTextEditor::createActions()
         action->setEnabled(true);
     }
 
-    // Settings
-    // do not add settings action to m_richTextActions list,
-    // it should always be active, regardless of which editor mode is used.
-    // otherwise we can lock the user out of being able to change
-    // editor mode, if user changes to SVG only mode.
     createAction("svg_settings", SLOT(setSettings()));
 }
 void SvgTextEditor::slotCloseEditor()
@@ -481,7 +463,6 @@ bool SvgTextEditor::eventFilter(QObject *const watched, QEvent *const event)
         QKeyEvent *const keyEvent = static_cast<QKeyEvent *>(event);
         if ((keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
                 && (keyEvent->modifiers() & Qt::ShiftModifier)) {
-            // Disable soft line breaks
             return true;
         }
     }

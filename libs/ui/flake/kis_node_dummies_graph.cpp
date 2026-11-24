@@ -8,11 +8,6 @@
 #include "kis_node_shape.h"
 #include "kis_selection_mask.h"
 
-
-/********************************************************************/
-/*                 KisNodeDummy                                     */
-/********************************************************************/
-
 KisNodeDummy::KisNodeDummy(KisNodeShape *nodeShape, KisNodeSP node)
     : m_nodeShape(nodeShape),
       m_node(node)
@@ -99,10 +94,6 @@ int KisNodeDummy::indexOf(KisNodeDummy *child) const
     return m_children.indexOf(child);
 }
 
-/********************************************************************/
-/*                 KisNodeDummiesGraph                              */
-/********************************************************************/
-
 KisNodeDummiesGraph::KisNodeDummiesGraph()
     : m_rootDummy(0)
 {
@@ -165,7 +156,6 @@ void KisNodeDummiesGraph::unmapDummyRecursively(KisNodeDummy *dummy)
         child = child->nextSibling();
     }
 }
-
 
 void KisNodeDummiesGraph::moveNode(KisNodeDummy *node, KisNodeDummy *parent, KisNodeDummy *aboveThis)
 {

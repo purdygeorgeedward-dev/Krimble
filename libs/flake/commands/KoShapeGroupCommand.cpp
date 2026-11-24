@@ -14,7 +14,6 @@
 
 #include <klocalizedstring.h>
 
-// static
 KoShapeGroupCommand * KoShapeGroupCommand::createCommand(KoShapeContainer *container, const QList<KoShape *> &shapes, bool shouldNormalize)
 {
     QList<KoShape*> orderedShapes(shapes);
@@ -33,10 +32,10 @@ public:
     KoShapeGroupCommandPrivate(KoShapeContainer *container, const QList<KoShape *> &shapes, bool _shouldNormalize);
     QRectF containerBoundingRect();
 
-    QList<KoShape*> shapes; ///<list of shapes to be grouped
-    bool shouldNormalize; ///< Adjust the coordinate system of the group to its origin into the topleft of the group
-    KoShapeContainer *container; ///< the container where the grouping should be for.
-    QList<KoShapeContainer*> oldParents; ///< the old parents of the shapes
+    QList<KoShape*> shapes;
+    bool shouldNormalize;
+    KoShapeContainer *container;
+    QList<KoShapeContainer*> oldParents;
 
     QScopedPointer<KUndo2Command> shapesReorderCommand;
 };
@@ -85,8 +84,6 @@ void KoShapeGroupCommand::redo()
         d->container->setSize(bound.size());
 
         if (d->container->shapeCount() > 0) {
-            // the group has changed position and so have the group child shapes
-            // -> we need compensate the group position change
             QPointF positionOffset = oldGroupPosition - bound.topLeft();
             Q_FOREACH (KoShape * child, d->container->shapes())
                 child->setAbsolutePosition(child->absolutePosition() + positionOffset);
@@ -106,7 +103,6 @@ void KoShapeGroupCommand::redo()
     QList<KoShapeReorderCommand::IndexedShape> prependIndexedShapes;
 
     Q_FOREACH (KoShape *shape, d->shapes) {
-        // test if they inherit the same parent
 
         if (!shape->hasCommonParent(d->container) ||
             !KoShape::compareShapeZIndex(shape, d->container)) {
@@ -132,7 +128,6 @@ void KoShapeGroupCommand::redo()
         shape->applyAbsoluteTransformation(groupTransform);
         d->container->addShape(shape);
     }
-
 
 }
 
@@ -167,8 +162,6 @@ void KoShapeGroupCommand::undo()
                 } else
                     bound = bound.united(shape->boundingRect());
             }
-            // the group has changed position and so have the group child shapes
-            // -> we need compensate the group position change
             QPointF positionOffset = oldGroupPosition - bound.topLeft();
             Q_FOREACH (KoShape * child, d->container->shapes())
                 child->setAbsolutePosition(child->absolutePosition() + positionOffset);

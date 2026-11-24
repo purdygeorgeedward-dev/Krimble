@@ -28,7 +28,6 @@
 #include "kis_image_config.h"
 #include "KisImageConfigNotifier.h"
 
-
 struct Q_DECL_HIDDEN KisSelectionMask::Private
 {
 public:
@@ -207,13 +206,6 @@ void KisSelectionMask::setActive(bool active)
     const bool oldActive = this->active();
     setNodeProperty("active", active);
 
-
-    /**
-     * WARNING: we have a direct link to the image here, but we
-     * must not use it for notification until we are a part of
-     * the node graph! Notifications should be emitted iff we
-     * have graph listener link set up.
-     */
     if (graphListener() &&
         image && oldActive != active) {
 
@@ -225,8 +217,7 @@ void KisSelectionMask::setActive(bool active)
 QRect KisSelectionMask::needRect(const QRect &rect, KisNode::PositionToFilthy pos) const
 {
     Q_UNUSED(pos);
-    
-    // selection masks just add an overlay, so the needed rect is simply passed through
+
     return rect;
 }
 
@@ -234,24 +225,21 @@ QRect KisSelectionMask::changeRect(const QRect &rect, KisNode::PositionToFilthy 
 {
     Q_UNUSED(pos);
 
-    // selection masks just add an overlay, so the changed rect is simply passed through
     return rect;
 }
 
 QRect KisSelectionMask::extent() const
 {
-    // since mask overlay is inverted, the mask paints over
-    // the entire image bounds
     QRect resultRect;
     KisSelectionSP selection = this->selection();
-    
+
     if (selection) {
         resultRect = selection->pixelSelection()->defaultBounds()->bounds();
-        
+
         if (KisNodeSP parent = this->parent()) {
             resultRect |= parent->extent();
         }
-        
+
     } else if (KisNodeSP parent = this->parent()) {
         KisPaintDeviceSP dev = parent->projection();
         if (dev) {

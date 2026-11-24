@@ -12,7 +12,6 @@
 #include "kis_keyframe_channel.h"
 #include "kis_node.h"
 
-
 KisSwitchCurrentTimeCommand::KisSwitchCurrentTimeCommand(KisImageAnimationInterface *animation, int oldTime, int newTime, KUndo2Command *parent)
     : KUndo2Command(kundo2_i18n("Switch current time"), parent),
       m_animation(animation),
@@ -53,8 +52,6 @@ void KisSwitchCurrentTimeCommand::undo()
     m_animation->requestTimeSwitchNonGUI(m_oldTime);
 }
 
-// ====================================//
-
 KisSwitchCurrentTimeToKeyframeCommand::KisSwitchCurrentTimeToKeyframeCommand(KisImageAnimationInterface *animation, int oldTime, KisNodeSP node, KoID channelId, KisKeyframeSP targetKeyframe, KUndo2Command *parent)
     : KUndo2Command(kundo2_i18n("Switch current time to keyframe"), parent),
       m_animation(animation),
@@ -76,7 +73,6 @@ int KisSwitchCurrentTimeToKeyframeCommand::id() const
 
 bool KisSwitchCurrentTimeToKeyframeCommand::mergeWith(const KUndo2Command* command)
 {
-    // Note: Maybe we could merge this with a regular time switch command with a bit more logic.
     const KisSwitchCurrentTimeToKeyframeCommand *other =
         dynamic_cast<const KisSwitchCurrentTimeToKeyframeCommand*>(command);
 

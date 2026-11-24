@@ -14,7 +14,6 @@
 #include <KoToolProxy.h>
 #include <KoShapeManager.h>
 
-
 ArrangeDockerDock::ArrangeDockerDock( )
     : QDockWidget(i18n("Arrange"))
     , m_canvas(0)

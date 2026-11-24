@@ -34,7 +34,6 @@ class BlackWhitePointChooser;
 
 #include "kis_exposure_gamma_correction_interface.h"
 
-
 class LutDockerDock : public QDockWidget, public KoCanvasObserverBase, public Ui_WdgLut, public KisExposureGammaCorrectionInterface
 {
     Q_OBJECT
@@ -47,7 +46,6 @@ public:
     {
         return "LutDockerDock";
     }
-    /// reimplemented from KoCanvasObserverBase
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
 
@@ -97,6 +95,5 @@ private:
     BlackWhitePointChooser *m_bwPointChooser;
 };
 
-
-#endif // LUT_DOCKER_DOCK_H
+#endif
 

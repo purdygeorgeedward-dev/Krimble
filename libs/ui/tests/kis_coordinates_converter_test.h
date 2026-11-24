@@ -64,5 +64,5 @@ private Q_SLOTS:
     void testPreferredCenterTransformations();
 };
 
-#endif /* KIS_COORDINATES_CONVERTER_TEST_H */
+#endif
 

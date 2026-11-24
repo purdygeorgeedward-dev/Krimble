@@ -8,15 +8,8 @@
 
 #include "kis_figure_painting_tool_helper.h"
 
-/**
- * @brief The PaintingResources namespace
- * Sets up information related to making painting strokes.
- * Used primarily in the Node class
- *
- */
 namespace PaintingResources
 {
-    // These are set in Node.sip
     const QString defaultStrokeStyle = "ForegroundColor";
     const QString defaultFillStyle = "None";
 
@@ -27,4 +20,4 @@ namespace PaintingResources
 
 };
 
-#endif // LIBKIS_PAINTINGRESOURCES_H
+#endif

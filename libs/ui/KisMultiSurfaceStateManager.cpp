@@ -13,7 +13,6 @@
 
 #include <KisRootSurfaceInfoProxy.h>
 
-
 KisMultiSurfaceStateManager::KisMultiSurfaceStateManager()
 {
 }
@@ -27,7 +26,7 @@ void KisMultiSurfaceStateManager::setRootSurfaceInfoProxy(KisRootSurfaceInfoProx
 {
     m_rootSurfaceInfoProxy = proxy;
 }
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
 KisMultiSurfaceStateManager::State KisMultiSurfaceStateManager::createInitializingConfig(bool isCanvasOpenGL, int screenId, KisProofingConfigurationSP proofingConfig) const
 {
@@ -59,7 +58,7 @@ KisMultiSurfaceStateManager::State KisMultiSurfaceStateManager::createInitializi
         KIS_SAFE_ASSERT_RECOVER_NOOP(0 && "managed surface mode is active, but Krita is compiled without it!");
         multiConfig.canvasProfile = KoColorSpaceRegistry::instance()->p709SRGBProfile();
         multiConfig.uiProfile = KoColorSpaceRegistry::instance()->p709SRGBProfile();
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
     } else {
         const KoColorProfile *profile = cfg.displayProfile(screenId);
         KIS_SAFE_ASSERT_RECOVER(profile) {
@@ -79,15 +78,10 @@ KisMultiSurfaceStateManager::State KisMultiSurfaceStateManager::createInitializi
 KisMultiSurfaceStateManager::State KisMultiSurfaceStateManager::onCanvasSurfaceFormatChanged(const State &oldState,
                                                                                            const KisDisplayConfig &canvasConfig) const
 {
-    /// Surface changed signal is possible only for the managed surface under
-    /// an openGL canvas. In legacy HDR mode it is not possible to get that.
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS(), oldState);
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!KisOpenGLModeProber::instance()->useHDRMode(), oldState);
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(oldState.isCanvasOpenGL, oldState);
 
-    // the surface format change should not change the conversion
-    // options of the surface
-    // TODO: downgrade to a warning!
     KIS_SAFE_ASSERT_RECOVER_NOOP(oldState.multiConfig.options() == canvasConfig.options());
 
     State newState = oldState;
@@ -103,8 +97,6 @@ KisMultiSurfaceStateManager::State KisMultiSurfaceStateManager::onCanvasSurfaceF
 KisMultiSurfaceStateManager::State KisMultiSurfaceStateManager::onGuiSurfaceFormatChanged(const State &oldState,
                                                                                         const KoColorProfile *uiProfile) const
 {
-    /// Surface changed signal is possible only on OS with managed surface
-    /// color space
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS(), oldState);
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!KisOpenGLModeProber::instance()->useHDRMode(), oldState);
 

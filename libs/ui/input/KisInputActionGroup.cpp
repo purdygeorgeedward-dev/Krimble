@@ -20,4 +20,3 @@ KisInputActionGroupsMaskGuard::~KisInputActionGroupsMaskGuard() {
     m_sharedInterface->setInputActionGroupsMask(m_oldMask);
 }
 
-

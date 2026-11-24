@@ -14,23 +14,12 @@
 #include "KoPathPoint.h"
 #include "kritaflake_export.h"
 
-
-/// The undo / redo command for path point moving.
 class KRITAFLAKE_EXPORT KoPathControlPointMoveCommand : public KUndo2Command
 {
 public:
-    /**
-     * Command to move one control path point.
-     * @param pointData the data of the point to move
-     * @param offset the offset by which the point is moved in shape coordinates
-     * @param pointType the type of the point to move
-     * @param parent the parent command used for macro commands
-     */
     KoPathControlPointMoveCommand(const KoPathPointData &pointData, const QPointF &offset,
             KoPathPoint::PointType pointType, KUndo2Command *parent = 0);
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 
     int id() const override;
@@ -38,9 +27,8 @@ public:
 
 private:
     KoPathPointData m_pointData;
-    // the offset in shape coordinates
     QPointF m_offset;
     KoPathPoint::PointType m_pointType;
 };
 
-#endif // KOPATHCONTROLPOINTMOVECOMMAND_H
+#endif

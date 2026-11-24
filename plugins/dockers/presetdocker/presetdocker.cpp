@@ -44,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 PresetDockerPlugin::PresetDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

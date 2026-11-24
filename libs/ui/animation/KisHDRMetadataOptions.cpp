@@ -8,7 +8,6 @@
 
 #include "kis_properties_configuration.h"
 
-
 KisHDRMetadataOptions::KisHDRMetadataOptions()
     : predefinedMasterDisplayId("p2100-pq")
 {

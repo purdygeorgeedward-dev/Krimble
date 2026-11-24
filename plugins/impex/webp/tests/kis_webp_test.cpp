@@ -10,7 +10,6 @@
 #include <simpletest.h>
 #include <testui.h>
 
-
 #include <QString>
 
 #include <kis_image_animation_interface.h>
@@ -55,7 +54,6 @@ void KisWebPTest::testAnimation()
 
     KisImageSP image = doc->image();
 
-    // Check that it's a 32 FPS document with 24 frames.
     KisNodeSP node1 = doc->image()->root()->firstChild();
 
     QVERIFY(node1->inherits("KisPaintLayer"));
@@ -105,8 +103,6 @@ void KisWebPTest::testAnimationWithTail()
     QVERIFY(channel1);
     QCOMPARE(channel1->keyframeCount(), 4);
 
-    // Unlike the JPEG-XL original, WebP stores with an associated
-    // duration, not framerate. They have no notion of blanking.
     QCOMPARE(image->animationInterface()->framerate(), 1);
     QCOMPARE(image->animationInterface()->documentPlaybackRange(),
              KisTimeSpan::fromTimeToTime(0, 3));
@@ -129,8 +125,6 @@ void KisWebPTest::testSaveRgbaColorSpace()
 
 void KisWebPTest::testSaveUnsupportedColorSpace()
 {
-    // Non-RGBA color model will trigger color conversion and dithering path on WebP exports,
-    // therefore it's sufficient to only test for U8 depths.
 
     QString profile = "Gray-D50-elle-V2-srgbtrc";
     testSaveColorSpace(GrayAColorModelID.id(), Integer8BitsColorDepthID.id(), profile);

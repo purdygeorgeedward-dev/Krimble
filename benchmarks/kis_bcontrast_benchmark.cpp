@@ -9,7 +9,6 @@
 #include "kis_bcontrast_benchmark.h"
 #include "kis_benchmark_values.h"
 
-
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>
 #include <KoColor.h>
@@ -54,13 +53,11 @@ void KisBContrastBenchmark::cleanupTestCase()
 {
 }
 
-
 void KisBContrastBenchmark::benchmarkFilter()
 {
     KisFilterSP filter = KisFilterRegistry::instance()->value("brightnesscontrast");
     KisFilterConfigurationSP  kfc = filter->defaultConfiguration(KisGlobalResourcesInterface::instance());
 
-    // Get the predefined configuration from a file
     QFile file(QString(FILES_DATA_DIR) + '/' + filter->id() + ".cfg");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -87,7 +84,5 @@ void KisBContrastBenchmark::benchmarkFilter()
         }
     }
 }
-
-
 
 SIMPLE_TEST_MAIN(KisBContrastBenchmark)

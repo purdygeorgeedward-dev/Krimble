@@ -10,9 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-/**
- * A module that provides a crop tool.
- */
 class ToolCrop : public QObject
 {
     Q_OBJECT
@@ -22,4 +19,4 @@ public:
 
 };
 
-#endif // TOOL_CROP_H_
+#endif

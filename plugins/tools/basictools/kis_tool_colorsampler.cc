@@ -28,7 +28,6 @@
 
 namespace
 {
-// GUI ComboBox index constants
 const int SAMPLE_MERGED = 0;
 }
 
@@ -59,8 +58,6 @@ void KisToolColorSampler::slotColorPickerRequestedCursor(const QCursor &cursor)
 
 void KisToolColorSampler::slotColorPickerRequestedCursorReset()
 {
-    /// we explicitly avoid resetting the cursor style
-    /// to avoid blinking of the cursor
 }
 
 void KisToolColorSampler::slotColorPickerRequestedOutlineUpdate()
@@ -70,10 +67,6 @@ void KisToolColorSampler::slotColorPickerRequestedOutlineUpdate()
 
 void KisToolColorSampler::slotColorPickerSelectedColor(const KoColor &color)
 {
-    /**
-     * Please remember that m_sampledColor also have the alpha
-     * of the picked color!
-     */
     m_sampledColor = color;
     displaySampledColor(m_sampledColor);
 }
@@ -85,7 +78,6 @@ void KisToolColorSampler::slotColorPickerSelectionFinished(const KoColor &color)
     if (m_config->addColorToCurrentPalette) {
         KisSwatch swatch;
         swatch.setColor(color);
-        // We don't ask for a name, too intrusive here
 
         QModelIndex idx = m_tagFilterProxyModel->index(m_optionsWidget->cmbPalette->currentIndex(), 0);
         KoColorSetSP palette = qSharedPointerDynamicCast<KoColorSet>(m_tagFilterProxyModel->resourceForIndex(idx));
@@ -148,7 +140,6 @@ void KisToolColorSampler::beginPrimaryAction(KoPointerEvent *event)
     m_helper.setUpdateGlobalColor(m_config->updateColor);
 
     bool useOtherColor = canvas()->resourceManager()->boolResource(KoCanvasResource::UsingOtherColor);
-    // if useOtherColor is true, apply to the other color than that configured in the tool options
     m_helper.activate(!m_config->sampleMerged, m_config->toForegroundColor != useOtherColor);
     m_helper.startAction(event->point, m_config->radius, m_config->blend);
     requestUpdateOutline(event->point, event);
@@ -179,21 +170,12 @@ void KisToolColorSampler::endPrimaryAction(KoPointerEvent *event)
 }
 void KisToolColorSampler::activatePrimaryAction()
 {
-    /**
-     * We explicitly avoid calling KisTool::activatePrimaryAction()
-     * here, because it resets the cursor, causing cursor blinking
-     */
     bool useOtherColor = canvas()->resourceManager()->boolResource(KoCanvasResource::UsingOtherColor);
-    // if useOtherColor is true, apply to the other color than that configured in the tool options
     m_helper.updateCursor(!m_config->sampleMerged, m_config->toForegroundColor != useOtherColor);
 }
 
 void KisToolColorSampler::deactivatePrimaryAction()
 {
-    /**
-     * We explicitly avoid calling KisTool::endPrimaryAction()
-     * here, because it resets the cursor, causing cursor blinking
-     */
 }
 
 void KisToolColorSampler::requestUpdateOutline(const QPointF &outlineDocPoint, const KoPointerEvent *event)
@@ -228,7 +210,6 @@ void KisToolColorSampler::requestUpdateOutline(const QPointF &outlineDocPoint, c
 
     m_oldColorPreviewUpdateRect = colorPreviewDocUpdateRect;
 }
-
 
 struct SampledChannel {
     QString name;
@@ -268,7 +249,6 @@ void KisToolColorSampler::displaySampledColor(const KoColor &color)
             item->setText(1, pc.valueText);
         }
 
-
         if (qEnvironmentVariableIsSet("KRITA_DEBUG_DISPLAY_COLOR")) {
             KisCanvas2 *kritaCanvas = dynamic_cast<KisCanvas2*>(canvas());
             KIS_ASSERT(kritaCanvas);
@@ -293,7 +273,6 @@ QWidget* KisToolColorSampler::createOptionWidget()
     m_optionsWidget->setObjectName(toolId() + " option widget");
     m_optionsWidget->listViewChannels->setSortingEnabled(false);
 
-    // See https://bugs.kde.org/show_bug.cgi?id=316896
     QWidget *specialSpacer = new QWidget(m_optionsWidget);
     specialSpacer->setObjectName("SpecialSpacer");
     specialSpacer->setFixedSize(0, 0);
@@ -309,7 +288,6 @@ QWidget* KisToolColorSampler::createOptionWidget()
             this,
             &KisToolColorSampler::slotSetPreviewStyleConfigFromComboBox);
 
-    // Initialize blend KisSliderSpinBox
     m_optionsWidget->blend->setRange(0,100);
     KisSpinBoxI18nHelper::setText(m_optionsWidget->blend,
                                   i18nc("{n} is the number value, % is the percent sign", "{n}%"));
@@ -331,7 +309,6 @@ QWidget* KisToolColorSampler::createOptionWidget()
     m_optionsWidget->cmbPalette->setModel(m_tagFilterProxyModel);
     m_optionsWidget->cmbPalette->setModelColumn(KisAbstractResourceModel::Name);
     m_tagFilterProxyModel->sort(Qt::DisplayRole);
-
 
     KConfigGroup config =  KSharedConfig::openConfig()->group(toolId());
     QString paletteName = config.readEntry("ColorSamplerPalette", "");

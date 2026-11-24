@@ -101,7 +101,6 @@ KisImportExportErrorCode KisHeightMapImport::convert(KisDocument *document, QIOD
         KisPropertiesConfigurationSP cfg(new KisPropertiesConfiguration);
         cfg->fromXML(filterConfig);
 
-
         int endianness = cfg->getInt("endianness", 1);
         if (endianness == 0) {
             wdg->radioBig->setChecked(true);
@@ -160,10 +159,8 @@ KisImportExportErrorCode KisHeightMapImport::convert(KisDocument *document, QIOD
         bo = QDataStream::LittleEndian;
     }
 
-
     QDataStream s(io);
     s.setByteOrder(bo);
-    // needed for 32bit float data
     s.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
     const KoColorSpace *colorSpace = KoColorSpaceRegistry::instance()->colorSpace(GrayAColorModelID.id(), depthId.id(), "Gray-D50-elle-V2-srgbtrc.icc");

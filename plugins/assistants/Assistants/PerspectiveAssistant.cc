@@ -67,31 +67,26 @@ QPointF PerspectiveAssistant::project(const QPointF& pt, const QPointF& strokeBe
         }
 
         if (!poly.containsPoint(strokeBegin, Qt::OddEvenFill)) {
-            return nullPoint; // avoid problems with multiple assistants: only snap if starting in the grid
+            return nullPoint;
         }
 
         if (KisAlgebra2D::norm(pt - strokeBegin) < moveThresholdPt) {
-            return strokeBegin; // allow some movement before snapping
+            return strokeBegin;
         }
 
-        // construct transformation
         bool invertible;
         const QTransform inverse = transform.inverted(&invertible);
         if (!invertible) {
-            return nullPoint; // shouldn't happen
+            return nullPoint;
         }
 
-
-        // figure out which direction to go
         const QPointF start = inverse.map(strokeBegin);
         const QLineF verticalLine = QLineF(strokeBegin, transform.map(start + QPointF(0, 1)));
         const QLineF horizontalLine = QLineF(strokeBegin, transform.map(start + QPointF(1, 0)));
 
-        // determine whether the horizontal or vertical line is closer to the point
         m_snapLine = KisAlgebra2D::pointToLineDistSquared(pt, verticalLine) < KisAlgebra2D::pointToLineDistSquared(pt, horizontalLine) ? verticalLine : horizontalLine;
     }
 
-    // snap to line
     const qreal
             dx = m_snapLine.dx(),
             dy = m_snapLine.dy(),
@@ -144,11 +139,9 @@ void PerspectiveAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect,
     gc.save();
     gc.resetTransform();
     QTransform initialTransform = converter->documentToWidgetTransform();
-    //QTransform reverseTransform = converter->widgetToDocument();
     QPolygonF poly;
-    QTransform transform; // unused, but computed for caching purposes
+    QTransform transform;
     if (getTransform(poly, transform) && assistantVisible==true) {
-        // draw vanishing points
         if (m_cache.vanishingPoint1) {
             drawX(gc, initialTransform.map(m_cache.vanishingPoint1.get()), displayRenderInterface);
         }
@@ -158,19 +151,16 @@ void PerspectiveAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect,
     }
 
     if (isSnappingActive() && getTransform(poly, transform) && previewVisible==true){
-        //find vanishing point, find mouse, draw line between both.
         QPainterPath path2;
-        QPointF intersection(0, 0);//this is the position of the vanishing point.
+        QPointF intersection(0, 0);
         QPointF mousePos = effectiveBrushPosition(converter, canvas);
         QLineF snapLine;
         QRect viewport= gc.viewport();
         QRect bounds;
 
-        //figure out if point is in the perspective grid
-        QPointF intersectTransformed(0, 0); // dummy for holding transformed intersection so the code is more readable.
+        QPointF intersectTransformed(0, 0);
 
         if (poly.containsPoint(initialTransform.inverted().map(mousePos), Qt::OddEvenFill)==true){
-            // check if the lines aren't parallel to each other to avoid calculation errors in the intersection calculation (bug 345754)//
             if (fmod(QLineF(poly[0], poly[1]).angle(), 180.0)>=fmod(QLineF(poly[2], poly[3]).angle(), 180.0)+2.0 || fmod(QLineF(poly[0], poly[1]).angle(), 180.0)<=fmod(QLineF(poly[2], poly[3]).angle(), 180.0)-2.0) {
                 if (QLineF(poly[0], poly[1]).intersects(QLineF(poly[2], poly[3]), &intersection) != QLineF::NoIntersection) {
                     intersectTransformed = initialTransform.map(intersection);
@@ -210,18 +200,12 @@ void PerspectiveAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect,
         }
     }
 
-
-
-    // draw the grid lines themselves
     gc.setTransform(converter->documentToWidgetTransform());
 
     if (assistantVisible) {
-        // getTransform was checked before but what if the preview wasn't visible etc., and we need a return value here too
         if (!getTransform(poly, transform)) {
-            // color red for an invalid transform, but not for an incomplete one
             if(isAssistantComplete()) {
                 QPainterPath path;
-                // that will create a triangle with a point inside connected to all vertices of the triangle
                 path.addPolygon(PerspectiveBasedAssistantHelper::getAllConnectedTetragon(handles()));
                 drawError(gc, path, displayRenderInterface);
             } else {
@@ -234,7 +218,7 @@ void PerspectiveAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect,
             gc.setTransform(transform, true);
             QPainterPath path;
             qreal step = 1.0 / subdivisions();
-            
+
             for (int y = 0; y <= subdivisions(); ++y)
             {
                 QLineF line = QLineF(QPointF(0.0, y * step), QPointF(1.0, y * step));
@@ -253,8 +237,6 @@ void PerspectiveAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect,
             drawPath(gc, path, displayRenderInterface, isSnappingActive());
         }
     }
-    //
-
 
     gc.restore();
 
@@ -318,7 +300,7 @@ bool PerspectiveAssistant::getTransform(QPolygonF& poly, QTransform& transform) 
 
 bool PerspectiveAssistant::isAssistantComplete() const
 {
-    return handles().size() >= 4; // specify 4 corners to make assistant complete
+    return handles().size() >= 4;
 }
 
 int PerspectiveAssistant::subdivisions() const {
@@ -344,8 +326,6 @@ bool PerspectiveAssistant::loadCustomXml(QXmlStreamReader *xml) {
     }
     return true;
 }
-
-
 
 PerspectiveAssistantFactory::PerspectiveAssistantFactory()
 {

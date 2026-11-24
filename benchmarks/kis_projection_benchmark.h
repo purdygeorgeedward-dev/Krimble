@@ -9,7 +9,6 @@
 
 #include <simpletest.h>
 
-/// loads the image, computes the projection and saves it to another file
 class KisProjectionBenchmark : public QObject
 {
     Q_OBJECT

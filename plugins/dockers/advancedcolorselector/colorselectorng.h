@@ -11,10 +11,6 @@
 #include <QObject>
 #include <QVariant>
 
-
-/**
- * Template of view plugin
- */
 class ColorSelectorNgPlugin : public QObject
 {
     Q_OBJECT

@@ -43,4 +43,4 @@ private:
     MockShape *strokeShape1, *strokeShape2;
 };
 
-#endif // TESTSHAPEGROUPCOMMAND_H
+#endif

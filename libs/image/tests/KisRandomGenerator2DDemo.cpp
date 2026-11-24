@@ -11,7 +11,6 @@
 #include <KLocalizedString>
 #include <QCommandLineParser>
 
-//BEGIN Noise
 Noise::Noise(int wx, int wy) : _wx(wx), _wy(wy),
                                _image(_wx, _wy, QImage::Format_RGB32),
                                _hist(256, 256, QImage::Format_RGB32)
@@ -87,7 +86,6 @@ quint64 Noise::mean() const
 {
     return qreal(1<<24) * qreal(_sum) / qreal(_wx * _wy);
 }
-//END Noise
 
 const int WIDTH = 1024;
 const int HEIGHT = 1024;
@@ -147,4 +145,3 @@ int main(int argc, char **argv)
     return app.exec();
 }
 
-// kate: hl C++; indent-width 4; replace-tabs on;

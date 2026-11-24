@@ -27,18 +27,15 @@ private:
     KisPaintDeviceSP m_existingSelection;
     int m_startX;
     int m_startY;
-    
+
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
-    
+
     void benchmarkFlood();
     void benchmarkFloodWithoutSelectionAsBoundary();
     void benchmarkFloodWithSelectionAsBoundary();
 
-    
-    
-    
 };
 
 #endif

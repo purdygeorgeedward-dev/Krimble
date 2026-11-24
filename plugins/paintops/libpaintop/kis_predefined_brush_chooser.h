@@ -15,7 +15,6 @@
 #include <lager/cursor.hpp>
 #include <KisBrushModel.h>
 
-
 class KisDoubleSliderSpinBox;
 class QLabel;
 class QCheckBox;
@@ -27,7 +26,6 @@ class KisClipboardBrushWidget;
 class KisResourceItemChooser;
 class KoResource;
 class KisPredefinedBrushModel;
-
 
 class PAINTOP_EXPORT KisPredefinedBrushChooser : public QWidget, public Ui::WdgPredefinedBrushChooser
 {
@@ -68,4 +66,4 @@ private:
     KisClipboardBrushWidget* m_clipboardBrushWidget;
 };
 
-#endif // KIS_PREDEFINED_BRUSH_CHOOSER_H_
+#endif

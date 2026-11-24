@@ -22,12 +22,6 @@ class KoCompositeOp;
 class KoColor;
 class KisRunnableStrokeJobData;
 
-/**
- * For classes that support indirect painting.
- *
- * XXX: Name doesn't suggest an object -- is KisIndirectPaintingLayer
- * a better name? (BSAR)
- */
 class KRITAIMAGE_EXPORT KisIndirectPaintingSupport
 {
     KisIndirectPaintingSupport(const KisIndirectPaintingSupport&);
@@ -46,18 +40,8 @@ public:
     void setTemporaryChannelFlags(const QBitArray& channelFlags);
     void setTemporarySelection(KisSelectionSP selection);
 
-    /**
-     * Configures the painter to conform the painting parameters
-     * stored for th temporary target, such as compositeOp, opacity,
-     * channel flags and selection. Please do not setup them manually,
-     * but use this function instead.
-     */
     void setupTemporaryPainter(KisPainter *painter) const;
 
-    /**
-     * Writes the temporary target into the paint device of the layer.
-     * This action will lock the temporary target itself.
-     */
     void mergeToLayer(KisNodeSP layer, KUndo2Command *parentCommand, const KUndo2MagicString &transactionText, int timedID);
     virtual void mergeToLayerThreaded(KisNodeSP layer, KUndo2Command *parentCommand, const KUndo2MagicString &transactionText, int timedID, QVector<KisRunnableStrokeJobData *> *jobs);
 
@@ -65,9 +49,6 @@ public:
 
     virtual bool supportsNonIndirectPainting() const;
 
-    /**
-     * A guard object to lock the temporary target for read
-     */
     struct ReadLocker {
         ReadLocker(const KisIndirectPaintingSupport *lock) : m_lock(lock) {
             m_lock->lockTemporaryTarget();
@@ -80,10 +61,6 @@ public:
         const KisIndirectPaintingSupport *m_lock;
     };
 
-    /**
-     * A simple RAII-styled class to release the write lock for the
-     * final merge while the stroke is suspended.
-     */
     struct FinalMergeSuspender {
         FinalMergeSuspender(KisIndirectPaintingSupport *indirect);
         ~FinalMergeSuspender();
@@ -93,18 +70,9 @@ public:
     };
     using FinalMergeSuspenderSP = QSharedPointer<FinalMergeSuspender>;
 
-    /**
-     * When the stroke uses multithreaded final merge and supports
-     * suspension, then it should also suspend the final merge explicitly
-     * by requesting a special RAII object for the whole period of
-     * suspension.
-     */
     FinalMergeSuspenderSP trySuspendFinalMerge();
 
 protected:
-    /**
-     * A guard object to lock the temporary target for write
-     */
     struct WriteLocker {
         WriteLocker(KisIndirectPaintingSupport *lock)
             : m_lock(lock),
@@ -156,28 +124,13 @@ protected:
     void releaseResources();
 
 private:
-    /**
-     * Lock the temporary target.
-     * It should be done for guarding every access to
-     * temporaryTarget() or original()
-     * NOTE: well, not "every", but...
-     */
     void lockTemporaryTarget() const;
 
-    /**
-     * Unlock the temporary target
-     *
-     * \see lockTemporaryTarget()
-     */
     void unlockTemporaryTarget() const;
 
 private:
     friend class KisPainterBasedStrokeStrategy;
 
-    /**
-     * Only for debugging purposes. Please use setupTemporaryPainter()
-     * instead.
-     */
     KisSelectionSP temporarySelection() const;
 
 private:
@@ -185,5 +138,4 @@ private:
     Private* const d;
 };
 
-
-#endif /* KIS_INDIRECT_PAINTING_SUPPORT_H_ */
+#endif

@@ -32,13 +32,11 @@ void KisGbrBrushTest::testMaskGenerationSingleColor()
 
     KisPaintInformation info(QPointF(100.0, 100.0), 0.5);
 
-    // check masking an existing paint device
     KisFixedPaintDeviceSP fdev = new KisFixedPaintDevice(cs);
     fdev->setRect(QRect(0, 0, 100, 100));
     fdev->initialize();
     cs->setOpacity(fdev->data(), OPACITY_OPAQUE_U8, 100 * 100);
 
-    // Check creating a mask dab with a single color
     fdev = new KisFixedPaintDevice(cs);
     brush->mask(fdev, KoColor(Qt::black, cs), KisDabShape(), info);
 
@@ -60,13 +58,11 @@ void KisGbrBrushTest::testMaskGenerationDevColor()
 
     KisPaintInformation info(QPointF(100.0, 100.0), 0.5);
 
-    // check masking an existing paint device
     KisFixedPaintDeviceSP fdev = new KisFixedPaintDevice(cs);
     fdev->setRect(QRect(0, 0, 100, 100));
     fdev->initialize();
     cs->setOpacity(fdev->data(), OPACITY_OPAQUE_U8, 100 * 100);
 
-    // Check creating a mask dab with a color taken from a paint device
     KoColor red(Qt::red, cs);
     cs->setOpacity(red.data(), quint8(128), 1);
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
@@ -107,9 +103,6 @@ void KisGbrBrushTest::testImageGeneration()
 
         dab = brush->paintDevice(cs, KisDabShape(scale, 1.0, rotation), info, subPixelX);
 
-        /**
-         * Compare first 10 images. Others are tested for asserts only
-         */
         if (i < 10) {
             QImage result = dab->convertToQImage(0);
             TestUtil::checkQImage(result, "brush_masks", "", testName);
@@ -128,7 +121,7 @@ void KisGbrBrushTest::benchmarkPyramidCreation()
     QBENCHMARK {
         KisQImagePyramid pyramid(brush->brushTipImage());
         qreal temp = 0.0;
-        QVERIFY(!pyramid.getClosest(QTransform(), &temp).isNull()); // avoid compiler elimination of unused code!
+        QVERIFY(!pyramid.getClosest(QTransform(), &temp).isNull());
     }
 }
 
@@ -144,15 +137,13 @@ void KisGbrBrushTest::benchmarkScaling()
     KisFixedPaintDeviceSP dab;
 
     {
-        // warm up the pyramid!
         dab = brush->paintDevice(cs, KisDabShape(rng.bounded(2.0), 1.0, 0.0), info);
-        QVERIFY(dab); // avoid compiler elimination of unused code!
+        QVERIFY(dab);
         dab.clear();
     }
 
     QBENCHMARK {
         dab = brush->paintDevice(cs, KisDabShape(rng.bounded(2.0), 1.0, 0.0), info);
-        //dab->convertToQImage(0).save(QString("dab_%1_new_smooth.png").arg(i++));
     }
 }
 
@@ -242,7 +233,6 @@ void KisGbrBrushTest::testPyramidDabTransform()
     QCOMPARE(dabTransformHelper(KisDabShape(1.0, 0.5, M_PI / 4)), QSize(160, 160));
 }
 
-// see comment in KisQImagePyramid::appendPyramidLevel
 void KisGbrBrushTest::testQPainterTransformationBorder()
 {
     QImage image1(10, 10, QImage::Format_ARGB32);

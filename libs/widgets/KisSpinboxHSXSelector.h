@@ -14,11 +14,6 @@
 #include <QVector4D>
 #include <QScopedPointer>
 
-/**
- * A set of spinboxes to adjust HSV, HSL, HSI or HSY' values.
- * This class is meant to be used in conjunction with KisVisualColorSelector only.
- */
-
 class KRITAWIDGETS_EXPORT KisSpinboxHSXSelector : public QWidget
 {
     Q_OBJECT
@@ -26,14 +21,6 @@ public:
     explicit KisSpinboxHSXSelector(QWidget *parent = nullptr);
     ~KisSpinboxHSXSelector() override;
 
-    /**
-     * @brief connect signals and slots with given selector model
-     *        to synchronize value and color model changes.
-     *
-     * Note: in case the selector switches to a non-HSX color model,
-     * it needs to be deactivated or hidden manually since it will
-     * not synchronize values for other selector models.
-     */
     void setModel(KisVisualColorModelSP model);
 
 Q_SIGNALS:
@@ -49,4 +36,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSPINBOXHSXSELECTOR_H
+#endif

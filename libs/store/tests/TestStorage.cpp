@@ -29,7 +29,6 @@ private:
     char getch(QIODevice * dev);
 };
 
-
 char TestStorage::getch(QIODevice * dev)
 {
     char c = 0;
@@ -68,7 +67,7 @@ void TestStorage::storage()
     if (dirTest.exists()) {
 #ifdef Q_OS_UNIX
         QByteArray ba = QByteArray("rm -rf ") + QFile::encodeName(testFile);
-        Q_UNUSED(system(ba.constData()));       // QDir::rmdir isn't recursive!
+        Q_UNUSED(system(ba.constData()));
 #else
         QFAIL("build dir not empty");
 #endif
@@ -158,7 +157,7 @@ void TestStorage::storage()
     QCOMPARE(store->currentPath(), QString(testDir2Result));
 
     QVERIFY (store->hasFile("relative/dir.txt"));
-    
+
     QVERIFY (store->open("root"));
     char buf[29];
     store->read(buf, 28);
@@ -195,7 +194,7 @@ void TestStorage::storage2()
     if (dirTest.exists()) {
 #ifdef Q_OS_UNIX
         QByteArray ba = QByteArray("rm -rf ") + QFile::encodeName(testFile);
-        Q_UNUSED(system(ba.constData()));       // QDir::rmdir isn't recursive!
+        Q_UNUSED(system(ba.constData()));
 #else
         QFAIL("build dir not empty");
 #endif
@@ -204,7 +203,6 @@ void TestStorage::storage2()
     KoStore* store = KoStore::createStore(testFile, KoStore::Write, "", backend);
     QVERIFY(store->bad() == false);
 
-    // Write
     QVERIFY (store->open("layer"));
     char str[DATALEN];
 
@@ -218,12 +216,11 @@ void TestStorage::storage2()
 
     store = KoStore::createStore(testFile, KoStore::Read, "", backend);
     QVERIFY(store->bad() == false);
-    // Read back
     QVERIFY (store->open("layer"));
     char str2[DATALEN];
-    QIODevice *stream = store->device(); // << Possible suspect!
+    QIODevice *stream = store->device();
 
-    stream->readLine(str2, DATALEN);      // << as is this
+    stream->readLine(str2, DATALEN);
     qint64 len = store->read(str2, DATALEN);
     QCOMPARE(len, (qint64) DATALEN);
     store->close();

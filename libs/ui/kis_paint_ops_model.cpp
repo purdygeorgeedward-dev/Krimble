@@ -13,8 +13,6 @@
 #include <brushengine/kis_paintop_factory.h>
 #include <KoResourcePaths.h>
 
-
-
 KisPaintOpListModel::KisPaintOpListModel(QObject *parent)
     : BasePaintOpCategorizedListModel(parent)
 {

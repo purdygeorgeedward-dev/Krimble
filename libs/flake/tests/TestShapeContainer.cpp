@@ -15,7 +15,6 @@
 
 #include <simpletest.h>
 
-
 void TestShapeContainer::testModel()
 {
     MockContainerModel *model = new MockContainerModel();
@@ -39,7 +38,7 @@ void TestShapeContainer::testModel()
 
     shape1->setAbsolutePosition(shape1->absolutePosition() + QPointF(10., 40.));
     QCOMPARE(model->containerChangedCalled(), 0);
-    QCOMPARE(model->childChangedCalled(), 5); // we get a generic Matrix as well as a position change...
+    QCOMPARE(model->childChangedCalled(), 5);
     QCOMPARE(model->proposeMoveCalled(), 0);
 
     shape1->setTransformation(QTransform());
@@ -61,7 +60,6 @@ void TestShapeContainer::testSetParent()
     MockContainerModel *model2 = new MockContainerModel();
     MockContainer container2(model2);
     MockShape shape;
-    // init test
     QCOMPARE(model1->shapes().count(), 0);
     QCOMPARE(model2->shapes().count(), 0);
 
@@ -77,7 +75,6 @@ void TestShapeContainer::testSetParent()
     QCOMPARE(container2.shapes().count(), 1);
     QCOMPARE(shape.parent(), &container2);
 
-    // on destruction shape should have no parent
     shape.setParent(0);
 }
 
@@ -172,7 +169,6 @@ void TestShapeContainer::testScaling2()
 
     QScopedPointer<KoSelection> selection(new KoSelection());
 
-    // the topmost shape is selected, not shape1!
     selection->select(shape1);
 
     QList<KoShape*> transformShapes;
@@ -202,7 +198,6 @@ void TestShapeContainer::testScaling2()
 
     selection->deselectAll();
 
-    // the topmost shape is selected, not shape1!
     selection->select(shape1);
     QCOMPARE(selection->boundingRect(), group->boundingRect());
 }

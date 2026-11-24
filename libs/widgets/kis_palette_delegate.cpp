@@ -13,7 +13,6 @@
 #include "kis_debug.h"
 #include <KisPaletteModel.h>
 
-
 KisPaletteDelegate::KisPaletteDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
 {

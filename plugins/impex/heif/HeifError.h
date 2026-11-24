@@ -12,7 +12,6 @@
 #include "libheif/heif_cxx.h"
 #include <KisImportExportErrorCode.h>
 
-
 KisImportExportErrorCode setHeifError(KisDocument* document,
                                                      heif::Error error);
 

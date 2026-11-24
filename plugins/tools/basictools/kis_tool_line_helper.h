@@ -9,7 +9,6 @@
 
 #include "kis_tool_freehand_helper.h"
 
-
 class KisToolLineHelper : private KisToolFreehandHelper
 {
 public:
@@ -30,7 +29,6 @@ public:
     void addPoint(KoPointerEvent *event, const QPointF &overridePos = QPointF());
     void addPoint(KisPaintInformation pi, const QPointF &overridePos = QPointF());
     void translatePoints(const QPointF &offset);
-    // overwrites the first and last points, and adjusts the rest of the points to fit the line
     void movePointsTo(const QPointF& startPoint, const QPointF& endPoint);
     void end();
     void cancel();
@@ -47,4 +45,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_TOOL_LINE_HELPER_H */
+#endif

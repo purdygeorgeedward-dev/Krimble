@@ -9,7 +9,6 @@
 
 #include "kis_brush_based_paintop_settings.h"
 
-
 class KisBrushOpSettings : public KisBrushBasedPaintOpSettings
 {
 public:
@@ -24,4 +23,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISBRUSHOPSETTINGS_H
+#endif

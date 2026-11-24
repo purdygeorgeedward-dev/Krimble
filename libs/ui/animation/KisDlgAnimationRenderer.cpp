@@ -52,7 +52,6 @@
 #include "animation/KisFFMpegWrapper.h"
 #endif
 
-
 KisDlgAnimationRenderer::KisDlgAnimationRenderer(KisDocument *doc, QWidget *parent)
     : KoDialog(parent)
     , m_image(doc->image())
@@ -111,12 +110,10 @@ KisDlgAnimationRenderer::KisDlgAnimationRenderer(KisDocument *doc, QWidget *pare
     m_page->intWidth->setMinimum(1);
     m_page->intWidth->setMaximum(100000);
 
-    // Setup audio...
     QVector<QFileInfo> audioFiles = doc->getAudioTracks();
     const bool hasAudio = audioFiles.count() > 0;
     m_page->chkIncludeAudio->setEnabled(hasAudio);
 
-    // Setup image mimeTypes...
     QStringList mimes = KisImportExportManager::supportedMimeTypes(KisImportExportManager::Export);
     mimes.sort();
     filterSequenceMimeTypes(mimes);
@@ -134,7 +131,6 @@ KisDlgAnimationRenderer::KisDlgAnimationRenderer(KisDocument *doc, QWidget *pare
     }
 
 #ifdef Q_OS_ANDROID
-    // Set up video export formats on Android. No ffmpeg here.
     m_videoFormatPreferences = loadVideoFormatPreferences();
     const QVector<KisMediaEncoderFormat *> videoFormats = KisMediaEncoderWrapper::getSupportedFormats();
     for (KisMediaEncoderFormat *videoFormat : videoFormats) {
@@ -155,7 +151,7 @@ KisDlgAnimationRenderer::KisDlgAnimationRenderer(KisDocument *doc, QWidget *pare
 
     m_page->cmbRenderType->setPlaceholderText(i18nc("Not applicable. No render types without valid ffmpeg path.", "N/A"));
 
-    {   // Establish connections...
+    {
         connect(m_page->bnExportOptions, SIGNAL(clicked()), this, SLOT(sequenceMimeTypeOptionsClicked()));
         connect(m_page->bnRenderOptions, SIGNAL(clicked()), this, SLOT(selectRenderOptions()));
 
@@ -181,13 +177,11 @@ KisDlgAnimationRenderer::KisDlgAnimationRenderer(KisDocument *doc, QWidget *pare
         connect(this, SIGNAL(accepted()), SLOT(slotDialogAccepted()));
     }
 
-
-    // try to lock the width and height being updated
     KisAcyclicSignalConnector *constrainsConnector = new KisAcyclicSignalConnector(this);
     constrainsConnector->createCoordinatedConnector()->connectBackwardInt(m_page->intWidth, SIGNAL(valueChanged(int)), this, SLOT(slotLockAspectRatioDimensionsWidth(int)));
     constrainsConnector->createCoordinatedConnector()->connectForwardInt(m_page->intHeight, SIGNAL(valueChanged(int)), this, SLOT(slotLockAspectRatioDimensionsHeight(int)));
 
-    {   // Initialize settings from last configuration...
+    {
         KisPropertiesConfigurationSP animProperties = loadLastConfiguration("ANIMATION_EXPORT");
         KisAnimationRenderingOptions options;
         options.fromProperties(animProperties);
@@ -207,7 +201,6 @@ KisDlgAnimationRenderer::~KisDlgAnimationRenderer()
 void KisDlgAnimationRenderer::initializeRenderSettings(const KisDocument &doc, const KisAnimationRenderingOptions &lastUsedOptions)
 {
 #ifndef Q_OS_ANDROID
-    // Initialize FFmpeg location... (!)
     KisConfig cfg(false);
     QString cfgFFmpegPath = cfg.ffmpegLocation();
 #ifdef Q_OS_MACOS
@@ -217,25 +210,20 @@ void KisDlgAnimationRenderer::initializeRenderSettings(const KisDocument &doc, c
     }
 #endif
 
-    // Check known ffmpeg locations..
     QString likelyFFmpegPath = [&]() {
-        // Check last used
         if (!lastUsedOptions.ffmpegPath.isEmpty() && QFileInfo(lastUsedOptions.ffmpegPath).isExecutable()) {
             return lastUsedOptions.ffmpegPath;
         }
 
-        // Check krita config
         if (!cfgFFmpegPath.isEmpty() && QFileInfo(cfgFFmpegPath).isExecutable()) {
             return cfgFFmpegPath;
         }
 
-        // Check standard paths
         QString systemFFmpeg = QStandardPaths::findExecutable("ffmpeg");
         if (!systemFFmpeg.isEmpty() && QFileInfo(systemFFmpeg).isExecutable()) {
            return systemFFmpeg;
         }
 
-        // Find ffmpeg elsewhere...
         QJsonObject ffmpegJsonObj = KisFFMpegWrapper::findFFMpeg("");
         return (ffmpegJsonObj["enabled"].toBool()) ? ffmpegJsonObj["path"].toString() : "";
     }();
@@ -247,11 +235,9 @@ void KisDlgAnimationRenderer::initializeRenderSettings(const KisDocument &doc, c
 
     const QString documentPath = m_doc->localFilePath();
 
-    // Initialize these settings based on last used configuration when possible..
     if (!lastUsedOptions.lastDocumentPath.isEmpty() &&
         lastUsedOptions.lastDocumentPath == documentPath) {
 
-        // If the file is the same as last time, we use the last used basename.
         m_page->txtBasename->setText(lastUsedOptions.basename);
 
         m_page->sequenceStart->setValue(lastUsedOptions.sequenceStart);
@@ -282,7 +268,6 @@ void KisDlgAnimationRenderer::initializeRenderSettings(const KisDocument &doc, c
         m_page->dirRequester->setFileName(lastUsedOptions.directory);
     }
 
-    // Initialize FRAME render format...
     for (int i = 0; i < m_page->cmbMimetype->count(); ++i) {
         if (m_page->cmbMimetype->itemData(i).toString() == lastUsedOptions.frameMimeType) {
             m_page->cmbMimetype->setCurrentIndex(i);
@@ -297,7 +282,6 @@ void KisDlgAnimationRenderer::initializeRenderSettings(const KisDocument &doc, c
         }
     }
 
-    // Initialize VIDEO render format...
 #ifdef Q_OS_ANDROID
     const QString &lastVideoType = lastUsedOptions.videoFormatKey;
 #else
@@ -349,7 +333,6 @@ void KisDlgAnimationRenderer::initializeRenderSettings(const KisDocument &doc, c
     m_page->ffmpegLocation->setReadOnlyText(true);
 #endif
 
-    // Initialize these settings based on the current document context..
     m_page->intStart->setValue(doc.image()->animationInterface()->activePlaybackRange().start());
     m_page->intEnd->setValue(doc.image()->animationInterface()->activePlaybackRange().end());
     m_page->intFramesPerSecond->setValue(doc.image()->animationInterface()->framerate());
@@ -404,7 +387,6 @@ void KisDlgAnimationRenderer::getDefaultVideoEncoderOptions(const QString &mimeT
     QScopedPointer<KisVideoExportOptionsDialog> encoderConfigWidget(
         new KisVideoExportOptionsDialog(containerType, availableEncoders,   0));
 
-    // we always enable HDR, letting the user to force it
     encoderConfigWidget->setSupportsHDR(true);
     encoderConfigWidget->setConfiguration(cfg);
     *customFFMpegOptionsString = encoderConfigWidget->customUserOptionsString();
@@ -429,8 +411,8 @@ QStringList KisDlgAnimationRenderer::makeVideoMimeTypesList()
     supportedMimeTypes << "video/mp4";
     supportedMimeTypes << "video/webm";
     supportedMimeTypes << "image/gif";
-    supportedMimeTypes << "image/apng";    
-    supportedMimeTypes << "image/webp";       
+    supportedMimeTypes << "image/apng";
+    supportedMimeTypes << "image/webp";
     supportedMimeTypes << "video/ogg";
 
     return supportedMimeTypes;
@@ -446,9 +428,7 @@ bool meetsEncoderRequirementsForContainer(KisVideoExportOptionsDialog::Container
     return false;
 }
 
-// For dependencies, see here:
-// https://en.wikipedia.org/wiki/Comparison_of_video_container_formats
-QStringList KisDlgAnimationRenderer::filterMimeTypeListByAvailableEncoders(const QStringList& input) 
+QStringList KisDlgAnimationRenderer::filterMimeTypeListByAvailableEncoders(const QStringList& input)
 {
     QStringList retValue;
 
@@ -557,8 +537,6 @@ bool KisDlgAnimationRenderer::supportsAudio(const QString &videoType)
 
 #ifndef Q_OS_ANDROID
 void KisDlgAnimationRenderer::setFFmpegPath(const QString& path) {
-    // Let's START with the assumption that user-specified ffmpeg path is invalid
-    // and clear out all of the ffmpeg-specific fields to fill post-validation...
     m_page->cmbRenderType->setDisabled(true);
     m_page->bnRenderOptions->setDisabled(true);
 
@@ -567,22 +545,16 @@ void KisDlgAnimationRenderer::setFFmpegPath(const QString& path) {
     m_page->cmbRenderType->clear();
     ffmpegEncoderTypes.clear();
 
-    // Validate FFmpeg binary and setup FFMpeg...
     if (validateFFmpeg(path)) {
         QJsonObject ffmpegJsonObj = KisFFMpegWrapper::findFFMpeg(path);
         ffmpegVersion = ffmpegJsonObj["enabled"].toBool() ? ffmpegJsonObj["version"].toString() : i18n("No valid FFmpeg binary supplied...");
         ffmpegCodecs = KisFFMpegWrapper::getSupportedCodecs(ffmpegJsonObj);
 
-        // Build map of encoding types to their specific encoder support (e.g. h264 => libopenh264, h264, h264_vaapi or whatever)
         Q_FOREACH(const QString& codec, ffmpegCodecs) {
             QJsonObject codecjson = ffmpegJsonObj["codecs"].toObject()[codec].toObject();
             if ( codecjson["encoding"].toBool() ) {
                 QJsonArray codecEncoders = codecjson["encoders"].toArray();
 
-                // In the case where no specific codec "library" is specified but we do support
-                // encoding, we simply push the type onto the list regardless. This basically
-                // means that there's no "specific" requirements that we need to meet and
-                // encoding should be possible.
                 if (codecEncoders.size() == 0) {
                     codecEncoders.push_back(QJsonValue(codec));
                 }
@@ -599,7 +571,7 @@ void KisDlgAnimationRenderer::setFFmpegPath(const QString& path) {
 
         KisConfig cfg(false);
 
-        {   // Build list of supported container types and repopulate cmbRenderType.
+        {
             KisSignalsBlocker(m_page->cmbRenderType);
 
             QStringList supportedMimeTypes = makeVideoMimeTypesList();
@@ -635,7 +607,6 @@ void KisDlgAnimationRenderer::setFFmpegPath(const QString& path) {
 
         m_page->lblFFMpegVersion->setText(ffmpegVersion);
 
-        // Store configuration..
         cfg.setFFMpegLocation(ffmpegJsonObj["path"].toString());
 
         slotCheckWarnings();
@@ -747,9 +718,7 @@ void KisDlgAnimationRenderer::selectRenderType(int index)
 
     m_wantsRenderWithHDR = (mimeType == "video/mp4") ? m_wantsRenderWithHDR : false;
 
-    {   // We've got to reload the render settings to account for the user changing render type without configuration.
-        // If this is removed from the configuration, ogg vorbis can fail to render on first attempt. BUG:421658
-        // This should be revisited at some point, too much configuration juggling in this class makes it error-prone...
+    {
 
         QStringList encodersPresent;
         Q_FOREACH(const QString& key, ffmpegEncoderTypes.keys()) {
@@ -792,7 +761,6 @@ void KisDlgAnimationRenderer::selectRenderOptions()
     KisVideoExportOptionsDialog *encoderConfigWidget =
         new KisVideoExportOptionsDialog(containerType, encodersPresent, this);
 
-    // we always enable HDR, letting the user to force it
     encoderConfigWidget->setSupportsHDR(true);
 
     {
@@ -835,7 +803,6 @@ void KisDlgAnimationRenderer::sequenceMimeTypeOptionsClicked()
                 KisImportExportManager::fillStaticExportConfigurationProperties(exportConfig, m_image);
             }
 
-            //Important -- m_useHDR allows the synchronization of both the video and image render settings.
 #ifndef Q_OS_ANDROID
             if(imageMimeSupportsHDR(mimetype)) {
                 exportConfig->setProperty("saveAsHDR", m_wantsRenderWithHDR);
@@ -864,7 +831,6 @@ void KisDlgAnimationRenderer::sequenceMimeTypeOptionsClicked()
         }
     }
 }
-
 
 KisAnimationRenderingOptions KisDlgAnimationRenderer::getEncoderOptions() const
 {
@@ -1035,16 +1001,11 @@ void KisDlgAnimationRenderer::slotExportTypeChanged()
         m_page->stkExport->setCurrentWidget(m_page->pgImages);
     }
 #else
-    // if a video format needs to be outputted
     if (m_page->shouldExportOnlyVideo->isChecked()) {
-         // videos always uses PNG for creating video, so disable the ability to change the format
          m_page->cmbMimetype->setEnabled(false);
          m_page->cmbMimetype->setCurrentIndex(m_page->cmbMimetype->findData("image/png"));
     }
 
-    /**
-     * A fallback fix for a case when both checkboxes are unchecked
-     */
     if (!m_page->shouldExportOnlyVideo->isChecked() &&
         !m_page->shouldExportOnlyImageSequence->isChecked()) {
 
@@ -1071,7 +1032,6 @@ void KisDlgAnimationRenderer::slotLockAspectRatioDimensionsWidth(int width)
 
     float aspectRatio = (float)m_image->width() / (float)m_image->height();
 
-    // update height here
     float newHeight = m_page->intWidth->value() / aspectRatio  ;
 
     m_page->intHeight->setValue(newHeight);
@@ -1084,7 +1044,6 @@ void KisDlgAnimationRenderer::slotLockAspectRatioDimensionsHeight(int height)
 
     float aspectRatio = (float)m_image->width() / (float)m_image->height();
 
-    // update width here
      float newWidth = aspectRatio *  m_page->intHeight->value();
 
      m_page->intWidth->setValue(newWidth);

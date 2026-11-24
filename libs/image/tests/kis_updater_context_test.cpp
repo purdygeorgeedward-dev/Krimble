@@ -47,7 +47,6 @@ void KisUpdaterContextTest::testJobInterference()
     context.addMergeJob(walker1);
     context.unlock();
 
-    // overlapping job --- forbidden
     {
         QRect dirtyRect(30,0,100,100);
         KisBaseRectsWalkerSP walker = new KisMergeWalker(imageRect);
@@ -58,7 +57,6 @@ void KisUpdaterContextTest::testJobInterference()
         context.unlock();
     }
 
-    // not overlapping job --- allowed
     {
         QRect dirtyRect(60,0,100,100);
         KisBaseRectsWalkerSP walker = new KisMergeWalker(imageRect);
@@ -69,7 +67,6 @@ void KisUpdaterContextTest::testJobInterference()
         context.unlock();
     }
 
-    // not overlapping job, conflicting LOD --- forbidden
     {
         TestUtil::LodOverride l(1, image);
 
@@ -109,7 +106,6 @@ void KisUpdaterContextTest::testSnapshot()
     QCOMPARE(numStrokeJobs, 0);
     QCOMPARE(context.currentLevelOfDetail(), 0);
 
-
     KisStrokeJobData *data =
         new KisStrokeJobData(KisStrokeJobData::SEQUENTIAL,
                              KisStrokeJobData::NORMAL);
@@ -122,7 +118,6 @@ void KisUpdaterContextTest::testSnapshot()
     QCOMPARE(numMergeJobs, 1);
     QCOMPARE(numStrokeJobs, 1);
     QCOMPARE(context.currentLevelOfDetail(), 0);
-
 
     context.addSpontaneousJob(new KisNoopSpontaneousJob());
     context.getJobsSnapshot(numMergeJobs, numStrokeJobs);
@@ -163,7 +158,7 @@ void KisUpdaterContextTest::testSnapshot()
 #endif
 #define EXCLUSIVE_NTH 3
 #define NUM_CHECKS 10
-#define CHECK_DELAY 3 // ms
+#define CHECK_DELAY 3
 
 class ExclusivenessCheckerStrategy : public KisStrokeJobStrategy
 {

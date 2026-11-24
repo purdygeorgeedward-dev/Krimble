@@ -12,11 +12,6 @@
 #include <kis_paint_device.h>
 class KisPaintDevice;
 
-/**
- * @class KisAsyncStoryboardThumbnailRenderer
- * @brief requests regeneration of a frame. The regeneration should
- * be requested after switching the @c KisImage to the relevant frame.
- */
 class KisAsyncStoryboardThumbnailRenderer : public KisAsyncAnimationRendererBase
 {
     Q_OBJECT

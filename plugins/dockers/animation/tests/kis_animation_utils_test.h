@@ -14,4 +14,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif // ANIMATION_UTILS_TEST_H
+#endif

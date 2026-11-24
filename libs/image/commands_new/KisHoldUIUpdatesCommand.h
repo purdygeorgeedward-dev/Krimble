@@ -14,7 +14,6 @@
 
 class KisUpdatesFacade;
 
-
 class KRITAIMAGE_EXPORT KisHoldUIUpdatesCommand : public KisCommandUtils::FlipFlopCommand, public KisStrokeStrategyUndoCommandBased::MutatedCommandInterface
 {
 public:
@@ -28,4 +27,4 @@ private:
     QSharedPointer<bool> m_batchUpdateStarted;
 };
 
-#endif // KISHOLDUIUPDATESCOMMAND_H
+#endif

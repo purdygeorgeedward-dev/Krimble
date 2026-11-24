@@ -34,10 +34,9 @@ public:
     static QString pointerTypeToString(const QTabletEvent &event);
     static QString exTypeToString(QEvent::Type type);
 
-
 private:
     bool m_debugEnabled;
     bool m_shouldEatDriverShortcuts;
 };
 
-#endif /* __KIS_TABLET_DEBUGGER_H */
+#endif

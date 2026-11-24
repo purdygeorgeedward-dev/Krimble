@@ -65,4 +65,4 @@ private:
     KisViewManager * m_view;
 };
 
-#endif // KIS_CANVAS_CONTROLS_MANAGER_H
+#endif

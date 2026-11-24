@@ -9,10 +9,9 @@
 
 #ifndef USE_DOCUMENT
 #define USE_DOCUMENT 1
-#endif /* USE_DOCUMENT */
+#endif
 
 #include <testutil.h>
-
 
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>
@@ -24,7 +23,7 @@
 #if USE_DOCUMENT
 #include "KisDocument.h"
 #include "kis_shape_layer.h"
-#endif /* USE_DOCUMENT */
+#endif
 
 #include "kis_undo_stores.h"
 #include "kis_image.h"
@@ -43,7 +42,6 @@
 
 #include "commands/kis_selection_commands.h"
 
-
 namespace TestUtil
 {
 
@@ -55,14 +53,8 @@ public:
     {
     }
 
-    // you need to declare your own test function
-    // See KisProcessingTest for example
-
 protected:
 
-    /**
-     * Creates a complex image connected to a surrogate undo store
-     */
     KisImageSP createImage(KisSurrogateUndoStore *undoStore) {
         QImage sourceImage(fetchDataFileLazy("hakonepa.png"));
 
@@ -81,12 +73,6 @@ protected:
         KisFilterConfigurationSP configuration = filter->defaultConfiguration(KisGlobalResourcesInterface::instance());
         Q_ASSERT(configuration);
 
-        /**
-         * HACK ALERT: before this commit a07ef143f6 the meaning of
-         * 'strength' was different. After that, to make the tests
-         * run correctly we should manually set the old value (it is
-         * not available via GUI anymore).
-         */
         configuration->setProperty("strength", 500);
 
         KisAdjustmentLayerSP blur1 = new KisAdjustmentLayer(image, "blur1", configuration->cloneWithResourcesSnapshot(), 0);
@@ -115,10 +101,6 @@ protected:
         return image;
     }
 
-    /**
-     * Creates a simple image with one empty layer and connects it to
-     * a surrogate undo store
-     */
     KisImageSP createTrivialImage(KisSurrogateUndoStore *undoStore) {
         QRect imageRect = QRect(0, 0, 640, 441);
 
@@ -164,7 +146,7 @@ protected:
         QApplication::processEvents();
     }
 
-#endif /* USE_DOCUMENT*/
+#endif
 
     bool checkLayersInitial(KisImageWSP image, int baseFuzzyness = 0) {
         QString prefix = "initial_with_selection";
@@ -178,10 +160,6 @@ protected:
         return checkLayers(image, prefix + prefix2, baseFuzzyness, false);
     }
 
-    /**
-     * Checks the content of image's layers against the set of
-     * QImages stored in @p prefix subfolder
-     */
     bool checkLayers(KisImageWSP image, const QString &prefix, int baseFuzzyness = 0, bool recursive = true) {
         QVector<QImage> images;
         QVector<QString> names;
@@ -200,10 +178,6 @@ protected:
         return valid;
     }
 
-    /**
-     * Checks the content of one image's layer against the QImage
-     * stored in @p prefix subfolder
-     */
     bool checkOneLayer(KisImageWSP image, KisNodeSP node,  const QString &prefix, int baseFuzzyness = 0) {
         QVector<QImage> images;
         QVector<QString> names;
@@ -213,7 +187,6 @@ protected:
         return checkOneQImage(images.first(), prefix, names.first(), baseFuzzyness);
     }
 
-    // add default bounds param
     bool checkOneDevice(KisPaintDeviceSP device,
                         const QString &prefix,
                         const QString &name,
@@ -242,13 +215,11 @@ private:
                                              prefix + '/' + realName);
 
         if (fullPath.isEmpty()) {
-            // Try without the testname subdirectory
             fullPath = fetchDataFileLazy(prefix + '/' +
                                          realName);
         }
 
         if (fullPath.isEmpty()) {
-            // Try without the prefix subdirectory
             fullPath = fetchDataFileLazy(m_directoryName + '/' +
                                          realName);
         }
@@ -270,7 +241,6 @@ private:
 
         if(ref != image &&
            !TestUtil::compareQImages(temp, ref, image, fuzzy, fuzzy)) {
-
 
             dbgKrita << "--- Wrong image:" << realName;
             valid = false;
@@ -323,4 +293,4 @@ private:
 
 }
 
-#endif /* __QIMAGE_BASED_TEST_H */
+#endif

@@ -20,7 +20,6 @@ class KisGridDecoration;
 class KisViewManager;
 class KisGridConfig;
 
-
 class KRITAUI_EXPORT KisGridManager : public QObject
 {
     Q_OBJECT

@@ -16,17 +16,15 @@
 #include <kis_shared.h>
 #include <kis_shared_ptr.h>
 
-
 class KisMementoManager;
 
 class KisMemento;
 typedef KisSharedPtr<KisMemento> KisMementoSP;
 
-
 class KisMemento : public KisShared
 {
 public:
-    inline KisMemento(KisMementoManager* /*mementoManager*/) {
+    inline KisMemento(KisMementoManager* ) {
         m_extentMinX = qint32_MAX;
         m_extentMinY = qint32_MAX;
         m_extentMaxX = qint32_MIN;
@@ -92,14 +90,6 @@ private:
         const qint32 tileMaxY = tileMinY + KisTileData::HEIGHT - 1;
 
         {
-            /**
-             * HACK ALERT: the lock is stored in the memento
-             * manager to avoid too many locks to be created.
-             * Anyway, a memento manager can have only one
-             * "current memento". And it would not be nice to
-             * do KisTileData::WIDTH/HEIGHT multiplication
-             * under the lock held.
-             */
             QMutexLocker l(currentMementoExtentLock);
             m_extentMinX = qMin(m_extentMinX, tileMinX);
             m_extentMaxX = qMax(m_extentMaxX, tileMaxX);
@@ -118,4 +108,4 @@ private:
     qint32 m_extentMaxY;
 };
 
-#endif // KIS_MEMENTO_H_
+#endif

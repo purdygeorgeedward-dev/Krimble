@@ -11,11 +11,10 @@
 using KisStrokeStrategyFactory = std::function<KisStrokeStrategy*()>;
 
 using KisLodSyncPair = std::pair<KisStrokeStrategy*, QList<KisStrokeJobData*>>;
-using KisLodSyncStrokeStrategyFactory = std::function<KisLodSyncPair(bool /*forgettable*/)>;
+using KisLodSyncStrokeStrategyFactory = std::function<KisLodSyncPair(bool )>;
 
 using KisSuspendResumePair = std::pair<KisStrokeStrategy*, QList<KisStrokeJobData*>>;
 using KisSuspendResumeStrategyFactory = std::function<KisSuspendResumePair()>;
 using KisSuspendResumeStrategyPairFactory = std::function<std::pair<KisSuspendResumePair, KisSuspendResumePair>()>;
 
-
-#endif /* __KIS_STROKE_STRATEGY_FACTORY_H */
+#endif

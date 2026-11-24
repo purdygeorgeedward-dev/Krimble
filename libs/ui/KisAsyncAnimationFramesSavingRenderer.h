@@ -39,4 +39,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISASYNCANIMATIONFRAMESSAVINGRENDERER_H
+#endif

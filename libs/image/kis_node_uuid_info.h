@@ -21,27 +21,27 @@ public:
     KisNodeUuidInfo(const QUuid& uuid);
     KisNodeUuidInfo(const QString& name);
     KisNodeUuidInfo(KisNodeSP node);
-    
+
 public:
     QUuid uuid()
     {
         return m_uuid;
     }
-    
+
     QString name()
     {
         return m_name;
     }
-    
+
 public:
     KisNodeSP findNode(KisNodeSP rootNode);
-    
+
 private:
     bool check(KisNodeSP node);
-    
+
 private:
     QUuid m_uuid;
     QString m_name;
 };
 
-#endif // kis_node_uuid_info_H
+#endif

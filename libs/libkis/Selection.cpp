@@ -30,7 +30,6 @@ Selection::Selection(KisSelectionSP selection, QObject *parent)
     d->selection = selection;
 }
 
-
 Selection::Selection(QObject *parent)
     : QObject(parent)
     , d(new Private)
@@ -96,7 +95,6 @@ void Selection::move(int x, int y)
     if (!d->selection) return;
     d->selection->pixelSelection()->moveTo(QPoint(x, y));
 }
-
 
 void Selection::clear()
 {
@@ -220,7 +218,6 @@ void Selection::grow(int xradius, int yradius)
     gsf.process(d->selection->pixelSelection(), rc);
 }
 
-
 void Selection::shrink(int xRadius, int yRadius, bool edgeLock)
 {
     if (!d->selection) return;
@@ -236,7 +233,6 @@ void Selection::smooth()
     QRect rc = sf.changeRect(d->selection->selectedExactRect(), d->selection->pixelSelection()->defaultBounds());
     sf.process(d->selection->pixelSelection(), rc);
 }
-
 
 void Selection::invert()
 {
@@ -294,7 +290,6 @@ void Selection::symmetricdifference(Selection *selection)
     d->selection->pixelSelection()->applySelection(selection->selection()->pixelSelection(), SELECTION_SYMMETRICDIFFERENCE);
 }
 
-
 QByteArray Selection::pixelData(int x, int y, int w, int h) const
 {
     QByteArray ba;
@@ -319,5 +314,4 @@ KisSelectionSP Selection::selection() const
 {
     return d->selection;
 }
-
 

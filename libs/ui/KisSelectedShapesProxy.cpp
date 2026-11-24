@@ -11,7 +11,6 @@
 #include <KoShapeManager.h>
 #include <KoSelection.h>
 
-
 struct KisSelectedShapesProxy::Private
 {
     KoShapeManager *globalShapeManager;

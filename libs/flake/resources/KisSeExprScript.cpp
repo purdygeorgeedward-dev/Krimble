@@ -62,7 +62,6 @@ KisSeExprScript::KisSeExprScript(const KisSeExprScript &rhs)
     , d(new Private)
 {
     KIS_SAFE_ASSERT_RECOVER_NOOP(isDirty() == rhs.isDirty());
-    // only valid if we could clone the settings
     setScript(rhs.script());
     setValid(rhs.valid());
 }
@@ -81,7 +80,6 @@ bool KisSeExprScript::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP res
 
     d->data = dev->readAll();
 
-    // TODO: test
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(d->data.size() != 0, false);
 
     if (filename().isNull()) {

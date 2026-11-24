@@ -32,7 +32,7 @@ WGActionManager::WGActionManager(WGColorSelectorDock *parentDock)
     , m_docker(parentDock)
     , m_displayConfig(new WGSelectorDisplayConfig)
     , m_colorTooltip(new WGColorPreviewToolTip)
-    , m_colorChangeCompressor(new KisSignalCompressor(100 /* ms */, KisSignalCompressor::POSTPONE, this))
+    , m_colorChangeCompressor(new KisSignalCompressor(100 , KisSignalCompressor::POSTPONE, this))
     , m_colorModel(new KisVisualColorModel)
 {
     m_lastUsedColor.setOpacity(quint8(0));
@@ -98,7 +98,7 @@ void WGActionManager::updateWidgetSize(QWidget *widget, int size)
     if (hsp.horizontalPolicy() != QSizePolicy::Fixed) {
         widget->setFixedWidth(size);
     } else {
-        widget->setFixedWidth(QWIDGETSIZE_MAX); // looks weird, but that really resets min size to 0...
+        widget->setFixedWidth(QWIDGETSIZE_MAX);
     }
     if (hsp.verticalPolicy() != QSizePolicy::Fixed) {
         widget->setFixedHeight(size);
@@ -109,7 +109,6 @@ void WGActionManager::updateWidgetSize(QWidget *widget, int size)
 
 void WGActionManager::showPopup(WGSelectorPopup *popup)
 {
-    // preparations
     m_isSynchronizing = true;
     if (m_currentPopup) {
         m_currentPopup->hide();
@@ -207,7 +206,6 @@ void WGActionManager::slotShowColorSelectorPopup()
         loadColorSelectorSettings(cfg);
     }
 
-    // update gamut mask
     KisCanvas2 *canvas = qobject_cast<KisCanvas2*>(m_docker->observedCanvas());
     if (canvas) {
         KisCanvasResourceProvider *resourceProvider = canvas->imageView()->resourceProvider();
@@ -259,7 +257,6 @@ void WGActionManager::slotShowColorHistoryPopup()
 {
     if (!m_colorHistoryPopup) {
         m_colorHistoryPopup = new WGSelectorPopup;
-        // when settings or a document changes, the model is switched in updateColorHistoryModel()
         WGColorPatches *history = new WGColorPatches(m_displayConfig, m_docker->colorHistoryModel());
         history->setUiMode(WGSelectorWidgetBase::PopupMode);
         history->setPreset(WGColorPatches::History);
@@ -306,10 +303,6 @@ void WGActionManager::slotShiftHueCCW()
 
 void WGActionManager::slotChannelValuesChanged()
 {
-    // FIXME: KoColorDisplayRendererInterface's displayConfigurationChanged()
-    // signal (e.g. layer switches) makes the color model Q_EMIT new channel values
-    // and this would overwrite the color resources with outdated data!
-    // so make sure a popup is actually active
     if (!m_isSynchronizing && m_currentPopup) {
         m_colorChangeCompressor->start();
         QColor color = m_displayConfig->displayConverter()->toQColor(m_colorModel->currentColor());
@@ -337,11 +330,8 @@ void WGActionManager::slotColorPatchInteraction(bool active)
     }
 }
 
-/* Directly set canvas resource for color history,
- */
 void WGActionManager::slotColorSelected(const KoColor &color)
 {
-    // CAVEAT: currently, the color history does not allow background color setting
     if (!m_docker->observedCanvas()) {
         return;
     }

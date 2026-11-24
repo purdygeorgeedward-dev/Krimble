@@ -13,5 +13,4 @@ void KisNodeCommandsTest::testCreation()
 {
 }
 
-
 SIMPLE_TEST_MAIN(KisNodeCommandsTest)

@@ -13,24 +13,13 @@
 
 class KoShape;
 
-/**
- * Command that changes the keepAspectRatio property of KoShape
- */
 class KRITAFLAKE_EXPORT KoShapeKeepAspectRatioCommand : public KUndo2Command
 {
 public:
-    /**
-     * Constructor
-     * @param shapes the shapes affected by the command
-     * @param newKeepAspectRatio the new setting
-     * @param parent the parent command
-     */
     KoShapeKeepAspectRatioCommand(const QList<KoShape*> &shapes, bool newKeepAspectRatio, KUndo2Command* parent = 0);
     ~KoShapeKeepAspectRatioCommand() override;
 
-    /// Execute the command
     void redo() override;
-    /// Unexecute the command
     void undo() override;
 
 private:

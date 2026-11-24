@@ -22,7 +22,6 @@
 #define GL_RGBA16_EXT 0x805B
 #endif
 
-
 void KisTextureTile::setTextureParameters()
 {
 
@@ -39,8 +38,6 @@ void KisTextureTile::setTextureParameters()
 #endif
         || (m_texturesInfo->internalFormat == GL_RGBA16_EXT && m_texturesInfo->format == GL_RGBA)
     ) {
-        // If image format is RGBA8, swap the red and blue channels for the proper color
-        // This is for OpenGL ES support and only used if lacking GL_EXT_texture_format_BGRA8888
         f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
         f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
     }
@@ -50,13 +47,11 @@ void KisTextureTile::setTextureParameters()
 
 void KisTextureTile::restoreTextureParameters()
 {
-    // QPainter::drawText relies on this.
-    // Ref: https://bugreports.qt.io/browse/QTBUG-65496
     f->glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
-inline QRectF relativeRect(const QRect &br /* baseRect */,
-                           const QRect &cr /* childRect */,
+inline QRectF relativeRect(const QRect &br ,
+                           const QRect &cr ,
                            const KisGLTexturesInfo *texturesInfo)
 {
     const qreal x = qreal(cr.x() - br.x()) / texturesInfo->width;
@@ -161,34 +156,6 @@ void KisTextureTile::update(const KisTextureTileUpdateInfo &updateInfo, bool blo
     const QSize patchSize = updateInfo.realPatchSize();
     const QPoint patchOffset = updateInfo.realPatchOffset();
 
-    /**
-     * In some special case, when the Lod0 stroke is cancelled the
-     * following situation is possible:
-     *
-     * 1)  The stroke  is  cancelled,  Lod0 update  is  issued by  the
-     *     image. LodN level of the openGL times is still dirty.
-     *
-     * 2) [here, ideally, the canvas should be re-rendered, so that
-     *     the mipmap would be regenerated in bindToActiveTexture()
-     *     call, by in some cases (if you cancel and paint to quickly),
-     *     that doesn't have time to happen]
-     *
-     * 3) The new LodN stroke issues a *partial* update of a LodN
-     *    plane of the tile. But the plane is still *dirty*! We update
-     *    a part of it, but we cannot regenerate the mipmap anymore,
-     *    because the Lod0 level is not known yet!
-     *
-     * To avoid this issue, we should regenerate the dirty mipmap
-     * *before* doing anything with the low-resolution plane.
-     *
-     * Another case is when the user has Bilinear or
-     * Nearest Neighbour filtering selected and tries to use LoD
-     * functionality in animation. glTexSubImage2D() and textureLod()
-     * are defined only when all the planes were explicitly initialized
-     * with glTexImage2D(), which doesn't happen in case of bilinear- or
-     * nn-filtering. In this case !m_mipmapHasBeenAllocated condition
-     * comes in.
-     */
     if (!blockMipmapRegeneration &&
         patchLevelOfDetail > 0 &&
         (m_needsMipmapRegeneration &&
@@ -198,18 +165,6 @@ void KisTextureTile::update(const KisTextureTileUpdateInfo &updateInfo, bool blo
         regenerateMipmap();
     }
 
-    /*
-     * To avoid unsightly seams in wraparound mode, we extend the tile at the
-     * edges by just repeating the top/left/right/bottom row/column until the
-     * end of the texture. For that, we shuffle the data into a buffer, then
-     * pass that to the PBO. Previously, this code used to allocate up to four
-     * additional, single-pixel thick (and sometimes zero-pixel long) PBOs and
-     * hammer out the extensions through multiple calls to glTexSubImage2D, but
-     * that caused very long stalls on Android. If you are in the future and
-     * for some reason need to revert that, also update KisOpenGLImageTextures
-     * to properly account for these extra PBOs being used, since it assumes
-     * each tile only grabs one PBO from the circular buffer storage.
-     */
     QSize tileSize = updateInfo.realTileSize();
     int pixelSize = updateInfo.pixelSize();
     int centerWidth = patchSize.width();
@@ -351,26 +306,12 @@ void KisTextureTile::update(const KisTextureTileUpdateInfo &updateInfo, bool blo
                         fd);
     }
 
-    //// Uncomment this warning if you see any weird flickering when
-    //// Instant Preview updates
-    // if (!updateInfo.isEntireTileUpdated() &&
-    //     !(!patchLevelOfDetail || !m_preparedLodPlane || patchLevelOfDetail == m_preparedLodPlane)) {
-    //     qDebug() << "WARNING: LodN switch is requested for the partial tile update!. Flickering is possible..." << ppVar(patchSize);
-    //     qDebug() << "    " << ppVar(m_preparedLodPlane);
-    //     qDebug() << "    " << ppVar(patchLevelOfDetail);
-    // }
-
     restoreTextureParameters();
 
     if (!patchLevelOfDetail) {
         if (m_mipmapHasBeenAllocated &&
                 (m_filter == KisOpenGL::BilinearFilterMode ||
                  m_filter == KisOpenGL::NearestFilterMode)) {
-            /**
-             * When in a mode that doesn't use mipmaps we should
-             * just switch back onto lod0 plane instead of requesting
-             * full mipmap regeneration.
-             */
 
             setPreparedLodPlane(0);
         } else {

@@ -15,7 +15,6 @@
 
 #include <kundo2command.h>
 
-
 class KRITAIMAGE_EXPORT KisChangeProjectionColorCommand : public KUndo2Command, public KisAsynchronouslyMergeableCommandInterface
 {
 public:
@@ -35,4 +34,4 @@ private:
     KoColor m_newColor;
 };
 
-#endif /* __KIS_CHANGE_PROJECTION_COLOR_COMMAND_H */
+#endif

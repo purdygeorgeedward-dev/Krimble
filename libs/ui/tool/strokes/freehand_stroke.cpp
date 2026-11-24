@@ -116,11 +116,7 @@ void FreehandStrokeStrategy::init(Flags flags)
     enableJob(KisSimpleStrokeStrategy::JOB_DOSTROKE);
 
     if (m_d->needsAsynchronousUpdates) {
-        /**
-         * In case the paintop uses asynchronous updates, we should set priority to it,
-         * because FPS is controlled separately, not by the queue's merging algorithm.
-         */
-        setBalancingRatioOverride(0.01); // set priority to updates
+        setBalancingRatioOverride(0.01);
     }
 
     KisUpdateTimeMonitor::instance()->startStrokeMeasure();
@@ -139,13 +135,11 @@ void FreehandStrokeStrategy::finishStrokeCallback()
     KisPainterBasedStrokeStrategy::finishStrokeCallback();
 }
 
-
 void FreehandStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
 {
     if (KisAsynchronousStrokeUpdateHelper::UpdateData *d =
             dynamic_cast<KisAsynchronousStrokeUpdateHelper::UpdateData*>(data)) {
 
-        // this job is lod-clonable in contrast to FreehandStrokeRunnableJobDataWithUpdate!
         tryDoUpdate(d->forceUpdate);
 
     } else if (Data *d = dynamic_cast<Data*>(data)) {
@@ -198,11 +192,9 @@ void FreehandStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
             break;
         case Data::ELLIPSE:
             maskedPainter->paintEllipse(d->rect);
-            // TODO: add speed measures
             break;
         case Data::PAINTER_PATH:
             maskedPainter->paintPainterPath(d->path);
-            // TODO: add speed measures
             break;
         case Data::QPAINTER_PATH:
             maskedPainter->drawPainterPath(d->path, d->pen);
@@ -227,7 +219,6 @@ void FreehandStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
 
 void FreehandStrokeStrategy::tryDoUpdate(bool forceEnd)
 {
-    // we should enter this function only once!
     std::unique_lock<std::mutex> entryLock(m_d->updateEntryMutex, std::try_to_lock);
     if (!entryLock.owns_lock()) return;
 
@@ -238,7 +229,6 @@ void FreehandStrokeStrategy::tryDoUpdate(bool forceEnd)
             for (int i = 0; i < numMaskedPainters(); i++) {
                 KisMaskedFreehandStrokePainter *maskedPainter = this->maskedPainter(i);
 
-                // TODO: well, we should count all N simultaneous painters for FPS rate!
                 QVector<KisRunnableStrokeJobData*> jobs;
 
                 bool needsMoreUpdates = false;
@@ -264,7 +254,6 @@ void FreehandStrokeStrategy::tryDoUpdate(bool forceEnd)
                         );
                     }
 
-
                     runnableJobsInterface()->addRunnableJobs(jobs);
                     m_d->efficiencyMeasurer.notifyFrameRenderingStarted();
                 }
@@ -274,7 +263,6 @@ void FreehandStrokeStrategy::tryDoUpdate(bool forceEnd)
     } else {
         issueSetDirtySignals();
     }
-
 
 }
 
@@ -289,11 +277,6 @@ void FreehandStrokeStrategy::issueSetDirtySignals()
 
     if (needsMaskingUpdates()) {
 
-        // optimize the rects so that they would never intersect with each other!
-        // that is a mandatory step for the multithreaded execution of merging jobs
-
-        // sanity check: updates from the brush should have already been normalized
-        //               to the wrapping rect
         const KisDefaultBoundsBaseSP defaultBounds = targetNode()->projection()->defaultBounds();
         if (defaultBounds->wrapAroundMode()) {
             const QRect wrapRect = defaultBounds->imageBorderRect();
@@ -325,7 +308,6 @@ void FreehandStrokeStrategy::issueSetDirtySignals()
         targetNode()->setDirty(dirtyRects);
     }
 
-    //KisUpdateTimeMonitor::instance()->reportJobFinished(data, dirtyRects);
 }
 
 KisStrokeStrategy* FreehandStrokeStrategy::createLodClone(int levelOfDetail)

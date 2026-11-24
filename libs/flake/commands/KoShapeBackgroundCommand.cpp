@@ -13,7 +13,6 @@
 
 #include "kis_command_ids.h"
 
-
 class Q_DECL_HIDDEN KoShapeBackgroundCommand::Private
 {
 public:
@@ -34,7 +33,7 @@ public:
         newFills.append(newFill);
     }
 
-    QList<KoShape*> shapes;    ///< the shapes to set background for
+    QList<KoShape*> shapes;
     QList<QSharedPointer<KoShapeBackground> > oldFills;
     QList<QSharedPointer<KoShapeBackground> > newFills;
 };

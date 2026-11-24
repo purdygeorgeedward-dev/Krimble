@@ -74,7 +74,6 @@ bool KisGridPaintOpSettings::mousePressEvent(const KisPaintInformation& info, Qt
     qreal newHorizontalOffset = std::fmod(info.pos().x() + option.grid_width/2.0, (float)option.grid_width);
     qreal newVerticalOffset = std::fmod(info.pos().y() + option.grid_height/2.0, (float)option.grid_height);
 
-    // If pressing ctrl+alt change the offset according to mouse position
     if (modifiers == (Qt::ControlModifier | Qt::AltModifier) || m_modifyOffsetWithShortcut) {
         m_modifyOffsetWithShortcut = true;
         newHorizontalOffset = (newHorizontalOffset / (float)option.grid_width);
@@ -141,11 +140,9 @@ KisOptimizedBrushOutline KisGridPaintOpSettings::brushOutline(const KisPaintInfo
 
         divide = qRound(option.grid_scale * divide);
 
-        //Adjust the start position of the drawn grid to the top left of the brush instead of in the center
         qreal posX = info.pos().x() - (gridWidth/2) + (cellWidth/2) - horizontalOffset;
         qreal posY = info.pos().y() - (gridHeight/2) + (cellHeight/2) - verticalOffset;
 
-        //Lock the grid alignment
         posX = posX - std::fmod(posX, cellWidth) + horizontalOffset;
         posY = posY - std::fmod(posY, cellHeight) + verticalOffset;
         const QRectF dabRect(posX , posY , cellWidth, cellHeight);
@@ -194,7 +191,6 @@ KisOptimizedBrushOutline KisGridPaintOpSettings::brushOutline(const KisPaintInfo
     }
     return path;
 }
-
 
 #include <brushengine/kis_slider_based_paintop_property.h>
 #include "kis_paintop_preset.h"

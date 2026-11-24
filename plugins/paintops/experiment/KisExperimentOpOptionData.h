@@ -7,7 +7,6 @@
 #ifndef KIS_EXPERIMENTOP_OPTION_DATA_H
 #define KIS_EXPERIMENTOP_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 #include <kritapaintop_export.h>
@@ -33,16 +32,15 @@ struct KisExperimentOpOptionData : boost::equality_comparable<KisExperimentOpOpt
 			&& lhs.fillType == rhs.fillType;
     }
 
-
 	bool isDisplacementEnabled {false};
     qreal displacement {50.0};
-    
+
     bool isSpeedEnabled {false};
     qreal speed {50.0};
-    
+
     bool isSmoothingEnabled {true};
     qreal smoothing {20.0};
-    
+
     bool windingFill {true};
     bool hardEdge {false};
     ExperimentFillType fillType;
@@ -51,4 +49,4 @@ struct KisExperimentOpOptionData : boost::equality_comparable<KisExperimentOpOpt
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_EXPERIMENTOP_OPTION_DATA_H
+#endif

@@ -16,4 +16,4 @@ private Q_SLOTS:
    void testCacheRendering();
 };
 
-#endif // KISANIMATIONRENDERINGBENCHMARK_H
+#endif

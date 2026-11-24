@@ -14,7 +14,6 @@
 class QPainter;
 class QRectF;
 
-
 class KRITAFLAKE_EXPORT KoClipMaskPainter
 {
 public:
@@ -32,4 +31,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KOCLIPMASKPAINTER_H
+#endif

@@ -16,7 +16,6 @@
 #include "kis_display_color_converter.h"
 #include "kis_acs_pixel_cache_renderer.h"
 
-
 KisColorSelectorTriangle::KisColorSelectorTriangle(KisColorSelector* parent) :
     KisColorSelectorComponent(parent),
     m_lastClickPos(-1,-1)
@@ -38,11 +37,9 @@ void KisColorSelectorTriangle::paint(QPainter* painter)
         updatePixelCache(painter->device()->devicePixelRatioF());
     }
 
-
     painter->drawImage(width()/2-triangleWidth()/2,
                       height()/2-triangleHeight()*(2/3.),
                       m_renderedPixelCache);
-
 
     if(m_lastClickPos.x()>-0.1 && m_parent->displayBlip()) {
         painter->setPen(QColor(0,0,0));
@@ -71,13 +68,8 @@ void KisColorSelectorTriangle::updatePixelCache(qreal devicePixelRatioF)
                                     pixelCacheOffset,
                                     devicePixelRatioF);
 
-    m_cacheDevicePixelRatioF = devicePixelRatioF; // save device pixel ratio of the cache
+    m_cacheDevicePixelRatioF = devicePixelRatioF;
 
-//    if (!pixelCacheOffset.isNull()) {
-//        warnKrita << "WARNING: offset of the triangle selector is not null!";
-//    }
-
-    // antialiased border
     QPainter gc(&m_renderedPixelCache);
     gc.setRenderHint(QPainter::Antialiasing);
     gc.setPen(QPen(QColor(0,0,0,128), 2.5));
@@ -123,7 +115,6 @@ void KisColorSelectorTriangle::setColor(const KoColor &color)
     m_lastClickPos.setX(tmp.x()/qreal(width()));
     m_lastClickPos.setY(tmp.y()/qreal(height()));
 
-    // Workaround for Bug 287001
     setLastMousePosition(tmp.x(), tmp.y());
 
     Q_EMIT paramChanged(-1, s, v, -1, -1, -1, -1, -1, -1);

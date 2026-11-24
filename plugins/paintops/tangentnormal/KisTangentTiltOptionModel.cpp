@@ -10,7 +10,7 @@
 using namespace KisWidgetConnectionUtils;
 
 KisTangentTiltOptionModel::KisTangentTiltOptionModel(lager::cursor<KisTangentTiltOptionData> _optionData)
-    : optionData(_optionData)    
+    : optionData(_optionData)
     , LAGER_QT(redChannel) {_optionData[&KisTangentTiltOptionData::redChannel]}
     , LAGER_QT(greenChannel) {_optionData[&KisTangentTiltOptionData::greenChannel]}
     , LAGER_QT(blueChannel) {_optionData[&KisTangentTiltOptionData::blueChannel]}

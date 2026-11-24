@@ -18,14 +18,11 @@
 #include "kis_image_config.h"
 #include <boost/optional.hpp>
 
-//#define DEBUG_TRANSACTIONS
-
 #ifdef DEBUG_TRANSACTIONS
 #    define DEBUG_ACTION(action) dbgKrita << action << "for" << m_d->device->dataManager()
 #else
 #    define DEBUG_ACTION(action)
 #endif
-
 
 struct OptionalInterstrokeInfo
 {
@@ -132,7 +129,6 @@ void KisTransactionData::Private::moveDevice(const QPoint newOffset)
 void KisTransactionData::endTransaction()
 {
     if(!m_d->transactionFinished) {
-        // make sure the time didn't change during the transaction
         KIS_ASSERT_RECOVER_RETURN(
             m_d->transactionTime == m_d->device->defaultBounds()->currentTime());
 
@@ -248,17 +244,13 @@ void KisTransactionData::Private::possiblySwitchCurrentTime()
 
 void KisTransactionData::redo()
 {
-    //KUndo2QStack calls redo(), so the first call needs to be blocked
     if (m_d->firstRedo) {
         m_d->firstRedo = false;
-
 
         possiblyResetOutlineCache();
         possiblyNotifySelectionChanged();
         return;
     }
-
-
 
     doFlattenUndoRedo(false);
     restoreSelectionOutlineCache(false);

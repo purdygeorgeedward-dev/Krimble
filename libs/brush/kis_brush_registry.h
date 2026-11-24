@@ -41,4 +41,4 @@ private:
     KisBrushRegistry operator=(const KisBrushRegistry&);
 };
 
-#endif // KIS_GENERATOR_REGISTRY_H_
+#endif

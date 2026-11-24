@@ -28,4 +28,4 @@ private:
     lager::reader<QString> m_yValueSuffix;
 };
 
-#endif // MYPAINTCURVEOPTIONRANGECONTROLSSTRATEGY_H
+#endif

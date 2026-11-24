@@ -7,7 +7,6 @@
 
 #include <KoColorProfile.h>
 #include <kis_config.h>
-//#include <opengl/KisOpenGLModeProber.h>
 
 namespace {
 KoColorConversionTransformation::Intent
@@ -15,7 +14,6 @@ renderingIntentFromConfig(const KisConfig &cfg)
 {
     return (KoColorConversionTransformation::Intent)cfg.monitorRenderIntent();
 }
-
 
 KoColorConversionTransformation::ConversionFlags
 conversionFlagsFromConfig(const KisConfig &cfg)
@@ -60,7 +58,7 @@ bool KisDisplayConfig::operator==(const KisDisplayConfig &rhs) const
 {
     return profile == rhs.profile &&
             intent == rhs.intent &&
-            conversionFlags == rhs.conversionFlags && 
+            conversionFlags == rhs.conversionFlags &&
             isHDR == rhs.isHDR;
 }
 
@@ -81,7 +79,6 @@ QDebug operator<<(QDebug debug, const KisDisplayConfig &value) {
     debug.nospace() << ")";
     return debug;
 }
-
 
 bool KisMultiSurfaceDisplayConfig::operator==(const KisMultiSurfaceDisplayConfig &rhs) const
 {

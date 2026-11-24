@@ -9,7 +9,6 @@
 #include "kis_image.h"
 #include "kis_node_dummies_graph.h"
 
-
 struct KisDummiesFacade::Private
 {
 public:
@@ -43,7 +42,6 @@ void KisDummiesFacade::removeNodeImpl(KisNodeSP node)
     m_d->dummiesGraph.removeNode(nodeDummy);
 
     delete nodeDummy;
-    // this dummy had no nodeShape pointer, so no cleaning here
 }
 
 bool KisDummiesFacade::hasDummyForNode(KisNodeSP node) const

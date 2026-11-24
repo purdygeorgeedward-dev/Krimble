@@ -12,7 +12,6 @@
 #include <QSpacerItem>
 #include <klocalizedstring.h>
 
-
 #include "kis_canvas2.h"
 #include <KisViewManager.h>
 #include "histogramdockerwidget.h"
@@ -35,10 +34,9 @@ HistogramDockerDock::HistogramDockerDock()
     m_histogramWidget = new HistogramDockerWidget(this);
 
     m_histogramWidget->setBackgroundRole(QPalette::AlternateBase);
-    m_histogramWidget->setAutoFillBackground(true); // paints background role before paint()
+    m_histogramWidget->setAutoFillBackground(true);
 
     m_histogramWidget->setMinimumHeight(50);
-    //m_histogramWidget->setSmoothHistogram(false);
     m_layout->addWidget(m_histogramWidget, 1);
 
     connect(toggleLogarithm, SIGNAL(toggled(bool)), m_histogramWidget, SLOT(enableLogarithmic(bool)));
@@ -46,7 +44,6 @@ HistogramDockerDock::HistogramDockerDock()
     setWidget(page);
     setEnabled(false);
 }
-
 
 void HistogramDockerDock::setCanvas(KoCanvasBase * canvas)
 {

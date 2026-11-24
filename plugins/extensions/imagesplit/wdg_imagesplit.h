@@ -22,5 +22,4 @@ public:
 
 };
 
-
-#endif // WDG_IMAGESPLIT_H
+#endif

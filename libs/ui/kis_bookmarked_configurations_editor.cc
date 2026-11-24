@@ -19,7 +19,6 @@ struct KisBookmarkedConfigurationsEditor::Private {
     KisSerializableConfigurationSP currentConfig;
 };
 
-
 KisBookmarkedConfigurationsEditor::KisBookmarkedConfigurationsEditor(QWidget* parent, KisBookmarkedConfigurationsModel* model, const KisSerializableConfigurationSP currentConfig) : QDialog(parent), d(new Private)
 {
     d->editorUi.setupUi(this);

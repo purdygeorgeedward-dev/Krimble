@@ -26,4 +26,4 @@ private Q_SLOTS:
     void testScaleNullShapeGlobal();
 };
 
-#endif /* __KIS_SHAPE_COMMANDS_TEST_H */
+#endif

@@ -28,7 +28,6 @@ KoShape *KarbonCalligraphicShapeFactory::createDefaultShape(KoDocumentResourceMa
 {
     KarbonCalligraphicShape *path = new KarbonCalligraphicShape();
 
-    // FIXME: add points
     path->setShapeId(KarbonCalligraphicShapeId);
 
     return path;

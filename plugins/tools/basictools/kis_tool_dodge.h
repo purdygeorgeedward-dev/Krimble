@@ -54,4 +54,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_DODGE_H_
+#endif

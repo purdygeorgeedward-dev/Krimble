@@ -99,9 +99,6 @@ static const char* const buttonsolid[]={
     "#..............#",
     "################"};
 
-
-// FIXME: Smoother gradient button.
-
 static const char* const buttongradient[]={
     "16 16 15 1",
     "# c #000000",
@@ -160,7 +157,6 @@ static const char* const buttonpattern[]={
     "################"};
 
 using namespace std::placeholders;
-
 
 class Q_DECL_HIDDEN KoFillConfigWidget::Private
 {
@@ -228,8 +224,6 @@ KoFillConfigWidget::KoFillConfigWidget(KoCanvasBase *canvas, KoFlake::FillVarian
          this, SIGNAL(sigInternalRecoverColorInResourceManager()),
          this, SLOT(slotRecoverColorInResourceManager()));
 
-    // configure GUI
-
     d->ui.reset(new Ui_KoFillConfigWidget());
     d->ui->setupUi(this);
 
@@ -250,7 +244,6 @@ KoFillConfigWidget::KoFillConfigWidget(KoCanvasBase *canvas, KoFlake::FillVarian
     d->ui->btnPatternFill->setVisible(false);
 
     if (fillVariant == KoFlake::Fill) {
-        // FIXME: different button
         d->ui->btnMeshFill->setIcon(QPixmap((const char**) buttonpattern));
         d->group->addButton(d->ui->btnMeshFill, MeshGradient);
     } else {
@@ -265,7 +258,6 @@ KoFillConfigWidget::KoFillConfigWidget(KoCanvasBase *canvas, KoFlake::FillVarian
     d->ui->btnChooseSolidColor->setPopupMode(QToolButton::InstantPopup);
     d->ui->btnSolidColorSample->setIcon(KisIconUtils::loadIcon("krita_tool_color_sampler"));
 
-    // TODO: for now the color sampling button is disabled!
     d->ui->btnSolidColorSample->setEnabled(false);
     d->ui->btnSolidColorSample->setVisible(false);
 
@@ -282,8 +274,6 @@ KoFillConfigWidget::KoFillConfigWidget(KoCanvasBase *canvas, KoFlake::FillVarian
     slotUpdateFillTitle();
     styleButtonPressed(d->group->checkedId());
 
-
-    // Gradient selector
     d->ui->wdgGradientEditor->setCompactMode(true);
     d->ui->wdgGradientEditor->setCanvasResourcesInterface(canvas->resourceManager()->canvasResourcesInterface());
     connect(d->ui->wdgGradientEditor, SIGNAL(sigGradientChanged()), &d->gradientChangedCompressor, SLOT(start()));
@@ -305,7 +295,6 @@ KoFillConfigWidget::KoFillConfigWidget(KoCanvasBase *canvas, KoFlake::FillVarian
     connect(d->ui->cmbGradientRepeat, SIGNAL(currentIndexChanged(int)), SLOT(slotGradientRepeatChanged()));
     connect(d->ui->cmbGradientType, SIGNAL(currentIndexChanged(int)), SLOT(slotGradientTypeChanged()));
 
-    // meshgradient
     connect(d->ui->meshStopColorButton, SIGNAL(changed(const KoColor&)), this, SLOT(slotMeshHandleColorChanged(const KoColor&)));
 
     d->ui->spinbRows->setRange(1, 20);
@@ -314,18 +303,7 @@ KoFillConfigWidget::KoFillConfigWidget(KoCanvasBase *canvas, KoFlake::FillVarian
     connect(d->ui->spinbColumns, SIGNAL(valueChanged(int)), SLOT(slotMeshGradientChanged()));
     connect(d->ui->cmbSmoothingType, SIGNAL(currentIndexChanged(int)), SLOT(slotMeshGradientShadingChanged(int)));
 
-    // initialize deactivation locks
     d->deactivationLocks.push_back(KisAcyclicSignalConnector::Blocker(d->resourceManagerAcyclicConnector));
-
-
-/*
-    // Pattern selector
-    d->patternAction = new KoResourcePopupAction(ResourceType::Patterns, d->colorButton);
-    d->patternAction->setToolTip(i18n("Change the filling pattern"));
-    connect(d->patternAction, SIGNAL(resourceSelected(QSharedPointer<KoShapeBackground>)), this, SLOT(patternChanged(QSharedPointer<KoShapeBackground>)));
-    connect(d->colorButton, SIGNAL(iconSizeChanged()), d->patternAction, SLOT(updateIcon()));
-*/
-
 
 }
 
@@ -447,9 +425,6 @@ void KoFillConfigWidget::styleButtonPressed(int buttonId)
             }
             break;
         case KoFillConfigWidget::Pattern:
-            // Only select mode in the widget, don't set actual pattern :/
-            //d->colorButton->setDefaultAction(d->patternAction);
-            //patternChanged(d->patternAction->currentBackground());
             break;
         case KoFillConfigWidget::MeshGradient:
             if (d->activeMeshGradient) {
@@ -461,8 +436,6 @@ void KoFillConfigWidget::styleButtonPressed(int buttonId)
             break;
     }
 
-
-    // update tool option fields with first selected object
     if (shapes.isEmpty() == false) {
         KoShape *firstShape = shapes.first();
         updateUiFromFillType(firstShape);
@@ -539,14 +512,12 @@ void KoFillConfigWidget::colorChanged(std::pair<QColor, KoFlake::FillVariant> re
         d->canvas->addCommand(command);
     }
 
-    // only returns true if it is a stroke object that has a 0 for line width
     if (wrapper.hasZeroLineWidth() ) {
          KUndo2Command *lineCommand = wrapper.setLineWidth(1.0);
          if (lineCommand) {
              d->canvas->addCommand(lineCommand);
          }
 
-         // * line to test out
          QColor solidColor = d->colorAction->currentColor();
          solidColor.setAlpha(255);
          command = wrapper.setColor(solidColor);
@@ -571,12 +542,6 @@ void KoFillConfigWidget::slotProposeCurrentColorToResourceManager()
                 d->canvas->resourceManager()->resource(res).value<KoColor>();
         }
 
-        /**
-         * Don't let opacity leak to our resource manager system
-         *
-         * NOTE: theoretically, we could guarantee it on a level of the
-         * resource manager itself,
-         */
         color.setOpacity(OPACITY_OPAQUE_U8);
         d->canvas->resourceManager()->setResource(res, QVariant::fromValue(color));
     };
@@ -806,13 +771,9 @@ void KoFillConfigWidget::slotMeshHandleColorChanged(const KoColor &c)
     KoShapeFillWrapper wrapper(selectedShapes, d->fillVariant);
     const SvgMeshGradient *gradient = wrapper.meshgradient();
 
-    // if we changed the handle, the gradient *has* to exist
     KIS_SAFE_ASSERT_RECOVER_RETURN(gradient);
 
     if (d->meshposition.isValid()) {
-        // We don't have any signals firing when we change the structure (i.e position of stops etc) of a
-        // meshgradient. So, activeMeshGradient isn't updated when this happens. Hence we update it here and
-        // then modify the color.
         d->activeMeshGradient.reset(new SvgMeshGradient(*gradient));
 
         d->activeMeshGradient->getMeshArray()->modifyColor(d->meshposition, c.toQColor());
@@ -864,7 +825,6 @@ void KoFillConfigWidget::createNewDefaultMeshGradientBackground()
         return;
     }
 
-    // use this for mesh creation
     QSizeF maxSize;
     for (const auto& shape: selectedShapes) {
         QSizeF size = shape->boundingRect().size();
@@ -897,7 +857,6 @@ void KoFillConfigWidget::createNewDefaultMeshGradientBackground()
 void KoFillConfigWidget::setNewMeshGradientBackgroundToShape()
 {
     QList<KoShape*> selectedShapes = currentShapes();
-    // if called by "manager"
     if (selectedShapes.isEmpty()) {
         Q_EMIT sigFillChanged();
         return;
@@ -947,8 +906,6 @@ void KoFillConfigWidget::shapeChanged()
 
     bool shouldUploadColorToResourceManager = false;
 
-    // Disable the buttons if there aren't any selected shapes or we have a several shapes with different
-    // gradient backgrounds.
     if (shapes.isEmpty() ||
         (shapes.size() > 1 && KoShapeFillWrapper(shapes, d->fillVariant).isMixedFill())) {
 
@@ -956,19 +913,16 @@ void KoFillConfigWidget::shapeChanged()
             button->setEnabled(!shapes.isEmpty());
         }
     } else {
-        // only one vector object selected
         Q_FOREACH (QAbstractButton *button, d->group->buttons()) {
             button->setEnabled(true);
         }
 
-        // update active index of shape
         KoShape *shape = shapes.first();
-        updateUiFromFillType(shape); // updates tool options fields
+        updateUiFromFillType(shape);
 
         shouldUploadColorToResourceManager = true;
     }
 
-    // updates the UI
     d->group->button(d->selectedFillIndex)->setChecked(true);
 
     updateWidgetComponentVisibility();
@@ -1013,13 +967,9 @@ void KoFillConfigWidget::updateUiFromFillType(KoShape *shape)
     }
 }
 
-
 void KoFillConfigWidget::updateWidgetComponentVisibility()
 {
-    // The UI is showing/hiding things like this because the 'stacked widget' isn't very flexible
-    // and makes it difficult to put anything underneath it without a lot empty space
 
-    // hide everything first
     d->ui->wdgGradientEditor->setVisible(false);
     d->ui->btnChoosePredefinedGradient->setVisible(false);
     d->ui->btnChooseSolidColor->setVisible(false);
@@ -1041,11 +991,9 @@ void KoFillConfigWidget::updateWidgetComponentVisibility()
     d->ui->smoothingTypeLabel->setVisible(false);
     d->ui->cmbSmoothingType->setVisible(false);
 
-    // keep options hidden if no vector shapes are selected
     if(currentShapes().isEmpty()) {
         return;
     }
-
 
     switch (d->selectedFillIndex) {
         case KoFillConfigWidget::None:

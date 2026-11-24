@@ -43,10 +43,6 @@
 #include <QReadWriteLock>
 #include "KisTransformMaskTestingInterface.h"
 
-//#include "kis_paint_device_debug_utils.h"
-//#define DEBUG_RENDERING
-//#define DUMP_RECT QRect(0,0,512,512)
-
 namespace {
 
 class StaticCacheStorage
@@ -151,7 +147,7 @@ private:
 
 }
 
-#define UPDATE_DELAY 3000 /*ms */
+#define UPDATE_DELAY 3000
 
 struct Q_DECL_HIDDEN KisTransformMask::Private
 {
@@ -191,7 +187,6 @@ struct Q_DECL_HIDDEN KisTransformMask::Private
     QScopedPointer<KisTransformMaskTestingInterface> testingInterface;
 };
 
-
 KisTransformMask::KisTransformMask(KisImageWSP image, const QString &name)
     : KisEffectMask(image, name),
       m_d(new Private(image))
@@ -212,11 +207,6 @@ KisTransformMask::KisTransformMask(const KisTransformMask& rhs)
 {
     connect(&m_d->updateSignalCompressor, SIGNAL(timeout()), SLOT(slotDelayedStaticUpdate()));
 
-
-    /**
-     * The channels has already been cloned inside the params object, just
-     * relink them to the node
-     */
     const QVector<QString> ids = {KisKeyframeChannel::PositionX.id(),
                                   KisKeyframeChannel::PositionY.id(),
                                   KisKeyframeChannel::ScaleX.id(),
@@ -285,10 +275,6 @@ void KisTransformMask::forceStartAsyncRegenerationJob()
 
 void KisTransformMask::startAsyncRegenerationJob()
 {
-    /**
-     * The mask might have been deleted from the layers stack in the
-     * meanwhile. Just ignore the updates in the case.
-     */
 
     KisLayerSP parentLayer = qobject_cast<KisLayer*>(parent().data());
     if (!parentLayer) return;
@@ -299,16 +285,10 @@ void KisTransformMask::startAsyncRegenerationJob()
         return;
     }
 
-    /**
-     * Don't try to start a regeneration stroke while image
-     * is locked. It may happen on loading, when all necessary
-     * conversions are not yet finished.
-     */
     if (image->locked()) {
         m_d->updateSignalCompressor.start();
         return;
     }
-
 
     const QRect extraUpdateRect = m_d->forcedStaticUpdateExtraUpdateRect.takeRect();
     image->addSpontaneousJob(new KisRecalculateTransformMaskJob(this, extraUpdateRect));
@@ -316,12 +296,6 @@ void KisTransformMask::startAsyncRegenerationJob()
 
 KisPaintDeviceSP KisTransformMask::buildPreviewDevice()
 {
-    /**
-     * Note: this function must be called from within the scheduler's
-     * context. We are accessing parent's updateProjection(), which
-     * is not entirely safe. The calling job must ensure it is the
-     * only job running.
-     */
 
     KisLayerSP parentLayer = qobject_cast<KisLayer*>(parent().data());
     KIS_ASSERT_RECOVER(parentLayer) { return new KisPaintDevice(colorSpace()); }
@@ -338,12 +312,6 @@ KisPaintDeviceSP KisTransformMask::buildPreviewDevice()
 
 KisPaintDeviceSP KisTransformMask::buildSourcePreviewDevice()
 {
-    /**
-     * Note: this function must be called from within the scheduler's
-     * context. We are accessing parent's updateProjection(), which
-     * is not entirely safe. The calling job must ensure it is the
-     * only job running.
-     */
 
     KisLayerSP parentLayer = qobject_cast<KisLayer*>(parent().data());
     KIS_ASSERT_RECOVER(parentLayer) { return new KisPaintDevice(colorSpace()); }
@@ -367,7 +335,6 @@ KisPaintDeviceSP KisTransformMask::buildSourcePreviewDevice()
 
 void KisTransformMask::overrideStaticCacheDevice(KisPaintDeviceSP device)
 {
-    // TODO: make sure the device is allocated
     m_d->staticCache.overrideStaticCacheDevice(device);
 }
 
@@ -382,33 +349,15 @@ void KisTransformMask::recalculateStaticImage()
         m_d->testingInterface->notifyRecalculateStaticImage();
     }
 
-    /**
-     * Note: this function must be called from within the scheduler's
-     * context. We are accessing parent's updateProjection(), which
-     * is not entirely safe.
-     */
-
     KisLayerSP parentLayer = qobject_cast<KisLayer*>(parent().data());
     KIS_SAFE_ASSERT_RECOVER_RETURN(parentLayer);
 
-    // It might happen that the mask became invisible in the meantime
-    // and the projection has become disabled. That mush be "impossible"
-    // situation, hence assert.
     KIS_SAFE_ASSERT_RECOVER_RETURN(parentLayer->projection() != parentLayer->paintDevice());
 
     m_d->staticCache.lazyAllocateStaticCache(parentLayer->original()->colorSpace(),
                                              parentLayer->original()->defaultBounds());
 
     m_d->recalculatingStaticImage = true;
-    /**
-     * updateProjection() is assuming that the requestedRect takes
-     * into account all the change rects of all the masks. Usually,
-     * this work is done by the walkers.
-     *
-     * NOTE: we should use layer's exact bounds, not its original
-     * paint device's exact bounds; it is necessary because the layer
-     * may have onion skins, which are a part of layer's bounds.
-     */
     QRect requestedRect =
         parentLayer->changeRect(parentLayer->exactBounds());
 
@@ -417,15 +366,8 @@ void KisTransformMask::recalculateStaticImage()
 
     requestedRect &= limitingRect;
 
-    // force reset parent layer's projection, because we might have changed
-    // our mask parameters and going to write to some other area
     parentLayer->projection()->clear();
 
-    /**
-     * Here we use updateProjection() to regenerate the projection of
-     * the layer and after that a special update call (no-filthy) will
-     * be issued to pass the changed further through the stack.
-     */
     parentLayer->updateProjection(requestedRect, this, KisRenderPassFlag::NoTransformMaskUpdates);
     m_d->recalculatingStaticImage = false;
 }
@@ -447,15 +389,8 @@ QRect KisTransformMask::decorateRect(KisPaintDeviceSP &src,
                             maskPos == N_ABOVE_FILTHY ||
                             maskPos == N_BELOW_FILTHY);
 
-    /**
-     * We shouldn't reset or use the static image when rendering the animation
-     * frames.
-     *
-     * TODO: implement proper high-quality rendering for animation frames
-     */
     if (m_d->paramsHolder->defaultBounds()->externalFrameActive()) {
 
-        // no preview for non-affine transforms currently...
         if (params->isAffine()) {
             m_d->worker.setForceSubPixelTranslation(m_d->paramsHolder->isAnimated());
             m_d->worker.setForwardTransform(params->finalAffineTransform());
@@ -465,7 +400,7 @@ QRect KisTransformMask::decorateRect(KisPaintDeviceSP &src,
             qDebug() << "Partial for external frame" << name() << ppVar(src->exactBounds()) << ppVar(src->extent()) << ppVar(dst->exactBounds()) << ppVar(dst->extent()) << ppVar(rc);
             KIS_DUMP_DEVICE_2(src, DUMP_RECT, "partial_ext_src", "dd");
             KIS_DUMP_DEVICE_2(dst, DUMP_RECT, "partial_ext_dst", "dd");
-#endif /* DEBUG_RENDERING */
+#endif
         }
 
         return rc;
@@ -476,9 +411,6 @@ QRect KisTransformMask::decorateRect(KisPaintDeviceSP &src,
         (maskPos == N_FILTHY || maskPos == N_ABOVE_FILTHY ||
          !m_d->staticCache.isCacheValid(params)) &&
 
-        /// clone layers may fetch data outside image bounds,
-        /// that should never cause async refresh, since it will
-        /// cause an infinite loop
         !flags.testFlag(KisRenderPassFlag::NoTransformMaskUpdates)) {
 
         if (m_d->testingInterface) {
@@ -506,9 +438,8 @@ QRect KisTransformMask::decorateRect(KisPaintDeviceSP &src,
         qDebug() << "Recalculate" << name() << ppVar(src->exactBounds()) << ppVar(dst->exactBounds()) << ppVar(rc);
         KIS_DUMP_DEVICE_2(src, DUMP_RECT, "recalc_src", "dd");
         KIS_DUMP_DEVICE_2(dst, DUMP_RECT, "recalc_dst", "dd");
-#endif /* DEBUG_RENDERING */
+#endif
 
-    // Note: overridden cache is **always** valid
     } else if (params->isAffine() && !m_d->staticCache.isCacheValid(params)) {
         m_d->worker.setForceSubPixelTranslation(m_d->paramsHolder->isAnimated());
         m_d->worker.setForwardTransform(params->finalAffineTransform());
@@ -518,7 +449,7 @@ QRect KisTransformMask::decorateRect(KisPaintDeviceSP &src,
         qDebug() << "Partial" << name() << ppVar(src->exactBounds()) << ppVar(src->extent()) << ppVar(dst->exactBounds()) << ppVar(dst->extent()) << ppVar(rc);
         KIS_DUMP_DEVICE_2(src, DUMP_RECT, "partial_src", "dd");
         KIS_DUMP_DEVICE_2(dst, DUMP_RECT, "partial_dst", "dd");
-#endif /* DEBUG_RENDERING */
+#endif
 
     } else if (m_d->staticCache.isCacheValid(params)) {
         KisPainter::copyAreaOptimized(rc.topLeft(), m_d->staticCache.device(), dst, rc);
@@ -527,7 +458,7 @@ QRect KisTransformMask::decorateRect(KisPaintDeviceSP &src,
         qDebug() << "Fetch" << name() << ppVar(src->exactBounds()) << ppVar(dst->exactBounds()) << ppVar(rc);
         KIS_DUMP_DEVICE_2(src, DUMP_RECT, "fetch_src", "dd");
         KIS_DUMP_DEVICE_2(dst, DUMP_RECT, "fetch_dst", "dd");
-#endif /* DEBUG_RENDERING */
+#endif
 
     }
 
@@ -565,10 +496,6 @@ QRect KisTransformMask::changeRect(const QRect &rect, PositionToFilthy pos) cons
 {
     Q_UNUSED(pos);
 
-    /**
-     * FIXME: This check of the emptiness should be done
-     * on the higher/lower level
-     */
     if (rect.isEmpty()) return rect;
 
     KisTransformMaskParamsInterfaceSP params = m_d->paramsHolder->bakeIntoParams();
@@ -606,10 +533,6 @@ QRect KisTransformMask::needRect(const QRect& rect, PositionToFilthy pos) const
 {
     Q_UNUSED(pos);
 
-    /**
-     * FIXME: This check of the emptiness should be done
-     * on the higher/lower level
-     */
     if (rect.isEmpty()) return rect;
 
     KisTransformMaskParamsInterfaceSP params = m_d->paramsHolder->bakeIntoParams();
@@ -637,11 +560,6 @@ QRect KisTransformMask::needRect(const QRect& rect, PositionToFilthy pos) const
         KisSafeTransform transform(params->finalAffineTransform(), limitingRect, interestRect);
         needRect = transform.mapRectBackward(rect);
 
-        /**
-         * When sampling affine transformations we use KisRandomSubAccessor,
-         * which uses bilinear interpolation for calculating pixels. Therefore,
-         * we need to extend the sides of the need rect by one pixel.
-         */
         needRect = kisGrowRect(needRect, 1);
 
     } else {
@@ -673,7 +591,6 @@ QRect KisTransformMask::exactBounds() const
     if (parentLayer) {
         existentProjection = parentLayer->projection()->exactBounds();
 
-        /* Take into account multiple keyframes... */
         if (parentLayer->original() && parentLayer->original()->defaultBounds() && parentLayer->original()->keyframeChannel()) {
             Q_FOREACH( const int& time, parentLayer->original()->keyframeChannel()->allKeyframeTimes() ) {
                 KisRasterKeyframeSP keyframe = parentLayer->original()->keyframeChannel()->keyframeAt<KisRasterKeyframe>(time);
@@ -691,9 +608,6 @@ QRect KisTransformMask::exactBounds() const
 
 QRect KisTransformMask::sourceDataBounds() const
 {
-    /// NOTE: we should avoid including parent layer's projection's
-    ///       extent into the source of changeRect calculation, because
-    ///       that is exactly what partialChangeRect() calculates.
 
     QRect partialChangeRect;
     KisLayerSP parentLayer = qobject_cast<KisLayer*>(parent().data());
@@ -748,10 +662,6 @@ void KisTransformMask::forceUpdateTimedNode()
         m_d->testingInterface->notifyForceUpdateTimedNode();
     }
 
-    /**
-     * When flattening the layer with animated transform mask we should
-     * actually rerender the static image
-     */
     if (hasPendingTimedUpdates() ||
         !m_d->staticCache.isCacheValid(m_d->paramsHolder->bakeIntoParams())) {
 

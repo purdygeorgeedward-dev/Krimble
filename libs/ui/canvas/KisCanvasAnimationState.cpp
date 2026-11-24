@@ -75,15 +75,6 @@ private:
 
 };
 
-
-//=====
-
-/** @brief PlaybackEnvironment (Private)
- * Constructs and deconstructs the necessary viewing conditions when animation playback begins and ends.
- * This includes disabling and enabling onion skins based on playback condition and other such tasks.
- * Also keeps track of original origin frame of initial play command, so play/pause can work while stop
- * will always return to the origin of playback (where the user first pressed play from the stopped state.)
- */
 class CanvasPlaybackEnvironment : public QObject {
     Q_OBJECT
 public:
@@ -117,12 +108,11 @@ public:
 
     void prepare()
     {
-        KIS_ASSERT(m_canvas); // Sanity check...
+        KIS_ASSERT(m_canvas);
 
         const KisTimeSpan range = m_canvas->image()->animationInterface()->activePlaybackRange();
         setPlaybackRange(range);
 
-        // Initialize and optimize playback environment...
         if (m_canvas->frameCache()) {
             KisImageConfig cfg(true);
 
@@ -142,7 +132,6 @@ public:
             m_canvas->frameCache()->dropLowQualityFrames(range, regionOfInterest, minimalRect);
             m_canvas->setRenderingLimit(regionOfInterest);
 
-            // Preemptively cache all frames...
             KisAsyncAnimationCacheRenderDialog dlg(m_canvas->frameCache(), range);
             dlg.setRegionOfInterest(regionOfInterest);
             dlg.regenerateRange(m_canvas->viewManager());
@@ -157,7 +146,6 @@ public:
             });
         }
 
-        // Setup appropriate interrupt connections...
         m_cancelStrokeConnections.addConnection(
                 m_canvas->image().data(), SIGNAL(sigUndoDuringStrokeRequested()),
                 &m_cancelTrigger, SLOT(tryFire()));
@@ -166,8 +154,6 @@ public:
                 m_canvas->image().data(), SIGNAL(sigStrokeCancellationRequested()),
                 &m_cancelTrigger, SLOT(tryFire()));
 
-        // We only want to stop on stroke end when running on a system
-        // without cache / opengl / graphics driver support!
         if (m_canvas->frameCache()) {
             m_cancelStrokeConnections.addConnection(
                     m_canvas->image().data(), SIGNAL(sigStrokeEndRequested()),
@@ -198,7 +184,7 @@ Q_SIGNALS:
     void sigPlaybackStatisticsUpdated();
 
 private:
-    int m_originFrame; //!< The frame user started playback from.
+    int m_originFrame;
     KisSignalAutoConnectionsStore m_cancelStrokeConnections;
     SingleShotSignal m_cancelTrigger;
     QVector<KisNodeWSP> m_disabledDecoratedNodes;
@@ -208,7 +194,6 @@ private:
     KisTimeSpan m_playbackRange;
 };
 
-// Needed for QObject definition outside of header file.
 #include "KisCanvasAnimationState.moc"
 
 struct KisCanvasAnimationState::Private
@@ -225,7 +210,7 @@ public:
     KisCanvas2 *canvas;
     PlaybackState state;
     QScopedPointer<KisFrameDisplayProxy> displayProxy;
-    QScopedPointer<QFileInfo> media; // TODO: Should we just get this from the document instead?
+    QScopedPointer<QFileInfo> media;
     QScopedPointer<CanvasPlaybackEnvironment> playbackEnvironment;
 
     QTimer m_statsTimer;
@@ -239,10 +224,8 @@ KisCanvasAnimationState::KisCanvasAnimationState(KisCanvas2 *canvas)
 {
     setPlaybackState(STOPPED);
 
-    // Handle image-internal frame change case...
     connect(m_d->displayProxy.data(), SIGNAL(sigFrameChange()), this, SIGNAL(sigFrameChanged()));
 
-    // Grow to new playback range when new frames added (configurable)...
     connect(m_d->canvas->image()->animationInterface(), &KisImageAnimationInterface::sigKeyframeAdded, this, [this](const KisKeyframeChannel*, int time){
         if (m_d->canvas && m_d->canvas->image()) {
             KisImageAnimationInterface* animInterface = m_d->canvas->image()->animationInterface();
@@ -327,12 +310,10 @@ void KisCanvasAnimationState::setupAudioTracks()
         if (doc->getAudioTracks().isEmpty()) {
             m_d->media.reset();
         } else {
-            //Only get first file for now and make that a producer...
             QFileInfo toLoad = files.first();
             KIS_SAFE_ASSERT_RECOVER_RETURN(toLoad.exists());
             m_d->media.reset(new QFileInfo(toLoad));
 
-            // Once media is attached we upgrade to the MLT-based playbackEngine...
             KisPart::instance()->upgradeToPlaybackEngineMLT(m_d->canvas);
         }
 
@@ -361,7 +342,7 @@ void KisCanvasAnimationState::setPlaybackState(PlaybackState p_state)
         m_d->state = p_state;
         if (m_d->state == PLAYING) {
             if (m_d->playbackEnvironment) {
-                m_d->playbackEnvironment->prepare(); // re-prepare
+                m_d->playbackEnvironment->prepare();
             } else {
                 m_d->playbackEnvironment.reset(new CanvasPlaybackEnvironment(m_d->displayProxy->activeFrame(), m_d->canvas, this));
 

@@ -14,95 +14,42 @@
 #include <QPushButton>
 
 class KisColorButtonPrivate;
-/**
-* @short A pushbutton to display or allow user selection of a color.
-*
-* This widget can be used to display or allow user selection of a color.
-*
-* @see QColorDialog
-*
-* \image html KisColorButton.png "KDE Color Button"
-*/
 class KRITAWIDGETS_EXPORT KisColorButton : public QPushButton
 {
     Q_OBJECT
 
-    /**
-     * QtCreator treats KoColor as a QColor in incorrect way, so just disable using them in QtCreator
-     * https://bugs.kde.org/show_bug.cgi?id=368483
-     */
     Q_PROPERTY(KoColor color READ color WRITE setColor NOTIFY changed USER true DESIGNABLE false)
     Q_PROPERTY(KoColor defaultColor READ defaultColor WRITE setDefaultColor DESIGNABLE false)
     Q_PROPERTY(bool alphaChannelEnabled READ isAlphaChannelEnabled WRITE setAlphaChannelEnabled)
 
 public:
-    /**
-     * Creates a color button.
-     */
     explicit KisColorButton(QWidget *parent = 0);
 
-    /**
-     * Creates a color button with an initial color @p c.
-     */
     explicit KisColorButton(const KoColor &c, QWidget *parent = 0);
 
-    /**
-     * Creates a color button with an initial color @p c and default color @p defaultColor.
-     */
     KisColorButton(const KoColor &c, const KoColor &defaultColor, QWidget *parent = 0);
 
     ~KisColorButton() override;
 
-    /**
-     * Returns the currently chosen color.
-     */
     KoColor color() const;
 
-    /**
-     * When set to true, allow the user to change the alpha component
-     * of the color. The default value is false.
-     */
     void setAlphaChannelEnabled(bool alpha);
 
-    /**
-     * Returns true if the user is allowed to change the alpha component.
-     */
     bool isAlphaChannelEnabled() const;
 
-    /**
-     * Allow having a palette.
-     */
     void setPaletteViewEnabled( bool enable);
 
-    /**
-     * @brief paletteViewEnabled
-     * @return whether the palette is enabled.
-     */
     bool paletteViewEnabled() const;
-    /**
-     * Returns the default color or an invalid color
-     * if no default color is set.
-     */
     KoColor defaultColor() const;
 
-    /**
-     * Sets the default color to @p c.
-     */
     void setDefaultColor(const KoColor &c);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
 public Q_SLOTS:
-    /**
-     * Sets the current color to @p c.
-     */
     void setColor(const KoColor &c);
 Q_SIGNALS:
-    /**
-     * Emitted when the color of the widget
-     * is changed, either with setColor() or via user selection.
-     */
     void changed(const KoColor &newColor);
 
 protected:

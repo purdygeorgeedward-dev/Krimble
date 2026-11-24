@@ -38,7 +38,6 @@ public:
     QVector<KoAbstractGradientSP> gradients() const;
     QHash<QString, KisPSDLayerStyleSP> stylesHash();
 
-
     void registerPSDPattern(const QDomDocument &doc);
     void readFromPSDXML(const QDomDocument &doc);
 
@@ -80,4 +79,4 @@ private:
     QSharedPointer<KisLocalStrokeResources> m_localResourcesInterface;
 };
 
-#endif /* __KIS_ASL_LAYER_STYLE_SERIALIZER_H */
+#endif

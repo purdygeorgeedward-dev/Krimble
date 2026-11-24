@@ -26,4 +26,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KIS_CHANGE_CLONE_LAYERS_COMMAND_H_
+#endif

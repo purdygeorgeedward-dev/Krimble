@@ -44,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 PatternDockerPlugin::PatternDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

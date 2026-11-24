@@ -24,9 +24,6 @@ class QAbstractItemModel;
 class QHideEvent;
 class QShowEvent;
 
-/**
- * Widget for selecting the filter. This shows the widget if there is any.
- */
 class KisFilterSelectorWidget : public QWidget
 {
     Q_OBJECT
@@ -57,7 +54,6 @@ private:
     struct Private;
     Private* const d {nullptr};
 };
-
 
 class KisFilterTree: public QTreeView
 {

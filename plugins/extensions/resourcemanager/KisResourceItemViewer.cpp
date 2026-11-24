@@ -26,7 +26,6 @@ KisResourceItemViewer::KisResourceItemViewer(Viewer type, QWidget *parent) :
     setArrowVisible(false);
     setAutoRaise(true);
 
-    // View Modes Btns
     viewModeMenu->addSection(i18nc("@title Which elements to display (e.g., thumbnails or details)", "Display"));
 
     if (m_type == Viewer::TableAvailable) {

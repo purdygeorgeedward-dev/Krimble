@@ -16,7 +16,6 @@
 #include <cmath>
 #include <time.h>
 
-
 void inline myround(double *x)
 {
     *x = ((*x - floor(*x)) >= 0.5) ? ceil(*x) : floor(*x);
@@ -29,7 +28,6 @@ HatchingBrush::HatchingBrush(KisHatchingPaintOpSettingsSP settings)
   , origin_y(m_settings->origin_y)
 {
 }
-
 
 HatchingBrush::~HatchingBrush()
 {
@@ -59,99 +57,77 @@ void HatchingBrush::hatch(KisPaintDeviceSP dev, qreal x, qreal y, double width, 
 
     m_painter.setMaskImageSize(width_, height_);
 
-    /*  dx and dy are the separation between lines in the x and y axis
-    dx = separation / sin(angle*M_PI/180);     csc = 1/sin(angle)  */
-    dy = fabs(separation / cos(angle * M_PI / 180)); // sec = 1/cos(angle)
-    // I took the absolute value to avoid confusions with negative numbers
+    dy = fabs(separation / cos(angle * M_PI / 180));
 
     if (!m_settings->subpixelprecision)
         modf(dy, &dy);
 
-    // Exception for vertical lines, for which a tangent does not exist
     if ((angle == 90) || (angle == -90)) {
         verticalHotX = fmod((origin_x - x), separation);
 
-        iterateVerticalLines(true, 1, false);    // Forward
-        iterateVerticalLines(true, 0, true);     // In Between both
-        iterateVerticalLines(false, 1, false);   // Backward
+        iterateVerticalLines(true, 1, false);
+        iterateVerticalLines(true, 0, true);
+        iterateVerticalLines(false, 1, false);
     }
     else {
-        // Turn Angle + Point into Slope + Intercept
-        slope = tan(angle * M_PI / 180);                // Angle into slope
-        baseLineIntercept = origin_y - slope * origin_x; // Slope and Point of the Base Line into Intercept
+        slope = tan(angle * M_PI / 180);
+        baseLineIntercept = origin_y - slope * origin_x;
         cursorLineIntercept = y - slope * x;
-        hotIntercept = fmod((baseLineIntercept - cursorLineIntercept), dy);  // This hotIntercept belongs to a line that intersects with the hatching area
+        hotIntercept = fmod((baseLineIntercept - cursorLineIntercept), dy);
 
-        iterateLines(true, 1, false);    // Forward
-        iterateLines(true, 0, true);     // In Between both
-        iterateLines(false, 1, false);   // Backward
-        // I tried to make this cleaner but there's too many possibilities to be
-        // worth the micromanagement to optimize
+        iterateLines(true, 1, false);
+        iterateLines(true, 0, true);
+        iterateLines(false, 1, false);
     }
 }
 
 void HatchingBrush::iterateLines(bool forward, int lineindex, bool oneline)
 {
-    //---Preparations before the loop---
 
     double xdraw[2] = {0, 0};
     double ydraw[2] = {0, 0};
-    //points A and B of the segments to trace
     QPointF A, B;
     int append_index = 0;
     bool remaininginnerlines = true;
 
     while (remaininginnerlines) {
 
-        //---------START INTERSECTION POINT VERIFICATION--------
-
         append_index = 0;
-        remaininginnerlines = false; // We assume there's no more lines unless proven contrary
+        remaininginnerlines = false;
         if (forward)
-            scanIntercept = hotIntercept + dy * lineindex; // scanIntercept will represent the Intercept of the current line
+            scanIntercept = hotIntercept + dy * lineindex;
         else
-            scanIntercept = hotIntercept - dy * lineindex;  // scanIntercept will represent the Intercept of the current line
+            scanIntercept = hotIntercept - dy * lineindex;
 
-        lineindex++; // We are descending vertically out of convenience, see blog entry at pentalis.org/kritablog
-
-        /*
-        Explanation: only 2 out of the 4 segments can include limit values
-        to verify intersections, otherwise we could encounter a situation where
-        our new lines intersect with all 4 segments and is still considered an
-        inner line (for example, a line that goes from corner to corner), thus
-        triggering an error. The idea is of the algorithm is that only 2 intersections
-        at most are considered at a time. Graphically this is indistinguishable, it's
-        just there to avoid making unnecessary control structures (like additional "ifs").
-        */
+        lineindex++;
 
         if ((scanIntercept >= 0) && (scanIntercept <= height_)) {
             xdraw[append_index] = 0;
-            ydraw[append_index] = scanIntercept;       //intersection at left
+            ydraw[append_index] = scanIntercept;
             remaininginnerlines = true;
             append_index++;
         }
 
         if ((slope * width_ + scanIntercept <= height_) && (slope * width_ + scanIntercept >= 0)) {
             xdraw[append_index] = width_;
-            ydraw[append_index] = scanIntercept + slope * width_; //intersection at right
+            ydraw[append_index] = scanIntercept + slope * width_;
             remaininginnerlines = true;
             append_index++;
         }
 
         if ((-scanIntercept / slope > 0) && (-scanIntercept / slope < width_)) {
             xdraw[append_index] = -scanIntercept / slope;
-            ydraw[append_index] = 0;       //intersection at top
+            ydraw[append_index] = 0;
             remaininginnerlines = true;
             append_index++;
         }
 
         if (((height_ - scanIntercept) / slope > 0) && ((height_ - scanIntercept) / slope < width_)) {
             xdraw[append_index] = (height_ - scanIntercept) / slope;
-            ydraw[append_index] = height_;       //intersection at bottom
+            ydraw[append_index] = height_;
             remaininginnerlines = true;
             append_index++;
         }
-        //--------END INTERSECTION POINT VERIFICATION---------
 
         if (!remaininginnerlines)
             break;
@@ -166,7 +142,6 @@ void HatchingBrush::iterateLines(bool forward, int lineindex, bool oneline)
         A.setX(xdraw[0]);
         A.setY(ydraw[0]);
 
-        // If 2 lines intersect with the dab square
         if (append_index == 2) {
             B.setX(xdraw[1]);
             B.setY(ydraw[1]);
@@ -174,35 +149,28 @@ void HatchingBrush::iterateLines(bool forward, int lineindex, bool oneline)
             if (m_settings->antialias)
                 m_painter.drawThickLine(A, B, thickness, thickness);
             else
-                m_painter.drawLine(A, B, thickness, false);    //testing no subpixel;
+                m_painter.drawLine(A, B, thickness, false);
 
             if (oneline)
                 break;
         }
         else {
             continue;
-            /*Drawing points at the vertices causes inconsistent results due to
-            floating point calculations not being quite in sync with algebra,
-            therefore if I have only 1 intersection (= corner = this case),
-            don't draw*/
         }
     }
 }
 
 void HatchingBrush::iterateVerticalLines(bool forward, int lineindex, bool oneline)
 {
-    //---Preparations before the loop---
 
     double xdraw = 0;
     double ydraw[2] = {0, height_};
-    //points A and B of the segments to trace
     QPointF A, B;
     bool remaininginnerlines = true;
 
     while (remaininginnerlines) {
 
-        //---------START INTERSECTION POINT VERIFICATION--------
-        remaininginnerlines = false;     // We assume there's no more lines unless proven contrary
+        remaininginnerlines = false;
         if (forward)
             verticalScanX = verticalHotX + separation * lineindex;
         else
@@ -210,13 +178,10 @@ void HatchingBrush::iterateVerticalLines(bool forward, int lineindex, bool oneli
 
         lineindex++;
 
-        /*Read the explanation in HatchingBrush::iterateLines for more information*/
-
         if ((verticalScanX >= 0) && (verticalScanX <= width_)) {
             xdraw = verticalScanX;
             remaininginnerlines = true;
         }
-        //--------END INTERSECTION POINT VERIFICATION---------
 
         if (!remaininginnerlines)
             break;
@@ -234,7 +199,7 @@ void HatchingBrush::iterateVerticalLines(bool forward, int lineindex, bool oneli
         if (m_settings->antialias)
             m_painter.drawThickLine(A, B, thickness, thickness);
         else
-            m_painter.drawLine(A, B, thickness, false);    //testing no subpixel;
+            m_painter.drawLine(A, B, thickness, false);
 
         if (oneline)
             break;
@@ -256,7 +221,6 @@ double HatchingBrush::separationAsFunctionOfParameter(double parameter, double s
     double factor = 0;
 
     int basefactor = numintervals / 2;
-    // Make the base separation factor tend to greater instead of lesser numbers when numintervals is even
     if ((numintervals % 2) == 0)
         basefactor--;
 
@@ -267,7 +231,6 @@ double HatchingBrush::separationAsFunctionOfParameter(double parameter, double s
             upperlimit = 1;
         if ((parameter >= lowerlimit) && (parameter <= upperlimit)) {
             factor = pow(2.0, (basefactor - currentinterval));
-            //dbgKrita << factor;
             return (separation * factor);
         }
     }

@@ -24,7 +24,6 @@
 #include "kis_cached_paint_device.h"
 #include "KisLocalStrokeResources.h"
 
-
 struct Q_DECL_HIDDEN KisLayerStyleFilterEnvironment::Private
 {
     KisLayer *sourceLayer;
@@ -35,7 +34,6 @@ struct Q_DECL_HIDDEN KisLayerStyleFilterEnvironment::Private
 
     static KisPixelSelectionSP generateRandomSelection(const QRect &rc);
 };
-
 
 KisPixelSelectionSP
 KisLayerStyleFilterEnvironment::Private::

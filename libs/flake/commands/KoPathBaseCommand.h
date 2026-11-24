@@ -13,29 +13,17 @@
 
 class KoPathShape;
 
-/// the base command for commands altering a path shape
 class KoPathBaseCommand : public KUndo2Command
 {
 public:
-    /**
-     * @param parent the parent command used for macro commands
-     */
     explicit KoPathBaseCommand(KUndo2Command *parent = 0);
 
-    /** initialize the base command with a single shape
-     * @param shape the shape
-     * @param parent the parent command used for macro commands
-     */
     explicit KoPathBaseCommand(KoPathShape *shape, KUndo2Command *parent = 0);
 
 protected:
-    /**
-     * Schedules repainting of all shapes control point rects.
-     * @param normalizeShapes controls if paths are normalized before painting
-     */
     void repaint(bool normalizeShapes);
 
-    QSet<KoPathShape*> m_shapes; ///< the shapes the command operates on
+    QSet<KoPathShape*> m_shapes;
 };
 
-#endif // KOPATHBASECOMMAND_H
+#endif

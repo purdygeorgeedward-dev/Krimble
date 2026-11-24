@@ -37,10 +37,8 @@
 
 struct KisReferenceImage::Private : public QSharedData
 {
-    // Filename within .kra (for embedding)
     QString internalFilename;
 
-    // File on disk (for linking)
     QString externalFilename;
 
     QImage image;
@@ -76,7 +74,6 @@ struct KisReferenceImage::Private : public QSharedData
             if (doc->openPath(externalFilename, KisDocument::DontAddToRecent)) {
                 if (doc->image()->colorSpace()->colorModelId() == RGBAColorModelID) {
                     if (doc->image()->colorSpace()->colorDepthId() == Float32BitsColorDepthID || doc->image()->colorSpace()->colorDepthId() == Float16BitsColorDepthID) {
-                        // Because we store as PNG, we'll need to convert to PQ here. One problem: we need to check when saving the reference images.
                         const KoColorSpace *pqCs = KoColorSpaceRegistry::instance()->colorSpace(RGBAColorModelID.id(), Integer16BitsColorDepthID.id(), KoColorSpaceRegistry::instance()->p2020PQProfile());
                         doc->image()->convertImageColorSpace(pqCs, KoColorConversionTransformation::IntentRelativeColorimetric, KoColorConversionTransformation::internalConversionFlags());
                     }
@@ -89,9 +86,6 @@ struct KisReferenceImage::Private : public QSharedData
             KisPart::instance()->removeDocument(doc);
         }
 
-        // See https://bugs.kde.org/show_bug.cgi?id=416515 -- a jpeg image
-        // loaded into a qimage cannot be saved to png unless we explicitly
-        // convert the colorspace of the QImage
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         if (image.colorSpace().colorModel() != QColorSpace::ColorModel::Rgb || !image.colorSpace().isValid()) {
             image.convertToColorSpace(QColorSpace(QColorSpace::SRgb));
@@ -124,7 +118,6 @@ struct KisReferenceImage::Private : public QSharedData
         mipmap = KisQImagePyramid(cachedImage, false);
     }
 };
-
 
 KisReferenceImage::SetSaturationCommand::SetSaturationCommand(const QList<KoShape *> &shapes, qreal newSaturation, KUndo2Command *parent)
     : KUndo2Command(kundo2_i18n("Set saturation"), parent)
@@ -255,23 +248,17 @@ void KisReferenceImage::paint(QPainter &gc) const
     gc.save();
 
     QSizeF shapeSize = size();
-    // scale and rotation done by the user (excluding zoom)
     QTransform transform = QTransform::fromScale(shapeSize.width() / d->image.width(), shapeSize.height() / d->image.height());
 
     if (d->cachedImage.isNull()) {
-        // detach the data
         const_cast<KisReferenceImage*>(this)->d->updateCache();
     }
 
     qreal scale;
-    // scale from the highDPI display
     QTransform devicePixelRatioFTransform = QTransform::fromScale(gc.device()->devicePixelRatioF(), gc.device()->devicePixelRatioF());
-    // all three transformations: scale and rotation done by the user, scale from highDPI display, and zoom + rotation of the view
-    // order: zoom/rotation of the view; scale to high res; scale and rotation done by the user
     QImage prescaled = d->mipmap.getClosestWithoutWorkaroundBorder(transform * devicePixelRatioFTransform * gc.transform(), &scale);
     transform.scale(1.0 / scale, 1.0 / scale);
 
-    // Color conversion.
     QImage *targetD = dynamic_cast<QImage*>(gc.device());
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const bool getTargetCs = (targetD && targetD->colorSpace().colorModel() == QColorSpace::ColorModel::Rgb);
@@ -292,8 +279,6 @@ void KisReferenceImage::paint(QPainter &gc) const
 #endif
 
     if (scale > 1.0) {
-        // enlarging should be done without smooth transformation
-        // so the user can see pixels just as they are painted
         gc.setRenderHints(QPainter::Antialiasing);
     } else {
         gc.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
@@ -341,7 +326,6 @@ QString KisReferenceImage::internalFile() const
 {
     return d->internalFilename;
 }
-
 
 void KisReferenceImage::setFilename(const QString &filename)
 {
@@ -392,7 +376,7 @@ void KisReferenceImage::saveXml(QDomDocument &document, QDomElement &parentEleme
     if (d->embed) {
         d->internalFilename = QString("reference_images/%1.png").arg(id);
     }
-    
+
     const QString src = d->embed ? d->internalFilename : (QString("file://") + d->externalFilename);
     element.setAttribute("src", src);
 

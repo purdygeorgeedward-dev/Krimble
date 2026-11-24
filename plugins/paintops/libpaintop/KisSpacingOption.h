@@ -19,9 +19,6 @@ public:
 
     bool isotropicSpacing() const;
 
-    /**
-     * @return True if and only if the spacing option allows spacing updates between painted dabs.
-     */
     bool usingSpacingUpdates() const;
 
 private:
@@ -31,4 +28,4 @@ private:
     bool m_useSpacingUpdates;
 };
 
-#endif // KISSPACINGOPTION_H
+#endif

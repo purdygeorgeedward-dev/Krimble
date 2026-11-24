@@ -18,7 +18,6 @@
 #include <KoShape.h>
 #include <KoSelection.h>
 
-
 #include "kis_coordinates_converter.h"
 #include "kis_canvas_decoration.h"
 #include "kis_config.h"
@@ -28,7 +27,6 @@
 #include "KisDocument.h"
 #include "kis_update_info.h"
 #include "KisQPainterStateSaver.h"
-
 
 struct KisCanvasWidgetBase::Private
 {
@@ -49,7 +47,7 @@ public:
     KoToolProxy * toolProxy;
     QTimer blockMouseEvent;
 
-    bool ignorenextMouseEventExceptRightMiddleClick; // HACK work around Qt bug not sending tablet right/dblclick https://bugreports.qt.io/browse/QTBUG-8598
+    bool ignorenextMouseEventExceptRightMiddleClick;
     QColor borderColor;
 };
 
@@ -61,12 +59,6 @@ KisCanvasWidgetBase::KisCanvasWidgetBase(KisCanvas2 * canvas, KisCoordinatesConv
 
 KisCanvasWidgetBase::~KisCanvasWidgetBase()
 {
-    /**
-     * Clear all the attached decoration. Otherwise they might decide
-     * to process some events or signals after the canvas has been
-     * destroyed
-     */
-    //5qDeleteAll(m_d->decorations);
     m_d->decorations.clear();
 
     delete m_d;
@@ -80,14 +72,8 @@ void KisCanvasWidgetBase::drawDecorations(QPainter & gc, const QRect &updateWidg
     }
     gc.save();
 
-    // Setup the painter to take care of the offset; all that the
-    // classes that do painting need to keep track of is resolution
     gc.setRenderHint(QPainter::Antialiasing);
     gc.setRenderHint(QPainter::TextAntialiasing);
-
-    // This option does not do anything anymore with Qt4.6, so don't re-enable it since it seems to break display
-    // https://lists.qt-project.org/pipermail/qt-interest-old/2009-December/017078.html
-    // gc.setRenderHint(QPainter::Antialiasing);
 
     gc.setRenderHint(QPainter::SmoothPixmapTransform);
 
@@ -95,13 +81,10 @@ void KisCanvasWidgetBase::drawDecorations(QPainter & gc, const QRect &updateWidg
         KisQPainterStateSaver paintShapesState(&gc);
         gc.setTransform(m_d->coordinatesConverter->documentToWidgetTransform());
 
-        // Paint the shapes (other than the layers)
         m_d->canvas->globalShapeManager()->paint(gc);
 
     }
 
-    // ask the decorations to paint themselves
-    // decorations are painted in "widget" coordinate system
     Q_FOREACH (KisCanvasDecorationSP deco, m_d->decorations) {
         if (deco->visible()) {
             deco->paint(gc, m_d->coordinatesConverter->widgetToDocument(updateWidgetRect), m_d->coordinatesConverter,m_d->canvas);
@@ -112,7 +95,6 @@ void KisCanvasWidgetBase::drawDecorations(QPainter & gc, const QRect &updateWidg
         KisQPainterStateSaver paintDecorationsState(&gc);
         gc.setTransform(m_d->coordinatesConverter->flakeToWidgetTransform());
 
-        // - some tools do not restore gc, but that is not important here
         toolProxy()->paint(gc, *m_d->viewConverter);
     }
 

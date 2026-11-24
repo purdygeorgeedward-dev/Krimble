@@ -22,4 +22,4 @@ private Q_SLOTS:
     void testMoveAssignmentOperator();
 };
 
-#endif // KISADAPTEDLOCKTEST_H
+#endif

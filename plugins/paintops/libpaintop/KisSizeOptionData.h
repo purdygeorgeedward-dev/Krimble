@@ -15,4 +15,4 @@ struct PAINTOP_EXPORT KisSizeOptionData : KisCurveOptionData
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-#endif // KISSIZEOPTIONDATA_H
+#endif

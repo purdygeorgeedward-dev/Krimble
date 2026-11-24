@@ -22,17 +22,9 @@ class KoShape;
 class KoShapeResizeCommand;
 class KoSelection;
 
-/**
- * A strategy for the KoInteractionTool.
- * This strategy is invoked when the user starts a resize of a selection of objects,
- * the strategy will then resize the objects interactively and provide a command afterwards.
- */
 class ShapeResizeStrategy : public KoInteractionStrategy
 {
 public:
-    /**
-     * Constructor
-     */
     ShapeResizeStrategy(KoToolBase *tool, KoSelection *selection, const QPointF &clicked, KoFlake::SelectionHandle direction, bool forceUniformScalingMode);
     ~ShapeResizeStrategy() override;
 

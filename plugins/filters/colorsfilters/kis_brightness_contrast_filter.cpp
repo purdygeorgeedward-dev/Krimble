@@ -36,18 +36,6 @@ KoColorTransformation * KisBrightnessContrastFilter::createTransformation(const 
 
     const double contrastFactor = 1.0 + contrast;
 
-    // the industry standard's real contrast curve diverges toward infinite slope as
-    // contrast approaches its maximum, which is what lets it posterize a
-    // full-range grayscale image to pure black/white at max contrast. The
-    // plain linear "1.0 + contrast" factor above caps out at a slope of
-    // only 2.0 even at contrast=+100 -- only pixels already below 25%
-    // gray or above 75% gray ever reach full black/white; everything in
-    // the middle 50% of the tonal range stays a non-binary midtone no
-    // matter how far the slider is pushed. Replaced with the industry standard's
-    // legacy formula (factor = 1 / (1 - contrast) for positive contrast),
-    // with an explicit hard threshold at the true maximum to guarantee
-    // exact pure black/white rather than relying on floating-point
-    // infinity.
     bool hardThreshold = false;
     double positiveContrastFactor = contrastFactor;
     if (contrast >= 1.0) {

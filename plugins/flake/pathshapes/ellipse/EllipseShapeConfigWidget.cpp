@@ -53,7 +53,6 @@ void EllipseShapeConfigWidget::loadPropertiesFromShape(EllipseShape *shape)
     widget.endAngle->setAngle(shape->endAngle());
 }
 
-
 void EllipseShapeConfigWidget::save()
 {
     if (!m_ellipse) {

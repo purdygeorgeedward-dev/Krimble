@@ -35,7 +35,6 @@ struct ImageScalingParameters {
         } else if (transformationMode != other.transformationMode) {
             return transformationMode < other.transformationMode;
         } else {
-            // they're the same
             return false;
         }
     }
@@ -45,7 +44,7 @@ namespace
 {
 using ResourceKey = QPair<QString, QString>;
 using ThumbnailCacheT = QMap<ImageScalingParameters, QImage>;
-} // namespace
+}
 
 struct KisResourceThumbnailCache::Private {
     QMap<ResourceKey, ThumbnailCacheT> scaledThumbnailCache;
@@ -86,8 +85,6 @@ QImage KisResourceThumbnailCache::Private::getOriginal(const ResourceKey &key) c
 
 void KisResourceThumbnailCache::Private::insertOriginal(const ResourceKey &key, const QImage &image)
 {
-    // Someone else has added the image to this cache, when the only path to here is from a method which
-    // checks whether this cache contains it or not.
     KIS_ASSERT(!originalImageCache.contains(key));
     originalImageCache.insert(key, image);
 }
@@ -158,8 +155,6 @@ void KisResourceThumbnailCache::remove(const QPair<QString, QString> &key)
             m_d->scaledThumbnailCache.remove(key);
         }
     } else {
-        // Something must have gone wrong for thumbnail to exist in scaledThumbnailCache but not be in
-        // original.
         KIS_ASSERT(!m_d->scaledThumbnailCache.contains(key));
     }
 }
@@ -186,13 +181,8 @@ QImage KisResourceThumbnailCache::getImage(const QModelIndex &index,
         result = m_d->getOriginal(key);
     } else {
         result = index.data(Qt::UserRole + KisAbstractResourceModel::Thumbnail).value<QImage>();
-        // KisResourceQueryMapper should have inserted the image, so we don't have to.
-        // Why there? Because most of the API usage for Thumbnail is going to be from index.data(), so we just
-        // remove the dependency that our user has to know this class for just accessing the cached original
-        // thumbnail.
         KIS_SAFE_ASSERT_RECOVER_NOOP(result.isNull() || m_d->containsOriginal(key));
     }
-    // if the size that the has been demanded, we will then cache the size and then pass it.
     if (!result.isNull() && param.size.isValid()) {
         const QImage scaledImage = result.scaled(param.size, param.aspectRatioMode, param.transformationMode);
         if (m_d->scaledThumbnailCache.contains(key)) {

@@ -48,4 +48,4 @@ private:
     quint8 m_defaultValue;
 };
 
-#endif // KISLAMBDAPROPERTY_H
+#endif

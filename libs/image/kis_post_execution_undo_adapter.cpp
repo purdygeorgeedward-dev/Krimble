@@ -10,7 +10,6 @@
 #include "kis_image_interfaces.h"
 #include "commands_new/kis_saved_commands.h"
 
-
 KisPostExecutionUndoAdapter::KisPostExecutionUndoAdapter(KisUndoStore *undoStore,
                                                          KisStrokesFacade *strokesFacade)
     : m_undoStore(undoStore),

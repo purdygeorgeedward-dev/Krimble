@@ -15,10 +15,6 @@ class QDoubleSpinBox;
 
 namespace detail
 {
-/**
- * We don't use decltype(std::declval<SpinBox>().value()) to avoid
- * inclusion of both spinbox headers into this header.
- */
 template <typename SpinBox>
 struct value_of_spin_box;
 
@@ -35,15 +31,10 @@ struct value_of_spin_box<QDoubleSpinBox> {
 template <typename SpinBox>
 using value_of_spin_box_t = typename value_of_spin_box<SpinBox>::type;
 
-} // namespace detail
-
+}
 
 class KisCurveWidget;
 
-/**
- * A base class for the manager to let moc generate signal/slot metadata
- * (remember, moc doesn't support template classes)
- */
 class KRITAUI_EXPORT KisCurveWidgetControlsManagerBase : public QObject
 {
     Q_OBJECT
@@ -84,11 +75,9 @@ protected:
     void focusIOControls() override;
 
 private:
-    /* In/Out controls */
     SpinBox *m_intIn {nullptr};
     SpinBox *m_intOut {nullptr};
 
-    /* Working range of them */
     ValueType m_inMin {0};
     ValueType m_inMax {0};
     ValueType m_outMin {0};
@@ -101,5 +90,4 @@ extern template class KisCurveWidgetControlsManager<QDoubleSpinBox>;
 using KisCurveWidgetControlsManagerInt = KisCurveWidgetControlsManager<QSpinBox>;
 using KisCurveWidgetControlsManagerDouble = KisCurveWidgetControlsManager<QDoubleSpinBox>;
 
-
-#endif // KISCURVEWIDGETCONTROLSMANAGER_H
+#endif

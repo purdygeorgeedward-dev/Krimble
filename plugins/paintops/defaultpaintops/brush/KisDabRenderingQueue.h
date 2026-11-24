@@ -25,13 +25,11 @@ public:
         virtual void getDabType(bool hasDabInCache,
                                 KisDabCacheUtils::DabRenderingResources *resources,
                                 const KisDabCacheUtils::DabRequestInfo &request,
-                                /* out */
                                 KisDabCacheUtils::DabGenerationInfo *di,
                                 bool *shouldUseCache) = 0;
 
         virtual bool hasSeparateOriginal(KisDabCacheUtils::DabRenderingResources *resources) const = 0;
     };
-
 
 public:
     KisDabRenderingQueue(const KoColorSpace *cs, KisDabCacheUtils::ResourcesFactory resourcesFactory);
@@ -63,4 +61,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISDABRENDERINGQUEUE_H
+#endif

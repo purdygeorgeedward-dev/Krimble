@@ -16,4 +16,4 @@ private Q_SLOTS:
     void testRoundTrip();
 };
 
-#endif /* __KIS_CLIPBOARD_TEST_H */
+#endif

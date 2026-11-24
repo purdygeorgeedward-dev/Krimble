@@ -13,8 +13,6 @@
 
 #include <boost/operators.hpp>
 
-
-
 class KoColor;
 
 namespace KisLazyFillTools
@@ -25,18 +23,6 @@ namespace KisLazyFillTools
     KRITAIMAGE_EXPORT
     void normalizeAlpha8Device(KisPaintDeviceSP dev, const QRect &rect);
 
-    /**
-     * Uses Boykov-Kolmogorov Max-Flow/Min-Cut algorithm to split the
-     * device \p src into two parts. The first part is defined by \p
-     * colorScribble and the second part --- by \p
-     * backgroundScribble. In the result of the split the area defined
-     * by \p colorScribble in \p resultDevice is filled with \p
-     * color. Also the same area in \p maskDevice is filled with a
-     * non-null scribble index.
-     *
-     * \p maskDevice is used for limiting the area used for filling
-     *               the color.
-     */
     KRITAIMAGE_EXPORT
     void cutOneWay(const KoColor &color,
                    KisPaintDeviceSP src,
@@ -45,13 +31,6 @@ namespace KisLazyFillTools
                    KisPaintDeviceSP resultDevice,
                    KisPaintDeviceSP maskDevice,
                    const QRect &boundingRect);
-
-    /**
-     * Returns one pixel from each connected component of \p src.
-     *
-     * WARNING: \p src is used as a temporary device, so it will be
-     *          cleared(!) after the execution of the algorithm
-     */
 
     KRITAIMAGE_EXPORT
     QVector<QPoint> splitIntoConnectedComponents(KisPaintDeviceSP src, const QRect &boundingRect);
@@ -75,7 +54,6 @@ namespace KisLazyFillTools
 
         friend bool operator==(const FilteringOptions &t1, const FilteringOptions &t2);
 
-        // default values for filtering: disabled
         bool useEdgeDetection = false;
         qreal edgeDetectionSize = 4;
         qreal fuzzyRadius = 0;
@@ -83,4 +61,4 @@ namespace KisLazyFillTools
     };
 }
 
-#endif /* __KIS_LAZY_FILL_TOOLS_H */
+#endif

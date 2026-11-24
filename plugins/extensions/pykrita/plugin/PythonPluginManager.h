@@ -16,15 +16,9 @@
 
 class PythonPluginsModel;
 
-/**
- * Represents a Python described in the plugin's .desktop file.
- */
 class PythonPlugin
 {
 public:
-    /**
-     * Transforms the Python module name into a file path part
-     */
     QString moduleFilePathPart() const;
 
     bool isValid() const;
@@ -95,10 +89,6 @@ private:
     QMap<QString, QVariant> m_properties;
 };
 
-/**
- * The Python plugin manager handles discovery, loading and unloading of Python plugins.
- * To get a reference to the manager, use PyKrita::pluginManager().
- */
 class PythonPluginManager : public QObject
 {
     Q_OBJECT
@@ -131,4 +121,4 @@ private:
     PythonPluginsModel m_model;
 };
 
-#endif //PYTHONMODULEMANAGER_H
+#endif

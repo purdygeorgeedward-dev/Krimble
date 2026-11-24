@@ -21,4 +21,4 @@ private Q_SLOTS:
     void testNeedChangeRects();
 };
 
-#endif /* __KIS_WARP_TRANSFORM_WORKER_TEST_H */
+#endif

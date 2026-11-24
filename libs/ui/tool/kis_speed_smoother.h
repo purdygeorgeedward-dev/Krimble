@@ -11,7 +11,6 @@
 
 class QPointF;
 
-
 class KisSpeedSmoother
 {
 public:
@@ -31,4 +30,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_SPEED_SMOOTHER_H */
+#endif

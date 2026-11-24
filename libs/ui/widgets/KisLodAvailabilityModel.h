@@ -45,4 +45,4 @@ Q_SIGNALS:
     void sigConfigurationItemChanged();
 };
 
-#endif // KISLODAVAILABILITYMODEL_H
+#endif

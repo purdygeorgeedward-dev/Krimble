@@ -9,7 +9,6 @@
 #include <QDebug>
 #include <QElapsedTimer>
 
-
 namespace TestUtil {
 
 template <typename T>
@@ -68,13 +67,6 @@ private:
     {
         if (m_cycles > m_period || force) {
             if constexpr (TagWrapper<TagType>::shouldPrintTag) {
-                // auto surface = reinterpret_cast<QPlatformSurface*>(m_tagWrapper.tag);
-                // auto window = dynamic_cast<QPlatformWindow*>(surface);
-                // if (window) {
-                //     qDebug() << "=== stat for tag" << m_tag << window << "===";
-                // } else {
-                //     qDebug() << "=== stat for tag" << m_tag << "===";
-                // }
                 qDebug() << "=== stat for tag" << m_tagWrapper << "===";
             } else {
                 qDebug() << "=== stat ===";
@@ -155,19 +147,3 @@ struct PerObjectMetric
 
 }
 
-/// Usage:
-//
-// QDebug operator<<(QDebug dbg, const TestUtil::TagWrapper<QPlatformSurface *> &t)
-// {
-//     if (qApp) {
-//         auto surface = reinterpret_cast<QPlatformSurface*>(t.tag);
-//         auto window = dynamic_cast<QPlatformWindow*>(surface);
-//         dbg.nospace() << window;
-//     } else {
-//         dbg.nospace() << "<deleted>";
-//     }
-//
-//     return dbg.space();
-// }
-//
-// static TestUtil::PerObjectMetric<QPlatformSurface*> SwapCounter;

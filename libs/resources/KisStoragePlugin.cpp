@@ -59,8 +59,6 @@ KoResourceSP KisStoragePlugin::resource(const QString &url)
 
 QString KisStoragePlugin::resourceMd5(const QString &url)
 {
-    // a fallback implementation for the storages with
-    // ephemeral resources
     KoResourceSP res = resource(url);
     if (res) {
         return res->md5Sum();

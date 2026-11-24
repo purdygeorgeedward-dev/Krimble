@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include <simpletest.h>
 #include <resources/KoGamutMask.h>
 
@@ -30,7 +29,6 @@ void KoGamutMaskTest::testCoordIsClear()
     Q_ASSERT(mask->valid());
     mask->setRotation(maskRotation);
 
-    // for this test we have a hardcoded view size of 100
     QPointF translatedPoint = mask->viewToMaskTransform(100).map(coord);
 
     bool maskOutput = mask->coordIsClear(translatedPoint, false);
@@ -44,7 +42,6 @@ void KoGamutMaskTest::testCoordIsClear_data()
     QTest::addColumn<int>("maskRotation");
     QTest::addColumn<bool>("expectedOutput");
 
-    // single shape mask
     QTest::addRow("Atmospheric_Triad.kgm: disallowed coordinate, no rotation") << "Atmospheric_Triad.kgm"
                                                                         << QPointF(0.0, 0.0) << 0
                                                                         << false;
@@ -61,8 +58,6 @@ void KoGamutMaskTest::testCoordIsClear_data()
                                                                              << QPointF(76.4,60.9) << 180
                                                                              << true;
 
-
-    // multiple shapes mask
     QTest::addRow("Dominant_Hue_With_Accent.kgm: allowed coordinate, shape 1, no rotation")
             << "Dominant_Hue_With_Accent.kgm"
             << QPointF(71.0, 49.0) << 0

@@ -11,7 +11,6 @@
 #include <brushengine/kis_paint_information.h>
 #include "kis_debug.h"
 
-
 #include <QDomDocument>
 #include <Eigen/Core>
 
@@ -36,11 +35,6 @@ void KisPaintInformationTest::testSerialisation()
     QCOMPARE(test.yTilt() , testUnS.yTilt());
     QCOMPARE(test.rotation() , testUnS.rotation());
     QCOMPARE(test.tangentialPressure() , testUnS.tangentialPressure());
-    /**
-     * drawingAngle(), velocity() and distance() are calculated basing
-     * on the KisDistanceInformation data and are not available without
-     * it
-     */
 }
 
 #include <boost/random/taus88.hpp>
@@ -51,17 +45,13 @@ void KisPaintInformationTest::benchmarkTausRandomGeneration()
     boost::taus88 rnd;
 
     QBENCHMARK {
-        // make a copy
         boost::taus88 rnd2(rnd);
 
-        // use smallint shaper
         boost::uniform_smallint<int> smallint(0,10);
 
-        // generate
         int value = smallint(rnd2);
         Q_UNUSED(value);
     }
 }
-
 
 SIMPLE_TEST_MAIN(KisPaintInformationTest)

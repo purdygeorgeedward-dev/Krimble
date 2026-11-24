@@ -17,7 +17,6 @@
 
 #include "KisAnimTimelineColors.h"
 
-
 struct KisEqualizerSlider::Private
 {
     Private(KisEqualizerSlider *_q) : q(_q), isRightmost(false), toggleState(true) {}
@@ -25,7 +24,6 @@ struct KisEqualizerSlider::Private
     KisEqualizerSlider *q;
     bool isRightmost;
     bool toggleState;
-
 
     QRect boundingRect() const;
     QRect sliderRect() const;
@@ -146,12 +144,11 @@ void KisEqualizerSlider::paintEvent(QPaintEvent *event)
     const QRect bounds = m_d->boundingRect();
     const QColor backgroundColor = palette().color(QPalette::Base);
 
-
     QPainter p(this);
 
-    { // draw border
+    {
 
-        QStyleOptionViewItem option; // empty!
+        QStyleOptionViewItem option;
         const int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, &option, this);
         const QColor gridColor = static_cast<QRgb>(gridHint);
         const QPen gridPen(gridColor);
@@ -161,7 +158,7 @@ void KisEqualizerSlider::paintEvent(QPaintEvent *event)
         p.drawRect(bounds);
     }
 
-    { // draw slider
+    {
         QRect sliderRect = m_d->sliderRect();
         const int sliderPos =  QStyle::sliderPositionFromValue(minimum(), maximum(), value(), sliderRect.height());
         sliderRect.adjust(0, sliderRect.height() - sliderPos, 0, 0);
@@ -178,26 +175,6 @@ void KisEqualizerSlider::paintEvent(QPaintEvent *event)
 
     QString textValue = QString::number(value());
 
-    /*  Text isn't really needed for onion skinning and makes it look a bit cluttered. Uncomment this out of that changes.
-    { // draw text
-        QPalette::ColorRole textRole = QPalette::Text;
-
-        //Draw text shadow, This will increase readability when the background of same color
-        QRect shadowRect(bounds);
-        shadowRect.translate(1,1);
-        QColor textColor = palette().color(textRole);
-        QColor shadowColor = (textColor.value() <= 128)
-            ? QColor(255,255,255,160) : QColor(0,0,0,160);
-
-        p.setPen(shadowColor);
-        p.drawText(shadowRect, Qt::AlignCenter, textValue);
-
-        p.setPen(textColor);
-        p.drawText(bounds, Qt::AlignCenter, textValue);
-    }
-    */
-
-    // draw focus rect
     if (hasFocus()) {
         QStyleOptionFocusRect fropt;
         fropt.initFrom(this);

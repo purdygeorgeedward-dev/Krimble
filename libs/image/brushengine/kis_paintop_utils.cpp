@@ -14,7 +14,6 @@
 
 namespace KisPaintOpUtils {
 
-
 KisSpacingInformation effectiveSpacing(qreal dabWidth, qreal dabHeight, qreal extraScale, bool distanceSpacingEnabled, bool isotropicSpacing, qreal rotation, bool axesFlipped, qreal spacingVal, bool autoSpacingActive, qreal autoSpacingCoeff, qreal lodScale)
 {
     QPointF spacing;
@@ -82,11 +81,9 @@ QVector<QRect> splitDabsIntoRects(const QVector<QRect> &dabRects, int idealNumRe
     constexpr int patchStep = 64;
     constexpr int halfPatchStep = patchStep >> 1;
 
-
     int idealPatchSize = qBound(minPatchSize,
                                 (int(diameter * (2.0 - spacing)) + halfPatchStep) & ~(patchStep - 1),
                                 maxPatchSize);
-
 
     QVector<QRect> rects = splitAndFilterDabRect(totalRect, dabRects, idealPatchSize);
 
@@ -97,7 +94,5 @@ QVector<QRect> splitDabsIntoRects(const QVector<QRect> &dabRects, int idealNumRe
 
     return rects;
 }
-
-
 
 }

@@ -33,4 +33,4 @@ public:
     QSharedPointer<KisAslLayerStyleSerializer> m_aslSerializer;
 };
 
-#endif // KISASLSTORAGE_H
+#endif

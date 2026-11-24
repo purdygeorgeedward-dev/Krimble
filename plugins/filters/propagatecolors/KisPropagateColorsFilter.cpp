@@ -232,19 +232,15 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
     quint8 *distanceMapRow1, *distanceMapRow2;
     quint8 *deviceRow1, *deviceRow2;
 
-    // Forwards pass
     distanceMapRow1 = distanceMapRows.data();
     distanceMapRow2 = distanceMapRows.data() + expansionStrategy.rect.width() * 4;
     deviceRow1 = deviceRows.data();
     deviceRow2 = deviceRows.data() + expansionStrategy.rect.width() * expansionStrategy.sourceDevicePixelSize;
-    // Top row
     expansionStrategy.distanceMap->readBytes(distanceMapRow1, expansionStrategy.rect.left(),
                                              expansionStrategy.rect.top(), expansionStrategy.rect.width(), 1);
     expansionStrategy.sourceDevice->readBytes(deviceRow1, expansionStrategy.rect.left(),
                                               expansionStrategy.rect.top(), expansionStrategy.rect.width(), 1);
-    // Left pixel
     expansionStrategy.initializePixel(reinterpret_cast<quint32*>(distanceMapRow1), deviceRow1);
-    // Middle pixels
     {
         quint32 *distancePixel = reinterpret_cast<quint32*>(distanceMapRow1) + 1;
         quint8 *devicePixel = deviceRow1 + expansionStrategy.sourceDevicePixelSize;
@@ -267,7 +263,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
     expansionStrategy.sourceDevice->writeBytes(deviceRow1, expansionStrategy.rect.left(),
                                                expansionStrategy.rect.top(), expansionStrategy.rect.width(), 1);
     progress.stepUp();
-    // Rest of rows
     for (qint32 y = expansionStrategy.rect.top() + 1; y <= expansionStrategy.rect.bottom(); ++y) {
         expansionStrategy.distanceMap->readBytes(distanceMapRow2, expansionStrategy.rect.left(),
                                                  y, expansionStrategy.rect.width(), 1);
@@ -278,7 +273,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
         quint32 *distancePixel = reinterpret_cast<quint32*>(distanceMapRow2);
         quint8 *topDevicePixel = deviceRow1;
         quint8 *devicePixel = deviceRow2;
-        // Left pixel
         {
             expansionStrategy.initializePixel(distancePixel, devicePixel);
             if (*distancePixel != 0) {
@@ -302,7 +296,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
             topDevicePixel += expansionStrategy.sourceDevicePixelSize;
             devicePixel += expansionStrategy.sourceDevicePixelSize;
         }
-        // Middle pixels
         for (qint32 x = 1; x < expansionStrategy.rect.width() - 1;
                 ++x, ++topDistancePixel, ++distancePixel,
                 topDevicePixel += expansionStrategy.sourceDevicePixelSize,
@@ -322,7 +315,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
                 expansionStrategy.diagonalDistance, expansionStrategy.orthogonalDistance
             );
         }
-        // Right pixel
         expansionStrategy.initializePixel(distancePixel, devicePixel);
         if (expansionStrategy.rect.width() > 1 && *distancePixel != 0) {
             expansionStrategy.updatePixel(
@@ -334,21 +326,15 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
                 expansionStrategy.orthogonalDistance
             );
         }
-        // Write new pixels
         expansionStrategy.distanceMap->writeBytes(distanceMapRow2, expansionStrategy.rect.left(),
                                                   y, expansionStrategy.rect.width(), 1);
         expansionStrategy.sourceDevice->writeBytes(deviceRow2, expansionStrategy.rect.left(),
                                                    y, expansionStrategy.rect.width(), 1);
-        // Swap pointers
         swapRowPointers(&distanceMapRow1, &distanceMapRow2, &deviceRow1, &deviceRow2);
 
         progress.stepUp();
     }
 
-    // Backwards pass
-    // Bottom row
-    // Right pixel (no op)
-    // Middle pixels
     {
         quint32 *distancePixel = reinterpret_cast<quint32*>(distanceMapRow1) + expansionStrategy.rect.width() - 2;
         quint8 *devicePixel =
@@ -371,7 +357,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
     expansionStrategy.sourceDevice->writeBytes(deviceRow1, expansionStrategy.rect.left(),
                                                expansionStrategy.rect.bottom(), expansionStrategy.rect.width(), 1);
     progress.stepUp();
-    // Rest of rows
     for (qint32 y = expansionStrategy.rect.bottom() - 1; y >= expansionStrategy.rect.top(); --y) {
         expansionStrategy.distanceMap->readBytes(distanceMapRow2, expansionStrategy.rect.left(),
                                                  y, expansionStrategy.rect.width(), 1);
@@ -386,7 +371,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
             deviceRow1 + expansionStrategy.sourceDevicePixelSize * (expansionStrategy.rect.width() - 1);
         quint8 *devicePixel =
             deviceRow2 + expansionStrategy.sourceDevicePixelSize * (expansionStrategy.rect.width() - 1);
-        // Right pixel
         {
             if (*distancePixel != 0) {
                 if (expansionStrategy.rect.width() > 1) {
@@ -409,7 +393,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
             bottomDevicePixel -= expansionStrategy.sourceDevicePixelSize;
             devicePixel -= expansionStrategy.sourceDevicePixelSize;
         }
-        // Middle pixels
         for (qint32 x = 1; x < expansionStrategy.rect.width() - 1;
                 ++x, --bottomDistancePixel, --distancePixel,
                 bottomDevicePixel -= expansionStrategy.sourceDevicePixelSize,
@@ -428,7 +411,6 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
                 expansionStrategy.diagonalDistance, expansionStrategy.orthogonalDistance
             );
         }
-        // Left pixel
         if (expansionStrategy.rect.width() > 1 && *distancePixel != 0) {
             expansionStrategy.updatePixel(
                 distancePixel, devicePixel,
@@ -439,12 +421,10 @@ void expand(ExpansionStrategy &expansionStrategy, KoUpdater *progressUpdater)
                 expansionStrategy.orthogonalDistance
             );
         }
-        // Write new pixels
         expansionStrategy.distanceMap->writeBytes(distanceMapRow2, expansionStrategy.rect.left(),
                                                   y, expansionStrategy.rect.width(), 1);
         expansionStrategy.sourceDevice->writeBytes(deviceRow2, expansionStrategy.rect.left(), y,
                                                    expansionStrategy.rect.width(), 1);
-        // Swap pointers
         swapRowPointers(&distanceMapRow1, &distanceMapRow2, &deviceRow1, &deviceRow2);
 
         progress.stepUp();
@@ -460,7 +440,7 @@ void selectStrategyAndExpand2(KisPaintDeviceSP device,
                               KoUpdater *progressUpdater)
 {
     const KisPropagateColorsFilterConfiguration::AlphaChannelMode alphaChannelMode = filterConfig->alphaChannelMode();
-    
+
     if (alphaChannelMode == KisPropagateColorsFilterConfiguration::AlphaChannelMode_Preserve) {
         GenericExpansionStrategy<DiagonalDistance, BoundedExpansion, false> expansionStrategy(
             device, applyRect, filterConfig->expansionAmount()
@@ -481,7 +461,7 @@ void selectStrategyAndExpand1(KisPaintDeviceSP device,
                               KoUpdater *progressUpdater)
 {
     const KisPropagateColorsFilterConfiguration::ExpansionMode expansionMode = filterConfig->expansionMode();
-    
+
     if (expansionMode == KisPropagateColorsFilterConfiguration::ExpansionMode_Bounded) {
         selectStrategyAndExpand2<DiagonalDistance, true>(device, applyRect, filterConfig, progressUpdater);
     } else {
@@ -507,7 +487,6 @@ void KisPropagateColorsFilter::processImpl(KisPaintDeviceSP device,
     } else if (distanceMetric == KisPropagateColorsFilterConfiguration::DistanceMetric_CityBlock) {
         selectStrategyAndExpand1<512>(device, applyRect, filterConfig, progressUpdater);
     } else {
-        // 362 is sqrt(2) * 256, rounded
         selectStrategyAndExpand1<362>(device, applyRect, filterConfig, progressUpdater);
     }
 }

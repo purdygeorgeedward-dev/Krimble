@@ -36,12 +36,12 @@ public:
     LAGER_QT_CURSOR(int, shape);
     LAGER_QT_CURSOR(QSize, effectiveSize);
     LAGER_QT_CURSOR(bool, effectiveProportional);
-    
+
     LAGER_QT_CURSOR(bool, enabled);
-    
+
     LAGER_QT_CURSOR(QString, imageUrl);
-    
+
     LAGER_QT_READER(QString, sizeSuffix);
 };
 
-#endif // KIS_SPRAY_SHAPE_OPTION_MODEL_H
+#endif

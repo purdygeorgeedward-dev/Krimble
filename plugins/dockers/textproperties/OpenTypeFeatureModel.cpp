@@ -14,7 +14,6 @@
 #include <lager/KoSvgTextPropertiesModel.h>
 #include <KoSvgTextPropertyData.h>
 
-
 #include "OpenTypeFeatureModel.h"
 struct OpenTypeFeatureModel::Private {
     Private(QObject *parent)
@@ -126,7 +125,6 @@ QVariant OpenTypeFeatureModel::data(const QModelIndex &index, int role) const
 bool OpenTypeFeatureModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (data(index, role) != value) {
-        // FIXME: Implement me!
 
         if (index.isValid() && role == Qt::EditRole) {
             const QString feature = d->currentFeatures.keys().at(index.row());
@@ -180,7 +178,6 @@ void OpenTypeFeatureModel::setFromTextProperties(const KoSvgTextProperties &prop
 
         if (!faces.empty()) {
             QString language = props.propertyOrDefault(KoSvgTextProperties::TextLanguage).toString();
-            // NOTE: We're retrieving only enough data for 6 samples here, to speed up loading.
             d->glyphModel->setFace(faces.front(), QLatin1String(language.toLatin1()), true);
             d->allFeatures->setAvailableFeatures(d->availableFeatures());
             d->fontInfo = props.cssFontInfo();
@@ -252,11 +249,10 @@ void OpenTypeFeatureModel::setFromTextPropertiesModel(KoSvgTextPropertiesModel *
     setFromTextProperties(main);
 }
 
-/********* AllOpenTypeFeaturesModel ************/
 struct AllOpenTypeFeaturesModel::Private {
 
     KoOpenTypeFeatureInfoFactory factory;
-    QList<KoOpenTypeFeatureInfo> availableFeatures; // Features in font.
+    QList<KoOpenTypeFeatureInfo> availableFeatures;
     QStringList availableTags;
     QStringList allTags;
 
@@ -275,7 +271,6 @@ struct AllOpenTypeFeaturesModel::Private {
         return factory.infoByTag(tag);
     }
 
-    // OpenType allows for "custom" opentype features, this forloop checks for those.
     void setAvailableTags() {
         QStringList tags;
         allTags = factory.tags();

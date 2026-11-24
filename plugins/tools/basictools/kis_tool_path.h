@@ -18,7 +18,6 @@
 class KoCanvasBase;
 class KisToolPath;
 
-
 class __KisToolPathLocalTool : public KoCreatePathTool {
 public:
     __KisToolPathLocalTool(KoCanvasBase * canvas, KisToolPath* parentTool);
@@ -58,8 +57,6 @@ public:
 
     void beginAlternateAction(KoPointerEvent *event, AlternateAction action) override;
 
-    // reimplementing KisTool's method because that method calls beginPrimaryAction
-    // which now is used to start the path tool.
     void beginPrimaryDoubleClickAction(KoPointerEvent* event) override;
 
     KisPopupWidgetInterface* popupWidget() override;
@@ -96,6 +93,4 @@ public:
     }
 };
 
-
-
-#endif // KIS_TOOL_PATH_H_
+#endif

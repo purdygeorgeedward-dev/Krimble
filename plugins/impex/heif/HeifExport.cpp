@@ -60,7 +60,7 @@ HeifExport::~HeifExport()
 {
 }
 
-KisPropertiesConfigurationSP HeifExport::defaultConfiguration(const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisPropertiesConfigurationSP HeifExport::defaultConfiguration(const QByteArray & , const QByteArray & ) const
 {
     KisPropertiesConfigurationSP cfg = new KisPropertiesConfiguration();
     cfg->setProperty("quality", 100);
@@ -74,12 +74,10 @@ KisPropertiesConfigurationSP HeifExport::defaultConfiguration(const QByteArray &
     return cfg;
 }
 
-KisConfigWidget *HeifExport::createConfigurationWidget(QWidget *parent, const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisConfigWidget *HeifExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray & ) const
 {
     return new KisWdgOptionsHeif(parent);
 }
-
-
 
 class Writer_QIODevice : public heif::Context::Writer
 {
@@ -148,17 +146,13 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
     auto heifGetPlaneMethod = std::mem_fn(qNonConstOverload<heif_channel, HeifStrideType*>(&heif::Image::get_plane));
 #endif
 
-
     KisImageSP image = document->savingImage();
     const KoColorSpace *cs = image->colorSpace();
-
-
 
     dbgFile << "Starting" << mimeType() << "encoding.";
 
     bool convertToSRGB = (configuration->getBool("monochromeToSRGB") && cs->colorModelId() == GrayAColorModelID);
 
-    // Convert to 8 bits rgba on saving if not rgba or graya.
     if ( (cs->colorModelId() != RGBAColorModelID && cs->colorModelId() != GrayAColorModelID) || convertToSRGB) {
         const KoColorSpace *sRgb = KoColorSpaceRegistry::instance()->rgb8();
         image->convertImageColorSpace(sRgb,
@@ -175,7 +169,7 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
 
     ConversionPolicy conversionPolicy = ConversionPolicy::KeepTheSame;
     bool convertToRec2020 = false;
-    
+
     if (cs->hasHighDynamicRange() && cs->colorModelId() != GrayAColorModelID) {
         QString conversionOption =
             (configuration->getString("floatingPointConversionOption",
@@ -215,24 +209,16 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
     float hlgNominalPeak = configuration->getFloat("HLGnominalPeak", 1000.0f);
     bool removeHGLOOTF = configuration->getBool("removeHGLOOTF", true);
 
-    // If we want to add information from the document to the metadata,
-    // we should do that here.
-
     try {
-        // --- use standard HEVC encoder
-
 
         heif::Encoder encoder(heif_compression_HEVC);
-
 
         if (mimeType() == "image/avif") {
             encoder = heif::Encoder(heif_compression_AV1);
         }
 
-
         encoder.set_lossy_quality(quality);
         if (lossless) {
-            //https://invent.kde.org/graphics/krita/-/merge_requests/530#note_169521
             encoder.set_lossy_quality(100);
         }
         encoder.set_lossless(lossless);
@@ -240,8 +226,6 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
         encoder.set_parameter("chroma", configuration->getString("chroma", "444").toStdString());
         }
 
-
-        // --- convert KisImage to HEIF image ---
         int width = image->width();
         int height = image->height();
 
@@ -405,7 +389,6 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
             }
         }
 
-        // --- save the color profile.
         if (conversionPolicy == ConversionPolicy::KeepTheSame) {
             QByteArray rawProfileBA = image->colorSpace()->profile()->rawData();
             std::vector<uint8_t> rawProfile(rawProfileBA.begin(), rawProfileBA.end());
@@ -423,9 +406,6 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
            } else {
                 const ColorPrimaries primaries =
                     image->colorSpace()->profile()->getColorPrimaries();
-                // PRIMARIES_ADOBE_RGB_1998 and higher are not valid for CICP.
-                // But this should have already been caught by the KeepTheSame
-                // clause...
                 KIS_SAFE_ASSERT_RECOVER(primaries <= PRIMARIES_EBU_Tech_3213_E) {
                     errFile << "Attempt to export a file with unsupported primaries" << primaries;
                     return ImportExportCodes::FormatColorSpaceUnsupported;
@@ -448,21 +428,13 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
            img.set_nclx_color_profile(nclxDescription);
         }
 
-
-        // --- encode and write image
-
         heif::Context::EncodingOptions options;
 
-        // iOS gets confused when a heif file contains an nclx.
-        // but we absolutely need it for hdr.
         if (conversionPolicy != ConversionPolicy::KeepTheSame && cs->hasHighDynamicRange()) {
             options.macOS_compatibility_workaround_no_nclx_profile = false;
         }
 
         heif::ImageHandle handle = ctx.encode_image(img, encoder, options);
-
-
-        // --- add Exif / XMP metadata
 
         KisExifInfoVisitor exivInfoVisitor;
         exivInfoVisitor.visit(image->rootLayer().data());
@@ -479,10 +451,9 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
             {
                 KisMetaData::IOBackend *exifIO = KisMetadataBackendRegistry::instance()->value("exif");
                 QBuffer buffer;
-                exifIO->saveTo(metaDataStore.data(), &buffer, KisMetaData::IOBackend::NoHeader); // Or JpegHeader? Or something else?
+                exifIO->saveTo(metaDataStore.data(), &buffer, KisMetaData::IOBackend::NoHeader);
                 QByteArray data = buffer.data();
 
-                // Write the data to the file
                 if (data.size() > 4) {
                     ctx.add_exif_metadata(handle, data.constData(), data.size());
                 }
@@ -490,18 +461,14 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
             {
                 KisMetaData::IOBackend *xmpIO = KisMetadataBackendRegistry::instance()->value("xmp");
                 QBuffer buffer;
-                xmpIO->saveTo(metaDataStore.data(), &buffer, KisMetaData::IOBackend::NoHeader); // Or JpegHeader? Or something else?
+                xmpIO->saveTo(metaDataStore.data(), &buffer, KisMetaData::IOBackend::NoHeader);
                 QByteArray data = buffer.data();
 
-                // Write the data to the file
                 if (data.size() > 0) {
                     ctx.add_XMP_metadata(handle, data.constData(), data.size());
                 }
             }
         }
-
-
-        // --- write HEIF file
 
         Writer_QIODevice writer(io);
 
@@ -515,7 +482,6 @@ KisImportExportErrorCode HeifExport::convert(KisDocument *document, QIODevice *i
 
 void HeifExport::initializeCapabilities()
 {
-    // This checks before saving for what the file format supports: anything that is supported needs to be mentioned here
 
     QList<QPair<KoID, KoID> > supportedColorModels;
     addCapability(KisExportCheckRegistry::instance()->get("sRGBProfileCheck")->create(KisExportCheckBase::SUPPORTED));
@@ -530,7 +496,6 @@ void HeifExport::initializeCapabilities()
 
 void KisWdgOptionsHeif::setConfiguration(const KisPropertiesConfigurationSP cfg)
 {
-    // the export manager should have prepared some info for us!
     KIS_SAFE_ASSERT_RECOVER_NOOP(cfg->hasProperty(KisImportExportFilter::ImageContainsTransparencyTag));
     KIS_SAFE_ASSERT_RECOVER_NOOP(cfg->hasProperty(KisImportExportFilter::ColorModelIDTag));
 
@@ -548,9 +513,8 @@ void KisWdgOptionsHeif::setConfiguration(const KisPropertiesConfigurationSP cfg)
     int cicpPrimaries = cfg->getInt(KisImportExportFilter::CICPPrimariesTag,
                                     static_cast<int>(PRIMARIES_UNSPECIFIED));
 
-    // Rav1e doesn't support monochrome. To get around this, people may need to convert to sRGB first.
     chkMonochromesRGB->setVisible(cfg->getString(KisImportExportFilter::ColorModelIDTag) == "GRAYA");
-    
+
     conversionSettings->setVisible(cfg->getBool(KisImportExportFilter::HDRTag, false));
 
     QStringList conversionOptionsList = { i18nc("Color space name", "Rec 2100 PQ"), i18nc("Color space name", "Rec 2100 HLG")};
@@ -559,19 +523,19 @@ void KisWdgOptionsHeif::setConfiguration(const KisPropertiesConfigurationSP cfg)
                               i18nc("@tooltip", "The image will be converted to Rec 2020 linear first, and then encoded with a Hybrid Log Gamma curve."
                                " Recommended for HDR images where the display may not understand HDR.")};
     QStringList conversionOptionName = {"Rec2100PQ", "Rec2100HLG"};
-    
+
     if (cfg->getString(KisImportExportFilter::ColorModelIDTag) == "RGBA") {
         if (cicpPrimaries != PRIMARIES_UNSPECIFIED) {
             conversionOptionsList << i18nc("Color space option plus transfer function name", "Keep colorants, encode PQ");
             toolTipList << i18nc("@tooltip", "The image will be linearized first, and then encoded with a perceptual quantizer curve"
                                             " (also known as the SMPTE 2048 curve). Recommended for images where the absolute brightness is important.");
             conversionOptionName << "ApplyPQ";
-            
+
             conversionOptionsList << i18nc("Color space option plus transfer function name", "Keep colorants, encode HLG");
             toolTipList << i18nc("@tooltip", "The image will be linearized first, and then encoded with a Hybrid Log Gamma curve."
                                             " Recommended for images intended for screens which cannot understand PQ");
             conversionOptionName << "ApplyHLG";
-            
+
             conversionOptionsList << i18nc("Color space option plus transfer function name", "Keep colorants, encode SMPTE ST 428");
             toolTipList << i18nc("@tooltip", "The image will be linearized first, and then encoded with SMPTE ST 428."
                                             " Krita always opens images like these as linear floating point, this option is there to reverse that");
@@ -617,7 +581,6 @@ KisPropertiesConfigurationSP KisWdgOptionsHeif::configuration() const
 
 void KisWdgOptionsHeif::toggleQualitySlider(bool toggle)
 {
-    // Disable the quality slider if lossless is true
     lossySettings->setEnabled(!toggle);
 }
 

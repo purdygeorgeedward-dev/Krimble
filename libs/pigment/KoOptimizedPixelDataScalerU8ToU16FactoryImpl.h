@@ -17,4 +17,4 @@ public:
     static KoOptimizedPixelDataScalerU8ToU16Base* create(int);
 };
 
-#endif // KoOptimizedPixelDataScalerU8ToU16FACTORYIMPL_H
+#endif

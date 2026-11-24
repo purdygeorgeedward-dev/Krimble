@@ -10,10 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-
-/**
- * Docker compositions of the image
- */
 class CompositionDockerPlugin : public QObject
 {
     Q_OBJECT

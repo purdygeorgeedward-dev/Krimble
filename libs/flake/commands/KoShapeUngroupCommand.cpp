@@ -12,7 +12,6 @@
 #include <klocalizedstring.h>
 #include "kis_assert.h"
 
-
 struct KoShapeUngroupCommand::Private
 {
     Private(KoShapeContainer *_container,
@@ -25,7 +24,6 @@ struct KoShapeUngroupCommand::Private
         std::stable_sort(shapes.begin(), shapes.end(), KoShape::compareShapeZIndex);
         std::sort(topLevelShapes.begin(), topLevelShapes.end(), KoShape::compareShapeZIndex);
     }
-
 
     KoShapeContainer *container;
     QList<KoShape*> shapes;
@@ -66,8 +64,6 @@ void KoShapeUngroupCommand::redo()
         indexedSiblings.append(shape);
     }
 
-    // find the place where the ungrouped shapes should be inserted
-    // (right on the top of their current container)
     auto insertIt = std::upper_bound(indexedSiblings.begin(),
                                      indexedSiblings.end(),
                                      IndexedShape(m_d->container));

@@ -46,4 +46,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_SUSPEND_PROJECTION_UPDATES_STROKE_STRATEGY_H */
+#endif

@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testTextBrush();
 };
 
-#endif // KISBRUSHMODELTEST_H
+#endif

@@ -41,4 +41,4 @@ private:
     int m_shortcut{-1};
 };
 
-#endif // __KISTOUCHGESTUREACTION_H_
+#endif

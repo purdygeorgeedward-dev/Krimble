@@ -11,4 +11,4 @@
 
 using KisColorRateOption2 = KisStandardOptionNoApply<KisColorRateOptionData>;
 
-#endif // KISCOLORRATEOPTION_H
+#endif

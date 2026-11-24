@@ -62,12 +62,11 @@ private:
 struct KisToolSmartPatch::Private {
     KisPaintDeviceSP maskDev = nullptr;
     KisPainter maskDevPainter;
-    float brushRadius = 50.; //initial default. actually read from ui.
+    float brushRadius = 50.;
     KisToolSmartPatchOptionsWidget *optionsWidget = nullptr;
     QRectF oldOutlineRect;
     QPainterPath brushOutline;
 };
-
 
 KisToolSmartPatch::KisToolSmartPatch(KoCanvasBase * canvas)
     : KisToolPaint(canvas, KisCursor::blankCursor()),
@@ -131,7 +130,6 @@ void KisToolSmartPatch::addMaskPath( KoPointerEvent *event )
 
 void KisToolSmartPatch::beginPrimaryAction(KoPointerEvent *event)
 {
-    //we can only apply inpaint operation to paint layer
     if ( currentNode().isNull() || !currentNode()->inherits("KisPaintLayer") || nodePaintAbility()!=NodePaintAbility::PAINT ) {
         KisCanvas2 * kiscanvas = static_cast<KisCanvas2*>(canvas());
         kiscanvas->viewManager()->
@@ -163,8 +161,8 @@ void KisToolSmartPatch::endPrimaryAction(KoPointerEvent *event)
 
     KisCursorOverrideLock cursorLock(KisCursor::waitCursor());
 
-    int accuracy = 50; //default accuracy - middle value
-    int patchRadius = 4; //default radius, which works well for most cases tested
+    int accuracy = 50;
+    int patchRadius = 4;
 
     if (m_d->optionsWidget) {
         accuracy = m_d->optionsWidget->getAccuracy();
@@ -177,7 +175,6 @@ void KisToolSmartPatch::endPrimaryAction(KoPointerEvent *event)
     KisProcessingApplicator applicator( image(), currentNode(), KisProcessingApplicator::NONE, KisImageSignalVector(),
                                         kundo2_i18n("Healing Brush"));
 
-    //actual inpaint operation. filling in areas masked by user
     applicator.applyCommand( new InpaintCommand( KisPainter::convertToAlphaAsAlpha(m_d->maskDev),
                                                  currentNode()->paintDevice(),
                                                  accuracy, patchRadius,
@@ -225,9 +222,6 @@ void KisToolSmartPatch::requestUpdateOutline(const QPointF &outlineDocPoint, con
     QRectF outlinePixelRect = m_d->brushOutline.boundingRect();
     QRectF outlineDocRect = currentImage()->pixelToDocument(outlinePixelRect);
 
-    // This adjusted call is needed as we paint with a 3 pixel wide brush and the pen is outside the bounds of the path
-    // Pen uses view coordinates so we have to zoom the document value to match 2 pixel in view coordinates
-    // See BUG 275829
     qreal zoomX;
     qreal zoomY;
     canvas()->viewConverter()->zoom(&zoomX, &zoomY);

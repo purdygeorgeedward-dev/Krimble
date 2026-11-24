@@ -23,7 +23,6 @@
 #define TEST_WIDTH 3000
 #define TEST_HEIGHT 3000
 
-
 template <bool useXY>
 void KisIteratorBenchmark::sequentialIter(const KoColorSpace * colorSpace)
 {
@@ -61,15 +60,12 @@ void KisIteratorBenchmark::sequentialIter(const KoColorSpace * colorSpace)
             if (useXY) {
                 sum = it.x() + it.y();
             }
-            //memcpy(it.rawData(), bytes, colorSpace->pixelSize());
         }
 
         qDebug() << ppVar(useXY) << "SequentialConstIterator run " << i  << "took" << t.elapsed();
         Q_UNUSED(sum);
         t.restart();
     }
-
-
 
     delete[] bytes;
 }
@@ -115,7 +111,6 @@ void KisIteratorBenchmark::hLineIterNG(const KoColorSpace * colorSpace)
     KisHLineConstIteratorSP cit = dev.createHLineConstIteratorNG(0, 0, TEST_WIDTH);
     for (int i = 0; i < TEST_HEIGHT; i++) {
         do {
-            //do stuff
         } while (cit->nextPixel());
         cit->nextRow();
     }
@@ -194,7 +189,6 @@ void KisIteratorBenchmark::randomAccessor(const KoColorSpace * colorSpace)
                 int rowStride = ac->rowStride(x, y);
                 quint8 *data = ac->rawData();
 
-
                 for (int i = 0; i < numContiguousRows; i++) {
                     memcpy(data, bytes, numContiguousColumns * colorSpace->pixelSize());
                     data += rowStride;
@@ -220,7 +214,6 @@ void KisIteratorBenchmark::randomAccessor(const KoColorSpace * colorSpace)
 
     delete[] bytes;
 }
-
 
 void KisIteratorBenchmark::runBenchmark()
 {

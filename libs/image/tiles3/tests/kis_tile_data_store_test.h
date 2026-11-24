@@ -20,5 +20,5 @@ private Q_SLOTS:
     void testSwapping();
 };
 
-#endif /* KIS_TILE_DATA_STORE_TEST_H */
+#endif
 

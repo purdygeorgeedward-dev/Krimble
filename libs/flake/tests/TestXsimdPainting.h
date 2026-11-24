@@ -8,12 +8,6 @@
 
 #include <simpletest.h>
 
-/**
- * @brief The TestXsimdPainting class
- *
- * This tests whether the algorithms for XSimd and its fallback algorithm are the same.
- */
-
 class TestXsimdPainting : public QObject
 {
     Q_OBJECT
@@ -22,4 +16,4 @@ private Q_SLOTS:
     void testKoClipMaskPainting();
 };
 
-#endif // TESTXSIMDPAINTING_H
+#endif

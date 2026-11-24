@@ -34,7 +34,6 @@
 
 #include <KisToolPaintFactoryBase.h>
 
-
 #include "tool_transform_args.h"
 #include "KisToolChangesTracker.h"
 #include "kis_tool_transform_config_widget.h"
@@ -53,29 +52,6 @@ class KisFreeTransformStrategy;
 class KisPerspectiveTransformStrategy;
 class KisMeshTransformStrategy;
 
-
-/**
- * Transform tool
- * This tool offers several modes.
- * - Free Transform mode allows the user to translate, scale, shear, rotate and
- *   apply a perspective transformation to a selection or the whole canvas.
- * - Warp mode allows the user to warp the selection of the canvas by grabbing
- *   and moving control points placed on the image. The user can either work
- *   with default control points, like a grid whose density can be modified, or
- *   place the control points manually. The modifications made on the selected
- *   pixels are applied only when the user clicks the Apply button : the
- *   semi-transparent image displayed until the user click that button is only a
- *   preview.
- * - Cage transform is similar to warp transform with control points exactly
- *   placed on the outer boundary. The user draws a boundary polygon, the
- *   vertices of which become control points.
- * - Perspective transform applies a two-point perspective transformation. The
- *   user can manipulate the corners of the selection. If the vanishing points
- *   of the resulting quadrilateral are on screen, the user can manipulate those
- *   as well.
- * - Liquify transform transforms the selection by painting motions, as if the
- *   user was finger painting.
- */
 class KisToolTransform : public KisTool
 {
 
@@ -100,8 +76,6 @@ class KisToolTransform : public KisTool
     Q_PROPERTY(double warpFlexibility READ warpFlexibility WRITE setWarpFlexibility NOTIFY warpTransformChanged)
     Q_PROPERTY(int warpPointDensity READ warpPointDensity WRITE setWarpPointDensity NOTIFY warpTransformChanged)
 
-
-
 public:
     enum TransformToolMode {
         FreeTransformMode,
@@ -123,14 +97,6 @@ public:
     KisToolTransform(KoCanvasBase * canvas);
     ~KisToolTransform() override;
 
-    /**
-     * @brief wantsAutoScroll
-     * reimplemented from KoToolBase
-     * there's an issue where autoscrolling with this tool never makes the
-     * stroke end, so we return false here so that users don't get stuck with
-     * the tool. See bug 362659
-     * @return false
-     */
     bool wantsAutoScroll() const override {
         return false;
     }
@@ -188,7 +154,6 @@ public:
 public Q_SLOTS:
     void activate(const QSet<KoShape*> &shapes) override;
     void deactivate() override;
-    // Applies the current transformation to the original paint device and commits it to the undo stack
     void applyTransform();
 
     void requestImageRecalculation();
@@ -231,7 +196,6 @@ public Q_SLOTS:
     void canvasUpdateRequested();
     void cursorOutlineUpdateRequested(const QPointF &imagePos);
 
-    // Update the widget according to m_currentArgs
     void updateOptionWidget();
 
     void resetRotationCenterButtonsRequested();
@@ -248,9 +212,7 @@ private:
 
 private:
     void outlineChanged();
-    // Sets the cursor according to mouse position (doesn't take shearing into account well yet)
     void setFunctionalCursor();
-    // Sets m_function according to mouse position and modifier
     void setTransformFunction(QPointF mousePos, Qt::KeyboardModifiers modifiers);
 
     void commitChanges();
@@ -264,11 +226,9 @@ private:
 private:
     ToolTransformArgs m_currentArgs;
 
-    // Set by newActivationWithExternalSource before starting a new stroke.
-    // The source pixels for the next transform will be read from this device.
     KisPaintDeviceSP m_externalSourceForNextActivation;
 
-    bool m_actuallyMoveWhileSelected {false}; // true <=> selection has been moved while clicked
+    bool m_actuallyMoveWhileSelected {false};
 
     KisPaintDeviceSP m_selectedPortionCache;
     KisStrokeId m_strokeId;
@@ -277,8 +237,7 @@ private:
     bool m_preferOverlayPreviewStyle {false};
     bool m_forceLodMode {false};
 
-
-    QPainterPath m_selectionPath; // original (unscaled) selection outline, used for painting decorations
+    QPainterPath m_selectionPath;
 
     KisToolTransformConfigWidget *m_optionsWidget {0};
     QPointer<KisCanvas2> m_canvas;
@@ -289,7 +248,6 @@ private:
 
     TransformToolMode nextActivationTransformMode {FreeTransformMode};
 
-    /// actions for the context click menu
     KisAction* warpAction {0};
     KisAction* meshAction {0};
     KisAction* liquifyAction {0};
@@ -299,21 +257,12 @@ private:
     KisAction* applyTransformation {0};
     KisAction* resetTransformation {0};
 
-    // a few extra context click options if free transform is active
     KisAction* mirrorHorizontalAction {0};
     KisAction* mirrorVerticalAction {0};
     KisAction* rotateNinetyCWAction {0};
     KisAction* rotateNinetyCCWAction {0};
     KisAction* keepAspectRatioAction {0};
 
-
-
-
-    /**
-     * This artificial rect is used to store the image to flake
-     * transformation. We check against this rect to get to know
-     * whether zoom has changed.
-     */
     QRectF m_refRect;
 
     QScopedPointer<KisWarpTransformStrategy> m_warpStrategy;
@@ -353,8 +302,6 @@ private Q_SLOTS:
     void slotTransactionGenerated(TransformTransactionProperties transaction, ToolTransformArgs args, void *strokeStrategyCookie);
     void slotPreviewDeviceGenerated(KisPaintDeviceSP device);
 
-    // context menu options for updating the transform type
-    // this is to help with discoverability since come people can't find the tool options
     void slotUpdateToWarpType();
     void slotUpdateToPerspectiveType();
     void slotUpdateToFreeTransformType();
@@ -401,8 +348,6 @@ private Q_SLOTS:
     void activateSubtoolMesh();
 };
 
-
-
 class KisToolFreeRotate : public KisToolTransform
 {
     Q_OBJECT
@@ -437,7 +382,6 @@ class KisToolFreeRotateFactory : public KisToolPaintFactoryBase
 public:
     KisToolFreeRotateFactory()
             : KisToolPaintFactoryBase("KisToolFreeRotate") {
-        // setToolTip(i18n("Free Rotate"));
         setToolTip(i18n("Rotate"));
         setSection(ToolBoxSection::PSOrder);
         setToolBoxPriority(241);
@@ -453,5 +397,5 @@ public:
     }
 };
 
-#endif // KIS_TOOL_TRANSFORM_H_
+#endif
 

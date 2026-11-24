@@ -37,10 +37,6 @@ class KisUniqueColorSet;
 
 #include <brushengine/kis_paintop_preset.h>
 #include <kis_node.h>
-/**
- * KisCanvasResourceProvider contains the per-window current settings that
- * influence painting, like paintop, color, gradients and so on.
- */
 class KRITAUI_EXPORT KisCanvasResourceProvider : public QObject
 {
     Q_OBJECT
@@ -60,29 +56,10 @@ public:
     KoColor fgColor() const;
     void setFGColor(const KoColor& c);
 
-    /**
-     * Return an internal model for managing the global list
-     * of last used colors. The model can be used to manipulate
-     * the colors and subscribe to updates.
-     */
     KisUniqueColorSet *colorHistoryModel() const;
 
-    /**
-     * Replaces the global history of the last-used colors,
-     * from the newest to oldest.
-     *
-     * The actual values are stored in the model returned by
-     * colorHistoryModel()
-     */
     void setColorHistoryColors(const QList<KoColor> &colors);
 
-    /**
-     * Return the global history of the last-used colors,
-     * from the newest to oldest.
-     *
-     * The actual values are stored in the model returned by
-     * colorHistoryModel()
-     */
     QList<KoColor> colorHistoryColors() const;
 
     float HDRExposure() const;
@@ -120,7 +97,6 @@ public:
     void setMirrorVertical(bool mirrorVertical);
     bool mirrorVertical() const;
 
-    // options for horizontal and vertical mirror toolbar
     void setMirrorHorizontalLock(bool isLocked);
     bool mirrorHorizontalLock();
     void setMirrorVerticalLock(bool isLocked);
@@ -165,10 +141,8 @@ public:
     void setCharacterPropertyData(KoSvgTextPropertyData data);
     KoSvgTextPropertyData characterTextPropertyData() const;
 
-    ///Notify that the workspace is saved and settings should be saved to it
     void notifySavingWorkspace(KisWorkspaceResourceSP workspace);
 
-    ///Notify that the workspace is loaded and settings can be read
     void notifyLoadingWorkspace(KisWorkspaceResourceSP workspace);
 
 public Q_SLOTS:
@@ -185,11 +159,6 @@ public Q_SLOTS:
     void slotGamutMaskPreviewUpdate();
     void slotGamutMaskDeactivate();
 
-    /**
-     * Set the image size in pixels. The resource provider will store
-     * the image size in postscript points.
-     */
-    // FIXME: this slot doesn't catch the case when image resolution is changed
     void slotImageSizeChanged();
     void slotOnScreenResolutionChanged();
 

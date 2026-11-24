@@ -9,30 +9,26 @@
 #include <QScopedPointer>
 #include <kritaflake_export.h>
 
-/*
- * KoOpenTypeFeatureInfo provides basic info about
- * each opentype feature, with translatable strings.
- **/
 struct KoOpenTypeFeatureInfo
 {
     enum OpenTypeTable {
-        GSUB1, ///< Single substitution.
-        GSUB2, ///< Multiple substitution (1 -> 2)
-        GSUB3, ///< Alternate substitution
-        GSUB4, ///< Ligature substitution.
-        GSUB5, ///< Contextual substitution.
-        GSUB6, ///< Chained Contextual substitution.
-        GSUB7, ///< Extension substitution.
-        GSUB8, ///< Reverse Chained Contextual substitution.
-        GPOS1, ///< Single position adjustment.
-        GPOS2, ///< Pair position adjustment.
-        GPOS3, ///< Cursive attachment.
-        GPOS4, ///< Mark-to-base adjustment.
-        GPOS5, ///< Mark-to-ligature adjustment.
-        GPOS6, ///< Mark-to-mark adjustment.
-        GPOS7, ///< Contextual positioning.
-        GPOS8, ///< Chained-Contextual positioning.
-        GPOS9, ///< Extension positioning.
+        GSUB1,
+        GSUB2,
+        GSUB3,
+        GSUB4,
+        GSUB5,
+        GSUB6,
+        GSUB7,
+        GSUB8,
+        GPOS1,
+        GPOS2,
+        GPOS3,
+        GPOS4,
+        GPOS5,
+        GPOS6,
+        GPOS7,
+        GPOS8,
+        GPOS9,
     };
     KoOpenTypeFeatureInfo() {}
     KoOpenTypeFeatureInfo(const QByteArray &tag,
@@ -49,54 +45,37 @@ struct KoOpenTypeFeatureInfo
     , maxValue(maxValue)
     {
     }
-    
-    QByteArray tag; ///< 4 char tag.
-    
-    QString name; ///< User-friendly name.
-    
-    QString description; ///< Description of the feature.
 
-    QString sample; ///< Sample of the feature, if any. Only used by CVXX features and retrieved from the font.
+    QByteArray tag;
 
-    QStringList namedParameters;/// Named parameters. Only used by CVXX features and retrieved from the font.
-    
-    QVector<OpenTypeTable> tables; ///< Which table type(s) are recommended for this feature in the official registry.
+    QString name;
 
-    bool glyphPalette{false}; ///< Whether the feature should be visible in the glyph palette.
+    QString description;
 
-    int maxValue; ///< The maximum value possible, this is by default 1 (on), but for alternate substitution(gsub 3), it can have more inside the font.
-    
+    QString sample;
+
+    QStringList namedParameters;
+
+    QVector<OpenTypeTable> tables;
+
+    bool glyphPalette{false};
+
+    int maxValue;
+
 };
-
-/**
- * @brief The KoOpenTypeFeatureInfoFactory class
- *
- * This returns KoOpenTypeFeatureInfo's for the given tag.
- */
 
 class KRITAFLAKE_EXPORT KoOpenTypeFeatureInfoFactory
 {
 public:
     KoOpenTypeFeatureInfoFactory();
     ~KoOpenTypeFeatureInfoFactory();
-    
-    /**
-     * @brief infoByTag
-     * @param tag -- the opentype tag for a given feature.
-     * Note that it is possible for Fonts to have custom features,
-     * in this case a generic KoOpenTypeFeatureInfo will be returned.
-     * @return KoOpenTypeFeatureInfo for a given tag.
-     */
+
     KoOpenTypeFeatureInfo infoByTag(const QByteArray &tag) const;
 
-    /**
-     * @brief tags
-     * @return all the tags we have prepared KoOpenTypeFeatureInfo for.
-     */
     QList<QString> tags() const;
 
 private:
     struct Private;
-    
+
     QScopedPointer<Private> d;
 };

@@ -27,7 +27,6 @@
 
 #include "kis_raster_keyframe_channel.h"
 
-
 struct Q_DECL_HIDDEN KisSelectionBasedLayer::Private
 {
 public:
@@ -39,7 +38,6 @@ public:
     bool useSelectionInProjection;
     KisSignalAutoConnectionsStore imageConnections;
 };
-
 
 KisSelectionBasedLayer::KisSelectionBasedLayer(KisImageWSP image,
         const QString &name,
@@ -74,7 +72,6 @@ KisSelectionBasedLayer::KisSelectionBasedLayer(const KisSelectionBasedLayer& rhs
     m_d->paintDevice = new KisPaintDevice(*rhs.m_d->paintDevice.data());
 }
 
-
 KisSelectionBasedLayer::~KisSelectionBasedLayer()
 {
     delete m_d;
@@ -92,10 +89,6 @@ void KisSelectionBasedLayer::initSelection()
 void KisSelectionBasedLayer::slotImageSizeChanged()
 {
     if (m_d->selection) {
-        /**
-         * Make sure exactBounds() of the selection got recalculated after
-         * the image changed
-         */
         m_d->selection->pixelSelection()->setDirty();
         setDirty();
     }
@@ -119,7 +112,6 @@ bool KisSelectionBasedLayer::allowAsChild(KisNodeSP node) const
     return node->inherits("KisMask");
 }
 
-
 KisPaintDeviceSP KisSelectionBasedLayer::original() const
 {
     return m_d->paintDevice;
@@ -128,7 +120,6 @@ KisPaintDeviceSP KisSelectionBasedLayer::paintDevice() const
 {
     return m_d->selection->pixelSelection();
 }
-
 
 bool KisSelectionBasedLayer::needProjection() const
 {
@@ -150,13 +141,6 @@ KisSelectionSP KisSelectionBasedLayer::fetchComposedInternalSelection(const QRec
     KisIndirectPaintingSupport::ReadLocker l(this);
 
     if (hasTemporaryTarget()) {
-        /**
-         * WARNING: we don't try to clone the selection entirely, because
-         *          it might be unsafe for shape selections.
-         *
-         * TODO: make cloning of vector selections safe! See a comment in
-         *       KisShapeSelection::clone().
-         */
         tempSelection = new KisSelection();
 
         KisPainter::copyAreaOptimized(rect.topLeft(), m_d->selection->pixelSelection(), tempSelection->pixelSelection(), rect);
@@ -178,10 +162,6 @@ void KisSelectionBasedLayer::copyOriginalToProjection(const KisPaintDeviceSP ori
     if (m_d->useSelectionInProjection) {
         tempSelection = fetchComposedInternalSelection(rect);
 
-        /**
-         * When we paint with a selection, the deselected areas will *not* be
-         * overwritten by copyAreaOptimized(), so we need to clear them beforehand
-         */
         projection->clear(rect);
     }
 
@@ -246,9 +226,6 @@ void KisSelectionBasedLayer::setInternalSelection(KisSelectionSP selection)
 
         KisImageSP imageSP = image().toStrongRef();
         if (imageSP) {
-            /**
-             * Sanity check for the case when the image is present
-             */
             if (m_d->selection->pixelSelection()->defaultBounds()->bounds() != imageSP->bounds()) {
                 qWarning() << "WARNING: KisSelectionBasedLayer::setInternalSelection"
                            << "New selection has suspicious default bounds";
@@ -328,7 +305,6 @@ QRect KisSelectionBasedLayer::extent() const
     if (m_d->selection) {
         resultRect = m_d->selection->selectedRect();
 
-        // copy for thread safety!
         KisPaintDeviceSP temporaryTarget = this->temporaryTarget();
 
         if (temporaryTarget) {
@@ -351,7 +327,6 @@ QRect KisSelectionBasedLayer::exactBounds() const
     if (m_d->selection) {
         resultRect = m_d->selection->selectedExactRect();
 
-        // copy for thread safety!
         KisPaintDeviceSP temporaryTarget = this->temporaryTarget();
 
         if (temporaryTarget) {

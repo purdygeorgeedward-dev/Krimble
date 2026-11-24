@@ -10,10 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-
-/**
- * Template of view plugin
- */
 class SmallColorSelectorPlugin : public QObject
 {
     Q_OBJECT

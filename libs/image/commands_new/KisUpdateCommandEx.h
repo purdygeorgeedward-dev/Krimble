@@ -16,7 +16,6 @@
 
 class KisUpdatesFacade;
 
-
 class KRITAIMAGE_EXPORT KisUpdateCommandEx : public KisCommandUtils::FlipFlopCommand
 {
 public:
@@ -39,4 +38,4 @@ private:
     KisUpdatesFacade *m_updatesFacade;
 };
 
-#endif // KISUPDATECOMMANDEX_H
+#endif

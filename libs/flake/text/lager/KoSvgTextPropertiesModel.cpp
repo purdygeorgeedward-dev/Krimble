@@ -40,8 +40,6 @@ auto propertyModifyState = [](KoSvgTextProperties::PropertyId propId) { return l
         if (state == KoSvgTextPropertiesModel::PropertySet) {
             value.commonProperties.setProperty(propId, value.inheritedProperties.propertyOrDefault(propId));
         } else {
-            // Because tristate represents properties that are set but mixed, there's no value in being able to set them from the UX.
-            // so if we receive such a signal, it is incorrect.
             if (state == KoSvgTextPropertiesModel::PropertyTriState || state == KoSvgTextPropertiesModel::PropertyInherited) {
                 qWarning() << "Receiving request to set property tristate or inherited, this will unset the property instead";
             }
@@ -64,7 +62,6 @@ auto simplifiedAutoLengthPropertyImpl = lager::lenses::getset(
 
 auto simplifiedAutoLengthProperty = variant_to<KoSvgText::AutoLengthPercentage> | simplifiedAutoLengthPropertyImpl;
 
-// Used for font-kerning.
 auto autoValueToBoolImpl = lager::lenses::getset(
             [](const KoSvgText::AutoValue &value) -> bool {
                 return value.isAuto;
@@ -80,7 +77,6 @@ auto autoValueToBoolImpl = lager::lenses::getset(
 
 auto autoValueToBool = variant_to<KoSvgText::AutoValue> | autoValueToBoolImpl;
 
-// Used for font-size-adjust.
 auto autoValueSimplifiedImpl = lager::lenses::getset(
             [](const KoSvgText::AutoValue &value) -> qreal {
                 return value.isAuto? 0.0: value.customValue;

@@ -33,21 +33,17 @@ public:
 
     virtual bool snap(const QPointF &mousePosition, KoSnapProxy * proxy, qreal maxSnapDistance) = 0;
 
-    /// returns the strategies type
     KoSnapGuide::Strategy type() const;
 
     static qreal squareDistance(const QPointF &p1, const QPointF &p2);
     static qreal scalarProduct(const QPointF &p1, const QPointF &p2);
 
-    /// returns the snapped position form the last call to snapToPoints
     QPointF snappedPosition() const;
     SnapType snappedType() const;
 
-    /// returns the current snap strategy decoration
     virtual QPainterPath decoration(const KoViewConverter &converter) const = 0;
 
 protected:
-    /// sets the current snapped position
     void setSnappedPosition(const QPointF &position, SnapType snapType);
 
 private:
@@ -61,7 +57,6 @@ inline bool operator<(KoSnapStrategy::SnapType lhs, KoSnapStrategy::SnapType rhs
     return int(lhs) < int(rhs);
 }
 
-/// snaps to x- or y-coordinates of path points
 class KRITAFLAKE_EXPORT OrthogonalSnapStrategy : public KoSnapStrategy
 {
 public:
@@ -73,7 +68,6 @@ private:
     QLineF m_vLine;
 };
 
-/// snaps to path points
 class KRITAFLAKE_EXPORT NodeSnapStrategy : public KoSnapStrategy
 {
 public:
@@ -82,7 +76,6 @@ public:
     QPainterPath decoration(const KoViewConverter &converter) const override;
 };
 
-/// snaps extension lines of path shapes
 class KRITAFLAKE_EXPORT ExtensionSnapStrategy : public KoSnapStrategy
 {
     friend class TestSnapStrategy;
@@ -97,7 +90,6 @@ private:
     QList<QLineF> m_lines;
 };
 
-/// snaps to intersections of shapes
 class KRITAFLAKE_EXPORT IntersectionSnapStrategy : public KoSnapStrategy
 {
 public:
@@ -106,7 +98,6 @@ public:
     QPainterPath decoration(const KoViewConverter &converter) const override;
 };
 
-/// snaps to the canvas grid
 class KRITAFLAKE_EXPORT GridSnapStrategy : public KoSnapStrategy
 {
 public:
@@ -115,7 +106,6 @@ public:
     QPainterPath decoration(const KoViewConverter &converter) const override;
 };
 
-/// snaps to shape bounding boxes
 class KRITAFLAKE_EXPORT BoundingBoxSnapStrategy : public KoSnapStrategy
 {
     friend class TestSnapStrategy;
@@ -128,17 +118,4 @@ private:
     QPointF m_boxPoints[5];
 };
 
-// KoGuidesData has been moved into Krita. Please port this class!
-//
-/// snaps to line guides
-// class KRITAFLAKE_EXPORT LineGuideSnapStrategy : public KoSnapStrategy
-// {
-// public:
-//     LineGuideSnapStrategy();
-//     virtual bool snap(const QPointF &mousePosition, KoSnapProxy * proxy, qreal maxSnapDistance);
-//     virtual QPainterPath decoration(const KoViewConverter &converter) const;
-// private:
-//     int m_orientation;
-// };
-
-#endif // KOSNAPSTRATEGY_H
+#endif

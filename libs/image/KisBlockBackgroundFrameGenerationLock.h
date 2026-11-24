@@ -12,14 +12,6 @@
 
 class KisImageAnimationInterface;
 
-
-/**
- * A RAII-based locker for calling
- * animationInterface->block/unblockBackgroundFrameGeneration(),
- * which prohibits background frame cache generation process,
- * so that it doesn't interfere with interactive frame generation
- * using the dialog.
- */
 class KRITAIMAGE_EXPORT KisBlockBackgroundFrameGenerationLockAdapter
 {
 public:
@@ -34,4 +26,4 @@ private:
 
 KIS_DECLARE_ADAPTED_LOCK(KisBlockBackgroundFrameGenerationLock, KisBlockBackgroundFrameGenerationLockAdapter)
 
-#endif // KISBLOCKBACKGROUNDFRAMEGENERATIONLOCK_H
+#endif

@@ -55,8 +55,7 @@ bool Imagesplit::saveAsImage(const QRect &imgSize, const QString &mimeType, cons
 
     KisDocument *document = KisPart::instance()->createDocument();
 
-    { // make sure dst is deleted before calling 'delete exportDocument',
-      // since KisDocument checks that its image is properly deref()'d.
+    {
       KisImageSP dst = new KisImage(document->createUndoStore(), imgSize.width(), imgSize.height(), image->colorSpace(), image->objectName());
       dst->setResolution(image->xRes(), image->yRes());
       document->setCurrentImage(dst);
@@ -85,11 +84,9 @@ bool Imagesplit::saveAsImage(const QRect &imgSize, const QString &mimeType, cons
 
 void Imagesplit::slotImagesplit()
 {
-    // Taking the title - url from caption function and removing file extension
     QStringList strList = ((viewManager()->document())->caption()).split('.');
     QString suffix = strList.at(0);
 
-    // Getting all mime types and converting them into names which are displayed at combo box
     QStringList listMimeFilter = KisImportExportManager::supportedMimeTypes(KisImportExportManager::Export);
     QString defaultMime = QString::fromLatin1(viewManager()->document()->mimeType());
     if (defaultMime.isEmpty()) defaultMime = QString::fromLatin1(viewManager()->document()->nativeFormatMimeType());
@@ -156,7 +153,6 @@ void Imagesplit::slotImagesplit()
         if (dlgImagesplit->useVerticalGuides()) {
             numVerticalLines = xGuides.size();
         }
-
 
         bool stop = false;
 

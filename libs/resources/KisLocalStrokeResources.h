@@ -10,37 +10,18 @@
 
 class KisLocalStrokeResourcesPrivate;
 
-
-/**
- * @brief a KisResourcesInterface-like resources storage for preloaded resources
- *
- * KisLocalStrokeResources stores preloaded resources and dispatches them
- * to the consumers as a resources source.
- *
- * It is used by the strokes to avoid accessing global resource storage
- * from non-gui threads.
- */
 class KRITARESOURCES_EXPORT KisLocalStrokeResources : public KisResourcesInterface
 {
 public:
     KisLocalStrokeResources();
     KisLocalStrokeResources(const QList<KoResourceSP> &localResources);
 
-    /**
-     * Add a resource to this local resources storage
-     */
     void addResource(KoResourceSP resource);
 
-    /**
-     * Remove a resource from this local resources storage
-     */
     void removeResource(KoResourceSP resource);
 
     KisLocalStrokeResources* clone() const;
 
-    /**
-     * Return all the resources that are present in this local resources storage
-     */
     QList<KoResourceSP> resources() const;
 
 protected:
@@ -50,4 +31,4 @@ private:
     Q_DECLARE_PRIVATE(KisLocalStrokeResources);
 };
 
-#endif // KISLOCALSTROKERESOURCES_H
+#endif

@@ -30,9 +30,6 @@ enum SourceType {
 
 void testRoundTrip(const KoColorSpace *srcCS, const KoColorSpace *dstCS, SourceType sourceIsPQ)
 {
-    /*
-     *  On some systems these colorspaces cannot be created, so don't die:
-     */
     if (!srcCS | !dstCS) return;
 
     KoColor srcColor(srcCS);
@@ -41,20 +38,20 @@ void testRoundTrip(const KoColorSpace *srcCS, const KoColorSpace *dstCS, SourceT
     QVector<float> refChannels;
 
     if (sourceIsPQ == HDR) {
-        refChannels << 2.8; // R
-        refChannels << 1.8; // G
-        refChannels << 0.8; // B
-        refChannels << 0.9; // A
+        refChannels << 2.8;
+        refChannels << 1.8;
+        refChannels << 0.8;
+        refChannels << 0.9;
     } else if (sourceIsPQ == HDR_PQ) {
-        refChannels << 0.9; // R (PQ)
-        refChannels << 0.7; // G (PQ)
-        refChannels << 0.1; // B (PQ)
-        refChannels << 0.9; // A
+        refChannels << 0.9;
+        refChannels << 0.7;
+        refChannels << 0.1;
+        refChannels << 0.9;
     } else if (sourceIsPQ == SDR) {
-        refChannels << 0.15; // R
-        refChannels << 0.17; // G
-        refChannels << 0.19; // B
-        refChannels << 0.90; // A
+        refChannels << 0.15;
+        refChannels << 0.17;
+        refChannels << 0.19;
+        refChannels << 0.90;
     }
 
     srcCS->fromNormalisedChannelsValue(srcColor.data(), refChannels);
@@ -72,7 +69,6 @@ void testRoundTrip(const KoColorSpace *srcCS, const KoColorSpace *dstCS, SourceT
 
     const QList<KoChannelInfo*> channels = srcCS->channels();
 
-    // 5% tolerance for CMYK, 4% for 8-bit, and 1% for everything else
     const float tolerance =
         dstCS->colorModelId() == CMYKAColorModelID ? 0.05 :
         (dstCS->colorDepthId() == Integer8BitsColorDepthID ||
@@ -222,10 +218,6 @@ void TestLcmsRGBP2020PQColorSpace::testHDRClippingRec709ToRec2020()
 
     KoColor p709Color(Qt::white, p709CS);
 
-    /**
-     * Set the colors above the normal range to check if they are clipped during
-     * the conversion
-     */
     float* colorsPtr = reinterpret_cast<float*>(p709Color.data());
     colorsPtr[0] = 1.5f;
     colorsPtr[1] = 0.7f;

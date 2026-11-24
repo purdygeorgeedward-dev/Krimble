@@ -19,7 +19,6 @@ class QComboBox;
 #include <lager/cursor.hpp>
 #include <lager/constant.hpp>
 
-
 class PAINTOP_EXPORT KisCurveOptionWidget : public KisPaintOpOption
 {
     Q_OBJECT
@@ -93,8 +92,6 @@ protected:
 protected Q_SLOTS:
     void updateThemedIcons();
 
-
-    // curve shape preset buttons
     void changeCurveLinear();
     void changeCurveReverseLinear();
     void changeCurveSShape();
@@ -103,7 +100,6 @@ protected Q_SLOTS:
     void changeCurveLShape();
     void changeCurveUShape();
     void changeCurveArchShape();
-
 
 protected:
     QWidget* m_widget {nullptr};
@@ -117,4 +113,4 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisCurveOptionWidget::Flags)
 
-#endif // KisCurveOptionWidget_H
+#endif

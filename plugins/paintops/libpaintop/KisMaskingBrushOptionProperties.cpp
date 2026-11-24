@@ -63,9 +63,6 @@ void KisBrushModel::MaskingBrushData::write(KisPropertiesConfiguration *config) 
     config->setProperty(KisPaintOpUtils::MaskingBrushUseMasterSizeTag, useMasterSize);
     config->setProperty(KisPaintOpUtils::MaskingBrushMasterSizeCoeffTag, masterSizeCoeff);
 
-    // TODO: skip saving in some cases?
-    // if (!isEnabled) return;
-
     {
         KisPropertiesConfigurationSP embeddedConfig = new KisPropertiesConfiguration();
         brush.write(embeddedConfig.data());

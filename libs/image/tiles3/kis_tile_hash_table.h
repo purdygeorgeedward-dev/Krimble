@@ -10,16 +10,6 @@
 
 #include "kis_tile.h"
 
-
-
-/**
- * This is a  template for a hash table that stores  tiles (or some other
- * objects  resembling tiles).   Actually, this  object should  only have
- * col()/row() methods and be able to answer setNext()/next() requests to
- * be   stored   here.    It   is   used   in   KisTiledDataManager   and
- * KisMementoManager.
- */
-
 template<class T>
 class KisTileHashTableTraits
 {
@@ -32,7 +22,6 @@ public:
     KisTileHashTableTraits(const KisTileHashTableTraits<T> &ht,
                            KisMementoManager *mm);
 
-    /* virtual? */
     ~KisTileHashTableTraits();
 
     bool isEmpty() {
@@ -41,34 +30,10 @@ public:
 
     bool tileExists(qint32 col, qint32 row);
 
-    /**
-     * Returns a tile in position (col,row). If no tile exists,
-     * returns null.
-     * \param col column of the tile
-     * \param row row of the tile
-     */
     TileTypeSP getExistingTile(qint32 col, qint32 row);
 
-    /**
-     * Returns a tile in position (col,row). If no tile exists,
-     * creates a new one, attaches it to the list and returns.
-     * \param col column of the tile
-     * \param row row of the tile
-     * \param newTile out-parameter, returns true if a new tile
-     *                was created
-     */
     TileTypeSP getTileLazy(qint32 col, qint32 row, bool& newTile);
 
-    /**
-     * Returns a tile in position (col,row). If no tile exists,
-     * creates nothing, but returns shared default tile object
-     * of the table. Be careful, this object has column and row
-     * parameters set to (qint32_MIN, qint32_MIN).
-     * \param col column of the tile
-     * \param row row of the tile
-     * \param existingTile returns true if the tile actually exists in the table
-     *                     and it is not a lazily created default wrapper tile
-     */
     TileTypeSP getReadOnlyTileLazy(qint32 col, qint32 row, bool &existingTile);
     void addTile(TileTypeSP tile);
     bool deleteTile(TileTypeSP tile);
@@ -117,17 +82,6 @@ private:
 
 #include "kis_tile_hash_table_p.h"
 
-
-
-/**
- * Walks through all tiles inside hash table
- * Note: You can't work with your hash table in a regular way
- *       during iterating with this iterator, because HT is locked.
- *       The only thing you can do is to delete current tile.
- *
- * LockerType defines if the iterator is constant or mutable. One should
- * pass either QReadLocker or QWriteLocker as a parameter.
- */
 template<class T, class LockerType>
 class KisTileHashTableIteratorTraits
 {
@@ -156,9 +110,7 @@ public:
                     m_index = idx;
                     m_tile = m_hashTable->m_hashTable[idx];
                 } else {
-                    //EOList reached
                     m_index = -1;
-                    // m_tile.clear(); // already null
                 }
             }
         }
@@ -171,7 +123,6 @@ public:
         return !m_tile;
     }
 
-    // disable the method if we didn't lock for writing
     template <class Helper = LockerType>
     typename std::enable_if<std::is_same<Helper, QWriteLocker>::value, void>::type
     deleteCurrent() {
@@ -182,7 +133,6 @@ public:
         m_hashTable->unlinkTile(tile->col(), tile->row(), idx);
     }
 
-    // disable the method if we didn't lock for writing
     template <class Helper = LockerType>
     typename std::enable_if<std::is_same<Helper, QWriteLocker>::value, void>::type
     moveCurrentToHashTable(KisTileHashTableTraits<T> *newHashTable) {
@@ -216,9 +166,8 @@ private:
     Q_DISABLE_COPY(KisTileHashTableIteratorTraits)
 };
 
-
 typedef KisTileHashTableTraits<KisTile> KisTileHashTable;
 typedef KisTileHashTableIteratorTraits<KisTile, QWriteLocker> KisTileHashTableIterator;
 typedef KisTileHashTableIteratorTraits<KisTile, QReadLocker> KisTileHashTableConstIterator;
 
-#endif /* KIS_TILEHASHTABLE_H_ */
+#endif

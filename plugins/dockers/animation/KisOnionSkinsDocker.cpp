@@ -40,7 +40,6 @@ KisOnionSkinsDocker::KisOnionSkinsDocker(QWidget *parent) :
 
     mainWidget->setContentsMargins(10, 10, 10, 10);
 
-
     ui->doubleTintFactor->setMinimum(0);
     ui->doubleTintFactor->setMaximum(100);
     KisSpinBoxI18nHelper::setText(ui->doubleTintFactor,
@@ -48,7 +47,6 @@ KisOnionSkinsDocker::KisOnionSkinsDocker(QWidget *parent) :
 
     ui->btnBackwardColor->setToolTip(i18n("Tint color for past frames"));
     ui->btnForwardColor->setToolTip(i18n("Tint color for future frames"));
-
 
     QVBoxLayout *layout = ui->slidersLayout;
 
@@ -65,7 +63,6 @@ KisOnionSkinsDocker::KisOnionSkinsDocker(QWidget *parent) :
 
     connect(&m_updatesCompressor, SIGNAL(timeout()),
             SLOT(changed()));
-
 
     {
         const bool isShown = config.showAdditionalOnionSkinsSettings();
@@ -105,12 +102,10 @@ KisOnionSkinsDocker::KisOnionSkinsDocker(QWidget *parent) :
     loadSettings();
     KisOnionSkinCompositor::instance()->configChanged();
 
-    // this mostly hides the checkboxes since no filtering is done by default
     slotFilteredColorsChanged();
 
     resize(sizeHint());
 }
-
 
 KisOnionSkinsDocker::~KisOnionSkinsDocker()
 {
@@ -145,19 +140,16 @@ void KisOnionSkinsDocker::slotToggleOnionSkins()
 
 void KisOnionSkinsDocker::slotFilteredColorsChanged()
 {
-    // what colors are selected to filter??
     QSet<int> selectedFilterColors = m_filterButtonGroup->getActiveLabels();
 
-    // show all colors if the filter is off and ignore the checkboxes
     if(ui->colorFilterGroupbox->isChecked() == false) {
         selectedFilterColors.clear();
-        selectedFilterColors << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8; // show everything
+        selectedFilterColors << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8;
     }
 
     m_filterButtonGroup->setAllVisibility(ui->colorFilterGroupbox->isChecked());
     ui->resetFilter->setVisible(ui->colorFilterGroupbox->isChecked());
 
-    // existing code
     KisOnionSkinCompositor::instance()->setColorLabelFilter(selectedFilterColors);
     KisOnionSkinCompositor::instance()->configChanged();
 }
@@ -232,7 +224,7 @@ void KisOnionSkinsDocker::initEqualizerSettings(bool useDefaults)
 
     for (int i = -v.maxDistance; i <= v.maxDistance; i++) {
         int value = config.onionSkinOpacity(i, useDefaults);
-        
+
         v.value.insert(i, qRound(value * 100.0 / 255.0));
         v.state.insert(i, config.onionSkinState(i));
     }

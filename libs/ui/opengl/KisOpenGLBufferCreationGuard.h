@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISOPENGLBUFFERCREATIONGUARD_H
 #define KISOPENGLBUFFERCREATIONGUARD_H
 
@@ -25,4 +24,4 @@ private:
 
 };
 
-#endif // KISOPENGLBUFFERCREATIONGUARD_H
+#endif

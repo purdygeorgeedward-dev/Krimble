@@ -11,7 +11,6 @@
 #include <QCursor>
 #include <KisAdaptedLock.h>
 
-
 class KRITAGLOBAL_EXPORT KisCursorOverrideLockAdapter
 {
 public:
@@ -27,4 +26,4 @@ private:
 
 KIS_DECLARE_ADAPTED_LOCK(KisCursorOverrideLock, KisCursorOverrideLockAdapter)
 
-#endif // KISCURSOROVERRIDELOCK_H
+#endif

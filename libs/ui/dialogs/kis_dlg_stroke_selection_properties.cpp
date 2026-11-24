@@ -156,7 +156,6 @@ KoColor KisDlgStrokeSelection::getFillSelectedColor() const
 
 }
 
-
 bool KisDlgStrokeSelection::isBrushSelected() const
 {
     return (static_cast<DrawType>(m_page->typeBox->currentIndex()) == DrawType::CurrentBrush);
@@ -207,19 +206,7 @@ int KisDlgStrokeSelection::getLineSize() const
 }
 
 LinePosition KisDlgStrokeSelection::getLinePosition() const
-{/* TODO
-   int index = m_page->linePosition->currentIndex();
-   switch(index)
-   {
-   case(0):
-       return linePosition::OUTSIDE;
-   case(1):
-       return linePosition::INSIDE;
-   case(2):
-       return linePosition::CENTER;
-   default:
-       return linePosition::CENTER;
-   }*/
+{
     return LinePosition::Center;
 }
 
@@ -270,8 +257,6 @@ void KisDlgStrokeSelection::colorFillChanged(const QColor &newColor)
 
     m_page->m_options.fillColor = tempColor;
 }
-
-
 
 WdgStrokeSelection::WdgStrokeSelection(QWidget *parent) : QWidget(parent)
 {
@@ -329,11 +314,10 @@ void WdgStrokeSelection::on_typeBox_currentIndexChanged(int arg1)
     }
 }
 
-void WdgStrokeSelection::on_lineColorBox_currentIndexChanged(int/*arg1*/)
+void WdgStrokeSelection::on_lineColorBox_currentIndexChanged(int )
 {
     Q_EMIT colorSelectorChanged();
 }
-
 
 StrokeSelectionOptions ::StrokeSelectionOptions()
 {
@@ -368,5 +352,4 @@ KisToolShapeUtils::FillStyle StrokeSelectionOptions::fillStyle() const
     }
     return style;
 }
-
 

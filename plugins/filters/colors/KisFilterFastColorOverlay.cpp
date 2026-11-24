@@ -107,8 +107,5 @@ int KisFilterFastColorOverlay::defaultOpacity()
 
 QString KisFilterFastColorOverlay::defaultCompositeOp()
 {
-    // Use the normal blending mode (OVER is "normal").
-    // This offers the best performance, but will change the color of all opaque pixels,
-    // which may be unexpected in some situations (for example, coloring a scanned sketch on a white background).
     return COMPOSITE_OVER;
 }

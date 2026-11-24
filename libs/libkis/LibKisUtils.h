@@ -21,4 +21,4 @@ Document* findNodeInDocuments(KisNodeSP kisnode);
 
 }
 
-#endif // LIBKISUTILS_H
+#endif

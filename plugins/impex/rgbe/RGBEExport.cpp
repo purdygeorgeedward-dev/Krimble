@@ -60,7 +60,6 @@ inline QByteArray floatToRGBE(const int width, const int height, KisPaintDeviceS
             rgbe[0] = rgbe[1] = rgbe[2] = rgbe[3] = 0;
         } else {
             vMax = frexp(vMax, &exp) * 256.0f / vMax;
-            // Clamp negative values
             rgbe[0] = static_cast<quint8>(std::max(src[0], 0.0f) * vMax);
             rgbe[1] = static_cast<quint8>(std::max(src[1], 0.0f) * vMax);
             rgbe[2] = static_cast<quint8>(std::max(src[2], 0.0f) * vMax);
@@ -162,7 +161,6 @@ KisImportExportErrorCode RGBEExport::convert(KisDocument *document, QIODevice *i
         return false;
     }();
 
-    // Color profile will be lost on RGBE export; so convert it to F32, linear sRGB
     if (cs->colorModelId() != RGBAColorModelID || cs->colorDepthId() != Float32BitsColorDepthID || !isLinearSrgb) {
         dbgFile << "Image is not in linear sRGB, converting...";
         image->convertImageColorSpace(targetCs,
@@ -171,7 +169,6 @@ KisImportExportErrorCode RGBEExport::convert(KisDocument *document, QIODevice *i
         image->waitForDone();
     }
 
-    // Fill transparent pixels with full opacity
     KoColor bgColor(Qt::white, targetCs);
     bgColor.fromKoColor(cfg->getColor("transparencyFillcolor"));
 
@@ -182,12 +179,10 @@ KisImportExportErrorCode RGBEExport::convert(KisDocument *document, QIODevice *i
     gc.bitBlt(QPoint(0, 0), image->projection(), QRect(0, 0, image->width(), image->height()));
     gc.end();
 
-    // Get pixel data and convert it to RGBE format
     const QByteArray pixels = RGBE::floatToRGBE(bounds.width(), bounds.height(), dev);
 
     QByteArray fileBuffer;
     {
-        // Write header
         QByteArray header;
         header.append("#?RADIANCE\n");
         header.append("# Created with Krita RGBE Export\n");
@@ -198,16 +193,13 @@ KisImportExportErrorCode RGBEExport::convert(KisDocument *document, QIODevice *i
     }
 
     {
-        // Write pixel data
         const int scanWidth = image->width();
         const int scanHeight = image->height();
 
         if ((scanWidth < 8) || (scanWidth > 0x7fff)) {
-            // Invalid width, save without RLE
             fileBuffer.append(pixels);
             io->write(fileBuffer);
         } else {
-            // Save with RLE
             QByteArray rleBuffer;
             QByteArray outputBuffer;
 
@@ -260,7 +252,7 @@ void RGBEExport::initializeCapabilities()
 }
 
 KisConfigWidget *
-RGBEExport::createConfigurationWidget(QWidget *parent, const QByteArray & /*from*/, const QByteArray & /*to*/) const
+RGBEExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray & ) const
 {
     return new KisWdgOptionsRGBE(parent);
 }

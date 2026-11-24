@@ -25,7 +25,6 @@ XyzU16ColorSpace::XyzU16ColorSpace(const QString &name, KoColorProfile *p) :
     addChannel(new KoChannelInfo(i18n("Alpha"), KoXyzU16Traits::alpha_pos * sizeof(quint16), KoXyzU16Traits::alpha_pos, KoChannelInfo::ALPHA, KoChannelInfo::UINT16, sizeof(quint16)));
     init();
 
-    // ADD, ALPHA_DARKEN, BURN, DIVIDE, DODGE, ERASE, MULTIPLY, OVER, OVERLAY, SCREEN, SUBTRACT
     addStandardCompositeOps<KoXyzU16Traits>(this);
     addStandardDitherOps<KoXyzU16Traits>(this);
 }

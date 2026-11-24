@@ -89,7 +89,7 @@ void KisHistogramView::setChannels(const QVector<int> &channels, int histogramIn
     m_d->histogramPainters[m_d->histogramIndex]->setDefaultColor(defaultColor);
     m_d->histogramPainters[m_d->histogramIndex]->setLogarithmic(isLogarithmic);
     setScaleToFit();
-    
+
     update();
 }
 
@@ -116,14 +116,14 @@ void KisHistogramView::setDefaultColor(const QColor &newDefaultColor)
 qreal KisHistogramView::scale() const
 {
     Q_ASSERT(m_d->histogramPainters.size() > 0);
-    
+
     return m_d->histogramPainters[m_d->histogramIndex]->scale();
 }
 
 void KisHistogramView::setScale(qreal newScale)
 {
     Q_ASSERT(m_d->histogramPainters.size() > 0);
-    
+
     m_d->histogramPainters[m_d->histogramIndex]->setScale(newScale);
     update();
 }
@@ -136,7 +136,7 @@ void KisHistogramView::setScaleToFit()
 void KisHistogramView::setScaleToCutLongPeaks()
 {
     Q_ASSERT(m_d->histogramPainters.size() > 0);
-    
+
     m_d->histogramPainters[m_d->histogramIndex]->setScaleToCutLongPeaks();
     update();
 }
@@ -144,14 +144,14 @@ void KisHistogramView::setScaleToCutLongPeaks()
 bool KisHistogramView::isLogarithmic() const
 {
     Q_ASSERT(m_d->histogramPainters.size() > 0);
-    
+
     return m_d->histogramPainters[m_d->histogramIndex]->isLogarithmic();
 }
 
 void KisHistogramView::setLogarithmic(bool logarithmic)
 {
     Q_ASSERT(m_d->histogramPainters.size() > 0);
-    
+
     m_d->histogramPainters[m_d->histogramIndex]->setLogarithmic(logarithmic);
     setScaleToFit();
     update();
@@ -163,15 +163,11 @@ void KisHistogramView::paintEvent(QPaintEvent *e)
 
     QPainter painter(this);
 
-    // Background
     painter.fillRect(rect(), palette().base());
 
-    // Histogram
     if (m_d->histogramPainters.size() > 0 &&
         m_d->histogramPainters[m_d->histogramIndex]->channels().size() > 0) {
-        // Histogram
         QImage histogramImage = m_d->histogramPainters[m_d->histogramIndex]->paint(size());
-        // Shadow
         QLinearGradient shadowGradient(QPointF(0.0, 0.0), QPointF(0.0, static_cast<qreal>(height()) * 0.2));
         shadowGradient.setColorAt(0.00, QColor(0, 0, 0, 64));
         shadowGradient.setColorAt(0.25, QColor(0, 0, 0, 36));
@@ -199,7 +195,6 @@ void KisHistogramView::paintEvent(QPaintEvent *e)
         painter.drawLine(center + QPointF(radius, -radius), center + QPointF(-radius, radius));
     }
 
-    // Border
     QColor c = palette().text().color();
     c.setAlpha(64);
     painter.setPen(QPen(c, 1));

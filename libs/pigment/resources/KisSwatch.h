@@ -52,4 +52,4 @@ private:
     bool m_valid {false};
 };
 
-#endif // KISSWATCH_H
+#endif

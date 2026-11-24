@@ -6,7 +6,6 @@
 
 #include "kis_abstract_projection_plane.h"
 
-
 KisAbstractProjectionPlane::KisAbstractProjectionPlane()
 {
 }
@@ -27,7 +26,6 @@ void KisDumbProjectionPlane::apply(KisPainter *painter, const QRect &rect)
     Q_UNUSED(painter);
     Q_UNUSED(rect);
 }
-
 
 QRect KisDumbProjectionPlane::needRect(const QRect &rect, KisLayer::PositionToFilthy pos) const
 {
@@ -64,6 +62,5 @@ QRect KisDumbProjectionPlane::looseUserVisibleBounds() const
 
 KisPaintDeviceList KisDumbProjectionPlane::getLodCapableDevices() const
 {
-    // arghm...
     return KisPaintDeviceList();
 }

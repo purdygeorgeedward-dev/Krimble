@@ -22,4 +22,4 @@ typedef QSharedPointer<KisToolChangesTrackerData> KisToolChangesTrackerDataSP;
 
 Q_DECLARE_METATYPE(KisToolChangesTrackerDataSP)
 
-#endif // KISTOOLCHANGESTRACKERDATA_H
+#endif

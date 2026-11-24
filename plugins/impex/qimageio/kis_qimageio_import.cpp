@@ -24,7 +24,6 @@
 #include <kis_node.h>
 #include <kis_group_layer.h>
 
-
 K_PLUGIN_FACTORY_WITH_JSON(KisQImageIOImportFactory, "krita_qimageio_import.json", registerPlugin<KisQImageIOImport>();)
 
 KisQImageIOImport::KisQImageIOImport(QObject *parent, const QVariantList &) : KisImportExportFilter(parent)
@@ -35,11 +34,11 @@ KisQImageIOImport::~KisQImageIOImport()
 {
 }
 
-KisImportExportErrorCode KisQImageIOImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisQImageIOImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
 
     QImage img;
-    if (!img.loadFromData(io->readAll()/*, fi.suffix().toLower().toLatin1()*/)) {
+    if (!img.loadFromData(io->readAll() )) {
         return ImportExportCodes::FileFormatIncorrect;
     }
 

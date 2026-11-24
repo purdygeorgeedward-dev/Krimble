@@ -55,7 +55,6 @@
 #include <QTime>
 #include <QVector>
 
-
 #include "kritacommand_export.h"
 
 class QAction;
@@ -69,20 +68,6 @@ class KisKActionCollection;
 #include "kundo2commandextradata.h"
 #include "KisCumulativeUndoData.h"
 
-
-/**
- * WARNING: In general, don't derive undo commands from QObject. And
- *          if you really need it, don't use QObject lifetime tracking
- *          for the commands:  KUndo2Command has its own, *nonvirtual*
- *          hierarchy, and don't make it a parent or a child of any
- *          QObject. Otherwise two different parents will try to track
- *          the lifetime of your command and, most probably, you'll
- *          get a crash.
- *
- *          As a general rule: an undo command should be derived
- *          from QObject only for the sake of signal/slots capabilities.
- *          Nothing else.
- */
 class KRITACOMMAND_EXPORT KUndo2Command
 {
     KUndo2CommandPrivate *d {0};
@@ -123,24 +108,13 @@ public:
     virtual void undoMergedCommands();
     virtual void redoMergedCommands();
 
-    /**
-     * \return user-defined object associated with the command
-     *
-     * \see setExtraData()
-     */
     KUndo2CommandExtraData* extraData() const;
 
-    /**
-     * The user can assign an arbitrary object associated with the
-     * command. The \p data object is owned by the command. If you assign
-     * the object twice, the first one will be destroyed.
-     */
     void setExtraData(KUndo2CommandExtraData *data);
 
 private:
     Q_DISABLE_COPY(KUndo2Command)
     friend class KUndo2QStack;
-
 
     bool m_hasParent {false};
     int m_timedID {-1};
@@ -150,14 +124,13 @@ private:
     QVector<KUndo2Command*> m_mergeCommandsVector;
 };
 
-#endif // QT_NO_UNDOCOMMAND
+#endif
 
 #ifndef QT_NO_UNDOSTACK
 
 class KRITACOMMAND_EXPORT KUndo2QStack : public QObject
 {
     Q_OBJECT
-//    Q_DECLARE_PRIVATE(KUndo2QStack)
     Q_PROPERTY(bool active READ isActive WRITE setActive)
     Q_PROPERTY(int undoLimit READ undoLimit WRITE setUndoLimit)
 
@@ -181,7 +154,7 @@ public:
 #ifndef QT_NO_ACTION
     QAction *createUndoAction(QObject *parent) const;
     QAction *createRedoAction(QObject *parent) const;
-#endif // QT_NO_ACTION
+#endif
 
     bool isActive() const;
     bool isClean() const;
@@ -222,7 +195,6 @@ protected:
     virtual void notifySetIndexChangedOneCommand();
 
 private:
-    // from QUndoStackPrivate
     QList<KUndo2Command*> m_command_list;
     QList<KUndo2Command*> m_macro_stack;
     int m_index;
@@ -232,7 +204,6 @@ private:
     bool m_useCumulativeUndoRedo;
     KisCumulativeUndoData m_cumulativeUndoData;
 
-    // also from QUndoStackPrivate
     void setIndex(int idx, bool clean);
     bool checkUndoLimit();
 
@@ -245,11 +216,10 @@ class KRITACOMMAND_EXPORT KUndo2Stack : public KUndo2QStack
 public:
     explicit KUndo2Stack(QObject *parent = 0);
 
-    // functions from KUndoStack
     QAction* createRedoAction(KisKActionCollection* actionCollection, const QString& actionName = QString());
     QAction* createUndoAction(KisKActionCollection* actionCollection, const QString& actionName = QString());
 };
 
-#endif // QT_NO_UNDOSTACK
+#endif
 
-#endif // KUNDO2STACK_H
+#endif

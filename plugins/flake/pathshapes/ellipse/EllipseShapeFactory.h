@@ -12,11 +12,9 @@
 
 class KoShape;
 
-/// Factory for ellipse shapes
 class EllipseShapeFactory : public KoShapeFactoryBase
 {
 public:
-    /// constructor
     EllipseShapeFactory();
     ~EllipseShapeFactory() override {}
     KoShape *createDefaultShape(KoDocumentResourceManager *documentResources = 0) const override;
@@ -24,4 +22,4 @@ public:
     QList<KoShapeConfigWidgetBase *> createShapeOptionPanels() override;
 };
 
-#endif /* KOELLIPSESHAPEFACTORY_H */
+#endif

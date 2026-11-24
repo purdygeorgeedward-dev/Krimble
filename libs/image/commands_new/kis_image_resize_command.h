@@ -14,7 +14,6 @@
 #include <kundo2command.h>
 #include <QSize>
 
-
 class KRITAIMAGE_EXPORT KisImageResizeCommand : public KUndo2Command
 {
 public:

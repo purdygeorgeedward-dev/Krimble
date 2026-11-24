@@ -18,7 +18,7 @@
 #include "kis_algebra_2d.h"
 #include "KisOptimizedBrushOutline.h"
 
-#define NOISY_UPDATE_SPEED 50  // Time in ms for outline updates to noisy brushes
+#define NOISY_UPDATE_SPEED 50
 
 struct KisCurrentOutlineFetcher::Private {
     Private(Options _optionsAvailable)
@@ -83,7 +83,6 @@ KisOptimizedBrushOutline KisCurrentOutlineFetcher::fetchOutline(const KisPaintIn
     qreal rotation = additionalRotation;
     bool needsUpdate = false;
 
-    // Randomized rotation at full speed looks noisy, so slow it down
     if (d->lastUpdateTime.elapsed() > NOISY_UPDATE_SPEED) {
         needsUpdate = true;
         d->lastUpdateTime.restart();
@@ -145,7 +144,6 @@ KisOptimizedBrushOutline KisCurrentOutlineFetcher::fetchOutline(const KisPaintIn
         pos = QPointF(x + subPixelX, y + subPixelY) + hotSpot;
     }
 
-    // align cursor position to widget pixel grid to avoid noise
     pos = KisAlgebra2D::alignForZoom(pos, alignForZoom);
 
     QTransform T1 = QTransform::fromTranslate(-hotSpot.x(), -hotSpot.y());

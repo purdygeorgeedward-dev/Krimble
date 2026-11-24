@@ -9,12 +9,6 @@
 
 void KisBaseRectsWalker::addCloneSourceRegenerationJobs()
 {
-    /**
-     * Copy all suitable clone layers' jobs into a separate
-     * vector to make sure we don't have dangling iterators
-     * caused by calling to visitSubtreeTopToBottom() in the
-     * loop
-     */
     QVector<JobItem> cloneLayers;
     std::copy_if(m_mergeTask.begin(), m_mergeTask.end(),
                  std::back_inserter(cloneLayers),
@@ -47,10 +41,6 @@ void KisBaseRectsWalker::addCloneSourceRegenerationJobs()
 
         QRegion prepareRegion(srcRect);
 
-        /**
-         * If a clone has complicated masks, we should prepare additional
-         * source area to ensure the rect is prepared.
-         */
         const QRect needRectOnSource = clone->needRectOnSourceForMasks(srcRect);
         if (!needRectOnSource.isEmpty()) {
             prepareRegion += needRectOnSource;
@@ -73,37 +63,21 @@ void KisBaseRectsWalker::addCloneSourceRegenerationJobs()
 void KisBaseRectsWalker::visitSubtreeTopToBottom(KisProjectionLeafSP startWith, SubtreeVisitFlags flags,
                                                  KisRenderPassFlags renderFlags, const QRect &cropRect)
 {
-    /**
-     * If the node is not renderable and we don't care about hidden groups,
-     * e.g. when generating animation frames, then just skip the entire group.
-     */
     if (flags & SkipNonRenderableNodes && !startWith->shouldBeRendered()) return;
 
     KisProjectionLeafSP currentLeaf = startWith->lastChild();
     while(currentLeaf) {
-        /**
-         * registerNeedRect() and registerCloneNotification()
-         * automatically skip non-layer leafs
-         */
         NodePosition pos = (flags & NoFilthyMode ? N_ABOVE_FILTHY : N_FILTHY) |
             calculateNodePosition(currentLeaf);
         registerNeedRect(currentLeaf, pos, renderFlags, cropRect);
 
         if (!flags.testFlag(DontNotifyClones)) {
-            /**
-             * we didn't have a change-rect pass, so we should
-             * add clone notifications manually
-             */
             registerCloneNotification(currentLeaf->node(), pos);
         }
 
         currentLeaf = currentLeaf->prevSibling();
     }
 
-    /**
-     * In no-filthy mode we just recompose the root layer
-     * without entering any subgroups
-     */
     if (flags & NoFilthyMode) return;
 
     currentLeaf = startWith->lastChild();

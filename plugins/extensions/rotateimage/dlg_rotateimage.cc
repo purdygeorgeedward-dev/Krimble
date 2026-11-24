@@ -119,7 +119,6 @@ void DlgRotateImage::okClicked()
 
 void DlgRotateImage::resetPreview()
 {
-    // Code to update preview here.
 }
 
 void DlgRotateImage::slotRadioCCWToggled(bool toggled)

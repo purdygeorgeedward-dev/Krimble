@@ -10,7 +10,6 @@
 #include <KoColorSpace.h>
 #include <KoColorModelStandardIds.h>
 
-
 VirtualChannelInfo::VirtualChannelInfo()
     : m_type(LIGHTNESS),
       m_pixelIndex(-1),

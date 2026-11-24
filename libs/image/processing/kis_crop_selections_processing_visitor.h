@@ -14,7 +14,6 @@
 class QRect;
 class KisCropProcessingVisitor;
 
-
 class KisCropSelectionsProcessingVisitor : public KisDoNothingProcessingVisitor
 {
 public:
@@ -28,4 +27,4 @@ private:
     QScopedPointer<KisCropProcessingVisitor> m_cropVisitor;
 };
 
-#endif /* __KIS_CROP_SELECTIONS_PROCESSING_VISITOR_H */
+#endif

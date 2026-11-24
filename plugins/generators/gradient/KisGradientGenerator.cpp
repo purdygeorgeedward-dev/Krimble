@@ -35,7 +35,6 @@ void KisGradientGenerator::generate(KisProcessingInformation dst,
         dynamic_cast<const KisGradientGeneratorConfiguration*>(config.data());
     KIS_SAFE_ASSERT_RECOVER_RETURN(generatorConfiguration);
 
-
     QSize imageSize = device->defaultBounds()->imageBorderRect().size();
     QPair<QPointF, QPointF> positions =
         generatorConfiguration->absoluteCartesianPositionsInPixels(imageSize.width(), imageSize.height());

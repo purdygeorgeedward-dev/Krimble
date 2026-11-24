@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISUPDATERSTATUS_H
 #define KISUPDATERSTATUS_H
 
@@ -13,7 +12,6 @@
 #include <QMetaType>
 
 #include "kritaui_export.h"
-
 
 namespace UpdaterStatus {
 
@@ -30,7 +28,6 @@ namespace UpdaterStatus {
 }
 
 Q_DECLARE_METATYPE(UpdaterStatus::StatusID)
-
 
 class KRITAUI_EXPORT KisUpdaterStatus : public QObject
 {
@@ -66,4 +63,4 @@ private:
 
 Q_DECLARE_METATYPE(KisUpdaterStatus);
 
-#endif // KISUPDATERSTATUS_H
+#endif

@@ -31,10 +31,6 @@ template<typename T> class KisTIFFYCbCrReader : public KisTIFFReaderBase
 public:
     using type = T;
 
-    /**
-     * @param hsub horizontal subsampling of Cb and Cr
-     * @param hsub vertical subsampling of Cb and Cr
-     */
     KisTIFFYCbCrReader(KisPaintDeviceSP device,
                        quint32 width,
                        quint32 height,
@@ -63,7 +59,6 @@ public:
         , m_vsub(vsub)
         , m_imageWidth(width)
     {
-        // Initialize the buffer
         if (2 * (m_imageWidth / 2) != m_imageWidth)
             m_imageWidth++;
         m_bufferWidth = m_imageWidth / m_hsub;
@@ -137,8 +132,6 @@ private:
     {
         quint32 numcols = dataWidth / m_hsub;
         double coeff = std::numeric_limits<T>::max() / (double)(std::pow(2.0, this->sourceDepth()) - 1);
-        //     dbgFile <<" depth expansion coefficient :" << coeff;
-        //     dbgFile <<" y =" << y;
         size_t buffPos = y / m_vsub * m_bufferWidth + x / m_hsub;
         for (quint32 index = 0; index < numcols; index++) {
             KisHLineIteratorSP it = paintDevice()->createHLineIteratorNG(x + m_hsub * index, y, m_hsub);

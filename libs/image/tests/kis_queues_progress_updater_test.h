@@ -17,4 +17,4 @@ private Q_SLOTS:
     void testFastProgress();
 };
 
-#endif /* __KIS_QUEUES_PROGRESS_UPDATER_TEST_H */
+#endif

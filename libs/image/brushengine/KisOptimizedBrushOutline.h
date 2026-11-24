@@ -15,14 +15,6 @@
 
 class QPainterPath;
 
-/**
- * An special class for storing the brush outline
- * in an optimized way. It converts the outline into
- * the vector of QPolygonF objects right away and avoids
- * doing any modifications and/or transformations to it
- * until the final stage, when the outline is requested
- * to be drawn.
- */
 class KRITAIMAGE_EXPORT KisOptimizedBrushOutline
 {
 public:
@@ -77,34 +69,12 @@ public:
     void translate(qreal tx, qreal ty);
     void translate(const QPointF &offset);
 
-    /**
-     * Transforms all the polygons belonging to the outline.
-     * The transformation is done in optimized way, that is,
-     * no polygons are transformed until the final iteration
-     * over them.
-     */
     void map(const QTransform &t);
 
-    /**
-     * A helper function for \see map()
-     */
     KisOptimizedBrushOutline mapped(const QTransform &t) const;
 
-    /**
-     * Begins iteration over the polygons contained in the
-     * brush outline. KisOptimizedBrushOutline will never return
-     * a constructed QVector of the polygons, because it may
-     * require too many memory allocations.
-     *
-     * One cannot change the internal polygon, because the
-     * returned polygon is transformed using the transformation
-     * that is stored separately.
-     */
     const_iterator begin() const;
 
-    /**
-     * End iterator for iteration over all the embedded polygons
-     */
     const_iterator end() const;
 
 private:
@@ -115,4 +85,4 @@ private:
     mutable QRectF m_cachedBoundingRect;
 };
 
-#endif // KISOPTIMIZEDBRUSHOUTLINE_H
+#endif

@@ -67,7 +67,6 @@
 
 #include "kis_layer_properties_icons.h"
 
-
 #include <SimpleShapeContainerModel.h>
 class ShapeLayerContainerModel : public SimpleShapeContainerModel
 {
@@ -80,10 +79,6 @@ public:
     void add(KoShape *child) override {
         SimpleShapeContainerModel::add(child);
 
-        /**
-         * The shape is always added with the absolute transformation set appropriately.
-         * Here we should just squeeze it into the layer's transformation.
-         */
         KIS_SAFE_ASSERT_RECOVER_NOOP(inheritsTransform(child));
         if (inheritsTransform(child)) {
             QTransform parentTransform = q->absoluteTransformation();
@@ -118,7 +113,6 @@ private:
     qreal m_yRes{72.0};
 };
 
-
 struct KisShapeLayer::Private
 {
 public:
@@ -138,7 +132,6 @@ public:
     bool isAntialiased;
     KisSignalAutoConnectionsStore imageConnections;
 };
-
 
 KisShapeLayer::KisShapeLayer(KoShapeControllerBase* controller,
                              KisImageWSP image,
@@ -168,16 +161,12 @@ KisShapeLayer::KisShapeLayer(const KisShapeLayer& rhs, KoShapeControllerBase* co
 KisShapeLayer::KisShapeLayer(const KisShapeLayer& _rhs, KoShapeControllerBase* controller,
                              std::function<KisShapeLayerCanvasBase *()> canvasFactory)
         : KisExternalLayer(_rhs)
-        , KoShapeLayer(new ShapeLayerContainerModel(this)) //no _rhs here otherwise both layer have the same KoShapeContainerModel
+        , KoShapeLayer(new ShapeLayerContainerModel(this))
         , m_d(new Private())
 {
     initShapeLayerImpl(controller, canvasFactory());
     m_d->isAntialiased = _rhs.m_d->isAntialiased;
 
-    /**
-     * The transformations of the added shapes are automatically merged into the transformation
-     * of the layer, so we should apply this extra transform separately
-     */
     const QTransform thisInvertedTransform = this->absoluteTransformation().inverted();
 
     m_d->canvas->shapeManager()->setUpdatesBlocked(true);
@@ -194,10 +183,9 @@ KisShapeLayer::KisShapeLayer(const KisShapeLayer& _rhs, KoShapeControllerBase* c
 
 KisShapeLayer::KisShapeLayer(const KisShapeLayer& baseTemplate, const QList<KoShape*> &newShapes)
         : KisExternalLayer(baseTemplate)
-        , KoShapeLayer(new ShapeLayerContainerModel(this)) //no _merge here otherwise both layer have the same KoShapeContainerModel
+        , KoShapeLayer(new ShapeLayerContainerModel(this))
         , m_d(new Private())
 {
-    // Make sure our new layer is visible otherwise the shapes cannot be painted.
     setVisible(true);
 
     m_d->isAntialiased = baseTemplate.m_d->isAntialiased;
@@ -206,16 +194,9 @@ KisShapeLayer::KisShapeLayer(const KisShapeLayer& baseTemplate, const QList<KoSh
     KIS_ASSERT(shapeLayerCanvas);
     initShapeLayerImpl(baseTemplate.m_d->controller, new KisShapeLayerCanvas(*shapeLayerCanvas, this));
 
-    /**
-     * With current implementation this matrix will always be an identity, because
-     * we do not copy the transformation from any of the source layers. But we should
-     * handle this anyway, to not be caught by this in the future.
-     */
     const QTransform thisInvertedTransform = this->absoluteTransformation().inverted();
 
     QList<KoShape *> clonedShapes;
-
-    // copy all the new shapes; we expect them to be sorted and homogenized
 
     const bool isSorted = std::is_sorted(newShapes.begin(), newShapes.end(), KoShape::compareShapeZIndex);
     KIS_SAFE_ASSERT_RECOVER_NOOP(isSorted);
@@ -246,9 +227,6 @@ KisShapeLayer::KisShapeLayer(KoShapeControllerBase* controller,
 
 KisShapeLayer::~KisShapeLayer()
 {
-    /**
-     * Small hack alert: we should avoid updates on shape deletion
-     */
     m_d->canvas->prepareForDestroying();
 
     Q_FOREACH (KoShape *shape, shapes()) {
@@ -311,7 +289,6 @@ void KisShapeLayer::setImage(KisImageWSP _image)
     }
 }
 
-
 KisBaseNode::PropertyList KisShapeLayer::sectionModelProperties() const
 {
     KisBaseNode::PropertyList l = KisLayer::sectionModelProperties();
@@ -334,7 +311,6 @@ void KisShapeLayer::setSectionModelProperties(const KisBaseNode::PropertyList &p
 
 KisLayerSP KisShapeLayer::tryCreateInternallyMergedLayerFromMutipleLayers(QList<KisLayerSP> layers)
 {
-    // NOTE: layers.first() may possibly point to `this`!
 
     QList<KisShapeLayer*> shapeLayers;
     Q_FOREACH(KisLayerSP layer, layers) {
@@ -437,7 +413,6 @@ void KisShapeLayer::setX(qint32 x)
     QPointF diff = QPointF(m_d->canvas->viewConverter()->viewToDocumentX(delta), 0);
     Q_EMIT sigMoveShapes(diff);
 
-    // Save new value to satisfy LSP
     m_d->x = x;
 }
 
@@ -447,7 +422,6 @@ void KisShapeLayer::setY(qint32 y)
     QPointF diff = QPointF(0, m_d->canvas->viewConverter()->viewToDocumentY(delta));
     Q_EMIT sigMoveShapes(diff);
 
-    // Save new value to satisfy LSP
     m_d->y = y;
 }
 namespace {
@@ -470,10 +444,6 @@ QList<KoShape *> KisShapeLayer::shapesToBeTransformed()
 {
     QList<KoShape*> shapes = shapeManager()->shapes();
 
-    // We expect that **all** the shapes inherit the transform from its parent
-
-    // SANITY_CHECK: we expect all the shapes inside the
-    //               shape layer to inherit transform!
     Q_FOREACH (KoShape *shape, shapes) {
         if (shape->parent()) {
             KIS_SAFE_ASSERT_RECOVER(shape->parent()->inheritsTransform(shape)) {
@@ -552,9 +522,6 @@ bool KisShapeLayer::isShapeEditable(bool recursive) const
     return KoShapeLayer::isShapeEditable(recursive) && isEditable(true);
 }
 
-// we do not override KoShape::setGeometryProtected() as we consider
-// the user not being able to access the layer shape from Krita UI!
-
 void KisShapeLayer::forceUpdateTimedNode()
 {
     m_d->canvas->forceRepaint();
@@ -618,17 +585,9 @@ QList<KoShape *> KisShapeLayer::createShapesFromSvg(QIODevice *device, const QSt
 
     SvgParser parser(resourceManager);
     parser.setXmlBaseDir(baseXmlDir);
-    parser.setResolution(rectInPixels /* px */, resolutionPPI /* ppi */);
+    parser.setResolution(rectInPixels , resolutionPPI );
 
     if (loadingFromKra) {
-        /**
-         * We set default text version to 1, it will make all the
-         * files not having an explicit krita:textVersion tag load
-         * as "legacy" files with the bug.
-         *
-         * The tag is not needed when loading from pure SVG, because
-         * most probably they were not saved by a buggy Krita version.
-         */
         parser.setDefaultKraTextVersion(1);
     }
 
@@ -641,10 +600,8 @@ QList<KoShape *> KisShapeLayer::createShapesFromSvg(QIODevice *device, const QSt
     return result;
 }
 
-
 bool KisShapeLayer::saveLayer(KoStore * store) const
 {
-    // FIXME: we handle xRes() only!
 
     const QSizeF sizeInPx = image()->bounds().size();
     const QSizeF sizeInPt(sizeInPx.width() / image()->xRes(), sizeInPx.height() / image()->yRes());
@@ -654,10 +611,9 @@ bool KisShapeLayer::saveLayer(KoStore * store) const
 
 bool KisShapeLayer::loadSvg(QIODevice *device, const QString &baseXmlDir, QStringList *warnings)
 {
-    QSizeF fragmentSize; // unused!
+    QSizeF fragmentSize;
     KisImageSP image = this->image();
 
-    // FIXME: we handle xRes() only!
     KIS_SAFE_ASSERT_RECOVER_NOOP(qFuzzyCompare(image->xRes(), image->yRes()));
     const qreal resolutionPPI = 72.0 * image->xRes();
 
@@ -745,17 +701,12 @@ private:
     KisSafeBlockingQueueConnectionProxy<QTransform> m_blockingConnection;
 };
 
-
 KUndo2Command* KisShapeLayer::transform(const QTransform &transform)
 {
     QList<KoShape*> shapes = shapesToBeTransformed();
     if (shapes.isEmpty()) return 0;
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(shapes.size() == 1 && shapes.first() == this, 0);
 
-    /**
-     * We cannot transform shapes in the worker thread. Therefor we Q_EMIT blocking-queued
-     * signal to transform them in the GUI thread and then return.
-     */
     const KisImageViewConverter *converter = dynamic_cast<const KisImageViewConverter*>(this->converter());
     KIS_ASSERT(converter);
     QTransform docSpaceTransform = converter->documentToView() *
@@ -806,7 +757,6 @@ void KisShapeLayer::slotImageResolutionChanged()
     }
 }
 
-
 bool KisShapeLayer::antialiased() const
 {
     return m_d->isAntialiased;
@@ -818,7 +768,6 @@ void KisShapeLayer::setAntialiased(const bool antialiased)
 
     if (antialiased != oldAntialiased) {
         m_d->isAntialiased = antialiased;
-        // is it the best way to rerender the vector layer?
         if(m_d->canvas) m_d->canvas->resetCache(colorSpace());
     }
 }

@@ -5,21 +5,14 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_global.h"
 #include "kis_default_bounds.h"
 #include "kis_paint_device.h"
 #include "kis_image_animation_interface.h"
 #include "kis_image.h"
 
-
 const QRect KisDefaultBounds::infiniteRect =
     QRect(qint32_MIN/2, qint32_MIN/2, qint32_MAX, qint32_MAX);
-
-
-/******************************************************************/
-/*                  KisDefaultBounds                              */
-/******************************************************************/
 
 struct Q_DECL_HIDDEN KisDefaultBounds::Private
 {
@@ -44,9 +37,6 @@ KisDefaultBounds::~KisDefaultBounds()
 
 QRect KisDefaultBounds::bounds() const
 {
-    /**
-     * By default return infinite rect to cover everything
-     */
     return m_d->image ? m_d->image->effectiveLodBounds() : infiniteRect;
 }
 
@@ -81,10 +71,6 @@ void *KisDefaultBounds::sourceCookie() const
 {
     return m_d->image.data();
 }
-
-/******************************************************************/
-/*                  KisSelectionDefaultBoundsBase                 */
-/******************************************************************/
 
 KisSelectionDefaultBoundsBase::KisSelectionDefaultBoundsBase()
 {
@@ -151,10 +137,6 @@ void *KisSelectionDefaultBoundsBase::sourceCookie() const
     return parentDevice.data();
 }
 
-/******************************************************************/
-/*                   KisSelectionDefaultBounds                    */
-/******************************************************************/
-
 KisSelectionDefaultBounds::KisSelectionDefaultBounds(KisPaintDeviceSP parentPaintDevice)
     : m_paintDevice(parentPaintDevice)
 {
@@ -168,11 +150,6 @@ KisPaintDeviceSP KisSelectionDefaultBounds::parentPaintDevice() const
 {
     return m_paintDevice;
 }
-
-/******************************************************************/
-/*                   KisMaskDefaultBounds                         */
-/******************************************************************/
-
 
 KisMaskDefaultBounds::KisMaskDefaultBounds(KisNodeSP parentNode)
     : m_parentNode(parentNode)
@@ -189,10 +166,6 @@ KisPaintDeviceSP KisMaskDefaultBounds::parentPaintDevice() const
 
     return parentNode ? parentNode->original() : nullptr;
 }
-
-/******************************************************************/
-/*                   KisSelectionEmptyBounds                      */
-/******************************************************************/
 
 KisSelectionEmptyBounds::KisSelectionEmptyBounds()
     : KisSelectionEmptyBounds(nullptr)
@@ -212,11 +185,6 @@ QRect KisSelectionEmptyBounds::bounds() const
 {
     return QRect(0, 0, 0, 0);
 }
-
-/******************************************************************/
-/*                 KisWrapAroundBoundsWrapper                     */
-/******************************************************************/
-
 
 struct Q_DECL_HIDDEN KisWrapAroundBoundsWrapper::Private
 {

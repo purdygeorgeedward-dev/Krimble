@@ -151,7 +151,6 @@ KisSelectionOptions::KisSelectionOptions(QWidget *parent)
     , m_d(new Private)
 {
     m_d->q = this;
-    // Create widgets
     m_d->optionButtonStripMode = new KisOptionButtonStrip;
     m_d->optionButtonStripMode->addButton(
         KisIconUtils::loadIcon("select-pixel"));
@@ -223,7 +222,6 @@ KisSelectionOptions::KisSelectionOptions(QWidget *parent)
     m_d->widgetLabels->setButtonWrapEnabled(true);
     m_d->widgetLabels->setMouseDragEnabled(true);
 
-    // Set the tooltips
     m_d->optionButtonStripMode->button(0)->setToolTip(
         i18nc("@info:tooltip", "Pixel Selection"));
     m_d->optionButtonStripMode->button(1)->setToolTip(
@@ -256,7 +254,6 @@ KisSelectionOptions::KisSelectionOptions(QWidget *parent)
     m_d->optionButtonStripReference->button(2)->setToolTip(
         i18n("Select regions found from the merging of layers with specific color labels"));
 
-    // Construct the option widget
     setSeparatorsVisible(true);
 
     KisOptionCollectionWidgetWithHeader *sectionMode =
@@ -295,8 +292,6 @@ KisSelectionOptions::KisSelectionOptions(QWidget *parent)
                                      m_d->sliderFeatherSelection);
     appendWidget("sectionAdjustments", sectionAdjustments);
 
-
-    // Make connections
     connect(m_d->optionButtonStripMode,
             QOverload<int, bool>::of(&KisOptionButtonStrip::buttonToggled),
             [this](int i, int c) {

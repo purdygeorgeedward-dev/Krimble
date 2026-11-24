@@ -20,20 +20,9 @@
 template <typename T>
 class KisTridiagonalSystem
 {
-    /*
-     * e.g.
-     *      |b0 c0  0   0   0| |x0| |f0|
-     *      |a0 b1 c1   0   0| |x1| |f1|
-     *      |0  a1 b2  c2   0|*|x2|=|f2|
-     *      |0   0 a2  b3  c3| |x3| |f3|
-     *      |0   0  0  a3  b4| |x4| |f4|
-     */
 
 public:
 
-    /**
-     * @return - vector that is storing x[]
-     */
     static
     QVector<T> calculate(QList<T> &a,
                          QList<T> &b,
@@ -52,22 +41,13 @@ public:
 
         x.resize(size);
 
-        /**
-         * Check for special case when
-         * order of the matrix is equal to 1
-         */
         if (size == 1) {
             x[0] = f[0] / b[0];
             return x;
         }
 
-        /**
-         * Common case
-         */
-
         alpha.resize(size);
         beta.resize(size);
-
 
         alpha[1] = -c[0] / b[0];
         beta[1] =  f[0] / b[0];
@@ -95,15 +75,6 @@ public:
 template <typename T_point, typename T>
 class KisLegacyCubicSpline
 {
-    /**
-     *  s[i](x)=a[i] +
-     *          b[i] * (x-x[i]) +
-     *    1/2 * c[i] * (x-x[i])^2 +
-     *    1/6 * d[i] * (x-x[i])^3
-     *
-     *  h[i]=x[i+1]-x[i]
-     *
-     */
 
 protected:
     QList<T> m_a;
@@ -122,12 +93,6 @@ public:
         createSpline(a);
     }
 
-    /**
-     * Create new spline and precalculate some values
-     * for future
-     *
-     * @a - base points of the spline
-     */
     void createSpline(const QList<T_point> &a) {
         int intervals = m_intervals = a.size() - 1;
         int i;
@@ -146,10 +111,9 @@ public:
         }
         m_a.append(a.last().y());
 
-
         QList<T> tri_b;
         QList<T> tri_f;
-        QList<T> tri_a; /* equals to @tri_c */
+        QList<T> tri_a;
 
         for (i = 0; i < intervals - 1; i++) {
             tri_b.append(2.*(m_h[i] + m_h[i+1]));
@@ -172,13 +136,9 @@ public:
             m_b[i] = -0.5 * (m_c[i] * m_h[i])  - (1 / 6.0) * (m_d[i] * m_h[i] * m_h[i]) + (m_a[i+1] - m_a[i]) / m_h[i];
     }
 
-    /**
-     * Get value of precalculated spline in the point @x
-     */
     T getValue(T x) const {
         T x0;
         int i = findRegion(x, x0);
-        /* TODO: check for asm equivalent */
         return m_a[i] +
                m_b[i] *(x - x0) +
                0.5 * m_c[i] *(x - x0) *(x - x0) +
@@ -195,11 +155,6 @@ public:
 
 protected:
 
-    /**
-     * findRegion - Searches for the region containing @x
-     * @x0 - out parameter, containing beginning of the region
-     * @return - index of the region
-     */
     int findRegion(T x, T &x0) const {
         int i;
         x0 = m_begin;
@@ -217,7 +172,6 @@ protected:
         qDebug("m_begin: %f\n", m_begin);
         qDebug("m_end  : %f\n", m_end);
         Q_ASSERT_X(0, "findRegion", "X value is outside regions");
-        /* **never reached** */
         return -1;
     }
 };
@@ -231,12 +185,6 @@ public:
         createSpline(a);
     }
 
-    /**
-     * Create new spline and precalculate some values
-     * for future
-     *
-     * @a - base points of the spline
-     */
     void createSpline(const QList<T_point> &a) {
         KIS_SAFE_ASSERT_RECOVER_RETURN(a.size() > 0);
 
@@ -246,13 +194,11 @@ public:
         m_coefficients.clear();
 
         if (a.size() == 1) {
-            // Constant function
             m_coefficients.append({ 0.0, 0.0, 0.0, a.first().y() });
             return;
         }
-        
+
         if (a.size() == 2) {
-            // Linear function
             const T c = (a.last().y() - a.first().y()) / (a.last().x() - a.first().x());
             const T d = a.first().y() - c * a.first().x();
             m_coefficients.append({ 0.0, 0.0, c, d });
@@ -269,28 +215,20 @@ public:
         Matrix A(numberOfRows, numberOfColumns);
         Vector b(numberOfRows);
 
-        // Fill the triplet list
         triplets.reserve(numberOfRows * 4);
         qint32 row = 0;
-        // Fill rows with position equations
-        // Initialize the values for the left point of the first interval. The
-        // rest of the left points of the intervals use the values computed for
-        // the right point of the previous interval
         T pointX = a.first().x();
         T pointY = a.first().y();
         T pointXSquared = pointX * pointX;
         T pointXCubed = pointXSquared * pointX;
         for (qint32 i = 0; i < intervals; ++i) {
             const int baseColumn = i * 4;
-            // Left point
             triplets.push_back(Triplet(row, baseColumn + 0, pointXCubed));
             triplets.push_back(Triplet(row, baseColumn + 1, pointXSquared));
             triplets.push_back(Triplet(row, baseColumn + 2, pointX));
             triplets.push_back(Triplet(row, baseColumn + 3, 1.0));
             b(row) = pointY;
             ++row;
-            // Right point (the following values are reused for the left point
-            // of the next interval)
             pointX = a[i + 1].x();
             pointY = a[i + 1].y();
             pointXSquared = pointX * pointX;
@@ -302,8 +240,6 @@ public:
             b(row) = pointY;
             ++row;
         }
-        // Fill rows with derivative equations
-        // Extreme knots second derivatives
         pointX = a.first().x();
         triplets.push_back(Triplet(row, 0, 6.0 * pointX));
         triplets.push_back(Triplet(row, 1, 2.0));
@@ -314,7 +250,6 @@ public:
         triplets.push_back(Triplet(row, numberOfColumns - 3, 2.0));
         b(row) = 0.0;
         ++row;
-        // Interior knots derivatives
         for (qint32 i = 1; i < a.size() - 1; ++i) {
             pointX = a[i].x();
             const qint32 baseColumn = i * 4;
@@ -329,7 +264,6 @@ public:
                 ++row;
             } else {
                 pointXSquared = pointX * pointX;
-                // First derivatives
                 triplets.push_back(Triplet(row, baseColumn - 4, 3.0 * pointXSquared));
                 triplets.push_back(Triplet(row, baseColumn - 3, 2.0 * pointX));
                 triplets.push_back(Triplet(row, baseColumn - 2, 1.0));
@@ -338,7 +272,6 @@ public:
                 triplets.push_back(Triplet(row, baseColumn + 2, -1.0));
                 b(row) = 0.0;
                 ++row;
-                // Second derivatives
                 triplets.push_back(Triplet(row, baseColumn - 4, 6.0 * pointX));
                 triplets.push_back(Triplet(row, baseColumn - 3, 2.0));
                 triplets.push_back(Triplet(row, baseColumn + 0, -6.0 * pointX));
@@ -347,30 +280,23 @@ public:
                 ++row;
             }
         }
-        // Solve
         A.setFromTriplets(triplets.begin(), triplets.end());
         Eigen::SparseLU<Matrix> solver(A);
         Vector x = solver.solve(b);
-        // Fill coefficients
         for (qint32 i = 0; i < intervals; ++i) {
             row = i * 4;
             m_coefficients.append({x(row), x(row + 1), x(row + 2), x(row + 3)});
         }
     }
 
-    /**
-     * Get value of precalculated spline in the point @x
-     */
     T getValue(T x) const {
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(m_coefficients.size() > 0, 0.0);
-        // Find the interval for the given x value
         int interval;
         for (interval = 0; interval < m_coefficients.size() - 1; ++interval) {
             if (x < m_points[interval + 1].x()) {
                 break;
             }
         }
-        // Evaluate
         const T xSquared = x * x;
         const T xCubed = xSquared * x;
         const Coefficients& coefficients = m_coefficients[interval];
@@ -379,9 +305,6 @@ public:
     }
 
 private:
-    /**
-     *  s(x) = a * x^3 + b * x^2 + c * x + d;
-     */
     struct Coefficients
     {
         T a, b, c, d;

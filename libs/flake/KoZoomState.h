@@ -11,9 +11,6 @@
 #include <boost/operators.hpp>
 #include <QtGlobal>
 
-/**
- * A simple structure to represent the zoom state.
- */
 class KRITAFLAKE_EXPORT KoZoomState : public boost::equality_comparable<KoZoomState>
 {
 public:
@@ -29,4 +26,4 @@ public:
     bool operator==(const KoZoomState &other) const;
 };
 
-#endif // KOZOOMSTATE_H
+#endif

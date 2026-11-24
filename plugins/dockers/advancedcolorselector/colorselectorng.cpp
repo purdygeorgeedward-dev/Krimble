@@ -20,7 +20,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(ColorSelectorNgPluginFactory, "krita_colorselectorng.json", registerPlugin<ColorSelectorNgPlugin>();)
 
-
 class ColorSelectorNgDockFactory : public KoDockFactoryBase
 {
 public:
@@ -47,7 +46,6 @@ public:
     }
 };
 
-
 class KrimbleRingDockFactory : public KoDockFactoryBase
 {
 public:
@@ -69,7 +67,7 @@ public:
         dockWidget->setObjectName(id());
         return dockWidget;
     }
-    DockPosition defaultDockPosition() const override { return DockMinimized; }   // opened from the Window menu
+    DockPosition defaultDockPosition() const override { return DockMinimized; }
 };
 
 class KrimbleDPaintDockFactory : public KoDockFactoryBase
@@ -81,7 +79,7 @@ public:
         dockWidget->setObjectName(id());
         return dockWidget;
     }
-    DockPosition defaultDockPosition() const override { return DockMinimized; }   // opened from the Window menu
+    DockPosition defaultDockPosition() const override { return DockMinimized; }
 };
 
 ColorSelectorNgPlugin::ColorSelectorNgPlugin(QObject *parent, const QVariantList &)
@@ -95,9 +93,6 @@ ColorSelectorNgPlugin::ColorSelectorNgPlugin(QObject *parent, const QVariantList
 
     KisColorSelectorSettingsFactory* settingsFactory = new KisColorSelectorSettingsFactory();
 
-    //load and save preferences
-    //if something in kritarc is missing, then the default from this load function will be used and saved back to kconfig.
-    //this way, cfg.readEntry() in any part won't be able to set its own default
     KisPreferenceSet* settings = settingsFactory->createPreferenceSet();
     Q_ASSERT(settings);
     settings->loadPreferences();

@@ -18,7 +18,6 @@
 #include "kis_curve_circle_mask_generator.h"
 #include "kis_cubic_curve.h"
 
-
 KisCurveRectangleMaskGenerator::KisCurveRectangleMaskGenerator(qreal diameter, qreal ratio, qreal fh, qreal fv, int spikes, const KisCubicCurve &curve, bool antialiasEdges)
     : KisMaskGenerator(diameter, ratio, fh, fv, spikes, antialiasEdges, RECTANGLE, SoftId), d(new Private(antialiasEdges))
 {
@@ -102,7 +101,6 @@ void KisCurveRectangleMaskGenerator::toXML(QDomDocument& doc, QDomElement& e) co
 
 void KisCurveRectangleMaskGenerator::setSoftness(qreal softness)
 {
-    // performance
     if (!d->dirty && softness == 1.0) return;
     d->dirty = true;
     KisMaskGenerator::setSoftness(softness);

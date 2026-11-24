@@ -22,7 +22,6 @@ private Q_SLOTS:
     void testParseFontStyles();
     void testParseTextStyles();
 
-
     void testSimpleText();
     void testComplexText();
     void testHindiText();
@@ -144,4 +143,4 @@ private Q_SLOTS:
     void testSvgCssHelper();
 };
 
-#endif // TESTSVGTEXT_H
+#endif

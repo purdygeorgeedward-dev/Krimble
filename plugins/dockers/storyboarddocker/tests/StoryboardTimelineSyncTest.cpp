@@ -13,7 +13,6 @@
 #include <QSignalSpy>
 #include <simpletest.h>
 
-
 void StoryboardTimelineSyncTest::initTestCase()
 {
     m_image = new KisImage(0, 100, 100, nullptr, "image");
@@ -44,7 +43,6 @@ void StoryboardTimelineSyncTest::initTestCase()
 
 void StoryboardTimelineSyncTest::cleanupTestCase()
 {
-    // Must give image time to finish before deallocating.
     m_image->waitForDone();
 
     delete m_storyboardModel;
@@ -62,7 +60,6 @@ void StoryboardTimelineSyncTest::cleanup()
     QCOMPARE(m_channel2->keyframeCount(), priorChannel2Count);
     QCOMPARE(m_storyboardModel->rowCount(), 0);
 
-    // Must give image time to finish before continuing on to the next test.
     m_image->waitForDone();
 }
 
@@ -75,17 +72,9 @@ void StoryboardTimelineSyncTest::testAddKeyframeExtendsDuration()
     QVERIFY(item1Index.isValid());
     QCOMPARE(m_storyboardModel->rowCount(), 1);
 
-    //Adding a keyframe beyond the last scene (atm starting on frame 0)
-    //should extend the length of the last scene to encompass new
-    //keyframe entries.
-
     m_channel1->addKeyframe(5);
 
     {
-        // Scenes == [...]
-        // [0 1 2 3 4 5] 6 7 8 ...
-        //Scene duration should be 0s, 6f
-        //Remember that first frame is included as 1 whole frame!
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, item1Index);
         QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, item1Index);
         QCOMPARE(frameDurationIndex.data().toInt(), 6);
@@ -95,8 +84,6 @@ void StoryboardTimelineSyncTest::testAddKeyframeExtendsDuration()
     m_channel1->moveKeyframe(5, 25);
 
     {
-        // [0 1 2 ... 23 24 25] 26 27 28 ...
-        //Scene duration should be 1s, 1f
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, item1Index);
         QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, item1Index);
         QCOMPARE(frameDurationIndex.data().toInt(), 2);
@@ -111,7 +98,6 @@ void StoryboardTimelineSyncTest::testAddKeyframeExtendsDuration()
     QModelIndex item2Index = m_storyboardModel->index(1,0);
 
     {
-        // [0 1 2 ... 23 24 25] [26] 27 28 29 ...
         QModelIndex frameNumberIndex = m_storyboardModel->index(StoryboardItem::FrameNumber, 0, item2Index);
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, item2Index);
         QCOMPARE(frameNumberIndex.data().toInt(), 26);
@@ -121,13 +107,11 @@ void StoryboardTimelineSyncTest::testAddKeyframeExtendsDuration()
     m_channel2->addKeyframe(28);
 
     {
-        // [0 1 2 ... 23 24 25] [26 27 28] 29 30 31 ...
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, item2Index);
         QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, item2Index);
         QCOMPARE(frameDurationIndex.data().toInt(), 3);
         QCOMPARE(secondDurationIndex.data().toInt(), 0);
     }
-
 
     m_channel2->removeKeyframe(28);
     m_channel2->removeKeyframe(26);
@@ -144,11 +128,8 @@ void StoryboardTimelineSyncTest::testAddKeyframeExtendsDuration()
 
 void StoryboardTimelineSyncTest::testStoryboardTimelineTimeSynchronization()
 {
-    //             0  1  2  3  4  5  6  7  8  9
-    //  channel1  [|  .  |] [| .] .  .  .  .  .
-    //  channel2  [|  .  |] [| |] .  .  .  .  .
 
-    { //SETUP
+    {
         m_storyboardModel->insertItem(m_storyboardModel->index(0,0), true);
         QCOMPARE(m_storyboardModel->rowCount(), 1);
         m_channel1->addKeyframe(2);
@@ -161,7 +142,6 @@ void StoryboardTimelineSyncTest::testStoryboardTimelineTimeSynchronization()
         QCOMPARE(m_channel1->keyframeCount(), 3);
         QCOMPARE(m_channel2->keyframeCount(), 4);
     }
-
 
     QSignalSpy spyTimeChanged(m_image->animationInterface() , SIGNAL(sigUiTimeChanged(int)));
     QVERIFY(spyTimeChanged.isValid());
@@ -181,7 +161,7 @@ void StoryboardTimelineSyncTest::testStoryboardTimelineTimeSynchronization()
     parentIndex = m_storyboardView->selectionModel()->currentIndex();
     QCOMPARE(m_storyboardModel->index(StoryboardItem::FrameNumber, 0, parentIndex).data().toInt(), 3);
 
-    { // CLEANUP
+    {
         m_storyboardModel->removeRows(0, m_storyboardModel->rowCount());
         QCOMPARE(m_storyboardModel->rowCount(), 0);
 
@@ -209,8 +189,6 @@ void StoryboardTimelineSyncTest::testDurationChange()
     QCOMPARE(m_storyboardModel->rowCount(), 2);
 
     {
-        // [0 1 2 3] [4] 5 6 7 ..
-        // Verify the above ^
         QModelIndex itemIndex = m_storyboardModel->index(0, 0);
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, itemIndex);
         QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, itemIndex);
@@ -224,16 +202,14 @@ void StoryboardTimelineSyncTest::testDurationChange()
         QCOMPARE(secondDurationIndex.data().toInt(), 0);
     }
 
-    {   // Try setting scene length too short. Scenes can never be shorter than their "internal" keyframe contents.
-        // In this case, the scene length cannot be less than or equal to 3!
+    {
         QModelIndex parentIndex = m_storyboardModel->index(0,0);
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, parentIndex);
         m_storyboardModel->setData(frameDurationIndex, 3);
         QCOMPARE(frameDurationIndex.data().toInt(), 4);
     }
 
-    {   // Try setting scene length 1 frame longer.
-        // In this case, the next scene should start at frame 5 and keyframes should reflect this change!
+    {
         QModelIndex parentIndex = m_storyboardModel->index(0,0);
         QModelIndex nextParentIndex = m_storyboardModel->index(1,0);
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, parentIndex);
@@ -244,8 +220,7 @@ void StoryboardTimelineSyncTest::testDurationChange()
         QVERIFY(m_channel1->keyframeAt(5));
     }
 
-    {   // Try setting scene length 3 frames higher than fps count.
-        // Should be 1s, 3f
+    {
         QModelIndex parentIndex = m_storyboardModel->index(0,0);
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, parentIndex);
         QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, parentIndex);
@@ -255,9 +230,7 @@ void StoryboardTimelineSyncTest::testDurationChange()
         QVERIFY(m_channel1->keyframeAt(fps + 3));
     }
 
-    {   // Try setting scene length to zero seconds.
-        // Will try be 0s, 3f; However, it will be restricted to lowest possible length (0s, 4f)
-        // as described above...
+    {
         QModelIndex parentIndex = m_storyboardModel->index(0,0);
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, parentIndex);
         QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, parentIndex);
@@ -267,7 +240,7 @@ void StoryboardTimelineSyncTest::testDurationChange()
         QVERIFY(m_channel1->keyframeAt(4));
     }
 
-    { // Cleanup time..
+    {
         m_storyboardModel->removeRows(0, m_storyboardModel->rowCount());
 
         Q_FOREACH( const int& keyframeTime, m_channel1->allKeyframeTimes()) {
@@ -303,7 +276,7 @@ void StoryboardTimelineSyncTest::testFpsChanged()
     QVERIFY(m_channel1->keyframeAt(1));
     QCOMPARE(m_storyboardModel->rowCount(), 2);
 
-    { // Let's set the length of the first scene to 30 frames. Should be 1s, 6f
+    {
         QModelIndex parentIndex = m_storyboardModel->index(0,0);
         QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, parentIndex);
         QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, parentIndex);
@@ -317,7 +290,7 @@ void StoryboardTimelineSyncTest::testFpsChanged()
         const int newFPS = qMax(i, 1);
         m_image->animationInterface()->setFramerate(newFPS);
 
-        { // Let's check the length of the first scene to make sure it has been updated to match newFPS.
+        {
             QModelIndex parentIndex = m_storyboardModel->index(0,0);
             QModelIndex frameDurationIndex = m_storyboardModel->index(StoryboardItem::DurationFrame, 0, parentIndex);
             QModelIndex secondDurationIndex = m_storyboardModel->index(StoryboardItem::DurationSecond, 0, parentIndex);
@@ -327,7 +300,7 @@ void StoryboardTimelineSyncTest::testFpsChanged()
         }
     }
 
-    {   // Cleanup time
+    {
         m_image->animationInterface()->setFramerate(originalFPS);
 
         m_storyboardModel->removeRows(0, m_storyboardModel->rowCount());

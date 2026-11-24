@@ -20,9 +20,6 @@ public:
 
     void undo() override;
 
-    //int id() const override;
-    //bool mergeWith(const KUndo2Command *other) override;
-
 private:
     KoSvgTextShape *m_shape;
     KoSvgTextShape *m_insert;
@@ -33,4 +30,4 @@ private:
     KoSvgTextShapeMementoSP m_textData;
 };
 
-#endif // SVGTEXTINSERTRICHTCOMMAND_H
+#endif

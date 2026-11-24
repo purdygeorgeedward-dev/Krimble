@@ -24,7 +24,6 @@
 #include "kis_double_parse_unit_spin_box.h"
 #include "kis_slider_spin_box.h"
 
-
 void KisDialogStateSaver::saveState(QWidget *parent, const QString &dialogName)
 {
     Q_ASSERT(parent);
@@ -41,7 +40,6 @@ void KisDialogStateSaver::saveState(QWidget *parent, const QString &dialogName)
                 group.writeEntry(widget->objectName(), qobject_cast<KisDoubleParseSpinBox*>(widget)->value());
             }
             else if (qobject_cast<KisDoubleParseUnitSpinBox*>(widget)) {
-                // XXX: also save the unit
                 group.writeEntry(widget->objectName(), qobject_cast<KisDoubleParseUnitSpinBox*>(widget)->value());
             }
             else if (qobject_cast<QCheckBox*>(widget)) {
@@ -73,7 +71,6 @@ void KisDialogStateSaver::saveState(QWidget *parent, const QString &dialogName)
             }
 
             else {
-                //qWarning() << "Cannot save state for object" << widget;
             }
         }
         else {
@@ -198,7 +195,6 @@ void KisDialogStateSaver::restoreState(QWidget *parent, const QString &dialogNam
             }
 
             else {
-                //qWarning() << "Cannot restore state for object" << widget;
             }
         }
         else {

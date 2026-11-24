@@ -20,9 +20,6 @@ using KisResourcesInterfaceSP = QSharedPointer<KisResourcesInterface>;
 
 class KisPaintopLodLimitations;
 
-/**
- * Base class for widgets that are used to edit and display paintop settings.
- */
 class KRITAIMAGE_EXPORT KisPaintOpConfigWidget : public KisConfigWidget
 {
     Q_OBJECT
@@ -43,7 +40,6 @@ protected:
 
 public:
 
-
     virtual KisPaintopLodLimitations lodLimitations() const = 0;
     virtual lager::reader<KisPaintopLodLimitations> lodLimitationsReader() const = 0;
     virtual lager::reader<qreal> effectiveBrushSize() const = 0;
@@ -56,11 +52,6 @@ public:
 
     void setView(KisViewManager *view) override;
 
-    /**
-     * Some paintops are more complicated and require full canvas with layers, projections and KisImage etc.
-     * Example is duplicate paintop. In this case simple canvas like scratchbox does not work.
-     * Every paintop supports the scratchbox by default, override and return false if paintop does not.
-     */
     virtual bool supportScratchBox();
 
 protected:

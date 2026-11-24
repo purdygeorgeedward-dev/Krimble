@@ -106,7 +106,7 @@ public:
         return (outsideMask | fadeStartMask);
     }
 
-#endif /* !defined XSIMD_NO_SUPPORTED_ARCHITECTURE */
+#endif
 
 private:
     qreal m_radius;
@@ -217,7 +217,6 @@ public:
         return (outXMask | outYMask);
     }
 
-    // Apply fader separately to avoid calculating vValue twice.
     template<typename A>
     void apply2DFader(xsimd::batch<float, A> &vValue, xsimd::batch_bool<float, A> &excludeMask, xsimd::batch<float, A> &xr, xsimd::batch<float, A> &yr) const
     {
@@ -262,7 +261,7 @@ public:
         }
     }
 
-#endif /* !defined(XSIMD_NO_SUPPORTED_ARCHITECTURE) */
+#endif
 
 private:
     qreal m_xLimit;
@@ -279,4 +278,4 @@ private:
     const BaseFade &m_baseFade;
 };
 
-#endif /* __KIS_ANTIALIASING_FADE_MAKER_H */
+#endif

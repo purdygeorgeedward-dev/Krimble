@@ -12,4 +12,4 @@ private Q_SLOTS:
     void testFileLost();
 };
 
-#endif // KISSAFEDOCUMENTLOADERTEST_H
+#endif

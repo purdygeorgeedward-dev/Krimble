@@ -14,7 +14,6 @@
 #include <kactioncollection.h>
 #include <kis_action.h>
 
-
 TouchDockerWidget::TouchDockerWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TouchDockerWidget)
@@ -57,7 +56,6 @@ void TouchDockerWidget::setCanvas(KisCanvas2 *canvas)
     ui->btnZoomUp->setAssociatedAction(action("view_zoom_in"));
     ui->btnZoomDown->setAssociatedAction(action("view_zoom_out"));
 
-
     ui->btnOpacityUp->setAssociatedAction(action("increase_opacity"));
     ui->btnOpacityDown->setAssociatedAction(action("decrease_opacity"));
 
@@ -87,7 +85,6 @@ void TouchDockerWidget::unsetCanvas()
 
     ui->btnZoomUp->setAssociatedAction(nullptr);
     ui->btnZoomDown->setAssociatedAction(nullptr);
-
 
     ui->btnOpacityUp->setAssociatedAction(nullptr);
     ui->btnOpacityDown->setAssociatedAction(nullptr);

@@ -19,7 +19,6 @@
 #include "KisAngleSelector.h"
 #include "KisAngleGauge.h"
 
-
 struct SliderWrapper
 {
     template <class Slider>
@@ -29,7 +28,6 @@ struct SliderWrapper
 
     void setValue(qreal value) {
         if (auto *slider = m_slider.value<KisDoubleParseUnitSpinBox*>()) {
-            // assume value from a KisDoubleParseUnitSpinBox is always provided in Pt
             slider->changeValuePt(value);
 
         } else if (auto *slider = m_slider.value<KisDoubleParseSpinBox*>()) {
@@ -136,7 +134,6 @@ struct KisAspectRatioLocker::Private
     bool blockUpdatesOnDrag = false;
 };
 
-
 KisAspectRatioLocker::KisAspectRatioLocker(QObject *parent)
     : QObject(parent),
       m_d(new Private)
@@ -182,7 +179,6 @@ void KisAspectRatioLocker::connectAngleBoxes(AngleBoxType *spinOne, AngleBoxType
     connect(m_d->aspectButton, SIGNAL(keepAspectRatioChanged(bool)), SLOT(slotAspectButtonChanged()));
     slotAspectButtonChanged();
 }
-
 
 template KRITAUI_EXPORT void KisAspectRatioLocker::connectSpinBoxes(QSpinBox *spinOne, QSpinBox *spinTwo, KoAspectButton *aspectButton);
 template KRITAUI_EXPORT void KisAspectRatioLocker::connectSpinBoxes(QDoubleSpinBox *spinOne, QDoubleSpinBox *spinTwo, KoAspectButton *aspectButton);

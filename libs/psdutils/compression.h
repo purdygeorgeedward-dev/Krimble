@@ -19,4 +19,4 @@ public:
     static QByteArray compress(QByteArray bytes, psd_compression_type compressionType, int row_size = 0, int color_depth = 0);
 };
 
-#endif // PSD_COMPRESSION_H
+#endif

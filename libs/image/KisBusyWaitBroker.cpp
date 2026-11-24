@@ -14,9 +14,7 @@
 
 #include "kis_image.h"
 
-
 Q_GLOBAL_STATIC(KisBusyWaitBroker, s_instance)
-
 
 struct KisBusyWaitBroker::Private
 {
@@ -26,7 +24,6 @@ struct KisBusyWaitBroker::Private
 
     std::function<void(KisImageSP)> feedbackCallback;
 };
-
 
 KisBusyWaitBroker::KisBusyWaitBroker()
     : m_d(new Private)
@@ -104,5 +101,4 @@ bool KisBusyWaitBroker::guiThreadIsWaitingForBetterWeather() const
 {
     return m_d->guiThreadLockCount;
 }
-
 

@@ -1,9 +1,3 @@
-/*
- * Krimble 2026-10-18: the new Type tool, designed from scratch (George: "The existing type tool is garbage. I'm letting you design the new one from scratch. Just
- * get rid of this crap version."). Tap the canvas with it and an ordinary window opens: a text box to type in, the font, the size, bold, italic, the alignment and
- * the color. OK puts the text on the picture as vector text (a KoSvgTextShape, in a vector layer). There is no editing on the canvas: no cursor, no handles, and
- * nothing for Android's own text selection controls to fight with. The old tool (SvgTextTool) is no longer registered; its code is left in the plugin, unused.
- */
 #ifndef KRIMBLE_TEXT_TOOL_H
 #define KRIMBLE_TEXT_TOOL_H
 
@@ -30,8 +24,8 @@ private:
     enum Handle { NoHandle, MoveHandle, LeftHandle, RightHandle, TopLeftHandle, TopRightHandle, BottomLeftHandle, BottomRightHandle };
     KoSvgTextShape *m_selected = nullptr;
     Handle m_handle = NoHandle;
-    QRectF m_frameStart;     // the frame when a handle was pressed (document coordinates)
-    QRectF m_frameNow;       // the frame while it is dragged
+    QRectF m_frameStart;
+    QRectF m_frameNow;
     bool selectedStillThere() const;
     QRectF selectedFrame() const;
     Handle handleAt(const QPointF &documentPoint) const;
@@ -54,4 +48,4 @@ public:
     KoToolBase *createTool(KoCanvasBase *canvas) override;
 };
 
-#endif // KRIMBLE_TEXT_TOOL_H
+#endif

@@ -17,51 +17,51 @@ public:
 
     ~TestNodeVisitor() override {}
 
-    bool visit(KisNode */*node*/) override {
+    bool visit(KisNode * ) override {
         return true;
     }
 
-    bool visit(KisPaintLayer */*layer*/) override {
+    bool visit(KisPaintLayer * ) override {
         return true;
     }
 
-    bool visit(KisGroupLayer */*layer*/) override {
+    bool visit(KisGroupLayer * ) override {
         return true;
     }
 
-    bool visit(KisAdjustmentLayer */*layer*/) override {
+    bool visit(KisAdjustmentLayer * ) override {
         return true;
     }
 
-    bool visit(KisExternalLayer */*layer*/) override {
+    bool visit(KisExternalLayer * ) override {
         return true;
     }
 
-    bool visit(KisGeneratorLayer */*layer*/) override {
+    bool visit(KisGeneratorLayer * ) override {
         return true;
     }
 
-    bool visit(KisCloneLayer */*layer*/) override {
+    bool visit(KisCloneLayer * ) override {
         return true;
     }
 
-    bool visit(KisFilterMask */*mask*/) override {
+    bool visit(KisFilterMask * ) override {
         return true;
     }
 
-    bool visit(KisTransformMask */*mask*/) override {
+    bool visit(KisTransformMask * ) override {
         return true;
     }
 
-    bool visit(KisTransparencyMask */*mask*/) override {
+    bool visit(KisTransparencyMask * ) override {
         return true;
     }
 
-    bool visit(KisSelectionMask */*mask*/) override {
+    bool visit(KisSelectionMask * ) override {
         return true;
     }
 
-    bool visit(KisColorizeMask */*mask*/) override {
+    bool visit(KisColorizeMask * ) override {
         return true;
     }
 
@@ -75,6 +75,5 @@ void KisNodeVisitorTest::testCreation()
 void KisNodeVisitorTest::testFullImage()
 {
 }
-
 
 SIMPLE_TEST_MAIN(KisNodeVisitorTest)

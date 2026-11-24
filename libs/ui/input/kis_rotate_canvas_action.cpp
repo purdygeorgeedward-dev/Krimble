@@ -18,14 +18,13 @@
 
 #include <math.h>
 
-constexpr qreal DISCRETE_ANGLE_STEP = 15.0;  // discrete rotation snapping angle
+constexpr qreal DISCRETE_ANGLE_STEP = 15.0;
 
 class KisRotateCanvasAction::Private
 {
 public:
     Private() {}
 
-    // Coverity requires sane defaults for all variables (CID 36429)
     Shortcut mode {RotateModeShortcut};
 
     qreal previousAngle {0.0};
@@ -34,7 +33,6 @@ public:
     bool allowRotation {false};
     KoViewTransformStillPoint actionStillPoint;
 };
-
 
 KisRotateCanvasAction::KisRotateCanvasAction()
     : KisAbstractInputAction("Rotate Canvas")
@@ -66,7 +64,7 @@ void KisRotateCanvasAction::activate(int shortcut)
 {
     if (shortcut == DiscreteRotateModeShortcut) {
         QApplication::setOverrideCursor(KisCursor::rotateCanvasDiscreteCursor());
-    } else /* if (shortcut == SmoothRotateModeShortcut) */ {
+    } else {
         QApplication::setOverrideCursor(KisCursor::rotateCanvasSmoothCursor());
     }
 }
@@ -94,9 +92,6 @@ void KisRotateCanvasAction::begin(int shortcut, QEvent *event)
     switch(shortcut) {
         case RotateModeShortcut:
         case DiscreteRotateModeShortcut: {
-            // If the canvas has been rotated to an angle that is not an exact multiple of DISCRETE_ANGLE_STEP,
-            // we need to adjust the final discrete rotation by that angle difference.
-            // trunc() is used to round the negative numbers towards zero.
             const qreal startRotation = inputManager()->canvas()->rotationAngle();
             d->snapRotation = startRotation - std::trunc(startRotation / DISCRETE_ANGLE_STEP) * DISCRETE_ANGLE_STEP;
             canvasController->beginCanvasRotation();
@@ -150,7 +145,6 @@ void KisRotateCanvasAction::cursorMovedAbsolute(const QPointF &startPos, const Q
     qreal newRotation = (180 / M_PI) * (newAngle - oldAngle);
 
     if (d->mode == DiscreteRotateModeShortcut) {
-        // Do not snap unless the user rotated half-way in the desired direction.
         if (qAbs(newRotation) > 0.5 * DISCRETE_ANGLE_STEP || d->allowRotation) {
             d->allowRotation = true;
             newRotation = qRound((newRotation + d->snapRotation) / DISCRETE_ANGLE_STEP) * DISCRETE_ANGLE_STEP - d->snapRotation;
@@ -198,10 +192,6 @@ void KisRotateCanvasAction::inputEvent(QEvent* event)
             if (tp0.state() == Qt::TouchPointReleased ||
                 tp1.state() == Qt::TouchPointReleased)
             {
-                // Workaround: on some devices, the coordinates of TouchPoints
-                // in state TouchPointReleased are not reliable, and can
-                // "jump" by a significant distance. So we just stop handling
-                // the rotation as soon as the user's finger leaves the tablet.
                 break;
             }
 
@@ -210,24 +200,16 @@ void KisRotateCanvasAction::inputEvent(QEvent* event)
 
             if ((p0-p1).manhattanLength() < 10)
             {
-                // The TouchPoints are too close together. Don't update the
-                // rotation as the angle will likely be off. This also deals
-                // with a glitch where a newly pressed TouchPoint incorrectly
-                // reports the existing TouchPoint's coordinates instead of its
-                // own.
                 break;
             }
 
-            // high school (y2 - y1) / (x2 - x1)
             QPointF slope = p1 - p0;
             qreal newAngle = atan2(slope.y(), slope.x());
 
-            // We must have the previous angle measurement to calculate the delta.
             if (d->allowRotation)
             {
                 qreal delta = (180 / M_PI) * (newAngle - d->previousAngle);
 
-                // Rotate by the effective angle from the beginning of the action.
                 d->touchRotation += delta;
 
                 KisCanvas2 *canvas = inputManager()->canvas();

@@ -13,7 +13,6 @@
 
 #include "kritaanimationdocker_export.h"
 
-
 class KRITAANIMATIONDOCKER_EXPORT KisEqualizerColumn : public QWidget
 {
     Q_OBJECT
@@ -46,4 +45,4 @@ private:
     void updateState();
 };
 
-#endif /* __KIS_EQUALIZER_COLUMN_H */
+#endif

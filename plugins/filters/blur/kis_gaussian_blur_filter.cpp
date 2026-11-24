@@ -6,7 +6,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_gaussian_blur_filter.h"
 #include "kis_wdg_gaussian_blur.h"
 
@@ -25,9 +24,7 @@
 #include <kis_processing_information.h>
 #include "kis_lod_transform.h"
 
-
 #include <math.h>
-
 
 KisGaussianBlurFilter::KisGaussianBlurFilter() : KisFilter(id(), FiltersCategoryBlurId, i18n("&Gaussian Blur..."))
 {
@@ -85,10 +82,6 @@ QRect KisGaussianBlurFilter::neededRect(const QRect & rect, const KisFilterConfi
     KisLodTransformScalar t(lod);
 
     QVariant value;
-    /**
-     * NOTE: integer division by two is done on purpose,
-     *       because the kernel size is always odd
-     */
     const int halfWidth = _config->getProperty("horizRadius", value) ? KisGaussianKernel::kernelSizeFromRadius(t.scale(value.toFloat())) / 2 : 5;
     const int halfHeight = _config->getProperty("vertRadius", value) ? KisGaussianKernel::kernelSizeFromRadius(t.scale(value.toFloat())) / 2 : 5;
 
@@ -109,7 +102,6 @@ QRect KisGaussianBlurFilter::changedRect(const QRect & rect, const KisFilterConf
 
 bool KisGaussianBlurFilter::configurationAllowedForMask(KisFilterConfigurationSP config) const
 {
-    //ENTER_FUNCTION() << config->getFloat("horizRadius", 5.0) << config->getFloat("vertRadius", 5.0);
 
     const float maxRadiusForMask = 100.0;
 

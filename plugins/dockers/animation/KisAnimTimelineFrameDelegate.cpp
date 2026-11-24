@@ -23,7 +23,6 @@ KisAnimTimelineFrameDelegate::KisAnimTimelineFrameDelegate(QObject *parent)
     KisNodeViewColorScheme scm;
     labelColors = scm.allColorLabels();
 
-    // Clone frame stripes SVG -> Pixmap..
     QImage stripesImage(":diagonal-stripe.svg", "svg");
     stripesImage.save("/tmp/krita_stripes.svg", "svg");
     stripes = QPixmap::fromImage(stripesImage);
@@ -74,15 +73,14 @@ void KisAnimTimelineFrameDelegate::paintSpecialKeyframeIndicator(QPainter *paint
 {
     painter->save();
 
-    bool doesFrameExist = index.data(KisAnimTimelineFramesModel::FrameExistsRole).toBool();   /// does normal keyframe exist
+    bool doesFrameExist = index.data(KisAnimTimelineFramesModel::FrameExistsRole).toBool();
     bool isEditable = index.data(KisAnimTimelineFramesModel::FrameEditableRole).toBool();
-    bool hasContent = index.data(KisAnimTimelineFramesModel::FrameHasContent).toBool();     /// find out if frame is empty
+    bool hasContent = index.data(KisAnimTimelineFramesModel::FrameHasContent).toBool();
 
     QColor color = qApp->palette().color(QPalette::Highlight);
     QColor baseColor = qApp->palette().color(QPalette::Base);
-    QColor noLabelSetColor = qApp->palette().color(QPalette::Highlight); // if no color label is used
+    QColor noLabelSetColor = qApp->palette().color(QPalette::Highlight);
 
-    // use color label if it exists. coloring follows very similar logic to the drawBackground() function except this is a bit simpler
     QVariant colorLabel = index.data(KisAnimTimelineFramesModel::FrameColorLabelIndexRole);
     if (colorLabel.isValid()) {
         color = labelColors.at(colorLabel.toInt());
@@ -95,7 +93,7 @@ void KisAnimTimelineFrameDelegate::paintSpecialKeyframeIndicator(QPainter *paint
     }
 
     if (doesFrameExist && hasContent) {
-        color = baseColor; // special keyframe will be over filled in frame, so switch color so it is shown
+        color = baseColor;
     }
 
     QPen oldPen = painter->pen();
@@ -123,19 +121,16 @@ void KisAnimTimelineFrameDelegate::drawBackground(QPainter *painter, const QMode
 {
     painter->save();
 
-    /// is the current layer actively selected (this is not the same as visibility)
     bool hasActiveLayerRole = index.data(KisAnimTimelineFramesModel::ActiveLayerRole).toBool();
-    bool doesFrameExist = index.data(KisAnimTimelineFramesModel::FrameExistsRole).toBool();   /// does keyframe exist
-    bool isEditable = index.data(KisAnimTimelineFramesModel::FrameEditableRole).toBool(); /// is layer editable
-    bool hasContent = index.data(KisAnimTimelineFramesModel::FrameHasContent).toBool();     /// find out if frame is empty
+    bool doesFrameExist = index.data(KisAnimTimelineFramesModel::FrameExistsRole).toBool();
+    bool isEditable = index.data(KisAnimTimelineFramesModel::FrameEditableRole).toBool();
+    bool hasContent = index.data(KisAnimTimelineFramesModel::FrameHasContent).toBool();
 
-    QColor color; // will get re-used for determining color
-    QColor noLabelSetColor = qApp->palette().color(QPalette::Highlight); // if no color label is used
+    QColor color;
+    QColor noLabelSetColor = qApp->palette().color(QPalette::Highlight);
     QColor highlightColor = qApp->palette().color(QPalette::Highlight);
     QColor baseColor = qApp->palette().color(QPalette::Base);
 
-
-    // pass for filling in the active row with slightly color difference
     if (hasActiveLayerRole) {
         color = KisPaintingTweaks::blendColors(baseColor, highlightColor, 0.8);
         painter->fillRect(rc, color);
@@ -144,7 +139,6 @@ void KisAnimTimelineFrameDelegate::drawBackground(QPainter *painter, const QMode
         painter->fillRect(rc, color);
     }
 
-    // assign background color for frame depending on if the frame has a color label or not
     QVariant colorLabel = index.data(KisAnimTimelineFramesModel::FrameColorLabelIndexRole);
     if (colorLabel.isValid()) {
         color = labelColors.at(colorLabel.toInt());
@@ -152,21 +146,14 @@ void KisAnimTimelineFrameDelegate::drawBackground(QPainter *painter, const QMode
         color = noLabelSetColor;
     }
 
-
-    // if layer is hidden, make the entire color more subtle.
-    // this should be in effect for both fill color and empty outline color
     if (!isEditable) {
         color = KisPaintingTweaks::blendColors(baseColor, color, 0.7);
     }
 
-
-    // how do we fill in a frame that has content
-    // a keyframe will be totally filled in. A hold frame will have a line running through it
     if (hasContent && doesFrameExist) {
         painter->fillRect(rc, color);
     }
 
-    // pass of outline for empty keyframes
     if (doesFrameExist && !hasContent) {
 
         QPen oldPen = painter->pen();
@@ -180,10 +167,8 @@ void KisAnimTimelineFrameDelegate::drawBackground(QPainter *painter, const QMode
         painter->setPen(oldPen);
     }
 
-    // pass of hold frame line
     if (!doesFrameExist && hasContent) {
 
-        // pretty much the same check as "isValid" above, but that isn't working with hold frames
          if (colorLabel.toInt() == 0) {
              color = noLabelSetColor;
 
@@ -191,7 +176,6 @@ void KisAnimTimelineFrameDelegate::drawBackground(QPainter *painter, const QMode
                  color = KisPaintingTweaks::blendColors(baseColor, color, 0.7);
              }
          }
-
 
         QPoint lineStart(rc.x(), (rc.y() + rc.height()/2));
         QPoint lineEnd(rc.x() + rc.width(), (rc.y() + rc.height()/2));
@@ -210,12 +194,10 @@ void KisAnimTimelineFrameDelegate::drawFocus(QPainter *painter,
                                            const QStyleOptionViewItem &option,
                                            const QRect &rect) const
 {
-    // copied from Qt 4.8!
     if ((option.state & QStyle::State_HasFocus) == 0 || !rect.isValid())
         return;
 
     painter->save();
-
 
     QStyleOptionFocusRect o;
     o.QStyleOption::operator=(option);
@@ -252,15 +234,12 @@ void KisAnimTimelineFrameDelegate::paint(QPainter *painter,
                                const QStyleOptionViewItem &option,
                                const QModelIndex &index) const
 {
-    // draws background as well as fills normal keyframes
     drawBackground(painter, index, option.rect);
 
-    // Clone graphics..
     if (index.data(KisAnimTimelineFramesModel::CloneOfActiveFrame).toBool() && index.data(KisAnimTimelineFramesModel::ActiveLayerRole).toBool()) {
         drawCloneGraphics(painter, option.rect);
     }
 
-    // creates a semi transparent orange rectangle in the frame that is actively selected on the active row
     if (option.showDecorationSelected &&
         (option.state & QStyle::State_Selected)) {
         painter->save();
@@ -276,23 +255,20 @@ void KisAnimTimelineFrameDelegate::paint(QPainter *painter,
         painter->restore();
     }
 
-    // not sure what this is drawing
     drawFocus(painter, option, option.rect);
 
-    // opacity keyframe, but NOT normal keyframes
     bool specialKeys = index.data(KisAnimTimelineFramesModel::SpecialKeyframeExists).toBool();
     if (specialKeys) {
         paintSpecialKeyframeIndicator(painter, index, option.rect);
     }
 
-    // creates a border and dot on the selected frame on the active row
     bool active = index.data(KisAnimTimelineFramesModel::ActiveFrameRole).toBool();
     bool layerIsCurrent = index.data(KisAnimTimelineFramesModel::ActiveLayerRole).toBool();
     if (active) {
         paintActiveFrameSelector(painter, option.rect, layerIsCurrent);
     }
 
-    { // Shade over anything that's outside of the animation range...
+    {
         if (index.data(KisAnimTimelineFramesModel::WithinClipRange).toBool() == false) {
             painter->save();
 

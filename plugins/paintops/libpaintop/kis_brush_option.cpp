@@ -106,7 +106,7 @@ bool KisBrushOptionProperties::isTextBrush(const KisPropertiesConfiguration *set
     return brushType == textBrushId;
 }
 
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
 KisBrushSP KisBrushOptionProperties::brush() const
 {

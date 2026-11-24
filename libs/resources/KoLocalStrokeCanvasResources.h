@@ -31,4 +31,4 @@ private:
 
 using KoLocalStrokeCanvasResourcesSP = QSharedPointer<KoLocalStrokeCanvasResources>;
 
-#endif // KOLOCALSTROKECANVASRESOURCES_H
+#endif

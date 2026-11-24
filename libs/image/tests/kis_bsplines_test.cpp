@@ -64,7 +64,7 @@ void KisBSplinesTest::test1D()
     dbgKrita << ppVar((max)(accum));
 
     qreal maxError = qMax(qAbs((min)(accum)), qAbs((max)(accum)));
-    QVERIFY(maxError < 0.10); // Error is less than 10%
+    QVERIFY(maxError < 0.10);
 
 }
 
@@ -73,7 +73,6 @@ void KisBSplinesTest::testEmpty1D()
     const qreal start = 1.0;
     const qreal end = 11.0;
     KisBSpline1D spline(start, end, 10, Natural);
-    // just let it be destructed uninitialized
 }
 
 template <class Spline, class Op>
@@ -101,7 +100,7 @@ bool test2DSpline(const Spline &spline, const Op &op, qreal start, qreal end)
     dbgKrita << ppVar((max)(accum));
 
     qreal maxError = qMax(qAbs((min)(accum)), qAbs((max)(accum)));
-    return maxError < 0.10; // Error is less than 10%
+    return maxError < 0.10;
 }
 
 void KisBSplinesTest::test2D()
@@ -131,7 +130,6 @@ void KisBSplinesTest::testEmpty2D()
     const qreal end = 11.0;
     KisBSpline2D spline(start, end, 10, Natural,
                         start, end, 10, Natural);
-    // just let it be destructed uninitialized
 }
 
 void KisBSplinesTest::testNU2D()

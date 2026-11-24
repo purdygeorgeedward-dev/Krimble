@@ -19,7 +19,6 @@
 #include <asl/kis_asl_writer_utils.h>
 #include <cos/kis_txt2_utls.h>
 
-
 PsdAdditionalLayerInfoBlock::PsdAdditionalLayerInfoBlock(const PSDHeader &header)
     : m_header(header)
     , sectionDividerType(psd_other)
@@ -81,8 +80,8 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
 
     while (!io.atEnd()) {
         {
-            const std::array<quint8, 4> refSignature1 = {'8', 'B', 'I', 'M'}; // '8BIM' in big-endian
-            const std::array<quint8, 4> refSignature2 = {'8', 'B', '6', '4'}; // '8B64' in big-endian
+            const std::array<quint8, 4> refSignature1 = {'8', 'B', 'I', 'M'};
+            const std::array<quint8, 4> refSignature2 = {'8', 'B', '6', '4'};
 
             if (!TRY_READ_SIGNATURE_2OPS_EX<byteOrder>(io, refSignature1, refSignature2)) {
                 break;
@@ -101,8 +100,6 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
             blockSize = size32;
         }
 
-        // Since TIFF headers are padded to multiples of 4,
-        // staving them off here is way easier.
         if (m_header.tiffStyleLayerBlock) {
             if (blockSize % 4U) {
                 dbgFile << "(TIFF) WARNING: current block size is NOT a multiple of 4! Fixing...";
@@ -115,9 +112,6 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
         if (blockSize == 0)
             continue;
 
-        // offset verifier will correct the position on the exit from
-        // current namespace, including 'continue', 'return' and
-        // exceptions.
         SETUP_OFFSET_VERIFIER(infoBlockEndVerifier, io, blockSize, 0);
 
         if (keys.contains(key)) {
@@ -126,8 +120,7 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
         }
         keys << key;
 
-        // TODO: Loading of 32 bit files is not supported yet
-        if (key == "Lr16" /* || key == "Lr32"*/) {
+        if (key == "Lr16" ) {
             if (m_layerInfoBlockHandler) {
                 int offset = m_header.version > 1 ? 8 : 4;
                 dbgFile << "Offset for block handler: " << io.pos() << offset;
@@ -142,15 +135,12 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
                 m_layerInfoBlockHandler(io);
             }
         } else if (key == "SoCo") {
-            // Solid Color
             fillConfig = KisAslReader::readFillLayer(io, byteOrder);
             fillType = psd_fill_solid_color;
         } else if (key == "GdFl") {
-            // Gradient Fill
             fillConfig = KisAslReader::readFillLayer(io, byteOrder);
             fillType = psd_fill_gradient;
         } else if (key == "PtFl") {
-            // Pattern Fill
             fillConfig = KisAslReader::readFillLayer(io, byteOrder);
             fillType = psd_fill_pattern;
         } else if (key == "brit") {
@@ -170,10 +160,8 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
         } else if (key == "thrs") {
         } else if (key == "selc") {
         } else if (key == "lrFX") {
-            // deprecated! use lfx2 instead!
         } else if (key == "tySh") {
         } else if (key == "luni") {
-            // get the unicode layer name
             unicodeLayerName = readUnicodeString<byteOrder>(io);
             dbgFile << "\t" << "unicodeLayerName" << unicodeLayerName;
         } else if (key == "lyid") {
@@ -181,7 +169,6 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
             psdread<byteOrder>(io, id);
             dbgFile << "\t" << "layer ID:" << id;
         } else if (key == "lfx2" || key == "lfxs") {
-            // lfxs is a special variant of layer styles for group layers
             layerStyleXml = KisAslReader::readLfx2PsdSection(io, byteOrder);
         } else if (key == "Patt" || key == "Pat2" || key == "Pat3") {
             QDomDocument pattern = KisAslReader::readPsdSectionPattern(io, blockSize, byteOrder);
@@ -192,7 +179,6 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
         } else if (key == "knko") {
         } else if (key == "spf") {
         } else if (key == "lclr") {
-            // layer label color.
             quint16 col1 = 0;
             quint16 col2 = 0;
             quint16 col3 = 0;
@@ -216,7 +202,7 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
 
             if (blockSize >= 12) {
                 quint32 lsctSignature = GARBAGE_VALUE_MARK;
-                const quint32 refSignature1 = 0x3842494D; // '8BIM' in little-endian
+                const quint32 refSignature1 = 0x3842494D;
                 SAFE_READ_SIGNATURE_EX(byteOrder, io, lsctSignature, refSignature1);
 
                 this->sectionDividerBlendMode = readFixedString<byteOrder>(io);
@@ -224,22 +210,16 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
                 dbgFile << ppVar(this->sectionDividerBlendMode);
             }
 
-            // Animation
             if (blockSize >= 14) {
-                /**
-                 * "I don't care
-                 *  I don't care, no... !" (c)
-                 */
             }
 
         } else if (key == "brst") {
-        } else if (key == "vmsk" || key == "vsms") { // If key is "vsms" then we are writing for (PS CS6) and the document will have a "vscg" key
-            quint32 version; // ( = 3 for PS 6.0)
+        } else if (key == "vmsk" || key == "vsms") {
+            quint32 version;
             psdread<byteOrder>(io, version);
 
             quint32 flags;
             psdread<byteOrder>(io, flags);
-            // read the flags.
             vectorMask.invert  = flags & 1? true: false;
             vectorMask.notLink = flags & 2? true: false;
             vectorMask.disable = flags & 4? true: false;
@@ -257,7 +237,6 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
                     dbgFile << "\trecord" << recordType;
                 } else if (recordType == 7) {
                     QRectF bounds;
-                    // unsure if there can be multiple clipboard records...
                     bounds.setTop(psdreadFixedPoint<byteOrder>(io));
                     bounds.setLeft(psdreadFixedPoint<byteOrder>(io));
                     bounds.setBottom(psdreadFixedPoint<byteOrder>(io));
@@ -315,12 +294,11 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
         } else if (key == "tsly") {
         } else if (key == "lmgm") {
         } else if (key == "vmgm") {
-        } else if (key == "plLd") { // Replaced by SoLd in CS3
+        } else if (key == "plLd") {
 
         } else if (key == "linkD" || key == "lnk2" || key == "lnk3") {
         } else if (key == "CgEd") {
-        } else if (key == "Txt2") { // global text data, basically the same as an Illustrator text object.
-            // Docs say "first 4 are length", this is not true for this particular block, only when in ASL is first 4 length.
+        } else if (key == "Txt2") {
             QByteArray ba = io.read(blockSize);
             KisCosParser p;
             txt2Data = KisTxt2Utils::uncompressKeys(p.parseCosToJson(&ba));
@@ -328,7 +306,7 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
         } else if (key == "anFX") {
         } else if (key == "FMsk") {
         } else if (key == "SoLd") {
-        } else if (key == "vstk") { // vector stroke info
+        } else if (key == "vstk") {
             vectorStroke = KisAslReader::readVectorStroke(io, byteOrder);
         } else if (key == "vscg") {
             if (blockSize > 4) {
@@ -337,20 +315,17 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
                 if (vscgKey == "SoCo") {
                     fillType = psd_fill_solid_color;
                 } else if (vscgKey == "GdFl") {
-                    // Gradient Fill
                     fillType = psd_fill_gradient;
                 } else if (vscgKey == "PtFl") {
-                    // Pattern Fill
                     fillType = psd_fill_pattern;
                 }
             }
         } else if (key == "sn2P") {
-        } else if (key == "vogk") { // Live path shapes, these are similar to parametric shapes.
+        } else if (key == "vogk") {
             vectorOriginationData = KisAslReader::readVectorOriginationData(io, byteOrder);
-        } else if (key == "Mtrn" || key == "Mt16" || key == "Mt32") { // There is no data associated with these keys.
+        } else if (key == "Mtrn" || key == "Mt16" || key == "Mt32") {
 
         } else if (key == "LMsk") {
-            // TIFFs store the global mask here.
             if (m_header.tiffStyleLayerBlock) {
                 int offset = m_header.version > 1 ? 8 : 4;
                 dbgFile << "(TIFF) Offset for block handler: " << io.pos() << offset;
@@ -363,7 +338,7 @@ void PsdAdditionalLayerInfoBlock::readImpl(QIODevice &io)
     }
 }
 
-bool PsdAdditionalLayerInfoBlock::write(QIODevice & /*io*/, KisNodeSP /*node*/)
+bool PsdAdditionalLayerInfoBlock::write(QIODevice & , KisNodeSP )
 {
     return true;
 }
@@ -436,7 +411,6 @@ template<psd_byte_order byteOrder>
 void PsdAdditionalLayerInfoBlock::writeLfx2BlockExImpl(QIODevice &io, const QDomDocument &stylesXmlDoc, bool useLfxsLayerStyleFormat)
 {
     KisAslWriterUtils::writeFixedString<byteOrder>("8BIM", io);
-    // 'lfxs' format is used for Group layers in PS
     KisAslWriterUtils::writeFixedString<byteOrder>(!useLfxsLayerStyleFormat ? "lfx2" : "lfxs", io);
     KisAslWriterUtils::OffsetStreamPusher<quint32, byteOrder> lfx2SizeTag(io, 2);
 
@@ -447,7 +421,6 @@ void PsdAdditionalLayerInfoBlock::writeLfx2BlockExImpl(QIODevice &io, const QDom
     } catch (KisAslWriterUtils::ASLWriteException &e) {
         warnKrita << "WARNING: Couldn't save layer style lfx2 block:" << PREPEND_METHOD(e.what());
 
-        // TODO: make this error recoverable!
         throw e;
     }
 }
@@ -551,7 +524,6 @@ void PsdAdditionalLayerInfoBlock::writePattBlockExImpl(QIODevice &io, const QDom
     } catch (KisAslWriterUtils::ASLWriteException &e) {
         warnKrita << "WARNING: Couldn't save layer style patterns block:" << PREPEND_METHOD(e.what());
 
-        // TODO: make this error recoverable!
         throw e;
     }
 }
@@ -561,7 +533,6 @@ void PsdAdditionalLayerInfoBlock::writeLclrBlockExImpl(QIODevice &io, const quin
 {
     KisAslWriterUtils::writeFixedString<byteOrder>("8BIM", io);
     KisAslWriterUtils::writeFixedString<byteOrder>("lclr", io);
-    // 4x2 quint16
     const quint32 len = 8;
     SAFE_WRITE_EX(byteOrder, io, len);
     quint16 zero = 0;
@@ -569,7 +540,6 @@ void PsdAdditionalLayerInfoBlock::writeLclrBlockExImpl(QIODevice &io, const quin
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
-
 
 }
 
@@ -594,7 +564,6 @@ void PsdAdditionalLayerInfoBlock::writeFillLayerBlockExImpl(QIODevice &io, const
     } catch (KisAslWriterUtils::ASLWriteException &e) {
         warnKrita << "WARNING: Couldn't save fill layer block:" << PREPEND_METHOD(e.what());
 
-        // TODO: make this error recoverable!
         throw e;
     }
 }
@@ -605,11 +574,11 @@ void PsdAdditionalLayerInfoBlock::writeVectorMaskImpl(QIODevice &io, psd_vector_
     KisAslWriterUtils::writeFixedString<byteOrder>("8BIM", io);
     KisAslWriterUtils::writeFixedString<byteOrder>("vmsk", io);
 
-    quint32 len = 8; //, 4 version, 4 flags
-    len += 52; // 26 path record, 26 initial fill rule.
+    quint32 len = 8;
+    len += 52;
     Q_FOREACH(psd_path_sub_path subPath, mask.path.subPaths) {
-        len += 26; // subpath record;
-        len += subPath.nodes.size() * 26; //and one for each node.
+        len += 26;
+        len += subPath.nodes.size() * 26;
     }
 
     SAFE_WRITE_EX(byteOrder, io, len);
@@ -628,23 +597,19 @@ void PsdAdditionalLayerInfoBlock::writeVectorMaskImpl(QIODevice &io, psd_vector_
     }
     SAFE_WRITE_EX(byteOrder, io, flags);
 
-    // start path records
     quint16 recordType = 6;
     quint32 zero = 0;
     SAFE_WRITE_EX(byteOrder, io, recordType);
-    // 24 empty bits
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
-    // initial fill rule record
     recordType = 8;
     SAFE_WRITE_EX(byteOrder, io, recordType);
     quint16 fillType = mask.path.initialFillRecord? 1: 0;
     SAFE_WRITE_EX(byteOrder, io, fillType);
-    // 22 empty bits
     const quint16 halfZero = 0;
     SAFE_WRITE_EX(byteOrder, io, halfZero);
     SAFE_WRITE_EX(byteOrder, io, zero);
@@ -652,14 +617,12 @@ void PsdAdditionalLayerInfoBlock::writeVectorMaskImpl(QIODevice &io, psd_vector_
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
     SAFE_WRITE_EX(byteOrder, io, zero);
-    // write the subpaths.
     Q_FOREACH(psd_path_sub_path subPath, mask.path.subPaths) {
         recordType = subPath.isClosed? 0: 3;
         quint16 length = subPath.nodes.size();
         dbgFile << "writing subpath" << subPath.nodes.size();
         SAFE_WRITE_EX(byteOrder, io, recordType);
         SAFE_WRITE_EX(byteOrder, io, length);
-        // 22 empty bits
         SAFE_WRITE_EX(byteOrder, io, halfZero);
         SAFE_WRITE_EX(byteOrder, io, zero);
         SAFE_WRITE_EX(byteOrder, io, zero);
@@ -700,7 +663,6 @@ void PsdAdditionalLayerInfoBlock::writeTypeToolImpl(QIODevice &io, psd_layer_typ
     } catch (KisAslWriterUtils::ASLWriteException &e) {
         warnKrita << "WARNING: Couldn't save text layer block:" << PREPEND_METHOD(e.what());
 
-        // TODO: make this error recoverable!
         throw e;
     }
 }
@@ -719,7 +681,6 @@ void PsdAdditionalLayerInfoBlock::writeVectorStrokeDataImpl(QIODevice &io, const
     } catch (KisAslWriterUtils::ASLWriteException &e) {
         warnKrita << "WARNING: Couldn't save vector stroke layer block:" << PREPEND_METHOD(e.what());
 
-        // TODO: make this error recoverable!
         throw e;
     }
 }
@@ -762,7 +723,6 @@ void PsdAdditionalLayerInfoBlock::writeVectorOriginationDataImpl(QIODevice &io, 
     } catch (KisAslWriterUtils::ASLWriteException &e) {
         warnKrita << "WARNING: Couldn't save vector stroke layer block:" << PREPEND_METHOD(e.what());
 
-        // TODO: make this error recoverable!
         throw e;
     }
 }

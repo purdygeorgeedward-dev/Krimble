@@ -46,4 +46,4 @@ private:
     QScopedPointer<Ui_wdgGamutMaskToolbar> m_ui;
 };
 
-#endif // KISGAMUTMASKTOOLBAR_H
+#endif

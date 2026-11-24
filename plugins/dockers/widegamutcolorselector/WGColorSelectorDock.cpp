@@ -41,7 +41,7 @@
 WGColorSelectorDock::WGColorSelectorDock()
 	: QDockWidget()
     , m_displayConfig(new WGSelectorDisplayConfig)
-    , m_colorChangeCompressor(new KisSignalCompressor(100 /* ms */, KisSignalCompressor::POSTPONE, this))
+    , m_colorChangeCompressor(new KisSignalCompressor(100 , KisSignalCompressor::POSTPONE, this))
     , m_actionManager(new WGActionManager(this))
     , m_colorTooltip(new WGColorPreviewToolTip(this))
     , m_colorModelBG(new KisVisualColorModel)
@@ -63,7 +63,6 @@ WGColorSelectorDock::WGColorSelectorDock()
     connect(m_colorChangeCompressor, SIGNAL(timeout()), SLOT(slotSetNewColors()));
     m_colorModelFG = m_selector->selectorModel();
 
-    // Header
     QWidget *headerWidget = new QWidget(mainWidget);
     QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
 
@@ -96,7 +95,6 @@ WGColorSelectorDock::WGColorSelectorDock()
     m_selectorAreaLayout->addWidget(m_shadeSelector);
     connect(m_shadeSelector, SIGNAL(sigColorInteraction(bool)), SLOT(slotColorInteraction(bool)));
 
-    // eventually it should made be a global history, not specific to any plugin
     m_fallbackColorHistoryModel.reset(new KisUniqueColorSet());
     m_globalColorHistoryModel = m_fallbackColorHistoryModel.get();
     m_documentColorHistoryModel = nullptr;
@@ -106,7 +104,6 @@ WGColorSelectorDock::WGColorSelectorDock()
     connect(m_history, SIGNAL(sigColorChanged(KoColor)), SLOT(slotColorSelected(KoColor)));
     connect(m_history, SIGNAL(sigColorInteraction(bool)), SLOT(slotColorInteraction(bool)));
 
-    // Common Colors (Colors from Image)
     m_commonColorSet = new WGCommonColorSet(this);
 
     m_commonColors = new WGColorPatches(m_displayConfig, m_commonColorSet, mainWidget);
@@ -123,8 +120,6 @@ WGColorSelectorDock::WGColorSelectorDock()
 
 const KisVisualColorModel &WGColorSelectorDock::colorModel() const
 {
-    // currently always return foreground model;
-    // do lazy conversion to current HSX model if required
     if (selectingBackground() && m_colorModelBG->isHSXModel()) {
         m_colorModelFG->setRGBColorModel(m_colorModelBG->colorModel());
     }
@@ -147,14 +142,10 @@ bool WGColorSelectorDock::selectingBackground() const
 
 void WGColorSelectorDock::setChannelValues(const QVector4D &values)
 {
-    // currently always set foreground color
     if (!m_canvas) {
         return;
     }
 
-    // This could be nicer...if setting active model, this triggers slotColorSelected()
-    // and leaves timer running with NOP, otherwise the resource update is detected as
-    // external event and updates UI.
     m_colorModelFG->slotSetChannelValues(values);
 
     m_canvas->resourceManager()->setForegroundColor(m_colorModelFG->currentColor());
@@ -171,7 +162,6 @@ void WGColorSelectorDock::setCanvas(KoCanvasBase *canvas)
 {
     if (m_canvas.data() == canvas)
     {
-        // not sure why setCanvas gets called 3 times for new canvas, just skip
         return;
     }
     if (m_canvas) {
@@ -179,7 +169,6 @@ void WGColorSelectorDock::setCanvas(KoCanvasBase *canvas)
     }
     m_actionManager->setCanvas(qobject_cast<KisCanvas2*>(canvas), m_canvas);
     m_canvas = qobject_cast<KisCanvas2*>(canvas);
-    // TODO: unset display converters if canvas is null
     if (m_canvas) {
         KoColorDisplayRendererInterface *dri = m_canvas->displayColorConverter()->displayRendererInterface();
         KisCanvasResourceProvider *resourceProvider = m_canvas->imageView()->resourceProvider();
@@ -193,14 +182,12 @@ void WGColorSelectorDock::setCanvas(KoCanvasBase *canvas)
         m_selector->setDisplayRenderer(dri);
         m_displayConfig->setDisplayConverter(m_canvas->displayColorConverter());
         m_commonColorSet->setImage(m_canvas->image());
-        //m_toggle->setBackgroundColor(dri->toQColor(color));
         connect(dri, SIGNAL(displayConfigurationChanged()), this, SLOT(slotDisplayConfigurationChanged()));
         connect(m_canvas->resourceManager(), SIGNAL(canvasResourceChanged(int,QVariant)),
                 this, SLOT(slotCanvasResourceChanged(int,QVariant)));
         connect(resourceProvider, SIGNAL(sigFGColorUsed(KoColor)),
                 this, SLOT(slotFGColorUsed(KoColor)), Qt::UniqueConnection);
 
-        // Gamut Mask
         connect(resourceProvider, SIGNAL(sigGamutMaskChanged(KoGamutMaskSP)),
                 m_selector, SLOT(slotGamutMaskChanged(KoGamutMaskSP)), Qt::UniqueConnection);
 
@@ -215,8 +202,6 @@ void WGColorSelectorDock::setCanvas(KoCanvasBase *canvas)
 
         m_gamutToolbar->connectMaskSignals(resourceProvider);
 
-        // quirk note: displayConfigurationChanged signal gets sent *before* the new canvas gets
-        // passed, through the display converter of the now inactive canvas! So we need to repeat...
         slotDisplayConfigurationChanged();
     }
     setEnabled(canvas != 0);
@@ -322,13 +307,11 @@ void WGColorSelectorDock::slotConfigurationChanged()
 
     m_commonColors->updateSettings();
     m_commonColorSet->setAutoUpdate(cfg.get(WGConfig::commonColorsAutoUpdate));
-    // Quick settings menu
     if (cfg.get(WGConfig::quickSettingsEnabled)) {
         if (!m_configButton->menu()) {
             m_configButton->disconnect(this);
             QMenu *configureMenu = new QMenu(this);
             m_quickSettings = new WGQuickSettingsWidget(this, m_selector);
-            // prevents hover indicator being stuck on other menu entries
             m_quickSettings->setMouseTracking(true);
             m_quickSettingAction = new QWidgetAction(this);
             m_quickSettingAction->setDefaultWidget(m_quickSettings);
@@ -338,7 +321,6 @@ void WGColorSelectorDock::slotConfigurationChanged()
             connect(cfgAction, SIGNAL(triggered(bool)), SLOT(slotOpenSettings()));
             m_configButton->setMenu(configureMenu);
         } else {
-            // WORKAROUND: force geometry update by re-adding action, all other attempts failed...
             QMenu *menu = m_configButton->menu();
             menu->removeAction(m_quickSettingAction);
             menu->insertAction(menu->actions().constFirst(), m_quickSettingAction);
@@ -370,8 +352,6 @@ void WGColorSelectorDock::slotDisplayConfigurationChanged()
 
     const KoColorSpace *selectionCS = nullptr;
 
-    // Note: displayConfigurationChanged is also emitted on image color space changes,
-    // so there's no need to handle extra signals, although it's a bit convoluted
     if (m_CSSource == ImageColorSpace) {
         selectionCS  = m_canvas->image()->colorSpace();
     } else if (m_CSSource == FixedColorSpace) {
@@ -380,7 +360,6 @@ void WGColorSelectorDock::slotDisplayConfigurationChanged()
         selectionCS = m_canvas->displayColorConverter()->nodeColorSpace();
     }
 
-    // TODO: use m_viewManager->canvasResourceProvider()->fgColor();
     KoColor fgColor = m_canvas->resourceManager()->foregroundColor();
     KoColor bgColor = m_canvas->resourceManager()->backgroundColor();
 
@@ -430,7 +409,6 @@ void WGColorSelectorDock::slotColorSourceToggled(bool selectingBg)
         m_selector->setSelectorModel(m_colorModelFG);
         m_shadeSelector->setModel(m_colorModelFG);
     }
-    // currently, only the color space of the active model is updated, so it may be outdated
     if (m_canvas) {
         slotDisplayConfigurationChanged();
     }
@@ -464,7 +442,6 @@ void WGColorSelectorDock::slotFGColorUsed(const KoColor &color)
 
 void WGColorSelectorDock::slotSetNewColors()
 {
-    //KIS_SAFE_ASSERT_RECOVER_RETURN(m_pendingFgUpdate || m_pendingBgUpdate);
     if (m_pendingFgUpdate) {
         m_canvas->resourceManager()->setForegroundColor(m_colorModelFG->currentColor());
         m_pendingFgUpdate = false;
@@ -502,7 +479,6 @@ void WGColorSelectorDock::slotOpenSettings()
 
     WGColorSelectorSettingsDialog settings;
     if (settings.exec() == QDialog::Accepted) {
-        //WGConfig::notifier()->notifyConfigChanged();
     }
 }
 
@@ -515,7 +491,6 @@ bool WGColorSelectorDock::eventFilter(QObject *obj, QEvent *e)
 {
     Q_UNUSED(obj);
 
-    // Get the leave event of the inner widget, for when the docker is borrowed and doesn't properly handle leave events
     if (e->type() == QEvent::Leave) {
         m_colorTooltip->hide();
     }

@@ -81,31 +81,31 @@ struct NeighbourStaticOffset
 
 static NeighbourStaticOffset staticOffsets[5][4] =
 {
-    { // FROM_NOWHERE
+    {
         { FROM_RIGHT,  false, QPoint(-1,  0) },
         { FROM_LEFT,   false, QPoint( 1,  0) },
         { FROM_BOTTOM, false, QPoint( 0, -1) },
         { FROM_TOP,    false, QPoint( 0,  1) },
     },
-    { // FROM_RIGHT
+    {
         { FROM_RIGHT,  false, QPoint(-1,  0) },
         { FROM_LEFT,   true,  QPoint( 1,  0) },
         { FROM_BOTTOM, false, QPoint( 0, -1) },
         { FROM_TOP,    false, QPoint( 0,  1) },
     },
-    { // FROM_LEFT
+    {
         { FROM_RIGHT,  true,  QPoint(-1,  0) },
         { FROM_LEFT,   false, QPoint( 1,  0) },
         { FROM_BOTTOM, false, QPoint( 0, -1) },
         { FROM_TOP,    false, QPoint( 0,  1) },
     },
-    { // FROM_TOP
+    {
         { FROM_RIGHT,  false, QPoint(-1,  0) },
         { FROM_LEFT,   false, QPoint( 1,  0) },
         { FROM_BOTTOM, true,  QPoint( 0, -1) },
         { FROM_TOP,    false, QPoint( 0,  1) },
     },
-    { // FROM_BOTTOM
+    {
         { FROM_RIGHT,  false, QPoint(-1,  0) },
         { FROM_LEFT,   false, QPoint( 1,  0) },
         { FROM_BOTTOM, false, QPoint( 0, -1) },
@@ -129,11 +129,6 @@ struct CompareTaskPoints {
     }
 };
 
-/**
- * Adjusts the stroke device in a way that all the stroke's pixels
- * are set to the range 1...255, according to the height of this pixel
- * in the heightmap. The pixels not having any stroke have value 0
- */
 void mergeHeightmapOntoStroke(KisPaintDeviceSP stroke, KisPaintDeviceSP heightMap, const QRect &rc)
 {
     KisSequentialIterator dstIt(stroke, rc);
@@ -170,11 +165,6 @@ void parseColorIntoGroups(QVector<FillGroup> &groups,
         if (*dstPtr > 0) {
             const QPoint pt(dstIt.x(), dstIt.y());
             KisScanlineFill fill(stroke, pt, boundingRect);
-            /**
-             * The threshold is set explicitly. If you want to raise it,
-             * don't forget to add a distinction between 0 and >0 in
-             * the fill strategy. Otherwise the algorithm will not work.
-             */
             fill.setThreshold(0);
             fill.fillContiguousGroup(groupMap, groups.size());
 
@@ -187,10 +177,6 @@ void parseColorIntoGroups(QVector<FillGroup> &groups,
 using PointsPriorityQueue = boost::heap::fibonacci_heap<TaskPoint, boost::heap::compare<CompareTaskPoints>>;
 
 }
-
-/***********************************************************************/
-/*           KisWatershedWorker::Private                               */
-/***********************************************************************/
 
 struct KisWatershedWorker::Private
 {
@@ -208,7 +194,6 @@ struct KisWatershedWorker::Private
     CompareTaskPoints pointsComparator;
     PointsPriorityQueue pointsQueue;
 
-    // temporary "global" variables for the processing routines
     KisRandomAccessorSP groupIt;
     KisRandomConstAccessorSP levelIt;
     qint32 backgroundGroupId = 0;
@@ -238,14 +223,7 @@ struct KisWatershedWorker::Private
     void calcNumGroupMaps();
     void dumpGroupInfo(qint32 groupIndex, quint8 levelIndex);
 
-
 };
-
-/***********************************************************************/
-/*           KisWatershedWorker                                        */
-/***********************************************************************/
-
-
 
 KisWatershedWorker::KisWatershedWorker(KisPaintDeviceSP heightMap, KisPaintDeviceSP dst, const QRect &boundingRect, KoUpdater *progress)
     : m_d(new Private)
@@ -257,8 +235,6 @@ KisWatershedWorker::KisWatershedWorker(KisPaintDeviceSP heightMap, KisPaintDevic
     m_d->dstDevice = dst;
     m_d->boundingRect = boundingRect;
 
-    // Just the simplest color space with 4 bytes per pixel. We use it as
-    // a storage for qint32-indexed group ids
     m_d->groupsMap = new KisPaintDevice(KoColorSpaceRegistry::instance()->rgb8());
 }
 
@@ -307,9 +283,6 @@ void KisWatershedWorker::run(qreal cleanUpAmount)
                              m_d->boundingRect);
     }
 
-//    m_d->dumpGroupMaps();
-//    m_d->calcNumGroupMaps();
-
     const QRect initRect =
         m_d->boundingRect & m_d->groupsMap->nonDefaultPixelArea();
 
@@ -317,14 +290,10 @@ void KisWatershedWorker::run(qreal cleanUpAmount)
     m_d->processQueue(0);
 
     if (!m_d->progressUpdater || !m_d->progressUpdater->interrupted()) {
-        //    m_d->dumpGroupMaps();
-        //    m_d->calcNumGroupMaps();
 
         if (cleanUpAmount > 0) {
             m_d->cleanupForeignEdgeGroups(cleanUpAmount);
         }
-
-        //    m_d->calcNumGroupMaps();
 
         m_d->writeColoring();
     }
@@ -390,7 +359,6 @@ void KisWatershedWorker::Private::initializeQueueFromGroupMap(const QRect &rc)
 
             pointsQueue.push(pt);
 
-            // we must clear the pixel to make sure foreign metric is calculated correctly
             *groupPtr = 0;
         }
 
@@ -420,7 +388,6 @@ ALWAYS_INLINE void addForeignAlly(qint32 currGroupId,
         currLevelData.allyEdgeSize++;
     }
 
-
 }
 
 ALWAYS_INLINE  void removeForeignAlly(qint32 currGroupId,
@@ -448,7 +415,6 @@ ALWAYS_INLINE  void removeForeignAlly(qint32 currGroupId,
         prevLevelData.allyEdgeSize--;
         currLevelData.allyEdgeSize--;
     }
-
 
 }
 
@@ -532,19 +498,15 @@ void KisWatershedWorker::Private::visitNeighbour(const QPoint &currPt, const QPo
         pointsQueue.push(pt);
     }
 
-    // we can never clear the pixel!
     KIS_SAFE_ASSERT_RECOVER_RETURN(prevGroupId > 0);
     KIS_SAFE_ASSERT_RECOVER_RETURN(prevGroupId != prevPrevGroupId);
 
     if (currGroupId) {
         const bool isSameLevel = prevLevel == newLevel;
 
-
         if ((!prevPrevGroupId ||
              prevPrevGroupId == currGroupId) &&
             prevGroupId != currGroupId) {
-
-            // we have added a foreign/ally group
 
             FillGroup::LevelData &currLevelData = currGroup.levels[newLevel];
 
@@ -558,8 +520,6 @@ void KisWatershedWorker::Private::visitNeighbour(const QPoint &currPt, const QPo
                    prevPrevGroupId != currGroupId &&
                    prevGroupId == currGroupId) {
 
-            // we have removed a foreign/ally group
-
             FillGroup::LevelData &currLevelData = currGroup.levels[newLevel];
             FillGroup::LevelData &prevPrevLevelData = prevPrevGroup.levels[prevLevel];
 
@@ -572,8 +532,6 @@ void KisWatershedWorker::Private::visitNeighbour(const QPoint &currPt, const QPo
         } else if (prevPrevGroupId &&
                    prevPrevGroupId != currGroupId &&
                    prevGroupId != currGroupId) {
-
-            // this pixel has become an foreign/ally pixel of a different group
 
             FillGroup::LevelData &currLevelData = currGroup.levels[newLevel];
 
@@ -596,7 +554,6 @@ void KisWatershedWorker::Private::visitNeighbour(const QPoint &currPt, const QPo
         if (!isSameLevel) {
 
             if (prevGroupId == currGroupId) {
-                // we connected with our own disjoint area
 
                 FillGroup::LevelData &currLevelData = currGroup.levels[newLevel];
 
@@ -605,8 +562,6 @@ void KisWatershedWorker::Private::visitNeighbour(const QPoint &currPt, const QPo
             }
 
             if (prevPrevGroupId == currGroupId) {
-                // we removed a pixel for the borderline
-                // (now it is registered as foreign/ally pixel)
 
                 FillGroup::LevelData &currLevelData = currGroup.levels[newLevel];
                 FillGroup::LevelData &prevPrevLevelData = currGroup.levels[prevLevel];
@@ -624,9 +579,6 @@ void KisWatershedWorker::Private::processQueue(qint32 _backgroundGroupId)
 {
     QElapsedTimer tt; tt.start();
 
-
-    // TODO: lazy initialization of the iterator's position
-    // TODO: reuse iterators if possible!
     groupIt = groupsMap->createRandomAccessorNG();
     levelIt = heightMap->createRandomConstAccessorNG();
     backgroundGroupId = _backgroundGroupId;
@@ -635,8 +587,7 @@ void KisWatershedWorker::Private::processQueue(qint32 _backgroundGroupId)
 
     totalPixelsToFill = qint64(boundingRect.width()) * boundingRect.height();
     numFilledPixels = 0;
-    const int progressReportingMask = (1 << 18) - 1; // report every 512x512 patch
-
+    const int progressReportingMask = (1 << 18) - 1;
 
     if (recolorMode) {
         updateNarrowRegionMetrics();
@@ -694,19 +645,16 @@ void KisWatershedWorker::Private::processQueue(qint32 _backgroundGroupId)
             }
 
         } else {
-            // nothing to do?
         }
 
     }
 
-    // cleanup iterators
     groupIt.clear();
     levelIt.clear();
     backgroundGroupId = 0;
     backgroundGroupColor = -1;
     recolorMode = false;
 
-//    ENTER_FUNCTION() << ppVar(tt.elapsed());
 }
 
 void KisWatershedWorker::Private::writeColoring()
@@ -721,7 +669,6 @@ void KisWatershedWorker::Private::writeColoring()
         colors << color;
     }
     const int colorPixelSize = dstDevice->pixelSize();
-
 
     while (srcIt.nextPixel() && dstIt.nextPixel()) {
         const qint32 *srcPtr = reinterpret_cast<const qint32*>(srcIt.rawDataConst());
@@ -754,7 +701,6 @@ QVector<TaskPoint> KisWatershedWorker::Private::tryRemoveConflictingPlane(qint32
             pt.level = level;
 
             result.append(pt);
-            // no writing to the group map!
         }
     }
 
@@ -778,7 +724,6 @@ void KisWatershedWorker::Private::updateNarrowRegionMetrics()
 QVector<GroupLevelPair> KisWatershedWorker::Private::calculateConflictingPairs()
 {
     QVector<GroupLevelPair> result;
-
 
     for (qint32 i = 0; i < groups.size(); i++) {
         FillGroup &group = groups[i];
@@ -807,12 +752,10 @@ void KisWatershedWorker::Private::cleanupForeignEdgeGroups(qreal cleanUpAmount)
 {
     KIS_SAFE_ASSERT_RECOVER_NOOP(cleanUpAmount > 0.0);
 
-    // convert into the threshold range [0.05...0.5]
     const qreal foreignEdgePortionThreshold = 0.05 + 0.45 * (1.0 - qBound(0.0, cleanUpAmount, 1.0));
 
     QVector<GroupLevelPair> conflicts = calculateConflictingPairs();
 
-    // sort the pairs by the total edge size
     QMap<qreal, GroupLevelPair> sortedPairs;
     Q_FOREACH (const GroupLevelPair &pair, conflicts) {
         const qint32 groupIndex = pair.first;
@@ -822,7 +765,6 @@ void KisWatershedWorker::Private::cleanupForeignEdgeGroups(qreal cleanUpAmount)
         sortedPairs.insert(level.totalEdgeSize(), pair);
     }
 
-    // remove sequentially from the smallest to the biggest
     for (auto pairIt = sortedPairs.begin(); pairIt != sortedPairs.end(); ++pairIt) {
         const qint32 groupIndex = pairIt->first;
         const quint8 levelIndex = pairIt->second;
@@ -844,45 +786,21 @@ void KisWatershedWorker::Private::cleanupForeignEdgeGroups(qreal cleanUpAmount)
         const qreal minMetric = min(lengthStats) / qreal(thisLength);
         const qreal meanMetric = mean(lengthStats) / qreal(thisLength);
 
-//        qDebug() << "G" << groupIndex
-//                 << "L" << levelIndex
-//                 << "con" << level.conflictWithGroup.size()
-//                 << "FRP" << thisForeignPortion
-//                 << "S" << level.numFilledPixels
-//                 << ppVar(thisLength)
-//                 << ppVar(min(lengthStats))
-//                 << ppVar(mean(lengthStats))
-//                 << ppVar(minMetric)
-//                 << ppVar(meanMetric);
-
         if (!(thisForeignPortion > foreignEdgePortionThreshold)) continue;
 
         if (minMetric > 1.0 && meanMetric > 1.2) {
-//            qDebug() << "   * removing...";
 
             QVector<TaskPoint> taskPoints =
                 tryRemoveConflictingPlane(groupIndex, levelIndex);
 
             if (!taskPoints.isEmpty()) {
-                // dump before
-                // dumpGroupInfo(groupIndex, levelIndex);
 
                 Q_FOREACH (const TaskPoint &pt, taskPoints) {
                     pointsQueue.push(pt);
                 }
                 processQueue(groupIndex);
 
-                // dump after: should become empty!
-                // dumpGroupInfo(groupIndex, levelIndex);
-
-                // the areas might be disjoint, so that removing one "conflicting"
-                // part will not remove the whole group+level pair
-
-                // KIS_SAFE_ASSERT_RECOVER_NOOP(level.totalEdgeSize() == 0);
             }
-
-            //dumpGroupMaps();
-            //calcNumGroupMaps();
 
         }
     }
@@ -905,7 +823,6 @@ void KisWatershedWorker::Private::dumpGroupMaps()
     KisSequentialIterator dstNedgeIt(nedgeDevice, boundingRect);
     KisSequentialIterator dstFedgeIt(fedgeDevice, boundingRect);
 
-
     QVector<KoColor> colors;
     for (auto it = keyStrokes.begin(); it != keyStrokes.end(); ++it) {
         KoColor color = it->color;
@@ -913,8 +830,6 @@ void KisWatershedWorker::Private::dumpGroupMaps()
         colors << color;
     }
     const int colorPixelSize = colorDevice->pixelSize();
-
-
 
     while (dstGroupIt.nextPixel() &&
            heightIt.nextPixel() &&
@@ -945,7 +860,6 @@ void KisWatershedWorker::Private::dumpGroupMaps()
             *dstFedgeIt.rawData() = 0;
         }
     }
-
 
     KIS_DUMP_DEVICE_2(groupDevice, boundingRect, "01_groupMap", "dd");
     KIS_DUMP_DEVICE_2(colorDevice, boundingRect, "02_colorMap", "dd");

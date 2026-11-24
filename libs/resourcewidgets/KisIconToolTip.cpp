@@ -51,13 +51,9 @@ QTextDocument *KisIconToolTip::createDocument(const QModelIndex &index)
     }
 
     if (!m_fixedToolTipThumbnailSize.isEmpty() && !thumb.isNull()) {
-        int pixelSize = 48; //  // let's say, 48x48?
+        int pixelSize = 48;
         if (!thumb.isNull()) {
-            // affects mostly gradients, which are very long but only 1px tall
             Qt::AspectRatioMode aspectRatioMode = thumb.height() == 1 ? Qt::IgnoreAspectRatio : Qt::KeepAspectRatio;
-            // this allows the pixel patterns to be displayed correctly,
-            // while the presets (which have 200x200 thumbnails) will still be pretty
-            // Fast Transformation == Nearest Neighbour
             Qt::TransformationMode transformationMode = (thumb.width() < pixelSize || thumb.height() < pixelSize) ? Qt::FastTransformation : Qt::SmoothTransformation;
 
                 thumb = KisResourceThumbnailCache::instance()->getImage(index,
@@ -85,7 +81,6 @@ QTextDocument *KisIconToolTip::createDocument(const QModelIndex &index)
 
     QString name = index.data(Qt::DisplayRole).toString();
     QString presetDisplayName = index.data(Qt::UserRole + KisAbstractResourceModel::Name).toString().replace("_", " ");
-    //This is to ensure that the other uses of this class don't get an empty string, while resource management should get a nice string.
     if (!presetDisplayName.isEmpty()) {
         name = presetDisplayName;
     }
@@ -100,8 +95,8 @@ QTextDocument *KisIconToolTip::createDocument(const QModelIndex &index)
     }
 
     const QString brokenReason = index.data(Qt::UserRole + KisAbstractResourceModel::BrokenStatusMessage).toString();
-    const QString brokenRow = 
-        !brokenReason.isEmpty() 
+    const QString brokenRow =
+        !brokenReason.isEmpty()
         ? QString("<tr><td colspan=\"2\"><b>%1</b></td></tr>"
                   "<tr><td colspan=\"2\">%2</td></tr>")
                   .arg(i18n("Resource is broken!"), brokenReason)

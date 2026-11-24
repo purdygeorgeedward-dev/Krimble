@@ -16,4 +16,4 @@ public:
     virtual QString debugName() const = 0;
 };
 
-#endif // KIS_RUNNABLE_WITH_DEBUG_NAME_H
+#endif

@@ -25,14 +25,12 @@
 #include "kis_asl_layer_style_serializer.h"
 #include <asl/kis_asl_reader.h>
 
-
 #define CMP(object, method, value) QCOMPARE(style->object()->method(), value)
 
 void KisAslLayerStyleSerializerTest::testReading()
 {
     KisAslLayerStyleSerializer s;
 
-//    QString srcFileName(TestUtil::fetchDataFileLazy("asl/test_all_style.asl"));
     QString srcFileName(TestUtil::fetchDataFileLazy("asl/test_all_and_pattern.asl"));
     QFile aslFile(srcFileName);
     KIS_ASSERT(aslFile.open(QIODevice::ReadOnly));
@@ -56,7 +54,6 @@ void KisAslLayerStyleSerializerTest::testReading()
     CMP(dropShadow, size, 7);
     CMP(dropShadow, antiAliased, true);
     CMP(dropShadow, noise, 3);
-    // CMP(dropShadow, contourLookupTable,);
 
     CMP(innerShadow, effectEnabled, true);
     CMP(innerShadow, blendMode, COMPOSITE_DARKEN);
@@ -69,7 +66,6 @@ void KisAslLayerStyleSerializerTest::testReading()
     CMP(innerShadow, size, 27);
     CMP(innerShadow, antiAliased, false);
     CMP(innerShadow, noise, 10);
-    // CMP(innerShadow, contourLookupTable,);
 
     CMP(outerGlow, effectEnabled, true);
     CMP(outerGlow, blendMode, COMPOSITE_SCREEN);
@@ -79,8 +75,6 @@ void KisAslLayerStyleSerializerTest::testReading()
     CMP(outerGlow, size, 109);
     CMP(outerGlow, antiAliased, true);
     CMP(outerGlow, noise, 29);
-    // CMP(outerGlow, contourLookupTable,);
-    // CMP(outerGlow, gradient,);
     CMP(outerGlow, fillType, psd_fill_solid_color);
     CMP(outerGlow, technique, psd_technique_precise);
     CMP(outerGlow, range, 69);
@@ -94,8 +88,6 @@ void KisAslLayerStyleSerializerTest::testReading()
     CMP(innerGlow, size, 128);
     CMP(innerGlow, antiAliased, true);
     CMP(innerGlow, noise, 33);
-    // CMP(innerGlow, contourLookupTable,);
-    // CMP(innerGlow, gradient,);
     CMP(innerGlow, fillType, psd_fill_solid_color);
     CMP(innerGlow, technique, psd_technique_softer);
     CMP(innerGlow, range, 32);
@@ -111,7 +103,6 @@ void KisAslLayerStyleSerializerTest::testReading()
     CMP(satin, size, 14);
     CMP(satin, antiAliased, false);
     CMP(satin, invert, true);
-    // CMP(satin, contourLookupTable,);
 
     CMP(colorOverlay, effectEnabled, true);
     CMP(colorOverlay, blendMode, COMPOSITE_OVER);
@@ -128,7 +119,6 @@ void KisAslLayerStyleSerializerTest::testReading()
     CMP(gradientOverlay, scale, 100);
     CMP(gradientOverlay, gradientXOffset, 0);
     CMP(gradientOverlay, gradientYOffset, 0);
-    //CMP(gradientOverlay, dither, );
     CMP(gradientOverlay, gradient(style->resourcesInterface())->name, QString("Two Color"));
 
     CMP(stroke, effectEnabled, true);
@@ -161,11 +151,9 @@ void KisAslLayerStyleSerializerTest::testReading()
 
     CMP(bevelAndEmboss, direction, psd_direction_up);
 
-    // FIXME: contour
     CMP(bevelAndEmboss, glossAntiAliased, false);
     CMP(bevelAndEmboss, soften, 2);
     CMP(bevelAndEmboss, contourEnabled, true);
-    // FIXME: contour curve
 
     CMP(bevelAndEmboss, antiAliased, true);
     CMP(bevelAndEmboss, contourRange, 60);
@@ -209,7 +197,6 @@ void KisAslLayerStyleSerializerTest::testWriting()
         }
     }
 
-    // now we have an initialized KisPSDLayerStyle object
     {
         KisAslLayerStyleSerializer s;
 
@@ -248,7 +235,6 @@ void KisAslLayerStyleSerializerTest::testWriting()
 
 #include <KoResourceServerProvider.h>
 
-
 void KisAslLayerStyleSerializerTest::testWritingGlobalPatterns()
 {
     KisPSDLayerStyleSP style(new KisPSDLayerStyle());
@@ -277,18 +263,6 @@ void KisAslLayerStyleSerializerTest::testWritingGlobalPatterns()
         s.saveToDevice(dstFile);
         dstFile.close();
     }
-/*
-    QByteArray resultXMLDoc;
-
-    {
-        QFile resultFile("test_written.asl");
-        KIS_ASSERT(resultFile.open(QIODevice::ReadOnly));
-
-        KisAslReader reader;
-        QDomDocument doc = reader.readFile(&resultFile);
-        resultXMLDoc = doc.toByteArray();
-    }
-*/
 
 }
 
@@ -308,7 +282,6 @@ void KisAslLayerStyleSerializerTest::testReadMultipleStyles()
 
         styles = s.styles();
     }
-
 
     {
         KisAslLayerStyleSerializer s;
@@ -388,16 +361,11 @@ void KisAslLayerStyleSerializerTest::testWritingGradients()
     }
 
     {
-        // the reference document has stripped "Idnt" field which is random
 
         QRegularExpression rx("<node key=\"Idnt\" type=\"Text\" value=\".+?\"/>");
         xmlDoc.remove(rx);
 
         {
-            //QFile xmlFile("reference_gradients.asl.xml");
-            //KIS_ASSERT(xmlFile.open(QIODevice::WriteOnly));
-            //xmlFile.write(xmlDoc.toLatin1());
-            //xmlFile.close();
         }
 
         QString refFileName(TestUtil::fetchDataFileLazy("reference_gradients.asl.xml"));

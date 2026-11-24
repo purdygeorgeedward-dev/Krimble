@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-#include "KisMainWindow.h" // XXX: remove
+#include "KisMainWindow.h"
 #include <QMessageBox>
 
 #include <KisMimeDatabase.h>
@@ -75,7 +75,6 @@
 #include <QFutureWatcher>
 #include <QUuid>
 
-// Krita Image
 #include <kis_image_animation_interface.h>
 #include <kis_config.h>
 #include <flake/kis_shape_layer.h>
@@ -95,7 +94,6 @@
 #include "kis_layer_utils.h"
 #include "kis_selection_mask.h"
 
-// Local
 #include "KisViewManager.h"
 #include "kis_clipboard.h"
 #include "widgets/kis_custom_image_widget.h"
@@ -127,14 +125,9 @@
 #include "kis_simple_stroke_strategy.h"
 #include <KisCursorOverrideLock.h>
 
-// Define the protocol used here for embedded documents' URL
-// This used to "store" but QUrl didn't like it,
-// so let's simply make it "tar" !
 #define STORE_PROTOCOL "tar"
-// The internal path is a hack to make QUrl happy and for document children
 #define INTERNAL_PROTOCOL "intern"
 #define INTERNAL_PREFIX "intern:/"
-// Warning, keep it sync in koStore.cc
 
 #include <unistd.h>
 
@@ -149,21 +142,12 @@ constexpr int errorMessageTimeout = 5000;
 constexpr int successMessageTimeout = 1000;
 }
 
-
-/**********************************************************
- *
- * KisDocument
- *
- **********************************************************/
-
-//static
 QString KisDocument::newObjectName()
 {
     static int s_docIFNumber = 0;
     QString name; name.setNum(s_docIFNumber++); name.prepend("document_");
     return name;
 }
-
 
 class UndoStack : public KUndo2Stack
 {
@@ -183,11 +167,6 @@ public:
         KisImageWSP image = this->image();
         image->unlock();
 
-        /**
-         * Some very weird commands may Q_EMIT blocking signals to
-         * the GUI (e.g. KisGuiContextCommand). Here is the best thing
-         * we can do to avoid the deadlock
-         */
         while(!image->tryBarrierLock()) {
             QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         }
@@ -197,7 +176,6 @@ public:
         m_postponedJobs.append({PostponedJob::Undo, 0});
         processPostponedJobs();
     }
-
 
     void redo() override {
         m_postponedJobs.append({PostponedJob::Redo, 0});
@@ -245,14 +223,6 @@ private:
     }
 
     void processPostponedJobs() {
-        /**
-         * Some undo commands may call QApplication::processEvents(),
-         * see notifySetIndexChangedOneCommand(). That may cause
-         * recursive calls to the undo stack methods when used from
-         * the Undo History docker. Here we try to handle that gracefully
-         * by accumulating all the requests and executing them at the
-         * topmost level of recursion.
-         */
         if (m_recursionCounter > 0) return;
 
         m_recursionCounter++;
@@ -297,10 +267,10 @@ class Q_DECL_HIDDEN KisDocument::Private
 public:
     Private(KisDocument *_q)
         : q(_q)
-        , docInfo(new KoDocumentInfo(_q)) // deleted by QObject
-        , importExportManager(new KisImportExportManager(_q)) // deleted manually
+        , docInfo(new KoDocumentInfo(_q))
+        , importExportManager(new KisImportExportManager(_q))
         , autoSaveTimer(new QTimer(_q))
-        , undoStack(new UndoStack(_q)) // deleted by QObject
+        , undoStack(new UndoStack(_q))
         , m_bAutoDetectedMime(false)
         , modified(false)
         , readwrite(true)
@@ -308,7 +278,7 @@ public:
         , firstMod(QDateTime::currentDateTime())
         , lastMod(firstMod)
         , nserver(new KisNameServer(1))
-        , imageIdleWatcher(2000 /*ms*/)
+        , imageIdleWatcher(2000 )
         , globalAssistantsColor(KisConfig(true).defaultAssistantsColor())
         , batchMode(false)
     {
@@ -327,8 +297,8 @@ public:
         , autoSaveTimer(new QTimer(_q))
         , undoStack(new UndoStack(_q))
         , nserver(new KisNameServer(*rhs.nserver))
-        , preActivatedNode(0) // the node is from another hierarchy!
-        , imageIdleWatcher(2000 /*ms*/)
+        , preActivatedNode(0)
+        , imageIdleWatcher(2000 )
         , colorHistoryModel(rhs.colorHistoryModel)
     {
         copyFromImpl(rhs, _q, CONSTRUCT);
@@ -336,7 +306,6 @@ public:
     }
 
     ~Private() {
-        // Don't delete m_d->shapeController because it's in a QObject hierarchy.
         delete nserver;
     }
 
@@ -345,16 +314,16 @@ public:
 
     KoUnit unit;
 
-    KisImportExportManager *importExportManager = 0; // The filter-manager to use when loading/saving [for the options]
+    KisImportExportManager *importExportManager = 0;
 
-    QByteArray mimeType; // The actual mimeType of the document
-    QByteArray outputMimeType; // The mimeType to use when saving
+    QByteArray mimeType;
+    QByteArray outputMimeType;
 
     QTimer *autoSaveTimer;
-    QString lastErrorMessage; // see openFile()
+    QString lastErrorMessage;
     QString lastWarningMessage;
 
-    int autoSaveDelay = 300; // in seconds, 0 to disable.
+    int autoSaveDelay = 300;
     bool modifiedAfterAutosave = false;
     bool isAutosaving = false;
     bool disregardAutosaveFailure = false;
@@ -365,9 +334,9 @@ public:
     KisGuidesConfig guidesConfig;
     KisMirrorAxisConfig mirrorAxisConfig;
 
-    bool m_bAutoDetectedMime = false; // whether the mimeType in the arguments was detected by the part itself
-    QString m_path; // local url - the one displayed to the user.
-    QString m_file; // Local file - the only one the part implementation should deal with.
+    bool m_bAutoDetectedMime = false;
+    QString m_path;
+    QString m_file;
 
     QMutex savingMutex;
 
@@ -418,11 +387,9 @@ public:
     bool wasStorageAdded = false;
     bool documentIsClosing = false;
 
-    // Resources saved in the .kra document
     QString linkedResourcesStorageID;
     KisResourceStorageSP linkedResourceStorage;
 
-    // Resources saved into other components of the kra file
     QString embeddedResourcesStorageID;
     KisResourceStorageSP embeddedResourceStorage;
 
@@ -442,11 +409,8 @@ public:
 
     void updateDocumentMetadataOnSaving(const QString &filePath, const QByteArray &mimeType);
 
-    /// clones the palette list oldList
-    /// the ownership of the returned KoColorSet * belongs to the caller
     class StrippedSafeSavingLocker;
 };
-
 
 void KisDocument::Private::syncDecorationsWrapperLayerState()
 {
@@ -518,8 +482,6 @@ void KisDocument::Private::copyFromImpl(const Private &rhs, KisDocument *q, KisD
         q->setGridConfig(rhs.gridConfig);
         colorHistoryModel.setColorList(rhs.colorHistoryModel.colorList());
     } else {
-        // in CONSTRUCT mode, we cannot use the functions of KisDocument
-        // because KisDocument does not yet have a pointer to us.
         guidesConfig = rhs.guidesConfig;
         mirrorAxisConfig = rhs.mirrorAxisConfig;
         modified = rhs.modified;
@@ -538,10 +500,8 @@ void KisDocument::Private::copyFromImpl(const Private &rhs, KisDocument *q, KisD
     autoSaveActive = rhs.autoSaveActive;
     firstMod = rhs.firstMod;
     lastMod = rhs.lastMod;
-    // XXX: the display properties will be shared between different snapshots
     globalAssistantsColor = rhs.globalAssistantsColor;
     batchMode = rhs.batchMode;
-
 
     if (rhs.linkedResourceStorage) {
         linkedResourceStorage = rhs.linkedResourceStorage->clone();
@@ -562,22 +522,12 @@ public:
         , m_imageLock(image, std::defer_lock)
 
     {
-        /**
-         * Initial try to lock both objects. Locking the image guards
-         * us from any image composition threads running in the
-         * background, while savingMutex guards us from entering the
-         * saving code twice by autosave and main threads.
-         *
-         * Since we are trying to lock multiple objects, so we should
-         * do it in a safe manner.
-         */
         m_locked = std::try_lock(m_imageLock, *m_savingLock) < 0;
 
         if (!m_locked) {
             m_image->requestStrokeEnd();
             QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
-            // one more try...
             m_locked = std::try_lock(m_imageLock, *m_savingLock) < 0;
         }
     }
@@ -617,7 +567,6 @@ KisDocument::KisDocument(bool addStorage)
     }
 #endif
 
-
     if (addStorage) {
         d->linkedResourcesStorageID = QUuid::createUuid().toString();
         d->linkedResourceStorage.reset(new KisResourceStorage(d->linkedResourcesStorageID));
@@ -630,7 +579,6 @@ KisDocument::KisDocument(bool addStorage)
         d->wasStorageAdded = true;
     }
 
-    // preload the krita resources
     KisResourceServerProvider::instance();
 
     d->shapeController = new KisShapeController(d->nserver, d->undoStack, this);
@@ -656,14 +604,9 @@ KisDocument::~KisDocument()
 {
     d->documentIsClosing = true;
 
-    // wait until all the pending operations are in progress
     waitForSavingToComplete();
     d->imageIdleWatcher.setTrackedImage(0);
 
-    /**
-     * Push a timebomb, which will try to release the memory after
-     * the document has been deleted
-     */
     KisPaintDevice::createMemoryReleaseObject()->deleteLater();
 
     d->autoSaveTimer->disconnect(this);
@@ -671,7 +614,6 @@ KisDocument::~KisDocument()
 
     delete d->importExportManager;
 
-    // Despite being QObject they needs to be deleted before the image
     delete d->shapeController;
 
     delete d->koShapeController;
@@ -681,32 +623,17 @@ KisDocument::~KisDocument()
 
         d->image->notifyAboutToBeDeleted();
 
-        /**
-         * WARNING: We should wait for all the internal image jobs to
-         * finish before entering KisImage's destructor. The problem is,
-         * while execution of KisImage::~KisImage, all the weak shared
-         * pointers pointing to the image enter an inconsistent
-         * state(!). The shared counter is already zero and destruction
-         * has started, but the weak reference doesn't know about it,
-         * because KisShared::~KisShared hasn't been executed yet. So all
-         * the threads running in background and having weak pointers will
-         * enter the KisImage's destructor as well.
-         */
-
         d->image->requestStrokeCancellation();
         d->image->waitForDone();
 
-        // clear undo commands that can still point to the image
         d->undoStack->clear();
         d->image->waitForDone();
 
         KisImageWSP sanityCheckPointer = d->image;
         Q_UNUSED(sanityCheckPointer);
 
-        // The following line trigger the deletion of the image
         d->image.clear();
 
-        // check if the image has actually been deleted
         KIS_SAFE_ASSERT_RECOVER_NOOP(!sanityCheckPointer.isValid());
     }
 
@@ -739,46 +666,6 @@ KisDocument *KisDocument::clone(bool addStorage)
 
 bool KisDocument::exportDocumentImpl(const KritaUtils::ExportFileJob &job, KisPropertiesConfigurationSP exportConfiguration, bool isAdvancedExporting)
 {
-    // ANDROID NOTES (other comments in this file reference this one!)
-    //
-    // The Android file system doesn't work like on a real operating system.
-    // Instead of normal file paths, we get to deal with "content URIs", which
-    // can have various kinds of storage providers behind them. For example,
-    // there's a "normal" storage provider, a slightly less normal documents
-    // provider, a Google Drive provider and various kinds of third-party
-    // providers that are mostly just good at losing the data you give them.
-    // For example, we have reports of compression programs that provide a
-    // storage provider to write to ZIP or RAR archives or something. Except
-    // that they don't seem to work at all, they just accept the data with no
-    // error and throw it on the floor.
-    //
-    // The providers are particularly unreliable with regards to permissions,
-    // so calling "isWritable" will just always return false on some of them.
-    // This includes the default provider on some devices, which means checking
-    // whether a file is writable will mean that the user can't save anything!
-    // So, all the Android code skips over the writability check and assumes the
-    // files are writable. If they're not, we'll notice later anyway, by the
-    // fact that writing to them fails.
-    //
-    // Another issue is that it's only possible to overwrite files using File >
-    // Save. Using File > Save As or File > Export can't replace existing
-    // files. The reason for this is that we have to go through the operating
-    // system to request access to a file and the only things you can ask for
-    // is to open an existing file or to create a new file. Out of necessity,
-    // Save As and Export use the latter. If the user selects an existing file,
-    // the operating system "helpfully" appends a number to the path, *after*
-    // the file extension of course, because it hates the living. So that's
-    // another reason we can't go with the "safer" option of assuming that files
-    // aren't writable in some cases, since that would prevent the user from
-    // saving them normally and end up with a lot of "kiki.kra (2)".
-    //
-    // Also, when you request a file from the operating system, it always
-    // creates an empty file. That means checking whether a file exists will
-    // pretty much always succeed, so to know whether a file actually exists
-    // you have to check whether it isn't empty. Of course providers may fail to
-    // implement this correctly, but I'm not aware of any of them botching it
-    // that hard. Well, at least none of the ones that actually save files, as
-    // mentioned above some of them just seem to lose whatever you give them.
 
     QFileInfo filePathInfo(job.filePath);
     bool fileExists = filePathInfo.exists();
@@ -809,7 +696,6 @@ bool KisDocument::exportDocumentImpl(const KritaUtils::ExportFileJob &job, KisPr
             break;
         default:
 #ifdef Q_OS_ANDROID
-            // We deal with URIs, there may or may not be a "directory"
             backupDir = KisAutoSaveRecoveryDialog::autoSaveLocation();
             QDir().mkpath(backupDir);
 #endif
@@ -817,8 +703,6 @@ bool KisDocument::exportDocumentImpl(const KritaUtils::ExportFileJob &job, KisPr
 #ifdef Q_OS_MACOS
             KisMacosSecurityBookmarkManager *bookmarkmngr = KisMacosSecurityBookmarkManager::instance();
             if (bookmarkmngr->isSandboxed()) {
-                // If the user does not have directory permission force backup
-                // files to be inside Container tmp
                 QUrl fileUrl = QUrl::fromLocalFile(job.filePath);
                 if( !bookmarkmngr->parentDirHasPermissions(fileUrl.path()) ) {
                     backupDir = QDir::tempPath();
@@ -826,7 +710,6 @@ bool KisDocument::exportDocumentImpl(const KritaUtils::ExportFileJob &job, KisPr
             }
 #endif
 
-            // Do nothing: the empty string is user file location
             break;
         }
 
@@ -869,7 +752,6 @@ bool KisDocument::exportDocumentImpl(const KritaUtils::ExportFileJob &job, KisPr
         }
     }
 
-    //KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!job.mimeType.isEmpty(), false);
     if (job.mimeType.isEmpty()) {
         KisImportExportErrorCode error = ImportExportCodes::FileFormatNotSupported;
         slotCompleteSavingDocument(job, error, error.errorMessage(), "");
@@ -912,7 +794,6 @@ bool KisDocument::exportDocumentImpl(const KritaUtils::ExportFileJob &job, KisPr
             errorCode = ImportExportCodes::Cancelled;
             break;
         case KritaUtils::BackgroudSavingStartResult::Success:
-            // noop, not possible
             break;
         }
 
@@ -963,7 +844,6 @@ bool KisDocument::saveAs(const QString &_path, const QByteArray &mimeType, bool 
                                  (exportConfiguration ? exportConfiguration->toXML() : "No configuration"),
                                  path()));
 
-    // Check whether it's an existing resource were are saving to
     if (resourceSavingFilter(_path, mimeType, exportConfiguration)) {
         return true;
     }
@@ -1052,7 +932,6 @@ void KisDocument::slotCompleteSavingDocument(const KritaUtils::ExportFileJob &jo
                                     fileName,
                                     errorMessage), errorMessageTimeout);
 
-
         if (!fileBatchMode()) {
             DlgLoadMessages dlg(i18nc("@title:window", "Krimble"),
                                 i18n("Could not save %1.", job.filePath),
@@ -1082,7 +961,6 @@ void KisDocument::slotCompleteSavingDocument(const KritaUtils::ExportFileJob &jo
             dlg.exec();
         }
 
-
         if (!(job.flags & KritaUtils::SaveIsExporting)) {
             const QString existingAutoSaveBaseName = localFilePath();
             const bool wasRecovered = isRecovered();
@@ -1107,8 +985,6 @@ void KisDocument::Private::updateDocumentMetadataOnSaving(const QString &filePat
     q->updateEditingTime(true);
 
 #ifdef Q_OS_ANDROID
-    // See the comment titled "ANDROID NOTES" in this file for an explanation of
-    // what this is about. (This is not that comment.)
     q->setReadWrite(true);
 #else
     QFileInfo fi(filePath);
@@ -1116,11 +992,6 @@ void KisDocument::Private::updateDocumentMetadataOnSaving(const QString &filePat
 #endif
 
     if (!modifiedWhileSaving) {
-        /**
-         * If undo stack is already clean/empty, it doesn't Q_EMIT any
-         * signals, so we might forget update document modified state
-         * (which was set, e.g. while recovering an autosave file)
-         */
 
         if (undoStack->isClean()) {
             q->setModified(false);
@@ -1154,10 +1025,6 @@ void KisDocument::setFileBatchMode(const bool batchMode)
 
 void KisDocument::Private::uploadLinkedResourcesFromLayersToStorage()
 {
-    /// Fetch resources from KisAdjustmentLayer, KisFilterMask and
-    /// KisGeneratorLayer and put them into the cloned storage. This must be
-    /// done in the context of the GUI thread, otherwise we will not be able to
-    /// access resources database
 
     KisDocument *doc = q;
 
@@ -1210,7 +1077,6 @@ void KisDocument::Private::uploadLinkedResourcesFromLayersToStorage()
 
 KisDocument *KisDocument::Private::lockAndCloneImpl(bool fetchResourcesFromLayers)
 {
-    // force update of all the asynchronous nodes before cloning
     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     KisLayerUtils::forceAllDelayedNodesUpdate(image->root());
 
@@ -1261,7 +1127,6 @@ void KisDocument::copyFromDocumentImpl(const KisDocument &rhs, CopyPolicy policy
 
         d->undoStack->clear();
     } else {
-        // in CONSTRUCT mode, d should be already initialized
         connect(KisConfigNotifier::instance(), SIGNAL(configChanged()), SLOT(slotConfigChanged()));
         connect(d->undoStack, SIGNAL(cleanChanged(bool)), this, SLOT(slotUndoStackCleanChanged(bool)));
         connect(d->autoSaveTimer, SIGNAL(timeout()), this, SLOT(slotAutoSave()));
@@ -1276,17 +1141,15 @@ void KisDocument::copyFromDocumentImpl(const KisDocument &rhs, CopyPolicy policy
 
     if (rhs.d->image) {
         if (policy == REPLACE) {
-            d->image->barrierLock(/* readOnly = */ false);
-            rhs.d->image->barrierLock(/* readOnly = */ true);
+            d->image->barrierLock( false);
+            rhs.d->image->barrierLock( true);
             d->image->copyFromImage(*(rhs.d->image));
             d->image->unlock();
             rhs.d->image->unlock();
 
-            setCurrentImage(d->image, /* forceInitialUpdate = */ true);
+            setCurrentImage(d->image, true);
         } else {
-            // clone the image with keeping the GUIDs of the layers intact
-            // NOTE: we expect the image to be locked!
-            setCurrentImage(rhs.image()->clone(/* exactCopy = */ true), /* forceInitialUpdate = */ false);
+            setCurrentImage(rhs.image()->clone( true), false);
         }
     }
 
@@ -1309,7 +1172,6 @@ void KisDocument::copyFromDocumentImpl(const KisDocument &rhs, CopyPolicy policy
         });
     }
 
-    // reinitialize references' signal connection
     KisReferenceImagesLayerSP referencesLayer = this->referenceImagesLayer();
     if (referencesLayer) {
         d->referenceLayerConnections.clear();
@@ -1327,7 +1189,6 @@ void KisDocument::copyFromDocumentImpl(const KisDocument &rhs, CopyPolicy policy
         decorationsLayer->setDocument(this);
     }
 
-
     if (policy == REPLACE) {
         setModified(true);
     }
@@ -1336,12 +1197,6 @@ void KisDocument::copyFromDocumentImpl(const KisDocument &rhs, CopyPolicy policy
 bool KisDocument::exportDocumentSync(const QString &path, const QByteArray &mimeType, KisPropertiesConfigurationSP exportConfiguration)
 {
     {
-        /**
-         * The caller guarantees that no one else uses the document (usually,
-         * it is a temporary document created specifically for exporting), so
-         * we don't need to copy or lock the document. Instead we should just
-         * ensure the barrier lock is synced and then released.
-         */
         Private::StrippedSafeSavingLocker locker(&d->savingMutex, d->image);
         if (!locker.successfullyLocked()) {
             return false;
@@ -1358,7 +1213,6 @@ bool KisDocument::exportDocumentSync(const QString &path, const QByteArray &mime
 
     return status.isOk();
 }
-
 
 KritaUtils::BackgroudSavingStartResult KisDocument::initiateSavingInBackground(const QString actionName,
                                              const QObject *receiverObject, const char *receiverMethod,
@@ -1389,10 +1243,6 @@ KritaUtils::BackgroudSavingStartResult KisDocument::initiateSavingInBackground(c
         return KritaUtils::BackgroudSavingStartResult::AnotherSavingInProgress;
     }
 
-    /**
-     * This lock will later release() when we start the background thread,
-     * it means that the ownership is transferred to the background thread
-     */
     std::unique_lock<QMutex> savingMutexLock(d->savingMutex, std::adopt_lock);
 
     if (!clonedDocument) {
@@ -1435,15 +1285,6 @@ KritaUtils::BackgroudSavingStartResult KisDocument::initiateSavingInBackground(c
     KIS_ASSERT_RECOVER_RETURN_VALUE(!d->backgroundSaveDocument, KritaUtils::BackgroudSavingStartResult::Failure);
     KIS_ASSERT_RECOVER_RETURN_VALUE(!d->backgroundSaveJob.isValid(), KritaUtils::BackgroudSavingStartResult::Failure);
 
-    /**
-     * From now on **no** return statements are allowed, even inside
-     * asserts, since the ownership over the saving mutex has already
-     * been passed to the background thread.
-     *
-     * The cancellation process should go through
-     * slotChildCompletedSavingInBackground(), which will unlock the
-     * mutex itself.
-     */
     savingMutexLock.release();
 
     d->backgroundSaveDocument.reset(clonedDocument.release());
@@ -1458,7 +1299,6 @@ KritaUtils::BackgroudSavingStartResult KisDocument::initiateSavingInBackground(c
             SIGNAL(sigBackgroundSavingFinished(KisImportExportErrorCode, QString, QString)),
             this,
             SLOT(slotChildCompletedSavingInBackground(KisImportExportErrorCode, QString, QString)));
-
 
     if (d->completeSavingConnection) {
         disconnect(d->completeSavingConnection);
@@ -1475,7 +1315,6 @@ KritaUtils::BackgroudSavingStartResult KisDocument::initiateSavingInBackground(c
                                                                job.flags & KritaUtils::SaveShowWarnings,
                                                                exportConfiguration, isAdvancedExporting);
     if (!error.isOk()) {
-        // the state should have been deinitialized in slotChildCompletedSavingInBackground()
         KIS_SAFE_ASSERT_RECOVER (!d->backgroundSaveDocument && !d->backgroundSaveJob.isValid()) {
             d->backgroundSaveDocument.release()->deleteLater();
             d->savingMutex.unlock();
@@ -1490,16 +1329,10 @@ KritaUtils::BackgroudSavingStartResult KisDocument::initiateSavingInBackground(c
     return KritaUtils::BackgroudSavingStartResult::Success;
 }
 
-
 void KisDocument::slotChildCompletedSavingInBackground(KisImportExportErrorCode status, const QString &errorMessage, const QString &warningMessage)
 {
     KIS_ASSERT_RECOVER_RETURN(isSaving());
 
-    /**
-     * Take back the ownership of the saving mutex and make sure it
-     * well be released whatever the result of executing this function
-     * will be, even if it asserts.
-     */
     std::unique_lock<QMutex> savingMutexLock(d->savingMutex, std::adopt_lock);
 
     KIS_ASSERT_RECOVER_RETURN(d->backgroundSaveDocument);
@@ -1515,7 +1348,6 @@ void KisDocument::slotChildCompletedSavingInBackground(KisImportExportErrorCode 
     const KritaUtils::ExportFileJob job = d->backgroundSaveJob;
     d->backgroundSaveJob = KritaUtils::ExportFileJob();
 
-    // unlock at the very end
     savingMutexLock.unlock();
 
     QFileInfo fi(job.filePath);
@@ -1525,8 +1357,6 @@ void KisDocument::slotChildCompletedSavingInBackground(KisImportExportErrorCode 
                                  QString::number(fi.size())));
 
     Q_EMIT sigCompleteBackgroundSaving(job, status, errorMessage, warningMessage);
-    // One-shot: disconnect immediately after firing so future save completions
-    // don't invoke a stale or unrelated slot.
     disconnect(d->completeSavingConnection);
     d->completeSavingConnection = {};
 }
@@ -1608,7 +1438,6 @@ bool KisDocument::resourceSavingFilter(const QString &path, const QByteArray &mi
                         }
 
                         if (exportConfiguration) {
-                            // make sure the name of the resource doesn't change
                             exportConfiguration->setProperty("name", res->name());
                         }
 
@@ -1620,8 +1449,6 @@ bool KisDocument::resourceSavingFilter(const QString &path, const QByteArray &mi
 
                             QBuffer buf(&ba);
                             buf.open(QBuffer::ReadOnly);
-
-
 
                             if (res->loadFromDevice(&buf, KisGlobalResourcesInterface::instance())) {
                                 if (model.updateResource(res)) {
@@ -1675,12 +1502,6 @@ void KisDocument::slotPerformIdleRoutines()
 {
     d->image->explicitRegenerateLevelOfDetail();
 
-
-    /// TODO: automatic purging is disabled for now: it modifies
-    ///       data managers without creating a transaction, which breaks
-    ///       undo.
-
-    // d->image->purgeUnusedData(true);
 }
 
 void KisDocument::slotCompleteAutoSaving(const KritaUtils::ExportFileJob &job, KisImportExportErrorCode status, const QString &errorMessage, const QString &warningMessage)
@@ -1701,7 +1522,7 @@ void KisDocument::slotCompleteAutoSaving(const KritaUtils::ExportFileJob &job, K
         d->autoSaveDelay = cfg.autoSaveInterval();
 
         if (!d->modifiedWhileSaving) {
-            d->autoSaveTimer->stop(); // until the next change
+            d->autoSaveTimer->stop();
             d->autoSaveFailureCount = 0;
         } else {
             setNormalAutoSaveInterval();
@@ -1826,7 +1647,7 @@ void KisDocument::setNormalAutoSaveInterval()
 
 void KisDocument::setEmergencyAutoSaveInterval()
 {
-    const int emergencyAutoSaveInterval = 10; /* sec */
+    const int emergencyAutoSaveInterval = 10;
     setAutoSaveDelay(emergencyAutoSaveInterval);
     d->autoSaveFailureCount++;
 }
@@ -1859,14 +1680,10 @@ QPixmap KisDocument::generatePreview(const QSize& size)
     if (image) {
         QRect bounds = image->bounds();
         QSize originalSize = bounds.size();
-        // QSize may round down one dimension to zero on extreme aspect rations, so ensure 1px minimum
         QSize newSize = originalSize.scaled(size, Qt::KeepAspectRatio).expandedTo({1, 1});
 
         bool pixelArt = false;
-        // determine if the image is pixel art or not
         if (originalSize.width() < size.width() && originalSize.height() < size.height()) {
-            // the image must be smaller than the requested preview
-            // the scale must be integer
             if (newSize.height()%originalSize.height() == 0 && newSize.width()%originalSize.width() == 0) {
                 pixelArt = true;
             }
@@ -1874,9 +1691,7 @@ QPixmap KisDocument::generatePreview(const QSize& size)
 
         QPixmap px;
         if (pixelArt) {
-            // do not scale while converting (because it uses Bicubic)
             QImage original = image->convertToQImage(originalSize, 0);
-            // scale using FastTransformation, which is probably Nearest neighbour, suitable for pixel art
             QImage scaled = original.scaled(newSize, Qt::KeepAspectRatio, Qt::FastTransformation);
             px = QPixmap::fromImage(scaled);
         } else {
@@ -1898,7 +1713,6 @@ QString KisDocument::generateAutoSaveFileName(const QString & path) const
 {
     QString retval;
 
-    // Using the extension allows to avoid relying on the mime magic when opening
     const QString extension (".kra");
     QString prefix = KisConfig(true).readEntry<bool>("autosavefileshidden") ? QString(".") : QString();
     QRegularExpression autosavePattern1("^\\..+-autosave.kra$");
@@ -1908,7 +1722,6 @@ QString KisDocument::generateAutoSaveFileName(const QString & path) const
     QString dir = fi.absolutePath();
 
 #ifdef Q_OS_ANDROID
-    // URIs may or may not have a directory backing them, so we save to our default autosave location
     if (path.startsWith("content://")) {
         dir = KisAutoSaveRecoveryDialog::autoSaveLocation();
         QDir().mkpath(dir);
@@ -1918,7 +1731,6 @@ QString KisDocument::generateAutoSaveFileName(const QString & path) const
     QString filename = fi.fileName();
 
     if (path.isEmpty() || autosavePattern1.match(filename).hasMatch() || autosavePattern2.match(filename).hasMatch() || !fi.isWritable()) {
-        // Never saved?
         retval = QString("%1%2%3%4-%5-%6-autosave%7")
                      .arg(KisAutoSaveRecoveryDialog::autoSaveLocation())
                      .arg('/')
@@ -1928,12 +1740,9 @@ QString KisDocument::generateAutoSaveFileName(const QString & path) const
                      .arg(objectName())
                      .arg(extension);
     } else {
-        // Beware: don't reorder arguments
-        //   otherwise in case of filename = '1-file.kra' it will become '.-file.kra-autosave.kra' instead of '.1-file.kra-autosave.kra'
         retval = QString("%1%2%3%4-autosave%5").arg(dir).arg('/').arg(prefix).arg(filename).arg(extension);
     }
 
-    //qDebug() << "generateAutoSaveFileName() for path" << path << ":" << retval;
     return retval;
 }
 
@@ -1943,11 +1752,8 @@ bool KisDocument::importDocument(const QString &_path)
 
     dbgUI << "path=" << _path;
 
-    // open...
     ret = openPath(_path);
 
-    // reset url & m_file (kindly? set by KisParts::openUrl()) to simulate a
-    // File --> Import
     if (ret) {
         dbgUI << "success, resetting url";
         resetPath();
@@ -1956,15 +1762,13 @@ bool KisDocument::importDocument(const QString &_path)
     return ret;
 }
 
-
 bool KisDocument::openPath(const QString &_path, OpenFlags flags)
 {
     dbgUI << "path=" << _path;
     d->lastErrorMessage.clear();
 
-    // Reimplemented, to add a check for autosave files and to improve error reporting
     if (_path.isEmpty()) {
-        d->lastErrorMessage = i18n("Malformed Path\n%1", _path);  // ## used anywhere ?
+        d->lastErrorMessage = i18n("Malformed Path\n%1", _path);
         return false;
     }
 
@@ -1977,8 +1781,6 @@ bool KisDocument::openPath(const QString &_path, OpenFlags flags)
         if (QFile::exists(asf)) {
             KisApplication *kisApp = static_cast<KisApplication*>(qApp);
             kisApp->hideSplashScreen();
-            //qDebug() <<"asf=" << asf;
-            // ## TODO compare timestamps ?
             KisRecoverNamedAutosaveDialog dlg(0, file, asf);
             dlg.exec();
             int res = dlg.result();
@@ -1993,7 +1795,7 @@ bool KisDocument::openPath(const QString &_path, OpenFlags flags)
                 KisUsageLogger::log(QString("Removing autosave file: %1").arg(asf));
                 QFile::remove(asf);
                 break;
-            default: // Cancel
+            default:
                 return false;
             }
         }
@@ -2002,11 +1804,11 @@ bool KisDocument::openPath(const QString &_path, OpenFlags flags)
     bool ret = openPathInternal(path);
 
     if (autosaveOpened || flags & RecoveryFile) {
-        setReadWrite(true); // enable save button
+        setReadWrite(true);
         setModified(true);
         setRecovered(true);
 
-        setPath(original); // since it was an autosave, it will be a local file
+        setPath(original);
         setLocalFilePath(original);
     }
     else {
@@ -2017,8 +1819,6 @@ bool KisDocument::openPath(const QString &_path, OpenFlags flags)
             }
 
 #ifdef Q_OS_ANDROID
-            // See the comment titled "ANDROID NOTES" in this file for an
-            // explanation of what this is about. (This is not that comment.)
             setReadWrite(true);
 #else
             QFileInfo fi(_path);
@@ -2046,18 +1846,15 @@ bool KisDocument::openFile()
         typeName = KisMimeDatabase::mimeTypeForFile(filename);
     }
 
-    // Allow to open backup files, don't keep the mimeType application/x-trash.
     if (typeName == "application/x-trash") {
         QString path = filename;
         while (path.length() > 0) {
             path.chop(1);
             typeName = KisMimeDatabase::mimeTypeForFile(path);
-            //qDebug() << "\t" << path << typeName;
             if (!typeName.isEmpty()) {
                 break;
             }
         }
-        //qDebug() << "chopped" << filename  << "to" << path << "Was trash, is" << typeName;
     }
     dbgUI << localFilePath() << "type:" << typeName;
 
@@ -2126,13 +1923,11 @@ void KisDocument::autoSaveOnPause()
     }
 }
 
-// shared between openFile and koMainWindow's "create new empty document" code
 void KisDocument::setMimeTypeAfterLoading(const QString& mimeType)
 {
     d->mimeType = mimeType.toLatin1();
     d->outputMimeType = d->mimeType;
 }
-
 
 bool KisDocument::loadNativeFormat(const QString & file_)
 {
@@ -2145,18 +1940,10 @@ void KisDocument::setModified(bool mod)
         updateEditingTime(false);
     }
 
-    /// 1) Ignore setModified calls due to autosaving
-    /// 2) When closing a document, QUndoStack emits a lot of
-    ///    modified signals, when clearing itself, so we should
-    ///    ignore all of them.
     if (d->isAutosaving || d->documentIsClosing)
         return;
 
-    //dbgUI<<" url:" << url.path();
-    //dbgUI<<" mod="<<mod<<" MParts mod="<<KisParts::ReadWritePart::isModified()<<" isModified="<<isModified();
-
     if (mod && !d->autoSaveTimer->isActive()) {
-        // First change since last autosave -> start the autosave timer
         setNormalAutoSaveInterval();
     }
     d->modifiedAfterAutosave = mod;
@@ -2220,17 +2007,15 @@ QString KisDocument::prettyPath() const
     return _url;
 }
 
-// Get caption from document info (title(), in about page)
 QString KisDocument::caption() const
 {
     QString c;
     const QString _url(QFileInfo(path()).fileName());
 
-    // if URL is empty...it is probably an unsaved file
     if (_url.isEmpty()) {
         c = " [" + i18n("Not Saved") + "] ";
     } else {
-        c = _url; // Fall back to document URL
+        c = _url;
     }
 
     return c;
@@ -2241,7 +2026,6 @@ QDomDocument KisDocument::createDomDocument(const QString& tagName, const QStrin
     return createDomDocument("krita", tagName, version);
 }
 
-//static
 QDomDocument KisDocument::createDomDocument(const QString& appName, const QString& tagName, const QString& version)
 {
     QDomImplementation impl;
@@ -2249,7 +2033,6 @@ QDomDocument KisDocument::createDomDocument(const QString& appName, const QStrin
     QDomDocumentType dtype = impl.createDocumentType(tagName,
                                                      QString("-//KDE//DTD %1 %2//EN").arg(appName).arg(version),
                                                      url);
-    // The namespace URN doesn't need to include the version number.
     QString namespaceURN = QString("http://www.calligra.org/DTD/%1").arg(appName);
     QDomDocument doc = impl.createDocument(namespaceURN, tagName, dtype);
     doc.insertBefore(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""), doc.documentElement());
@@ -2283,16 +2066,14 @@ QString KisDocument::warningMessage() const
     return d->lastWarningMessage;
 }
 
-
 void KisDocument::removeAutoSaveFiles(const QString &autosaveBaseName, bool wasRecovered)
 {
-    // Eliminate any auto-save file
-    QString asf = generateAutoSaveFileName(autosaveBaseName);   // the one in the current dir
+    QString asf = generateAutoSaveFileName(autosaveBaseName);
     if (QFile::exists(asf)) {
         KisUsageLogger::log(QString("Removing autosave file: %1").arg(asf));
         QFile::remove(asf);
     }
-    asf = generateAutoSaveFileName(QString());   // and the one in $HOME
+    asf = generateAutoSaveFileName(QString());
 
     if (QFile::exists(asf)) {
         KisUsageLogger::log(QString("Removing autosave file: %1").arg(asf));
@@ -2351,8 +2132,6 @@ void KisDocument::slotConfigChanged()
     if (d->undoStack->undoLimit() != cfg.undoStackLimit()) {
         if (!d->undoStack->isClean()) {
             d->undoStack->clear();
-            // we set this because the document *has* changed, even though the
-            // undo history was purged.
             setImageModifiedWithoutUndo();
         }
         d->undoStack->setUndoLimit(cfg.undoStackLimit());
@@ -2386,7 +2165,6 @@ void KisDocument::setGridConfig(const KisGridConfig &config)
         d->syncDecorationsWrapperLayerState();
         Q_EMIT sigGridConfigChanged(config);
 
-        // Store last assigned value as future default...
         KisConfig cfg(false);
         cfg.setDefaultGridSpacing(config.spacing());
     }
@@ -2525,7 +2303,6 @@ void KisDocument::setGuidesConfig(const KisGuidesConfig &data)
     Q_EMIT sigGuidesConfigChanged(d->guidesConfig);
 }
 
-
 const KisMirrorAxisConfig& KisDocument::mirrorAxisConfig() const
 {
     return d->mirrorAxisConfig;
@@ -2580,16 +2357,10 @@ bool KisDocument::closePath(bool promptToSave)
             }
         }
     }
-    // Not modified => ok and delete temp file.
     d->mimeType = QByteArray();
 
-    // It always succeeds for a read-only part,
-    // but the return value exists for reimplementations
-    // (e.g. pressing cancel for a modified read-write part)
     return true;
 }
-
-
 
 void KisDocument::setPath(const QString &path)
 {
@@ -2606,7 +2377,6 @@ QString KisDocument::localFilePath() const
 {
     return d->m_file;
 }
-
 
 void KisDocument::setLocalFilePath( const QString &localFilePath )
 {
@@ -2638,10 +2408,7 @@ bool KisDocument::openPathInternal(const QString &path)
     d->m_file = d->m_path;
 
     bool ret = false;
-    // set the mimeType only if it was not already set (for example, by the host application)
     if (d->mimeType.isEmpty()) {
-        // get the mimeType of the file
-        // using findByUrl() to avoid another string -> url conversion
         QString mime = KisMimeDatabase::mimeTypeForFile(d->m_path);
         d->mimeType = mime.toLocal8Bit();
         d->m_bAutoDetectedMime = true;
@@ -2720,11 +2487,10 @@ bool KisDocument::newImage(const QString& name,
         bgLayer->setOpacity(bgColor.opacityU8());
 
         if (numberOfLayers > 1) {
-            //Lock bg layer if others are present.
             bgLayer->setUserLocked(true);
         }
     }
-    else { // KisConfig::CANVAS_COLOR (needs an unlocked starting layer).
+    else {
         image->setDefaultProjectionColor(bgColor);
         bgLayer = new KisPaintLayer(image.data(), image->nextLayerName(), OPACITY_OPAQUE_U8, cs);
     }
@@ -2733,7 +2499,6 @@ bool KisDocument::newImage(const QString& name,
     image->addNode(bgLayer.data(), image->rootLayer().data());
     bgLayer->setDirty(QRect(0, 0, width, height));
 
-    // reset mirror axis to default:
     d->mirrorAxisConfig.setAxisPosition(QRectF(image->bounds()).center());
     setCurrentImage(image);
 
@@ -2747,9 +2512,6 @@ bool KisDocument::newImage(const QString& name,
     {
         KisMainWindow *window = KisPart::instance()->currentMainwindow();
         if (window) {
-            /**
-             * Preinitialize color history for new documents when possible
-             */
             setColorHistoryColors(window->viewManager()->canvasResourceProvider()->colorHistoryColors());
         }
     }
@@ -2819,8 +2581,6 @@ void KisDocument::setReferenceImagesLayer(KisSharedPtr<KisReferenceImagesLayer> 
 {
     KisReferenceImagesLayerSP currentReferenceLayer = referenceImagesLayer();
 
-    // updateImage=false inherently means we are not changing the
-    // reference images layer, but just would like to update its signals.
     if (currentReferenceLayer == layer && updateImage) {
         return;
     }
@@ -2869,11 +2629,9 @@ KisImageSP KisDocument::savingImage() const
     return d->savingImage;
 }
 
-
 void KisDocument::setCurrentImage(KisImageSP image, bool forceInitialUpdate, KisNodeSP preActivatedNode)
 {
     if (d->image) {
-        // Disconnect existing sig/slot connections
         d->image->setUndoStore(new KisDumbUndoStore());
         d->image->disconnect(this);
         d->shapeController->setImage(0);
@@ -2904,15 +2662,12 @@ void KisDocument::hackPreliminarySetImage(KisImageSP image)
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(!d->image);
 
-    // we set image without connecting idle-watcher, because loading
-    // hasn't been finished yet
     d->image = image;
     d->shapeController->setImage(image);
 }
 
 void KisDocument::setImageModified()
 {
-    // we only set as modified if undo stack is not at clean state
     setModified(d->imageModifiedWithoutUndo || !d->undoStack->isClean());
 }
 
@@ -2921,7 +2676,6 @@ void KisDocument::setImageModifiedWithoutUndo()
     d->imageModifiedWithoutUndo = true;
     setImageModified();
 }
-
 
 KisUndoStore* KisDocument::createUndoStore()
 {

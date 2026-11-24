@@ -1,4 +1,3 @@
-// Draws the Krimble Log window offscreen. Usage: log_dialog OUT.png WIDTH HEIGHT krita.log ["extra text"]
 #include "KrimbleLogDialog.h"
 #include <QApplication>
 #include <QPalette>

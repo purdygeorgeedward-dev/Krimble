@@ -50,4 +50,4 @@ private:
 
 };
 
-#endif /* __KIS_PALETTE_MODEL */
+#endif

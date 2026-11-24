@@ -50,10 +50,6 @@ void KisOpenRasterStackSaveVisitor::saveLayerInfo(QDomElement& elt, KisLayer* la
     elt.setAttribute("visibility", layer->visible() ? "visible" : "hidden");
 
     if (layer->inherits("KisGroupLayer")) {
-        // Workaround for the issue regarding ora specification.
-        // MyPaint treats layer's x and y relative to the group's x and y
-        //  while Gimp and Krita think those are absolute values.
-        // Hence we set x and y on group layers to always be 0.
         elt.setAttribute("x", QString().setNum(0));
         elt.setAttribute("y", QString().setNum(0));
 
@@ -90,13 +86,8 @@ void KisOpenRasterStackSaveVisitor::saveLayerInfo(QDomElement& elt, KisLayer* la
     else if (layer->compositeOpId() == COMPOSITE_SATURATION) compop = "svg:saturation";
     else if (layer->compositeOpId() == COMPOSITE_OVER) compop = "svg:src-over";
 
-    //else if (layer->compositeOpId() == COMPOSITE_EXCLUSION) compop = "svg:exclusion";
     else compop = "krita:" + layer->compositeOpId();
 
-    // Alpha preserve has a special case with the Normal blend mode, which is
-    // stored as src-atop for compatibility with previous Krita versions that
-    // don't understand the alpha-preserve property, as well as other programs
-    // like MyPaint that don't support alpha preserve on layers in general.
     if(layer->alphaChannelDisabled()) {
         if (layer->compositeOpId() == COMPOSITE_OVER) {
             compop = "svg:src-atop";
@@ -177,16 +168,12 @@ bool KisOpenRasterStackSaveVisitor::visit(KisExternalLayer * layer)
 bool KisOpenRasterStackSaveVisitor::saveLayer(KisLayer *layer)
 {
     if (layer->isFakeNode()) {
-        // don't save grids, reference images layers etc.
         return true;
     }
 
-    // here we adjust the bounds to encompass the entire area of the layer, including transforms
     QRect adjustedBounds = layer->exactBounds();
 
     if (adjustedBounds.isEmpty()) {
-        // in case of an empty layer, artificially increase the size of the saved rectangle
-        // to just save an empty layer file
         adjustedBounds.adjust(0, 0, 1, 1);
     }
 

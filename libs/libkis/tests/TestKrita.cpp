@@ -28,15 +28,11 @@ void TestKrita::testKrita()
     QVERIFY(krita->filters().size() > 0);
     QVERIFY(krita->filter(krita->filters().first()) != 0);
 
-    //QVERIFY(krita->generators().size() > 0);
-    //QVERIFY(krita->generator(krita->generators().first()) != 0);
-
     QStringList profiles = krita->profiles("RGBA", "U8");
     QVERIFY(profiles.size() != 0);
     Document *doc = krita->createDocument(100, 100, "test", "RGBA", "U8", profiles.first());
     QVERIFY(doc);
     QCOMPARE(krita->documents().size(), 1);
-
 
 }
 
@@ -47,7 +43,6 @@ void TestKrita::cleanupTestCase()
     }
     QTest::qWait(1000);
 }
-
 
 KISTEST_MAIN(TestKrita)
 

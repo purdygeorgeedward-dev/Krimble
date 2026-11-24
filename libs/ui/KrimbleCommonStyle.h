@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-20 (756th): George: "Do the other steps next." (the cleanup plan's "one style sheet"). Rules for size and spacing that every Krimble theme shares live here, once,
-// and are added after the theme's own sheet (thememanager.cpp), so a spacing fix can no longer reach one theme and miss another (as the 738th's menu room missed Krimble Painted).
-// The theme sheets (KrimbleVisualStyle.h, KrimbleVisualStylePainted.h) keep only their colors and looks. Check a change with tools/preview/krimble_preview.py before a build.
 #pragma once
 
 #include <QString>
@@ -23,8 +20,8 @@ QMenuBar::item { margin-bottom: 0px; }
 NodeView::item { background: transparent; color: #f1f4fc; border: none; }
 NodeView::item:selected { background: transparent; color: #ffffff; border: none; border-radius: 0px; }
 
-QSlider:horizontal { min-height: 14px; }
-QSlider::handle:horizontal { width: 12px; height: 12px; margin: -6px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }
+QSlider:horizontal { min-height: 18px; }
+QSlider::handle:horizontal { width: 16px; height: 16px; margin: -5px 0 -4px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }
 
 QMainWindow > QTabBar { qproperty-drawBase: 0; }
 QMainWindow > QTabBar::tab:selected { background: palette(window); border-bottom: 1px solid palette(window); }

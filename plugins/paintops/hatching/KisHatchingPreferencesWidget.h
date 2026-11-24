@@ -29,4 +29,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_HATCHING_PREFERENCES_WIDGET_H
+#endif

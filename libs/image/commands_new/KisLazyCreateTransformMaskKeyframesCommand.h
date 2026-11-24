@@ -23,4 +23,4 @@ private:
     KisTransformMaskSP m_mask;
 };
 
-#endif // KISLAZYCREATETRANSFORMMASKKEYFRAMESCOMMAND_H
+#endif

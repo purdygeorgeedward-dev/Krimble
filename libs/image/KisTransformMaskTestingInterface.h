@@ -21,4 +21,4 @@ public:
     virtual void notifyRecalculateStaticImage() = 0;
 };
 
-#endif // KISTRANSFORMMASKTESTINGINTERFACE_H
+#endif

@@ -102,6 +102,5 @@ void TestChannel::testReadWritePixelData()
 
 }
 
-
 KISTEST_MAIN(TestChannel)
 

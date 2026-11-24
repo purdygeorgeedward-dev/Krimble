@@ -20,16 +20,6 @@ enum CopyLayerType {
     COPY_ORIGINAL
 };
 
-
-/**
- * A copy layer adds the contents of another layer in another place in
- * the layer stack. It is possible to add more effect masks to the
- * copy. You can either copy the original data or the projection data
- * produced by the original layer + original effect masks. There is no
- * physical copy of the data; if the original changes, the copy
- * changes too. The copy layer can be positioned differently from the
- * original layer.
- **/
 class KRITAIMAGE_EXPORT KisCloneLayer : public KisLayer
 {
 
@@ -45,12 +35,6 @@ public:
         return KisNodeSP(new KisCloneLayer(*this));
     }
 
-    /**
-     * When the source layer of the clone is removed from the stack
-     * we should substitute the clone with a usual paint layer,
-     * because the source might become unreachable quite soon. This
-     * method builds a paint layer representation of this clone.
-     */
     KisLayerSP reincarnateAsPaintLayer() const;
 
     void setImage(KisImageWSP image) override;
@@ -71,20 +55,13 @@ public:
     void setX(qint32) override;
     void setY(qint32) override;
 
-    /// Returns an approximation of where the bounds on actual data are in this layer
     QRect extent() const override;
 
-    /// Returns the exact bounds of where the actual data resides in this layer
     QRect exactBounds() const override;
 
     bool accept(KisNodeVisitor &) override;
     void accept(KisProcessingVisitor &visitor, KisUndoAdapter *undoAdapter) override;
 
-    /**
-     * Used when loading: loading is done in two passes, and the copy
-     * from layer is set when all layers have been created, not during
-     * loading.
-     */
     void setCopyFromInfo(KisNodeUuidInfo info);
     KisNodeUuidInfo copyFromInfo() const;
 
@@ -94,10 +71,6 @@ public:
     void setCopyType(CopyLayerType type);
     CopyLayerType copyType() const;
 
-    /**
-     * This function is called by the original to notify
-     * us that it is dirty
-     */
     void setDirtyOriginal(const QRect &rect, bool dontInvalidateFrames);
 
     QRect needRectOnSourceForMasks(const QRect &rc) const;
@@ -105,10 +78,8 @@ public:
     void syncLodCache() override;
 
 protected:
-    // override from KisNode
     QRect accessRect(const QRect &rect, PositionToFilthy pos) const override;
 
-    // override from KisLayer
     void copyOriginalToProjection(const KisPaintDeviceSP original,
                                   KisPaintDeviceSP projection,
                                   const QRect& rect) const override;
@@ -122,5 +93,5 @@ private:
 
 };
 
-#endif // KIS_CLONE_LAYER_H_
+#endif
 

@@ -16,7 +16,6 @@
 #include <KisViewManager.h>
 #include <kis_canvas_resource_provider.h>
 
-
 #include "KisHalftoneConfigWidget.h"
 #include "KisHalftoneConfigPageWidget.h"
 #include "KisHalftoneFilterConfiguration.h"
@@ -139,7 +138,7 @@ KisPropertiesConfigurationSP KisHalftoneConfigWidget::configuration() const
         );
 
     filterConfig->setColorModelId(m_colorModelId);
-    
+
     if (m_colorModelId == AlphaColorModelID.id()) {
         filterConfig->setMode(KisHalftoneFilterConfiguration::HalftoneMode_Alpha);
         m_channelWidgets[0]->configuration(filterConfig, "alpha_");
@@ -207,7 +206,7 @@ void KisHalftoneConfigWidget::slot_comboBoxMode_currentIndexChanged(int index)
     while (m_ui.tabWidgetChannels->count()) {
         m_ui.tabWidgetChannels->removeTab(0);
     }
-    
+
     if (m_colorModelId == AlphaColorModelID.id() || m_colorModelId == GrayColorModelID.id()) {
         m_ui.tabWidgetChannels->addTab(m_channelWidgets[0], m_channelsInfo.at(0)->name());
     } else if (m_colorModelId == GrayAColorModelID.id()) {

@@ -189,7 +189,6 @@ void DlgColorRange::slotSelectClicked()
 
     for (int row = y; row < h - y; ++row) {
         do {
-            // Don't try to select transparent pixels.
             if (cs->opacityU8(hiter->oldRawData()) >  OPACITY_TRANSPARENT_U8) {
 
                 bool selected = false;
@@ -251,12 +250,10 @@ void DlgColorRange::slotDeselectClicked()
 {
     if (!m_viewManager) return;
 
-
     m_viewManager->undoAdapter()->undoLastCommand();
     m_selectionCommandsAdded--;
     if (!m_selectionCommandsAdded) {
         m_page->bnDeselect->setEnabled(false);
     }
 }
-
 

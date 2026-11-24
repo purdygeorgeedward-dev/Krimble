@@ -15,7 +15,6 @@ class KisIteratorTest : public QObject
 {
     Q_OBJECT
 
-    /// re-activate once bug https://bugs.kde.org/show_bug.cgi?id=276198 is fixed.
     void stressTest();
 
 private:

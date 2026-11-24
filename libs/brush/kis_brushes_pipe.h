@@ -14,7 +14,6 @@
 class KisRandomSource;
 typedef KisSharedPtr<KisRandomSource> KisRandomSourceSP;
 
-
 template<class BrushType>
 class KisBrushesPipe
 {
@@ -46,7 +45,6 @@ public:
     QSharedPointer<BrushType> lastBrush() const {
         return m_brushes.last();
     }
-
 
     QSharedPointer<BrushType> currentBrush(const KisPaintInformation& info) {
         Q_UNUSED(info);
@@ -108,11 +106,6 @@ public:
     }
 
     void prepareForSeqNo(const KisPaintInformation& info, int seqNo) {
-        /**
-         * We first need to initialize the brush index to satisfy the
-         * current sequence number, and only after that choose the
-         * brush
-         */
         updateBrushIndexes(info.randomSource(), seqNo);
         chooseNextBrush(info);
     }
@@ -125,7 +118,6 @@ public:
 
         QSharedPointer<BrushType> brush = currentBrush(info);
         if (!brush) return;
-
 
         brush->generateMaskAndApplyMaskOrCreateDab(dst, coloringInformation, shape, info, subPixelX, subPixelY, softnessFactor, lightnessStrength);
     }
@@ -157,11 +149,6 @@ public:
         (void) chooseNextBrush(info);
     }
 
-    /**
-     * Is called by the paint op when a paintop starts a stroke. The
-     * brushes are shared among different strokes, so sometimes the
-     * brush should be reset.
-     */
     virtual void notifyStrokeStarted() = 0;
 
 protected:
@@ -173,36 +160,14 @@ protected:
         return m_brushes.size();
     }
 
-    /**
-     * Returns the index of the next brush that corresponds to the current
-     * values of \p info. This method is called *before* the dab is
-     * actually painted.
-     *
-     */
     virtual int chooseNextBrush(const KisPaintInformation& info) = 0;
 
-    /**
-     * Returns the current index of the brush
-     * This method is called *before* the dab is
-     * actually painted.
-     *
-     * The method is const, so no internal counters of the brush should
-     * change during its execution
-     */
     virtual int currentBrushIndex() = 0;
 
-    /**
-     * Updates internal counters of the brush *after* a dab has been
-     * painted on the canvas. Some incremental switching of the brushes
-     * may me implemented in this method.
-     *
-     * If \p seqNo is equal or greater than zero, then incremental iteration is
-     * overridden by this seqNo value
-     */
     virtual void updateBrushIndexes(KisRandomSourceSP randomSource, int seqNo) = 0;
 
 protected:
     QVector<QSharedPointer<BrushType>> m_brushes;
 };
 
-#endif /* __KIS_BRUSHES_PIPE_H */
+#endif

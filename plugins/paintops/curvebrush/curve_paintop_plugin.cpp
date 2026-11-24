@@ -22,7 +22,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(CurvePaintOpPluginFactory, "kritacurvepaintop.json", registerPlugin<CurvePaintOpPlugin>();)
 
-
 CurvePaintOpPlugin::CurvePaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

@@ -72,7 +72,7 @@ namespace ActionHelper {
                         bool makeSharpClip = false,
                         const KisTimeSpan &range = KisTimeSpan())
     {
-        Q_UNUSED(range); // TODO: Allow multiple frame operation across a timespan.
+        Q_UNUSED(range);
 
         KisImageWSP image = view->image();
         if (!image) return;
@@ -83,14 +83,10 @@ namespace ActionHelper {
 
         const KoColorSpace *cs = device->colorSpace();
 
-        // We need to allow for trimming from non-transparent defaultPixel layers.
-        // Default color should be phased out of use when the area in question is not aligned with image bounds.
-        // Otherwise, we can maintain default pixel.
         const bool hasNonTransparentDefaultPixel = device->defaultPixel() != KoColor::createTransparent(device->colorSpace());
         const bool needsTransparentPixel = selection && rc != image->bounds() && hasNonTransparentDefaultPixel;
 
         if (selection) {
-            // Apply selection mask.
             KisPaintDeviceSP selectionProjection = selection->projection();
             const KoColorSpace *selCs = selection->projection()->colorSpace();
 
@@ -99,11 +95,6 @@ namespace ActionHelper {
 
             while (layerIt.nextPixel() && selectionIt.nextPixel()) {
 
-                /**
-                 * Sharp method is an exact reverse of COMPOSITE_OVER
-                 * so if you cover the cut/copied piece over its source
-                 * you get an exactly the same image without any seams
-                 */
                 if (makeSharpClip) {
                     qreal dstAlpha = cs->opacityF(layerIt.rawData());
                     qreal sel = selCs->opacityF(selectionIt.oldRawData());
@@ -116,8 +107,6 @@ namespace ActionHelper {
                 }
             }
         }
-
-
 
         if ( needsTransparentPixel ) {
             device->setDefaultPixel(KoColor::createTransparent(device->colorSpace()));
@@ -188,7 +177,6 @@ void KisDeselectActionFactory::run(KisViewManager *view)
     if (!image) return;
 
     if (view->canvasBase()->toolProxy()->hasSelection()) {
-        // see KisCutCopyActionFactory::run
         KisImageBarrierLock lock(image, std::try_to_lock);
         if (!lock.owns_lock()) return;
 
@@ -282,14 +270,12 @@ void KisFillActionFactory::run(const QString &fillSource, KisViewManager *view)
 
 void KisClearActionFactory::run(KisViewManager *view)
 {
-    // XXX: "Add saving of XML data for Clear action"
 
     view->canvasBase()->toolProxy()->deleteSelection();
 }
 
 void KisImageResizeToSelectionActionFactory::run(KisViewManager *view)
 {
-    // XXX: "Add saving of XML data for Image Resize To Selection action"
 
     KisSelectionSP selection = view->selection();
     if (!selection) return;
@@ -304,8 +290,6 @@ void KisCutCopyActionFactory::run(Flags flags, KisViewManager *view)
 
     if (!view->blockUntilOperationsFinished(image)) return;
 
-    // Reference layers is a fake node, so it isn't added to the layer stack, this results in KisSelectedShapesProxy not
-    // being aware of the active shapeManager and its selected shapes.
     const auto currentToolHasSelection =
         view->canvasBase()->toolProxy()->hasSelection();
 
@@ -317,13 +301,7 @@ void KisCutCopyActionFactory::run(Flags flags, KisViewManager *view)
     const bool skipShapes = selection && !currentToolHasSelection;
 
     if (!skipShapes && !flags.testFlag(SharpClip) && (haveShapesSelected || currentToolHasSelection)) {
-        // XXX: "Add saving of XML data for Cut/Copy of shapes"
 
-        /**
-         * Make sure that we use tryBarrierLock() here because it does **not**
-         * cause requestStrokeEnd() to be called in the tools, hence does not
-         * prevent disruptions in the text tool.
-         */
         KisImageBarrierLock lock(image, std::try_to_lock);
         if (!lock.owns_lock()) return;
 
@@ -349,7 +327,6 @@ void KisCutCopyActionFactory::run(Flags flags, KisViewManager *view)
             KisNodeSP dupNode;
             if (node->inherits("KisShapeLayer") || node->inherits("KisFileLayer")) {
                 KisPaintDeviceSP dev = new KisPaintDevice(*node->projection());
-                // might have to change node's name (vector to paint layer)
                 dupNode = new KisPaintLayer(image, node->name(), node->opacity(), dev);
             } else {
                 dupNode = node->clone();
@@ -380,7 +357,6 @@ void KisCutCopyActionFactory::run(Flags flags, KisViewManager *view)
         KisImageSP tempImage = ActionHelper::makeImage(view, nodes);
         KisClipboard::instance()->setLayers(nodes, tempImage);
 
-
         KUndo2MagicString actionName = flags & CutClip ?
                     kundo2_i18n("Cut") :
                     kundo2_i18n("Copy");
@@ -395,7 +371,6 @@ void KisCutCopyActionFactory::run(Flags flags, KisViewManager *view)
                         return;
                     }
 
-                    // applied on masks if selected explicitly (when CTRL-X(cut) is used for deletion)
                     if (node->inherits("KisMask") && !masks.contains(node)) {
                         return;
                     }
@@ -408,22 +383,6 @@ void KisCutCopyActionFactory::run(Flags flags, KisViewManager *view)
 
                         KUndo2Command* paint() override {
                             KisSelectionSP cutSelection = m_sel;
-                            // Shrinking the cutting area was previously used
-                            // for getting seamless cut-paste. Now we use makeSharpClip
-                            // instead.
-                            // QRect originalRect = cutSelection->selectedExactRect();
-                            // static const int preciseSelectionThreshold = 16;
-                            //
-                            // if (originalRect.width() > preciseSelectionThreshold ||
-                            //     originalRect.height() > preciseSelectionThreshold) {
-                            //     cutSelection = new KisSelection(*m_sel);
-                            //     delete cutSelection->flatten();
-                            //
-                            //     KisSelectionFilter* filter = new KisShrinkSelectionFilter(1, 1, false);
-                            //
-                            //     QRect processingRect = filter->changeRect(originalRect);
-                            //     filter->process(cutSelection->pixelSelection(), processingRect);
-                            // }
 
                             KisTransaction transaction(m_node->paintDevice());
                             m_node->paintDevice()->clearSelection(cutSelection);
@@ -504,9 +463,6 @@ void KisSelectionToVectorActionFactory::run(KisViewManager *view)
     KoShape *shape = KoPathShape::createShapeFromPainterPath(transform.map(selectionOutline));
     shape->setShapeId(KoPathShapeId);
 
-    /**
-     * Mark a shape that it belongs to a shape selection
-     */
     if(!shape->userData()) {
         shape->setUserData(new KisShapeSelectionMarker);
     }
@@ -539,8 +495,6 @@ void KisSelectionToRasterActionFactory::run(KisViewManager *view)
         KisSelectionSP m_sel;
 
         KUndo2Command* paint() override {
-            // just create an empty transaction: it will rasterize the
-            // selection and Q_EMIT the necessary signals
 
             KisTransaction transaction(m_sel->pixelSelection());
             return transaction.endAndTake();

@@ -8,7 +8,6 @@
 
 #include <kis_node.h>
 
-
 KisStrokesFacade::~KisStrokesFacade()
 {
 }
@@ -31,7 +30,6 @@ void KisUpdatesFacade::refreshGraphAsync(KisNodeSP root, const QRect &rc, const 
 {
     refreshGraphAsync(root, QVector<QRect>({rc}), cropRect, flags);
 }
-
 
 KisProjectionUpdateListener::~KisProjectionUpdateListener()
 {

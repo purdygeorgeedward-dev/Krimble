@@ -10,9 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-/**
- * A module that provides a polygon tool.
- */
 class ToolDyna : public QObject
 {
     Q_OBJECT
@@ -24,4 +21,4 @@ public:
 
 };
 
-#endif // TOOL_DYNA_H_
+#endif

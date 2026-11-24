@@ -30,7 +30,7 @@ public:
         return (image->rootLayer()->childCount() > 1);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -55,4 +55,4 @@ public:
     }
 };
 
-#endif // MultiLayerCheck_H
+#endif

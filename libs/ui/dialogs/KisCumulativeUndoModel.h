@@ -27,4 +27,4 @@ public:
     LAGER_QT_CURSOR(qreal, maxGroupDuration);
 };
 
-#endif // KISCUMULATIVEUNDOMODEL_H
+#endif

@@ -182,7 +182,7 @@ int calcNumMergedCommands(KUndo2Command *cmd) {
     return numCommands;
 };
 
-} // namespace
+}
 
 QVariant KisUndoModel::data(const QModelIndex &index, int role) const
 {

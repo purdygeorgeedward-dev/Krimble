@@ -45,4 +45,4 @@ private:
     Private* const d;
 };
 
-#endif // KIS_MYPAINT_BRUSH_H
+#endif

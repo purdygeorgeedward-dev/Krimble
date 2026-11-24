@@ -38,13 +38,11 @@
 
 #include "tasksetmodel.h"
 
-
 class KisTasksetDelegate : public QStyledItemDelegate
 {
 public:
     KisTasksetDelegate(QObject * parent = 0) : QStyledItemDelegate(parent) {}
     ~KisTasksetDelegate() override {}
-    /// reimplemented
     QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const override {
         return QSize(QStyledItemDelegate::sizeHint(option, index).width(),
                      qMin(QStyledItemDelegate::sizeHint(option, index).width(), 25));
@@ -56,7 +54,6 @@ class KisTasksetResourceDelegate : public QStyledItemDelegate
 public:
     KisTasksetResourceDelegate(QObject * parent = 0) : QStyledItemDelegate(parent) {}
     ~KisTasksetResourceDelegate() override {}
-    /// reimplemented
     void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const override;
 };
 

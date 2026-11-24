@@ -14,7 +14,6 @@
 #include "KisReferenceImagesLayer.h"
 #include "KisDecorationsWrapperLayer.h"
 
-
 KisModelIndexConverter::KisModelIndexConverter(KisDummiesFacadeBase *dummiesFacade,
                                                KisNodeModel *model,
                                                bool showGlobalSelection)
@@ -50,7 +49,6 @@ KisNodeDummy* KisModelIndexConverter::dummyFromRow(int row, QModelIndex parent)
 
     KisNodeDummy *resultDummy = 0;
 
-    // a child of the root node
     if(!parentDummy->parent()) {
         KisNodeDummy *currentDummy = parentDummy->lastChild();
         while(currentDummy) {
@@ -64,13 +62,11 @@ KisNodeDummy* KisModelIndexConverter::dummyFromRow(int row, QModelIndex parent)
             currentDummy = currentDummy->prevSibling();
         }
     }
-    // a child of other layer
     else {
         int rowCount = parentDummy->childCount();
         int index = rowCount - row - 1;
         resultDummy = parentDummy->at(index);
     }
-
 
     return resultDummy;
 }
@@ -87,12 +83,10 @@ QModelIndex KisModelIndexConverter::indexFromDummy(KisNodeDummy *dummy)
     Q_ASSERT(dummy);
     KisNodeDummy *parentDummy = dummy->parent();
 
-    // a root node
     if(!parentDummy) return QModelIndex();
 
     int row = 0;
 
-    // a child of the root node
     if(!parentDummy->parent()) {
         if(!checkDummyType(dummy)) return QModelIndex();
 
@@ -104,7 +98,6 @@ QModelIndex KisModelIndexConverter::indexFromDummy(KisNodeDummy *dummy)
             currentDummy = currentDummy->prevSibling();
         }
     }
-    // a child of other layer
     else {
         int rowCount = parentDummy->childCount();
         int index = parentDummy->indexOf(dummy);
@@ -120,13 +113,11 @@ bool KisModelIndexConverter::indexFromAddedDummy(KisNodeDummy *parentDummy,
                                                  QModelIndex &parentIndex,
                                                  int &row)
 {
-    // adding a root node
     if(!parentDummy) {
         Q_ASSERT(!index);
         return false;
     }
 
-    // adding a child of the root node
     if(!parentDummy->parent()) {
         if(!checkDummyMetaObjectType(newNodeMetaObjectType)) {
             return false;
@@ -145,7 +136,6 @@ bool KisModelIndexConverter::indexFromAddedDummy(KisNodeDummy *parentDummy,
             toScan--;
         }
     }
-    // everything else
     else {
         parentIndex = indexFromDummy(parentDummy);
         int rowCount = parentDummy->childCount();
@@ -160,12 +150,10 @@ int KisModelIndexConverter::rowCount(QModelIndex parent)
     KisNodeDummy *dummy = parent.isValid() ?
         dummyFromIndex(parent) : m_dummiesFacade->rootDummy();
 
-    // a root node (hidden)
     if(!dummy) return 0;
 
     int numChildren = 0;
 
-    // children of the root node
     if(!dummy->parent()) {
         KisNodeDummy *currentDummy = dummy->lastChild();
         while(currentDummy) {
@@ -176,7 +164,6 @@ int KisModelIndexConverter::rowCount(QModelIndex parent)
             currentDummy = currentDummy->prevSibling();
         }
     }
-    // children of other nodes
     else {
         numChildren = dummy->childCount();
     }

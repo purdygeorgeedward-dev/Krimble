@@ -17,14 +17,7 @@
 #include <KoCanvasResourceProvider.h>
 #include "kis_canvas_resource_provider.h"
 
-
-/***********************************************************************/
-/*           KisPaintingInformationBuilder                             */
-/***********************************************************************/
-
-
 const int KisPaintingInformationBuilder::LEVEL_OF_PRESSURE_RESOLUTION = 1024;
-
 
 KisPaintingInformationBuilder::KisPaintingInformationBuilder()
     : m_speedSmoother(new KisSpeedSmoother()),
@@ -48,8 +41,6 @@ void KisPaintingInformationBuilder::updateSettings()
     m_pressureSamples = curve.floatTransfer(LEVEL_OF_PRESSURE_RESOLUTION + 1);
     m_maxAllowedSpeedValue = cfg.readEntry("maxAllowedSpeedValue", 30);
 
-    // The setting is stored in [-180, 180] degrees range to match the UI.
-    // We now need to convert it to [0, 360) range.
     m_tiltDirectionOffset = cfg.readEntry("tiltDirectionOffset", 0);
     if (m_tiltDirectionOffset < 0.0) {
         m_tiltDirectionOffset += 360.0;
@@ -77,7 +68,7 @@ KisPaintInformation KisPaintingInformationBuilder::continueStroke(KoPointerEvent
     return createPaintingInformation(event, timeElapsed);
 }
 
-QPointF KisPaintingInformationBuilder::adjustDocumentPoint(const QPointF &point, const QPointF &/*startPoint*/)
+QPointF KisPaintingInformationBuilder::adjustDocumentPoint(const QPointF &point, const QPointF & )
 {
     return point;
 }
@@ -186,10 +177,6 @@ void KisPaintingInformationBuilder::reset()
     m_speedSmoother->clear();
 }
 
-/***********************************************************************/
-/*           KisConverterPaintingInformationBuilder                        */
-/***********************************************************************/
-
 #include "kis_coordinates_converter.h"
 
 KisConverterPaintingInformationBuilder::KisConverterPaintingInformationBuilder(const KisCoordinatesConverter *converter)
@@ -226,10 +213,6 @@ bool KisConverterPaintingInformationBuilder::canvasMirroredY() const
 {
     return m_converter->yAxisMirrored();
 }
-
-/***********************************************************************/
-/*           KisToolFreehandPaintingInformationBuilder                 */
-/***********************************************************************/
 
 #include "kis_tool_freehand.h"
 #include "kis_canvas2.h"

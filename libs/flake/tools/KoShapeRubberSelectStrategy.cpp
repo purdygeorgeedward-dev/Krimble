@@ -72,16 +72,6 @@ void KoShapeRubberSelectStrategy::handleMouseMove(const QPointF &p, Qt::Keyboard
     d->lastPos = point;
     QPointF old = d->selectRect.bottomRight();
     d->selectRect.setBottomRight(point);
-    /*
-        +---------------|--+
-        |               |  |    We need to figure out rects A and B based on the two points. BUT
-        |          old  | A|    we need to do that even if the points are switched places
-        |             \ |  |    (i.e. the rect got smaller) and even if the rect is mirrored
-        +---------------+  |    in either the horizontal or vertical axis.
-        |       B          |
-        +------------------+
-                            `- point
-    */
     QPointF x1 = old;
     x1.setY(d->selectRect.topLeft().y());
     qreal h1 = point.y() - x1.y();

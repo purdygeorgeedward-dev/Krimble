@@ -14,7 +14,7 @@
 
 #ifdef HAVE_GSL
 #include <gsl/gsl_multimin.h>
-#endif /* HAVE_GSL */
+#endif
 
 #include <QtCore/qmath.h>
 #include <limits>
@@ -23,8 +23,6 @@
 
 #include <QPainterPath>
 #include "krita_utils.h"
-
-
 
 namespace Private {
 
@@ -39,7 +37,7 @@ namespace Private {
             center += element;
             numPoints++;
         }
-        if (numPoints == 0) { // can only happen if the path is empty
+        if (numPoints == 0) {
             return center;
         }
         center /= numPoints;
@@ -49,9 +47,6 @@ namespace Private {
 
     qreal getDisnormedGradientValue(const QPointF &pt, const QPainterPath &selectionPath, qreal exponent)
     {
-        // FIXME: exponent = 2.0
-        //        We explicitly use pow2() and sqrt() functions here
-        //        for efficiency reasons.
         KIS_ASSERT_RECOVER_NOOP(qFuzzyCompare(exponent, 2.0));
         const qreal minHiLevel = std::pow(0.5, 1.0 / exponent);
         qreal ptWeightNode = 0.0;
@@ -72,9 +67,6 @@ namespace Private {
 
             qreal hi = 1.0;
 
-            // pt's projection lays outside the edge itself,
-            // when the projections has the same sign
-
             if (proj1 * proj2 >= 0) {
                 QPointF nearestPointVec =
                     qAbs(proj1) < qAbs(proj2) ? q1 : q2;
@@ -87,14 +79,8 @@ namespace Private {
 
             hi = qMax(minHiLevel, hi);
 
-            // disabled for efficiency reasons
-            // ptWeightNode += 1.0 / std::pow(hi, exponent);
-
             ptWeightNode += 1.0 / pow2(hi);
         }
-
-        // disabled for efficiency reasons
-        // return 1.0 / std::pow(ptWeightNode, 1.0 / exponent);
 
         return 1.0 / std::sqrt(ptWeightNode);
     }
@@ -233,7 +219,6 @@ namespace Private {
 
         if (!centerExists || !selectionPath.contains(center)) {
 
-            // if the path is too small just return default values
             if (selectionPath.boundingRect().width() >= 2.0 &&
                 selectionPath.boundingRect().height() >= 2.0) {
 
@@ -243,12 +228,10 @@ namespace Private {
             return searchForMax ? 1.0 : 0.0;
         }
 
-        /* Starting point */
         x = gsl_vector_alloc (2);
         gsl_vector_set (x, 0, center.x());
         gsl_vector_set (x, 1, center.y());
 
-        /* Set initial step sizes to 10 px */
         ss = gsl_vector_alloc (2);
         gsl_vector_set (ss, 0, 10);
         gsl_vector_set (ss, 1, 10);
@@ -259,7 +242,6 @@ namespace Private {
         p.exponent = exponent;
         p.searchForMax = searchForMax;
 
-        /* Initialize method and iterate */
         minex_func.n = 2;
         minex_func.f = errorFunc;
         minex_func.params = (void*)&p;
@@ -283,10 +265,6 @@ namespace Private {
 
             if (status == GSL_SUCCESS)
             {
-                // dbgKrita << "*******Converged to minimum";
-                // dbgKrita << gsl_vector_get (s->x, 0)
-                //          << gsl_vector_get (s->x, 1)
-                //          << "|" << s->fval << size;
 
                 result = searchForMax ? 1.0 / s->fval : s->fval;
             }
@@ -300,7 +278,7 @@ namespace Private {
         return result;
     }
 
-#else /* HAVE_GSL */
+#else
 
     qreal calculateMaxWeight(const QPainterPath &selectionPath,
                              qreal exponent,
@@ -311,7 +289,7 @@ namespace Private {
             getDisnormedGradientValue(center, selectionPath, exponent) : 0.0;
     }
 
-#endif /* HAVE_GSL */
+#endif
 
 }
 

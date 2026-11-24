@@ -17,18 +17,10 @@
 
 class QPluginLoader;
 
-/**
- * Support class to fetch a list of relevant plugins
- *
- * Static singleton
- */
 class KRITAPLUGIN_EXPORT KoJsonTrader
 {
 public:
 
-    /**
-     * Returns the instance of this class.
-     */
     static KoJsonTrader *instance();
 
     struct KRITAPLUGIN_EXPORT Plugin {
@@ -47,29 +39,8 @@ public:
         QMutex *m_mutex = 0;
     };
 
-    /**
-     * The main function in the KoJsonTrader class. It tries to automatically
-     * locate the base path containing Krita plugins. It attempts to do so in
-     * the current application directory qApp->applicationDirPath().
-     *
-     * The environment variable KRITA_PLUGIN_PATH overrides the automatic search
-     * path when the algorithm is insufficient. Try setting this if the
-     * "LittleCMS color management plugin is not installed" error appears.
-     *
-     * A better algorithm or another solution could be a welcome alternative.
-     * One thing that might help would be to build all Krita plugins in a single
-     * `plugins` folder, so that an installation step is unnecessary to put them
-     * together in a single folder here. Another solution might be to construct
-     * several QPluginLoaders.
-     *
-     * @param servicetype A service type like 'KMyApp/Plugin' or 'KFilePlugin'.
-     * @param mimetype    A MimeType to constrain the search.
-     *
-     * @return A list of QPluginLoader that satisfy the query
-     */
      QList<Plugin> query(const QString &servicetype, const QString &mimetype);
 
-     // Note: this should not be used
      KoJsonTrader();
      ~KoJsonTrader();
 

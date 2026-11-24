@@ -11,7 +11,6 @@
 #include <kritaui_export.h>
 #include "kis_properties_configuration.h"
 
-
 class KRITAUI_EXPORT KisOperationConfiguration : public KisPropertiesConfiguration
 {
 public:
@@ -26,4 +25,4 @@ private:
 
 typedef KisPinnedSharedPtr<KisOperationConfiguration> KisOperationConfigurationSP;
 
-#endif /* __KIS_OPERATION_CONFIGURATION_H */
+#endif

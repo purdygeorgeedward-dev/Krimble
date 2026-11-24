@@ -7,7 +7,6 @@
 
 #include "kis_properties_configuration.h"
 
-
 const QString HAIRY_INK_DEPLETION_ENABLED = "HairyInk/enabled";
 const QString HAIRY_INK_AMOUNT = "HairyInk/inkAmount";
 const QString HAIRY_INK_USE_SATURATION = "HairyInk/useSaturation";
@@ -19,7 +18,6 @@ const QString HAIRY_INK_BRISTLE_INK_AMOUNT_WEIGHT = "HairyInk/bristleInkAmountWe
 const QString HAIRY_INK_DEPLETION_WEIGHT = "HairyInk/inkDepletionWeight";
 const QString HAIRY_INK_DEPLETION_CURVE = "HairyInk/inkDepletionCurve";
 const QString HAIRY_INK_SOAK = "HairyInk/soak";
-
 
 bool KisHairyInkOptionData::read(const KisPropertiesConfiguration *setting)
 {

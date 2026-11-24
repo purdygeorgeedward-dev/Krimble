@@ -56,7 +56,6 @@ private:
     template<class FillPolicy>
     void uploadPaletteData(KisGLImageWidget *widget, const QSize &size);
 
-
 private:
     struct Private;
     Private* const d;

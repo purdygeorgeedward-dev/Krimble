@@ -17,10 +17,6 @@
 #include "kis_selection.h"
 #include "KisRecycleProjectionsJob.h"
 
-/**********************************************************************/
-/*     StoreImplementationInterface                                   */
-/**********************************************************************/
-
 struct StoreImplementationInterface
 {
     virtual ~StoreImplementationInterface() {}
@@ -29,11 +25,6 @@ struct StoreImplementationInterface
     virtual void discardCaches() = 0;
     virtual void recycleProjectionsInSafety() = 0;
 };
-
-
-/**********************************************************************/
-/*     StoreImplementation                                            */
-/**********************************************************************/
 
 template <typename DeviceSP>
 struct StoreImplementation : public StoreImplementationInterface
@@ -46,18 +37,15 @@ struct StoreImplementation : public StoreImplementationInterface
             m_projection = 0;
             hasDeletedProjection = true;
 
-//            qDebug() << "release a device";
         }
         return hasDeletedProjection;
     }
 
     virtual void discardCaches() override {
-//        qDebug() << "discard caches";
         m_dirtyProjections.clear();
     }
 
     virtual void recycleProjectionsInSafety() override {
-//        qDebug() << "recycle caches";
         Q_FOREACH (DeviceSP projection, m_dirtyProjections) {
             projection->clear();
             m_cleanProjections.append(projection);
@@ -70,11 +58,6 @@ protected:
     QVector<DeviceSP> m_dirtyProjections;
     QVector<DeviceSP> m_cleanProjections;
 };
-
-
-/**********************************************************************/
-/*     StoreImplementationForDevice                                   */
-/**********************************************************************/
 
 struct StoreImplementationForDevice : StoreImplementation<KisPaintDeviceSP>
 {
@@ -106,11 +89,6 @@ struct StoreImplementationForDevice : StoreImplementation<KisPaintDeviceSP>
     }
 };
 
-
-/**********************************************************************/
-/*     StoreImplementationForSelection                                */
-/**********************************************************************/
-
 struct StoreImplementationForSelection : StoreImplementation<KisSelectionSP>
 {
     StoreImplementationForSelection() {}
@@ -138,11 +116,6 @@ struct StoreImplementationForSelection : StoreImplementation<KisSelectionSP>
         return m_projection;
     }
 };
-
-
-/**********************************************************************/
-/*     KisSafeNodeProjectionStoreBase                                 */
-/**********************************************************************/
 
 struct KisSafeNodeProjectionStoreBase::Private
 {
@@ -195,13 +168,6 @@ void KisSafeNodeProjectionStoreBase::setImage(KisImageWSP image)
 
 void KisSafeNodeProjectionStoreBase::slotInitiateProjectionsCleanup()
 {
-    /**
-     * After the projection has been used, we should clean it. But we cannot
-     * clean it until all the workers accessing it have completed their job.
-     *
-     * Therefore we just schedule an exclusive job that will execute the
-     * recycling action in an exclusive context, when no jobs are running.
-     */
 
     KisImageSP image = m_d->image;
 
@@ -224,11 +190,6 @@ void KisSafeNodeProjectionStoreBase::recycleProjectionsInSafety()
     m_d->store->recycleProjectionsInSafety();
 }
 
-
-/**********************************************************************/
-/*     KisSafeNodeProjectionStore                                     */
-/**********************************************************************/
-
 KisSafeNodeProjectionStore::KisSafeNodeProjectionStore()
     : KisSafeNodeProjectionStoreBase(new StoreImplementationForDevice)
 {
@@ -247,11 +208,6 @@ KisPaintDeviceSP KisSafeNodeProjectionStore::getDeviceLazy(KisPaintDeviceSP prot
 
     return store->getDeviceLazy(prototype);
 }
-
-
-/**********************************************************************/
-/*     KisSafeSelectionNodeProjectionStore                            */
-/**********************************************************************/
 
 KisSafeSelectionNodeProjectionStore::KisSafeSelectionNodeProjectionStore()
     : KisSafeNodeProjectionStoreBase(new StoreImplementationForSelection)

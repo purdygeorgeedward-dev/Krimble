@@ -27,7 +27,7 @@
 #include <KoConfig.h>
 #ifdef HAVE_OPENEXR
 #include <half.h>
-#endif // HAVE_OPENEXR
+#endif
 
 class KisBufferStreamBase;
 
@@ -170,23 +170,11 @@ public:
     virtual ~KisTIFFReaderBase() = default;
 
 public:
-    /**
-     * This function copy data from the tiff stream to the paint device starting at the given position.
-     * @param x horizontal start position
-     * @param y vertical start position
-     * @param dataWidth width of the data to copy
-     * @param tiffstream source of data
-     *
-     * @return the number of line which were copied
-     */
     virtual uint32_t
     copyDataToChannels(quint32 x,
                        quint32 y,
                        quint32 dataWidth,
                        QSharedPointer<KisBufferStreamBase> tiffstream) = 0;
-    /**
-     * This function is called when all data has been read and should be used for any postprocessing.
-     */
     virtual void finalize()
     {
     }
@@ -307,7 +295,6 @@ private:
             T *d = reinterpret_cast<T *>(it->rawData());
             quint8 i = 0;
             for (i = 0; i < this->nbColorsSamples(); i++) {
-                // XXX: for half this should use the bit constructor (plus downcast to uint16_t) (same as in the rest accesses)
                 const uint32_t v = tiffstream->nextValue();
                 std::memcpy(&d[this->poses()[i]], &v, sizeof(T));
             }
@@ -381,7 +368,6 @@ private:
         KisHLineIteratorSP it = this->paintDevice()->createHLineIteratorNG(x, y, dataWidth);
         const double coeff = std::numeric_limits<T>::max() / static_cast<double>(std::pow(2.0, this->sourceDepth()) - 1);
         const bool no_coeff = !std::is_same<T, uint8_t>::value && this->sourceDepth() == sizeof(T) * CHAR_BIT;
-        //    dbgFile <<" depth expansion coefficient :" << coeff;
         do {
             T *d = reinterpret_cast<T *>(it->rawData());
             quint8 i;

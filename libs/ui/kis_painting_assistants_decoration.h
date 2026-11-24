@@ -24,13 +24,9 @@ class KoColorDisplayRendererInterface;
 class KisPaintingAssistantsDecoration;
 typedef KisSharedPtr<KisPaintingAssistantsDecoration> KisPaintingAssistantsDecorationSP;
 
-// Data for editor widget. This is shared between the decoration and assistant tool which needs hit box information
 struct AssistantEditorData {
-    //button count to loop over
     unsigned int buttoncount = 6;
-    //button icon size
     const int buttonSize = 24;
-    //boolean values track which buttons are enabled within the editor widget
     bool moveButtonActivated = true;
     bool snapButtonActivated = true;
     bool lockButtonActivated = true;
@@ -38,18 +34,14 @@ struct AssistantEditorData {
     bool deleteButtonActivated = true;
     bool widgetActivated = true;
     const int widgetOffset = 10;
-    //padding for dynamic positioning between buttons
     const int buttonPadding = 7;
-    //button positions
     QPointF moveIconPosition = QPointF(0, 0);
     QPointF snapIconPosition = QPointF(0, 0);
     QPointF lockedIconPosition = QPointF(0, 0);
     QPointF duplicateIconPosition = QPointF(0, 0);
     QPointF deleteIconPosition = QPointF(0, 0);
     QSize boundingSize = QSize(0, 0);
-    //size of the side drag decoration
     const int dragDecorationWidth = 15;
-    //QPixMaps representing icons for buttons
     const QIcon m_iconMove = KisIconUtils::loadIcon("transform-move");
     const QIcon m_iconSnapOn = KisIconUtils::loadIcon("visible");
     const QIcon m_iconSnapOff = KisIconUtils::loadIcon("novisible");
@@ -57,20 +49,9 @@ struct AssistantEditorData {
     const QIcon m_iconLockOff = KisIconUtils::loadIcon("layer-unlocked");
     const QIcon m_iconDuplicate = KisIconUtils::loadIcon("duplicateitem");
     const QIcon m_iconDelete = KisIconUtils::loadIcon("deletelayer");
-    //how many buttons fit horizontally before extending to the next row
     const int horizontalButtonLimit = 3;
 };
 
-/**
- * KisPaintingAssistantsDecoration draws the assistants stored in the document on
- * the canvas.
- * In the application flow, each canvas holds one of these classes to manage the assistants
- * There is an assistants manager, but that is higher up in the flow and makes sure each view gets one of these
- * Since this is off the canvas level, the decoration can be seen across all tools. The contents from here will be in
- * front of the kis_assistant_tool, which hold and displays the editor controls.
- *
- * Many of the events this receives such as adding and removing assistants comes from kis_assistant_tool
- */
 class KRITAUI_EXPORT KisPaintingAssistantsDecoration : public KisCanvasDecoration
 {
     Q_OBJECT
@@ -88,51 +69,31 @@ public:
     void endStroke();
     QList<KisPaintingAssistantHandleSP> handles();
     QList<KisPaintingAssistantSP> assistants() const;
-    //store the editor data to be used to control the render/interaction of the editor widget.
     struct AssistantEditorData globalEditorWidgetData;
     bool hasPaintableAssistants() const;
 
-
-    /// getter and setter functions for what assistant is currently selected
-    /// this is used to control some tool options that are specific to a assistant
     KisPaintingAssistantSP selectedAssistant();
     void setSelectedAssistant(KisPaintingAssistantSP assistant);
     void deselectAssistant();
 
-
-    /// called when assistant editor is activated
-    /// right now this happens when the assistants tool is selected
     void activateAssistantsEditor();
 
-
-    /// called when assistant editor is deactivated
-    /// right now this happens when the assistants tool is un-selected
     void deactivateAssistantsEditor();
 
-    /// brings back if we are currently editing assistants or not
-    /// useful for some assistants (like spline) that draw bezier curves
     bool isEditingAssistants();
 
-
-    /// sets whether the main assistant is visible
     void setAssistantVisible(bool set);
 
-    /// sets whether the preview is visible
     void setOutlineVisible(bool set);
 
-    /// sets whether we snap to only one assistant
     void setOnlyOneAssistantSnap(bool assistant);
 
-    /// sets whether eraser brushes snap
     void setEraserSnap(bool assistant);
 
-    /// returns assistant visibility
     bool assistantVisibility();
 
-    /// returns preview visibility
     bool outlineVisibility();
 
-    /// uncache all assistants
     void uncache();
 
     int handleSize();
@@ -147,10 +108,8 @@ Q_SIGNALS:
 
 public Q_SLOTS:
 
-    /// toggles whether the assistant is active or not
     void toggleAssistantVisible();
 
-    /// toggles whether there will be a preview of the assistant result when painting
     void toggleOutlineVisible();
     QPointF snapToGuide(KoPointerEvent *e, const QPointF &offset, bool useModifiers);
     QPointF snapToGuide(const QPointF& pt, const QPointF &offset);

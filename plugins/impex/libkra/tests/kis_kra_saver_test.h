@@ -18,7 +18,6 @@ private Q_SLOTS:
 
     void testCrashyShapeLayer();
 
-    // XXX: Also test roundtripping of metadata
     void testRoundTrip();
 
     void testSaveEmpty();

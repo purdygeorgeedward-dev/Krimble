@@ -13,14 +13,12 @@
 
 class KisOpenGLUpdateInfoBuilder;
 
-
 class KRITAUI_EXPORT KisInMemoryFrameCacheSwapper : public KisAbstractFrameCacheSwapper
 {
 public:
     KisInMemoryFrameCacheSwapper();
     ~KisInMemoryFrameCacheSwapper();
 
-    // WARNING: after transferring \p info to saveFrame() the object becomes invalid
     void saveFrame(int frameId, KisOpenGLUpdateInfoSP info, const QRect &imageBounds) override;
     KisOpenGLUpdateInfoSP loadFrame(int frameId) override;
 
@@ -38,4 +36,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISINMEMORYFRAMECACHESWAPPER_H
+#endif

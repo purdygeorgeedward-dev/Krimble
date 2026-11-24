@@ -12,7 +12,6 @@
 #include <KisPaintOpOptionUtils.h>
 namespace kpou = KisPaintOpOptionUtils;
 
-
 KisGradientOption::KisGradientOption(const KisPropertiesConfiguration *setting)
     : KisCurveOption(kpou::loadOptionData<KisGradientOptionData>(setting))
 {

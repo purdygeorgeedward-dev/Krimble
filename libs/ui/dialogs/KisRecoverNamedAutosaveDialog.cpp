@@ -15,7 +15,6 @@
 
 #include <KisFileIconCreator.h>
 
-
 KisRecoverNamedAutosaveDialog::KisRecoverNamedAutosaveDialog(QWidget *parent, QString mainFile, QString autosaveFile)
     : QDialog(parent),
       ui(new Ui::KisRecoverNamedAutosaveDialog)
@@ -46,7 +45,7 @@ KisRecoverNamedAutosaveDialog::KisRecoverNamedAutosaveDialog(QWidget *parent, QS
         ui->rbOpenAutosave->setIconSize(size);
     }
 
-    ui->rbOpenAutosave->setChecked(true); // it should be selected by default
+    ui->rbOpenAutosave->setChecked(true);
 
 }
 

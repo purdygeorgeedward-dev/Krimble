@@ -81,7 +81,6 @@ public:
     void configureAction(QAction *action, const QDomAttr &attribute,
                          ShortcutOption shortcutOption = KisKXMLGUIFactoryPrivate::SetActiveShortcut);
 
-
     void refreshActionProperties(KisKXMLGUIClient *client, const QList<QAction *> &actions, const QDomDocument &doc);
     void saveDefaultActionProperties(const QList<QAction *> &actions);
 
@@ -89,14 +88,8 @@ public:
 
     QString m_defaultMergingName;
 
-    /*
-     * Contains the container which is searched for in ::container .
-     */
     QString m_containerName;
 
-    /*
-     * List of all clients
-     */
     QList<KisKXMLGUIClient *> m_clients;
 
     QString tagActionList;
@@ -114,24 +107,18 @@ QString KisKXMLGUIFactory::readConfigFile(const QString &filename, const QString
     if (!QDir::isRelativePath(filename)) {
         xml_file = filename;
     } else {
-        // KF >= 5.1 (KisKXMLGUI_INSTALL_DIR)
         xml_file = QStandardPaths::locate(QStandardPaths::AppDataLocation, QStringLiteral("kxmlgui5/") + componentName + QLatin1Char('/') + filename);
         if (!QFile::exists(xml_file)) {
-            // KF >= 5.4 (resource file)
             xml_file = QStringLiteral(":/kxmlgui5/") + componentName + QLatin1Char('/') + filename;
         }
 
         bool warn = false;
         if (!QFile::exists(xml_file)) {
-            // kdelibs4 / KF 5.0 solution
             xml_file = QStandardPaths::locate(QStandardPaths::AppDataLocation, componentName + QLatin1Char('/') + filename);
             warn = true;
         }
 
         if (!QFile::exists(xml_file)) {
-            // kdelibs4 / KF 5.0 solution, and the caller includes the component name
-            // This was broken (lead to component/component/ in kdehome) and unnecessary
-            // (they can specify it with setComponentName instead)
             xml_file = QStandardPaths::locate(QStandardPaths::AppDataLocation, filename);
             warn = true;
         }
@@ -169,8 +156,6 @@ bool KisKXMLGUIFactory::saveConfigFile(const QDomDocument &doc,
         return false;
     }
 
-    // write out our document
-
     QTextStream ts(&file);
     KisPortingUtils::setUtf8OnStream(ts);
     ts << doc;
@@ -178,26 +163,6 @@ bool KisKXMLGUIFactory::saveConfigFile(const QDomDocument &doc,
     file.close();
     return true;
 }
-
-/**
- * Removes all QDomComment objects from the specified node and all its children.
- */
-/*
-static void removeDOMComments(QDomNode &node)
-{
-    QDomNode n = node.firstChild();
-    while (!n.isNull()) {
-        if (n.nodeType() == QDomNode::CommentNode) {
-            QDomNode tmp = n;
-            n = n.nextSibling();
-            node.removeChild(tmp);
-        } else {
-            QDomNode tmp = n;
-            n = n.nextSibling();
-            removeDOMComments(tmp);
-        }
-    }
-}*/
 
 KisKXMLGUIFactory::KisKXMLGUIFactory(KisKXMLGUIBuilder *builder, QObject *parent)
     : QObject(parent), d(new KisKXMLGUIFactoryPrivate)
@@ -225,7 +190,7 @@ void KisKXMLGUIFactory::addClient(KisKXMLGUIClient *client)
         if (client->factory() == this) {
             return;
         } else {
-            client->factory()->removeClient(client);    //just in case someone does stupid things ;-)
+            client->factory()->removeClient(client);
         }
     }
 
@@ -234,25 +199,16 @@ void KisKXMLGUIFactory::addClient(KisKXMLGUIClient *client)
     }
     d->pushState();
 
-//    QTime dt; dt.start();
-
     d->guiClient = client;
 
-    // add this client to our client list
     if (!d->m_clients.contains(client)) {
         d->m_clients.append(client);
     }
     else {
         debugWidgetUtils << "XMLGUI client already added " << client;
     }
-    // Tell the client that plugging in is process and
-    //  let it know what builder widget its mainwindow shortcuts
-    //  should be attached to.
     client->beginXMLPlug(d->builder->widget());
 
-    // try to use the build document for building the client's GUI, as the build document
-    // contains the correct container state information (like toolbar positions, sizes, etc.) .
-    // if there is non available, then use the "real" document.
     QDomDocument doc = client->xmlguiBuildDocument();
     if (doc.documentElement().isNull()) {
         doc = client->domDocument();
@@ -261,8 +217,6 @@ void KisKXMLGUIFactory::addClient(KisKXMLGUIClient *client)
     QDomElement docElement = doc.documentElement();
 
     d->m_rootNode->index = -1;
-
-    // cache some variables
 
     d->clientName = docElement.attribute(d->attrName);
     d->clientBuilder = client->clientBuilder();
@@ -275,7 +229,6 @@ void KisKXMLGUIFactory::addClient(KisKXMLGUIClient *client)
         d->clientBuilderCustomTags.clear();
     }
 
-    // load user-defined shortcuts and other action properties
     d->saveDefaultActionProperties(client->actionCollection()->actions());
     if (!doc.isNull()) {
         d->refreshActionProperties(client, client->actionCollection()->actions(), doc);
@@ -283,16 +236,10 @@ void KisKXMLGUIFactory::addClient(KisKXMLGUIClient *client)
 
     BuildHelper(*d, d->m_rootNode).build(docElement);
 
-    // let the client know that we built its GUI.
     client->setFactory(this);
 
-    // call the finalizeGUI method, to fix up the positions of toolbars for example.
-    // ### FIXME : obey client builder
-    // --- Well, toolbars have a bool "positioned", so it doesn't really matter,
-    // if we call positionYourself on all of them each time. (David)
     d->builder->finalizeGUI(d->guiClient);
 
-    // reset some variables, for safety
     d->BuildState::reset();
 
     client->endXMLPlug();
@@ -301,7 +248,6 @@ void KisKXMLGUIFactory::addClient(KisKXMLGUIClient *client)
 
     Q_EMIT clientAdded(client);
 
-    // build child clients
     Q_FOREACH (KisKXMLGUIClient *child, client->childClients()) {
         addClient(child);
     }
@@ -309,21 +255,9 @@ void KisKXMLGUIFactory::addClient(KisKXMLGUIClient *client)
     if (d->emptyState()) {
         Q_EMIT makingChanges(false);
     }
-    /*
-        QString unaddedActions;
-        Q_FOREACH (KisKActionCollection* ac, KisKActionCollection::allCollections())
-          Q_FOREACH (QAction* action, ac->actions())
-            if (action->associatedWidgets().isEmpty())
-              unaddedActions += action->objectName() + ' ';
 
-        if (!unaddedActions.isEmpty())
-          qWarning() << "The following actions are not plugged into the gui (shortcuts will not work): " << unaddedActions;
-    */
-
-//    qDebug() << "addClient took " << dt.elapsed();
 }
 
-// Find the right ActionProperties element, otherwise return null element
 static QDomElement findActionPropertiesElement(const QDomDocument &doc)
 {
     const QLatin1String tagActionProp("ActionProperties");
@@ -338,12 +272,9 @@ static QDomElement findActionPropertiesElement(const QDomDocument &doc)
 
 void KisKXMLGUIFactoryPrivate::refreshActionProperties(KisKXMLGUIClient *client, const QList<QAction *> &actions, const QDomDocument &doc)
 {
-    // These were used for applyShortcutScheme() but not for applyActionProperties()??
     Q_UNUSED(client);
     Q_UNUSED(actions);
 
-
-    // try to find and apply user-defined shortcuts
     const QDomElement actionPropElement = findActionPropertiesElement(doc);
     if (!actionPropElement.isNull()) {
         applyActionProperties(actionPropElement);
@@ -352,22 +283,14 @@ void KisKXMLGUIFactoryPrivate::refreshActionProperties(KisKXMLGUIClient *client,
 
 void KisKXMLGUIFactoryPrivate::saveDefaultActionProperties(const QList<QAction *> &actions)
 {
-    // This method is called every time the user activated a new
-    // kxmlguiclient. We only want to execute the following code only once in
-    // the lifetime of an action.
     Q_FOREACH (QAction *action, actions) {
-        // Skip 0 actions or those we have seen already.
         if (!action || action->property("_k_DefaultShortcut").isValid()) {
             continue;
         }
 
-        // Check if the default shortcut is set
         QList<QKeySequence> defaultShortcut = action->property("defaultShortcuts").value<QList<QKeySequence> >();
         QList<QKeySequence> activeShortcut = action->shortcuts();
-        //qDebug() << action->objectName() << "default=" << defaultShortcut.toString() << "active=" << activeShortcut.toString();
 
-        // Check if we have an empty default shortcut and an non empty
-        // custom shortcut. Print out a warning and correct the mistake.
         if ((!activeShortcut.isEmpty()) && defaultShortcut.isEmpty()) {
             action->setProperty("_k_DefaultShortcut", QVariant::fromValue(activeShortcut));
         } else {
@@ -383,9 +306,7 @@ void KisKXMLGUIFactory::forgetClient(KisKXMLGUIClient *client)
 
 void KisKXMLGUIFactory::removeClient(KisKXMLGUIClient *client)
 {
-    //qDebug(260) << client;
 
-    // don't try to remove the client's GUI if we didn't build it
     if (!client || client->factory() != this) {
         return;
     }
@@ -394,21 +315,14 @@ void KisKXMLGUIFactory::removeClient(KisKXMLGUIClient *client)
         Q_EMIT makingChanges(true);
     }
 
-    // remove this client from our client list
     d->m_clients.removeAll(client);
 
-    // remove child clients first (create a copy of the list just in case the
-    // original list is modified directly or indirectly in removeClient())
     const QList<KisKXMLGUIClient *> childClients(client->childClients());
     Q_FOREACH (KisKXMLGUIClient *child, childClients) {
         removeClient(child);
     }
 
-    //qDebug(260) << "calling removeRecursive";
-
     d->pushState();
-
-    // cache some variables
 
     d->guiClient = client;
     d->clientName = client->domDocument().documentElement().attribute(d->attrName);
@@ -416,9 +330,6 @@ void KisKXMLGUIFactory::removeClient(KisKXMLGUIClient *client)
 
     client->setFactory(0L);
 
-    // if we don't have a build document for that client, yet, then create one by
-    // cloning the original document, so that saving container information in the
-    // DOM tree does not touch the original document.
     QDomDocument doc = client->xmlguiBuildDocument();
     if (doc.documentElement().isNull()) {
         doc = client->domDocument().cloneNode(true).toDocument();
@@ -427,10 +338,8 @@ void KisKXMLGUIFactory::removeClient(KisKXMLGUIClient *client)
 
     d->m_rootNode->destruct(doc.documentElement(), *d);
 
-    // reset some variables
     d->BuildState::reset();
 
-    // This will destruct the KAccel object built around the given widget.
     client->prepareXMLUnplug(d->builder->widget());
 
     d->popState();
@@ -493,8 +402,6 @@ void KisKXMLGUIFactory::resetContainer(const QString &containerName, bool useTag
         return;
     }
 
-    //  resetInternal( container );
-
     parent->removeChild(container);
 }
 
@@ -516,7 +423,6 @@ QWidget *KisKXMLGUIFactoryPrivate::findRecursive(KisKXMLGUI::ContainerNode *node
     return 0L;
 }
 
-// Case insensitive equality without calling toLower which allocates a new string
 static inline bool equals(const QString &str1, const char *str2)
 {
     return str1.compare(QLatin1String(str2), Qt::CaseInsensitive) == 0;
@@ -553,7 +459,6 @@ void KisKXMLGUIFactory::plugActionList(KisKXMLGUIClient *client, const QString &
 
     d->m_rootNode->plugActionList(*d);
 
-    // Load shortcuts for these new actions
     d->saveDefaultActionProperties(actionList);
     d->refreshActionProperties(client, actionList, client->domDocument());
 
@@ -609,12 +514,10 @@ void KisKXMLGUIFactoryPrivate::configureAction(QAction *action, const QDomAttr &
         ShortcutOption shortcutOption)
 {
     QString attrName = attribute.name();
-    // If the attribute is a deprecated "accel", change to "shortcut".
     if (equals(attrName, "accel")) {
         attrName = QStringLiteral("shortcut");
     }
 
-    // No need to re-set name, particularly since it's "objectName" in Qt4
     if (equals(attrName, "name")) {
         return;
     }
@@ -634,8 +537,6 @@ void KisKXMLGUIFactoryPrivate::configureAction(QAction *action, const QDomAttr &
     } else if (propertyType == QMetaType::UInt) {
         propertyValue = QVariant(attribute.value().toUInt());
     } else if (isShortcut) {
-        // Setting the shortcut by property also sets the default shortcut
-        // (which is incorrect), so we have to do it directly
         action->setShortcuts(QKeySequence::listFromString(attribute.value()));
         if (shortcutOption & KisKXMLGUIFactoryPrivate::SetDefaultShortcut) {
             action->setProperty("defaultShortcuts",
@@ -649,13 +550,10 @@ void KisKXMLGUIFactoryPrivate::configureAction(QAction *action, const QDomAttr &
     }
 }
 
-// Find or create
 QDomElement KisKXMLGUIFactory::actionPropertiesElement(QDomDocument &doc)
 {
-    // first, lets see if we have existing properties
     QDomElement elem = findActionPropertiesElement(doc);
 
-    // if there was none, create one
     if (elem.isNull()) {
         elem = doc.createElement(QStringLiteral("ActionProperties"));
         doc.documentElement().appendChild(elem);

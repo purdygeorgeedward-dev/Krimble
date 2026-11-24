@@ -21,7 +21,6 @@
 #include "kis_lod_transform.h"
 #include "KisAnimAutoKey.h"
 
-
 MoveSelectionStrokeStrategy::MoveSelectionStrokeStrategy(KisPaintLayerSP paintLayer,
                                                          KisSelectionSP selection,
                                                          KisUpdatesFacade *updatesFacade,
@@ -31,10 +30,6 @@ MoveSelectionStrokeStrategy::MoveSelectionStrokeStrategy(KisPaintLayerSP paintLa
       m_selection(selection),
       m_updatesFacade(updatesFacade)
 {
-    /**
-     * Selection might have some update projection jobs pending, so we should ensure
-     * all of them are completed before we start our stroke.
-     */
     enableJob(KisSimpleStrokeStrategy::JOB_INIT, true, KisStrokeJobData::BARRIER);
     enableJob(KisSimpleStrokeStrategy::JOB_FINISH);
     enableJob(KisSimpleStrokeStrategy::JOB_CANCEL);
@@ -202,7 +197,6 @@ KisStrokeStrategy* MoveSelectionStrokeStrategy::createLodClone(int levelOfDetail
 {
     Q_UNUSED(levelOfDetail);
 
-    // Vector selections don't support lod-moves
     if (m_selection->hasShapeSelection()) return 0;
 
     MoveSelectionStrokeStrategy *clone = new MoveSelectionStrokeStrategy(*this);
@@ -215,7 +209,7 @@ KisStrokeJobData *MoveSelectionStrokeStrategy::ShowSelectionData::createLodClone
     return new ShowSelectionData(*this, levelOfDetail);
 }
 
-MoveSelectionStrokeStrategy::ShowSelectionData::ShowSelectionData(const MoveSelectionStrokeStrategy::ShowSelectionData &rhs, int /*levelOfDetail*/)
+MoveSelectionStrokeStrategy::ShowSelectionData::ShowSelectionData(const MoveSelectionStrokeStrategy::ShowSelectionData &rhs, int )
     : KisStrokeJobData(rhs),
       showSelection(rhs.showSelection)
 {

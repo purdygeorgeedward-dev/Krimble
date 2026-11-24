@@ -22,7 +22,7 @@ class KisGradientGeneratorConfigWidget : public KisConfigWidget
 public:
     KisGradientGeneratorConfigWidget(QWidget* parent = 0);
     ~KisGradientGeneratorConfigWidget() override;
-    
+
     void setConfiguration(const KisPropertiesConfigurationSP) override;
     KisPropertiesConfigurationSP configuration() const override;
 

@@ -15,7 +15,6 @@
 #include <KoIcon.h>
 #include <klocalizedstring.h>
 
-
 KisToolPan::KisToolPan(KoCanvasBase *canvas)
     : KisTool(canvas, KisCursor::openHandCursor())
 {

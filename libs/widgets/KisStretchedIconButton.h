@@ -44,4 +44,4 @@ private:
     QIcon m_stretchedIcon;
 };
 
-#endif // KISSTRETCHEDICONBUTTON_H
+#endif

@@ -15,5 +15,5 @@ template<class T> class QSharedPointer;
 typedef QSharedPointer<KoShapeStrokeModel> KoShapeStrokeModelSP;
 typedef QSharedPointer<KoShapeStroke> KoShapeStrokeSP;
 
-#endif // KOFLAKETYPES_H
+#endif
 

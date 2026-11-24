@@ -13,7 +13,6 @@
 
 class QLabel;
 
-
 class KRITAWIDGETS_EXPORT KoTitledTabWidget : public QTabWidget
 {
     Q_OBJECT
@@ -27,4 +26,4 @@ private:
     QLabel *m_titleLabel;
 };
 
-#endif // KOTITLEDTABWIDGET_H
+#endif

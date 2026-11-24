@@ -13,7 +13,6 @@
 #include "kis_types.h"
 #include "kritaimage_export.h"
 
-
 class KRITAIMAGE_EXPORT KisCropSavedExtraData : public KUndo2CommandExtraData
 {
 public:
@@ -50,4 +49,4 @@ private:
     KisNodeSP m_cropNode;
 };
 
-#endif /* __KIS_CROP_SAVED_EXTRA_DATA_H */
+#endif

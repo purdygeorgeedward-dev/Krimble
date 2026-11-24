@@ -43,7 +43,6 @@ struct KisLiquifyPaintHelper::Private
     void updatePreviousPaintInfo(const KisPaintInformation &info);
 };
 
-
 KisLiquifyPaintHelper::KisLiquifyPaintHelper(const KisCoordinatesConverter *converter)
     : m_d(new Private(converter))
 {

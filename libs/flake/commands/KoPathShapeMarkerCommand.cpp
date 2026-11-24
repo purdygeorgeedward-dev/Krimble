@@ -18,9 +18,9 @@
 
 struct Q_DECL_HIDDEN KoPathShapeMarkerCommand::Private
 {
-    QList<KoPathShape*> shapes;  ///< the shapes to set marker for
-    QList<QExplicitlySharedDataPointer<KoMarker>> oldMarkers; ///< the old markers, one for each shape
-    QExplicitlySharedDataPointer<KoMarker> marker; ///< the new marker to set
+    QList<KoPathShape*> shapes;
+    QList<QExplicitlySharedDataPointer<KoMarker>> oldMarkers;
+    QExplicitlySharedDataPointer<KoMarker> marker;
     KoFlake::MarkerPosition position;
     QList<bool> oldAutoFillMarkers;
 };
@@ -33,7 +33,6 @@ KoPathShapeMarkerCommand::KoPathShapeMarkerCommand(const QList<KoPathShape*> &sh
     m_d->marker = marker;
     m_d->position = position;
 
-    // save old markers
     Q_FOREACH (KoPathShape *shape, m_d->shapes) {
         m_d->oldMarkers.append(QExplicitlySharedDataPointer<KoMarker>(shape->marker(position)));
         m_d->oldAutoFillMarkers.append(shape->autoFillMarkers());
@@ -53,7 +52,6 @@ void KoPathShapeMarkerCommand::redo()
     Q_FOREACH (KoPathShape *shape, m_d->shapes) {
         shape->setMarker(m_d->marker.data(), m_d->position);
 
-        // we have no GUI for selection auto-filling yet! So just enable it!
         shape->setAutoFillMarkers(true);
     }
 

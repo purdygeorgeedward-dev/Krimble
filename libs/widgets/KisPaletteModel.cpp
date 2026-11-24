@@ -48,13 +48,13 @@ QVariant KisPaletteModel::data(const QModelIndex& index, int role) const
     }
 }
 
-int KisPaletteModel::rowCount(const QModelIndex& /*parent*/) const
+int KisPaletteModel::rowCount(const QModelIndex& ) const
 {
     if (!m_colorSet) return 0;
     return m_colorSet->rowCountWithTitles();
 }
 
-int KisPaletteModel::columnCount(const QModelIndex& /*parent*/) const
+int KisPaletteModel::columnCount(const QModelIndex& ) const
 {
     if (m_colorSet && m_colorSet->columnCount() > 0) {
         return m_colorSet->columnCount();
@@ -93,7 +93,6 @@ QModelIndex KisPaletteModel::index(int row, int column, const QModelIndex& paren
         qDebug() << "no group for row" << row << "col" << column << "total rows in model" << rowCount() << "rows in colorset" << m_colorSet->rowCountWithTitles();
         return QModelIndex();
     }
-    //KIS_ASSERT_RECOVER_RETURN_VALUE(group, QModelIndex());
     QModelIndex idx = createIndex(row, column);
     Q_ASSERT(idx.column() < columnCount());
     Q_ASSERT(idx.row() < rowCount());
@@ -130,7 +129,6 @@ int KisPaletteModel::rowNumberInGroup(int rowInModel) const
 {
     return m_colorSet->rowNumberInGroup(rowInModel);
 }
-
 
 void KisPaletteModel::addSwatch(const KisSwatch &entry, const QString &groupName)
 {
@@ -209,7 +207,6 @@ bool KisPaletteModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (qvariant_cast<bool>(finalIndex.data(KisPaletteModel::IsGroupNameRole))) {
         return true;
     }
-
 
     if (data->hasFormat("krita/x-colorsetentry")) {
         QByteArray encodedData = data->data("krita/x-colorsetentry");
@@ -419,10 +416,6 @@ void KisPaletteModel::slotDisplayConfigurationChanged()
 
 void KisPaletteModel::slotPaletteModified()
 {
-    /**
-     * Until we implement resource->convertToSerializable() we should
-     * explicitly convert all the palettes into Krita internal format
-     */
     if (m_colorSet->paletteType() != KoColorSet::KPL || m_colorSet->paletteType() != KoColorSet::GPL) {
         m_colorSet->setPaletteType(KoColorSet::KPL);
     }
@@ -437,7 +430,6 @@ void KisPaletteModel::slotPaletteModified()
 
 void KisPaletteModel::slotLayoutAboutToChange()
 {
-    // when m_editing is true, we have the information about model changes and don't need to reset
     if (!m_editing) {
         beginResetModel();
     }

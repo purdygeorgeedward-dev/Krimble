@@ -11,8 +11,6 @@
 
 #include <math.h>
 
-/****** Some helper functions *******/
-
 inline void scaleRect(QRectF &rc, qreal scaleX, qreal scaleY)
 {
     qreal x, y, w, h;
@@ -39,8 +37,6 @@ inline void scaleRect(QRect &rc, qreal scaleX, qreal scaleY)
     rc.setRect(x, y, w, h);
 }
 
-/*********** KisImagePatch ************/
-
 KisImagePatch::KisImagePatch()
 {
 }
@@ -51,12 +47,10 @@ KisImagePatch::KisImagePatch(QRect imageRect, qint32 borderWidth,
     , m_scaleY(scaleY)
     , m_isScaled(false)
 {
-    // First we get unscaled rects
     m_interestRect = QRectF(borderWidth, borderWidth,
                             imageRect.width(), imageRect.height());
     m_patchRect = imageRect.adjusted(-borderWidth, -borderWidth,
                                      borderWidth, borderWidth);
-    // And then we scale them
     scaleRect(m_interestRect, scaleX, scaleY);
     scaleRect(m_patchRect, scaleX, scaleY);
 
@@ -81,7 +75,6 @@ void KisImagePatch::preScale(const QRectF &dstRect)
 
     QSize newImageSize = QSize(ceil(m_image.width() * scaleX),
                                    ceil(m_image.height() * scaleY));
-    // Calculating new _aligned_ scale
     scaleX = qreal(newImageSize.width()) / m_image.width();
     scaleY = qreal(newImageSize.height()) / m_image.height();
 
@@ -117,9 +110,6 @@ void KisImagePatch::drawMe(QPainter &gc,
     gc.restore();
 
 #if 0
-    /**
-     * Just for debugging purposes
-     */
     qreal scaleX = dstRect.width() / m_interestRect.width();
     qreal scaleY = dstRect.height() / m_interestRect.height();
     dbgRender << "## PATCH.DRAWME #####################";

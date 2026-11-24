@@ -11,16 +11,10 @@
 #include <QDir>
 #include <StoreDebug.h>
 
-// HMMM... I used QFile and QDir.... but maybe this should be made network transparent?
-
 KoDirectoryStore::KoDirectoryStore(const QString& path, Mode mode, bool writeMimetype)
     : KoStore(mode, writeMimetype)
     , m_basePath(path)
 {
-    //debugStore << "path:" << path
-
-
-    //debugStore << "base path:" << m_basePath;
 
     init();
 }
@@ -42,7 +36,6 @@ void KoDirectoryStore::init()
         d->good = true;
         return;
     }
-    // Dir doesn't exist. If reading -> error. If writing -> create.
     if (d->mode == Write && dir.mkpath(m_basePath)) {
         debugStore << "KoDirectoryStore::init Directory created:" << m_basePath;
         d->good = true;
@@ -52,12 +45,10 @@ void KoDirectoryStore::init()
 bool KoDirectoryStore::openReadOrWrite(const QString& name, QIODevice::OpenModeFlag iomode)
 {
     Q_D(KoStore);
-    //debugStore <<"KoDirectoryStore::openReadOrWrite m_currentPath=" << m_currentPath <<" name=" << name;
     int pos = name.lastIndexOf('/');
-    if (pos != -1) { // there are subdirs in the name -> maybe need to create them, when writing
-        pushDirectory(); // remember where we were
+    if (pos != -1) {
+        pushDirectory();
         enterAbsoluteDirectory(QString());
-        //debugStore <<"KoDirectoryStore::openReadOrWrite entering" << name.left(pos);
         bool ret = enterDirectory(name.left(pos));
         popDirectory();
         if (!ret)
@@ -80,11 +71,9 @@ bool KoDirectoryStore::enterRelativeDirectory(const QString& dirName)
     m_currentPath += dirName;
     if (!m_currentPath.endsWith('/'))
         m_currentPath += '/';
-    //debugStore <<"KoDirectoryStore::enterRelativeDirectory m_currentPath now" << m_currentPath;
     QDir newDir(m_currentPath);
     if (newDir.exists())
         return true;
-    // Dir doesn't exist. If reading -> error. If writing -> create.
     if (mode() == Write && origDir.mkdir(dirName)) {
         debugStore << "Created" << dirName << " under" << origDir.absolutePath();
         return true;
@@ -95,9 +84,8 @@ bool KoDirectoryStore::enterRelativeDirectory(const QString& dirName)
 bool KoDirectoryStore::enterAbsoluteDirectory(const QString& path)
 {
     m_currentPath = m_basePath + path;
-    //debugStore <<"KoDirectoryStore::enterAbsoluteDirectory" << m_currentPath;
     QDir newDir(m_currentPath);
-    Q_ASSERT(newDir.exists());   // We've been there before, therefore it must exist.
+    Q_ASSERT(newDir.exists());
     return newDir.exists();
 }
 

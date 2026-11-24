@@ -11,21 +11,11 @@
 
 class RectangleShape;
 
-/// The undo / redo command for configuring a rectangle shape
 class RectangleShapeConfigCommand : public KUndo2Command
 {
 public:
-    /**
-     * Configures a rectangle shape
-     * @param Rectangle the rectangle shape to configure
-     * @param cornerRadiusX the x corner radius
-     * @param cornerRadiusY the y corner radius
-     * @param parent the optional parent command
-     */
     RectangleShapeConfigCommand(RectangleShape *rectangle, qreal cornerRadiusX, qreal cornerRadiusY, KUndo2Command *parent = 0);
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 
     int id() const override;
@@ -39,5 +29,5 @@ private:
     qreal m_newCornerRadiusY;
 };
 
-#endif // RECTANGLESHAPECONFIGCOMMAND_H
+#endif
 

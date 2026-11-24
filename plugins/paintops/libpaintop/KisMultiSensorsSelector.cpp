@@ -11,7 +11,6 @@
 #include "KisMultiSensorsModel.h"
 #include <KisDynamicSensorFactoryRegistry.h>
 
-
 struct KisMultiSensorsSelector::Private {
     lager::cursor<KisCurveOptionDataCommon> optionData;
 
@@ -51,8 +50,6 @@ auto sensorsLens = lager::lenses::getset(
         return data;
     });
 
-
-
 KisMultiSensorsSelector::KisMultiSensorsSelector(QWidget* parent)
     : QWidget(parent)
     , d(new Private)
@@ -65,7 +62,6 @@ KisMultiSensorsSelector::KisMultiSensorsSelector(QWidget* parent)
 
     d->layout = new QHBoxLayout(d->form.widgetConfiguration);
 
-    // allow the list viewport to be responsive to input release events
     d->form.sensorsList->viewport()->installEventFilter(this);
 }
 
@@ -80,7 +76,6 @@ void KisMultiSensorsSelector::setOptionDataCursor(lager::cursor<KisCurveOptionDa
     d->model = new KisMultiSensorsModel(optionData.zoom(sensorsLens), this);
     d->form.sensorsList->setModel(d->model);
 
-    // TODO: verify that at least one sensor is always active!
 }
 
 void KisMultiSensorsSelector::setCurrent(const QString &id)
@@ -120,11 +115,6 @@ void KisMultiSensorsSelector::sensorActivated(const QModelIndex& index)
 
 bool KisMultiSensorsSelector::eventFilter(QObject *obj, QEvent *event)
 {
-    /**
-     * This filter makes it possible to select a sensor by click+drag gesture.
-     * Such gesture is very easy to do with a tablet stylus. Basically, we
-     * activate the lastly-dragged-over sensor on mause/tablet-release
-     */
 
     if (event->type() == (QEvent::MouseButtonRelease) || event->type() == QEvent::TabletRelease) {
         QModelIndex index = d->form.sensorsList->currentIndex();

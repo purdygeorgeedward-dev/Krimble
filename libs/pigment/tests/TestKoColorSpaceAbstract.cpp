@@ -531,7 +531,6 @@ void TestKoColorSpaceAbstract::testBitBltCrossColorSpaceWithChannelFlags_data()
         << makeChannelFlags({true, true, true, true})
         << makeColor({154}, alphaSpace);
 
-    // dst color is always fully opaque in alpha channel
     QTest::newRow("rgb->alpha (alpha locked)")
         << makeColor({120,120,120,128}, rgbSpace)
         << makeColor({188}, alphaSpace)
@@ -591,12 +590,8 @@ void TestKoColorSpaceAbstract::testBitBltCrossColorSpaceWithChannelFlags()
         KoColor srcPixel(srcPtr + i * srcPixelSize, srcSpace);
         KoColor dstPixel(dstPtr + i * dstPixelSize, dstSpace);
 
-//        if (i == 0) {
-//            qDebug() << ppVar(i) << ppVar(srcPixel) << ppVar(dstPixel);
-//        }
         QCOMPARE(dstPixel, expectedColor);
     }
 }
-
 
 SIMPLE_TEST_MAIN(TestKoColorSpaceAbstract)

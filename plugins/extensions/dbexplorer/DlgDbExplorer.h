@@ -10,7 +10,6 @@
 #include <KoDialog.h>
 
 #include "ui_WdgDbExplorer.h"
-//#include <KisTagFilterResourceProxyModel.h>
 
 class KisResourceModel;
 class KisTagModel;
@@ -55,4 +54,4 @@ private:
     KisTagFilterResourceProxyModel* m_filterProxyModel {0};
 };
 
-#endif // DLG_DBEXPLORER
+#endif

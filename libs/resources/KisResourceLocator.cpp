@@ -55,11 +55,6 @@ public:
     QStringList errorMessages;
 
     KisResourceStorageSP safeGetStorage(const QString &storageLocation) {
-        /**
-         * When using a []-operator on a map object, a new (null) element
-         * may accidentially be created, if no such element is present.
-         * Hence we should be more careful with doing that.
-         */
 
         if (!storages.contains(storageLocation)) {
             qWarning() << "WARNING: KisResourceLocator: failed to find a storage with location" << storageLocation;
@@ -78,8 +73,6 @@ KisResourceLocator::KisResourceLocator(QObject *parent)
 
 KisResourceLocator *KisResourceLocator::instance()
 {
-    // Not a regular Q_GLOBAL_STATIC, because we want this deleted as
-    // part of the app destructor.
     KisResourceLocator *locator = qApp->findChild<KisResourceLocator *>(QString());
     if (!locator) {
         locator = new KisResourceLocator(qApp);
@@ -114,7 +107,6 @@ KisResourceLocator::LocatorError KisResourceLocator::initialize(const QString &i
         return LocatorError::LocationReadOnly;
     }
 
-    // Check whether we're updating from an older version
     if (initializationStatus != InitializationStatus::FirstRun) {
         QFile fi(d->resourceLocation + '/' + "KRITA_RESOURCE_VERSION");
         if (!fi.open(QFile::ReadOnly)) {
@@ -192,15 +184,8 @@ void KisResourceLocator::loadRequiredResources(KoResourceSP resource)
         }
     };
 
-    /**
-     * First load the side-loaded resources, since they may be linked
-     * by the linked resources.
-     */
     loadResourcesGroup(resource->takeSideLoadedResources(KisGlobalResourcesInterface::instance()), "side-loaded");
 
-    /**
-     * Now load the linked resources
-     */
     loadResourcesGroup(resource->requiredResources(KisGlobalResourcesInterface::instance()), "linked");
 }
 
@@ -269,7 +254,6 @@ KisTagSP KisResourceLocator::tagForUrlNoCache(const QString &tagUrl, const QStri
     tag->setFilename(query.value("filename").toString());
     tag->setValid(true);
 
-
     QMap<QString, QString> names;
     QMap<QString, QString> comments;
 
@@ -327,7 +311,6 @@ KisTagSP KisResourceLocator::tagForUrlNoCache(const QString &tagUrl, const QStri
     return tag;
 }
 
-
 KoResourceSP KisResourceLocator::resource(QString storageLocation, const QString &resourceType, const QString &filename)
 {
     storageLocation = makeStorageLocationAbsolute(storageLocation);
@@ -348,7 +331,6 @@ KoResourceSP KisResourceLocator::resource(QString storageLocation, const QString
 
         if (resource) {
             d->resourceCache[key] = resource;
-            // load all the embedded resources into temporary "memory" storage
             loadRequiredResources(resource);
         }
     }
@@ -406,7 +388,6 @@ KoResourceSP KisResourceLocator::resource(QString storageLocation, const QString
 
         resource->setActive(q.value(4).toBool());
 
-        // To override resources that use the filename for the name, which is versioned, and we don't want the version number in the name
         resource->setName(q.value(3).toString());;
     }
 
@@ -427,7 +408,6 @@ KoResourceSP KisResourceLocator::resourceForId(int resourceId)
 
 bool KisResourceLocator::setResourceActive(int resourceId, bool active)
 {
-    // First remove the resource from the cache
     ResourceStorage rs = getResourceStorage(resourceId);
     QPair<QString, QString> key = QPair<QString, QString> (rs.storageLocation, rs.resourceType + "/" + rs.resourceFileName);
 
@@ -496,13 +476,6 @@ KoResourceSP KisResourceLocator::importResource(const QString &resourceType, con
         if (existingResourceMd5Sum == md5 &&
             existingResource->filename() == resource->filename()) {
 
-            /**
-             * Make sure that this resource is the latest version of the
-             * resource. Also, we cannot just return existingResource, because
-             * it has uninitialized fields. It should go through the initialization
-             * by the locator's caching system.
-             */
-
             int existingResourceId = -1;
             bool r = KisResourceCacheDb::getResourceIdFromFilename(existingResource->filename(), resourceType, storageLocation, existingResourceId);
 
@@ -514,10 +487,8 @@ KoResourceSP KisResourceLocator::importResource(const QString &resourceType, con
         qWarning() << "A resource with the same filename but a different MD5 already exists in the storage" << resourceType << fileName << storageLocation;
         if (storageLocation == "") {
             qWarning() << "Proceeding with overwriting the existing resource...";
-            // remove all versions of the resource from the resource folder
             QStringList versionsLocations;
 
-            // this resource has id -1, we need correct id
             int existingResourceId = -1;
             bool r = KisResourceCacheDb::getResourceIdFromVersionedFilename(existingResource->filename(), resourceType, storageLocation, existingResourceId);
 
@@ -548,7 +519,6 @@ KoResourceSP KisResourceLocator::importResource(const QString &resourceType, con
 
             Q_EMIT beginExternalResourceRemove(resourceType, {existingResourceId});
 
-            // remove everything related to this resource from the database (remember about tags and versions!!!)
             r = KisResourceCacheDb::removeResourceCompletely(existingResourceId);
 
             {
@@ -588,7 +558,6 @@ KoResourceSP KisResourceLocator::importResource(const QString &resourceType, con
 
         Q_EMIT beginExternalResourceImport(resourceType, 1);
 
-        // Insert into the database
         const bool result = KisResourceCacheDb::addResource(storage,
                                                 storage->timeStampForResource(resourceType, resource->filename()),
                                                 resource,
@@ -600,10 +569,8 @@ KoResourceSP KisResourceLocator::importResource(const QString &resourceType, con
             return nullptr;
         }
 
-        // resourceCaches use absolute locations
         const QString absoluteStorageLocation = makeStorageLocationAbsolute(resource->storageLocation());
         const QPair<QString, QString> key = {absoluteStorageLocation, resourceType + "/" + resource->filename()};
-        // Add to the cache
         d->resourceCache[key] = resource;
         KisResourceThumbnailCache::instance()->insert(key, resource->thumbnail());
 
@@ -637,7 +604,6 @@ KoResourceSP KisResourceLocator::importResourceDeduplicateFileName(const QString
 
 bool KisResourceLocator::addResourceDeduplicateFileName(const QString &resourceType, const KoResourceSP resource, const QString &storageLocation)
 {
-    // fix filename is missing
     if (resource->filename().isEmpty()) {
         resource->setFilename(resource->name().split(" ").join("_") + resource->defaultFileExtension());
     }
@@ -681,16 +647,14 @@ bool KisResourceLocator::addResource(const QString &resourceType, const KoResour
     KisResourceStorageSP storage = d->safeGetStorage(makeStorageLocationAbsolute(storageLocation));
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(storage, false);
 
-    //If we have gotten this far and the resource still doesn't have a filename to save to, we should generate one.
     if (resource->filename().isEmpty()) {
         resource->setFilename(resource->name().split(" ").join("_") + resource->defaultFileExtension());
     }
 
-    if (resource->version() != 0) { // Can happen with cloned resources
+    if (resource->version() != 0) {
         resource->setVersion(0);
     }
 
-    // Save the resource to the storage storage
     if (!storage->addResource(resource)) {
         qWarning() << "Could not add resource" << resource->filename() << "to the storage" << storageLocation;
         return false;
@@ -703,11 +667,6 @@ bool KisResourceLocator::addResource(const QString &resourceType, const KoResour
 
     d->resourceCache[QPair<QString, QString>(storageLocation, resourceType + "/" + resource->filename())] = resource;
 
-    /// And to the database.
-    ///
-    /// The metadata will be set by KisResourceCacheDb, which is
-    /// not very consistent with KisResourceLocator::updateResource(),
-    /// but works :)
     const bool result = KisResourceCacheDb::addResource(storage,
                                                         storage->timeStampForResource(resourceType, resource->filename()),
                                                         resource,
@@ -728,7 +687,6 @@ bool KisResourceLocator::updateResource(const QString &resourceType, const KoRes
 
     if (!storage->supportsVersioning()) return false;
 
-    // remove older version
     KisResourceThumbnailCache::instance()->remove(storageLocation, resourceType, resource->filename());
 
     resource->updateThumbnail();
@@ -744,7 +702,6 @@ bool KisResourceLocator::updateResource(const QString &resourceType, const KoRes
     resource->setDirty(false);
     loadRequiredResources(resource);
 
-    // The version needs already to have been incremented
     if (!KisResourceCacheDb::addResourceVersion(resource->resourceId(), QDateTime::currentDateTime(), storage, resource)) {
         qWarning() << "Failed to add a new version of the resource to the database" << resource->name();
         return false;
@@ -755,7 +712,6 @@ bool KisResourceLocator::updateResource(const QString &resourceType, const KoRes
         return false;
     }
 
-    // Update the resource in the cache
     QPair<QString, QString> key = QPair<QString, QString> (storageLocation, resourceType + "/" + resource->filename());
     d->resourceCache[key] = resource;
     KisResourceThumbnailCache::instance()->insert(key, resource->thumbnail());
@@ -765,7 +721,6 @@ bool KisResourceLocator::updateResource(const QString &resourceType, const KoRes
 
 bool KisResourceLocator::reloadResource(const QString &resourceType, const KoResourceSP resource)
 {
-    // This resource isn't in the database yet, so we cannot reload it
     if (resource->resourceId() < 0) return false;
 
     QString storageLocation = makeStorageLocationAbsolute(resource->storageLocation());
@@ -781,7 +736,6 @@ bool KisResourceLocator::reloadResource(const QString &resourceType, const KoRes
     resource->setDirty(false);
     loadRequiredResources(resource);
 
-    // We haven't changed the version of the resource, so the cache must be still valid
     QPair<QString, QString> key = QPair<QString, QString> (storageLocation, resourceType + "/" + resource->filename());
     Q_ASSERT(d->resourceCache[key] == resource);
 
@@ -890,7 +844,6 @@ bool KisResourceLocator::addStorage(const QString &storageLocation, KisResourceS
 
 bool KisResourceLocator::removeStorage(const QString &storageLocation)
 {
-    // Cloned documents have a document storage, but that isn't in the locator.
     if (!d->storages.contains(storageLocation)) {
         return true;
     }
@@ -916,7 +869,6 @@ bool KisResourceLocator::removeStorage(const QString &storageLocation)
         Q_EMIT beginExternalResourceRemove(typedResources.first, typedResources.second);
     }
 
-    // TODO: add model notification about removed tags
     Q_UNUSED(removedTags);
 
     purge(storageLocation, allRemovedTagIds);
@@ -962,12 +914,9 @@ void KisResourceLocator::saveTags()
         return;
     }
 
-    // this needs to use ResourcePaths because it is sometimes called during initialization
-    // (when the database versions don't match up and tags need to be saved)
     QString resourceLocation = KoResourcePaths::getAppDataLocation() + "/";
 
     while (query.next()) {
-        // Save tag...
         KisTagSP tag = tagForUrlNoCache(query.value("tags.url").toString(),
                                  query.value("resource_types.name").toString());
 
@@ -975,16 +924,12 @@ void KisResourceLocator::saveTags()
             continue;
         }
 
-
         QString filename = tag->filename();
         if (filename.isEmpty() || QFileInfo(filename).suffix().isEmpty()) {
             filename = tag->url() + ".tag";
         }
 
-
         if (QFileInfo(filename).suffix() != "tag" && QFileInfo(filename).suffix() != "TAG") {
-            // it's either .abr file, or maybe a .bundle
-            // or something else, but not a tag file
             dbgResources << "Skipping saving tag " << tag->name(false) << filename << tag->resourceType();
             continue;
         }
@@ -1068,7 +1013,6 @@ KisResourceLocator::LocatorError KisResourceLocator::firstTimeInstallation(Initi
         }
     }
 
-    // And add bundles and adobe libraries
     QStringList filters = QStringList() << "*.bundle" << "*.abr" << "*.asl";
     QDirIterator iter(installationResourcesLocation, filters, QDir::Files, QDirIterator::Subdirectories);
     while (iter.hasNext()) {
@@ -1097,36 +1041,30 @@ void KisResourceLocator::findStorages()
     d->storages.clear();
     d->resourceCache.clear();
 
-    // Add the folder
     KisResourceStorageSP storage = QSharedPointer<KisResourceStorage>::create(d->resourceLocation);
     Q_ASSERT(storage->location() == d->resourceLocation);
     d->storages[d->resourceLocation] = storage;
 
-    // Add the memory storage
     d->storages["memory"] = QSharedPointer<KisResourceStorage>::create("memory");
     d->storages["memory"]->setMetaData(KisResourceStorage::s_meta_name, i18n("Temporary Resources"));
 
-    // Add font storage
     auto fontStorage = QSharedPointer<KisResourceStorage>::create("fontregistry");
     if (fontStorage && fontStorage->valid()) {
         d->storages["fontregistry"] = fontStorage;
         d->storages["fontregistry"]->setMetaData(KisResourceStorage::s_meta_name, i18n("Font Storage"));
     }
 
-    // And add bundles and adobe libraries
     QStringList filters = QStringList() << "*.bundle" << "*.abr" << "*.asl";
     QDirIterator iter(d->resourceLocation, filters, QDir::Files, QDirIterator::Subdirectories);
     while (iter.hasNext()) {
         iter.next();
         KisResourceStorageSP storage = QSharedPointer<KisResourceStorage>::create(iter.filePath());
         if (!storage->valid()) {
-            // we still add the storage to the list and try to read whatever possible
             qWarning() << "KisResourceLocator::findStorages: the storage is invalid" << storage->location();
         }
         d->storages[storage->location()] = storage;
     }
 
-    // Add any missing storage types to the resource cache database.
     Q_FOREACH(const KisResourceStorage::StorageType &type, KisStoragePluginRegistry::instance()->storageTypes()) {
         KisResourceCacheDb::registerStorageType(type);
     }
@@ -1182,7 +1120,6 @@ KisResourceLocator::ResourceStorage KisResourceLocator::getResourceStorage(int r
         return rs;
     }
 
-
     q.bindValue(":resource_id", resourceId);
 
     r = q.exec();
@@ -1206,7 +1143,6 @@ KisResourceLocator::ResourceStorage KisResourceLocator::getResourceStorage(int r
 
 QString KisResourceLocator::makeStorageLocationAbsolute(QString storageLocation) const
 {
-//    debugResource << "makeStorageLocationAbsolute" << storageLocation;
 
     if (storageLocation.isEmpty()) {
         return resourceLocationBase();
@@ -1223,7 +1159,6 @@ QString KisResourceLocator::makeStorageLocationAbsolute(QString storageLocation)
         }
     }
 
-//    debugResource  << "\t" << storageLocation;
     return storageLocation;
 }
 
@@ -1233,11 +1168,9 @@ bool KisResourceLocator::synchronizeDb()
 
     d->errorMessages.clear();
 
-    // Add resource types that have been added since first-time installation.
     Q_FOREACH(auto loader, KisResourceLoaderRegistry::instance()->values()) {
         KisResourceCacheDb::registerResourceType(loader->resourceType());
     }
-
 
     findStorages();
     Q_FOREACH(const KisResourceStorageSP storage, d->storages) {
@@ -1256,17 +1189,8 @@ bool KisResourceLocator::synchronizeDb()
 
     Q_EMIT storagesBulkSynchronizationFinished();
 
-    /**
-     * In the current layout of the database we cannot set FOREIGN KEY
-     * for the metadata table (since it links to both, resources and storages),
-     * hence we should manually track the orphaned data.
-     *
-     * Theoretically, these should be none, if our code is correct, but who 
-     * knows anything about our code...
-     */
     KisResourceCacheDb::removeOrphanedMetaData();
 
-    // now remove the storages that no longer exists
     KisStorageModel model;
 
     QList<QString> storagesToRemove;
@@ -1288,7 +1212,6 @@ bool KisResourceLocator::synchronizeDb()
         }
     }
 
-
     d->errorMessages <<
         KisResourceLoaderRegistry::instance()->executeAllFixups();
 
@@ -1296,9 +1219,7 @@ bool KisResourceLocator::synchronizeDb()
     return d->errorMessages.isEmpty();
 }
 
-
 QString KisResourceLocator::makeStorageLocationRelative(QString location) const
 {
-//    debugResource << "makeStorageLocationRelative" << location << "locationbase" << resourceLocationBase();
     return location.remove(resourceLocationBase());
 }

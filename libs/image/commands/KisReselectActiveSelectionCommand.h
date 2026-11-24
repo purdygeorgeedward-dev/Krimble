@@ -9,7 +9,6 @@
 
 #include "kis_reselect_global_selection_command.h"
 
-
 class KRITAIMAGE_EXPORT KisReselectActiveSelectionCommand : public KisReselectGlobalSelectionCommand
 {
 public:
@@ -23,4 +22,4 @@ private:
     KisSelectionMaskSP m_reselectedMask;
 };
 
-#endif // KISRESELECTACTIVESELECTIONCOMMAND_H
+#endif

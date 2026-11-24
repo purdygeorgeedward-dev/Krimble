@@ -15,12 +15,6 @@
 class KoSvgTextShape;
 class KoSvgTextProperties;
 
-/**
- * @brief The SvgTextMergePropertiesRangeCommand class
- * This sets properties on a specific range in a single text shape.
- *
- * For setting text on multiple shapes, see KoShapeMergeTextPropertiesCommand
- */
 class KRITATOOLSVGTEXT_EXPORT SvgTextMergePropertiesRangeCommand : public KUndo2Command
 {
 public:
@@ -44,9 +38,9 @@ private:
 
     int m_pos;
     int m_anchor;
-    int m_startIndex; // for testing merge.
-    int m_endIndex; // for testing merge.
+    int m_startIndex;
+    int m_endIndex;
     KoSvgTextShapeMementoSP m_textData;
 };
 
-#endif // SVGTEXTMERGEPROPERTIESRANGECOMMAND_H
+#endif

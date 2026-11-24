@@ -10,9 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-/**
- * A plugin wrapper that adds the paintop factories to the paintop registry.
- */
 class DefaultPaintOpsPlugin : public QObject
 {
     Q_OBJECT
@@ -21,4 +18,4 @@ public:
     ~DefaultPaintOpsPlugin() override;
 };
 
-#endif // DEFAULT_PAINTOPSGRAY_PLUGIN_H_
+#endif

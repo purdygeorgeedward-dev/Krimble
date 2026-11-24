@@ -37,7 +37,6 @@
 #include <testui.h>
 #include <testutil.h>
 
-
 void TimelineModelTest::init()
 {
     m_doc = KisPart::instance()->createDocument();
@@ -45,7 +44,6 @@ void TimelineModelTest::init()
     m_nameServer = new KisNameServer();
     m_shapeController = new KisShapeController(m_nameServer, m_doc->undoStack());
     m_displayModeAdapter = new KisNodeDisplayModeAdapter();
-    //m_nodeModel = new KisNodeModel(0);
 
     initBase();
 
@@ -56,7 +54,6 @@ void TimelineModelTest::cleanup()
 {
     cleanupBase();
 
-    //delete m_nodeModel;
     delete m_shapeController;
     delete m_nameServer;
     delete m_doc;
@@ -73,8 +70,6 @@ void TimelineModelTest::testConverter()
 
     m_layer1->enableAnimation();
 
-    // all nodes are visible in timeline by default, so
-    // we should hide the ones we don't expect to see
     m_mask1->setPinnedToTimeline(false);
     m_sel1->setPinnedToTimeline(false);
     m_sel2->setPinnedToTimeline(false);
@@ -129,7 +124,6 @@ struct TestingInterface : KisAnimTimelineFramesModel::NodeManipulationInterface
     KisLayerSP addPaintLayer() const override {
         KisNodeSP parent = m_image->root();
         KisNodeSP after = parent->lastChild();
-
 
         KisPaintLayerSP layer =
             new KisPaintLayer(const_cast<KisImage*>(m_image.data()),
@@ -258,7 +252,6 @@ KisNodeDummy* findNodeFromRowAny(KisNodeDummy *root, int &startCount)
 
     return 0;
 }
-
 
 void TimelineModelTest::setCurrentLayer(int row)
 {

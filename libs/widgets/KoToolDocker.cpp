@@ -35,21 +35,18 @@ public:
     }
 
     ~Private() {
-        /// Hider widget is not part of any widget hierarchy (which is intentional
-        /// due to bug 447522), so we need to delete it manually
         delete hiderWidget;
     }
 
     QList<QPointer<QWidget> > currentWidgetList;
     QSet<QWidget *> currentAuxWidgets;
     QScrollArea *scrollArea {nullptr};
-    QWidget *hiderWidget {nullptr}; // non current widgets are hidden by being children of this
+    QWidget *hiderWidget {nullptr};
     QWidget *housekeeperWidget {nullptr};
     QGridLayout *housekeeperLayout {nullptr};
     QBoxLayout *housekeeperMainLayout{nullptr};
     QLabel *toolNameLabel {nullptr};
 
-    // the name of the selected tool (the tool's own name, what its tool tip says) is shown at the top of the docker
     void updateToolName()
     {
         if (!toolNameLabel) return;
@@ -61,7 +58,6 @@ public:
             }
         }
         if (name.endsWith(QLatin1String(" Tool"))) name.chop(5);
-        // Transform and its Rotate mode: "Transform \u2013 <mode>" (the mode in use is the qApp property krimbleTransformMode, set by the Transform options)
         if (id == QLatin1String("KisToolTransform") || id == QLatin1String("KisToolFreeRotate")) {
             QString mode = id == QLatin1String("KisToolFreeRotate") ? QStringLiteral("rotate") : qApp->property("krimbleTransformMode").toString();
             if (mode.isEmpty() || (mode == QLatin1String("rotate") && id != QLatin1String("KisToolFreeRotate"))) mode = QStringLiteral("scale");
@@ -69,16 +65,11 @@ public:
             name = i18n("Transform") + QString::fromUtf8(" \u2013 ") + mode;
         }
         toolNameLabel->setText(name);
-        // toolNameLabel->setVisible(!name.isEmpty());
-        // the name goes in the title row, before the grip ("Tool options title overlaps onto grab area."); the label stays, hidden
-        // toolNameLabel->setVisible(false);
-        // if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) bar->setTitleOverride(name);
-        // the title says "Tool Options"; the tool (and the Transform mode) is one line at the top of the panel
         toolNameLabel->setVisible(!name.isEmpty());
         if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) {
             bar->setTitleOverride(QString());
-            bar->setTabbedTitle(name);   // in a tab group the tool's name sits in the title row, the grip after it
-            bar->update();   // the grip starts after the tool name, so it is redrawn when the name changes
+            bar->setTabbedTitle(name);
+            bar->update();
         }
     }
     KoToolDocker *q {nullptr};
@@ -103,7 +94,6 @@ public:
 
         currentWidgetList = optionWidgetList;
 
-        // need to unstretch row that have previously been stretched
         housekeeperLayout->setRowStretch(housekeeperLayout->rowCount()-1, 0);
 
         int cnt = 0;
@@ -121,8 +111,6 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                // if (!widget->windowTitle().isEmpty()) {
-                // the tool name is already the first line of the panel: no second copy of it (Crop showed "Crop" twice)
                 if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
@@ -156,8 +144,6 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                // if (!widget->windowTitle().isEmpty()) {
-                // the tool name is already the first line of the panel: no second copy of it (Crop showed "Crop" twice)
                 if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
@@ -191,8 +177,6 @@ public:
 
 };
 
-// Krimble 2026-11-22: sliders in Tool Options could not be dragged with a finger (George: "Can't move this tiny little \"magnetism\" control."):
-// the panel's finger scrolling took the drag. While a finger or the mouse is down on a slider, the panel does not scroll.
 class KrimbleSliderScrollGuard : public QObject
 {
 public:
@@ -223,7 +207,6 @@ protected:
         case QEvent::MouseButtonRelease:
         case QEvent::TouchEnd:
         case QEvent::TouchCancel:
-            // the gesture is given back only if the panel had it (finger scrolling can be off in the settings)
             if (m_hadGesture) QTimer::singleShot(0, this, [this]() { if (m_area) QScroller::grabGesture(m_area, KisKineticScroller::getConfiguredGestureType()); });
             break;
         default:
@@ -244,8 +227,6 @@ KoToolDocker::KoToolDocker(QWidget *parent)
 
     d->housekeeperWidget = new QWidget();
     d->housekeeperLayout = new QGridLayout;
-    // d->housekeeperLayout->setContentsMargins(4,4,4,0);
-    // Krimble 2026-11-22: 28 real px on the left like the panel titles, 12 on the right (the options touched the panel's edges)
     const qreal krimbleMarginDpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
     const int krimbleLeft = qRound(28.0 / krimbleMarginDpr), krimbleRight = qRound(12.0 / krimbleMarginDpr);
     d->housekeeperLayout->setContentsMargins(krimbleLeft, 4, krimbleRight, 0);
@@ -265,12 +246,12 @@ KoToolDocker::KoToolDocker(QWidget *parent)
         d->toolNameLabel->setFont(nameFont);
     }
     d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: palette(window-text); padding: 3px 0px; border-bottom: 1px solid #343c57; }"));
-    d->toolNameLabel->setContentsMargins(krimbleLeft, 0, krimbleRight, 0);   // the tool name lines up with the options under it
-    d->toolNameLabel->setIndent(0);   // a label with a border otherwise indents its text by half an "x"
+    d->toolNameLabel->setContentsMargins(krimbleLeft, 0, krimbleRight, 0);
+    d->toolNameLabel->setIndent(0);
     d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
     d->updateToolName();
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });
-    QTimer::singleShot(0, this, [this]() { d->updateToolName(); });   // the title row is given to the docker after it is made
+    QTimer::singleShot(0, this, [this]() { d->updateToolName(); });
 
     d->hiderWidget = new QWidget();
     d->hiderWidget->setVisible(false);
@@ -319,7 +300,6 @@ void KoToolDocker::resetWidgets()
     d->resetWidgets();
 }
 
-
 void KoToolDocker::setCanvas(KoCanvasBase *canvas)
 {
     setEnabled(canvas != 0);
@@ -330,5 +310,4 @@ void KoToolDocker::unsetCanvas()
     setEnabled(false);
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include <moc_KoToolDocker.cpp>

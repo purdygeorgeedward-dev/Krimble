@@ -32,5 +32,4 @@ int doNotAskAgainMessageBoxWrapper(QMessageBox *messageBox, const QString &ident
     }
 }
 
-
 }

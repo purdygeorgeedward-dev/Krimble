@@ -19,7 +19,6 @@ IntParseSpinBox::IntParseSpinBox()
 {
     d->widget = new KisIntParseSpinBox();
 
-    // Forward signals from KisIntParseSpinBox to IntParseSpinBox
     connect(d->widget, SIGNAL(errorWhileParsing(QString)), this, SIGNAL(errorWhileParsing(QString)));
     connect(d->widget, SIGNAL(noMoreParsingError()), this, SIGNAL(noMoreParsingError()));
 }

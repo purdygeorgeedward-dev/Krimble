@@ -59,7 +59,6 @@ public:
         Q_UNUSED(channelFlags);
 
         if (!alphaLocked) {
-            // use internal parallelism for multiplication!
             srcAlpha = mul(srcAlpha, maskAlpha);
             dstAlpha = mul(dstAlpha, opacity);
             dstAlpha = mul(srcAlpha, dstAlpha);
@@ -68,7 +67,6 @@ public:
         return dstAlpha;
     }
 };
-
 
 template <class _CSTrait>
 KoAlphaColorSpaceImpl<_CSTrait>::KoAlphaColorSpaceImpl()
@@ -154,9 +152,9 @@ void KoAlphaColorSpaceImpl<_CSTrait>::convolveColors(quint8** colors, qreal * ke
 
 template <class _CSTrait>
 QImage KoAlphaColorSpaceImpl<_CSTrait>::convertToQImage(const quint8 *data, qint32 width, qint32 height,
-                                          const KoColorProfile *  /*dstProfile*/,
-                                          KoColorConversionTransformation::Intent /*renderingIntent*/,
-                                          KoColorConversionTransformation::ConversionFlags /*conversionFlags*/) const
+                                          const KoColorProfile *  ,
+                                          KoColorConversionTransformation::Intent ,
+                                          KoColorConversionTransformation::ConversionFlags ) const
 {
     const channels_type *srcPtr = _CSTrait::nativeArray(data);
 
@@ -230,7 +228,6 @@ void KoAlphaColorSpaceImpl<_CSTrait>::fromRgbA16(const quint8 *src, quint8 *dst,
     channels_type* dstPtr = _CSTrait::nativeArray(dst);
 
     while (nPixels--) {
-        // WARNING: we consider red channel only!
         dstPtr[0] = KoColorSpaceMaths<quint16, channels_type>::scaleToA(UINT16_MULT(srcPtr[0], srcPtr[3]));
 
         dstPtr++;
@@ -257,19 +254,11 @@ template class KoAlphaColorSpaceImpl<AlphaF16Traits>;
 #endif
 template class KoAlphaColorSpaceImpl<AlphaF32Traits>;
 
-/*********************************************************************************************/
-/*              KoAlphaColorSpaceFactoryImpl                                                  */
-/*********************************************************************************************/
-
 #include <KoColorConversionAlphaTransformation.h>
 
 template <class _CSTrait>
 QList<KoColorConversionTransformationFactory *> KoAlphaColorSpaceFactoryImpl<_CSTrait>::colorConversionLinks() const
 {
-    /**
-     * Out Alpha color space is defined as "a flattened representation of a GrayA color space with sRGB tone curve".
-     * Therefore we do **not** define direct conversions to/from LabA, because LabA has a linear tone curve.
-     */
 
     QList<KoColorConversionTransformationFactory*> factories;
 

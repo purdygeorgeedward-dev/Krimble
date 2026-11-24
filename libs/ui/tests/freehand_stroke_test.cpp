@@ -57,7 +57,6 @@ protected:
         Q_UNUSED(activeNode);
 
         if (m_useLod) {
-            //image->testingSetLevelOfDetailsEnabled(true);
         }
     }
 
@@ -66,7 +65,6 @@ protected:
     {
         modifyResourceManager(manager, image, 0);
     }
-
 
     void modifyResourceManager(KoCanvasResourceProvider *manager,
                                KisImageWSP image,
@@ -171,7 +169,6 @@ void FreehandStrokeTest::testAutoBrushStrokeLod()
 void FreehandStrokeTest::testPredefinedBrushStrokeLod()
 {
     FreehandStrokeTester tester("testing_predefined_lod_spc13.kpp", true);
-    //FreehandStrokeTester tester("testing_predefined_lod.kpp", true);
     tester.testSimpleStroke();
 }
 

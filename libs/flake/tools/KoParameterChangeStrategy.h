@@ -14,16 +14,9 @@
 class KoParameterShape;
 class KoParameterChangeStrategyPrivate;
 
-/// Strategy for changing control points of parametric shapes
 class KRITAFLAKE_EXPORT KoParameterChangeStrategy : public KoInteractionStrategy
 {
 public:
-    /**
-     * Constructs a strategy for changing control points of parametric shapes.
-     * @param tool the tool the strategy belongs to
-     * @param parameterShape the parametric shapes the strategy is working on
-     * @param handleId the id of the handle to modify
-     */
     KoParameterChangeStrategy(KoToolBase *tool, KoParameterShape *parameterShape, int handleId);
     ~KoParameterChangeStrategy() override;
 
@@ -32,11 +25,10 @@ public:
     KUndo2Command* createCommand() override;
 
 protected:
-    /// constructor
     KoParameterChangeStrategy(KoParameterChangeStrategyPrivate &);
 
 private:
     Q_DECLARE_PRIVATE(KoParameterChangeStrategy)
 };
 
-#endif /* KOPARAMETERCHANGESTRATEGY_H */
+#endif

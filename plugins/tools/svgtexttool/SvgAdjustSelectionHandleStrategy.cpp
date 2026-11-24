@@ -17,8 +17,6 @@ void SvgAdjustSelectionHandleStrategy::handleMouseMove(const QPointF &mouseLocat
     if (m_adjustingStartHandle) {
         m_cursor->setAnchorToPoint(mouseLocation);
     } else {
-        // false = don't move the anchor, only extend/move pos -- same
-        // mechanism SvgSelectTextStrategy uses to extend a selection.
         m_cursor->setPosToPoint(mouseLocation, false);
     }
 }

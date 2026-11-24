@@ -22,7 +22,6 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
 
-
 void TestBundleStorage::initTestCase()
 {
     m_dstLocation = ResourceTestHelper::filesDestDir();
@@ -74,7 +73,6 @@ void TestBundleStorage::testTagIterator()
     int count = 0;
     while (iter->hasNext()) {
         iter->next();
-        //qDebug() << iter->url() << iter->name() << iter->tag();
         count++;
     }
     QVERIFY(count > 0);
@@ -125,13 +123,6 @@ void TestBundleStorage::testResourceCaseSensitivity()
     bool result = storage.saveAsNewVersion(resourceType, resource);
     QVERIFY(result);
 
-    /**
-     * In the bundle storage we expect the new versioned resources to have
-     * filesystem-dependent name resolution. That is, if we request a resource
-     * with wrong casing, it should still fetch the resource. But the filename
-     * field of the resource must contain the correct casing
-     */
-
 #if defined Q_OS_WIN || defined Q_OS_MACOS
     KoResourceSP res2 = storage.resource("paintoppresets/" + resource->filename().toUpper());
     QVERIFY(res2);
@@ -144,8 +135,6 @@ void TestBundleStorage::cleanupTestCase()
 {
     ResourceTestHelper::cleanDstLocation(m_dstLocation);
 }
-
-
 
 SIMPLE_TEST_MAIN(TestBundleStorage)
 

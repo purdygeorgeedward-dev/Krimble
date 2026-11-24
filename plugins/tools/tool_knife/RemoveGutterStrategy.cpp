@@ -5,7 +5,6 @@
  */
 #include "RemoveGutterStrategy.h"
 
-
 #include <QDebug>
 #include <QPainter>
 
@@ -24,9 +23,6 @@
 #include <kundo2command.h>
 #include <KoKeepShapesSelectedCommand.h>
 #include <KoColorDisplayRendererInterface.h>
-
-
-
 
 RemoveGutterStrategy::RemoveGutterStrategy(KoToolBase *tool, KoSelection *selection, const QList<KoShape *> &shapes, QPointF startPoint)
     : KoInteractionStrategy(tool)
@@ -56,7 +52,7 @@ void RemoveGutterStrategy::handleMouseMove(const QPointF &mouseLocation, Qt::Key
     QLineF l = QLine(QPoint(), QPoint(50, 50));
 
     l = tool()->canvas()->viewConverter()->viewToDocument().map(l);
-    dirtyRect = kisGrowRect(dirtyRect, l.length()); // twice as much as it should need to account for lines showing the effect
+    dirtyRect = kisGrowRect(dirtyRect, l.length());
 
     QRectF accumulatedWithPrevious = m_previousLineDirtyRect | dirtyRect;
 
@@ -66,8 +62,6 @@ void RemoveGutterStrategy::handleMouseMove(const QPointF &mouseLocation, Qt::Key
 
 #ifdef KNIFE_DEBUG
 void convertShapeToDebugArray(const QPainterPath& shape) {
-    // useful to use with Geogebra
-    // TODO: to remove later
     for (int i = 0; i < shape.elementCount(); i++) {
         QPainterPath::Element el = shape.elementAt(i);
         qCritical() << el.x << "\t" << el.y << "\t" << el.type;
@@ -76,8 +70,6 @@ void convertShapeToDebugArray(const QPainterPath& shape) {
 }
 
 void convertShapeToDebugArray(const QRectF& rect) {
-    // useful to use with Geogebra
-    // TODO: to remove later
     QPolygonF poly = QPolygonF(rect);
     for (int i = 0; i < poly.length(); i++) {
         QPointF p = poly[i];
@@ -87,8 +79,6 @@ void convertShapeToDebugArray(const QRectF& rect) {
 }
 
 void convertShapeToDebugArray(const QLineF& line) {
-    // useful to use with Geogebra
-    // TODO: to remove later
     qCritical() << line.p1().x() << "\t" << line.p1().y();
     qCritical() << line.p2().x() << "\t" << line.p2().y();
 
@@ -98,7 +88,6 @@ void convertShapeToDebugArray(const QLineF& line) {
 void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 {
     tool()->canvas()->updateCanvas(m_previousLineDirtyRect);
-
 
     KisCanvas2 *kisCanvas = static_cast<KisCanvas2 *>(tool()->canvas());
     KIS_SAFE_ASSERT_RECOVER_RETURN(kisCanvas);
@@ -129,7 +118,6 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
     convertShapeToDebugArray(lineRect);
 #endif
 
-
     QList<int> indexes;
     QList<int> indexesOutside;
 
@@ -145,7 +133,6 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
         if (outlineHere.boundingRect().intersects(lineRect)) {
             srcOutlines << outlineHere;
             indexes << i;
-            //outlineRect |= outlineHere.boundingRect();
         } else {
             srcOutlinesOutside << outlineHere;
             indexesOutside << i;
@@ -156,11 +143,9 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
         return;
     }
 
-
     QList<int> shapeNewIndexes;
     QList<int> shapeOrigIndexes;
     QList<int> lineSegmentIndexes;
-
 
     for (int i = 0; i < srcOutlines.length(); i++) {
         QList<int> lineIndexes = KisAlgebra2D::getLineSegmentCrossingLineIndexes(mouseLine, srcOutlines[i]);
@@ -201,7 +186,6 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
             qCritical() << "Line index: " << lineSegmentIndexes[i] << " meaning it's: " << srcOutlines[index].elementAt(KisAlgebra2D::wrapValue(lineSegmentIndexes[i], 0, srcOutlines[index].elementCount()))
                         << srcOutlines[index].elementAt(KisAlgebra2D::wrapValue(lineSegmentIndexes[i] + 1, 0, srcOutlines[index].elementCount()));
         }
-        // TODO: this if should end here; code below adds a debug line showing the mouse line
 
         QPainterPath newLineShape = QPainterPath();
         newLineShape.moveTo(mouseLine.p1());
@@ -214,8 +198,6 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
         newLineShapeToAdd->setStroke(m_allShapes[0]->stroke());
         newLineShapeToAdd->setZIndex(m_allShapes[0]->zIndex() + 100);
 
-
-
         KUndo2Command *cmd = new KUndo2Command(kundo2_i18n("Knife tool: cut through shapes"));
         tool()->canvas()->shapeController()->addShapeDirect(newLineShapeToAdd, m_allShapes[0]->parent(), cmd);
         tool()->canvas()->addCommand(cmd);
@@ -224,7 +206,6 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 
         return;
     }
-
 
 #ifdef KNIFE_DEBUG
     qCritical() << "Found two shapes.";
@@ -238,17 +219,12 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 #endif
 
     if (shapeNewIndexes[0] == shapeNewIndexes[1]) {
-        // the same shape
-        // gotta ensure the mouseline starts and ends inside
         bool insideP1 = KisAlgebra2D::isInsideShape(srcOutlines[shapeNewIndexes[0]], mouseLine.p1());
         bool insideP2 = KisAlgebra2D::isInsideShape(srcOutlines[shapeNewIndexes[0]], mouseLine.p2());
         if (!insideP1 || !insideP2) {
-            // it's from outside, it doesn't go over a gutter, then
             return;
         }
     }
-
-
 
     QPainterPath result = KisAlgebra2D::removeGutterSmart(srcOutlines[shapeNewIndexes[0]], lineSegmentIndexes[0], srcOutlines[shapeNewIndexes[1]], lineSegmentIndexes[1], shapeNewIndexes[0]==shapeNewIndexes[1]);
 
@@ -266,10 +242,6 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
         }
     }
 
-    // since we can't really decide which style to use, we're gonna use the style of the first found shape.
-    // if the user doesn't like it, they can change it.
-
-
     result = booleanWorkaroundTransform.inverted().map(result);
     KoPathShape* resultShape = KoPathShape::createShapeFromPainterPath(result);
     resultShape->closeMerge();
@@ -280,10 +252,7 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
 
     KUndo2Command *cmd = new KUndo2Command(kundo2_i18n("Knife tool: remove a gutter"));
 
-
-
     new KoKeepShapesSelectedCommand(m_selectedShapes, {}, tool()->canvas()->selectedShapesProxy(), false, cmd);
-
 
     KoShape* referenceShape = m_allShapes[shapeOrigIndexes[0]];
     KoPathShape* koPathReferenceShape = dynamic_cast<KoPathShape*>(referenceShape);
@@ -294,25 +263,22 @@ void RemoveGutterStrategy::finishInteraction(Qt::KeyboardModifiers modifiers)
         resultShape->setFillRule(koPathReferenceShape->fillRule());
     }
 
-
     KoShapeContainer *parent = referenceShape->parent();
     tool()->canvas()->shapeController()->addShapeDirect(resultShape, parent, cmd);
 
-    if (isSelected[shapeOrigIndexes[0]] || isSelected[shapeOrigIndexes[1]]) { // if either is selected
+    if (isSelected[shapeOrigIndexes[0]] || isSelected[shapeOrigIndexes[1]]) {
         resultSelectedShapes << resultShape;
     }
 
     QList<KoShape*> shapesToRemove;
     shapesToRemove << m_allShapes[shapeOrigIndexes[0]];
-    if (shapeOrigIndexes[0] != shapeOrigIndexes[1]) { // there is a good reason in the workflow to allow doing this operation on the same shape
+    if (shapeOrigIndexes[0] != shapeOrigIndexes[1]) {
         shapesToRemove << m_allShapes[shapeOrigIndexes[1]];
     }
-
 
     tool()->canvas()->shapeController()->removeShapes(shapesToRemove, cmd);
     new KoKeepShapesSelectedCommand({}, resultSelectedShapes, tool()->canvas()->selectedShapesProxy(), true, cmd);
     tool()->canvas()->addCommand(cmd);
-
 
 }
 
@@ -340,7 +306,6 @@ void RemoveGutterStrategy::paint(QPainter &painter, const KoViewConverter &conve
 
         painter.drawLine(QPointF(after + arrowThickness*perpendicular), line.p2());
         painter.drawLine(QPointF(after - arrowThickness*perpendicular), line.p2());
-
 
     }
     painter.drawLine(line);

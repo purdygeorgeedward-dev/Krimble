@@ -15,21 +15,6 @@
 
 class KoPathShape;
 
-/*
- * Fits bezier curve to given list of points.
- *
- * An Algorithm for Automatically Fitting Digitized Curves
- * by Philip J. Schneider
- * from "Graphics Gems", Academic Press, 1990
- *
- * http://web.archive.org/web/20061118130015/http://www.acm.org/pubs/tog/GraphicsGems/gems/FitCurves.c
- * http://web.archive.org/web/20040519052901/http://www.acm.org/pubs/tog/GraphicsGems/gems/README
- *
- * @param points the list of points to fit curve to
- * @param error the max. fitting error
- * @return a path shape representing the fitted curve
- */
-
 KRITAFLAKE_EXPORT KoPathShape * bezierFit(const QList<QPointF> &points, float error);
 
 #endif

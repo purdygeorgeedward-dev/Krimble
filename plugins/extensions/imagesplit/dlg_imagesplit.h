@@ -16,10 +16,6 @@
 #include "wdg_imagesplit.h"
 
 class KisViewManager;
-/**
- * This dialog allows the user to create a selection mask based
- * on a (range of) colors.
- */
 class DlgImagesplit: public KoDialog
 {
 
@@ -58,4 +54,4 @@ private:
     qreal m_thumbnailRatio;
 };
 
-#endif // DLG_IMAGESPLIT
+#endif

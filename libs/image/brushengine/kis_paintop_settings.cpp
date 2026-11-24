@@ -71,9 +71,6 @@ struct Q_DECL_HIDDEN KisPaintOpSettings::Private {
         , versionCookie(rhs.versionCookie)
 #endif
     {
-        /// NOTE: we don't copy updateListener intentionally, it is
-        ///       a job of the cloned preset to set the new listener
-        ///       properly
     }
 
     QPointer<KisPaintOpConfigWidget> settingsWidget;
@@ -125,12 +122,12 @@ bool KisPaintOpSettings::mousePressEvent(const KisPaintInformation &paintInforma
 {
     Q_UNUSED(modifiers);
     Q_UNUSED(currentNode);
-    return true; // ignore the event by default
+    return true;
 }
 
 bool KisPaintOpSettings::mouseReleaseEvent()
 {
-    return true; // ignore the event by default
+    return true;
 }
 
 bool KisPaintOpSettings::hasMaskingSettings() const
@@ -151,21 +148,6 @@ KisPaintOpSettingsSP KisPaintOpSettings::createMaskingSettings() const
 
     const bool useMasterSize = this->getBool(KisPaintOpUtils::MaskingBrushUseMasterSizeTag, true);
     if (useMasterSize) {
-        /**
-         * WARNING: cropping is a workaround for too big brushes due to
-         * the proportional scaling using shift+drag gesture.
-         *
-         * See this bug: https://bugs.kde.org/show_bug.cgi?id=423572
-         *
-         * TODO:
-         *
-         * 1) Implement a warning notifying the user that his masking
-         *    brush has been cropped
-         *
-         * 2) Make sure that the sliders in KisMaskingBrushOption have
-         *    correct limits (right now they are limited by usual
-         *    maximumBrushSize)
-         */
         const qreal maxMaskingBrushSize = KisImageConfig(true).maxMaskingBrushSize();
         const qreal masterSizeCoeff = getDouble(KisPaintOpUtils::MaskingBrushMasterSizeCoeffTag, 1.0);
         maskingSettings->setPaintOpSize(qMin(maxMaskingBrushSize, masterSizeCoeff * paintOpSize()));
@@ -317,7 +299,6 @@ void KisPaintOpSettings::setPaintOpFade(qreal value)
 
     if (!proxy->hasProperty("brush_definition")) return;
 
-    // Setting the Fade value is a bit more complex.
     QDomDocument doc;
     doc.setContent(proxy->getString("brush_definition"));
 
@@ -392,7 +373,6 @@ qreal KisPaintOpSettings::paintOpScatter()
 
     return proxy->getDouble("ScatterValue", 0.0);
 }
-
 
 qreal KisPaintOpSettings::paintOpPatternSize()
 {
@@ -584,10 +564,8 @@ void KisPaintOpSettings::setProperty(const QString & name, const QVariant & valu
     onPropertyChanged();
 }
 
-
 void KisPaintOpSettings::onPropertyChanged()
 {
-    // clear cached data for the resource
     d->resourceCacheInterface.clear();
 
 #ifdef SANITY_CHECK_CACHE
@@ -632,7 +610,6 @@ QList<KisUniformPaintOpPropertySP> KisPaintOpSettings::uniformProperties(KisPain
 {
     QList<KisUniformPaintOpPropertySP> props =
             listWeakToStrong(d->uniformProperties);
-
 
     if (props.isEmpty()) {
         using namespace KisStandardUniformPropertiesFactory;

@@ -37,7 +37,6 @@
 
 #include "kis_debug.h"
 
-
 struct KisBrushHud::Private
 {
     QPointer<KisElidedLabel> lblPresetName;
@@ -103,25 +102,17 @@ KisBrushHud::KisBrushHud(KisCanvasResourceProvider *provider, QWidget *parent)
     m_d->propertiesLayout->setContentsMargins(0, 0, 22, 0);
     m_d->propertiesLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    // not adding any widgets until explicitly requested
-
     m_d->wdgPropertiesArea->setWidget(m_d->wdgProperties);
     layout->addWidget(m_d->wdgPropertiesArea);
 
-    // unfortunately the sizeHint() function of QScrollArea is pretty broken
-    // and it would add another event loop iteration to react to it anyway,
-    // so let's just catch LayoutRequest events from the properties widget directly
     m_d->wdgProperties->installEventFilter(this);
 
     updateIcons();
 
     setCursor(Qt::ArrowCursor);
 
-    // Prevent tablet events from being captured by the canvas
     setAttribute(Qt::WA_NoMousePropagation, true);
 }
-
-
 
 KisBrushHud::~KisBrushHud()
 {
@@ -269,7 +260,6 @@ bool KisBrushHud::event(QEvent *event)
     case QEvent::TabletPress:
     case QEvent::TabletMove:
     case QEvent::TabletRelease:
-        // Allow the tablet event to be translated to a mouse event on certain platforms
         break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseMove:
@@ -286,8 +276,6 @@ bool KisBrushHud::event(QEvent *event)
 
 bool KisBrushHud::eventFilter(QObject *watched, QEvent *event)
 {
-    // LayoutRequest event is sent from a layout to its parent widget
-    // when size requirements have been determined, i.e. sizeHint is available
     if (watched == m_d->wdgProperties && event->type() == QEvent::LayoutRequest)
     {
         int totalMargin = 2 * m_d->wdgPropertiesArea->frameWidth();

@@ -14,7 +14,6 @@
 
 #include <kis_assert.h>
 
-
 namespace {
 class ChildChangedEventFilter : public QObject
 {
@@ -29,11 +28,6 @@ public:
     bool eventFilter(QObject *watched, QEvent *event) override {
         if (watched == m_watched &&
             (event->type() == QEvent::ChildAdded || event->type() == QEvent::ChildRemoved)) {
-                /**
-                 * Upon receiving QChildEvent, the child object is not yet
-                 * fully constructed, so we need to postpone the event handling
-                 * till the next event loop cycle.
-                 */
                 QTimer::singleShot(0, this, &ChildChangedEventFilter::sigChildrenChanged);
         }
 
@@ -77,8 +71,6 @@ bool KisRootSurfaceTrackerBase::eventFilter(QObject *watched, QEvent *event)
         if (watched == m_watchedHierarchy.last().data()) {
             tryReconnectToNativeWindow();
         } else {
-            // some widget in the middle of the hierarchy just received
-            // a native window. Let's promote that to toplevel now!
             tryUpdateHierarchy();
         }
     }
@@ -142,7 +134,6 @@ QVector<QPointer<QObject>> KisRootSurfaceTrackerBase::getCurrentHierarchy(QWidge
     while (wdg) {
         result.append(wdg);
 
-        // break on the first native window
         if (wdg->windowHandle()) {
             break;
         } else {

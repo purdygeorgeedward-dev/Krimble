@@ -24,7 +24,7 @@ void KisPaintOpFactory::preinitializePaintOpIfNeeded(const KisPaintOpSettingsSP 
 {
     Q_UNUSED(settings);
 }
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
 QIcon KisPaintOpFactory::icon()
 {
@@ -38,7 +38,7 @@ QString KisPaintOpFactory::categoryStable()
     return i18nc("Category of brush engines", "Brush engines");
 }
 
-KisInterstrokeDataFactory *KisPaintOpFactory::createInterstrokeDataFactory(const KisPaintOpSettingsSP /*settings*/, KisResourcesInterfaceSP /*resourcesInterface*/) const
+KisInterstrokeDataFactory *KisPaintOpFactory::createInterstrokeDataFactory(const KisPaintOpSettingsSP , KisResourcesInterfaceSP ) const
 {
     return 0;
 }
@@ -48,11 +48,8 @@ void KisPaintOpFactory::setPriority(int newPriority)
     m_priority = newPriority;
 }
 
-
 int KisPaintOpFactory::priority() const
 {
     return m_priority;
 }
-
-
 

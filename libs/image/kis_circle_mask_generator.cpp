@@ -17,14 +17,12 @@
 #include "kis_brush_mask_applicator_factories.h"
 #include "kis_brush_mask_applicator_base.h"
 
-
 KisCircleMaskGenerator::KisCircleMaskGenerator(qreal diameter, qreal ratio, qreal fh, qreal fv, int spikes, bool antialiasEdges)
     : KisMaskGenerator(diameter, ratio, fh, fv, spikes, antialiasEdges, CIRCLE, DefaultId),
       d(new Private)
 {
     setScale(1.0, 1.0);
 
-    // store the variable locally to allow vector implementation read it easily
     d->copyOfAntialiasEdges = antialiasEdges;
 
     d->applicator.reset(createOptimizedClass<MaskApplicatorFactory<KisCircleMaskGenerator> >(this));
@@ -71,14 +69,13 @@ KisBrushMaskApplicatorBase *KisCircleMaskGenerator::applicator() const
 quint8 KisCircleMaskGenerator::valueAt(qreal x, qreal y) const
 {
     if (isEmpty()) return 255;
-    qreal xr = (x /*- m_xcenter*/);
-    qreal yr = qAbs(y /*- m_ycenter*/);
+    qreal xr = (x );
+    qreal yr = qAbs(y );
     fixRotation(xr, yr);
 
     qreal n = norme(xr * d->xcoef, yr * d->ycoef);
     if (n > 1.0) return 255;
 
-    // we add +1.0 to ensure correct antialiasing on the border
     if (antialiasEdges()) {
         xr = qAbs(xr) + 1.0;
         yr = qAbs(yr) + 1.0;

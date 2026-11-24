@@ -36,7 +36,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(ColorSpaceConversionFactory, "kritacolorspaceconversion.json", registerPlugin<ColorSpaceConversion>();)
 
-
 ColorSpaceConversion::ColorSpaceConversion(QObject *parent, const QVariantList &)
         : KisActionPlugin(parent)
 {

@@ -11,7 +11,6 @@
 #include <QTimer>
 #include <KoProgressProxy.h>
 
-
 struct Q_DECL_HIDDEN KisQueuesProgressUpdater::Private
 {
     Private(KisQueuesProgressUpdater *q)
@@ -39,7 +38,6 @@ struct Q_DECL_HIDDEN KisQueuesProgressUpdater::Private
     static const int TIMER_INTERVAL = 500;
     static const int PROGRESS_DELAY = 1000;
 };
-
 
 KisQueuesProgressUpdater::KisQueuesProgressUpdater(KoProgressProxy *progressProxy, QObject *parent)
     : QObject(parent),

@@ -24,4 +24,4 @@ QLatin1String fileFormat(RecorderFormat format);
 
 }
 
-#endif // RECORDER_FORMAT_H
+#endif

@@ -11,7 +11,6 @@
 #include <KisOptionTuple.h>
 #include <KisPrefixedOptionDataWrapper.h>
 
-
 struct KisPaintThicknessOptionMixInImpl
     : boost::equality_comparable<KisPaintThicknessOptionMixInImpl>
 {
@@ -42,4 +41,4 @@ struct KisPaintThicknessOptionData : KisOptionTuple<KisCurveOptionData, KisPaint
     }
 };
 
-#endif // KISPAINTTHICKNESSOPTIONDATA_H
+#endif

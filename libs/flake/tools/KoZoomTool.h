@@ -16,14 +16,9 @@
 class KoCanvasBase;
 class KoCanvasController;
 
-/// \internal
 class KoZoomTool : public KoInteractionTool
 {
 public:
-    /**
-     * Create a new tool; typically not called by applications, only by the KoToolManager
-     * @param canvas the canvas this tool works for.
-     */
     explicit KoZoomTool(KoCanvasBase *canvas);
     void mouseReleaseEvent(KoPointerEvent *event) override;
     void mouseMoveEvent(KoPointerEvent *event) override;

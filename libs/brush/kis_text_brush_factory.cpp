@@ -10,7 +10,6 @@
 #include "kis_text_brush.h"
 #include <KoResourceLoadResult.h>
 
-
 KoResourceLoadResult KisTextBrushFactory::createBrush(const QDomElement& brushDefinition, KisResourcesInterfaceSP resourcesInterface)
 {
     std::optional<KisBrushModel::BrushData> data =
@@ -20,7 +19,6 @@ KoResourceLoadResult KisTextBrushFactory::createBrush(const QDomElement& brushDe
         return createBrush(*data, resourcesInterface);
     }
 
-    // fallback, should never reach!
     return KoResourceSignature(ResourceType::Brushes, "", "", "");
 }
 
@@ -42,7 +40,6 @@ KoResourceLoadResult KisTextBrushFactory::createBrush(const KisBrushModel::Brush
     return brush;
 }
 
-
 std::optional<KisBrushModel::BrushData> KisTextBrushFactory::createBrushModel(const QDomElement &element, KisResourcesInterfaceSP resourcesInterface)
 {
     Q_UNUSED(resourcesInterface);
@@ -53,17 +50,9 @@ std::optional<KisBrushModel::BrushData> KisTextBrushFactory::createBrushModel(co
 
     brush.common.spacing = KisDomUtils::toDouble(element.attribute("spacing", "1.0"));
 
-    // TODO: these options are not yet present in the file format for the text brush!
-    //brush.common.angle = KisDomUtils::toDouble(brushDefinition.attribute("angle", "0.0"));
-    //brush.common.useAutoSpacing = KisDomUtils::toInt(brushDefinition.attribute("useAutoSpacing", "0"));
-    //brush.common.autoSpacingCoeff = KisDomUtils::toDouble(brushDefinition.attribute("autoSpacingCoeff", "1.0"));
-
     brush.textBrush.text = element.attribute("text", "The quick brown fox ate your text");
     brush.textBrush.font = element.attribute("font");
     brush.textBrush.usePipeMode = element.attribute("pipe", "false") == "true";
-
-    // TODO: how to get the size of the brush without its creation? lazy evaluation?
-    // brush.textBrush.baseSize = {66, 77};
 
     brush.textBrush.scale = 1.0;
 
@@ -81,5 +70,4 @@ void KisTextBrushFactory::toXML(QDomDocument &doc, QDomElement &e, const KisBrus
     e.setAttribute("text", model.textBrush.text);
     e.setAttribute("font", model.textBrush.font);
     e.setAttribute("pipe", model.textBrush.usePipeMode ? "true" : "false");
-    // TODO: scale is not saved
 }

@@ -30,16 +30,8 @@ static const QString useCustomSystemFontCfgName = QStringLiteral("use_custom_sys
 static const QString customSystemFontCfgName = QStringLiteral("custom_system_font");
 static const QString customFontSizeCfgName = QStringLiteral("custom_font_size");
 
-/**
- * @brief Gets the system default UI font.
- * @return the system default UI font.
- */
 static QFont systemDefaultUiFont();
 
-/**
- * @brief Returns the font the user has configured.
- * @return the user font if it has been set, otherwise `boost::none`.
- */
 static boost::optional<QFont> userCfgUiFont();
 
 #if defined(Q_OS_WIN) && QT_VERSION < 0x060000
@@ -65,7 +57,6 @@ boost::optional<QFont> userCfgUiFont()
         }
         int fontSize = cfg.readEntry<int>(customFontSizeCfgName, -1);
         if (fontSize <= 6) {
-            // Font size may be in pixels (on Android) or points (everywhere else.)
             QFont systemFont = systemDefaultUiFont();
             fontSize = systemFont.pointSize();
             if (fontSize == -1) {
@@ -87,9 +78,6 @@ QFont normalFont()
         font = systemDefaultUiFont();
     }
 #ifdef Q_OS_WIN
-    // XXX: Forces Qt to use full hinting for UI text, otherwise the default
-    //      will cause Qt to do vertical hinting only when High-DPI is active,
-    //      which makes some UI text extremely blurry on CJK systems.
     font.setHintingPreference(QFont::PreferFullHinting);
 #endif
     return font;
@@ -98,7 +86,6 @@ QFont normalFont()
 QFont dockFont()
 {
     QFont font = normalFont();
-    // Font size may be in pixels (on Android) or points (everywhere else.)
     qreal ratio = 0.9;
     if (font.pixelSize() == -1) {
         font.setPointSizeF(font.pointSizeF() * ratio);
@@ -110,7 +97,6 @@ QFont dockFont()
 
 #if defined(Q_OS_WIN) && QT_VERSION < 0x060000
 
-// From qtbase/src/platformsupport/fontdatabases/windows/qwindowsfontdatabase.cpp
 static int defaultVerticalDPI()
 {
     static int vDPI = -1;
@@ -119,14 +105,12 @@ static int defaultVerticalDPI()
             vDPI = GetDeviceCaps(defaultDC, LOGPIXELSY);
             ReleaseDC(0, defaultDC);
         } else {
-            // FIXME: Resolve now or return 96 and keep unresolved?
             vDPI = 96;
         }
     }
     return vDPI;
 }
 
-// From qtbase/src/gui/text/qplatformfontdatabase.cpp
 QFont::Weight weightFromInteger(int weight)
 {
     if (weight < 150) {
@@ -156,7 +140,6 @@ QFont::Weight weightFromInteger(int weight)
     return QFont::Black;
 }
 
-// From qtbase/src/platformsupport/fontdatabases/windows/qwindowsfontdatabase.cpp
 static QFont LOGFONT_to_QFont(const LOGFONTW& logFont)
 {
     const int verticalDPI_In = defaultVerticalDPI();
@@ -173,10 +156,8 @@ static QFont LOGFONT_to_QFont(const LOGFONTW& logFont)
     return qFont;
 }
 
-// From qtbase/src/platformsupport/fontdatabases/windows/qwindowsfontdatabase.cpp
 static QFont windowsSystemUiFont()
 {
-    // Qt 6: Obtain default GUI font (typically "Segoe UI, 9pt", see QTBUG-58610)
     NONCLIENTMETRICSW ncm;
     ncm.cbSize = FIELD_OFFSET(NONCLIENTMETRICSW, lfMessageFont) + sizeof(LOGFONTW);
     SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, ncm.cbSize , &ncm, 0);
@@ -185,4 +166,4 @@ static QFont windowsSystemUiFont()
 }
 #endif
 
-} // namespace KisUiFont
+}

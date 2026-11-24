@@ -16,9 +16,6 @@
 template<typename V>
 struct FastRowProcessor;
 
-/**
- * This mask generator uses a Gaussian-blurred rectangle
- */
 class KRITAIMAGE_EXPORT KisGaussRectangleMaskGenerator : public KisMaskGenerator
 {
 public:

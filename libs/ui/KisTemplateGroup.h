@@ -40,9 +40,7 @@ public:
     void setSortingWeight(int weight) {
         m_sortingWeight = weight;
     }
-    /// If all children are hidden, we are hidden too
     bool isHidden() const;
-    /// if we should hide, we hide all the children
     void setHidden(bool hidden = true) const;
 
     QList<KisTemplate*> templates() const { return m_templates; }

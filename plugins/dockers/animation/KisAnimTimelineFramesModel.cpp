@@ -51,7 +51,6 @@
 #include "kis_node_uuid_info.h"
 #include "KisMainWindow.h"
 
-
 struct KisAnimTimelineFramesModel::Private
 {
     Private()
@@ -90,7 +89,7 @@ struct KisAnimTimelineFramesModel::Private
         KisNodeDummy *dummy = converter->dummyFromRow(row);
 
         if (!dummy) return true;
-        
+
         if (image->isIsolatingLayer()) {
             return dummy->node()->isIsolatedRoot() && !dummy->node()->userLocked();
         } else {
@@ -116,7 +115,6 @@ struct KisAnimTimelineFramesModel::Private
         KisKeyframeChannel *primaryChannel = dummy->node()->getKeyframeChannel(KisKeyframeChannel::Raster.id());
         if (!primaryChannel) return false;
 
-        // first check if we are a key frame
         KisRasterKeyframeSP frame = primaryChannel->activeKeyframeAt<KisRasterKeyframe>(column);
         if (!frame) return false;
 
@@ -240,10 +238,6 @@ void KisAnimTimelineFramesModel::setNodeManipulationInterface(NodeManipulationIn
 
 KisNodeSP KisAnimTimelineFramesModel::nodeAt(QModelIndex index) const
 {
-    /**
-     * The dummy might not exist because the user could (quickly) change
-     * active layer and the list of the nodes in m_d->converter will change.
-     */
     KisNodeDummy *dummy = m_d->converter->dummyFromRow(index.row());
     return dummy ? dummy->node() : nullptr;
 }
@@ -341,7 +335,7 @@ void KisAnimTimelineFramesModel::processUpdateQueue()
 }
 
 void KisAnimTimelineFramesModel::slotCurrentNodeChanged(KisNodeSP node)
-{    
+{
     if (!node) {
         m_d->activeLayerIndex = -1;
         return;
@@ -351,7 +345,7 @@ void KisAnimTimelineFramesModel::slotCurrentNodeChanged(KisNodeSP node)
     if (!dummy) {
         return;
     }
-    
+
     int lastActiveLayerIndex = m_d->activeLayerIndex;
     const bool prevActiveWasPinned = headerData(m_d->activeLayerIndex, Qt::Vertical, PinnedToTimelineRole).toBool();
     m_d->converter->updateActiveDummy(dummy);
@@ -365,18 +359,12 @@ void KisAnimTimelineFramesModel::slotCurrentNodeChanged(KisNodeSP node)
         setData(index(row, 0), true, ActiveLayerRole);
     } else if (row >= 0 ){
         sigEnsureRowVisible(row);
-        
-        // If the activeLayerIndex is considered to be the same "row", but the last one was pinned,
-        // it means that the previousActiveLayer has actually moved down the list because a new
-        // layer was inserted.
+
         if (prevActiveWasPinned) {
             lastActiveLayerIndex += 1;
         }
     }
-    
-    // NOTE: Not in love with exposing 'selection' concepts to the model,
-    // but since this issue already existed, this is alright for now.
-    // Especially since it's just a signal...
+
     requestTransferSelectionBetweenRows(lastActiveLayerIndex, m_d->activeLayerIndex);
 }
 
@@ -489,8 +477,6 @@ QVariant KisAnimTimelineFramesModel::headerData(int section, Qt::Orientation ori
                 return name;
             }
             case Qt::ForegroundRole: {
-                // WARNING: this role doesn't work for header views! Use
-                //          bold font to show isolated mode instead!
                 return QVariant();
             }
             case Qt::FontRole: {
@@ -642,16 +628,12 @@ inline void decodeBaseIndex(QByteArray *encoded, int *row, int *col)
     stream >> size_UNUSED >> *row >> *col;
 }
 
-bool KisAnimTimelineFramesModel::canDropFrameData(const QMimeData */*data*/, const QModelIndex &index)
+bool KisAnimTimelineFramesModel::canDropFrameData(const QMimeData * , const QModelIndex &index)
 {
     if (!index.isValid()) return false;
 
     if ( !m_d->layerEditable(index.row()) ) return false;
 
-    /**
-     * Now we support D&D around any layer, so just return 'true' all
-     * the time.
-     */
     return true;
 }
 
@@ -704,7 +686,7 @@ bool KisAnimTimelineFramesModel::dropMimeDataExtended(const QMimeData *data, Qt:
 
     const QPoint offset(parent.column() - baseColumn, parent.row() - baseRow);
     KisAnimUtils::FrameMovePairList frameMoves;
-    int necessaryOffset = 0;  //Necessary offset to keep move above 0, used later.
+    int necessaryOffset = 0;
 
     for (int i = 0; i < size; i++) {
         int relRow, relColumn;
@@ -771,8 +753,6 @@ bool KisAnimTimelineFramesModel::dropMimeDataExtended(const QMimeData *data, Qt:
 
     if (!frameMoves.isEmpty()) {
 
-        // We need to make sure that no movement ever occurs into the negative values.
-        // TODO: Probably a better way to fix this, I'm not happy with this fix.
         if (necessaryOffset > 0) {
             for (int i = 0; i < frameMoves.count(); i++){
                 frameMoves[i].second.time += necessaryOffset;
@@ -808,11 +788,6 @@ Qt::ItemFlags KisAnimTimelineFramesModel::flags(const QModelIndex &index) const
         }
     }
 
-    /**
-     * Basically we should forbid overrides only if we D&D a single frame
-     * and allow it when we D&D multiple frames. But we cannot distinguish
-     * it here... So allow all the time.
-     */
     flags |= Qt::ItemIsDropEnabled;
 
     return flags;
@@ -973,7 +948,6 @@ bool KisAnimTimelineFramesModel::insertHoldFrames(const QModelIndexList &selecte
     {
         KisImageBarrierLock locker(m_d->image);
 
-        // Find Keyframes in selection...
         QSet<TimelineSelectionEntry> uniqueKeyframesInSelection;
         int earliestAffectedTime = std::numeric_limits<int>::max();
 
@@ -984,7 +958,7 @@ bool KisAnimTimelineFramesModel::insertHoldFrames(const QModelIndexList &selecte
             KisRasterKeyframeChannel *channel = dynamic_cast<KisRasterKeyframeChannel*>(node->getKeyframeChannel(KisKeyframeChannel::Raster.id()));
             if (!channel) continue;
 
-            earliestAffectedTime = qMin(earliestAffectedTime, index.column()); // Earliest of selection... (to be continued.)
+            earliestAffectedTime = qMin(earliestAffectedTime, index.column());
 
             int time = channel->activeKeyframeTime(index.column());
             KisRasterKeyframeSP keyframe = channel->activeKeyframeAt<KisRasterKeyframe>(index.column());
@@ -994,7 +968,6 @@ bool KisAnimTimelineFramesModel::insertHoldFrames(const QModelIndexList &selecte
             }
         }
 
-        // Determine which keyframes need to move and sort by time...
         QList<TimelineSelectionEntry> keyframesToMove;
 
         for (auto it = uniqueKeyframesInSelection.begin(); it != uniqueKeyframesInSelection.end(); ++it) {
@@ -1019,8 +992,6 @@ bool KisAnimTimelineFramesModel::insertHoldFrames(const QModelIndexList &selecte
         const int oldTime = m_d->image->animationInterface()->currentUITime();
         const int maxColumn = columnCount();
 
-        // Store the original active keyframe, so we can switch to its new time at the end.
-        // (This helps to keep artist drawing on the right keyframe even while adding and removing hold frames.)
         QModelIndex activeIndex = index(m_d->activeLayerIndex, oldTime);
         KisNodeSP activeNode = nodeAt(activeIndex);
         KisRasterKeyframeChannel *activeChannel = dynamic_cast<KisRasterKeyframeChannel*>(activeNode->getKeyframeChannel(KisKeyframeChannel::Raster.id()));
@@ -1030,7 +1001,6 @@ bool KisAnimTimelineFramesModel::insertHoldFrames(const QModelIndexList &selecte
             originalActiveKeyframe = activeChannel->activeKeyframeAt<KisRasterKeyframe>(oldTime);
         }
 
-        // Create keyframe movement commands...
         if (insertCount > 0) {
             setLastVisibleFrame(columnCount() + insertCount);
         }
@@ -1045,10 +1015,9 @@ bool KisAnimTimelineFramesModel::insertHoldFrames(const QModelIndexList &selecte
                 KisRasterKeyframeSP prevFrame = entry.channel->keyframeAt<KisRasterKeyframe>(prevKeyframeTime);
                 KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(prevFrame, false);
 
-                // Clamp values so that they never exceed or overlap the previous frame
                 plannedFrameMove = qMax(insertCount, prevKeyframeTime - entry.time + 1);
 
-                earliestAffectedTime = qMin(earliestAffectedTime, prevKeyframeTime); // No longer limited to selection.
+                earliestAffectedTime = qMin(earliestAffectedTime, prevKeyframeTime);
             }
 
             KisNodeDummy *dummy = m_d->dummiesFacade->dummyForNode(entry.channel->node());

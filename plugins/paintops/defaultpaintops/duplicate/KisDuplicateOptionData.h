@@ -7,7 +7,6 @@
 #ifndef __KISDUPLICATEOPTIONDATA_H_
 #define __KISDUPLICATEOPTIONDATA_H_
 
-
 #include <boost/operators.hpp>
 
 #include <KoID.h>
@@ -39,4 +38,4 @@ struct KisDuplicateOptionData : boost::equality_comparable<KisDuplicateOptionDat
     bool cloneFromProjection {false};
 };
 
-#endif // __KISDUPLICATEOPTIONDATA_H_
+#endif

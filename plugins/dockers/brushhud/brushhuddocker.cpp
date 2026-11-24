@@ -12,7 +12,6 @@
 #include <KoDockFactoryBase.h>
 #include <KoDockRegistry.h>
 
-
 K_PLUGIN_FACTORY_WITH_JSON(PresetDockerPluginFactory, "krita_brushhud.json", registerPlugin<BrushHudDockerPlugin>();)
 
 class BrushHudDockerDockFactory : public KoDockFactoryBase {
@@ -45,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 BrushHudDockerPlugin::BrushHudDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

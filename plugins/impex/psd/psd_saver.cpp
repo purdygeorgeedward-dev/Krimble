@@ -11,7 +11,6 @@
 #include <KoCompositeOp.h>
 #include <KoUnit.h>
 
-
 #include <kis_annotation.h>
 #include <kis_types.h>
 #include <kis_paint_layer.h>
@@ -32,10 +31,6 @@
 #include "psd_layer_section.h"
 #include "psd_resource_block.h"
 #include "psd_image_data.h"
-
-
-
-
 
 QPair<psd_color_mode, quint16> colormodelid_to_psd_colormode(const QString &colorSpaceId, const QString &colorDepthId)
 {
@@ -71,8 +66,6 @@ QPair<psd_color_mode, quint16> colormodelid_to_psd_colormode(const QString &colo
     return QPair<psd_color_mode, quint16>(colorMode, depth);
 }
 
-
-
 PSDSaver::PSDSaver(KisDocument *doc)
     : m_image(doc->savingImage())
     , m_doc(doc)
@@ -99,12 +92,10 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
 
     const bool haveLayers = m_image->rootLayer()->childCount() > 1 ||
         m_image->rootLayer()->firstChild()->childCount() > 0 ||
-        // check if "oblige child" mechanism is in action, then forbid collapsing
         m_image->rootLayer()->projection() != m_image->rootLayer()->firstChild()->projection() ||
         KisPainter::checkDeviceHasTransparency(
                 m_image->rootLayer()->firstChild()->projection());
 
-    // HEADER
     PSDHeader header;
     header.signature = "8BPS";
     header.version = 1;
@@ -133,9 +124,7 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
         return ImportExportCodes::ErrorWhileWriting;
     }
 
-    // COLORMODE BlOCK
     PSDColorModeBlock colorModeBlock(header.colormode);
-    // XXX: check for annotations that contain the duotone spec
 
     KisAnnotationSP annotation = m_image->annotation("DuotoneColormodeBlock");
     if (annotation) {
@@ -148,7 +137,6 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
         return ImportExportCodes::ErrorWhileWriting;
     }
 
-    // IMAGE RESOURCES SECTION
     PSDImageResourceSection resourceSection;
 
     vKisAnnotationSP_it it = m_image->beginAnnotations();
@@ -163,7 +151,7 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
 
         dbgFile << "Annotation:" << annotation->type() << annotation->description();
 
-        if (annotation->type().startsWith(QString("PSD Resource Block:"))) { //
+        if (annotation->type().startsWith(QString("PSD Resource Block:"))) {
             PSDResourceBlock *resourceBlock = dynamic_cast<PSDResourceBlock*>(annotation.data());
             if (resourceBlock) {
                 dbgFile << "Adding PSD Resource Block" << resourceBlock->identifier;
@@ -174,7 +162,6 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
         it++;
     }
 
-    // Add resolution block
     {
         RESN_INFO_1005 *resInfo = new RESN_INFO_1005;
         resInfo->hRes = INCH_TO_POINT(m_image->xRes());
@@ -185,7 +172,6 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
         resourceSection.resources[PSDImageResourceSection::RESN_INFO] = block;
     }
 
-    // Add grid/guides block
     {
         GRID_GUIDE_1032 *gridGuidesInfo = new GRID_GUIDE_1032;
         QList<quint32> verticalGuides;
@@ -204,7 +190,6 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
         resourceSection.resources[PSDImageResourceSection::GRID_GUIDE] = block;
     }
 
-    // Add icc block
     {
         ICC_PROFILE_1039 *profileInfo = new ICC_PROFILE_1039;
         profileInfo->icc = m_image->profile()->rawData();
@@ -221,8 +206,6 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
         return ImportExportCodes::ErrorWhileWriting;
     }
 
-    // LAYER AND MASK DATA
-    // Only save layers and masks if there is more than one layer
     dbgFile << "m_image->rootLayer->childCount" << m_image->rootLayer()->childCount() << io.pos();
 
     if (haveLayers) {
@@ -236,15 +219,12 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
         }
     }
     else {
-        // else write a zero length block
         dbgFile << "No layers, saving empty layers/mask block" << io.pos();
         psdwrite(io, (quint32)0);
     }
 
-    // IMAGE DATA
     dbgFile << "Saving composited image" << io.pos();
     PSDImageData imagedata(&header);
-    // PS compresses layer data by default with RLE.
     if (!imagedata.write(io, m_image->projection(), haveLayers, psd_compression_type::RLE)) {
         dbgFile << "Failed to write image data. Error:"  << imagedata.error;
         return ImportExportCodes::ErrorWhileWriting;
@@ -253,10 +233,8 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
     return ImportExportCodes::OK;
 }
 
-
 void PSDSaver::cancel()
 {
     m_stop = true;
 }
-
 

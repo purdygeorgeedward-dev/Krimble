@@ -39,7 +39,6 @@ static QMap<QFontDatabase::WritingSystem, QString> WRITINGSYSTEM_SCRIPT_MAP {
     {{QFontDatabase::Ogham},{"Ogam"}},
     {{QFontDatabase::Runic},{"Runr"}},
     {{QFontDatabase::Nko},{"Nkoo"}},
-    /*{{QFontDatabase::Symbol},{"Zsye"}}, Symbol refers to the wingdings fonts, not actually unicode scripts.*/
     {{QFontDatabase::Vietnamese},{"Latn"}},
 };
 
@@ -378,14 +377,12 @@ QChar::Script KoWritingSystemUtils::qCharScriptForScriptTag(const QString &tag)
 QMap<QString, QString> KoWritingSystemUtils::samples()
 {
     QMap <QString, QString> samples;
-    // Also add simplified latin sample. By doing this first, it'll fall back nicely.
     samples.insert("AaBbGg", "s_Latn");
 
-    // Some symbol samples...
-    samples.insert("\u263A\u2764\u2693\U0001F308", "s_Zsye"); // Emoji
-    samples.insert("∆∅∞≠", "s_Zmth"); // Some math operators
-    samples.insert("𝄞𝅘𝅥𝅮𝄿𝄻", "s_Zsym"); // Musical notes
-    samples.insert("←↕↝↴", "s_Zsym"); // Arrows
+    samples.insert("\u263A\u2764\u2693\U0001F308", "s_Zsye");
+    samples.insert("∆∅∞≠", "s_Zmth");
+    samples.insert("𝄞𝅘𝅥𝅮𝄿𝄻", "s_Zsym");
+    samples.insert("←↕↝↴", "s_Zsym");
     for (int i = 0; i < QFontDatabase::WritingSystemsCount; i++) {
         QFontDatabase::WritingSystem w = QFontDatabase::WritingSystem(i);
         if (w == QFontDatabase::WritingSystem::Any) continue;
@@ -413,10 +410,9 @@ QString KoWritingSystemUtils::sampleTagForQLocale(const QLocale &locale)
     return "s_"+QLOCALE_SCRIPT_MAP.value(locale.script(), "Zyyy");
 }
 
-// There's a number of tags that are kept around for compatibility.
 const QMap<QString, QString> grandFathered = {
     {"art-lojban", "jbo"},
-    {"cel-gaulish", "xcg"}, // could also be xga or xtg
+    {"cel-gaulish", "xcg"},
     {"en-GB-oed", "en-GB-oxendict"},
     {"i-ami", "ami"},
     {"i-default", ""},
@@ -436,7 +432,7 @@ const QMap<QString, QString> grandFathered = {
     {"sgn-CH-DE", "sgg"},
     {"zh-guoyu", "cmn"},
     {"zh-hakka", "hak"},
-    {"zh-min", "cdo"}, // This one could also be cpx, czo, mnp, or nan
+    {"zh-min", "cdo"},
     {"zh-min-nan", "nan"},
     {"zh-xiang", "hsn"},
 };
@@ -452,16 +448,13 @@ KoWritingSystemUtils::Bcp47Locale KoWritingSystemUtils::parseBcp47Locale(const Q
     const QRegularExpression alphas("^[A-Za-z]+$");
     const QRegularExpression digits("^\\d+$");
 
-    // Language -- single primary language, followed by optional 3 letter extended tags.
     if (tags.first().size() == 2 || tags.first().size() == 3) {
         bcp.languageTags.append(tags.takeFirst().toLower());
 
-        // extensions only happen when first tag is 2 or 3 long.
         while (!tags.isEmpty() && tags.first().size() == 3 && tags.first().contains(alphas)) {
             bcp.languageTags.append(tags.takeFirst().toLower());
         }
     } else if (tags.first().size() >= 4 || tags.first().size() <= 8) {
-        // 4 alpha is reserved for future use and 5-8 is also legit, but practically doesn't exist...
         bcp.languageTags.append(tags.takeFirst().toLower());
     } else if (tags.first() == "i" && tags.size() > 0) {
         QString total = tags.takeFirst();
@@ -471,8 +464,6 @@ KoWritingSystemUtils::Bcp47Locale KoWritingSystemUtils::parseBcp47Locale(const Q
 
     if (tags.isEmpty()) return bcp;
 
-    // Script -- This is an 4 letter alpha only.
-
     if (tags.first().contains(alphas) && tags.first().size() == 4) {
         bcp.scriptTag = tags.takeFirst().toLower();
         bcp.scriptTag = bcp.scriptTag.at(0).toUpper()+bcp.scriptTag.mid(1);
@@ -480,16 +471,12 @@ KoWritingSystemUtils::Bcp47Locale KoWritingSystemUtils::parseBcp47Locale(const Q
 
     if (tags.isEmpty()) return bcp;
 
-    // Region -- 2 letter alpha only.
-
     if ((tags.first().contains(alphas) && tags.first().size() == 2)
             || (tags.first().contains(digits) && tags.first().size() == 3)) {
         bcp.regionTag = tags.takeFirst().toUpper();
     }
 
     if (tags.isEmpty()) return bcp;
-
-    // Variants -- [0+] alpha numerics, either between 5-8 char long, or 4 but starting with a digit.
 
     const QRegularExpression variantAlphaNumeric("^\\d[A-Za-z0-9]{3}$");
 
@@ -501,7 +488,6 @@ KoWritingSystemUtils::Bcp47Locale KoWritingSystemUtils::parseBcp47Locale(const Q
     }
 
     if (tags.isEmpty()) return bcp;
-    // extension and private use subtags. Each starts with a single letter to indicate the extension type.
 
     QStringList currentExtension;
     while (!tags.isEmpty()) {
@@ -544,7 +530,6 @@ bool KoWritingSystemUtils::Bcp47Locale::isValid() const
 
 QString KoWritingSystemUtils::Bcp47Locale::toPosixLocaleFormat() const
 {
-    // A Posix locale format is "language[_script][_territory][.codeset][@modifier]".
 
     if (!isValid()) return QString();
 
@@ -554,7 +539,6 @@ QString KoWritingSystemUtils::Bcp47Locale::toPosixLocaleFormat() const
 
     if (!scriptTag.isEmpty() && scriptTag.size() == 4) {
         posix.append("_");
-        // Title case.
         posix.append(scriptTag);
     }
 
@@ -562,8 +546,6 @@ QString KoWritingSystemUtils::Bcp47Locale::toPosixLocaleFormat() const
         posix.append("_");
         posix.append(regionTag.toUpper());
     }
-
-    // Not writing @modifier for now...
 
     return posix;
 }

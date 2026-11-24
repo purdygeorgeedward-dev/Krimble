@@ -18,7 +18,6 @@
 #include <KoIcon.h>
 #include <kstandardguiitem.h>
 
-
 #include <klocalizedstring.h>
 
 #include <kmainwindow.h>
@@ -63,7 +62,6 @@ private:
     KoPageWidgetItem * const m_item;
 };
 
-
 class KoDocumentInfoDlg::KoDocumentInfoDlgPrivate
 {
 public:
@@ -78,7 +76,6 @@ public:
     bool documentSaved {false};
 };
 
-
 KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     : KPageDialog(parent)
     , d(new KoDocumentInfoDlgPrivate)
@@ -86,7 +83,6 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     d->info = docInfo;
 
     setWindowTitle(i18n("Document Information"));
-    //    setInitialSize(QSize(500, 500));
     setFaceType(KPageDialog::List);
     setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     button(QDialogButtonBox::Ok)->setDefault(true);
@@ -111,12 +107,10 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
 #endif
     page->setHeader(i18n("General"));
 
-    // Ugly hack, the mimetype should be a parameter, instead
     KisDocument* doc = dynamic_cast< KisDocument* >(d->info->parent());
     if (doc) {
         page->setIcon(koIcon("krimble-file-info-general"));
     } else {
-        // hide all entries not used in pages for KoDocumentInfoPropsPage
         d->aboutUi->filePathInfoLabel->setVisible(false);
         d->aboutUi->filePathLabel->setVisible(false);
         d->aboutUi->filePathSeparatorLine->setVisible(false);
@@ -161,7 +155,6 @@ KoDocumentInfoDlg::~KoDocumentInfoDlg()
 
 void KoDocumentInfoDlg::accept()
 {
-    // check if any pages veto the close
     Q_FOREACH (KPageWidgetItem* item, d->pages) {
         KoPageWidgetItemAdapter *page = dynamic_cast<KoPageWidgetItemAdapter*>(item);
         if (page) {
@@ -171,7 +164,6 @@ void KoDocumentInfoDlg::accept()
         }
     }
 
-    // all fine, go and apply
     saveAboutData();
     Q_FOREACH (KPageWidgetItem* item, d->pages) {
         KoPageWidgetItemAdapter *page = dynamic_cast<KoPageWidgetItemAdapter*>(item);

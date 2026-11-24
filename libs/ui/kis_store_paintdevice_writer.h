@@ -32,4 +32,4 @@ public:
 
 };
 
-#endif // KIS_STORE_PAINTDEVICE_WRITER_H
+#endif

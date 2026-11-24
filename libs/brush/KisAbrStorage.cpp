@@ -68,7 +68,6 @@ public:
     QString m_currentUrl;
     QString m_resourceType;
 
-
     AbrIterator(KisAbrBrushCollectionSP brushCollection, const QString& resourceType)
         : m_brushCollection(brushCollection)
         , isLoaded(false)
@@ -84,7 +83,7 @@ public:
 
         if (!isLoaded) {
             bool success = m_brushCollection->load();
-            Q_UNUSED(success); // brush collection will be empty
+            Q_UNUSED(success);
             const_cast<AbrIterator*>(this)->m_brushesMap = m_brushCollection->brushesMap();
             const_cast<AbrIterator*>(this)->m_brushCollectionIterator = m_brushesMap->constBegin();
             const_cast<AbrIterator*>(this)->isLoaded = true;
@@ -134,17 +133,14 @@ KisResourceStorage::ResourceItem KisAbrStorage::resourceItem(const QString &url)
 {
     KisResourceStorage::ResourceItem item;
     item.url = url;
-    // last "_" with index is the suffix added by abr_collection
     int indexOfUnderscore = url.lastIndexOf("_");
     QString filenameUrl = url;
-    // filenameUrl contains the name of the collection (filename without .abr, brush name without index)
     filenameUrl.remove(indexOfUnderscore, url.length() - indexOfUnderscore);
     item.folder = filenameUrl;
     item.resourceType = ResourceType::Brushes;
     item.lastModified = QFileInfo(m_brushCollection->filename()).lastModified();
     return item;
 }
-
 
 KoResourceSP KisAbrStorage::resource(const QString &url)
 {
@@ -154,7 +150,7 @@ KoResourceSP KisAbrStorage::resource(const QString &url)
     return m_brushCollection->brushByName(QFileInfo(url).fileName());
 }
 
-bool KisAbrStorage::loadVersionedResource(KoResourceSP /*resource*/)
+bool KisAbrStorage::loadVersionedResource(KoResourceSP )
 {
     return false;
 }

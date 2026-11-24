@@ -11,7 +11,6 @@
 
 #include "kis_image.h"
 
-
 #define CONNECT_TO_IMAGE(signal)                                        \
     connect(this, SIGNAL(signal), m_image, SIGNAL(signal), Qt::DirectConnection)
 
@@ -21,7 +20,6 @@
 KIS_DECLARE_STATIC_INITIALIZER {
     qRegisterMetaType<KisImageSignalType>("KisImageSignalType");
 }
-
 
 KisImageSignalRouter::KisImageSignalRouter(KisImageWSP image)
     : QObject(image.data()),
@@ -40,14 +38,6 @@ KisImageSignalRouter::KisImageSignalRouter(KisImageWSP image)
     CONNECT_TO_IMAGE(sigNodeAddedAsync(KisNodeSP, KisNodeAdditionFlags));
     CONNECT_TO_IMAGE(sigRemoveNodeAsync(KisNodeSP));
     CONNECT_TO_IMAGE(sigLayersChangedAsync());
-
-    /**
-     * Color space and profile conversion functions run without strokes,
-     * therefore they are executed in GUI hread under the global lock held.
-     *
-     * To ensure that the receiver of the signal will not deadlock by
-     * barrier-locking the image, we should make these signals queued.
-     */
 
     CONNECT_TO_IMAGE_QUEUED(sigProfileChanged(const KoColorProfile*));
     CONNECT_TO_IMAGE_QUEUED(sigColorSpaceChanged(const KoColorSpace*));
@@ -71,11 +61,6 @@ void KisImageSignalRouter::emitNotifications(KisImageSignalVector notifications)
 
 void KisImageSignalRouter::emitNotification(KisImageSignalType type)
 {
-    /**
-     * All the notifications except LayersChangedSignal should go in a
-     * queued way. And LayersChangedSignal should be delivered to the
-     * recipients in a non-reordered way
-     */
 
     if (type.id == LayersChangedSignal ||
         type.id == NodeReselectionRequestSignal ||
@@ -95,7 +80,6 @@ void KisImageSignalRouter::emitNodeHasBeenAdded(KisNode *parent, int index, KisN
 {
     KisNodeSP newNode = parent->at(index);
 
-    // overlay selection masks reset frames themselves
     if (!newNode->inherits("KisSelectionMask")) {
         KisImageSP image = m_image.toStrongRef();
         if (image) {
@@ -110,7 +94,6 @@ void KisImageSignalRouter::emitAboutToRemoveANode(KisNode *parent, int index)
 {
     KisNodeSP removedNode = parent->at(index);
 
-    // overlay selection masks reset frames themselves
     if (!removedNode->inherits("KisSelectionMask")) {
         KisImageSP image = m_image.toStrongRef();
         if (image) {

@@ -73,8 +73,6 @@ void KisSupporterBundlesFetcher::handleCheckTxtFetched(QNetworkReply *reply)
         return;
     }
 
-    // The check0.txt is supposed to contain a version followed by an MD5 hash
-    // digest. For forward-compatibility, we'll ignore anything else afterwards.
     QRegularExpression re(QStringLiteral("\\A\\s*([0-9]+)\\s+([0-9a-fA-F]+)\\b"));
     QRegularExpressionMatch match = re.match(content);
     if (!match.hasMatch()) {
@@ -281,7 +279,6 @@ void KisSupporterBundlesFetcher::readIndexDbBundles()
             }
         } else {
             warnResources << "Error querying bundle resource counts:" << query.lastError().text();
-            // Not critical to have these counts, just keep going.
         }
 
         m_bundles = QVector<KisSupporterBundle>(bundlesById.begin(), bundlesById.end());
@@ -347,8 +344,6 @@ bool KisSupporterBundlesFetcher::doWithIndexDb(QString &outErrorMessage,
 
 bool KisSupporterBundlesFetcher::readSqliteUserVersion(const QByteArray &bytes, unsigned int &outVersion)
 {
-    // The SQLite format stores its "user version" value at index 60 as a 32 bit
-    // bigendian unsigned integer. See https://www.sqlite.org/fileformat.html
     if (bytes.size() < 64) {
         return false;
     } else {

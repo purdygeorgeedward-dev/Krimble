@@ -40,17 +40,17 @@ void TestShapeAt::test()
 
     QVERIFY(manager.shapeAt(QPointF(200, 200)) == 0);
     QCOMPARE(manager.shapeAt(QPointF(90, 90)), &shape2);
-    QCOMPARE(manager.shapeAt(QPointF(105, 105)), &shape2); // the one on top
+    QCOMPARE(manager.shapeAt(QPointF(105, 105)), &shape2);
     KoShape *dummy = 0;
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::Selected), dummy);
-    QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::Unselected), &shape2); // the one on top
+    QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::Unselected), &shape2);
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::NextUnselected), &shape2);
 
     manager.selection()->select(&shape2);
 
     QVERIFY(manager.shapeAt(QPointF(200, 200)) == 0);
     QCOMPARE(manager.shapeAt(QPointF(90, 90)), &shape2);
-    QCOMPARE(manager.shapeAt(QPointF(105, 105)), &shape2); // the one on top
+    QCOMPARE(manager.shapeAt(QPointF(105, 105)), &shape2);
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::Selected), &shape2);
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::Unselected), &shape1);
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::NextUnselected), &shape1);
@@ -68,7 +68,7 @@ void TestShapeAt::test()
     QCOMPARE(manager.shapeAt(QPointF(105, 145)), &shape1);
     QCOMPARE(manager.shapeAt(QPointF(165, 90)), &shape3);
 
-    QCOMPARE(manager.shapeAt(QPointF(125, 105)), &shape3); // the one on top
+    QCOMPARE(manager.shapeAt(QPointF(125, 105)), &shape3);
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::Selected), &shape2);
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::Unselected), &shape1);
     QCOMPARE(manager.shapeAt(QPointF(105, 105), KoFlake::NextUnselected), &shape1);
@@ -77,7 +77,6 @@ void TestShapeAt::test()
     QCOMPARE(manager.shapeAt(QPointF(125, 105), KoFlake::Unselected), &shape3);
     QCOMPARE(manager.shapeAt(QPointF(125, 105), KoFlake::NextUnselected), &shape1);
 
-    // test omitHiddenShapes
     QCOMPARE(manager.shapeAt(QPointF(125, 105), KoFlake::Selected, true), &shape2);
     QCOMPARE(manager.shapeAt(QPointF(125, 105), KoFlake::Unselected, true), &shape3);
     QCOMPARE(manager.shapeAt(QPointF(125, 105), KoFlake::NextUnselected, true), &shape1);
@@ -98,7 +97,7 @@ void TestShapeAt::testShadow()
     QCOMPARE(shape.boundingRect(), bbox);
 
     KoShapeStrokeSP stroke(new KoShapeStroke());
-    stroke->setLineWidth(20); // which means the shape grows 10 in all directions.
+    stroke->setLineWidth(20);
     shape.setStroke(stroke);
     KoInsets strokeInsets;
     stroke->strokeInsets(&shape, strokeInsets);

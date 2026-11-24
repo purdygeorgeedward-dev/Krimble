@@ -56,7 +56,6 @@ KisSpecificColorSelectorWidget::KisSpecificColorSelectorWidget(QWidget* parent)
     m_ui.reset(new Ui_wdgSpecificColorSelectorWidget());
     m_ui->setupUi(this);
 
-    // Set up "RGB/HSV" button group
     m_hsvSelector = new QButtonGroup(this);
     m_rgbButton = new QRadioButton("RGB", this);
     m_hsxButton = new QRadioButton("HSV", this);
@@ -85,7 +84,6 @@ KisSpecificColorSelectorWidget::KisSpecificColorSelectorWidget(QWidget* parent)
 	m_ui->hsvButtonsLayout->addWidget(m_hsxModeComboBox);
     m_ui->hsvButtonsLayout->addItem(hsvButtonSpacer);
 
-    // Set up HSV sliders
     m_hsvSlider = new KisHsvColorInput(this, &m_color);
     m_hsvSlider->setVisible(false);
 
@@ -269,7 +267,6 @@ void KisSpecificColorSelectorWidget::setColorSpace(const KoColorSpace* cs, bool 
         }
     }
     if (allChannels8Bit) {
-        // Set up the Hex input
         m_hexInput = new KisHexColorInput(this, &m_color, displayRenderer, false, true);
         m_ui->hexSelectorLayout->addWidget(m_hexInput);
         connect(m_hexInput, SIGNAL(updated()), this,  SLOT(update()));
@@ -305,7 +302,6 @@ void KisSpecificColorSelectorWidget::setFGColor(const KoColor& c)
 {
     m_FGColor = c;
 }
-
 
 void KisSpecificColorSelectorWidget::updateTimeout()
 {
@@ -343,7 +339,6 @@ void KisSpecificColorSelectorWidget::updateHsvSelector(bool isRgbColorSpace)
     m_hsxModeComboBox->setVisible(isRgbColorSpace);
 
     if (!isRgbColorSpace) {
-        // Force to be RGB only
         m_hsvSlider->setVisible(false);
         Q_FOREACH (KisColorInput* input, m_inputs) {
             input->setVisible(true);

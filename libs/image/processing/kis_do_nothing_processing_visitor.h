@@ -9,7 +9,6 @@
 
 #include "kis_processing_visitor.h"
 
-
 class KRITAIMAGE_EXPORT KisDoNothingProcessingVisitor : public KisProcessingVisitor
 {
 public:
@@ -29,4 +28,4 @@ public:
     void visit(KisColorizeMask *mask, KisUndoAdapter *undoAdapter) override;
 };
 
-#endif /* __KIS_DO_NOTHING_PROCESSING_VISITOR_H */
+#endif

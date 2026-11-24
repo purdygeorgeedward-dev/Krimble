@@ -33,25 +33,21 @@ public Q_SLOTS:
 
     void updateUserSettings();
 
-    // Receive notification that the color history changed in some selector
     void colorHistoryChanged();
 
 private:
-    // Get reference to the relevant color history, either from resource provider or document.
     KisUniqueColorSet *colorHistoryModel();
     std::unique_ptr<KisUniqueColorSet> m_fallbackColorHistoryModel;
 
-    // Write the changed color history where it is stored, depending on the settings.
     void updateColorHistory(const QList<KoColor> &history);
 
     bool m_history_per_document = false;
 
     QToolButton* m_clearButton;
-    KisDocument *m_document; // Color history is now stored in the document
-    KisCanvasResourceProvider  *m_resourceProvider; // to disconnect...
+    KisDocument *m_document;
+    KisCanvasResourceProvider  *m_resourceProvider;
 };
 
-// Singleton instance to update color history when there are multiple windows that must have it in sync.
 class KisColorHistoryNotifier : public QObject
 {
 Q_OBJECT
@@ -59,11 +55,9 @@ Q_OBJECT
 public:
     void notifyColorHistoryChanged(const QList<KoColor> &history);
 
-
 Q_SIGNALS:
 
     void colorHistoryChanged(const QList<KoColor> &history);
 };
 
-
-#endif // KIS_COLOR_HISTORY_H
+#endif

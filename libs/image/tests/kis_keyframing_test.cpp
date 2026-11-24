@@ -19,11 +19,9 @@
 #include "kis_time_span.h"
 #include "kundo2command.h"
 
-
 #include <KoColorSpaceRegistry.h>
 
 #include "testing_timed_default_bounds.h"
-
 
 void KisKeyframingTest::initTestCase()
 {
@@ -45,15 +43,12 @@ void KisKeyframingTest::cleanupTestCase()
     delete[] blue;
 }
 
-// ===================== General =======================
-
 void KisKeyframingTest::testChannelSignals()
 {
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     TestUtil::TestingTimedDefaultBounds *bounds = new TestUtil::TestingTimedDefaultBounds();
     dev->setDefaultBounds(bounds);
 
-    // Create raster channel..
     KisRasterKeyframeChannel *channel = dev->createKeyframeChannel(KoID());
 
     qRegisterMetaType<const KisKeyframeChannel*>("const KisKeyframeChannel*");
@@ -68,7 +63,7 @@ void KisKeyframingTest::testChannelSignals()
 
     int updateSignalCount = spyUpdated.count();
 
-    {   // Adding a keyframe..
+    {
         int originalSignalCount = spyAdded.count();
         channel->addKeyframe(7);
 
@@ -78,17 +73,16 @@ void KisKeyframingTest::testChannelSignals()
 
     updateSignalCount = spyUpdated.count();
 
-    {    // Moving a keyframe (7->11)..
+    {
         channel->moveKeyframe(7, 11);
 
         QVERIFY(spyUpdated.count() > updateSignalCount);
 
-        // No-op move (no signals) ...why?
     }
 
     updateSignalCount = spyUpdated.count();
 
-    {   // Removing a keyframe..
+    {
         int originalSignalCount = spyRemoving.count();
         channel->removeKeyframe(11);
 
@@ -96,8 +90,6 @@ void KisKeyframingTest::testChannelSignals()
         QVERIFY(spyUpdated.count() > updateSignalCount);
     }
 
-
-    // Setup scalar channel test environment
     qRegisterMetaType<const KisScalarKeyframeChannel*>("const KisScalarKeyframeChannel*");
     QScopedPointer<KisScalarKeyframeChannel> scalarChannel( new KisScalarKeyframeChannel(KoID(), bounds) );
     scalarChannel->setLimits(0, 64);
@@ -105,7 +97,7 @@ void KisKeyframingTest::testChannelSignals()
     scalarChannel->addScalarKeyframe(10, 64);
     QSignalSpy spyScalarKeyframeChanged(scalarChannel.data(), SIGNAL(sigKeyframeChanged(const KisKeyframeChannel*,int)));
 
-    {   // Test changing value of scalar keyframe. Should always Q_EMIT **1** signal per assignment, undo or redo.
+    {
         KUndo2Command undoCmd;
         KisScalarKeyframeSP scalarKey = scalarChannel->keyframeAt<KisScalarKeyframe>(0);
         scalarKey->setValue(20, &undoCmd);
@@ -124,15 +116,12 @@ void KisKeyframingTest::testChannelSignals()
     }
 }
 
-// ===================== Raster Channel =================
-
 void KisKeyframingTest::testRasterChannel()
 {
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     TestUtil::TestingTimedDefaultBounds *bounds = new TestUtil::TestingTimedDefaultBounds();
     dev->setDefaultBounds(bounds);
 
-    // Create raster channel.
     KisRasterKeyframeChannel *channel = dev->createKeyframeChannel(KoID());
     const int initialFrames = 1;
 
@@ -140,34 +129,28 @@ void KisKeyframingTest::testRasterChannel()
     QVERIFY(channel->keyframeCount() == dev->framesInterface()->frames().count());
     QVERIFY(channel->keyframeAt<KisRasterKeyframe>(0) != nullptr);
 
-
-    // Draw RED on initial frame..
     bounds->testingSetTime(0);
     dev->fill(0, 0, 512, 512, red);
     QImage key0_thumbnail = dev->createThumbnail(50, 50);
 
-
-    // Create a second raster keyframe..
     channel->addKeyframe(3);
 
     QVERIFY(channel->keyframeCount() == initialFrames + 1);
     QVERIFY(channel->keyframeCount() == dev->framesInterface()->frames().count());
     QVERIFY(channel->keyframeAt<KisRasterKeyframe>(3) != nullptr);
 
-    {   // Check that physical keyframeIDs are different!
+    {
         KisRasterKeyframeSP key0 = channel->keyframeAt<KisRasterKeyframe>(0);
         KisRasterKeyframeSP key3 = channel->keyframeAt<KisRasterKeyframe>(3);
         QVERIFY(key0->frameID() != key3->frameID());
     }
 
-    {   // Check that the NEW frame's thumbnail looks DIFFERENT!
+    {
         bounds->testingSetTime(3);
         QImage key3_thumbnail = dev->createThumbnail(50, 50);
         QVERIFY(key0_thumbnail != key3_thumbnail);
     }
 
-
-    // Move raster keyframe (3->6)..
     {
         const int originalFrameID = channel->keyframeAt<KisRasterKeyframe>(3)->frameID();
 
@@ -178,27 +161,23 @@ void KisKeyframingTest::testRasterChannel()
         QVERIFY(channel->keyframeAt<KisRasterKeyframe>(6)->frameID() ==  originalFrameID);
     }
 
-
-    // Copy raster keyframe (0>>5)..
     channel->copyKeyframe(0, 5);
 
     QVERIFY(channel->keyframeCount() == initialFrames + 2);
     QVERIFY(channel->keyframeCount() == dev->framesInterface()->frames().count());
 
-    {   // Check that physical keyframeIDs are different!
+    {
         KisRasterKeyframeSP key0 = channel->keyframeAt<KisRasterKeyframe>(0);
         KisRasterKeyframeSP key5 = channel->keyframeAt<KisRasterKeyframe>(5);
         QVERIFY(key0->frameID() != key5->frameID());
     }
 
-    {   // Check that the COPIED frame's thumbnail looks THE SAME!
+    {
         bounds->testingSetTime(5);
         QImage key5_thumbnail = dev->createThumbnail(50, 50);
         QVERIFY(key0_thumbnail == key5_thumbnail);
     }
 
-
-    // Swap raster keyframes (5<->6)..
     {
         const int original_f5_frameID = channel->keyframeAt<KisRasterKeyframe>(5)->frameID();
         const int original_f6_frameID = channel->keyframeAt<KisRasterKeyframe>(6)->frameID();
@@ -210,19 +189,16 @@ void KisKeyframingTest::testRasterChannel()
         QVERIFY(channel->keyframeAt<KisRasterKeyframe>(6)->frameID() == original_f5_frameID);
     }
 
-
-    // Delete raster keyrame..
     channel->removeKeyframe(5);
 
     QVERIFY(channel->keyframeAt(5) == nullptr);
     QVERIFY(channel->keyframeCount() == initialFrames + 1);
     QVERIFY(channel->keyframeCount() == dev->framesInterface()->frames().count());
 
-
-    {   // Overwrite raster keyframe..
+    {
         const int previousKeyframeCount = channel->keyframeCount();
 
-        channel->addKeyframe(0); // Overwrite's initial frame!
+        channel->addKeyframe(0);
 
         QVERIFY(channel->keyframeAt<KisRasterKeyframe>(0));
         QVERIFY(channel->keyframeCount() == previousKeyframeCount);
@@ -233,8 +209,7 @@ void KisKeyframingTest::testRasterChannel()
         QVERIFY(new_key0_thumbnail != key0_thumbnail);
     }
 
-
-    {   // Clone raster keyframe..
+    {
         channel->cloneKeyframe(6, 12);
 
         QVERIFY(channel->keyframeAt<KisRasterKeyframe>(6) == channel->keyframeAt<KisRasterKeyframe>(12));
@@ -243,7 +218,6 @@ void KisKeyframingTest::testRasterChannel()
         QVERIFY(channel->clonesOf(12).size() == 1);
         QVERIFY(channel->areClones(6, 12));
 
-        // Writing to 6 should change 12..
         bounds->testingSetTime(6);
         dev->fill(0, 0, 512, 512, green);
 
@@ -255,7 +229,6 @@ void KisKeyframingTest::testRasterChannel()
             QVERIFY(key6_thumbnail == key12_thumbnail);
         }
 
-        // Writing to 12 should change 6..
         bounds->testingSetTime(12);
         dev->fill(0,0, 512, 512, red);
 
@@ -269,7 +242,6 @@ void KisKeyframingTest::testRasterChannel()
 
         QVERIFY(channel->keyframeCount() > dev->framesInterface()->frames().count());
 
-        // Remove one of the clones..
         channel->removeKeyframe(6);
 
         QVERIFY(!channel->keyframeAt(6));
@@ -288,7 +260,6 @@ void KisKeyframingTest::testRasterFrameFetching()
 
     KisRasterKeyframeChannel *channel = dev->createKeyframeChannel(KoID());
 
-    // Setup initial frames..
     channel->addKeyframe(0);
     channel->addKeyframe(10);
     channel->addKeyframe(50);
@@ -305,7 +276,6 @@ void KisKeyframingTest::testRasterFrameFetching()
     dev->fill(0, 0, 512, 512, blue);
     QImage frame50 = dev->createThumbnail(50, 50);
 
-    // Fetch frames..
     channel->writeToDevice(0, devTarget);
     QImage fetched0 = devTarget->createThumbnail(50, 50);
 
@@ -331,10 +301,9 @@ void KisKeyframingTest::testRasterUndoRedo()
     TestUtil::TestingTimedDefaultBounds *bounds = new TestUtil::TestingTimedDefaultBounds();
     dev->setDefaultBounds(bounds);
 
-    // Create raster channel.
     KisRasterKeyframeChannel *channel = dev->createKeyframeChannel(KoID());
 
-    {   // Add/Insert
+    {
         KUndo2Command cmd;
         channel->addKeyframe(25, &cmd);
         cmd.redo();
@@ -355,7 +324,7 @@ void KisKeyframingTest::testRasterUndoRedo()
         QVERIFY(keyframe->frameID() == originalFrameID);
     }
 
-    {   // Remove
+    {
         KUndo2Command cmd;
 
         KisRasterKeyframeSP keyframe = channel->keyframeAt<KisRasterKeyframe>(25);
@@ -379,7 +348,7 @@ void KisKeyframingTest::testRasterUndoRedo()
 
     channel->addKeyframe(33);
 
-    {   // Move
+    {
         KUndo2Command cmd;
 
         channel->moveKeyframe(33, 34, &cmd);
@@ -398,10 +367,10 @@ void KisKeyframingTest::testRasterUndoRedo()
         QVERIFY(channel->keyframeAt(33) == nullptr);
         QVERIFY(channel->keyframeAt(34));
 
-        cmd.undo(); // (Sets up the next test.)
+        cmd.undo();
     }
 
-    {   // Copy
+    {
         KUndo2Command cmd;
 
         channel->copyKeyframe(33, 35, &cmd);
@@ -419,12 +388,11 @@ void KisKeyframingTest::testRasterUndoRedo()
 
         QVERIFY(channel->keyframeAt(33));
         QVERIFY(channel->keyframeAt(35));
-        //thumbnail?
     }
 
     channel->addKeyframe(66);
 
-    {   // Swap
+    {
         KUndo2Command cmd;
 
         int original_f33_frameID = channel->keyframeAt<KisRasterKeyframe>(33)->frameID();
@@ -449,12 +417,11 @@ void KisKeyframingTest::testRasterUndoRedo()
         QVERIFY(channel->keyframeAt<KisRasterKeyframe>(66)->frameID() == original_f33_frameID);
     }
 
-    {   // Clone
+    {
         KUndo2Command cmd;
         int original_f33_frameID = channel->keyframeAt<KisRasterKeyframe>(33)->frameID();
         int original_f66_frameID = channel->keyframeAt<KisRasterKeyframe>(66)->frameID();
 
-        //Clone / overwrite frame 33 over 66
         channel->cloneKeyframe(33, 66, &cmd);
         cmd.redo();
 
@@ -484,7 +451,6 @@ void KisKeyframingTest::testRasterUndoRedo()
         QVERIFY(channel->clonesOf(33).size() == 1);
         QVERIFY(channel->areClones(33, 66));
 
-        //Let's remove the clone frame again
         cmd.undo();
     }
 
@@ -503,7 +469,7 @@ void KisKeyframingTest::testFirstFrameOperations()
     QVERIFY(dev->framesInterface()->frames().count() == channel->keyframeCount());
     QVERIFY(channel->keyframeAt<KisRasterKeyframe>(0) != 0);
 
-    {   // Check writing to first frame and overwriting first frame contents.
+    {
         bounds->testingSetTime(0);
         dev->fill(0, 0, 50, 50, blue);
         QImage thumbnail = dev->createThumbnail(50, 50);
@@ -520,7 +486,7 @@ void KisKeyframingTest::testFirstFrameOperations()
     const int initialKeyframes = channel->keyframeCount();
     const int initialPhysicalFrames = dev->framesInterface()->frames().count();
 
-    {   // Delete first and only frame, and a new frame on frame 0 should exist.
+    {
         KUndo2Command cmd;
         const int original_frame0_frameID = channel->keyframeAt<KisRasterKeyframe>(0)->frameID();
         channel->removeKeyframe(0, &cmd);
@@ -540,7 +506,7 @@ void KisKeyframingTest::testFirstFrameOperations()
         QVERIFY(channel->keyframeAt<KisRasterKeyframe>(0)->frameID() != original_frame0_frameID);
     }
 
-    {   // When the first frame is moved, a new *empty* frame should take it's place
+    {
         KUndo2Command cmd;
 
         bounds->testingSetTime(0);
@@ -580,20 +546,19 @@ void KisKeyframingTest::testInterChannelMovement()
     KisPaintDeviceSP devA = new KisPaintDevice(cs);
     devA->setDefaultBounds(bounds);
 
-    // Initialize channelA and channelB with the same data.
     KisRasterKeyframeChannel *channelA = devA->createKeyframeChannel(KoID());
 
-    channelA->addKeyframe(0); // A0
+    channelA->addKeyframe(0);
     bounds->testingSetTime(0);
     devA->fill(0, 0, 512, 512, red);
     QImage original_thumbnail_ab0 = devA->createThumbnail(50, 50);
 
-    channelA->addKeyframe(10); // A10
+    channelA->addKeyframe(10);
     bounds->testingSetTime(10);
     devA->fill(0, 0, 512, 512, green);
     QImage original_thumbnail_ab10 = devA->createThumbnail(50, 50);
 
-    channelA->addKeyframe(50); // A50
+    channelA->addKeyframe(50);
     bounds->testingSetTime(50);
     devA->fill(0, 0, 512, 512, blue);
     QImage original_thumbnail_ab50 = devA->createThumbnail(50, 50);
@@ -602,7 +567,6 @@ void KisKeyframingTest::testInterChannelMovement()
     devB->setDefaultBounds(bounds);
     KisRasterKeyframeChannel *channelB = devB->keyframeChannel();
 
-    // Move between channels (A10->B15)
     KisKeyframeChannel::moveKeyframe(channelA, 10, channelB, 15);
     QVERIFY(channelA->keyframeAt(10) == nullptr);
     QVERIFY(channelB->keyframeAt(15));
@@ -611,29 +575,27 @@ void KisKeyframingTest::testInterChannelMovement()
     QVERIFY(channelA->keyframeCount() == devA->framesInterface()->frames().count());
     QVERIFY(channelB->keyframeCount() == devB->framesInterface()->frames().count());
 
-    {   // Test the thumbnails between the two paint devices.
+    {
         bounds->testingSetTime(15);
         QImage thumbnail_b15 = devB->createThumbnail(50,50);
         QVERIFY(thumbnail_b15 == original_thumbnail_ab10);
     }
 
-    // Copy between channels (A50>>B25)
     KisKeyframeChannel::copyKeyframe(channelA, 50, channelB, 25);
     QVERIFY(channelA->keyframeAt(50));
     QVERIFY(channelB->keyframeAt(25));
 
-    {   // Test the thumbnails between the two paint devices.
+    {
         bounds->testingSetTime(25);
         QImage thumbnail_b25 = devB->createThumbnail(50,50);
         QVERIFY(thumbnail_b25 == original_thumbnail_ab50);
     }
 
-    // Swap between channels (A50<->B0)
     KisKeyframeChannel::swapKeyframes(channelA, 50, channelB, 0);
     QVERIFY(channelA->keyframeAt(50));
     QVERIFY(channelB->keyframeAt(0));
 
-    {   // Test the thumbnails between the two paint devices.
+    {
         bounds->testingSetTime(0);
         QImage thumbnail_b0 = devB->createThumbnail(50, 50);
 
@@ -644,8 +606,6 @@ void KisKeyframingTest::testInterChannelMovement()
         QVERIFY(thumbnail_a50 == original_thumbnail_ab0);
     }
 }
-
-// ===================== Scalar Channel =================
 
 void KisKeyframingTest::testScalarChannel()
 {
@@ -660,15 +620,13 @@ void KisKeyframingTest::testScalarChannel()
     channel->setDefaultValue(defaultValue);
     channel->setDefaultInterpolationMode(KisScalarKeyframe::Constant);
 
-
-    {   // Add keyframe..
+    {
         channel->addKeyframe(0);
         KisScalarKeyframeSP key0 = channel->keyframeAt<KisScalarKeyframe>(0);
 
         QVERIFY(key0->value() == defaultValue);
         QVERIFY(key0->interpolationMode() == KisScalarKeyframe::Constant);
 
-        // Test limits..
         QRandomGenerator generator;
         for (int i = 0; i < 100; i++) {
             float randomValue = (generator.generateDouble() - 0.5) * (upperLimit - lowerLimit);
@@ -684,8 +642,7 @@ void KisKeyframingTest::testScalarChannel()
         }
     }
 
-
-    {   // Copy keyframe (0>>5)..
+    {
         channel->copyKeyframe(0, 5);
 
         KisScalarKeyframeSP key0 = channel->keyframeAt<KisScalarKeyframe>(0);
@@ -693,12 +650,11 @@ void KisKeyframingTest::testScalarChannel()
 
         QVERIFY(key5);
         QVERIFY(key0);
-        QVERIFY(key0 != key5); //Should be different instances..
-        QVERIFY(key5->value() == key0->value()); //But should be the same value!
+        QVERIFY(key0 != key5);
+        QVERIFY(key5->value() == key0->value());
     }
 
-
-    {   // Move keyframe (5->7)..
+    {
         KisScalarKeyframeSP old_key5 = channel->keyframeAt<KisScalarKeyframe>(5);
 
         channel->moveKeyframe(5, 7);
@@ -708,11 +664,10 @@ void KisKeyframingTest::testScalarChannel()
 
         QVERIFY(key5 == nullptr);
         QVERIFY(key7);
-        QVERIFY(key7 == old_key5); //Verify same instance has simply moved.
+        QVERIFY(key7 == old_key5);
     }
 
-
-    {   // Swap keyframe (0<->7)..
+    {
         KisScalarKeyframeSP old_key0 = channel->keyframeAt<KisScalarKeyframe>(0);
         KisScalarKeyframeSP old_key7 = channel->keyframeAt<KisScalarKeyframe>(7);
 
@@ -726,8 +681,7 @@ void KisKeyframingTest::testScalarChannel()
         QVERIFY(new_key7 == old_key0);
     }
 
-
-    {   // Overwrite keyframe (7)..
+    {
         channel->keyframeAt<KisScalarKeyframe>(7)->setValue(777);
         channel->addKeyframe(7);
         KisScalarKeyframeSP new_key7 = channel->keyframeAt<KisScalarKeyframe>(7);
@@ -735,8 +689,7 @@ void KisKeyframingTest::testScalarChannel()
         QVERIFY(new_key7->value() == defaultValue);
     }
 
-
-    {   // Remove keyframe..
+    {
         channel->removeKeyframe(7);
 
         QVERIFY(channel->keyframeAt(7) == nullptr);
@@ -764,7 +717,6 @@ void KisKeyframingTest::testScalarValueInterpolation()
         channel->addKeyframe(timeB);
         channel->keyframeAt<KisScalarKeyframe>(timeB)->setValue(valueB);
 
-        // Constant
         KisScalarKeyframeSP keyA = channel->keyframeAt<KisScalarKeyframe>(timeA);
         keyA->setInterpolationMode(KisScalarKeyframe::Constant);
 
@@ -772,7 +724,6 @@ void KisKeyframingTest::testScalarValueInterpolation()
         QVERIFY(channel->valueAt(timeA + 4) == valueA);
         QVERIFY(channel->valueAt(timeA) == valueA);
 
-        // Bezier
         keyA->setInterpolationMode(KisScalarKeyframe::Bezier);
         keyA->setInterpolationTangents(QPointF(), QPointF(1,4));
         KisScalarKeyframeSP keyB = channel->keyframeAt<KisScalarKeyframe>(timeB);
@@ -783,8 +734,7 @@ void KisKeyframingTest::testScalarValueInterpolation()
         QVERIFY(channel->valueAt(timeA) == valueA);
     }
 
-
-    {   // Bezier, self-intersecting curve (auto-correct)
+    {
         KisScalarKeyframeSP keyA = channel->keyframeAt<KisScalarKeyframe>(timeA);
         KisScalarKeyframeSP keyB = channel->keyframeAt<KisScalarKeyframe>(timeB);
 
@@ -796,7 +746,7 @@ void KisKeyframingTest::testScalarValueInterpolation()
         QVERIFY(qAbs(channel->valueAt(timeA + 5) - 20.769f) < 0.1f);
     }
 
-    {   // Bezier, result outside allowed range (clamp)
+    {
         KisScalarKeyframeSP keyA = channel->keyframeAt<KisScalarKeyframe>(timeA);
         KisScalarKeyframeSP keyB = channel->keyframeAt<KisScalarKeyframe>(timeB);
 
@@ -819,7 +769,7 @@ void KisKeyframingTest::testScalarChannelUndoRedo()
     channel->setDefaultValue(defaultValue);
     channel->setDefaultInterpolationMode(KisScalarKeyframe::Constant);
 
-    {   // Add
+    {
         KUndo2Command cmd;
 
         channel->addKeyframe(1, &cmd);
@@ -839,8 +789,7 @@ void KisKeyframingTest::testScalarChannelUndoRedo()
         QVERIFY(key->value() == defaultValue);
     }
 
-
-    {   // Remove
+    {
         KUndo2Command cmd;
         KisScalarKeyframeSP key = channel->keyframeAt<KisScalarKeyframe>(1);
         const int value = 8;
@@ -862,8 +811,7 @@ void KisKeyframingTest::testScalarChannelUndoRedo()
         QVERIFY(channel->keyframeAt(1) == nullptr);
     }
 
-
-    {   // Modifying Keyframe Value..
+    {
         const int time = 88;
         const float key88_value = 156;
 
@@ -889,8 +837,7 @@ void KisKeyframingTest::testScalarChannelUndoRedo()
         channel->removeKeyframe(time);
     }
 
-
-    {   // Modify all values at once, they should all restore as expected.
+    {
         const int time = 45;
         const qreal value = 128.0f;
         const KisScalarKeyframe::InterpolationMode interpMode = KisScalarKeyframe::Linear;
@@ -949,25 +896,21 @@ void KisKeyframingTest::testScalarAffectedFrames()
     channel->addKeyframe(20);
     channel->addKeyframe(30);
 
-    // At a keyframe
     range = channel->affectedFrames(20);
     QCOMPARE(range.start(), 20);
     QCOMPARE(range.end(), 29);
     QCOMPARE(range.isInfinite(), false);
 
-    // Between frames
     range = channel->affectedFrames(25);
     QCOMPARE(range.start(), 20);
     QCOMPARE(range.end(), 29);
     QCOMPARE(range.isInfinite(), false);
 
-    // Before first frame
     range = channel->affectedFrames(5);
     QCOMPARE(range.start(), 0);
     QCOMPARE(range.end(), 9);
     QCOMPARE(range.isInfinite(), false);
 
-    // After last frame
     range = channel->affectedFrames(35);
     QCOMPARE(range.start(), 30);
     QCOMPARE(range.isInfinite(), true);
@@ -980,12 +923,10 @@ void KisKeyframingTest::testChangeOfScalarLimits()
     channel->setDefaultValue(0);
     channel->setDefaultInterpolationMode(KisScalarKeyframe::Constant);
 
-    // Set channel scalar limits..
     const int original_low = 0;
     const int original_high = 64;
     channel->setLimits(original_low, original_high);
 
-    // Add a few keyframes..
     channel->addScalarKeyframe(0, -12);
     channel->addScalarKeyframe(15, 32);
     channel->addScalarKeyframe(30, 100);
@@ -994,7 +935,6 @@ void KisKeyframingTest::testChangeOfScalarLimits()
     QVERIFY(channel->valueAt(15) >= original_low && channel->valueAt(15) <= original_high);
     QVERIFY(channel->valueAt(30) >= original_low && channel->valueAt(30) <= original_high);
 
-    // Change channel scalar limits..
     const int new_low = -10;
     const int new_high = 10;
     channel->setLimits(new_low, new_high);
@@ -1003,13 +943,9 @@ void KisKeyframingTest::testChangeOfScalarLimits()
     QVERIFY(channel->valueAt(15) >= new_low && channel->valueAt(15) <= new_high);
     QVERIFY(channel->valueAt(30) >= new_low && channel->valueAt(30) <= new_high);
 
-    // Double check that value directly from the keyframe is also within limits..
     KisScalarKeyframeSP key0 = channel->keyframeAt<KisScalarKeyframe>(0);
     KisScalarKeyframeSP key15 = channel->keyframeAt<KisScalarKeyframe>(15);
     KisScalarKeyframeSP key30 = channel->keyframeAt<KisScalarKeyframe>(30);
-    //QVERIFY(key0 && key0->value() == channel->valueAt(0));
-    //QVERIFY(key15 && key15->value() == channel->valueAt(15));
-    //QVERIFY(key30 && key30->value() == channel->valueAt(30));
     QCOMPARE(key0->value(), channel->valueAt(0));
     QCOMPARE(key15->value(), channel->valueAt(15));
     QCOMPARE(key30->value(), channel->valueAt(30));
@@ -1022,7 +958,6 @@ void KisKeyframingTest::testAutoKeyframing_data()
     QTest::addColumn<KisAutoKey::Mode>("autoKeyMode");
     QTest::addColumn<bool>("allowBlank");
     QTest::addColumn<bool>("useLodNMode");
-
 
     QTest::addRow("duplicate") << KisAutoKey::DUPLICATE << true << false;
     QTest::addRow("blank") << KisAutoKey::BLANK << true << false;
@@ -1039,7 +974,7 @@ namespace {
 inline QRect rectForTime(int time) {
     return QRect(time * 64 + 1, 65, 62, 62);
 }
-} // namespace
+}
 
 void KisKeyframingTest::testAutoKeyframing()
 {

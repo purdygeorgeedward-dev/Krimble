@@ -25,10 +25,6 @@ struct Q_DECL_HIDDEN SvgTextLabel::Private {
 
     QScopedPointer<KoSvgTextShape> shape;
 
-    /**
-     * The shape painter is initialized only after QML item loading
-     * is completed
-     */
     QScopedPointer<KoShapePainter> shapePainter;
 
     KoSvgTextProperties props;
@@ -38,7 +34,7 @@ struct Q_DECL_HIDDEN SvgTextLabel::Private {
     int leftPadding = 2;
     int rightPadding = 2;
 
-    bool addedShapeToPainter = false; //Tests if the shape has been added to the painter yet.
+    bool addedShapeToPainter = false;
 };
 
 SvgTextLabel::SvgTextLabel(QQuickItem *parent)
@@ -58,7 +54,6 @@ SvgTextLabel::~SvgTextLabel()
 
 void SvgTextLabel::paint(QPainter *painter)
 {
-    // the QML item must be finalized before paint() is called
     KIS_SAFE_ASSERT_RECOVER_RETURN(d->shapePainter);
 
     if (width() == 0 || height() == 0) return;
@@ -72,7 +67,6 @@ void SvgTextLabel::paint(QPainter *painter)
     QRectF bbox = d->shape->selectionBoxes(0, d->shape->posForIndex(d->shape->plainText().size())).boundingRect();
     bbox = bbox.isEmpty()? d->shape->boundingRect(): bbox;
 
-    // Scale padding so that it is relative to the width and height.
     const double newWidth = width()-(d->leftPadding+d->rightPadding);
     const double newLeftPadding = (d->leftPadding / newWidth) * bbox.width();
     const double newRightPadding = (d->rightPadding / newWidth) * bbox.width();

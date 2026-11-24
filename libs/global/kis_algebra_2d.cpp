@@ -25,7 +25,7 @@
 
 #ifdef HAVE_GSL
 #include <gsl/gsl_multimin.h>
-#endif /*HAVE_GSL*/
+#endif
 
 #include <Eigen/Eigenvalues>
 #include <KisBezierUtils.h>
@@ -59,8 +59,6 @@ void adjustIfOnPolygonBoundary(const QPolygonF &poly, int polygonDirection, QPoi
 
             QPointF adjustedPoint = *pt + salt;
 
-            // in case the polygon is self-intersecting, polygon direction
-            // might not help
             if (kisDistanceToLine(adjustedPoint, QLineF(p0, p1)) < 1e-4) {
                 adjustedPoint = *pt - salt;
 
@@ -80,7 +78,7 @@ void adjustIfOnPolygonBoundary(const QPolygonF &poly, int polygonDirection, QPoi
                 *pt = adjustedPoint;
 
                 KIS_ASSERT_RECOVER_NOOP(kisDistanceToLine(*pt, QLineF(p0, p1)) > 1e-4);
-#endif /* SANITY_CHECKS */
+#endif
             }
         }
     }
@@ -177,12 +175,6 @@ bool intersectLineRect(QLineF &line, const QRect rect, bool extend)
 
 bool intersectLineRect(QLineF &line, const QRect rect, bool extendFirst, bool extendSecond)
 {
-    // using Liang-Barsky algorithm
-    // using parametric equation for a line:
-    // X = x1 + t(x2-x1) = x1 + t*p2
-    // Y = y1 + t(y2-y1) = y1 + t*p4
-    // note that we have a line *segment* here, not a line
-    // t1 = 0, t2 = 1, no matter what points we got
 
     double p1 = -(line.x2() - line.x1());
     double p2 = -p1;
@@ -192,16 +184,13 @@ bool intersectLineRect(QLineF &line, const QRect rect, bool extendFirst, bool ex
     QVector<double> p = QVector<double>({p1, p2, p3, p4});
     QVector<double> q = QVector<double>({line.x1() - rect.x(), rect.x() + rect.width() - line.x1(), line.y1() - rect.y(), rect.y() + rect.height() - line.y1()});
 
-    float tmin = extendFirst ? -std::numeric_limits<float>::infinity() : 0; // line.p1() - first point, or infinity
-    float tmax = extendSecond ? std::numeric_limits<float>::infinity() : 1; // line.p2() - second point, or infinity
+    float tmin = extendFirst ? -std::numeric_limits<float>::infinity() : 0;
+    float tmax = extendSecond ? std::numeric_limits<float>::infinity() : 1;
 
     for (int i = 0; i < p.length(); i++) {
-        // now clipping
         if (p[i] == 0 && q[i] < 0) {
-            // line is parallel to the boundary and outside of it
             return false;
         } else if (p[i] < 0) {
-            // line entry point (should be tmin)
             double t = q[i]/p[i];
             if (t > tmax) {
                 if (extendSecond) {
@@ -214,9 +203,7 @@ bool intersectLineRect(QLineF &line, const QRect rect, bool extendFirst, bool ex
                 tmin = t;
             }
 
-
         } else if (p[i] > 0) {
-            // line leaving point (should be tmax)
             double t = q[i]/p[i];
             if (t < tmin) {
                 if (extendFirst) {
@@ -256,43 +243,30 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
         return false;
     }
 
-    // trivial case: no extends, all points inside the polygon
     if (!extendFirst && !extendSecond && polygon.containsPoint(line.p1(), Qt::WindingFill) && polygon.containsPoint(line.p2(), Qt::WindingFill)) {
         return true;
     }
 
-    // Cyrus-Beck algorithm: https://en.wikipedia.org/wiki/Cyrus%E2%80%93Beck_algorithm
-
-    // parametric equation for the line:
-    // p(t) = t*P1 + (1-t)*P2
-
-    // we can't use infinity here, because the points would all end up as (+/- inf, +/- inf)
-    // which would be useless if we have a very specific direction
-    // hence we use just "a big number"
-    float aBigNumber = 100000; // that will keep t*Px still on the line // this is LIMITATION of the algorithm
-    float tmin = extendFirst ? -aBigNumber : 0; // line.p1() - first point, or infinity
-    float tmax = extendSecond ? aBigNumber : 1; // line.p2() - second point, or infinity
-
-
+    float aBigNumber = 100000;
+    float tmin = extendFirst ? -aBigNumber : 0;
+    float tmax = extendSecond ? aBigNumber : 1;
 
     QList<QLineF> clippingLines;
     QList<QPointF> normals;
 
     bool clockwise = false;
     {
-        // only temporary values to check whether the polygon is clockwise or counterclockwise
         QPointF vec1 = polygon[1] - polygon[0];
         QPointF vec2 = polygon[2] - polygon[0];
 
         QLineF line1(QPointF(0, 0), vec1);
         QLineF line2(QPointF(0, 0), vec2);
 
-        qreal angle = line1.angleTo(line2); // range: <0, 360) // <0, 180) means counter-clockwise
+        qreal angle = line1.angleTo(line2);
         if (angle >= 180) {
             clockwise = true;
         }
     }
-
 
     for (int i = 0; i < polygon.size() - 1; i++) {
         clippingLines.append(QLineF(polygon[i], polygon[i + 1]));
@@ -322,47 +296,34 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
     }
 
     QPointF lineVec = line.p2() - line.p1();
-    // ax + by + c = 0
-    // c = -ax - by
-//    qreal cFromStandardEquation = -lineVec.x()*line.p1().x() - lineVec.y()*line.p1().y();
-
 
     QPointF p1 = line.p1();
     QPointF p2 = line.p2();
 
-    qreal pA, pB, pC; // standard equation for the line: ax + by + c = 0
+    qreal pA, pB, pC;
     if (qAbs(lineVec.x()) < epsilon) {
-        // x1 ~= x2, line looks like: x = -pC
         pB = 0;
         pA = 1;
         pC = -p1.x();
     } else {
-        pB = 1; // let b = 1 to simplify
+        pB = 1;
         qreal tmp = (p1.y() - p2.y())/(p1.x() - p2.x());
         pA = -tmp;
         pC = tmp * p1.x() - p1.y();
     }
 
-
     int pEFound = 0;
-
 
     for (int i = 0; i < clippingLines.size(); i++) {
 
-        // is the clipping line parallel to the line?
         QPointF clipVec = clippingLines[i].p2() - clippingLines[i].p1();
 
         if (qFuzzyCompare(clipVec.x()*lineVec.y(), clipVec.y()*lineVec.x())) {
 
-            // vectors are parallel
-            // let's check if one of the clipping points is on the line (extended) to see if it's the same line; if not, proceed normally
-
             qreal distanceBetweenLines = qAbs(pA*clippingLines[i].p1().x() + pB*clippingLines[i].p1().y() + pC)
                     /(sqrt(pA*pA + pB*pB));
 
-
             if (qAbs(distanceBetweenLines) < epsilon) {
-                // they are the same line
 
                 qreal t1;
                 qreal t2;
@@ -378,8 +339,6 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
                 qreal tmin1 = qMin(t1, t2);
                 qreal tmax2 = qMax(t1, t2);
 
-
-
                 if (tmin < tmin1) {
                     tmin = tmin1;
                 }
@@ -389,16 +348,6 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
                 continue;
             }
             else {
-                // if clipping line points are P1 and P2, and some other point is P(t) (given by parametric equation),
-                // and N is the normal vector
-                // and one of the points of the line we're intersecting is K,
-                // then we have a following equation:
-                // K = P(t) + a * N
-                // where t and a are unknown.
-                // after simplifying we get:
-                // t*(p2 - p1) + a*(n) = k - p1
-                // and since we have two axis, we get a linear system of two equations
-                // A * [t; a] = B
 
                 Eigen::Matrix2f A;
                 Eigen::Vector2f b;
@@ -417,9 +366,7 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
 
         }
 
-
-        boost::optional<QPointF> pEOptional = intersectLines(clippingLines[i], line); // bounded, unbounded
-
+        boost::optional<QPointF> pEOptional = intersectLines(clippingLines[i], line);
 
         if (pEOptional) {
             pEFound++;
@@ -434,25 +381,17 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
             qreal under = (n.x()*A.x() + n.y()*A.y());
             qreal t = -over/under;
 
-//            if (pE.x() != p2.x()) {
-//                qreal maybet = (pE.x() - p1.x())/(p2.x() - p1.x());
-//            }
-
             qreal tminvalue = tmin * under + over;
             qreal tmaxvalue = tmax * under + over;
 
             if (tminvalue > 0 && tmaxvalue > 0) {
-                // both outside of the edge
                 return false;
             }
             if (tminvalue <= 0 && tmaxvalue <= 0) {
-                // noop, both inside
             }
             if (tminvalue*tmaxvalue < 0) {
 
-                // on two different sides
                 if (tminvalue > 0) {
-                    // tmin outside, tmax inside
                     if (t > tmin) {
                         tmin = t;
                     }
@@ -462,8 +401,6 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
                     }
                 }
             }
-
-
 
             if (tmax < tmin) {
                 return false;
@@ -515,7 +452,6 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
     {
         return sampleRectWithPoints<QRectF, QPointF>(rect);
     }
-
 
     template <class Rect, class Point, bool alignPixels>
     Rect approximateRectFromPointsImpl(const QVector<Point> &points)
@@ -573,7 +509,6 @@ bool intersectLineConvexPolygon(QLineF &line, const QPolygonF polygon, bool exte
 
         return resultRect;
     }
-
 
 QRectF cutOffRect(const QRectF &rc, const KisAlgebra2D::RightHalfPlane &p)
 {
@@ -759,12 +694,10 @@ bool fuzzyPointCompare(const QPointF &p1, const QPointF &p2)
     return qFuzzyCompare(p1.x(), p2.x()) && qFuzzyCompare(p1.y(), p2.y());
 }
 
-
 bool fuzzyPointCompare(const QPointF &p1, const QPointF &p2, qreal delta)
 {
     return qAbs(p1.x() - p2.x()) < delta && qAbs(p1.y() - p2.y()) < delta;
 }
-
 
 inline QTransform toQTransformStraight(const Eigen::Matrix3d &m)
 {
@@ -783,10 +716,6 @@ inline Eigen::Matrix3d fromQTransformStraight(const QTransform &t)
 
     return m;
 }
-
-/********************************************************/
-/*             DecomposedMatrix                         */
-/********************************************************/
 
 DecomposedMatrix::DecomposedMatrix()
 {
@@ -818,11 +747,8 @@ DecomposedMatrix::DecomposedMatrix(const QTransform &t0)
         proj[2] = projMatrix.m33();
     }
 
-    // can't use QVector3D, because they have too little accuracy for ellipse in perspective calculations
     std::array<Eigen::Vector3d, 3> rows;
 
-
-    //  << t.m11() << t.m12() << t.m13())
     rows[0] = Eigen::Vector3d(t.m11(), t.m12(), t.m13());
     rows[1] = Eigen::Vector3d(t.m21(), t.m22(), t.m23());
     rows[2] = Eigen::Vector3d(t.m31(), t.m32(), t.m33());
@@ -840,7 +766,6 @@ DecomposedMatrix::DecomposedMatrix(const QTransform &t0)
 
     rows[2] = Eigen::Vector3d(0,0,1);
 
-
     scaleX = rows[0].norm();
     rows[0] *= 1.0 / scaleX;
 
@@ -851,10 +776,8 @@ DecomposedMatrix::DecomposedMatrix(const QTransform &t0)
     rows[1] *= 1.0 / scaleY;
     shearXY *= 1.0 / scaleY;
 
-    // If determinant is negative, one axis was flipped.
     qreal determinant = rows[0].x() * rows[1].y() - rows[0].y() * rows[1].x();
     if (determinant < 0) {
-        // Flip axis with minimum unit vector dot product.
         if (rows[0].x() < rows[1].y()) {
             scaleX = -scaleX;
             rows[0] = -rows[0];
@@ -868,9 +791,6 @@ DecomposedMatrix::DecomposedMatrix(const QTransform &t0)
     angle = kisRadiansToDegrees(std::atan2(rows[0].y(), rows[0].x()));
 
     if (angle != 0.0) {
-        // Rotate(-angle) = [cos(angle), sin(angle), -sin(angle), cos(angle)]
-        //                = [row0x, -row0y, row0y, row0x]
-        // Thanks to the normalization above.
 
         qreal sn = -rows[0].y();
         qreal cs = rows[0].x();
@@ -889,8 +809,7 @@ DecomposedMatrix::DecomposedMatrix(const QTransform &t0)
             rows[1].x(), rows[1].y(), rows[1].z(),
             rows[2].x(), rows[2].y(), rows[2].z());
 
-    if (/*true || */!fuzzyMatrixCompare(leftOver, QTransform(), 1e-4)) {
-        // what's wrong?
+    if ( !fuzzyMatrixCompare(leftOver, QTransform(), 1e-4)) {
         ENTER_FUNCTION() << "FAILING THE ASSERT BELOW!";
         ENTER_FUNCTION() << ppVar(leftOver);
         ENTER_FUNCTION() << "matrix to decompose was: " << ppVar(t0);
@@ -901,14 +820,11 @@ DecomposedMatrix::DecomposedMatrix(const QTransform &t0)
         ENTER_FUNCTION() << mat3(0, 0) << mat3(0, 1) << mat3(0, 2);
         ENTER_FUNCTION() << mat3(1, 0) << mat3(1, 1) << mat3(1, 2);
         ENTER_FUNCTION() << mat3(2, 0) << mat3(2, 1) << mat3(2, 2);
-        //ENTER_FUNCTION() << ppVar(mat1 - mat2);
     }
-
 
     KIS_SAFE_ASSERT_RECOVER_NOOP(fuzzyMatrixCompare(leftOver, QTransform(), 1e-4));
     KIS_ASSERT(fuzzyMatrixCompare(leftOver, QTransform(), 1e-4));
 }
-
 
 std::pair<QPointF, QTransform> transformEllipse(const QPointF &axes, const QTransform &fullLocalToGlobal)
 {
@@ -917,15 +833,11 @@ std::pair<QPointF, QTransform> transformEllipse(const QPointF &axes, const QTran
             decomposed.scaleTransform() *
             decomposed.shearTransform() *
 
-            /* decomposed.projectTransform() * */
-            /*decomposed.translateTransform() * */
-
             decomposed.rotateTransform();
 
     const QTransform localEllipse = QTransform(1.0 / pow2(axes.x()), 0.0, 0.0,
                                                0.0, 1.0 / pow2(axes.y()), 0.0,
                                                0.0, 0.0, 1.0);
-
 
     const QTransform globalToLocal = localToGlobal.inverted();
 
@@ -933,8 +845,6 @@ std::pair<QPointF, QTransform> transformEllipse(const QPointF &axes, const QTran
         fromQTransformStraight(globalToLocal *
                                localEllipse *
                                globalToLocal.transposed());
-
-//    std::cout << "eqM:" << std::endl << eqM << std::endl;
 
     Eigen::EigenSolver<Eigen::Matrix3d> eigenSolver(eqM);
 
@@ -947,14 +857,6 @@ std::pair<QPointF, QTransform> transformEllipse(const QPointF &axes, const QTran
     KIS_SAFE_ASSERT_RECOVER_NOOP(Ti.isZero());
     KIS_SAFE_ASSERT_RECOVER_NOOP(Ui.isZero());
     KIS_SAFE_ASSERT_RECOVER_NOOP((U * U.transpose()).isIdentity());
-
-//    std::cout << "T:" << std::endl << T << std::endl;
-//    std::cout << "U:" << std::endl << U << std::endl;
-
-//    std::cout << "Ti:" << std::endl << Ti << std::endl;
-//    std::cout << "Ui:" << std::endl << Ui << std::endl;
-
-//    std::cout << "UTU':" << std::endl << U * T * U.transpose() << std::endl;
 
     const qreal newA = 1.0 / std::sqrt(T(0,0) * T(2,2));
     const qreal newB = 1.0 / std::sqrt(T(1,1) * T(2,2));
@@ -997,7 +899,7 @@ boost::optional<QPointF> intersectLines(const QLineF &boundedLine, const QLineF 
     T = A.inverse() * B;
 
     const qreal t2 = T(1,0);
-    double epsilon = 1e-06; // to avoid precision issues
+    double epsilon = 1e-06;
 
     if (t2 < 0.0 || t2 > 1.0) {
         if (qAbs(t2) > epsilon && qAbs(t2 - 1.0) > epsilon) {
@@ -1115,7 +1017,6 @@ QPointF moveElasticPoint(const QPointF &pt, const QPointF &base, const QPointF &
 
     const qreal dL = dotProduct(newBase - base, -vecL) / L;
 
-
     const qreal divB = (cosMuB + La / Lb * sinMuB * cosMuA / sinMuA) / L +
             (cosMuB + sinMuB * cosMuA / sinMuA) / Lb;
     const qreal dLb = dL / ( L * divB);
@@ -1196,8 +1097,7 @@ double elasticMotionError(const gsl_vector * x, void *paramsPtr)
     return finalError;
 }
 
-
-#endif /* HAVE_GSL */
+#endif
 
 QPointF moveElasticPoint(const QPointF &pt,
                          const QPointF &base, const QPointF &newBase,
@@ -1225,17 +1125,14 @@ QPointF moveElasticPoint(const QPointF &pt,
     int status;
     double size;
 
-    /* Starting point */
     x = gsl_vector_alloc (2);
     gsl_vector_set (x, 0, newResultPoint.x());
     gsl_vector_set (x, 1, newResultPoint.y());
 
-    /* Set initial step sizes to 0.1 */
     ss = gsl_vector_alloc (2);
     gsl_vector_set (ss, 0, 0.1 * offset.x());
     gsl_vector_set (ss, 1, 0.1 * offset.y());
 
-    /* Initialize method and iterate */
     minex_func.n = 2;
     minex_func.f = elasticMotionError;
     minex_func.params = (void*)&data;
@@ -1254,22 +1151,12 @@ QPointF moveElasticPoint(const QPointF &pt,
         size = gsl_multimin_fminimizer_size (s);
         status = gsl_multimin_test_size (size, 1e-6);
 
-        /**
-         * Sometimes the algorithm may converge to a wrong point,
-         * then just try to force it search better or return invalid
-         * result.
-         */
         if (status == GSL_SUCCESS && elasticMotionError(s->x, &data) > 0.5) {
             status = GSL_CONTINUE;
         }
 
         if (status == GSL_SUCCESS)
         {
-//             qDebug() << "*******Converged to minimum";
-//             qDebug() << gsl_vector_get (s->x, 0)
-//                      << gsl_vector_get (s->x, 1)
-//                      << "|" << s->fval << size;
-//             qDebug() << ppVar(iter);
 
              newResultPoint.rx() = gsl_vector_get (s->x, 0);
              newResultPoint.ry() = gsl_vector_get (s->x, 1);
@@ -1293,7 +1180,7 @@ void cropLineToRect(QLineF &line, const QRect rect, bool extendFirst, bool exten
 {
     bool intersects = intersectLineRect(line, rect, extendFirst, extendSecond);
     if (!intersects) {
-        line = QLineF(); // empty line to help with drawing
+        line = QLineF();
     }
 }
 
@@ -1301,14 +1188,12 @@ void cropLineToConvexPolygon(QLineF &line, const QPolygonF polygon, bool extendF
 {
     bool intersects = intersectLineConvexPolygon(line, polygon, extendFirst, extendSecond);
     if (!intersects) {
-        line = QLineF(); // empty line to help with drawing
+        line = QLineF();
     }
 }
 
 int lineSideForPoint(const QLineF &line, const QPointF &point)
 {
-    // TODO: do we really neede these explicit checks? Do they help with
-    //       precision?
 
     if (fuzzyPointCompare(point, line.p1())) {
         return 0;
@@ -1325,17 +1210,14 @@ int lineSideForPoint(const QLineF &line, const QPointF &point)
 }
 
 QPolygonF combineConvexHullParts(const QPolygonF &leftPolygon, QPolygonF &rightPolygon, bool triangular) {
-    // resulting polygon should start at p1, go through all the points, go to p2, then to p1 again
-    // triangular: whether the last point of right is equal to the first point in left or not
 
     QPolygonF left = leftPolygon;
     QPolygonF right = rightPolygon;
 
-    left.removeLast(); // remove p1 from the end (but not the beginning)
-    left.removeLast(); // remove nextPoint as well, since it's present in rightPolygon (twice)
+    left.removeLast();
+    left.removeLast();
 
-    right.removeLast(); // remove nextPoint from the end (but not the beginning)
-
+    right.removeLast();
 
     QPolygonF result;
     Q_FOREACH(QPointF point, left) {
@@ -1355,7 +1237,6 @@ QPolygonF combineConvexHullParts(const QPolygonF &leftPolygon, QPolygonF &rightP
 
 QPolygonF calculateConvexHullFromPointsOverTheLine(const QPolygonF &points, const QLineF &line)
 {
-    // all the points should be on the correct side already, no need to check it
     if (points.count() < 1) {
         QPolygonF result;
         result << line.p1() << line.p2() << line.p1();
@@ -1408,7 +1289,6 @@ QPolygonF calculateConvexHullFromPointsOverTheLine(const QPolygonF &points, cons
     return result;
 }
 
-
 QPolygonF calculateConvexHull(const QPolygonF &polygon)
 {
     if (polygon.count() < 4) {
@@ -1416,7 +1296,7 @@ QPolygonF calculateConvexHull(const QPolygonF &polygon)
     }
     QPointF leftPoint = polygon[0];
     QPointF rightPoint = polygon[1];
-    if (leftPoint.x() > rightPoint.x()) { // swap them around
+    if (leftPoint.x() > rightPoint.x()) {
         leftPoint = polygon[1];
         rightPoint = polygon[0];
     }
@@ -1458,7 +1338,6 @@ QPolygonF calculateConvexHull(const QPolygonF &polygon)
 
 QList<QLineF> intersectLineConcavePolygon(const QPolygonF polygon, const QLineF& line, bool extendFirst, bool extendSecond) {
 
-    // should use kis_convex_hull instead, that one uses boost
     QPolygonF convexHull = calculateConvexHull(polygon);
     if (convexHull.count() == polygon.count()) {
         QLineF resultLine = line;
@@ -1470,24 +1349,16 @@ QList<QLineF> intersectLineConcavePolygon(const QPolygonF polygon, const QLineF&
         }
     }
 
-    // it was a concave polygon
-    // intersectLines
-
-    // should be as easy as cutting every line, then sorting the points and creating the lines, except gotta take care of exceptions
-
     KIS_ASSERT(false && "Not implemented yet");
 
     return QList<QLineF>();
 }
 
-
 qreal findMinimumGoldenSection(std::function<qreal(qreal)> f, qreal xA, qreal xB, qreal eps, int maxIter = 100)
 {
-    // requirements:
-    // only one local minimum between xA and xB
 
     int i = 0;
-    const double phi = 0.618033988749894; // 1/(golden ratio)
+    const double phi = 0.618033988749894;
     qreal a = xA;
     qreal b = xB;
     qreal c = b - (b - a)*phi;
@@ -1500,7 +1371,6 @@ qreal findMinimumGoldenSection(std::function<qreal(qreal)> f, qreal xA, qreal xB
             a = c;
         }
 
-        // Wikipedia says to recompute both c and d here to avoid loss of precision which may lead to incorrect results or infinite loop
         c = b - (b - a) * phi;
         d = a + (b - a) * phi;
 
@@ -1516,13 +1386,10 @@ qreal findMinimumGoldenSection(std::function<qreal(qreal)> f, qreal xA, qreal xB
 
 qreal findMinimumTernarySection(std::function<qreal(qreal)> f, qreal xA, qreal xB, qreal eps, int maxIter = 100)
 {
-    // requirements:
-    // only one local minimum between xA and xB
 
     int i = 0;
     qreal l = qMin(xA, xB);
     qreal r = qMax(xA, xB);
-
 
     qreal m1 = l + (r - l)/3;
     qreal m2 = r - (r - l)/3;
@@ -1537,8 +1404,6 @@ qreal findMinimumTernarySection(std::function<qreal(qreal)> f, qreal xA, qreal x
             r = m2;
         }
 
-        // In Golden Section, Wikipedia says to recompute both c and d here to avoid loss of precision which may lead to incorrect results or infinite loop
-        // so it's probably a good idea to do it here too
         m1 = l + (r - l)/3;
         m2 = r - (r - l)/3;
 
@@ -1554,9 +1419,7 @@ qreal findMinimumTernarySection(std::function<qreal(qreal)> f, qreal xA, qreal x
 
 qreal pointToLineDistSquared(const QPointF &pt, const QLineF &line)
 {
-    // distance = |(p2 - p1) x (p1 - pt)| / |p2 - p1|
 
-    // magnitude of (p2 - p1) x (p1 - pt)
     const qreal cross = (line.dx() * (line.y1() - pt.y()) - line.dy() * (line.x1() - pt.x()));
 
     return cross * cross / (line.dx() * line.dx() + line.dy() * line.dy());
@@ -1645,7 +1508,6 @@ QPainterPath trySimplifyPath(const QPainterPath &path, qreal lengthThreshold)
     return newPath;
 }
 
-
 QList<QLineF> getParallelLines(const QLineF& line, const qreal distance) {
 
     QPointF lineNormalVector = QPointF(line.dy(), -line.dx());
@@ -1672,7 +1534,7 @@ QPainterPath getOnePathFromRectangleCutThrough(const QList<QPointF> &points, con
     path.lineTo(line.p2());
 
     QList<QPointF> availablePoints;
-    int maxRectPointsNumber = 4; // in case the list has five points to count the first one twice
+    int maxRectPointsNumber = 4;
     for(int i = 0; i < maxRectPointsNumber; i++) {
         qreal whichSide = KisAlgebra2D::crossProduct(line.p2() - line.p1(), line.p2() - points[i]);
         if (whichSide*(left ? 1 : -1) >= 0) {
@@ -1704,14 +1566,12 @@ QPainterPath getOnePathFromRectangleCutThrough(const QList<QPointF> &points, con
             if (!started) {
                 started = true;
 
-                // TODO: if it's not the same point?
                 path.lineTo(availablePoints[index]);
                 if (onTheLine(availablePoints[index], line.p1())) {
                     break;
                 }
 
             } else {
-                // usually would add, unless it's the ending
                 if (onTheLine(availablePoints[index], line.p1())) {
                     path.lineTo(availablePoints[index]);
                     break;
@@ -1721,14 +1581,12 @@ QPainterPath getOnePathFromRectangleCutThrough(const QList<QPointF> &points, con
         }
     }
 
-
     path.lineTo(line.p1());
 
     return path;
 }
 
 QList<QPainterPath> getPathsFromRectangleCutThrough(const QRectF &rect, const QLineF &leftLine, const QLineF &rightLine) {
-
 
     QPainterPath left;
     QPainterPath right;
@@ -1748,13 +1606,11 @@ QList<QPainterPath> getPathsFromRectangleCutThrough(const QRectF &rect, const QL
     QList<QPainterPath> paths;
     paths << left << right;
 
-
     return paths;
 }
 
 QPointF findNearestPointOnLine(const QPointF &point, const QLineF &line, bool unbounded)
 {
-    // TODO: can we reuse (or deduplicate with) KisBezierUtils.cpp:nearestPoint()?
 
     if (line.length() == 0) {
         return point;
@@ -1772,7 +1628,7 @@ QPointF findNearestPointOnLine(const QPointF &point, const QLineF &line, bool un
     qreal distance1 = kisDistance(line.p1(), result);
     qreal distance2 = kisDistance(line.p2(), result);
     if (distance1 + distance2 <= line.length() || qFuzzyCompare(distance1 + distance2, line.length())) {
-        return result; // it's still on the line
+        return result;
     }
     if (distance1 < distance2) {
         return line.p1();
@@ -1799,27 +1655,21 @@ QPointF movePointAlongTheLine(const QPointF &point, const QLineF &direction, qre
     return movePointInTheDirection(response, direction.p2() - direction.p1(), distance);
 }
 
-
-
 QLineF getLineFromElements(const QPainterPath &shape, int index)
 {
     QPainterPath::Element element1 = shape.elementAt(wrapValue(index, 0, shape.elementCount() - 1));
     QPainterPath::Element element2 = shape.elementAt(wrapValue(index + 1, 0, shape.elementCount() - 1));
-    // it doesn't handle isCurveTo, just assumes it's a line... sorry!
 
     return QLineF(element1, element2);
 }
 
-// local
 QLineF reverseDirection(const QLineF& line)
 {
     return QLineF(line.p2(), line.p1());
 }
 
-// local
 QPainterPath removeGutterOneEndSmart(const QPainterPath &shape1, int index1, const QPainterPath &shape2, int index2, QLineF middleLine, bool reverseFirstPoly, bool reverseSecondPoly)
 {
-    // moving from shape1.index1.p1 to shape1.index2.p2
 
     auto reverseIfNeeded = [] (const QLineF &line, bool reverse) {
         if (reverse) {
@@ -1869,10 +1719,8 @@ QPainterPath removeGutterOneEndSmart(const QPainterPath &shape1, int index1, con
         distanceToMiddle = kisDistanceToLine(intersectionPoint, middleLine);
     }
 
-
     if (intersectionType == QLineF::NoIntersection || distanceToMiddle > qMax(leftPointDistanceFromMiddle, rightPointDistanceFromMiddle)) {
 
-        // first arg: bounded line, second: unbounded
         boost::optional<QPointF> leftIntersection = intersectLines(line2, leftLine);
         boost::optional<QPointF> rightIntersection = intersectLines(line1, rightLine);
 
@@ -1923,16 +1771,7 @@ VectorPath mergeShapesWithGutter(const VectorPath& shape1, const VectorPath& sha
         int minIndex = qMin(index1, index2);
         int maxIndex = qMax(index1, index2);
 
-        // the indexes define a way to cut the shape into two shapes
-        // and one of them is kind of more outer than the other
-        // (they could intersect but... that's the user problem at that point, they can fix it point by point)
-        // in normal situation, it's like an outer ring of edges and inner ring of edges (which might be just one edge, which is the most common case)
-        // and we can find that out by checking whether the ends of the selected edges are inside or outside of the shape
-        // and if they're inside a shape, we're assuming that's the resulting shape (and the other is discarded)
-        // no islands in comic panels on my watch!
-
         QList<VPoint> result1;
-        // min index to max index
         if (minIndex < 0 || maxIndex >= shape1.segmentsCount()) {
             return shape1;
         }
@@ -1945,7 +1784,6 @@ VectorPath mergeShapesWithGutter(const VectorPath& shape1, const VectorPath& sha
         appendFrom(result2, maxIndex + 1, shape1.segmentsCount(), shape1);
         appendFrom(result2, 0, minIndex, shape1);
 
-
         VectorPath minEnd = index1 > index2 ? oneEnd : otherEnd;
         VectorPath maxEnd = index1 > index2 ? otherEnd : oneEnd;
 
@@ -1955,10 +1793,7 @@ VectorPath mergeShapesWithGutter(const VectorPath& shape1, const VectorPath& sha
         VectorPath result1Vec(result1);
         VectorPath result2Vec(result2);
 
-
-        // TODO: assumes winding fill
         if (isInsideShape(result2Vec, shape1.segmentAt(minIndex)[1].endPoint)) {
-            // could check all
             return result2Vec;
         }
         return result1Vec;
@@ -1976,7 +1811,6 @@ VectorPath mergeShapesWithGutter(const VectorPath& shape1, const VectorPath& sha
 
 }
 
-
 QPainterPath removeGutterSmart(const QPainterPath &shape1, int index1, const QPainterPath &shape2, int index2, bool isSameShape)
 {
     if (index1 + 1 >= shape1.elementCount() || index2 + 1 >= shape2.elementCount()) {
@@ -1990,13 +1824,12 @@ QPainterPath removeGutterSmart(const QPainterPath &shape1, int index1, const QPa
     QVector<QPointF> poly2 = QVector<QPointF>() << line1.p2() << line2.p1() << line2.p2();
     bool reverseSecondPoly = false;
     if (polygonDirection(poly1) != polygonDirection(poly2)) {
-        line2 = QLineF(line2.p2(), line2.p1()); // quick fix to ensure that the shape will be correct (convex)
+        line2 = QLineF(line2.p2(), line2.p1());
         reverseSecondPoly = true;
     }
 
     QLineF middleLine = QLineF((line1.p1() + line2.p2())/2, (line1.p2() + line2.p1())/2);
 
-    // more difficult version:
     QPainterPath oneEnd = removeGutterOneEndSmart(shape1, index1, shape2, index2, middleLine, false, reverseSecondPoly);
     QPainterPath otherEnd = removeGutterOneEndSmart(shape2, index2, shape1, index1, middleLine, reverseSecondPoly, false);
 
@@ -2008,10 +1841,7 @@ QPainterPath removeGutterSmart(const QPainterPath &shape1, int index1, const QPa
     VectorPath vectorResultHere = mergeShapesWithGutter(vectorShape1, vectorShape2, vectorOneEnd, vectorOtherEnd, vectorShape1.pathIndexToSegmentIndex(index1), vectorShape2.pathIndexToSegmentIndex(index2), reverseSecondPoly, isSameShape);
     return vectorResultHere.trulySimplified(1e-02).asPainterPath();
 
-
-
 }
-
 
 QList<int> getLineSegmentCrossingLineIndexes(const QLineF &line, const QPainterPath &shape)
 {
@@ -2027,13 +1857,12 @@ QList<int> getLineSegmentCrossingLineIndexes(const QLineF &line, const QPainterP
             qreal eps = 1e-5;
             QVector<qreal> intersections = KisBezierUtils::intersectWithLine(points[0].endPoint, points[1].controlPoint1, points[1].controlPoint2, points[1].endPoint, line, eps);
             for (int i = 0; i < intersections.length(); i++) {
-                //
                 QPointF p = KisBezierUtils::bezierCurve(points[0].endPoint, points[1].controlPoint1, points[1].controlPoint2, points[1].endPoint, intersections[i]);
 
                 bool onLine = isOnLine(line, p, eps, true, true, true);
                 if (onLine) {
                     indexes << path.segmentIndexToPathIndex(i);
-                    break; // we need just one
+                    break;
                 }
             }
 
@@ -2071,9 +1900,8 @@ VectorPath::VectorPath(const QPainterPath &path)
                 KIS_SAFE_ASSERT_RECOVER(i + 2 < path.elementCount()) { continue; }
                 KIS_SAFE_ASSERT_RECOVER(path.elementAt(i + 1).type == QPainterPath::CurveToDataElement) { continue; }
                 KIS_SAFE_ASSERT_RECOVER(path.elementAt(i + 2).type == QPainterPath::CurveToDataElement) { continue; }
-                // Qt saves the data this way: [control point 1, CurveToElement] [control point 2, CurveToDataElement] [end point, CurveToDataElement]
                 m_points.append(VPoint(VPoint::BezierTo, path.elementAt(i + 2), el, path.elementAt(i + 1)));
-                i += 2; // skip next two points
+                i += 2;
             break;
         }
     }
@@ -2141,7 +1969,6 @@ QList<QPointF> VectorPath::intersectSegmentWithLineBounded(const QLineF &line, c
 
     } else {
         QList<QPointF> result;
-        // check for intersections
         QVector<qreal> intersections = KisBezierUtils::intersectWithLine(segment.startPoint, segment.controlPoint1, segment.controlPoint2, segment.endPoint, line, eps);
         for (int i = 0; i < intersections.count(); i++) {
             QPointF p = KisBezierUtils::bezierCurve(segment.startPoint, segment.controlPoint1, segment.controlPoint2, segment.endPoint, intersections[i]);
@@ -2163,18 +1990,16 @@ QList<QPointF> VectorPath::intersectSegmentWithLineBounded(const QLineF &line, c
 
 int VectorPath::pathIndexToSegmentIndex(int index)
 {
-    // first should be MoveTo
     int pathIndex = 0;
     for (int i = 1; i < m_points.length(); i++) {
         if (index < pathIndex) {
-            // it was the previous segment, it's just a control point
             return i - 1;
         }
         if (index == pathIndex) {
             return i - 1;
         }
         if (m_points[i].type == VectorPathPoint::BezierTo) {
-            pathIndex += 2; // add space for control points
+            pathIndex += 2;
         }
         pathIndex++;
     }
@@ -2183,7 +2008,6 @@ int VectorPath::pathIndexToSegmentIndex(int index)
 
 int VectorPath::segmentIndexToPathIndex(int index)
 {
-    // first should be MoveTo
     int pathIndex = 0;
     for (int i = 1; i < m_points.length(); i++) {
         if (i - 1 == index) {
@@ -2193,7 +2017,7 @@ int VectorPath::segmentIndexToPathIndex(int index)
             return pathIndex;
         }
         if (m_points[i].type == VectorPathPoint::BezierTo) {
-            pathIndex += 2; // add space for control points
+            pathIndex += 2;
         }
         pathIndex++;
     }
@@ -2207,7 +2031,6 @@ VectorPath VectorPath::trulySimplified(qreal epsDegrees) const
 {
     qreal eps = kisDegreesToRadians(epsDegrees);
 
-
     using VPoint = VectorPath::VectorPathPoint;
 
     if (m_points.length() < 1) {
@@ -2218,8 +2041,6 @@ VectorPath VectorPath::trulySimplified(qreal epsDegrees) const
     VPoint lineBeginPoint = VPoint(VPoint::MoveTo, QPointF(0, 0));
     VPoint previousPoint = m_points[0];
 
-
-    //qreal eps = 1e-05;
     auto onTheLine = [eps] (QPointF start, QPointF middle, QPointF end) {
         QLineF line1(start, end);
         QLineF line2(start, middle);
@@ -2230,38 +2051,34 @@ VectorPath VectorPath::trulySimplified(qreal epsDegrees) const
     for (int i = 1; i < m_points.length(); i++) {
         if (m_points[i].type == VPoint::MoveTo) {
             if (previousPoint.type == VPoint::MoveTo) {
-                previousPoint = m_points[i]; // let's skip the previous point since they're both just moving
+                previousPoint = m_points[i];
                 continue;
-            } else { // LineTo or BezierTo, both need to be added
+            } else {
                 response << previousPoint;
                 previousPoint = m_points[i];
                 continue;
             }
         } else if (m_points[i].type == VPoint::LineTo) {
             if (previousPoint.type == VPoint::LineTo) {
-                // check whether they're parallel
                 if (!onTheLine(lineBeginPoint.endPoint, previousPoint.endPoint, m_points[i].endPoint)) {
                     response << previousPoint;
                     lineBeginPoint = previousPoint;
                 }
-                previousPoint = m_points[i]; // let's skip the previous point since they're parallel
+                previousPoint = m_points[i];
                 continue;
-            } else { // MoveTo or BezierTo, both need to be added
+            } else {
                 response << previousPoint;
                 lineBeginPoint = previousPoint;
                 previousPoint = m_points[i];
                 continue;
             }
-        } else { // currently in BezierTo
+        } else {
             response << previousPoint;
             previousPoint = m_points[i];
             continue;
         }
     }
     response << previousPoint;
-
-    // now eliminate additional point at the beginning of the shape if it's in the middle of a line
-    // and wasn't simplified only because it's at the beginning
 
     if (response.length() < 3) {
         return VectorPath(response);
@@ -2272,7 +2089,6 @@ VectorPath VectorPath::trulySimplified(qreal epsDegrees) const
 
     if (start.type == VPoint::MoveTo) {
         if (fuzzyPointCompare(previousPoint.endPoint, start.endPoint)) {
-            // they are the same point, now whether they're on the line
             if (second.type == VPoint::LineTo && onTheLine(response[response.length()-2].endPoint, start.endPoint, second.endPoint)) {
                 response.pop_front();
                 response[0].type = VPoint::MoveTo;
@@ -2280,21 +2096,13 @@ VectorPath VectorPath::trulySimplified(qreal epsDegrees) const
             }
         }
 
-    } else if (response[0].type == VPoint::LineTo) { // first point is then QPointF(0, 0)
+    } else if (response[0].type == VPoint::LineTo) {
         if (qFuzzyIsNull(previousPoint.endPoint.x()) && qFuzzyIsNull(previousPoint.endPoint.y())) {
-            // they are the same point, now whether they're on the line
             if (second.type == VPoint::LineTo && onTheLine(previousPoint.endPoint, QPointF(0, 0), start.endPoint)) {
-                // note: leaving this debug for future reference
                 qCritical() << "We're in this case";
-                //response.pop_front();
-                //response[0].type = VPoint::MoveTo;
-                //response[response.length() - 1].endPoint = start.endPoint;
             }
         }
     }
-
-
-
 
     return VectorPath(response);
 }
@@ -2305,7 +2113,6 @@ VectorPath VectorPath::reversed() const
     QList<VPoint> response;
     response.append(VPoint(VPoint::MoveTo, m_points[m_points.length() - 1].endPoint));
     for (int i = m_points.length() - 1; i > 0; i--) {
-         // to reverse a segment, we take the end VPoint and change the .endPoint to the start VPoint coords
         VPoint point = m_points[i];
         point.endPoint = m_points[i - 1].endPoint;
         response.append(point);
@@ -2330,7 +2137,6 @@ bool VectorPath::fuzzyComparePointsCyclic(const VectorPath &path, qreal eps) con
             return fuzzyPointCompare(left, right, eps);
         }
     };
-
 
     VPoint leftStart = path.pointAt(0);
     QList<int> rightStartingPoints;
@@ -2446,17 +2252,14 @@ bool isInsideShape(const VectorPath &path, const QPointF &point)
         return path.asPainterPath().toFillPolygon().containsPoint(point, Qt::WindingFill);
     }
 
-    boundRect = kisGrowRect(boundRect, 5); // just safety margins
+    boundRect = kisGrowRect(boundRect, 5);
 
-    // NOTE: it would be way faster to do it taking into account the fact that the lines are vertical and horizontal
-    // except for the last one maybe
-    // but let's wait until it proves to be a problem
     QList<QLineF> lines;
     lines << QLineF(point, QPointF(boundRect.left(), point.y()));
     lines << QLineF(point, QPointF(boundRect.right(), point.y()));
     lines << QLineF(point, QPointF(point.x(), boundRect.top()));
     lines << QLineF(point, QPointF(point.x(), boundRect.bottom()));
-    lines << QLineF(point, boundRect.topLeft()); // last resort, diagonal
+    lines << QLineF(point, boundRect.topLeft());
 
     int intersectionsCount = 0;
 
@@ -2500,7 +2303,6 @@ bool isInsideShape(const QPainterPath &path, const QPointF &point)
 {
     for (int i = 0; i < path.elementCount(); i++) {
         if (path.elementAt(i).type == QPainterPath::CurveToDataElement) {
-            // contains control points
             return isInsideShape(VectorPath(path), point);
         }
     }
@@ -2525,7 +2327,6 @@ bool isOnLine(const QLineF &line, const QPointF &point, const qreal eps, bool bo
     QPointF pointVector = point - line.p1();
     qreal t = -1;
     if (qAbs(pointVector.x()) < eps) {
-        // use y
         t = pointVector.y()/lineVector.y();
     } else {
         t = pointVector.x()/lineVector.x();
@@ -2541,5 +2342,4 @@ bool isOnLine(const QLineF &line, const QPointF &point, const qreal eps, bool bo
     return true;
 }
 
-
-} // namespace
+}

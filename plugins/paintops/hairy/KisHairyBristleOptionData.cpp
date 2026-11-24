@@ -8,7 +8,6 @@
 #include "kis_properties_configuration.h"
 #include <kis_paintop_lod_limitations.h>
 
-
 const QString HAIRY_BRISTLE_USE_MOUSEPRESSURE = "HairyBristle/useMousePressure";
 const QString HAIRY_BRISTLE_SCALE = "HairyBristle/scale";
 const QString HAIRY_BRISTLE_SHEAR = "HairyBristle/shear";
@@ -18,7 +17,6 @@ const QString HAIRY_BRISTLE_THRESHOLD = "HairyBristle/threshold";
 const QString HAIRY_BRISTLE_ANTI_ALIASING = "HairyBristle/antialias";
 const QString HAIRY_BRISTLE_USE_COMPOSITING = "HairyBristle/useCompositing";
 const QString HAIRY_BRISTLE_CONNECTED = "HairyBristle/isConnected";
-
 
 bool KisHairyBristleOptionData::read(const KisPropertiesConfiguration *setting)
 {

@@ -69,4 +69,4 @@ private Q_SLOTS:
     void testProcessSolidLine();
 };
 
-#endif /* __KIS_FILTER_WEIGHTS_APPLICATOR_TEST_H */
+#endif

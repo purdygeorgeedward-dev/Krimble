@@ -17,4 +17,4 @@ private Q_SLOTS:
 
 };
 
-#endif // TESTKOSTOPGRADIENT_H
+#endif

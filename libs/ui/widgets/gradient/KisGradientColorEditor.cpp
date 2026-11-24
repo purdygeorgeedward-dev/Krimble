@@ -182,7 +182,6 @@ void KisGradientColorEditor::setColorType(KisGradientWidgetsUtils::ColorType typ
         m_d->colorTypeCustomButton->setChecked(true);
     }
 
-    // "if" to avoid flickering. setUpdatesEnabled doesn't seems to work here?
     if (type == KisGradientWidgetsUtils::Custom) {
         m_d->transparentCheckBox->setVisible(false);
         m_d->colorButton->setVisible(true);
@@ -247,7 +246,7 @@ QSize KisGradientColorEditor::sizeHint() const
             m_d->opacitySlider->sizeHint().width()
         ) +
         (m_d->positionSlider->isVisible() ? m_d->positionSlider->sizeHint().width() : 0) +
-        15, // spacing
+        15,
 
         qMax(
             m_d->colorTypeForegroundButton->sizeHint().height(),
@@ -274,7 +273,7 @@ QSize KisGradientColorEditor::minimumSizeHint() const
             m_d->opacitySlider->minimumSizeHint().width()
         ) +
         (m_d->positionSlider->isVisible() ? m_d->positionSlider->minimumSizeHint().width() : 0) +
-        15, // spacing
+        15,
 
         qMax(
             m_d->colorTypeForegroundButton->minimumSizeHint().height(),

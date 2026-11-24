@@ -59,4 +59,4 @@ private:
     QVector<Item> m_rows;
 };
 
-#endif // COMMANDMODEL_H
+#endif

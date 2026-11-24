@@ -20,7 +20,6 @@
 
 #include "kis_debug.h"
 
-
 struct ShapeGradientEditStrategy::Private
 {
     Private(const QPointF &_start, KoShape *shape, KoFlake::FillVariant fillVariant)
@@ -37,7 +36,6 @@ struct ShapeGradientEditStrategy::Private
     KoShapeGradientHandles::Handle::Type handleType {KoShapeGradientHandles::Handle::Type::None};
     std::unique_ptr<KUndo2Command> intermediateCommand;
 };
-
 
 ShapeGradientEditStrategy::ShapeGradientEditStrategy(KoToolBase *tool,
                                                      KoFlake::FillVariant fillVariant,

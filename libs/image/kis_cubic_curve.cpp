@@ -125,9 +125,6 @@ void KisCubicCurve::Data::keepSorted()
 qreal KisCubicCurve::Data::value(qreal x)
 {
     updateSpline();
-    /* Automatically extend non-existing parts of the curve
-     * (e.g. before the first point) and cut off big y-values
-     */
     x = qBound(points.first().x(), x, points.last().x());
     qreal y = spline.getValue(x);
     return qBound(qreal(0.0), y, qreal(1.0));
@@ -142,7 +139,6 @@ void KisCubicCurve::Data::updateTransfer(QVector<_T_>* transfer, bool& valid, _T
         }
         qreal end = 1.0 / (size - 1);
         for (int i = 0; i < size; ++i) {
-            /* Direct uncached version */
             _T2_ val = value(i * end ) * max;
             val = qBound(min, val, max);
             (*transfer)[i] = val;
@@ -190,21 +186,6 @@ KisCubicCurve::KisCubicCurve(const KisCubicCurve& curve)
 KisCubicCurve::KisCubicCurve(const QString &curveString)
     : d(new Private)
 {
-    // Curve string format: a semi-colon separated list of point entries.
-    // Previous point entry format: a pair of numbers, separated by a comma,
-    //      that represent the x and y coordinates of the point, in that order.
-    //      Examples: identity "0.0,0.0;1.0,1.0;"
-    //                U-shaped curve "0.0,1.0;0.5,0.0;1.0,1.0"
-    // New point entry format: a list of comma separated point properties. The
-    //      first and second properties are required and should be numbers
-    //      that represent the x and y coordinates of the point, in that order.
-    //      After those, some optional properties/flags may be present or not.
-    //      If there are no optional properties for any point entry, then the
-    //      format of the string is identical to the old one.
-    //      Currently, only the "is_corner" flag is supported. All other
-    //      present optional properties are ignored.
-    //      Examples: identity "0.0,0.0;1.0,1.0;"
-    //                V-shaped curve "0.0,1.0;0.5,0.0,is_corner;1.0,1.0"
 
     d->data = new Data;
 
@@ -432,9 +413,7 @@ void KisCubicCurve::setName(const QString& name)
 
 QString KisCubicCurve::toString() const
 {
-    // See comments in KisCubicCurve(const QString &curveString) for the
-    // specification of the string format
-    
+
     QString sCurve;
 
     if(d->data->points.count() < 1)

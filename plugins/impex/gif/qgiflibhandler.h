@@ -27,4 +27,4 @@ private:
     QString m_description;
 };
 
-#endif // QGIFLIBHANDLER_H
+#endif

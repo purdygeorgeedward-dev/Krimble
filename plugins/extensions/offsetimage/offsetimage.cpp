@@ -39,11 +39,9 @@ OffsetImage::OffsetImage(QObject *parent, const QVariantList &)
     connect(action, SIGNAL(triggered()), this, SLOT(slotOffsetLayer()));
 }
 
-
 OffsetImage::~OffsetImage()
 {
 }
-
 
 void OffsetImage::slotOffsetImage()
 {
@@ -67,7 +65,6 @@ void OffsetImage::slotOffsetImage()
         dbgKrita << "KisImage not available";
     }
 }
-
 
 void OffsetImage::slotOffsetLayer()
 {
@@ -111,8 +108,6 @@ void OffsetImage::offsetImpl(const KUndo2MagicString& actionName, KisNodeList no
     applicator.end();
 }
 
-
-
 QRect OffsetImage::offsetWrapRect()
 {
     QRect offsetWrapRect;
@@ -129,7 +124,5 @@ QRect OffsetImage::offsetWrapRect()
     }
     return offsetWrapRect;
 }
-
-
 
 #include "offsetimage.moc"

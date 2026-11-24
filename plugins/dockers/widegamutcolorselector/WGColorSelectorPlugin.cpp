@@ -7,7 +7,6 @@
 #include "WGColorSelectorDock.h"
 
 #include <kpluginfactory.h>
-//#include <klocalizedstring.h>
 #include <KoDockFactoryBase.h>
 #include <KoDockRegistry.h>
 
@@ -43,13 +42,11 @@ public:
     }
 };
 
-
 WGColorSelectorPlugin::WGColorSelectorPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
     KoDockRegistry::instance()->add(new WGColorSelectorDockFactory());
 
-    // TODO: own preference set
 }
 
 WGColorSelectorPlugin::~WGColorSelectorPlugin()

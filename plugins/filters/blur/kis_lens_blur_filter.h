@@ -6,7 +6,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_LENS_BLUR_FILTER_H
 #define KIS_LENS_BLUR_FILTER_H
 

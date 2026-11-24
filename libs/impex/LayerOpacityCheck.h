@@ -50,7 +50,6 @@ public:
         return check(layer);
     }
 
-
     bool visit(KisAdjustmentLayer *layer) override {
         return check(layer);
     }
@@ -77,13 +76,11 @@ public:
 
     bool visit(KisColorizeMask *) override {return true;}
 
-
 private:
     bool check(KisNode * node)
     {
         KisLayer *layer = dynamic_cast<KisLayer*>(node);
         if (layer) {
-            // XXX: This need to be rewritten if true float opacity is implemented
             if (layer->opacity() < OPACITY_OPAQUE_U8) {
                 m_count++;
             }
@@ -117,7 +114,7 @@ public:
         return (v.count() > 0);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -145,5 +142,4 @@ public:
 
 };
 
-
-#endif // LAYEROPACITYCHECK_H
+#endif

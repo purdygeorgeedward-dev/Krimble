@@ -8,13 +8,11 @@
 
 #include "kis_properties_configuration.h"
 
-
 bool KisGridOpOptionData::read(const KisPropertiesConfiguration *setting)
 {
 	grid_width = qMax(1, setting->getInt(GRID_WIDTH));
 	grid_height = qMax(1, setting->getInt(GRID_HEIGHT));
 	diameter = setting->getInt(DIAMETER);
-	// If loading an old brush without a diameter set, set to grid_width as was the old logic
 	if (!diameter) {
 		diameter = grid_width;
 	}

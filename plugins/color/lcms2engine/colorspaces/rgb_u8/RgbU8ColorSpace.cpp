@@ -23,8 +23,8 @@
 #include <KoIntegerMaths.h>
 #include <kis_dom_utils.h>
 
-#define downscale(quantum)  (quantum) //((unsigned char) ((quantum)/257UL))
-#define upscale(value)  (value) // ((quint8) (257UL*(value)))
+#define downscale(quantum)  (quantum)
+#define upscale(value)  (value)
 
 RgbU8ColorSpace::RgbU8ColorSpace(const QString &name, KoColorProfile *p) :
     LcmsColorSpace<KoBgrU8Traits>(colorSpaceId(), name, TYPE_BGRA_8, cmsSigRgbData, p)
@@ -72,17 +72,12 @@ void RgbU8ColorSpace::colorFromXML(quint8 *pixel, const QDomElement &elt) const
 quint8 RgbU8ColorSpace::intensity8(const quint8 *src) const
 {
     const KoBgrU8Traits::Pixel *p = reinterpret_cast<const KoBgrU8Traits::Pixel *>(src);
-    // Integer version of:
-    //      static_cast<quint8>(qRound(p->red * 0.30 + p->green * 0.59 + p->blue * 0.11))
-    // The "+ 50" is used for rounding
     return static_cast<quint8>((p->red * 30 + p->green * 59 + p->blue * 11 + 50) / 100);
 }
 
 qreal RgbU8ColorSpace::intensityF(const quint8 *src) const
 {
     const KoBgrU8Traits::Pixel *p = reinterpret_cast<const KoBgrU8Traits::Pixel *>(src);
-    // Integer version of:
-    //      (p->red * 0.30 + p->green * 0.59 + p->blue * 0.11) / 255.0
     return static_cast<qreal>(p->red * 30 + p->green * 59 + p->blue * 11) / (100.0 * 255.0);
 }
 
@@ -102,7 +97,6 @@ QVector <double> RgbU8ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) c
 void RgbU8ColorSpace::toYUV(const QVector<double> &channelValues, qreal *y, qreal *u, qreal *v) const
 {
 
-    
     RGBToYUV(channelValues[0],channelValues[1],channelValues[2], y, u, v, lumaCoefficients()[0], lumaCoefficients()[1], lumaCoefficients()[2]);
 }
 
@@ -147,8 +141,6 @@ QList<KoColorConversionTransformationFactory*> RgbU8ColorSpaceFactory::colorConv
         KoColorSpaceRegistry *registry = KoColorSpaceRegistry::instance();
         KoColorProfileQuery query(profile->getColorPrimaries(), TRC_LINEAR);
 
-        /// we cannot generate a profile at this stage, it should have been generated
-        /// by the registry thanks to the call to requiredConnectionProfiles()
         const KoColorProfile *connectionProfile = registry->profileFor(query, false);
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(connectionProfile, QList<KoColorConversionTransformationFactory *>());
 

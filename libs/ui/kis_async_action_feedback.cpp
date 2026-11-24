@@ -12,7 +12,6 @@
 #include <QtConcurrentRun>
 #include <QProgressDialog>
 
-
 struct KisAsyncActionFeedback::Private
 {
     QScopedPointer<QProgressDialog> progress;
@@ -27,7 +26,6 @@ KisAsyncActionFeedback::KisAsyncActionFeedback(const QString &message, QWidget *
     m_d->progress->setMinimumDuration(1000);
     m_d->progress->setValue(0);
 
-    // disable close button
     m_d->progress->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 }
 

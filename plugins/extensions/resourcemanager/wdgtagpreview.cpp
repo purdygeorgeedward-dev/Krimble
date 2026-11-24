@@ -17,7 +17,6 @@
 #include <KisTagSelectionWidget.h>
 #include "KisBundleStorage.h"
 
-
 WdgTagPreview::WdgTagPreview(QString resourceType, KoResourceBundleSP bundle, QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui::WdgTagPreview),

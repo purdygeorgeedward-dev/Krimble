@@ -10,7 +10,6 @@
 
 #include <QVector>
 
-/// The line style model managing the style data
 class KoLineStyleModel : public QAbstractListModel
 {
 public:
@@ -19,14 +18,12 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    /// adds the given style to the model
     bool addCustomStyle(const QVector<qreal> &style);
-    /// selects the given style
     int setLineStyle(Qt::PenStyle style, const QVector<qreal> &dashes);
 private:
-    QList<QVector<qreal> > m_styles; ///< the added styles
-    QVector<qreal> m_tempStyle; ///< a temporary added style
-    bool m_hasTempStyle;        ///< state of the temporary style
+    QList<QVector<qreal> > m_styles;
+    QVector<qreal> m_tempStyle;
+    bool m_hasTempStyle;
 };
 
 #endif

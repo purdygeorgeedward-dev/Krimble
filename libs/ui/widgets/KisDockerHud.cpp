@@ -49,7 +49,7 @@ KisDockerHud::KisDockerHud(QString borrowerName, QString configId)
       m_d(new Private)
 {
     this->setObjectName(configId + "DockerHud");
-    this->setAutoFillBackground(true); // so that it's not transparent
+    this->setAutoFillBackground(true);
     this->setAttribute(Qt::WA_AcceptTouchEvents);
 
     m_d->borrowerName = borrowerName;
@@ -58,8 +58,6 @@ KisDockerHud::KisDockerHud(QString borrowerName, QString configId)
     QVBoxLayout *layout = new QVBoxLayout();
     QHBoxLayout *menuLayout = new QHBoxLayout();
 
-    // Put the docker config button before the combobox,
-    // so it cannot go offscreen in case of a wide widget.
     m_d->dockerMenu = new QToolButton();
     m_d->dockerMenu->setAutoRaise(true);
     m_d->dockerMenu->setToolTip(i18n("Configure panel"));
@@ -91,11 +89,10 @@ KisDockerHud::~KisDockerHud()
 
 void KisDockerHud::borrowOrReturnDocker()
 {
-    if (m_d->isBorrowing) { // then return it
+    if (m_d->isBorrowing) {
         returnDocker();
     }
 
-    // If really visible, borrow it
     if (this->isVisible() && m_d->isShown) {
         borrowDocker();
     }
@@ -103,7 +100,6 @@ void KisDockerHud::borrowOrReturnDocker()
 
 void KisDockerHud::borrowDocker() {
     KisMainWindow *mainWindow = KisPart::instance()->currentMainwindow();
-
 
     const QString dockerId = m_d->dockerComboBox->currentData().toString();
     QDockWidget *docker = mainWindow->findChild<QDockWidget*>(dockerId);
@@ -113,13 +109,11 @@ void KisDockerHud::borrowDocker() {
 
     QList<QString> &owners = borrowedWidgetOwners[dockerId];
 
-    // If the docker is being borrowed by another widget, request its return
     if (!owners.empty() && owners.last() != this->objectName()) {
         KisDockerHud *prevOwner = mainWindow->findChild<KisDockerHud*>(owners.last());
         prevOwner->returnDocker(true);
     }
 
-    // Notify any waiting borrowers that we own it now
     Q_FOREACH(QString waitingWidgetId, owners) {
         KisDockerHud *waitingWidget = mainWindow->findChild<KisDockerHud*>(waitingWidgetId);
         waitingWidget->showBorrowerLabel(m_d->borrowerName);
@@ -129,12 +123,8 @@ void KisDockerHud::borrowDocker() {
         owners.append(this->objectName());
     }
 
-    // Now actually borrow it.
-
     m_d->oldDockerParent = docker;
 
-    // Animation dockers have playback controls and such in the titlebar,
-    // so we borrow those as well.
     if (docker->objectName() == "AnimationCurvesDocker" || docker->objectName() == "TimelineDocker") {
         KisUtilityTitleBar *titleBar = dynamic_cast<KisUtilityTitleBar*>(docker->titleBarWidget());
         KIS_SAFE_ASSERT_RECOVER_NOOP(titleBar);
@@ -147,7 +137,6 @@ void KisDockerHud::borrowDocker() {
     m_d->dockerLayout->addWidget(docker->widget());
     docker->setWidget(m_d->dockerIOULabel);
 
-    // Hack: somewhat fixes Animation Curves's titlebar being too tall
     m_d->dockerLayout->setStretch(m_d->dockerLayout->count()-1, 1);
 
     m_d->isBorrowing = true;
@@ -160,20 +149,16 @@ void KisDockerHud::returnDocker(bool beingTaken) {
         const int idx = owners->indexOf(this->objectName());
         const bool wasOwner = idx == owners->count()-1;
         if (!beingTaken) {
-            owners->removeAt(idx); // we don't want it anymore
+            owners->removeAt(idx);
         }
 
-        // If we don't own it, just remove our label
         if (!wasOwner) {
             hideBorrowerLabel();
             return;
         }
     }
 
-    // If we own it, actually return it.
-
     if (m_d->dockerLayout->count() == 2) {
-        // Return the animation dockers' titlebar widget as well
         KisUtilityTitleBar *titleBar = dynamic_cast<KisUtilityTitleBar*>(m_d->oldDockerParent->titleBarWidget());
         KIS_SAFE_ASSERT_RECOVER_NOOP(titleBar);
         if (titleBar) {
@@ -188,7 +173,6 @@ void KisDockerHud::returnDocker(bool beingTaken) {
     m_d->oldDockerParent = nullptr;
     m_d->isBorrowing = false;
 
-    // If another borrower is in line, tell it to take it.
     if (!beingTaken && !owners->empty()) {
         KisMainWindow *mainWindow = KisPart::instance()->currentMainwindow();
         KisDockerHud *newOwner = mainWindow->findChild<KisDockerHud*>(owners->last());
@@ -227,7 +211,6 @@ void KisDockerHud::showDockerConfig()
         readDockerList();
         m_d->dockerComboBox->setCurrentIndex(m_d->dockerComboBox->findData(currentDocker, Qt::UserRole));
 
-        // If the current docker was removed from the list, use the first one.
         if (m_d->dockerComboBox->currentData().isNull() && m_d->dockerComboBox->count() != 0) {
             m_d->dockerComboBox->setCurrentIndex(0);
         }
@@ -245,7 +228,6 @@ void KisDockerHud::readDockerList()
     const QList<QString> dockerList = KisConfig(true).readList(m_d->configId+"/dockerList", defaultDockers);
 
     KisMainWindow *mainWindow = KisPart::instance()->currentMainwindow();
-    // for an ordered list
     Q_FOREACH(QString objName, dockerList) {
         QDockWidget *docker = mainWindow->findChild<QDockWidget*>(objName);
         if (docker != nullptr) {
@@ -263,7 +245,6 @@ QString KisDockerHud::readCurrentDocker()
     return KisConfig(true).readEntry(m_d->configId+"/currentDocker", QString("BrushHudDocker"));
 }
 
-
 void KisDockerHud::slotUpdateIcons()
 {
     m_d->dockerMenu->setIcon(KisIconUtils::loadIcon("applications-system"));
@@ -271,8 +252,6 @@ void KisDockerHud::slotUpdateIcons()
 
 void KisDockerHud::showEvent(QShowEvent *event)
 {
-    // In case we were loaded before the dockers were (as in the toolbar), 
-    // try connecting to them here.
     if (!m_d->isConnected) {
         tryConnectToDockers();
     }
@@ -304,9 +283,6 @@ bool KisDockerHud::event(QEvent *event)
             break;
         }
 
-        // Use screen coordinates for the delta, not widget-local coordinates
-        // -- local coordinates shift under the fingers as the widget itself
-        // moves mid-drag, which would otherwise cause drift/feedback.
         const QPointF centroid = (points.at(0).screenPos() + points.at(1).screenPos()) / 2.0;
 
         if (event->type() == QEvent::TouchEnd || event->type() == QEvent::TouchCancel) {
@@ -318,12 +294,6 @@ bool KisDockerHud::event(QEvent *event)
         if (!m_d->twoFingerDragActive) {
             m_d->twoFingerDragActive = true;
         } else {
-            // Move the top-level window ancestor, not this widget --
-            // KisDockerHud is normally embedded in a parent layout
-            // (KisPopupButtonFrame, when hosted via KisPopupButton), so
-            // move()ing `this` directly would just get overridden by that
-            // layout on the next pass. window() resolves to whichever is
-            // actually the floating top-level widget.
             const QPointF delta = centroid - m_d->lastTouchCentroid;
             QWidget *target = window();
             target->move((QPointF(target->pos()) + delta).toPoint());
@@ -364,7 +334,7 @@ void KisDockerHud::showBorrowerLabel(QString borrowerName)
     m_d->dockerIOULabel->setText(i18nc("%1 is the name of the widget",
                                        "Docker is open in %1. Close %1 to show here.", borrowerName));
     m_d->dockerLayout->addWidget(m_d->dockerIOULabel);
-    m_d->dockerLayout->setStretchFactor(m_d->dockerIOULabel, 1); // push the other widgets to the top
+    m_d->dockerLayout->setStretchFactor(m_d->dockerIOULabel, 1);
     m_d->dockerIOULabel->show();
 }
 

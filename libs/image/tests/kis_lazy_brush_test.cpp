@@ -24,8 +24,6 @@
 
 #include "lazybrush/kis_lazy_fill_graph.h"
 
-
-
 #if 0
 
 int
@@ -66,7 +64,6 @@ doSomething()
   graph_traits < Graph >::out_edge_iterator ei, e_end;
   for (boost::tie(u_iter, u_end) = vertices(g); u_iter != u_end; ++u_iter) {
       qDebug() << ppVar(get(vertex_color, g)[*u_iter]);
-
 
       for (boost::tie(ei, e_end) = out_edges(*u_iter, g); ei != e_end; ++ei) {
           if (capacity[*ei] > 0) {
@@ -149,13 +146,6 @@ get(const ImageToCapacityMap<Graph> &map,
     const int k  = 2 * (map.m_image.width() + map.m_image.height());
     const int maxDimension = qMax(map.m_image.width(), map.m_image.height());
 
-    //if (x0 <= 5 && x1 <= 5 && y0 == 0 && y1 ==0) return 255;
-    //if (x0 >= 5 && x1 >= 5 && y0 == 8 && y1 ==8) return 255;
-
-    //const QRgb *p0 = map.m_bits + y0 * map.m_rowStride + x0 * map.m_pixelSize;
-    //const QRgb *p1 = map.m_bits + y1 * map.m_rowStride + x1 * map.m_pixelSize;
-    //float value = 255.0 - qAbs(qGray(*p0) - qGray(*p1));
-
     if ((!x0 && !y0) || (!x1 && !y1) ||
         (x0 == map.m_image.width() - 1 && y0 == map.m_image.height() - 1) ||
         (x1 == map.m_image.width() - 1 && y1 == map.m_image.height() - 1)) {
@@ -175,7 +165,7 @@ get(const ImageToCapacityMap<Graph> &map,
 
     float value = 1.0 + k * (1.0 - normDiff) + qMin(y0, y1);
 
-    qDebug() << x0 << y0 << "->" << x1 << y1 << value;//  << ppVar(normDiff);
+    qDebug() << x0 << y0 << "->" << x1 << y1 << value;
 
     return value;
 }
@@ -192,16 +182,14 @@ int doSomethingElse()
     const unsigned int D = 2;
     typedef boost::grid_graph<D> Graph;
     typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
-    typedef boost::graph_traits<Graph>::edge_descriptor EdgeDescriptor;//ADDED
+    typedef boost::graph_traits<Graph>::edge_descriptor EdgeDescriptor;
     typedef boost::graph_traits<Graph>::vertices_size_type VertexIndex;
     typedef boost::graph_traits<Graph>::edges_size_type EdgeIndex;
-
 
     QImage image(QSize(9,9), QImage::Format_ARGB32);
     QPainter gc(&image);
     gc.fillRect(image.rect(), Qt::white);
     gc.fillRect(QRect(0,4,2,1), Qt::blue);
-    //gc.fillRect(QRect(0,5,2,1), Qt::blue);
     gc.fillRect(QRect(6,4,3,1), Qt::blue);
     gc.end();
 
@@ -219,39 +207,16 @@ int doSomethingElse()
     BGL_FORALL_EDGES(e,graph,Graph) {
         VertexDescriptor src = source(e,graph);
         VertexDescriptor tgt = target(e,graph);
-        //VertexIndex source_idx = get(boost::vertex_index,graph,src);
-        //VertexIndex target_idx = get(boost::vertex_index,graph,tgt);
-        //EdgeIndex edge_idx = get(boost::edge_index,graph,e);
 
-        // qDebug() << "(" << src[0] << src[1] << ")"
-        //          << "->"
-        //          << "(" << tgt[0] << tgt[1] << ")"
-        //          << get(capacityMap, e);
-        //capSum += get(capacityMap, e);
     }
-
-    //qDebug() << ppVar(capSum);
 
     BGL_FORALL_VERTICES(v,graph,Graph)
     {
-        //qDebug() << ppVar(v[0]) << ppVar(v[1]);
 
-/*      VertexDescriptor src = source(e,graph);
-        VertexDescriptor tgt = target(e,graph);
-        VertexIndex source_idx = get(boost::vertex_index,graph,src);
-        VertexIndex target_idx = get(boost::vertex_index,graph,tgt);
-        EdgeIndex edge_idx = get(boost::edge_index,graph,e);
-
-        capacity[edge_idx] = 255.0f - fabs(pixel_intensity[source_idx]-pixel_intensity[target_idx]); //you should change this to your "gradient or intensity or something"
-
-        reverse_edges[edge_idx]=edge(tgt,src,graph).first;//ADDED
-*/
     }
-
 
     const int t_index = image.width() * image.height() - 1;
     VertexDescriptor s=vertex(0,graph), t=vertex(t_index,graph);
-
 
     float maxFlow =
     boykov_kolmogorov_max_flow(graph,
@@ -292,7 +257,6 @@ int doSomethingElse()
         EdgeIndex edgeIndex = get(boost::edge_index, graph, e);
         const int cap = residual_capacity[edgeIndex];
 
-
         QColor color(Qt::black);
         if (cap != 0) {
             const int fullCap = get(capacityMap, e);
@@ -309,10 +273,6 @@ int doSomethingElse()
         resultPainter.setPen(QPen(color, 2));
         resultPainter.drawLine(p0, p1);
 
-        // qDebug() << "(" << src[0] << src[1] << ")"
-        //          << "->"
-        //          << "(" << tgt[0] << tgt[1] << ")"
-        //          << residual_capacity[edgeIndex];
     }
 
    result.save("result.png");
@@ -325,7 +285,7 @@ void KisLazyBrushTest::test()
     doSomethingElse();
 }
 
-#endif /*0*/
+#endif
 
 bool verifyNormalVertex(const KisLazyFillGraph::vertex_descriptor &v, int x, int y)
 {
@@ -428,8 +388,6 @@ void KisLazyBrushTest::testGraph()
     KisLazyFillGraph::vertex_descriptor vA(0, 0, KisLazyFillGraph::vertex_descriptor::LABEL_A);
     KisLazyFillGraph::vertex_descriptor vB(0, 0, KisLazyFillGraph::vertex_descriptor::LABEL_B);
 
-    // Verify vertex index mapping
-
     QVERIFY(verifyVertexIndex(g, v1, 0));
     QVERIFY(verifyVertexIndex(g, v2, 1));
     QVERIFY(verifyVertexIndex(g, v3, 100));
@@ -441,8 +399,6 @@ void KisLazyBrushTest::testGraph()
 
     QVERIFY(verifyVertexIndex(g, vA, numVertices - 2));
     QVERIFY(verifyVertexIndex(g, vB, numVertices - 1));
-
-    // Verify edge index mapping
 
     QVERIFY(verifyEdgeIndex(g, std::make_pair(v1, v2), 0));
     QVERIFY(verifyEdgeIndex(g, std::make_pair(v3, v4), 99));
@@ -473,7 +429,6 @@ void KisLazyBrushTest::testGraph()
 
     QVERIFY(verifyEdgeIndex(g, std::make_pair(v7, vB), 40421));
     QVERIFY(verifyEdgeIndex(g, std::make_pair(vB, v7), 40821));
-
 
     QCOMPARE(g.out_degree(v1), long(2));
     QVERIFY(verifyNormalVertex(g.out_edge_at(v1, 0).second, 11, 10));
@@ -564,8 +519,6 @@ void KisLazyBrushTest::testGraphMultilabel()
     Vert vA(0, 0, Vert::LABEL_A);
     Vert vB(0, 0, Vert::LABEL_B);
 
-    // Verify vertex index mapping
-
     QVERIFY(verifyVertexIndex(g, v1, 0));
     QVERIFY(verifyVertexIndex(g, v2, 1));
     QVERIFY(verifyVertexIndex(g, v3, 100));
@@ -577,8 +530,6 @@ void KisLazyBrushTest::testGraphMultilabel()
 
     QVERIFY(verifyVertexIndex(g, vA, numVertices - 2));
     QVERIFY(verifyVertexIndex(g, vB, numVertices - 1));
-
-    // Verify edge index mapping
 
     QVERIFY(verifyEdgeIndex(g, std::make_pair(v1, v2), 0));
     QVERIFY(verifyEdgeIndex(g, std::make_pair(v3, v4), 99));
@@ -650,7 +601,6 @@ void KisLazyBrushTest::testGraphMultilabel()
     QVERIFY(verifyNormalVertex(g.out_edge_at(vA, 0).second, 30, 20));
     QVERIFY(verifyNormalVertex(g.out_edge_at(vA, 1).second, 31, 20));
 
-    // check second island
     QVERIFY(verifyNormalVertex(g.out_edge_at(vA, 400).second, 70, 30));
     QVERIFY(verifyNormalVertex(g.out_edge_at(vA, 401).second, 71, 30));
 }
@@ -680,11 +630,11 @@ void KisLazyBrushTest::testGraphStandardIterators()
 
 void KisLazyBrushTest::testGraphConcepts()
 {
-    BOOST_CONCEPT_ASSERT(( VertexListGraphConcept<KisLazyFillGraph> )); //to have vertices(), num_vertices(),
-    BOOST_CONCEPT_ASSERT(( EdgeListGraphConcept<KisLazyFillGraph> )); //to have edges()
-    BOOST_CONCEPT_ASSERT(( IncidenceGraphConcept<KisLazyFillGraph> )); //to have source(), target() and out_edges()
-    BOOST_CONCEPT_ASSERT(( AdjacencyGraphConcept<KisLazyFillGraph> )); // to have adjacent_vertices(v, g)
-    BOOST_CONCEPT_ASSERT(( AdjacencyMatrixConcept<KisLazyFillGraph> )); // to have edge(u, v, g)
+    BOOST_CONCEPT_ASSERT(( VertexListGraphConcept<KisLazyFillGraph> ));
+    BOOST_CONCEPT_ASSERT(( EdgeListGraphConcept<KisLazyFillGraph> ));
+    BOOST_CONCEPT_ASSERT(( IncidenceGraphConcept<KisLazyFillGraph> ));
+    BOOST_CONCEPT_ASSERT(( AdjacencyGraphConcept<KisLazyFillGraph> ));
+    BOOST_CONCEPT_ASSERT(( AdjacencyMatrixConcept<KisLazyFillGraph> ));
 }
 
 template <class Graph>
@@ -747,7 +697,6 @@ public:
             Q_ASSERT(!srcLabelA && !srcLabelB);
 
             const int k  = 2 * (map.m_mainImage.width() + map.m_mainImage.height());
-            //const int maxDimension = qMax(map.m_mainImage.width(), map.m_mainImage.height());
 
             float value = 0.0;
 
@@ -757,8 +706,6 @@ public:
 
                 const int x = src.x - xOffset;
                 const int y = src.y - yOffset;
-
-                //qDebug() << "Label A:"  << ppVar(src.x) << ppVar(src.y) << ppVar(xOffset) << ppVar(yOffset);
 
                 QRgb pixel = map.m_aLabelImage.pixel(x, y);
                 const int i0 = qAlpha(pixel);
@@ -770,8 +717,6 @@ public:
 
                 const int x = src.x - xOffset;
                 const int y = src.y - yOffset;
-
-                //qDebug() << "Label B:"  << ppVar(src.x) << ppVar(src.y) << ppVar(xOffset) << ppVar(yOffset);
 
                 QRgb pixel = map.m_bLabelImage.pixel(x, y);
                 const int i0 = qAlpha(pixel);
@@ -819,7 +764,6 @@ void KisLazyBrushTest::testCutOnGraph()
 {
     BOOST_CONCEPT_ASSERT(( ReadablePropertyMapConcept<ComplexCapacityMap<KisLazyFillGraph>, KisLazyFillGraph::edge_descriptor> ));
 
-
     QRect mainRect(0, 0, 27, 27);
 
     const int scribbleASize = 18;
@@ -827,7 +771,6 @@ void KisLazyBrushTest::testCutOnGraph()
     const int holeSize = 7;
     const int obstacleVOffset = -5;
     const int asymVOffset = 1;
-
 
     const int obstacleSize = (mainRect.width() - holeSize) / 2;
     QRect o1Rect(0, mainRect.height() / 2 + obstacleVOffset + asymVOffset, obstacleSize, 1);
@@ -860,7 +803,6 @@ void KisLazyBrushTest::testCutOnGraph()
         gc.fillRect(QRect(QPoint(), bLabelRect.size()), Qt::red);
         bLabelImage.setOffset(bLabelRect.topLeft());
     }
-
 
     std::vector<int> groups(num_vertices(graph), 0);
     std::vector<float> residual_capacity(num_edges(graph), 0);
@@ -913,7 +855,6 @@ void KisLazyBrushTest::testCutOnGraph()
         long edgeIndex = get(boost::edge_index, graph, e);
         const int cap = residual_capacity[edgeIndex];
 
-
         QColor color(Qt::black);
         if (cap != 0) {
             const int fullCap = get(capacityMap, e);
@@ -930,10 +871,6 @@ void KisLazyBrushTest::testCutOnGraph()
         resultPainter.setPen(QPen(color, 2));
         resultPainter.drawLine(p0, p1);
 
-        // qDebug() << "(" << src[0] << src[1] << ")"
-        //          << "->"
-        //          << "(" << tgt[0] << tgt[1] << ")"
-        //          << residual_capacity[edgeIndex];
     }
 
     resultPainter.save();
@@ -954,7 +891,6 @@ void KisLazyBrushTest::testCutOnGraph()
 #include <KoColorSpaceRegistry.h>
 #include <testutil.h>
 #include <KoColor.h>
-
 
 void writeColors(KisLazyFillGraph &graph, const std::vector<int> &groups, KisPaintDeviceSP dst)
 {
@@ -1016,29 +952,13 @@ void writeStat(KisLazyFillGraph &graph,
         const int cap = residual_capacity[edgeIndex];
         const int fullCap = get(capacityMap, e);
 
-
         QColor color(Qt::red);
         if (cap > 0 || fullCap == 0) continue;
-/*
-        if (fullCap != 0) {
-            const int gray = fullCap / capacityMap.maxCapacity() * 50.0;
-            color.setAlpha(gray);
-        } else {
-            continue;
-        }
-*/
         VertexDescriptor src = source(e,graph);
         VertexDescriptor tgt = target(e,graph);
 
         if (src.type != VertexDescriptor::NORMAL ||
             tgt.type != VertexDescriptor::NORMAL) {
-/*
-            VertexDescriptor &v = src.type != VertexDescriptor::NORMAL ? tgt : src;
-            QPoint p0(half + cell * v.x, half + cell * v.y);
-
-            resultPainter.setPen(QPen(color, 4));
-            resultPainter.drawEllipse(p0, 0.5 * half, 0.5 * half);
-*/
         } else {
             QPoint p0(half + cell * src.x, half + cell * src.y);
             QPoint p1(half + cell * tgt.x, half + cell * tgt.y);
@@ -1051,7 +971,6 @@ void writeStat(KisLazyFillGraph &graph,
     BGL_FORALL_EDGES(e,graph,KisLazyFillGraph) {
         long edgeIndex = get(boost::edge_index, graph, e);
         const int cap = residual_capacity[edgeIndex];
-
 
         QColor color(Qt::black);
         if (cap != 0) {
@@ -1086,12 +1005,6 @@ void writeStat(KisLazyFillGraph &graph,
     resultPainter.save();
     resultPainter.setTransform(QTransform::fromScale(cell, cell));
     resultPainter.setBrush(Qt::transparent);
-    //resultPainter.setPen(QPen(Qt::yellow, 0));
-    //resultPainter.drawRect(o1Rect);
-    //resultPainter.drawRect(o2Rect);
-    //resultPainter.setPen(QPen(Qt::red, 0));
-    //resultPainter.drawRect(aLabelRect);
-    //resultPainter.drawRect(bLabelRect);
     resultPainter.restore();
 
     result.save("result.png");
@@ -1125,12 +1038,6 @@ void KisLazyBrushTest::testCutOnGraphDevice()
 
     KisPaintDeviceSP filteredMainDev = KisPainter::convertToAlphaAsGray(mainDev);
     const QRect filterRect = filteredMainDev->exactBounds();
-    // KisGaussianKernel::applyLoG(filteredMainDev,
-    //                             filterRect,
-    //                             5,
-    //                             QBitArray(), 0);
-
-    // KisLazyFillTools::normalizeAndInvertAlpha8Device(filteredMainDev, filterRect);
 
     KIS_DUMP_DEVICE_2(filteredMainDev, filterRect, "2filtered", "dd");
 
@@ -1228,7 +1135,6 @@ void KisLazyBrushTest::testCutOnGraphDeviceMulti()
 
     KisLazyFillTools::normalizeAndInvertAlpha8Device(filteredMainDev, filterRect);
 
-
     KisPaintDeviceSP resultColoring = new KisPaintDevice(mainDev->colorSpace());
 
     KisMultiwayCut cut(filteredMainDev, resultColoring, filterRect);
@@ -1240,7 +1146,6 @@ void KisLazyBrushTest::testCutOnGraphDeviceMulti()
     cut.addKeyStroke(eLabelDev, KoColor(Qt::magenta, mainDev->colorSpace()));
 
     cut.run();
-
 
     KIS_DUMP_DEVICE_2(resultColoring, filterRect, "00result", "dd");
     KIS_DUMP_DEVICE_2(mainDev, filterRect, "1main", "dd");
@@ -1255,14 +1160,6 @@ void KisLazyBrushTest::testLoG()
      mainDev->convertFromQImage(mainImage, 0);
      QRect rect = mainDev->exactBounds();
 
-    // KisPaintDeviceSP mainDev = new KisPaintDevice(KoColorSpaceRegistry::instance()->rgb8());
-    // const QRect rect(0,0,10,10);
-    // const QRect fillRect(0,0,5,10);
-    // KoColor bg(Qt::white, mainDev->colorSpace());
-    // KoColor fg(Qt::black, mainDev->colorSpace());
-    // mainDev->fill(rect, bg);
-    // mainDev->fill(fillRect, fg);
-
     KisPaintDeviceSP filteredMainDev = KisPainter::convertToAlphaAsGray(mainDev);
 
     KisDefaultBoundsBaseSP bounds = new TestUtil::TestingTimedDefaultBounds(mainDev->exactBounds());
@@ -1276,8 +1173,6 @@ void KisLazyBrushTest::testLoG()
                                 QBitArray(), 0);
 
     KisLazyFillTools::normalizeAndInvertAlpha8Device(filteredMainDev, rect);
-
-
 
     KIS_DUMP_DEVICE_2(mainDev, rect, "1main", "dd");
     KIS_DUMP_DEVICE_2(filteredMainDev, rect, "2filtered", "dd");
@@ -1358,8 +1253,6 @@ void KisLazyBrushTest::multiwayCutBenchmark()
     gc.fillRect(QRect(100, 250, 120, 15), fillColor);
     gc.fillRect(QRect(280, 250, 120, 15), fillColor);
 
-    //KIS_DUMP_DEVICE_2(mainDev, mainRect, "1main", "dd");
-
     KisPaintDeviceSP aLabelDev = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
     aLabelDev->fill(QRect(110, 110, 30,30), KoColor(Qt::black, KoColorSpaceRegistry::instance()->alpha8()));
 
@@ -1388,17 +1281,10 @@ void KisLazyBrushTest::multiwayCutBenchmark()
     cut.addKeyStroke(dLabelDev, KoColor(Qt::yellow, mainDev->colorSpace()));
     cut.addKeyStroke(eLabelDev, KoColor(Qt::transparent, mainDev->colorSpace()));
 
-
     QBENCHMARK_ONCE {
         cut.run();
     }
 
-
-    // KIS_DUMP_DEVICE_2(resultColoring, mainRect, "00result", "dd");
-    // KIS_DUMP_DEVICE_2(mainDev, mainRect, "1main", "dd");
-    // KIS_DUMP_DEVICE_2(filteredMainDev, mainRect, "2filtered", "dd");
 }
-
-
 
 SIMPLE_TEST_MAIN(KisLazyBrushTest)

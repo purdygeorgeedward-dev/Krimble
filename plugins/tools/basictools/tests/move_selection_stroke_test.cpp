@@ -30,7 +30,6 @@ KisPaintDeviceSP lodDevice(KisPaintDeviceSP dev)
     return tmp;
 }
 
-
 void MoveSelectionStrokeTest::test()
 {
     const QRect imageRect(0,0,800,800);

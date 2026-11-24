@@ -19,16 +19,13 @@
 
 #include <QElapsedTimer>
 
-
 #include <kis_debug.h>
 #include <KisPortingUtils.h>
 #include "kis_image_config.h"
 
-
 #include <brushengine/kis_paintop_preset.h>
 
 Q_GLOBAL_STATIC(KisUpdateTimeMonitor, s_instance)
-
 
 struct StrokeTicket
 {
@@ -191,7 +188,7 @@ void KisUpdateTimeMonitor::printValues()
                << i18n("Mouse Speed:") << QString::number( mouseSpeed, 'f', 3 ) << "\t"
                << i18n("Jobs/Update:") << QString::number( jobsPerUpdate, 'f', 3 ) << "\t"
                << i18n("Non Update Time:") << QString::number( nonUpdateTime, 'f', 3 ) << "\t"
-               << i18n("Response Time:") << responseTime << Qt::endl; // 'endl' will use the correct OS line ending
+               << i18n("Response Time:") << responseTime << Qt::endl;
         logFile.close();
     } else {
         qDebug() << "Could not open" << logFile.fileName() << "for writing:" << logFile.errorString();

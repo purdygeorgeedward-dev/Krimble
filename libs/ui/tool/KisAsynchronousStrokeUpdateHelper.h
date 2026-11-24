@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISASYNCHRONOUSSTROKEUPDATEHELPER_H
 #define KISASYNCHRONOUSSTROKEUPDATEHELPER_H
 
@@ -15,7 +14,6 @@
 #include "kritaui_export.h"
 
 class KisStrokesFacade;
-
 
 class KRITAUI_EXPORT KisAsynchronousStrokeUpdateHelper : public QObject
 {
@@ -34,7 +32,6 @@ public:
             return new UpdateData(*this, levelOfDetail);
         }
 
-
     protected:
         UpdateData(const UpdateData &rhs, int levelOfDetail)
             : KisStrokeJobData(rhs),
@@ -52,28 +49,10 @@ public:
     KisAsynchronousStrokeUpdateHelper();
     ~KisAsynchronousStrokeUpdateHelper();
 
-    /**
-     * Initialize the update helper and start the steam of the
-     * update events. This is just a simple combination of
-     * initUpdateStreamLowLevel() and startUpdateStreamLowLevel().
-     */
     void startUpdateStream(KisStrokesFacade *strokesFacade, KisStrokeId strokeId);
 
-    /**
-     *  A low-level version of startUpdateStream(...), initializes
-     *  the helper but doesn't start the stream of update events.
-     *  That is needed for the tool to issue endUpdateStream()
-     *  signals, when the action has been ended **before** the
-     *  stroke actually managed to initialize itself.
-     */
     void initUpdateStreamLowLevel(KisStrokesFacade *strokesFacade, KisStrokeId strokeId);
 
-    /**
-     * Start the stream of the update events on **already
-     * initialized** helper. One should call
-     * initUpdateStreamWithoutStart() before calling
-     * startUpdateStream().
-     */
     void startUpdateStreamLowLevel();
 
     void endUpdateStream();
@@ -93,4 +72,4 @@ private:
     UpdateDataFactory m_customUpdateFactory;
 };
 
-#endif // KISASYNCHRONOUSSTROKEUPDATEHELPER_H
+#endif

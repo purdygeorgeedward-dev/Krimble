@@ -20,19 +20,11 @@
 
 #include "virtual_channel_info.h"
 
-/**
- * Base class for filters which use curves to operate on multiple channels.
- */
 class KisMultiChannelFilter : public KisColorTransformationFilter
 {
 public:
     bool needsTransparentPixels(const KisFilterConfigurationSP config, const KoColorSpace *cs) const override;
 
-    /**
-     * Get a list of adjustable channels for the color space.
-     * If maxChannels is non-negative, the number of channels is capped to the number. This is useful configurations
-     * from older documents (created in versions which supported fewer channels).
-     */
     static QVector<VirtualChannelInfo> getVirtualChannels(const KoColorSpace *cs, int maxChannels = -1);
     static int findChannel(const QVector<VirtualChannelInfo> &virtualChannels, const VirtualChannelInfo::Type &channelType);
 
@@ -40,9 +32,6 @@ protected:
     KisMultiChannelFilter(const KoID &id, const QString &entry);
 };
 
-/**
- * Base class for configurations of KisMultiChannelFilter subclasses
- */
 class KisMultiChannelFilterConfiguration : public KisColorTransformationConfiguration
 {
 public:
@@ -82,15 +71,6 @@ protected:
 
     virtual KisCubicCurve getDefaultCurve() = 0;
 
-    /**
-     * @brief Takes a curve property name with format "curve#", where # is the
-     *        index of the channel and puts the index on the "curveIndex"
-     *        parameter
-     * @param name A string with format "curve#"
-     * @param curveIndex An int where the decoded channel index is stored
-     * @return true if "name" had a valid format
-     * @return false if "name" had an invalid format
-     */
     bool curveIndexFromCurvePropertyName(const QString& name, int& curveIndex) const;
 };
 
@@ -104,9 +84,6 @@ public:
     }
 };
 
-/**
- * Base class for configuration widgets of KisMultiChannelFilter subclasses
- */
 class KisMultiChannelConfigWidget : public KisConfigWidget
 {
     Q_OBJECT
@@ -134,7 +111,7 @@ protected:
     virtual KisPropertiesConfigurationSP getDefaultConfiguration() = 0;
 
     inline QPixmap getHistogram();
-    inline QPixmap createGradient(Qt::Orientation orient /*, int invert (not used now) */);
+    inline QPixmap createGradient(Qt::Orientation orient );
 
     QVector<VirtualChannelInfo> m_virtualChannels;
     int m_activeVChannel {0};

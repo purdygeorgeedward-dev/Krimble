@@ -26,7 +26,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(ToolPolygonFactory, "kritatoolpolygon.json", registerPlugin<ToolPolygon>();)
 
-
 ToolPolygon::ToolPolygon(QObject *parent, const QVariantList &)
         : QObject(parent)
 {

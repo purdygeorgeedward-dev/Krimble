@@ -24,7 +24,6 @@ struct Scratchpad::Private
     KisScratchPad *scratchpad = 0;
 };
 
-
 Scratchpad::Scratchpad(View *view, const QColor & defaultColor, QWidget *parent)
     : QWidget(parent), d(new Private)
 {
@@ -35,13 +34,10 @@ Scratchpad::Scratchpad(View *view, const QColor & defaultColor, QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(d->scratchpad);
 
-    // Forward KisScratchPad::scaleChanged to Scratchpad::scaleChanged
     connect(d->scratchpad, SIGNAL(scaleChanged(qreal)), this, SIGNAL(scaleChanged(qreal)));
 
-    // Forward KisScratchPad::contentChanged to Scratchpad::contentChanged
     connect(d->scratchpad, SIGNAL(contentChanged()), this, SIGNAL(contentChanged()));
 
-    // Forward KisScratchPad::viewportChanged to Scratchpad::viewportChanged
     connect(d->scratchpad, SIGNAL(viewportChanged(const QRect)), this, SIGNAL(viewportChanged(const QRect)));
 }
 
@@ -77,14 +73,12 @@ bool Scratchpad::canvasZoomLink()
 
 qreal Scratchpad::scale()
 {
-    // return scale X only, consider zoom X/Y will always be the same
     return d->scratchpad->scaleX();
 }
 
 bool Scratchpad::setScale(qreal scale) const
 {
     if (d->scratchpad->canvasZoomLink()) {
-        // if zoom level is linked to canvas zoom level, ignore setScale()
         return false;
     };
     return d->scratchpad->setScale(scale, scale);
@@ -93,7 +87,6 @@ bool Scratchpad::setScale(qreal scale) const
 void Scratchpad::scaleToFit()
 {
     if (d->scratchpad->canvasZoomLink()) {
-        // if zoom level is linked to canvas zoom level, ignore setScale()
         return;
     };
     d->scratchpad->scaleToFit();
@@ -102,7 +95,6 @@ void Scratchpad::scaleToFit()
 void Scratchpad::scaleReset()
 {
     if (d->scratchpad->canvasZoomLink()) {
-        // if zoom level is linked to canvas zoom level, ignore setScale()
         return;
     };
     d->scratchpad->scaleReset();
@@ -130,7 +122,6 @@ QImage Scratchpad::copyScratchpadImageData()
 
 void Scratchpad::clear()
 {
-    // need ability to set color
     d->scratchpad->fillDefault();
 }
 

@@ -21,7 +21,7 @@ const QString& KisCubicCurveQml::name() const
 
 qreal KisCubicCurveQml::value(qreal x) const
 {
-    return m_curve.value(x); 
+    return m_curve.value(x);
 }
 
 bool KisCubicCurveQml::isIdentity() const
@@ -53,7 +53,6 @@ void KisCubicCurveQml::fromString(const QString &str)
 {
     m_curve = KisCubicCurve(str);
 }
-
 
 void KisCubicCurveQml::setPoints(const QList<KisCubicCurvePoint> points)
 {

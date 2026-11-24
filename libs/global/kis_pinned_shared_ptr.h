@@ -9,12 +9,6 @@
 
 #include "kis_shared_ptr.h"
 
-/**
- * A special type of KisSharedPtr that doesn't support conversion
- * into raw pointer. You cannot convert it into raw pointer and cannot
- * accidentally delete it. It is done with a hiding KisSharedPtr's
- * conversion routine and substituting is with a custom one.
- */
 template <typename T>
 class KisPinnedSharedPtr : public KisSharedPtr<T>
 {
@@ -37,13 +31,11 @@ public:
     {
     }
 
-
     template <typename X>
     inline KisPinnedSharedPtr(const KisSharedPtr<X> &other)
         : BaseClass(other)
     {
     }
-
 
     inline operator RestrictedBool() const
     {
@@ -67,5 +59,5 @@ inline QDebug operator<<(QDebug dbg, const KisPinnedSharedPtr<T> &ptr)
     return dbg;
 }
 
-#endif // KIS_PINNED_SHARED_PTR_H
+#endif
 

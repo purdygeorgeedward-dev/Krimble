@@ -6,7 +6,6 @@
 
 #include "smallcolorselector.h"
 
-
 #include <kpluginfactory.h>
 
 #include <KoDockFactoryBase.h>

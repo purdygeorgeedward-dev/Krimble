@@ -10,15 +10,6 @@
 #include <QReadLocker>
 #include <QReadWriteLock>
 
-/**
- * @brief The KisUpgradeToWriteLocker class is use for RAII style unlocking
- * the read lock and then locking the lock for write. We basically "upgrade"
- * the lock to a write one.
- *
- * WARNING: during the *upgrade* the lock passes the "unlocked" state, so
- *          all the protected data you acquired during the "read" phase might
- *          have become invalidated!
- */
 class KisUpgradeToWriteLocker
 {
 public:
@@ -38,6 +29,4 @@ private:
     QReadLocker *m_locker;
 };
 
-
-
-#endif // KISUPGRADETOWRITELOCKER_H
+#endif

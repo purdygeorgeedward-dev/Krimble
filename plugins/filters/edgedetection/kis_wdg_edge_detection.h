@@ -12,7 +12,6 @@
 
 class Ui_WidgetEdgeDetection;
 
-
 class KisWdgEdgeDetection : public KisConfigWidget
 {
     Q_OBJECT
@@ -37,4 +36,4 @@ private Q_SLOTS:
     void aspectLockChanged(bool v);
 };
 
-#endif // KIS_WDG_EDGE_DETECTION_H
+#endif

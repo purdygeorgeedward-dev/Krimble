@@ -29,8 +29,8 @@ public:
 private:
     void switchEraserOn();
 
-    bool m_switchWasOn = false;       // the eraser switch before this tool started
-    bool m_switchedByTool = false;    // this tool turned it on (so it turns it off again)
+    bool m_switchWasOn = false;
+    bool m_switchedByTool = false;
 };
 
 class KisToolEraserFactory : public KisToolPaintFactoryBase
@@ -42,8 +42,7 @@ public:
         setToolTip(i18n("Eraser Tool"));
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_eraser"));
-        // no key: E is the eraser switch of the brush toolbar already (a second user of the key would make it ambiguous)
-        setPriority(25);          // after Burn (24)
+        setPriority(25);
         setToolBoxPriority(124);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }
@@ -56,4 +55,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_ERASER_H_
+#endif

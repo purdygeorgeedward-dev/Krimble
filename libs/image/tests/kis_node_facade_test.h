@@ -21,7 +21,6 @@ public:
     }
 };
 
-
 class KisNodeFacadeTest : public QObject
 {
     Q_OBJECT

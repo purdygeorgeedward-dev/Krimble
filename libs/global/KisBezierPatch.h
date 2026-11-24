@@ -56,4 +56,4 @@ public:
 KRITAGLOBAL_EXPORT
 QDebug operator<<(QDebug dbg, const KisBezierPatch &p);
 
-#endif // KISBEZIERPATCH_H
+#endif

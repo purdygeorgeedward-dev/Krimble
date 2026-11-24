@@ -30,7 +30,6 @@ ArrangeDockerWidget::~ArrangeDockerWidget()
 {
 }
 
-
 void replaceAction(QToolButton *button, QAction *newAction)
 {
     Q_FOREACH (QAction *action, button->actions()) {
@@ -69,7 +68,6 @@ void ArrangeDockerWidget::setActionCollection(KisKActionCollection *collection)
         replaceAction(ui->vDistributeBottom, collection->action("object_distribute_vertical_bottom"));
         replaceAction(ui->vDistributeGaps, collection->action("object_distribute_vertical_gaps"));
 
-
         replaceAction(ui->group, collection->action("object_group"));
         replaceAction(ui->ungroup, collection->action("object_ungroup"));
     }
@@ -87,5 +85,4 @@ void ArrangeDockerWidget::switchState(bool enabled)
         ui->disabledLabel->show();
     }
 }
-
 

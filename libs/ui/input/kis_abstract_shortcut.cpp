@@ -8,7 +8,6 @@
 
 #include "kis_abstract_input_action.h"
 
-
 class Q_DECL_HIDDEN KisAbstractShortcut::Private
 {
 public:

@@ -20,4 +20,4 @@ public:
     ~ModifySelection() override;
 };
 
-#endif // MODIFY_SELECTION_H
+#endif

@@ -48,7 +48,7 @@ int KisTouchShortcut::priority() const
 bool KisTouchShortcut::isHoldType() const
 {
 #ifdef Q_OS_MACOS
-    return false; // No equivalent gestures on macOS.
+    return false;
 #else
     return d->type == KisShortcutConfiguration::OneFingerHold;
 #endif

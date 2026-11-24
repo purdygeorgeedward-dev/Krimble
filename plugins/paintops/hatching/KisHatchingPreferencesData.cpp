@@ -8,11 +8,9 @@
 
 #include "kis_properties_configuration.h"
 
-
 const QString HATCHING_ANTIALIAS = "Hatching/bool_antialias";
 const QString HATCHING_OPAQUE_BACKGROUND = "Hatching/bool_opaquebackground";
 const QString HATCHING_SUBPIXEL_PRECISION = "Hatching/bool_subpixelprecision";
-
 
 bool KisHatchingPreferencesData::read(const KisPropertiesConfiguration *setting)
 {

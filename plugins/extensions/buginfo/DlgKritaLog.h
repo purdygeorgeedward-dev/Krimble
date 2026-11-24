@@ -19,7 +19,6 @@ public:
     DlgKritaLog(QWidget * parent = 0);
     ~DlgKritaLog() override;
 
-
     QString defaultNewFileName() override {
         return "KritaUsageLog.txt";
     }
@@ -31,4 +30,4 @@ public:
     QString captionText() override;
 };
 
-#endif // DLG_BUGINFO
+#endif

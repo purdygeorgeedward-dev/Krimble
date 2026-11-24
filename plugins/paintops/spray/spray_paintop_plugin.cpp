@@ -19,7 +19,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(SprayPaintOpPluginFactory, "kritaspraypaintop.json", registerPlugin<SprayPaintOpPlugin>();)
 
-
 SprayPaintOpPlugin::SprayPaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

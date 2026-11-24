@@ -22,4 +22,4 @@ private Q_SLOTS:
     void testDoUpdate_data();
 };
 
-#endif // KISAPPIMAGEUPDATERTEST_H
+#endif

@@ -5,7 +5,6 @@
 
 #include "kis_async_merger.h"
 
-
 #include <kis_debug.h>
 
 #include <KoChannelInfo.h>
@@ -27,14 +26,10 @@
 #include "kis_processing_information.h"
 #include "kis_busy_progress_indicator.h"
 
-
 #include "kis_merge_walker.h"
 #include "kis_refresh_subtree_walker.h"
 
 #include "kis_abstract_projection_plane.h"
-
-
-//#define DEBUG_MERGER
 
 #ifdef DEBUG_MERGER
 #define DEBUG_NODE_ACTION(message, type, leaf, rect)            \
@@ -42,7 +37,6 @@
 #else
 #define DEBUG_NODE_ACTION(message, type, leaf, rect)
 #endif
-
 
 class KisUpdateOriginalVisitor : public KisNodeVisitor
 {
@@ -77,17 +71,10 @@ public:
 
         const QRect applyRect = originalUpdateRect & m_projection->extent();
 
-        // If the intersection of the updaterect and the projection extent is
-        //      null, we are finish here.
         if(applyRect.isNull()) return true;
 
         KisFilterConfigurationSP filterConfig = layer->filter();
         if (!filterConfig) {
-            /**
-             * When an adjustment layer is just created, it may have no
-             * filter inside. Then the layer has work as a pass-through
-             * node. Just copy the merged data to the layer's original.
-             */
             KisPainter::copyAreaOptimized(applyRect.topLeft(), m_projection, originalDevice, applyRect);
             return true;
         }
@@ -108,7 +95,6 @@ public:
             KIS_ASSERT_RECOVER_NOOP(layer->busyProgressIndicator());
             layer->busyProgressIndicator()->update();
 
-            // We do not create a transaction here, as srcDevice != dstDevice
             filter->process(m_projection, dstDevice, 0, filterRect, filterConfig.data(), 0);
         }
 
@@ -164,11 +150,6 @@ private:
     KisPaintDeviceSP m_projection;
 };
 
-
-/*********************************************************************/
-/*                     KisAsyncMerger                                */
-/*********************************************************************/
-
 void KisAsyncMerger::startMerge(KisBaseRectsWalker &walker, bool notifyClones) {
     KisMergeWalker::LeafStack &leafStack = walker.leafStack();
 
@@ -178,15 +159,9 @@ void KisAsyncMerger::startMerge(KisBaseRectsWalker &walker, bool notifyClones) {
         KisMergeWalker::JobItem item = leafStack.pop();
         KisProjectionLeafSP currentLeaf = item.m_leaf;
 
-        /**
-         * In some unidentified cases the nodes might be removed
-         * while the updates are still running. We have no proof
-         * of it yet, so just add a safety assert here.
-         */
         KIS_SAFE_ASSERT_RECOVER_RETURN(currentLeaf);
         KIS_SAFE_ASSERT_RECOVER_RETURN(currentLeaf->node());
 
-        // All the masks should be filtered by the walkers
         KIS_SAFE_ASSERT_RECOVER_RETURN(currentLeaf->isLayer());
 
         QRect applyRect = item.m_applyRect;
@@ -197,7 +172,6 @@ void KisAsyncMerger::startMerge(KisBaseRectsWalker &walker, bool notifyClones) {
         }
 
         if(item.m_position & KisMergeWalker::N_EXTRA) {
-            // The type of layers that will not go to projection.
 
             DEBUG_NODE_ACTION("Updating", "N_EXTRA", currentLeaf, applyRect);
             KisUpdateOriginalVisitor originalVisitor(applyRect,
@@ -207,7 +181,6 @@ void KisAsyncMerger::startMerge(KisBaseRectsWalker &walker, bool notifyClones) {
 
             continue;
         }
-
 
         if (!m_currentProjection) {
             setupProjection(currentLeaf, applyRect, useTempProjections);
@@ -238,9 +211,8 @@ void KisAsyncMerger::startMerge(KisBaseRectsWalker &walker, bool notifyClones) {
                 currentLeaf->projectionPlane()->recalculate(applyRect, walker.startNode(), item.m_renderFlags);
             }
         }
-        else /*if(item.m_position & KisMergeWalker::N_BELOW_FILTHY)*/ {
+        else {
             DEBUG_NODE_ACTION("Updating", "N_BELOW_FILTHY", currentLeaf, applyRect);
-            /* nothing to do */
         }
 
         compositeWithProjection(currentLeaf, applyRect);
@@ -250,7 +222,6 @@ void KisAsyncMerger::startMerge(KisBaseRectsWalker &walker, bool notifyClones) {
             resetProjection();
         }
 
-        // FIXME: remove it from the inner loop and/or change to a warning!
         Q_ASSERT(currentLeaf->projection()->defaultBounds()->currentLevelOfDetail() ==
                  walker.levelOfDetail());
     }
@@ -264,7 +235,6 @@ void KisAsyncMerger::startMerge(KisBaseRectsWalker &walker, bool notifyClones) {
         warnImage << "     Start node:" << walker.startNode() << "Requested rect:" << walker.requestedRect();
         warnImage << "     An inconsistency in the walkers occurred!";
         warnImage << "     Please report a bug describing how you got this message.";
-        // reset projection to avoid artifacts in next merges and allow people to work further
         resetProjection();
     }
 }
@@ -291,14 +261,6 @@ void KisAsyncMerger::setupProjection(KisProjectionLeafSP currentLeaf, const QRec
         }
     }
     else {
-        /**
-         * It happened so that our parent uses our own projection as
-         * its original. It means obligeChild mechanism works.
-         * We won't initialise m_currentProjection. This will cause
-         * writeProjection() and compositeWithProjection() do nothing
-         * when called.
-         */
-        /* NOP */
     }
 }
 

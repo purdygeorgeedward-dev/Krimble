@@ -124,7 +124,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
             pageLayout->addWidget(fontsLabel);
             pageLayout->addStretch(1);
         }
-        // The seven tabs (About, Authors, Translators, Sponsors, Also Thanks To, License, Third-party libraries) were as wide as the window needs: the tab row scrolls now
         if (QTabWidget *tabs = wdgTab->findChild<QTabWidget*>()) {
             tabs->tabBar()->setUsesScrollButtons(true);
             tabs->tabBar()->setElideMode(Qt::ElideNone);
@@ -134,7 +133,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
 #else
     wdgTab->aboutTab->layout()->addWidget(splash);
 #endif
-    // wdgTab->aboutTab->layout()->addWidget(splash);   (the original line; the phone uses the page above)
 
     QString authors = i18n("<html>"
                           "<head/>"
@@ -152,8 +150,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     authors.append(".</p></body></html>");
     wdgTab->lblAuthors->setText(authors);
 
-    // Translators
-    // TODO: move to KisApplication after string freeze is lifted
     KAboutData aboutData(KAboutData::applicationData());
     if (aboutData.translators().isEmpty()) {
         aboutData.setTranslator(i18nc("NAME OF TRANSLATORS", "Your names"),

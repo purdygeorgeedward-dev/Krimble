@@ -17,4 +17,4 @@
 #endif
 #endif
 
-#endif /* __KO_ALWAYS_INLINE_H */
+#endif

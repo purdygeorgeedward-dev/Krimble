@@ -66,7 +66,7 @@ void KisSelectionPropertySliderBase::slotCompressedUpdate()
 void KisSelectionPropertySliderBase::setSelectionValue(qreal commonValue, bool mixed)
 {
     if (mixed) {
-        setInternalValue(0.0, true); // BUG:409131
+        setInternalValue(0.0, true);
         KisSpinBoxI18nHelper::setText(static_cast<QDoubleSpinBox *>(this), m_d->mixedTemplate);
     } else {
         setValue(commonValue);

@@ -13,7 +13,6 @@
 #include <KoShapeFactoryBase.h>
 #include <KoProperties.h>
 
-
 KoShape* KisShapeToolHelper::createRectangleShape(const QRectF& rect, qreal roundCornersX, qreal roundCornersY)
 {
     KoShape* shape;
@@ -30,7 +29,6 @@ KoShape* KisShapeToolHelper::createRectangleShape(const QRectF& rect, qreal roun
 
         shape = rectFactory->createShape(&props);
     } else {
-        //Fallback if the plugin wasn't found
         QPainterPath path;
         if (roundCornersX > 0 || roundCornersY > 0) {
             path.addRoundedRect(rect, roundCornersX, roundCornersY);
@@ -53,7 +51,6 @@ KoShape* KisShapeToolHelper::createEllipseShape(const QRectF& rect)
         shape->setSize(rect.size());
         shape->setPosition(rect.topLeft());
     } else {
-        //Fallback if the plugin wasn't found
         KoPathShape* path = new KoPathShape();
         path->setShapeId(KoPathShapeId);
 

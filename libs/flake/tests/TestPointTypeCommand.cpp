@@ -19,7 +19,6 @@ void TestPointTypeCommand::redoUndoSymmetric()
     KoPathPoint *point1 = path1.curveTo(QPointF(0, 50), QPointF(100, 50), QPointF(100, 100));
     KoPathPoint *point2 = path1.curveTo(QPointF(100, 200), QPointF(200, 200), QPointF(200, 100));
     path1.curveTo(QPointF(200, 50), QPointF(300, 50), QPointF(300, 100));
-    // test with normalize
     KoPathShape path2;
     KoPathPoint *point3 = path2.moveTo(QPointF(0, 0));
     path2.curveTo(QPointF(50, 0), QPointF(100, 50), QPointF(100, 100));
@@ -62,7 +61,6 @@ void TestPointTypeCommand::redoUndoSmooth()
     KoPathPoint *point1 = path1.curveTo(QPointF(0, 50), QPointF(100, 50), QPointF(100, 100));
     KoPathPoint *point2 = path1.curveTo(QPointF(100, 200), QPointF(200, 200), QPointF(200, 100));
     path1.curveTo(QPointF(200, 50), QPointF(300, 50), QPointF(300, 100));
-    // test with normalize
     KoPathShape path2;
     KoPathPoint *point3 = path2.moveTo(QPointF(0, 0));
     path2.curveTo(QPointF(50, 0), QPointF(100, 50), QPointF(100, 100));
@@ -105,7 +103,6 @@ void TestPointTypeCommand::redoUndoCorner()
     KoPathPoint *point1 = path1.curveTo(QPointF(0, 50), QPointF(100, 50), QPointF(100, 100));
     KoPathPoint *point2 = path1.curveTo(QPointF(100, 150), QPointF(200, 150), QPointF(200, 100));
     path1.curveTo(QPointF(200, 50), QPointF(300, 50), QPointF(300, 100));
-    // test with normalize
     KoPathShape path2;
     KoPathPoint *point3 = path2.moveTo(QPointF(0, 0));
     path2.curveTo(QPointF(50, 0), QPointF(100, 50), QPointF(100, 100));

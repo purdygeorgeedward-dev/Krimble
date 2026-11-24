@@ -27,7 +27,7 @@ public:
     LAGER_QT_CURSOR(qreal, curveStrokeHistorySize);
     LAGER_QT_CURSOR(qreal, curveLineWidth);
     LAGER_QT_CURSOR(qreal, curveCurvesOpacity);
-    
+
 };
 
-#endif // KIS_CURVE_OP_OPTION_MODEL_H
+#endif

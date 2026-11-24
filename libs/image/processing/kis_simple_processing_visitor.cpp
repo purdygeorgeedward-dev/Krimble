@@ -22,7 +22,6 @@
 #include "kis_do_something_command.h"
 #include "kis_undo_adapter.h"
 
-
 KisSimpleProcessingVisitor::~KisSimpleProcessingVisitor()
 {
 }
@@ -81,8 +80,6 @@ void KisSimpleProcessingVisitor::visit(KisTransformMask *mask, KisUndoAdapter *u
 {
     Q_UNUSED(undoAdapter);
 
-    // If (when) it had paint device, we would implement different default
-    // strategy for it. Right now it has neither selection nor a paint device.
     KIS_ASSERT_RECOVER_NOOP(!mask->selection() && !mask->paintDevice());
 }
 

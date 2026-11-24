@@ -11,7 +11,6 @@
 
 class KisResourceLocator;
 
-
 class TestResourceLocator : public QObject
 {
     Q_OBJECT

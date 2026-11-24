@@ -77,14 +77,10 @@ const QRegularExpression nameRe(R"(name\(\s*([^)]*)\s*\))");
             const auto name = KisQmicSimpleConvertor::gMicNameToName(match.captured(1));
             dbgPlugins << "Detected layer name: " << name;
             cmd->addCommand(new KisNodeRenameCommand(node, node->name(), name));
-            // apply command
         }
     }
 
     if (!selection) {
-        // Some GMic filters encode layer position into the layer name.
-        // E.g. from extract foreground: "name([unnamed]
-        // [foreground]),pos(55,35)"
         const QRegularExpression positionPattern(
             R"(pos\(\s*(-?\d*)[^)](-?\d*)\s*\))");
         const QRegularExpressionMatch match =
@@ -126,17 +122,6 @@ void gmicImageToPaintDevice(const KisQMicImage &srcGmicImage,
 KisNodeListSP
 inputNodes(KisImageSP image, InputLayerMode inputMode, KisNodeSP currentNode)
 {
-    /*
-        ACTIVE_LAYER,
-        ALL_LAYERS,
-        ACTIVE_LAYER_BELOW_LAYER,
-        ACTIVE_LAYER_ABOVE_LAYER,
-        ALL_VISIBLE_LAYERS,
-        ALL_INVISIBLE_LAYERS,
-        ALL_VISIBLE_LAYERS_DECR,
-        ALL_INVISIBLE_DECR,
-        ALL_DECR
-    */
     const auto isAvailable = [](KisNodeSP node) -> bool {
         auto *paintLayer = dynamic_cast<KisPaintLayer *>(node.data());
         return paintLayer && paintLayer->visible(false);
@@ -151,7 +136,7 @@ inputNodes(KisImageSP image, InputLayerMode inputMode, KisNodeSP currentNode)
         if (isAvailable(currentNode)) {
             result->prepend(currentNode);
         }
-        break; // drop down in case of one more layer modes
+        break;
     }
     case InputLayerMode::All: {
         result = [&]() {
@@ -217,4 +202,4 @@ inputNodes(KisImageSP image, InputLayerMode inputMode, KisNodeSP currentNode)
     }
     return result;
 }
-} // namespace KisQmicImportTools
+}

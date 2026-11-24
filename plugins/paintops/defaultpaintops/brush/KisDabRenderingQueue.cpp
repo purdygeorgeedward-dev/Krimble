@@ -23,7 +23,6 @@ struct KisDabRenderingQueue::Private
         void getDabType(bool hasDabInCache,
                                 KisDabCacheUtils::DabRenderingResources *resources,
                                 const KisDabCacheUtils::DabRequestInfo &request,
-                                /* out */
                                 KisDabCacheUtils::DabGenerationInfo *di,
                                 bool *shouldUseCache) override
         {
@@ -56,8 +55,6 @@ struct KisDabRenderingQueue::Private
     }
 
     ~Private() {
-        // clear the jobs, so that they would not keep references to any
-        // paint devices anymore
         jobs.clear();
 
         qDeleteAll(cachedResources);
@@ -91,7 +88,6 @@ struct KisDabRenderingQueue::Private
     void putResourcesToCache(KisDabCacheUtils::DabRenderingResources *resources);
 };
 
-
 KisDabRenderingQueue::KisDabRenderingQueue(const KoColorSpace *cs,
                                            KisDabCacheUtils::ResourcesFactory resourcesFactory)
     : m_d(new Private(cs, resourcesFactory))
@@ -108,13 +104,10 @@ int KisDabRenderingQueue::Private::calculateLastDabJobIndex(int startSearchIndex
         startSearchIndex = jobs.size() - 1;
     }
 
-    // try to use cached value
     if (startSearchIndex >= lastDabJobInQueue) {
         return lastDabJobInQueue;
     }
 
-    // if we are below the cached value, just iterate through the dabs
-    // (which is extremely(!) slow)
     for (int i = startSearchIndex; i >= 0; i--) {
         if (jobs[i]->type == KisDabRenderingJob::Dab) {
             return i;
@@ -134,7 +127,6 @@ KisDabRenderingJobSP KisDabRenderingQueue::addDab(const KisDabCacheUtils::DabReq
     KisDabCacheUtils::DabRenderingResources *resources = m_d->fetchResourcesFromCache();
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(resources, KisDabRenderingJobSP());
 
-    // We should sync the cached brush into the current seqNo
     resources->syncResourcesToSeqNo(seqNo, request.info);
 
     const int lastDabJobIndex = m_d->lastDabJobInQueue;
@@ -184,7 +176,6 @@ KisDabRenderingJobSP KisDabRenderingQueue::addDab(const KisDabCacheUtils::DabReq
         m_d->cleanPaintedDabs();
     }
 
-    // collect some statistics about the dab
     m_d->avgDabSize(KisAlgebra2D::maxDimension(job->generationInfo.dstDabRect));
 
     return jobToRun;
@@ -196,9 +187,6 @@ QList<KisDabRenderingJobSP> KisDabRenderingQueue::notifyJobFinished(int seqNo, i
 
     QList<KisDabRenderingJobSP> dependentJobs;
 
-    /**
-     * Here we use binary search for locating the necessary original dab
-     */
     auto finishedJobIt =
         std::lower_bound(m_d->jobs.begin(), m_d->jobs.end(), seqNo,
                          kismpl::mem_less(&KisDabRenderingJob::seqNo));
@@ -217,11 +205,8 @@ QList<KisDabRenderingJobSP> KisDabRenderingQueue::notifyJobFinished(int seqNo, i
         for (auto it = finishedJobIt + 1; it != m_d->jobs.end(); ++it) {
             KisDabRenderingJobSP j = *it;
 
-            // next dab job closes the chain
             if (j->type == KisDabRenderingJob::Dab) break;
 
-            // the non 'dab'-type job couldn't have
-            // been started before the source ob was completed
             KIS_SAFE_ASSERT_RECOVER_BREAK(j->status == KisDabRenderingJob::New);
 
             if (j->type == KisDabRenderingJob::Copy) {
@@ -326,7 +311,6 @@ QList<KisRenderedDab> KisDabRenderingQueue::takeReadyDabs(bool returnMutableDabs
         m_d->averageOpacity = KisPainter::blendAverageOpacity(j->opacity, m_d->averageOpacity);
         dab.averageOpacity = m_d->averageOpacity;
 
-
         renderedDabs.append(dab);
 
         m_d->lastPaintedJob = i;
@@ -351,7 +335,6 @@ bool KisDabRenderingQueue::Private::hasPreparedDabsImpl() const
             jobs[nextToBePainted]->status == KisDabRenderingJob::Completed;
 }
 
-
 bool KisDabRenderingQueue::hasPreparedDabs() const
 {
     QMutexLocker l(&m_d->mutex);
@@ -365,10 +348,6 @@ void KisDabRenderingQueue::setCacheInterface(KisDabRenderingQueue::CacheInterfac
 
 KisFixedPaintDeviceSP KisDabRenderingQueue::fetchCachedPaintDevice()
 {
-    /**
-     * We create a special type of a fixed paint device that
-     * uses a custom allocator for better efficiency.
-     */
     return new KisFixedPaintDevice(m_d->colorSpace, m_d->paintDeviceAllocator);
 }
 
@@ -399,7 +378,6 @@ KisDabCacheUtils::DabRenderingResources *KisDabRenderingQueue::Private::fetchRes
 {
     KisDabCacheUtils::DabRenderingResources *resources = 0;
 
-    // fetch/create a temporary resources object
     if (!cachedResources.isEmpty()) {
         resources = cachedResources.takeLast();
     } else {
@@ -416,7 +394,6 @@ void KisDabRenderingQueue::Private::putResourcesToCache(KisDabCacheUtils::DabRen
 
 KisDabCacheUtils::DabRenderingResources *KisDabRenderingQueue::fetchResourcesFromCache()
 {
-    // TODO: make a separate lock for that
     QMutexLocker l(&m_d->mutex);
     return m_d->fetchResourcesFromCache();
 }

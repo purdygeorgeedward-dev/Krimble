@@ -4,11 +4,9 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisOpenGLBufferCreationGuard.h"
 
 #include "kis_opengl.h"
-
 
 KisOpenGLBufferCreationGuard::KisOpenGLBufferCreationGuard(QOpenGLBuffer *buffer, int size, QOpenGLBuffer::UsagePattern usagePattern)
 {
