@@ -1339,7 +1339,9 @@ public:
     KrimbleFitOnOpen(KisView *view, QWidget *canvasWidget) : QObject(canvasWidget), m_view(view)
     {
         canvasWidget->installEventFilter(this);
-        QTimer::singleShot(4000, this, [this]() { deleteLater(); });   // after 4 seconds the user's zoom is left alone
+        // QTimer::singleShot(4000, this, [this]() { deleteLater(); });   // after 4 seconds the user's zoom is left alone
+        // Krimble 2026-11-23: no time limit: the new image is fitted again on every canvas size change until the canvas is first touched
+        // (George, build 78: "Still opened a file tiny." / "Yes. Fix it.")
         QTimer::singleShot(1500, this, [this]() { nudge(); });
         QTimer::singleShot(3000, this, [this]() { nudge(); });
     }
@@ -1372,7 +1374,8 @@ protected:
         switch (event->type()) {
         case QEvent::Resize: {
             QResizeEvent *re = static_cast<QResizeEvent *>(event);
-            if (!re->size().isEmpty() && (re->size().width() > re->oldSize().width() || re->size().height() > re->oldSize().height())) {
+            // if (!re->size().isEmpty() && (re->size().width() > re->oldSize().width() || re->size().height() > re->oldSize().height())) {
+            if (!re->size().isEmpty() && re->size() != re->oldSize()) {   // bigger or smaller
                 QTimer::singleShot(0, this, [this]() { fit(); });
             }
             break;

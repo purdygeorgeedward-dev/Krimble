@@ -122,7 +122,9 @@ public:
         {
             const int sepWidth = qMax(4, m_win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, nullptr, m_win));
             if (area == Qt::LeftDockWidgetArea) setGeometry(column.right() + 1, column.top(), sepWidth + 8, column.height());
-            else setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 4 + 16, column.height());
+            // else setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 4 + 16, column.height());
+            // Krimble 2026-11-23: the right panel's grab area a little wider, 4 more units on each side (George: "Just extend it a little.")
+            else setGeometry(column.left() - sepWidth - 8, column.top(), sepWidth + 8 + 20, column.height());
         }
         show();
         raise();
