@@ -345,11 +345,14 @@ void ThemeManager::slotChangePalette()
             "\nQProgressBar::chunk { background: none; border: none; border-image: url(%2) 0 0 0 0 stretch; }\n").arg(aquaSquare, aquaWide);
     }
     if (!krimbleSheet.isEmpty()) {
-        const QColor panel = qApp->palette().color(QPalette::Window);
+        const QColor panel = theme == QStringLiteral("Krimble Painted") ? QColor(0x35, 0x42, 0x65) : qApp->palette().color(QPalette::Window);
         const QColor behind = panel.darker(200);
         const QColor unselected = panel.darker(120);
         krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar { background: %1; }\nQMainWindow > QTabBar::tab:!selected { background: %2; }\n")
                             .arg(behind.name(), unselected.name());
+        if (theme == QStringLiteral("Krimble Painted")) {
+            krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar::tab:selected { background: %1; }\n").arg(panel.name());
+        }
         if (theme == QStringLiteral("Krimble Light")) {
             krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar::tab:!selected { background: %2; border: 2px solid %2; border-bottom: none; }\n"
                                            "QMainWindow > QTabBar::tab:selected { border-top: 2px solid #ffffff; border-left: 2px solid #ffffff; border-right: none; border-bottom: none; }\n"
