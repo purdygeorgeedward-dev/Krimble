@@ -371,8 +371,10 @@ LayerBox::LayerBox()
                 QLabel *krimbleTypeLabel = new QLabel(i18n("Type:"));
                 QFont krimbleTypeFont = blend->font();
                 krimbleTypeFont.setBold(true);
-                if (krimbleTypeFont.pointSizeF() > 0) krimbleTypeFont.setPointSizeF(krimbleTypeFont.pointSizeF() * 1.15);
-                else if (krimbleTypeFont.pixelSize() > 0) krimbleTypeFont.setPixelSize(qRound(krimbleTypeFont.pixelSize() * 1.15));
+                // if (krimbleTypeFont.pointSizeF() > 0) krimbleTypeFont.setPointSizeF(krimbleTypeFont.pointSizeF() * 1.15);
+                if (krimbleTypeFont.pointSizeF() > 0) krimbleTypeFont.setPointSizeF(krimbleTypeFont.pointSizeF() * 1.10);   // "a little too big": 10% (was 15%)
+                // else if (krimbleTypeFont.pixelSize() > 0) krimbleTypeFont.setPixelSize(qRound(krimbleTypeFont.pixelSize() * 1.15));
+                else if (krimbleTypeFont.pixelSize() > 0) krimbleTypeFont.setPixelSize(qRound(krimbleTypeFont.pixelSize() * 1.10));
                 krimbleTypeLabel->setFont(krimbleTypeFont);
                 krimbleTypeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
                 topRow->addWidget(krimbleTypeLabel);
