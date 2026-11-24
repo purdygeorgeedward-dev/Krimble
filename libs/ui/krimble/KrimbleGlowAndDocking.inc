@@ -110,6 +110,15 @@ public:
     }
 };
 
+
+// Krimble 2026-11-23: about one line of room under a menu's last item, bottom only (the menu's own bottom margin)
+static void krimbleMenuBottomRoom(QMenu *menu)
+{
+    if (!menu) return;
+    menu->setProperty("krimbleMenuRoom", true);
+    menu->setContentsMargins(0, 0, 0, 16);
+}
+
 class KrimbleGlowFilter : public QObject
 {
 public:
@@ -147,7 +156,18 @@ public:
                     menu->installEventFilter(new KrimbleMenuColumnDividers(menu));
                     // Krimble 2026-11-23: room under the last item, bottom only (George: "The menus are chopped off short at the bottom
                     // again."). Qt ignores padding-bottom on menus (tested in desktop Qt 5.15); the menu's own bottom margin works.
-                    menu->setContentsMargins(0, 0, 0, 16);
+                    // menu->setContentsMargins(0, 0, 0, 16);
+                    krimbleMenuBottomRoom(menu);
+                }
+            }
+        }
+        // Krimble 2026-11-23: a menu set up before this hook was listening gets its bottom room the first time it opens
+        // (George, build 78: "ALL MENU BOTTOMS ARE STILL SHORT.")
+        if (event->type() == QEvent::Show) {
+            if (QMenu *menu = qobject_cast<QMenu*>(watched)) {
+                if (!menu->property("krimbleMenuRoom").toBool()) {
+                    krimbleMenuBottomRoom(menu);
+                    menu->resize(menu->sizeHint());
                 }
             }
         }
@@ -161,6 +181,12 @@ private:
 
 static void krimbleInstallSelectionGlow(KisMainWindow *win)
 {
+    // Krimble 2026-11-23: menus that already exist (the menu bar's menus are set up before this hook) get their bottom room now
+    Q_FOREACH (QWidget *krimbleWidget, QApplication::allWidgets()) {
+        if (QMenu *menu = qobject_cast<QMenu*>(krimbleWidget)) {
+            if (!menu->property("krimbleMenuRoom").toBool()) krimbleMenuBottomRoom(menu);
+        }
+    }
     if (win->findChild<KrimbleGlowFilter*>(QStringLiteral("krimbleGlowFilter"))) return;
     KrimbleGlowFilter *filter = new KrimbleGlowFilter(win);
     filter->setObjectName(QStringLiteral("krimbleGlowFilter"));

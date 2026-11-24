@@ -157,3 +157,8 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_1603_colorlab-issues-8.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 8 of 8) |
 | 2026-11-23_1803_build78-opened-tiny.jpg | Nov 23, 2026 18:03 MST | George, build 78: "Still opened a file tiny." (map1.webp, landscape, Color Lab + Layers docked on the right) |
 | 2026-11-23_1814_new-file-dialog-mockup.png | Nov 23, 2026 18:14 MST | George's New File dialog mockup: "The New file dialog window is a little clunky... you have to stretch it out to get to the controls. What do you think of this design?" |
+| 2026-11-23_1928_build78-menu-bottoms-1.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 1 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-2.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 2 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-3.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 3 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-4.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 4 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_1928_build78-menu-bottoms-5.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 5 of 5: File, Edit, Select, Image, Layer) |
