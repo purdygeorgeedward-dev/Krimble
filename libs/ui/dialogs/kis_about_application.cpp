@@ -65,7 +65,11 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         const qreal dpr = qApp->devicePixelRatio();
         int pageWidth = 600;
         const bool sideways = parent && parent->window() && parent->window()->width() > parent->window()->height();
-        if (parent && parent->window()) pageWidth = int(parent->window()->width() * (sideways ? 0.40 : 0.86));
+        if (parent && parent->window()) {
+            const QSize win = parent->window()->size();
+            pageWidth = int(win.width() * (sideways ? 0.56 : 0.90));
+            if (sideways) pageWidth = qMin(pageWidth, int(win.height() * 0.60 * 1672.0 / 941.0));
+        }
         QPixmap picture(QStringLiteral(":/splash/hd.jpg"));
         QLabel *pictureLabel = new QLabel(page);
         if (!picture.isNull()) {

@@ -1108,7 +1108,7 @@ private:
     }
     static QString swatchSheet(const QColor &color, bool selected) {
         return selected
-            ? QStringLiteral("background:%1;border:2px solid #0b87dd;border-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);border-radius:0px;").arg(color.name())
+            ? (qApp->property("krimbleCyberTheme").toBool() ? QStringLiteral("background:%1;border:2px solid #78ebff;border-radius:0px;").arg(color.name()) : QStringLiteral("background:%1;border:2px solid #0b87dd;border-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);border-radius:0px;").arg(color.name()))
             : QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0px;").arg(color.name());
     }
     void rebuildSwatches() {
