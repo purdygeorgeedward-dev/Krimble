@@ -421,7 +421,7 @@ protected:
             // Cyber and Glass are built on Painted, but their menu bar comes from their own sheet: this painted bar covered it (build 77:
             // "New themes didn't work.")
             if (!qApp->property("krimblePaintedTheme").toBool() || qApp->property("krimbleCyberTheme").toBool()
-                || qApp->property("krimbleGlassTheme").toBool() || qApp->property("krimbleSeeThroughMenus").toBool()) {
+                || qApp->property("krimbleSeeThroughMenus").toBool()) {
                 drawK();
                 return false;
             }

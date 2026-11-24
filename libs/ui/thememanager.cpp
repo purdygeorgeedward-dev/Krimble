@@ -56,8 +56,6 @@
 #include "KrimbleCommonStyle.h"
 #include "KrimbleVisualStylePainted.h"
 #include "KrimbleCyberTheme.h"   // cyber-theme branch
-#include "KrimbleGlassTheme.h"   // cyber-theme branch
-#include "KrimbleGlass2Theme.h"   // cyber-theme branch
 
 #ifdef __APPLE__
 #include <QStyle>
@@ -326,13 +324,8 @@ void ThemeManager::slotChangePalette()
     // Krimble Cyber is built on Krimble Painted (cyber-theme branch)
     const bool krimbleCyber = theme == QStringLiteral("Krimble Cyber");
     qApp->setProperty("krimbleCyberTheme", krimbleCyber);
-    // Krimble Glass is built on Krimble Painted too (cyber-theme branch)
-    const bool krimbleGlass = theme == QStringLiteral("Krimble Glass");
-    qApp->setProperty("krimbleGlassTheme", krimbleGlass);
-    // Krimble Glass 2, after the glassmorphism reference picture (cyber-theme branch)
-    const bool krimbleGlass2 = theme == QStringLiteral("Krimble Glass 2");
-    qApp->setProperty("krimbleSeeThroughMenus", krimbleCyber || krimbleGlass || krimbleGlass2);
-    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || krimbleCyber || krimbleGlass || krimbleGlass2);
+    qApp->setProperty("krimbleSeeThroughMenus", krimbleCyber);
+    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || krimbleCyber);
     qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray") || !theme.startsWith(QStringLiteral("Krimble")));
     qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Krimble Dark Gray"));
     qApp->setProperty("krimbleSelectionGradient", theme.startsWith(QStringLiteral("Krimble")) && theme != QStringLiteral("Krimble Dark Gray"));
@@ -345,7 +338,7 @@ void ThemeManager::slotChangePalette()
         krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Krimble Light")) {
         krimbleSheet = (krimbleLightSheet(krimbleVisualStyleSheet()));
-    } else if (theme == QStringLiteral("Krimble Painted") || krimbleCyber || krimbleGlass || krimbleGlass2) {
+    } else if (theme == QStringLiteral("Krimble Painted") || krimbleCyber) {
         krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
             "\nQScrollBar:vertical { background: #03050a; width: 18px; margin: 0px; border: 1px solid #000000; }\n"
             // "QScrollBar:horizontal { background: #0e1226; height: 16px; margin: 0px; border: 1px solid #05070f; }\n"
@@ -409,8 +402,6 @@ void ThemeManager::slotChangePalette()
         }
     }
     if (krimbleCyber) krimbleSheet += krimbleCyberStyleSheet();   // last, so it wins (cyber-theme branch)
-    if (krimbleGlass) krimbleSheet += krimbleGlassStyleSheet();   // last, so it wins (cyber-theme branch)
-    if (krimbleGlass2) krimbleSheet += krimbleGlass2StyleSheet();   // last, so it wins (cyber-theme branch)
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
