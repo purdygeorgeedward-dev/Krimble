@@ -19,6 +19,8 @@
 #include <QSpacerItem>
 
 #include <QMessageBox>
+#include <QInputDialog>
+#include <QResizeEvent>
 #include <KoResourcePaths.h>
 
 #include <KFormat>
@@ -81,6 +83,9 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
         QScreen *screenForWidth = QGuiApplication::primaryScreen();
         const bool narrowScreen = screenForWidth && screenForWidth->availableGeometry().width() < 450;
         cmbPredefined->setMaximumWidth(narrowScreen ? 104 : 170);
+        for (QComboBox *colorCombo : colorSpaceSelector->findChildren<QComboBox *>()) {
+            colorCombo->setMaximumWidth(130);
+        }
     }
     grpImage->setProperty("krimbleKeepRows", true);
     colorSpaceSelector->setProperty("krimbleKeepRows", true);
@@ -131,6 +136,7 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
             this, SLOT(resolutionUnitChanged()));
 
     newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok)->setText(i18n("&Create"));
+    newDialogConfirmationButtonBox->setStyleSheet(QStringLiteral("QDialogButtonBox { button-layout: 1; }"));
     KGuiItem::assign(newDialogConfirmationButtonBox->button(QDialogButtonBox::Cancel), KStandardGuiItem::cancel());
     connect(newDialogConfirmationButtonBox, SIGNAL(accepted()), this, SLOT(createImage()));
 
@@ -143,7 +149,8 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
 
     connect(doubleWidth, SIGNAL(valueChanged(double)), this, SLOT(switchPortraitLandscape()));
     connect(doubleHeight, SIGNAL(valueChanged(double)), this, SLOT(switchPortraitLandscape()));
-    connect(bnSaveAsPredefined, SIGNAL(clicked()), this, SLOT(saveAsPredefined()));
+    bnSavePreset->setIcon(KisIconUtils::loadIcon("document-save"));
+    connect(bnSavePreset, SIGNAL(clicked()), this, SLOT(saveAsPredefined()));
 
     colorSpaceSelector->setCurrentColorModel(KoID(defColorModel));
     colorSpaceSelector->setCurrentColorDepth(KoID(defColorDepth));
@@ -153,7 +160,7 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     connect(colorSpaceSelector, SIGNAL(selectionChanged(bool)), newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok), SLOT(setEnabled(bool)));
 
     KisConfig cfg(true);
-    intNumLayers->setValue(cfg.numDefaultLayers());
+    m_numLayers = cfg.numDefaultLayers();
     KoColor bcol(KoColorSpaceRegistry::instance()->rgb8());
     bcol.fromQColor(cfg.defaultBackgroundColor());
     cmbColor->setColor(bcol);
@@ -179,6 +186,14 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     bnLandscape->setPalette(palette_highlight);
     bnPortrait->setPalette(palette_highlight);
     changeDocumentInfoLabel();
+}
+
+void KisCustomImageWidget::resizeEvent(QResizeEvent *event)
+{
+    WdgNewImage::resizeEvent(event);
+    const QBoxLayout::Direction direction = width() < grpImage->sizeHint().width() + grpMode->sizeHint().width() + 24
+            ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight;
+    if (horizontalLayout_3->direction() != direction) horizontalLayout_3->setDirection(direction);
 }
 
 void KisCustomImageWidget::showEvent(QShowEvent *)
@@ -343,10 +358,9 @@ KisDocument* KisCustomImageWidget::createNewImage()
         bgStyle = KisConfig::FILL_LAYER;
     }
 
-    doc->newImage(txtName->text(), width, height, cs, bgColor, bgStyle, intNumLayers->value(), txtDescription->toPlainText(), resolution);
+    doc->newImage(txtName->text(), width, height, cs, bgColor, bgStyle, m_numLayers, QString(), resolution);
 
     KisConfig cfg(true);
-    cfg.setNumDefaultLayers(intNumLayers->value());
     cfg.setDefaultBackgroundOpacity(backgroundOpacity());
     cfg.setDefaultBackgroundColor(cmbColor->color().toQColor());
     cfg.setDefaultBackgroundStyle(bgStyle);
@@ -356,7 +370,7 @@ KisDocument* KisCustomImageWidget::createNewImage()
 
 void KisCustomImageWidget::setNumberOfLayers(int layers)
 {
-    intNumLayers->setValue(layers);
+    m_numLayers = layers;
 }
 
 quint8 KisCustomImageWidget::backgroundOpacity() const
@@ -413,7 +427,6 @@ void KisCustomImageWidget::predefinedClicked(int index)
     if (index < 1 || index > m_predefined.size()) return;
 
     KisPropertiesConfigurationSP predefined = m_predefined[index - 1];
-    txtPredefinedName->setText(predefined->getString("name"));
     if (cmbResolutionUnit->currentText() == pixelsInchStr()) {
         doubleResolution->setValue(predefined->getDouble("resolution"));
     } else {
@@ -433,10 +446,13 @@ void KisCustomImageWidget::predefinedClicked(int index)
 
 void KisCustomImageWidget::saveAsPredefined()
 {
-    QString fileName = txtPredefinedName->text();
-    if (fileName.isEmpty()) {
+    bool ok = false;
+    const QString presetName = QInputDialog::getText(this, i18n("Save Preset"), i18n("Preset name:"), QLineEdit::Normal,
+                                                     cmbPredefined->currentIndex() > 0 ? cmbPredefined->currentText() : QString(), &ok).trimmed();
+    if (!ok || presetName.isEmpty()) {
         return;
     }
+    QString fileName = presetName;
     QString saveLocation = KoResourcePaths::saveLocation("data", "predefined_image_sizes/", true);
     QFile f(saveLocation + '/' + fileName.replace(' ', '_').replace('(', '_').replace(')', '_').replace(':', '_') + ".predefinedimage");
 
@@ -446,7 +462,7 @@ void KisCustomImageWidget::saveAsPredefined()
         return;
     }
     KisPropertiesConfigurationSP predefined = new KisPropertiesConfiguration();
-    predefined->setProperty("name", txtPredefinedName->text());
+    predefined->setProperty("name", presetName);
     predefined->setProperty("width", doubleWidth->value());
     predefined->setProperty("height", doubleHeight->value());
     predefined->setProperty("resolution", doubleResolution->value());
@@ -462,7 +478,7 @@ void KisCustomImageWidget::saveAsPredefined()
     int i = 0;
     bool found = false;
     Q_FOREACH (KisPropertiesConfigurationSP pr, m_predefined) {
-        if (pr->getString("name") == txtPredefinedName->text()) {
+        if (pr->getString("name") == presetName) {
             found = true;
             break;
         }
@@ -473,7 +489,8 @@ void KisCustomImageWidget::saveAsPredefined()
     }
     else {
         m_predefined.append(predefined);
-        cmbPredefined->addItem(txtPredefinedName->text());
+        cmbPredefined->addItem(presetName);
+        cmbPredefined->setCurrentIndex(cmbPredefined->count() - 1);
     }
 
 }
