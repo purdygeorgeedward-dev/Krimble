@@ -261,7 +261,6 @@
 #include "krimble/KrimbleDockHelpers.inc"
 #include "krimble/KrimbleMenus.inc"
 #include "krimble/KrimbleDockEdges.inc"
-#include "kis_zoom_manager.h"
 #include <KoGroupButton.h>
 #include <QStyleOptionToolButton>
 #include <QStyleOptionButton>
@@ -1239,66 +1238,6 @@ static void krimbleInstallReopen(KisMainWindow *win)
     });
 }
 
-class KrimbleFitOnOpen : public QObject
-{
-public:
-    KrimbleFitOnOpen(KisView *view, QWidget *canvasWidget) : QObject(canvasWidget), m_view(view)
-    {
-        canvasWidget->installEventFilter(this);
-        QTimer::singleShot(1500, this, [this]() { nudge(); });
-        QTimer::singleShot(3000, this, [this]() { nudge(); });
-    }
-    void fit()
-    {
-        if (!m_view || !m_view->zoomManager()) return;
-        m_view->zoomManager()->slotZoomToFit();
-        if (m_view->canvasBase()) {
-            m_view->canvasBase()->refetchDataFromImage();
-            m_view->canvasBase()->updateCanvas();
-        }
-        nudge();
-    }
-    void nudge()
-    {
-        if (!m_view || !m_view->canvasController() || m_nudging) return;
-        m_nudging = true;
-        m_view->canvasController()->pan(QPoint(1, 0));
-        QTimer::singleShot(60, this, [this]() {
-            if (m_view && m_view->canvasController()) m_view->canvasController()->pan(QPoint(-1, 0));
-            m_nudging = false;
-        });
-    }
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override
-    {
-        switch (event->type()) {
-        case QEvent::Resize: {
-            QResizeEvent *re = static_cast<QResizeEvent *>(event);
-            if (!re->size().isEmpty() && re->size() != re->oldSize()) {
-                QTimer::singleShot(0, this, [this]() { fit(); });
-            }
-            break;
-        }
-        case QEvent::Show:
-            QTimer::singleShot(0, this, [this]() { fit(); });
-            break;
-        case QEvent::MouseButtonPress:
-        case QEvent::TouchBegin:
-        case QEvent::TabletPress:
-        case QEvent::Wheel:
-            watched->removeEventFilter(this);
-            deleteLater();
-            break;
-        default:
-            break;
-        }
-        return false;
-    }
-private:
-    QPointer<KisView> m_view;
-    bool m_nudging {false};
-};
-
 void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
 {
     if (imageView && activeView() != imageView) {
@@ -1321,19 +1260,6 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         subwin->setAttribute(Qt::WA_DeleteOnClose, true);
         connect(subwin, SIGNAL(destroyed()), SLOT(updateWindowMenu()));
         krimbleInstallMenuBarFilter(menuBar());
-        {
-            QPointer<KisView> krimbleFitView(imageView);
-            if (imageView->canvasBase() && imageView->canvasBase()->canvasWidget()) {
-                new KrimbleFitOnOpen(imageView, imageView->canvasBase()->canvasWidget());
-            }
-            QTimer::singleShot(1000, this, [krimbleFitView]() {
-                if (krimbleFitView && krimbleFitView->zoomManager()) krimbleFitView->zoomManager()->slotZoomToFit();
-                if (krimbleFitView && krimbleFitView->canvasBase()) {
-                    krimbleFitView->canvasBase()->refetchDataFromImage();
-                    krimbleFitView->canvasBase()->updateCanvas();
-                }
-            });
-        }
 #ifdef Q_OS_ANDROID
         if (QTabBar *krimbleTabs = d->findTabBarHACK()) {
             if (!krimbleTabs->property("krimbleTabK").toBool()) {
