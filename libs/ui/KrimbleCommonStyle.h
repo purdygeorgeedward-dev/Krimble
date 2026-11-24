@@ -20,8 +20,8 @@ QMenuBar::item { margin-bottom: 0px; }
 NodeView::item { background: transparent; color: #f1f4fc; border: none; }
 NodeView::item:selected { background: transparent; color: #ffffff; border: none; border-radius: 0px; }
 
-QSlider:horizontal { min-height: 14px; }
-QSlider::handle:horizontal { width: 12px; height: 12px; margin: -6px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }
+QSlider:horizontal { min-height: 18px; }
+QSlider::handle:horizontal { width: 16px; height: 16px; margin: -5px 0 -4px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }
 
 QMainWindow > QTabBar { qproperty-drawBase: 0; }
 QMainWindow > QTabBar::tab:selected { background: palette(window); border-bottom: 1px solid palette(window); }

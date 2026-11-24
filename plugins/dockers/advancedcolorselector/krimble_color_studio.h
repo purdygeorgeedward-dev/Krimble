@@ -585,7 +585,7 @@ public:
             "background:qlineargradient(x1:0,y1:0,x2:1,y2:0,"
             "stop:0 red,stop:0.167 yellow,stop:0.333 lime,"
             "stop:0.5 cyan,stop:0.667 blue,stop:0.833 magenta,stop:1 red); }"
-            "QSlider::handle:horizontal { width:20px; height:20px; margin:-5px 0; border:none; background:transparent;"
+            "QSlider::handle:horizontal { width:20px; height:20px; margin:-4px 0; border:none; background:transparent;"
             " border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }"));
         hueRow->addWidget(m_hue);
         pickerLayout->addLayout(hueRow);
