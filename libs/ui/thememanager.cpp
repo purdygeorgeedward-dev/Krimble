@@ -356,6 +356,14 @@ void ThemeManager::slotChangePalette()
                                            "QMainWindow > QTabBar::tab:previous-selected { border-left: 4px solid %1; }\n")
                                 .arg(panel.darker(170).name(), panel.darker(130).name());
         }
+        QString tabLine = QStringLiteral("#5d6a9c");
+        int tabLineWidth = 1;
+        if (theme == QStringLiteral("Krimble Blue-Gray")) tabLine = krimbleRecolorSheet(tabLine, 236, 33);
+        else if (theme == QStringLiteral("Krimble Dark Gray")) tabLine = krimbleGraySheet(tabLine);
+        else if (theme == QStringLiteral("Krimble Painted")) tabLine = QStringLiteral("#8a9acd");
+        else if (theme == QStringLiteral("Krimble Light")) { tabLine = QStringLiteral("#ffffff"); tabLineWidth = 2; }
+        krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar::tab:!selected { border-bottom: %2px solid %1; }\nQMainWindow > QTabBar { border-bottom: %2px solid %1; }\n")
+                            .arg(tabLine).arg(tabLineWidth);
     }
     qApp->setStyleSheet(krimbleSheet);
 #endif
