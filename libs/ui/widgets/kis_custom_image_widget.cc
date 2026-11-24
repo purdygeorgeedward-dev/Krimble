@@ -137,6 +137,8 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
 
     newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok)->setText(i18n("&Create"));
     newDialogConfirmationButtonBox->setStyleSheet(QStringLiteral("QDialogButtonBox { button-layout: 1; }"));
+    setStyleSheet(QStringLiteral("QLineEdit, QAbstractSpinBox, QComboBox { border: 1px solid palette(mid); border-radius: 6px; }\n"
+                                 "QGroupBox { border: 1px solid palette(mid); border-radius: 8px; }"));
     KGuiItem::assign(newDialogConfirmationButtonBox->button(QDialogButtonBox::Cancel), KStandardGuiItem::cancel());
     connect(newDialogConfirmationButtonBox, SIGNAL(accepted()), this, SLOT(createImage()));
 
