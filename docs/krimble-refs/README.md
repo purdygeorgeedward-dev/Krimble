@@ -155,3 +155,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_1603_colorlab-issues-6.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 6 of 8) |
 | 2026-11-23_1603_colorlab-issues-7.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 7 of 8) |
 | 2026-11-23_1603_colorlab-issues-8.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 8 of 8) |
+| 2026-11-23_1803_build78-opened-tiny.jpg | Nov 23, 2026 18:03 MST | George, build 78: "Still opened a file tiny." (map1.webp, landscape, Color Lab + Layers docked on the right) |
