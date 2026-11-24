@@ -431,7 +431,9 @@ inline QIcon plainIcon(const QString &iconName);
 inline QIcon icon(const QString &iconName)
 {
     // the eyedropper is drawn small in its square: it is shown 20% larger ("Our eyedropper could be a little bigger.")
-    if (iconName == QLatin1String("krita_tool_color_sampler")) return enlargedIcon(plainIcon(iconName), 1.2);
+    // if (iconName == QLatin1String("krita_tool_color_sampler")) return enlargedIcon(plainIcon(iconName), 1.2);
+    // Krimble 2026-11-23: the eyedropper's own SVG files are drawn 20% larger instead; the wrapper had no icon name, so a theme change
+    // skipped it and it stayed light gray in Krimble Light (George: "I want to know why that one tool is borked." / "Yes.")
     return plainIcon(iconName);
 }
 
