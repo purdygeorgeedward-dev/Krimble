@@ -16,7 +16,44 @@
 #include <QScreen>
 #include <QResizeEvent>
 #include <QTimer>
+#include <QApplication>
+#include <QPointer>
+#include <functional>
 #include "krimble_color_studio.h"
+
+namespace {
+class KrimbleAfterRelease : public QObject
+{
+public:
+    KrimbleAfterRelease(QObject *owner, std::function<void()> action) : QObject(owner), m_action(std::move(action))
+    {
+        qApp->installEventFilter(this);
+    }
+protected:
+    bool eventFilter(QObject *, QEvent *event) override
+    {
+        if (event->type() == QEvent::MouseButtonRelease || event->type() == QEvent::TouchEnd || event->type() == QEvent::TabletRelease) {
+            qApp->removeEventFilter(this);
+            auto action = m_action;
+            QTimer::singleShot(0, parent(), action);
+            deleteLater();
+        }
+        return false;
+    }
+private:
+    std::function<void()> m_action;
+};
+
+void krimbleWhenNotDragging(QObject *owner, std::function<void()> action)
+{
+    if (QGuiApplication::mouseButtons() == Qt::NoButton) {
+        QTimer::singleShot(0, owner, action);
+        return;
+    }
+    if (owner->findChild<KrimbleAfterRelease *>(QString(), Qt::FindDirectChildrenOnly)) return;
+    new KrimbleAfterRelease(owner, std::move(action));
+}
+}
 
 KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
     : QDockWidget()
@@ -43,7 +80,7 @@ KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
             setMaximumSize(m_krimbleDockedMax);
             return;
         }
-        QTimer::singleShot(0, this, [this]() { krimbleFitFloating(true); });
+        krimbleWhenNotDragging(this, [this]() { krimbleFitFloating(true); });
     });
 
     setWindowTitle(classic ? i18n("HSV Triangle Color Picker") : i18n("Color Lab"));
@@ -75,7 +112,7 @@ void KisColorSelectorNgDock::resizeEvent(QResizeEvent *event)
 {
     QDockWidget::resizeEvent(event);
     if (isFloating() && event->size().width() != event->oldSize().width()) {
-        QTimer::singleShot(0, this, [this]() { krimbleFitFloating(false); });
+        krimbleWhenNotDragging(this, [this]() { krimbleFitFloating(false); });
     }
 }
 
