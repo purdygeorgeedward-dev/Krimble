@@ -82,6 +82,7 @@ protected:
         const QColor dark = recessed ? QColor(110, 114, 156) : QColor(18, 19, 34);
         const qreal w = width();
         const qreal h = height();
+        const qreal tt = (krimbleToolBoxTarget && !recessed) ? qMin(t, 3.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())) : t;
         QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
         const bool allEdges = !dock || dock->isFloating();
         p.fillRect(QRectF(0, 0, w, one), light);
@@ -130,7 +131,7 @@ protected:
             return;
         }
         p.setBrush(topTone);
-        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - ts, t) << QPointF(t, t); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - ts, tt) << QPointF(t, tt); p.drawPolygon(poly); }
         if (krimbleToolBoxTarget && !recessed) {
             QLinearGradient shade(QPointF(0, h - ts), QPointF(0, h));
             shade.setColorAt(0.0, krimbleBase.lighter(85));
@@ -149,7 +150,7 @@ protected:
         { QPolygonF poly; poly << QPointF(0, h) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(t, h - ts); p.drawPolygon(poly); }
         p.setClipping(false);
         p.setBrush(leftTone);
-        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - ts) << QPointF(0, h); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, tt) << QPointF(t, h - ts) << QPointF(0, h); p.drawPolygon(poly); }
         if (krimbleToolBoxTarget && !recessed) {
             QLinearGradient shade(QPointF(w - ts, 0), QPointF(w, 0));
             shade.setColorAt(0.0, krimbleBase.lighter(85));
@@ -158,7 +159,7 @@ protected:
         } else {
             p.setBrush(rightTone);
         }
-        { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(w - ts, t); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(w - ts, tt); p.drawPolygon(poly); }
         if (QMenuBar *kBar = qobject_cast<QMenuBar*>(m_target.data())) {
             const QFontMetrics kMetrics(kBar->font());
             const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));

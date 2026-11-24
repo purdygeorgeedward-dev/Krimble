@@ -265,40 +265,12 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QToolButton" name="bnLandscape">
+                   <widget class="QToolButton" name="bnOrientation">
                     <property name="toolTip">
-                     <string>Landscape</string>
+                     <string>Switch portrait and landscape</string>
                     </property>
                     <property name="text">
                      <string>...</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="autoExclusive">
-                     <bool>true</bool>
-                    </property>
-                    <property name="autoRaise">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QToolButton" name="bnPortrait">
-                    <property name="toolTip">
-                     <string>Portrait</string>
-                    </property>
-                    <property name="text">
-                     <string>...</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                    <property name="autoExclusive">
-                     <bool>true</bool>
                     </property>
                     <property name="autoRaise">
                      <bool>true</bool>
@@ -575,8 +547,7 @@
   <tabstop>tabWidget</tabstop>
   <tabstop>cmbPredefined</tabstop>
   <tabstop>bnSavePreset</tabstop>
-  <tabstop>bnLandscape</tabstop>
-  <tabstop>bnPortrait</tabstop>
+  <tabstop>bnOrientation</tabstop>
   <tabstop>doubleWidth</tabstop>
   <tabstop>cmbWidthUnit</tabstop>
   <tabstop>doubleHeight</tabstop>

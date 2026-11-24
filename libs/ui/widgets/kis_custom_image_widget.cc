@@ -21,6 +21,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QResizeEvent>
+#include <QShowEvent>
 #include <KoResourcePaths.h>
 
 #include <KFormat>
@@ -144,10 +145,7 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
 
     connect(newDialogConfirmationButtonBox, SIGNAL(rejected()), m_openPane, SLOT(reject()));
 
-    bnPortrait->setIcon(KisIconUtils::loadIcon("portrait"));
-    connect(bnPortrait, SIGNAL(clicked()), SLOT(setPortrait()));
-    connect(bnLandscape, SIGNAL(clicked()), SLOT(setLandscape()));
-    bnLandscape->setIcon(KisIconUtils::loadIcon("landscape"));
+    connect(bnOrientation, SIGNAL(clicked()), SLOT(switchWidthHeight()));
 
     connect(doubleWidth, SIGNAL(valueChanged(double)), this, SLOT(switchPortraitLandscape()));
     connect(doubleHeight, SIGNAL(valueChanged(double)), this, SLOT(switchPortraitLandscape()));
@@ -181,25 +179,33 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     fillPredefined();
     switchPortraitLandscape();
 
-    QPalette p = QApplication::palette();
-    QPalette palette_highlight(p );
-    QColor c = p.color(QPalette::Highlight);
-    palette_highlight.setColor(QPalette::Button, c);
-    bnLandscape->setPalette(palette_highlight);
-    bnPortrait->setPalette(palette_highlight);
     changeDocumentInfoLabel();
 }
 
 void KisCustomImageWidget::resizeEvent(QResizeEvent *event)
 {
     WdgNewImage::resizeEvent(event);
-    const QBoxLayout::Direction direction = width() < grpImage->sizeHint().width() + grpMode->sizeHint().width() + 24
+    krimbleUpdateStacking();
+}
+
+bool KisCustomImageWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == parentWidget() && event->type() == QEvent::Resize) krimbleUpdateStacking();
+    return WdgNewImage::eventFilter(watched, event);
+}
+
+void KisCustomImageWidget::krimbleUpdateStacking()
+{
+    QWidget *visibleArea = parentWidget() ? parentWidget() : this;
+    const QBoxLayout::Direction direction = visibleArea->width() < grpImage->sizeHint().width() + grpMode->sizeHint().width() + 24
             ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight;
     if (horizontalLayout_3->direction() != direction) horizontalLayout_3->setDirection(direction);
 }
 
 void KisCustomImageWidget::showEvent(QShowEvent *)
 {
+    if (parentWidget()) parentWidget()->installEventFilter(this);
+    krimbleUpdateStacking();
     fillPredefined();
     newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok)->setFocus();
     newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
@@ -497,20 +503,6 @@ void KisCustomImageWidget::saveAsPredefined()
 
 }
 
-void KisCustomImageWidget::setLandscape()
-{
-    if (doubleWidth->value() < doubleHeight->value()) {
-        switchWidthHeight();
-    }
-}
-
-void KisCustomImageWidget::setPortrait()
-{
-    if (doubleWidth->value() > doubleHeight->value()) {
-        switchWidthHeight();
-    }
-}
-
 void KisCustomImageWidget::switchWidthHeight()
 {
     double width = doubleWidth->value();
@@ -542,10 +534,7 @@ void KisCustomImageWidget::switchWidthHeight()
 
 void KisCustomImageWidget::switchPortraitLandscape()
 {
-    if(doubleWidth->value() > doubleHeight->value())
-        bnLandscape->setChecked(true);
-    else
-        bnPortrait->setChecked(true);
+    bnOrientation->setIcon(KisIconUtils::loadIcon(doubleWidth->value() > doubleHeight->value() ? "landscape" : "portrait"));
 }
 
 void KisCustomImageWidget::changeDocumentInfoLabel()

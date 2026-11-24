@@ -562,7 +562,7 @@ void KoToolBox::setupIconSizeMenu(QMenu *menu)
 
         QActionGroup *sizeGroup = new QActionGroup(menu);
         QList<int> sizes;
-        sizes << 12 << 14 << 16 << 22 << 32 << 48 << 64;
+        sizes << 12 << 14 << 16 << 18 << 20 << 22 << 32 << 48 << 64;
         Q_FOREACH (int i, sizes) {
             QAction *action = menu->addAction(i18n("%1x%2", i, i), this, SLOT(slotContextIconSize()));
             d->contextIconSizes.insert(action, i);
