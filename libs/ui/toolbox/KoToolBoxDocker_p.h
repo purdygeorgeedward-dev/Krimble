@@ -19,6 +19,7 @@ class KoCanvasBase;
 class KoToolBox;
 class KoToolBoxScrollArea;
 class KoDualColorButton;
+class QBoxLayout;
 class KisViewManager;
 
 class QMenu;
@@ -86,6 +87,7 @@ private:
     KoToolBoxScrollArea *m_scrollArea;
     QVBoxLayout *m_containerLayout {nullptr};
     KoDualColorButton *m_dualColorButton {nullptr};
+    QBoxLayout *m_krimbleGadgets {nullptr};
     KisViewManager *m_viewManager {nullptr};
     QMenu *m_contextMenu {nullptr};
     Qt::DockWidgetArea m_dockArea {Qt::NoDockWidgetArea};

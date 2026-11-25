@@ -340,6 +340,7 @@ QMenu::item:selected { color: #021226; background: #78ebff; border-image: none; 
 QMenu::item:disabled { color: rgba(120, 235, 255, 90); }
 QMenu::separator { background: rgba(56, 225, 255, 120); height: 1px; border: none; }
 KisMainWindow, QMdiArea, KisWelcomePageWidget { background-color: #000000; background-image: url(BACK); background-position: center; }
+QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog { background-color: #000000; background-image: url(BACK); background-position: center; }
 QDockWidget { background: transparent; }
 QDockWidget > QWidget { background-color: rgba(6, 30, 70, 150); background-image: none; }
 QDockWidget#ToolBox, QDockWidget#ToolBox > QWidget { background-color: #010204; border-image: url(TOOLBACK) 0 0 0 0 stretch; }
