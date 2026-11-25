@@ -29,7 +29,6 @@
 #include <KoIcon.h>
 #include "KrimbleToolboxIcons.h"
 #include "KrimbleAquaPaint.h"
-#include "../KrimbleCyberTheme.h"
 
 KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     : QToolButton(parent)
@@ -233,14 +232,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     if (isChecked()) {
         QPainter painter(this);
         const qreal s = qMin(width(), height());
-        if (qApp->property("krimbleCyberTheme").toBool()) {
-            static const QImage led = krimbleCyberLed(1, 26, 26);
-            painter.setRenderHint(QPainter::SmoothPixmapTransform);
-            const qreal d = s * 1.1;
-            painter.drawImage(QRectF(width() / 2.0 - d / 2.0, height() / 2.0 - d / 2.0, d, d), led);
-        } else {
-            painter.fillRect(QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), qApp->palette().color(QPalette::Window).darker(160));
-        }
+        painter.fillRect(QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), qApp->palette().color(QPalette::Window).darker(160));
     }
     Q_UNUSED(event);
     {

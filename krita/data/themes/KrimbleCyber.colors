@@ -19,16 +19,16 @@ IntensityAmount=0
 IntensityEffect=0
 
 [Colors:Button]
-BackgroundAlternate=16,34,64
-BackgroundNormal=12,26,52
+BackgroundAlternate=28,60,120
+BackgroundNormal=23,51,106
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
-ForegroundActive=230,230,230
+ForegroundActive=120,235,255
 ForegroundInactive=156,162,174
 ForegroundLink=216,216,216
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=200,200,200
+ForegroundNormal=228,249,255
 ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
@@ -75,36 +75,36 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:View]
-BackgroundAlternate=8,16,34
-BackgroundNormal=4,10,24
+BackgroundAlternate=12,30,60
+BackgroundNormal=8,23,47
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
-ForegroundActive=230,230,230
+ForegroundActive=120,235,255
 ForegroundInactive=156,162,174
 ForegroundLink=216,216,216
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=200,200,200
+ForegroundNormal=228,249,255
 ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Window]
-BackgroundAlternate=12,22,44
-BackgroundNormal=8,14,30
+BackgroundAlternate=18,44,92
+BackgroundNormal=14,37,80
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
-ForegroundActive=230,230,230
+ForegroundActive=120,235,255
 ForegroundInactive=156,162,174
 ForegroundLink=216,216,216
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=200,200,200
+ForegroundNormal=228,249,255
 ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [General]
 ColorScheme=Krimble Cyber
-Name=Krimble Cyber
+Name=Cyber
 shadeSortColumn=true
 
 [KDE]

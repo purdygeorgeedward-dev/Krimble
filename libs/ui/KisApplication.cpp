@@ -721,7 +721,7 @@ bool KisApplication::start(const KisApplicationArguments &args)
     KConfigGroup group(KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
     Digikam::ThemeManager themeManager;
-    themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
+    themeManager.setCurrentTheme(group.readEntry("Theme", "Blue-Gray"));
 #endif
 
     ResetStarting resetStarting(d->splashScreen, args.filenames().count());
