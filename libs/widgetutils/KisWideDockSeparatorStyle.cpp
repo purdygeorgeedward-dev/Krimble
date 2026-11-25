@@ -31,7 +31,7 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 #endif
     if (metric == QStyle::PM_DockWidgetSeparatorExtent) {
 #ifdef Q_OS_ANDROID
-        return 0;
+        return QProxyStyle::pixelMetric(metric, option, widget);
 #else
         return QProxyStyle::pixelMetric(metric, option, widget) * 2;
 #endif

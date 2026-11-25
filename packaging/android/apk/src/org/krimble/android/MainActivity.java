@@ -186,7 +186,6 @@ public class MainActivity extends QtActivity {
 
         Log.i(TAG, "[onDestroy]");
         krimbleDiagAtDestroy();
-        stopService(new Intent(this, KeepAliveService.class));
         startServiceGeneric(DocumentSaverService.KILL_PROCESS);
 
         super.onDestroy();
@@ -352,13 +351,6 @@ public class MainActivity extends QtActivity {
         super.onResume();
         krimbleForeground = true;
         krimbleMemSample("resume");
-        try {
-            Intent keepAlive = new Intent(this, KeepAliveService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(keepAlive); else startService(keepAlive);
-        } catch (Exception e) {
-            Log.w(TAG, "KeepAliveService not started: " + e);
-            KeepAliveService.status = "NOT STARTED (refused by Android): " + e;
-        }
         krimbleAskBatteryOnce();
     }
 
@@ -432,32 +424,10 @@ public class MainActivity extends QtActivity {
         return sb.toString();
     }
 
-    private String krimbleKeepAliveDiag() {
-        String running = "unknown";
-        try {
-            ActivityManager am = getSystemService(ActivityManager.class);
-            running = "no";
-            for (ActivityManager.RunningServiceInfo info : am.getRunningServices(50)) {
-                if (info.service.getClassName().equals(KeepAliveService.class.getName())) {
-                    running = info.foreground ? "yes, in the foreground" : "yes, but not in the foreground";
-                }
-            }
-        } catch (Exception e) {
-            running = "unknown (" + e + ")";
-        }
-        boolean notificationsAllowed = true;
-        try {
-            notificationsAllowed = getSystemService(android.app.NotificationManager.class).areNotificationsEnabled();
-        } catch (Exception e) {
-        }
-        return "Don'tCrash: running now: " + running + "; battery unrestricted: " + (krimbleBatteryUnrestricted() ? "yes" : "NO") + "; last start: " + KeepAliveService.status
-                + "; notifications allowed for Krimble: " + (notificationsAllowed ? "yes" : "no (the \"Don'tCrash\" notice is hidden)");
-    }
-
     public String getLastDestroyRecord() {
         try {
             SharedPreferences p = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
-            return krimbleKeepAliveDiag() + "\n\n" + p.getString("previousRun", "") + "\n\nMemory of the previous run, newest last (fg = in front, bg = in the background):\n" + p.getString("prevMemTrail", "(none)")
+            return p.getString("previousRun", "") + "\n\nMemory of the previous run, newest last (fg = in front, bg = in the background):\n" + p.getString("prevMemTrail", "(none)")
                     + "\n\n" + krimbleDisplayDiag();
         } catch (Exception e) {
             return "";
