@@ -214,7 +214,8 @@ public:
     static void paintSelected(QPainter &p, const QRectF &rect, qreal radius, qreal s)
     {
         Q_UNUSED(s);
-        krimblePaintAqua(p, rect.adjusted(0.5, 0.5, -0.5, -0.5), radius);
+        Q_UNUSED(radius);
+        krimblePaintSelectedGlow(p, rect, p.device() ? p.device()->devicePixelRatioF() : 1.0);
     }
     static void paintColorBox(QPainter &p, const QRectF &rect, const QColor &c, qreal radius, qreal s, bool glow)
     {

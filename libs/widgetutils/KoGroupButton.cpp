@@ -110,7 +110,7 @@ void KoGroupButton::paintEvent(QPaintEvent* event)
 
     if (isChecked()) {
         painter.setOpacity(1.0);
-        krimblePaintAqua(painter, QRectF(rect()).adjusted(1, 1, -1, -1), qMin(width(), height()) * 0.22);
+        krimblePaintSelectedGlow(painter, QRectF(rect()), devicePixelRatioF());
     } else {
         painter.drawPrimitive(QStyle::PE_PanelButtonTool, panelOpt);
     }

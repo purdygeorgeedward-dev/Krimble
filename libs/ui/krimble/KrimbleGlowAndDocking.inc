@@ -17,10 +17,8 @@ static void krimbleSetButtonGlow(QAbstractButton *button, bool on)
 static bool krimbleAquaButtonEligible(QAbstractButton *button)
 {
     if (!button) return false;
-    if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
-        if (!push->isCheckable() || push->isChecked()) return push->isEnabled() && !push->isFlat();
-    }
-    if (!button->isCheckable() || !button->isChecked()) return false;
+    if (QPushButton *push = qobject_cast<QPushButton*>(button)) return push->isEnabled() && !push->isFlat();
+    if (!button->isCheckable()) return false;
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         if (tool->menu() && tool->popupMode() == QToolButton::MenuButtonPopup) return false;
         return true;
@@ -31,17 +29,8 @@ static bool krimbleAquaButtonEligible(QAbstractButton *button)
 static void krimblePaintAquaButton(QAbstractButton *button)
 {
     QPainter p(button);
-    const QRectF r = QRectF(button->rect()).adjusted(1, 1, -1, -1);
-    const qreal radius = qMin(r.width(), r.height()) * 0.22;
-    krimblePaintAqua(p, r, radius, button->isDown() ? QColor(0x00, 0x57, 0xe0) : QColor(11, 135, 221));
-    if (button->isDown()) {
-        p.save();
-        p.setRenderHint(QPainter::Antialiasing, true);
-        p.setPen(QPen(QColor(0x9b, 0xe8, 0xff), 3));
-        p.setBrush(Qt::NoBrush);
-        p.drawRoundedRect(r.adjusted(1.5, 1.5, -1.5, -1.5), radius - 1.5, radius - 1.5);
-        p.restore();
-    }
+    if (button->isChecked()) krimblePaintSelectedGlow(p, QRectF(button->rect()), button->devicePixelRatioF());
+    else krimblePaintBevelButton(p, QRectF(button->rect()), button->devicePixelRatioF(), button->palette().color(QPalette::Window), button->isDown());
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         QStyleOptionToolButton opt;
         opt.initFrom(tool);
@@ -53,7 +42,7 @@ static void krimblePaintAquaButton(QAbstractButton *button)
         opt.font = tool->font();
         opt.arrowType = tool->arrowType();
         if (opt.arrowType != Qt::NoArrow) opt.features |= QStyleOptionToolButton::Arrow;
-        opt.state |= QStyle::State_On;
+        if (tool->isChecked()) opt.state |= QStyle::State_On;
         opt.palette.setColor(QPalette::ButtonText, Qt::white);
         tool->style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, &p, tool);
     } else if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
@@ -62,7 +51,7 @@ static void krimblePaintAquaButton(QAbstractButton *button)
         opt.text = push->text();
         opt.icon = push->icon();
         opt.iconSize = push->iconSize();
-        opt.state |= QStyle::State_On;
+        if (push->isChecked()) opt.state |= QStyle::State_On;
         opt.palette.setColor(QPalette::ButtonText, Qt::white);
         push->style()->drawControl(QStyle::CE_PushButtonLabel, &opt, &p, push);
     }

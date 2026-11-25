@@ -112,3 +112,54 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
     }
     p.restore();
 }
+
+inline void krimblePaintSelectedGlow(QPainter &p, const QRectF &outer, qreal dpr)
+{
+    const qreal real = 1.0 / qMax<qreal>(1.0, dpr);
+    const QRectF r = outer.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
+    if (r.width() < 2 || r.height() < 2) return;
+    const qreal radius = qMin<qreal>(12.0 * real, qMin(r.width(), r.height()) / 2.0);
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setPen(Qt::NoPen);
+    for (int i = 4; i >= 1; --i) {
+        QColor c(70, 175, 225);
+        c.setAlpha(18 + (4 - i) * 22);
+        p.setBrush(c);
+        p.drawRoundedRect(r.adjusted(-i * real, -i * real, i * real, i * real), radius + i * real, radius + i * real);
+    }
+    QLinearGradient face(r.topLeft(), r.bottomLeft());
+    face.setColorAt(0.0, QColor(13, 135, 198));
+    face.setColorAt(0.49, QColor(9, 99, 157));
+    face.setColorAt(0.5, QColor(7, 65, 115));
+    face.setColorAt(1.0, QColor(0, 77, 129));
+    p.setBrush(face);
+    p.setPen(QPen(QColor(113, 226, 255), 2.0 * real));
+    p.drawRoundedRect(r, radius, radius);
+    p.restore();
+}
+
+inline void krimblePaintBevelButton(QPainter &p, const QRectF &outer, qreal dpr, const QColor &window, bool down)
+{
+    const qreal real = 1.0 / qMax<qreal>(1.0, dpr);
+    const QRectF r = outer.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
+    if (r.width() < 2 || r.height() < 2) return;
+    const qreal radius = qMin<qreal>(12.0 * real, qMin(r.width(), r.height()) / 2.0);
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    QLinearGradient face(r.topLeft(), r.bottomLeft());
+    face.setColorAt(0.0, down ? window.darker(190) : window.darker(127));
+    face.setColorAt(1.0, down ? window.darker(127) : window.darker(190));
+    p.setBrush(face);
+    p.setPen(QPen(window.darker(400), 2.0 * real));
+    p.drawRoundedRect(r, radius, radius);
+    p.setBrush(Qt::NoBrush);
+    const QRectF in = r.adjusted(2.5 * real, 2.5 * real, -2.5 * real, -2.5 * real);
+    QPainterPath top;
+    top.moveTo(in.left(), in.top() + radius * 0.6);
+    top.quadTo(in.left(), in.top(), in.left() + radius * 0.6, in.top());
+    top.lineTo(in.right() - radius * 0.6, in.top());
+    p.setPen(QPen(down ? window.darker(250) : window.lighter(140), 2.0 * real));
+    p.drawPath(top);
+    p.restore();
+}

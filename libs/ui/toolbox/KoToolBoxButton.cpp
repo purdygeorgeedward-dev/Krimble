@@ -239,7 +239,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
             const qreal d = s * 1.1;
             painter.drawImage(QRectF(width() / 2.0 - d / 2.0, height() / 2.0 - d / 2.0, d, d), led);
         } else {
-            painter.fillRect(QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), QColor(11, 135, 221));
+            painter.fillRect(QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), qApp->palette().color(QPalette::Window).darker(160));
         }
     }
     Q_UNUSED(event);
