@@ -58,12 +58,13 @@ protected:
             const qreal w = width();
             const qreal h = height();
             p.setPen(Qt::NoPen);
+            const qreal top = qMin(tb, 3.0 / qMax<qreal>(1.0, devicePixelRatioF()));
             p.setBrush(QColor(255, 255, 255, 85));
-            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - tb, tb) << QPointF(tb, tb); p.drawPolygon(poly); }
+            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - tb, top) << QPointF(tb, top); p.drawPolygon(poly); }
             p.setBrush(QColor(255, 255, 255, 40));
-            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(tb, tb) << QPointF(tb, h - tb) << QPointF(0, h); p.drawPolygon(poly); }
+            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(tb, top) << QPointF(tb, h - tb) << QPointF(0, h); p.drawPolygon(poly); }
             p.setBrush(QColor(0, 0, 0, 55));
-            { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - tb, h - tb) << QPointF(w - tb, tb); p.drawPolygon(poly); }
+            { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - tb, h - tb) << QPointF(w - tb, top); p.drawPolygon(poly); }
             p.setBrush(QColor(0, 0, 0, 90));
             { QPolygonF poly; poly << QPointF(0, h) << QPointF(tb, h - tb) << QPointF(w - tb, h - tb) << QPointF(w, h); p.drawPolygon(poly); }
             return;
