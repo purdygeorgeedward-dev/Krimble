@@ -246,6 +246,10 @@ static void krimbleInstallSelectionGlow(KisMainWindow *win)
     Q_FOREACH (QWidget *krimbleWidget, QApplication::allWidgets()) {
         if (QMenu *menu = qobject_cast<QMenu*>(krimbleWidget)) {
             if (!menu->property("krimbleMenuRoom").toBool()) krimbleMenuBottomRoom(menu);
+            if (!menu->property("krimbleMenuDecor").toBool()) {
+                menu->setProperty("krimbleMenuDecor", true);
+                menu->installEventFilter(new KrimbleMenuColumnDividers(menu));
+            }
         }
     }
     if (win->findChild<KrimbleGlowFilter*>(QStringLiteral("krimbleGlowFilter"))) return;
