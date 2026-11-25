@@ -169,3 +169,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-23_2245 ref-pro-editor-dark-1/2/3.png, ref-pro-editor-dark-menu.png, ref-pro-editor-four-grays.jpg — George's reference screenshots of the industry-standard editor's gray themes.
 - 2026-11-23_2245 preview-darkgray-vs-pro-editor-tones.png — Krimble Dark Gray vs those tones. George: "Never mind. Ours is better." / "Keep all of ours as is. Except cyber."
 - 2026-11-23_2249_unselected-tab-bottom-line.jpg — George: "Remove lines at bottom of unselected tabs." Previews: preview-tab-bottom-light-line.png, preview-tab-bottom-light-line-realqt.png.
+- 2026-11-25_0524_old-highlighted-buttons-reference.jpg — George's reference for selected buttons (Picker: dark blue with a glowing blue edge; toolbox arrow selected) from an older build
