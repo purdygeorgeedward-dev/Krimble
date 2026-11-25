@@ -82,7 +82,6 @@ protected:
         const QColor dark = recessed ? QColor(110, 114, 156) : QColor(18, 19, 34);
         const qreal w = width();
         const qreal h = height();
-        const qreal tt = (krimbleToolBoxTarget && !recessed) ? qMin(t, 3.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())) : t;
         QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
         const bool allEdges = !dock || dock->isFloating();
         p.fillRect(QRectF(0, 0, w, one), light);
@@ -119,6 +118,7 @@ protected:
         const qreal w = width();
         const qreal h = height();
         const qreal t = qMin(one, qMin(w, h) / 2.0);
+        const qreal tt = (krimbleToolBoxTarget && !recessed) ? qMin(t, 3.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())) : t;
         const qreal ts = (krimbleToolBoxTarget && !recessed) ? qMin(one + 1.0 / qMax<qreal>(1.0, devicePixelRatioF()), qMin(w, h) / 2.0) : t;
         QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
         const bool allEdges = !dock || dock->isFloating() || krimbleToolBoxTarget;
