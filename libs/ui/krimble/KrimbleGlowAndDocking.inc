@@ -388,60 +388,6 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
     }
 }
 
-class KrimbleMdiTitleStyle : public QProxyStyle
-{
-public:
-    KrimbleMdiTitleStyle() : QProxyStyle(QApplication::style()->objectName()) {}
-    int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override
-    {
-        const int base = QProxyStyle::pixelMetric(metric, option, widget);
-        if (metric == QStyle::PM_TitleBarHeight) return int(base * 1.25);
-        return base;
-    }
-    void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget = nullptr) const override
-    {
-        if (control == QStyle::CC_TitleBar) {
-            if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar*>(option)) {
-                QStyleOptionTitleBar copy(*titleBar);
-                copy.palette.setColor(QPalette::Highlight, QColor(55, 57, 82));
-                copy.palette.setColor(QPalette::HighlightedText, QColor(230, 230, 230));
-                const QString title = copy.text;
-                copy.text = QString();
-                copy.subControls &= ~QStyle::SC_TitleBarSysMenu;
-                QProxyStyle::drawComplexControl(control, &copy, painter, widget);
-                if (!titleBar->icon.isNull()) {
-                    const int kSize = QProxyStyle::pixelMetric(QStyle::PM_SmallIconSize, titleBar, widget);
-                    const qreal dpr = widget ? widget->devicePixelRatioF() : qApp->devicePixelRatio();
-                    const QPixmap kPix = titleBar->icon.pixmap(kSize, kSize);
-                    const QImage kImage = kPix.toImage().convertToFormat(QImage::Format_ARGB32);
-                    int kBlank = kImage.width();
-                    for (int y = 0; y < kImage.height(); ++y) {
-                        for (int x = 0; x < kBlank; ++x) {
-                            if (qAlpha(kImage.pixel(x, y)) > 40) { kBlank = x; break; }
-                        }
-                    }
-                    if (kBlank >= kImage.width()) kBlank = 0;
-                    const qreal kPixDpr = qMax<qreal>(1.0, kPix.devicePixelRatioF());
-                    const qreal kLeft = titleBar->rect.left() + 17.0 / qMax<qreal>(1.0, dpr) - kBlank / kPixDpr;
-                    const QRectF kRect(kLeft, titleBar->rect.top() + (titleBar->rect.height() - kSize) / 2.0, kSize, kSize);
-                    painter->drawPixmap(kRect, kPix, QRectF(QPointF(0, 0), QSizeF(kPix.size())));
-                }
-                const QRect textRect = subControlRect(control, titleBar, QStyle::SC_TitleBarLabel, widget);
-                painter->save();
-                QFont titleFont = painter->font();
-                titleFont.setBold(true);
-                painter->setFont(titleFont);
-                painter->setPen(QColor(230, 230, 230));
-                painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter,
-                                  QFontMetrics(titleFont).elidedText(title, Qt::ElideRight, textRect.width()));
-                painter->restore();
-                return;
-            }
-        }
-        QProxyStyle::drawComplexControl(control, option, painter, widget);
-    }
-};
-
 class KrimbleTabKFilter : public QObject
 {
 public:

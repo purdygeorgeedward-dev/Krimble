@@ -96,18 +96,6 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, true);
-        const QRectF r(0, 0, width(), height());
-        QColor base = palette().color(QPalette::Window).lighter(118);
-        QLinearGradient g(r.topLeft(), r.bottomLeft());
-        g.setColorAt(0, base.lighter(106));
-        g.setColorAt(1, base.darker(104));
-        p.setPen(Qt::NoPen);
-        p.setBrush(g);
-        p.drawRect(r);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor(0, 0, 0, 150), 1.0));
-        p.drawLine(QPointF(width() - 0.5, 0.5), QPointF(width() - 0.5, height() - 0.5));
-        p.drawLine(QPointF(width() - 0.5, height() - 0.5), QPointF(0.5, height() - 0.5));
         QColor line = palette().color(QPalette::WindowText);
         line.setAlpha(160);
         p.setPen(Qt::NoPen);
@@ -252,9 +240,7 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     });
 
     QLabel *w = new KrimbleToolBoxGrip(" ", this);
-    w->setFrameShape(QFrame::StyledPanel);
-    w->setFrameShadow(QFrame::Raised);
-    w->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    w->setFrameStyle(QFrame::NoFrame);
     QFont font = qApp->font();
     qreal ratio = 0.9;
     if (font.pixelSize() == -1) {
@@ -263,9 +249,7 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    const int krimbleGripHeight = qCeil(80.0 / qMax<qreal>(1.0, qApp->devicePixelRatio()));
-    w->setMinimumSize(titleSize, krimbleGripHeight);
-    w->setMaximumHeight(krimbleGripHeight);
+    w->setMinimumSize(titleSize, titleSize);
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");

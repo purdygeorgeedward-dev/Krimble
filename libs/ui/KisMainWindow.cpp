@@ -1273,13 +1273,6 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(cfg)));
         subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(cfg)));
         subwin->setWindowIcon(qApp->windowIcon());
-#ifdef Q_OS_ANDROID
-        {
-            KrimbleMdiTitleStyle *titleStyle = new KrimbleMdiTitleStyle();
-            titleStyle->setParent(subwin);
-            subwin->setStyle(titleStyle);
-        }
-#endif
 
 #ifdef Q_OS_MACOS
         connect(subwin, SIGNAL(destroyed()), SLOT(updateSubwindowFlags()));
