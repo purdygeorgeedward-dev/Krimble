@@ -179,11 +179,10 @@ QMenuBar::item {
     border: 1px solid transparent;
     border-radius: 0px;
 }
-QMenuBar::item:selected {
-    border: none;
+QMenuBar::item:selected, QMenuBar::item:pressed {
+    border: 1px solid #232a42;
     border-radius: 0px;
-    /* background: #1d7cb2; */
-    /* background: #0b87dd; */ background: #0b87dd;}
+    background: #232a42;}
 QMenu {
     color: #eef1fa;
     border: none;    background: #232a42;

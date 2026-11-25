@@ -360,11 +360,7 @@ protected:
             QWidget *bar = static_cast<QWidget *>(watched);
             QPainter painter(bar);
             const QRectF r(bar->rect());
-            QLinearGradient across(r.left(), 0, r.right(), 0);
-            across.setColorAt(0.0, QColor("#1c2346"));
-            across.setColorAt(0.5, QColor("#394585"));
-            across.setColorAt(1.0, QColor("#1c2346"));
-            painter.fillRect(r, across);
+            painter.fillRect(r, QColor("#2a3466"));
             painter.end();
             drawK();
             return false;

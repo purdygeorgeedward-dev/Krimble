@@ -330,7 +330,7 @@ inline QString krimbleCyberStyleSheet(int menuFontPx, int barFontPx)
 QWidget { font-family: "Rajdhani"; font-weight: 600; }
 QMenuBar { background: #b3142b; border: none; font-family: "Orbitron"; font-weight: 600; font-size: BARPX; }
 QMenuBar::item { color: #ffe9ec; background: transparent; border: none; }
-QMenuBar::item:selected, QMenuBar::item:pressed { background: transparent; color: #9ff4ff; border-image: url(BARITEM) 14 14 14 14 stretch; border-width: 6px; }
+QMenuBar::item:selected, QMenuBar::item:pressed { background: transparent; color: #ffe9ec; border-image: none; border: none; }
 QMenu { font-family: "Orbitron"; font-weight: 700; font-size: MENUPX; color: #78ebff; background: transparent; border: none;
         border-image: url(MENUFRAME) 0 22 40 40 stretch; border-width: 0px 2px 22px 22px; }
 QMenu { padding: 0px; }
