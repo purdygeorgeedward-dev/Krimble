@@ -231,3 +231,11 @@ Builds 55 to 61: their release notes carry the faults found in testing; the orig
 | 16 | Fixed, 805: toolbox 22 by default. |
 | 17 | Fixed, 804: black Undo; Classic removed. |
 | 18 | Fixed, 808 (to confirm in testing): Back now sends Krimble to the background instead of closing it. |
+- **Nov 24, 5:05 PM MST:** 1.0.58 retested: no blurry or upside-down images so far (George: ".58 has not blurred or flipped any."). 1.0.79: new image opened tiny.
+- **Nov 24, 7:32 PM MST:** 1.0.59 retested: opens images full size; "weird transparency effects" (George).
+- **Nov 24, 7:37 PM MST:** 1.0.60 retested: loads fine (George: ".60 loads fine...").
+- **Nov 24, 7:45 PM MST:** 1.0.61 retested: loads fine, but opens small then zooms in fast; has the orange K and the File menu positioned well (George).
+- **Nov 24, 7:57 PM MST:** 1.0.62 retested: shows the squeeze, no upside-down or blur; "lots of other issues" (George: "I should have rolled back to .58 at this point.").
+- **Nov 24, 8:09 PM MST:** 1.0.63 retested: still the quick zoom; no blur or flip.
+- **Nov 24, 8:42 PM MST:** retest run (updates over the top, except an uninstall after 70). 63: jitter, weird panel handling. 64: zooms and moves the image right. 65: opens fine. 66: opens perfectly. 67: loads well. 68: squeeze, loads fine, no flip or blur. 69: pause, then opens fine. 70: loads fine. (uninstalled 70) 71: squeeze, loads fine. **72: upside down and blur.**
+- **Nov 24, 8:45 PM MST:** upside-down/blur first appears in 72 (a71b1a03); 71 (ba8603a) is clean. Main suspect in 71→72: d39709a3, the zoom-to-fit 1 s after opening (removed after 79 in 9182d358). Other canvas-side changes in 72: canvas messages moved to the status bar (aaaf95d8), dock separator 0 (edda5f6e), keep-alive service (f0c269f5).
