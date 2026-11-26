@@ -76,6 +76,7 @@
 #include <QStyle>
 #include <QProxyStyle>
 #include <QStyledItemDelegate>
+#include <QAbstractItemView>
 #include <QPainter>
 #include <QStyleFactory>
 #include <QSysInfo>
@@ -233,7 +234,8 @@ public:
     {
         QSize size = m_original ? m_original->sizeHint(option, index) : QStyledItemDelegate::sizeHint(option, index);
         const QWidget *list = option.widget;
-        const int side = qMax(16, (list ? list->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize));
+        const QAbstractItemView *view = qobject_cast<const QAbstractItemView *>(list);
+        const int side = qMax(16, view ? view->iconSize().height() : (list ? list->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize));
         QFont font = option.font;
         font.setBold(true);
         const int textWidth = qMax(40, size.width() - 4);
@@ -266,7 +268,8 @@ public:
             }
         }
         painter->restore();
-        const int side = qMax(16, qMin((opt.widget ? opt.widget->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize), opt.rect.width() - 8));
+        const QAbstractItemView *view = qobject_cast<const QAbstractItemView *>(opt.widget);
+        const int side = qMax(16, qMin(view ? view->iconSize().height() : (opt.widget ? opt.widget->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize), opt.rect.width() - 8));
         QFont font = opt.font;
         font.setBold(true);
         const QFontMetrics metrics(font);
@@ -294,7 +297,7 @@ public:
     KrimblePageListStyle() : QProxyStyle(QApplication::style()->objectName()) {}
     int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override
     {
-        if (metric == QStyle::PM_IconViewIconSize) return 44;
+        if (metric == QStyle::PM_IconViewIconSize) return 32;
         return QProxyStyle::pixelMetric(metric, option, widget);
     }
 };
