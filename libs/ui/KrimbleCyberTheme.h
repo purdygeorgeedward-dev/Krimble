@@ -328,9 +328,9 @@ inline QString krimbleCyberStyleSheet(int menuFontPx, int barFontPx)
 
     QString sheet = QStringLiteral(R"KRIMBLECYBER(
 QWidget { font-family: "Rajdhani"; font-weight: 600; }
-QMenuBar { background: #0e2550; border: none; font-family: "Orbitron"; font-weight: 600; font-size: BARPX; }
+QMenuBar { background: rgba(14, 37, 80, 140); border: none; font-family: "Orbitron"; font-weight: 600; font-size: BARPX; }
 QMenuBar::item { color: #78ebff; background: transparent; border: none; }
-QMenuBar::item:selected, QMenuBar::item:pressed { background: #0e2550; color: #78ebff; border-image: none; border: none; }
+QMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(14, 37, 80, 140); color: #78ebff; border-image: none; border: none; }
 QMenu { font-family: "Orbitron"; font-weight: 700; font-size: MENUPX; color: #78ebff; background: transparent; border: none;
         border-image: url(MENUFRAME) 0 22 40 40 stretch; border-width: 0px 2px 22px 22px; }
 QMenu { padding: 0px; }
@@ -340,11 +340,11 @@ QMenu::item:selected { color: #021226; background: #78ebff; border-image: none; 
 QMenu::item:disabled { color: rgba(120, 235, 255, 90); }
 QMenu::separator { background: rgba(56, 225, 255, 120); height: 1px; border: none; }
 KisMainWindow, QMdiArea, KisWelcomePageWidget { background-color: #000000; background-image: url(BACK); background-position: center; }
-QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog { background-color: #0e2550; background-image: none; color: #e4f9ff; }
+QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog { background-color: rgba(14, 37, 80, 140); background-image: none; color: #e4f9ff; }
 QLabel, QCheckBox, QRadioButton, QGroupBox { color: #e4f9ff; }
 QDockWidget { background: transparent; }
-QDockWidget > QWidget { background-color: #0e2550; background-image: none; color: #e4f9ff; }
-QDockWidget#ToolBox, QDockWidget#ToolBox > QWidget { background-color: #0e2550; border-image: none; }
+QDockWidget > QWidget { background-color: rgba(14, 37, 80, 140); background-image: none; color: #e4f9ff; }
+QDockWidget#ToolBox, QDockWidget#ToolBox > QWidget { background-color: rgba(14, 37, 80, 140); border-image: none; }
 QDockWidget#ToolBox QToolButton { background: transparent; border: none; }
 QDockWidget#ToolBox QToolButton:checked { background-color: transparent; background-image: none; border: none; }
 QDockWidget#ToolBox QWidget { background-image: none; }
@@ -353,13 +353,13 @@ QDockWidget#ColorSelectorNg > QWidget { background-color: #0e2550; background-im
 QDockWidget#ColorSelectorNg QScrollArea, QDockWidget#ColorSelectorNg QScrollArea > QWidget > QWidget { background: transparent; }
 QDockWidget > KoDockWidgetTitleBar { background: transparent; background-image: none; }
 KoDockWidgetTitleBar, KoDockWidgetTitleBar QLabel { font-family: "Orbitron"; font-weight: 600; font-size: BARPX; color: #78ebff; }
-QStatusBar, QToolBar { background: #0e2550; color: #e4f9ff; }
-QAbstractItemView { background: #08172f; color: #e4f9ff; selection-background-color: #78ebff; selection-color: #021226; }
+QStatusBar, QToolBar { background: rgba(14, 37, 80, 140); color: #e4f9ff; }
+QAbstractItemView { background: rgba(8, 23, 47, 140); color: #e4f9ff; selection-background-color: #78ebff; selection-color: #021226; }
 QAbstractItemView::item:selected { background: #78ebff; color: #021226; }
 QLineEdit { background: transparent; border-radius: 0px; border-image: url(BOXFRAME) 9 9 9 9 stretch; border-width: 3px; color: #e4f9ff; }
 QAbstractSpinBox, QComboBox { background: transparent; border-radius: 0px; border-image: url(PLAINFRAME) 9 9 9 9 stretch; border-width: 3px; color: #e4f9ff; }
-QPushButton, QPushButton:hover, QPushButton:default { background-color: qradialgradient(cx:0.5, cy:0.6, radius:0.8, fx:0.5, fy:0.6, stop:0 #2a5294, stop:0.6 #17336a, stop:1 #0e2550); background-clip: padding; background-image: url(LEDOFF); background-position: center; background-repeat: no-repeat; border-radius: 0px; border-image: url(BUTTONFRAME) 21 21 21 21 stretch; border-width: 9px; color: #e4f9ff; padding: 3px 12px; }
-QPushButton:pressed, QPushButton:checked { background-color: qradialgradient(cx:0.5, cy:0.6, radius:0.8, fx:0.5, fy:0.6, stop:0 #12336a, stop:0.6 #0b1f44, stop:1 #08172f); background-clip: padding; background-image: url(LEDON); background-position: center; background-repeat: no-repeat; border-radius: 0px; border-image: url(BUTTONFRAME) 21 21 21 21 stretch; border-width: 9px; }
+QPushButton, QPushButton:hover, QPushButton:default { background-color: qradialgradient(cx:0.5, cy:0.6, radius:0.8, fx:0.5, fy:0.6, stop:0 rgba(42, 82, 148, 150), stop:0.6 rgba(23, 51, 106, 150), stop:1 rgba(14, 37, 80, 140)); background-clip: padding; background-image: url(LEDOFF); background-position: center; background-repeat: no-repeat; border-radius: 0px; border-image: url(BUTTONFRAME) 21 21 21 21 stretch; border-width: 9px; color: #e4f9ff; padding: 3px 12px; }
+QPushButton:pressed, QPushButton:checked { background-color: qradialgradient(cx:0.5, cy:0.6, radius:0.8, fx:0.5, fy:0.6, stop:0 rgba(18, 51, 106, 150), stop:0.6 rgba(11, 31, 68, 150), stop:1 rgba(8, 23, 47, 140)); background-clip: padding; background-image: url(LEDON); background-position: center; background-repeat: no-repeat; border-radius: 0px; border-image: url(BUTTONFRAME) 21 21 21 21 stretch; border-width: 9px; }
 QGroupBox { border-radius: 0px; border-image: url(BOXFRAME) 9 9 9 9 stretch; border-width: 3px; }
 QMainWindow > QTabBar { background: transparent; }
 QMainWindow > QTabBar::tab, QTabBar::tab { background: transparent; border: none; border-image: none; border-radius: 0px; color: transparent; height: 38px; padding: 0px 18px; margin-right: 1px; }

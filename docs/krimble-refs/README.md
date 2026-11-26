@@ -180,3 +180,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-26_1500_preview-eyedropper-before-after.png — eyedropper icon before (left) and after (right): lines 1.5 → 1 (issue 10)
 - 2026-11-26_1450_preview-button-styles-ABC.png — pill button styles. A plain bevel with the old glow selection, B Aqua as in 1.0.80, C Aqua with a darker, more saturated dark end. George: "A. looks beautiful, tasteful, professional."
 - 2026-11-26_1505_preview-black-and-white-buttons.png — Black and White theme buttons (real code, desktop Qt): white pills with black outlines, selected black with white text
+- 2026-11-26_1510_preview-cyber-see-through.png — Cyber with see-through menu bar, panels, status bar, dialogs and buttons, text 25% larger (real sheet, desktop Qt; the backdrop shows through)

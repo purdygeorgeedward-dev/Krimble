@@ -379,7 +379,7 @@ void ThemeManager::slotChangePalette()
     }
     if (krimbleCyber) {
         const int basePx = QFontInfo(qApp->font()).pixelSize();
-        krimbleSheet += krimbleCyberStyleSheet(qRound(basePx * 1.0), qRound(basePx * 1.0));
+        krimbleSheet += krimbleCyberStyleSheet(qRound(basePx * 1.25), qRound(basePx * 1.25));
     }
     qApp->setStyleSheet(krimbleSheet);
 #endif
