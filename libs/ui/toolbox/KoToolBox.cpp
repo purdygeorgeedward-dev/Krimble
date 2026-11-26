@@ -495,6 +495,7 @@ void KoToolBox::changeEvent(QEvent *event)
                 toolBoxButton->setHighlightColor();
             }
         }
+        KrimbleToolboxIcons::refreshGadgets(window());
     }
 }
 

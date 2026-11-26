@@ -370,7 +370,7 @@ inline void refreshGadget(QToolButton *button, const QString &photoName)
     if (!button) return;
     const QIcon photo = iconStyle() == Photorealistic ? photoIcon(photoName) : QIcon();
     const QIcon drawn = button->property("krimbleDrawnIcon").value<QIcon>();
-    const bool black = iconStyle() == Black || lightGray();
+    const bool black = iconStyle() == Black || lightGray() || button->palette().color(QPalette::Window).lightness() > 150;
     button->setIcon(!photo.isNull() ? photo : (black ? blackIcon(drawn) : drawn));
 }
 
