@@ -3,6 +3,21 @@
 Every bug list from testing a build, filed under the build it was found in, reworded as plain issue statements.
 Release notes take their Known issues from here. Newest first. The status of each fix is in KRIMBLE_CHANGES.md.
 
+## 1.0.80-beta (tested Nov 26, 2026, 2:36 PM MST; screenshots docs/krimble-refs/2026-11-26_1436_*)
+
+1. The New File dialog is very tall no matter what is done to it.
+2. All buttons should have pill curves, like the reference (2026-11-26_1436_pill-button-curve-reference.jpg).
+3. Aqua in or out is undecided. Plain beveled shaded buttons are okay. Wanted: a demo of Aqua with the dark end of the gradient darker and more saturated. Otherwise leaning to a more professional look with the old glow for the selected button; the toolbox shows selection with a dark tool button instead of a glow.
+4. Wanted: a fully transparent Cyber (no opaque anything) to look at, with larger text.
+5. Multitasking is working better: the New dialog was left open a long time and Krimble came back without restarting.
+6. Review all proposed bug fixes and changes.
+7. QuickAdjust has lost the resize gadget on its corner. The OK button is out of the way, but the selection glow is not as good as the earlier version's.
+8. Preferences icons need to be smaller.
+9. In Krimble Light the bottom icons of the toolbox disappear.
+10. The lines of the eyedropper icon are too thick.
+11. The Configure Toolbars window is far too big; it should be small. No stacked, very wide buttons.
+12. The Toolbars submenu causes a visual anomaly.
+
 ## 1.0.74-beta (tested Nov 22, 2026; screenshots docs/krimble-refs/2026-11-22_12*, _13*, _030216*)
 
 1. Opening a new file does not keep the selected tool. Pan is the default only at program launch; on file open the current tool stays.

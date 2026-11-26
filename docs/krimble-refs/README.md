@@ -170,3 +170,10 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-23_2245 preview-darkgray-vs-pro-editor-tones.png — Krimble Dark Gray vs those tones. George: "Never mind. Ours is better." / "Keep all of ours as is. Except cyber."
 - 2026-11-23_2249_unselected-tab-bottom-line.jpg — George: "Remove lines at bottom of unselected tabs." Previews: preview-tab-bottom-light-line.png, preview-tab-bottom-light-line-realqt.png.
 - 2026-11-25_0524_old-highlighted-buttons-reference.jpg — George's reference for selected buttons (Picker: dark blue with a glowing blue edge; toolbox arrow selected) from an older build
+- 2026-11-26_1436_pill-button-curve-reference.jpg — George, issue 2: "Shape of all buttons need to match these curves. Nice pill curves." (browser Downloads page: pill-shaped bar and button)
+- 2026-11-26_1436_toolbars-submenu-anomaly.jpg — George, build 80, issue 12: "TOOLBARS SUBMENU CAUSES VISUAL ANOMALY." (Window > Toolbars open over the Window menu)
+- 2026-11-26_1436_stray-lines-after-menu.jpg — George, build 80, same session: stray lines left under the image window
+- 2026-11-26_1436_light-toolbox-bottom-icons.jpg — George, build 80, issue 9: "In Krimble light the bottom icons in the toolbox disappear."
+- 2026-11-26_1436_preferences-icons-too-big.jpg — George, build 80, issue 8: "Preferences icons need to be smaller."
+- 2026-11-26_1436_newfile-dialog-too-tall.jpg — George, build 80, issue 1: "New file dialog is SUPER TALL NO MATTER WHAT YOU DO."
+- 2026-11-26_1436_quickadjust-no-grip-and-dialog-glow.jpg — George, build 80, issue 7: QuickAdjust "missing the gadget on the corner for resize"; selection glow "not as good as before"
