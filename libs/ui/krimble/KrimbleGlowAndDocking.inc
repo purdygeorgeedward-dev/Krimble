@@ -29,7 +29,10 @@ static bool krimbleAquaButtonEligible(QAbstractButton *button)
 static void krimblePaintAquaButton(QAbstractButton *button)
 {
     QPainter p(button);
-    if (button->isChecked()) krimblePaintSelectedGlow(p, QRectF(button->rect()), button->devicePixelRatioF());
+    const bool mono = qApp->property("krimbleBlackWhiteTheme").toBool();
+    const QColor labelColor = mono && !button->isChecked() && !button->isDown() ? QColor(Qt::black) : QColor(Qt::white);
+    if (mono) krimblePaintMonoButton(p, QRectF(button->rect()), button->devicePixelRatioF(), button->isChecked() || button->isDown());
+    else if (button->isChecked()) krimblePaintSelectedGlow(p, QRectF(button->rect()), button->devicePixelRatioF());
     else krimblePaintBevelButton(p, QRectF(button->rect()), button->devicePixelRatioF(), button->palette().color(QPalette::Window), button->isDown());
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         QStyleOptionToolButton opt;
@@ -43,7 +46,7 @@ static void krimblePaintAquaButton(QAbstractButton *button)
         opt.arrowType = tool->arrowType();
         if (opt.arrowType != Qt::NoArrow) opt.features |= QStyleOptionToolButton::Arrow;
         if (tool->isChecked()) opt.state |= QStyle::State_On;
-        opt.palette.setColor(QPalette::ButtonText, Qt::white);
+        opt.palette.setColor(QPalette::ButtonText, labelColor);
         tool->style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, &p, tool);
     } else if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
         QStyleOptionButton opt;
@@ -52,7 +55,7 @@ static void krimblePaintAquaButton(QAbstractButton *button)
         opt.icon = push->icon();
         opt.iconSize = push->iconSize();
         if (push->isChecked()) opt.state |= QStyle::State_On;
-        opt.palette.setColor(QPalette::ButtonText, Qt::white);
+        opt.palette.setColor(QPalette::ButtonText, labelColor);
         push->style()->drawControl(QStyle::CE_PushButtonLabel, &opt, &p, push);
     }
 }

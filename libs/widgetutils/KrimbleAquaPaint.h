@@ -161,3 +161,17 @@ inline void krimblePaintBevelButton(QPainter &p, const QRectF &outer, qreal dpr,
     p.drawRoundedRect(in, inRadius, inRadius);
     p.restore();
 }
+
+inline void krimblePaintMonoButton(QPainter &p, const QRectF &outer, qreal dpr, bool filled)
+{
+    const qreal real = 1.0 / qMax<qreal>(1.0, dpr);
+    const QRectF r = outer.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
+    if (r.width() < 2 || r.height() < 2) return;
+    const qreal radius = qMin(r.width(), r.height()) / 2.0;
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setBrush(filled ? Qt::black : Qt::white);
+    p.setPen(QPen(Qt::black, 2.0 * real));
+    p.drawRoundedRect(r, radius, radius);
+    p.restore();
+}

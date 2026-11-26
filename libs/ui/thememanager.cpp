@@ -301,6 +301,7 @@ void ThemeManager::slotChangePalette()
 #ifdef Q_OS_ANDROID
     const bool krimbleCyber = theme == QStringLiteral("Cyber");
     qApp->setProperty("krimbleCyberTheme", krimbleCyber);
+    qApp->setProperty("krimbleBlackWhiteTheme", theme == QStringLiteral("Black and White"));
     qApp->setProperty("krimbleSeeThroughMenus", krimbleCyber);
     qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Painted") || krimbleCyber);
     qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Dark Gray") || !krimbleOwnTheme(theme));
