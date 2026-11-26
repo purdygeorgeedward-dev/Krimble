@@ -190,7 +190,7 @@ static QString krimbleGraySheet(const QString &sheet)
     return out;
 }
 
-static QString krimbleLightSheet(const QString &sheet)
+static QString krimbleBlackWhiteSheet(const QString &sheet)
 {
     static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
     QString out;
@@ -203,29 +203,24 @@ static QString krimbleLightSheet(const QString &sheet)
         const QColor c(m.captured());
         int h = 0, sat = 0, v = 0;
         c.getHsv(&h, &sat, &v);
-        if (h >= 180 && h <= 260 && sat > 140 && v > 90) {
-            out += m.captured();
-        } else {
-            int nv;
-            if (v <= 12) nv = 120;
-            else if (v < 60) nv = 247;
-            else if (v < 150) nv = qMin(250, v + 140);
-            else nv = qMax(20, 275 - v);
-            out += QColor::fromHsv(215, qMin(sat, 10), nv).name();
-        }
+        if (h >= 180 && h <= 260 && sat > 140 && v > 90) out += QStringLiteral("#000000");
+        else if (v <= 12) out += QStringLiteral("#000000");
+        else if (v < 150) out += QStringLiteral("#ffffff");
+        else out += QStringLiteral("#000000");
         last = m.capturedEnd();
     }
     out += sheet.mid(last);
-    out.replace(QRegularExpression(QStringLiteral("color:\\s*white\\b")), QStringLiteral("color: #1c1f2e"));
-    out += QStringLiteral("\nQPushButton, QPushButton:hover, QPushButton:pressed, QPushButton:default, QPushButton:checked { color: #ffffff; }"
-                          "\nQPushButton:disabled { color: #7a7f95; }"
-                          "\nQAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; }\n");
+    out.replace(QRegularExpression(QStringLiteral("color:\\s*white\\b")), QStringLiteral("color: #000000"));
+    out.replace(QRegularExpression(QStringLiteral("rgba\\(255,\\s*255,\\s*255,\\s*[0-9]+\\)")), QStringLiteral("#000000"));
+    out += QStringLiteral("\nQPushButton, QPushButton:hover, QPushButton:pressed, QPushButton:default, QPushButton:checked { color: #000000; }"
+                          "\nQPushButton:disabled { color: #808080; }"
+                          "\nQAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; background: #000000; }\n");
     return out;
 }
 
 static bool krimbleOwnTheme(const QString &theme)
 {
-    static const QStringList own = { QStringLiteral("Blue"), QStringLiteral("Blue-Gray"), QStringLiteral("Dark Gray"), QStringLiteral("Light"), QStringLiteral("Painted"), QStringLiteral("Cyber") };
+    static const QStringList own = { QStringLiteral("Blue"), QStringLiteral("Blue-Gray"), QStringLiteral("Dark Gray"), QStringLiteral("Black and White"), QStringLiteral("Painted"), QStringLiteral("Cyber") };
     return own.contains(theme);
 }
 
@@ -233,6 +228,7 @@ void ThemeManager::setCurrentTheme(const QString& name)
 {
     QString krimbleName = name;
     if (krimbleName.startsWith(QStringLiteral("Krimble ")) && krimbleName != QStringLiteral("Krimble dark")) krimbleName = krimbleName.mid(8);
+    if (krimbleName == QStringLiteral("Light")) krimbleName = QStringLiteral("Black and White");
     d->currentThemeName = (krimbleName == QStringLiteral("Krimble dark") || krimbleName == QStringLiteral("Blue") || krimbleName.contains(QStringLiteral("Krita"), Qt::CaseInsensitive)) ? QStringLiteral("Blue-Gray") : krimbleName;
 
     if (d->themeMenuAction  && d->themeMenuActionGroup) {
@@ -317,8 +313,8 @@ void ThemeManager::slotChangePalette()
         krimbleSheet = (krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
     } else if (theme == QStringLiteral("Dark Gray")) {
         krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
-    } else if (theme == QStringLiteral("Light")) {
-        krimbleSheet = (krimbleLightSheet(krimbleVisualStyleSheet()));
+    } else if (theme == QStringLiteral("Black and White")) {
+        krimbleSheet = (krimbleBlackWhiteSheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Painted") || krimbleCyber) {
         krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
             "\nQScrollBar:vertical { background: #03050a; width: 18px; margin: 0px; border: 1px solid #000000; }\n"
@@ -336,7 +332,7 @@ void ThemeManager::slotChangePalette()
         const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
         krimbleSheet = (krimbleSheet + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
-    if (!krimbleSheet.isEmpty()) krimbleSheet += (theme == QStringLiteral("Light") ? krimbleLightSheet(krimbleCommonStyleSheet()) : krimbleCommonStyleSheet());
+    if (!krimbleSheet.isEmpty()) krimbleSheet += (theme == QStringLiteral("Black and White") ? krimbleBlackWhiteSheet(krimbleCommonStyleSheet()) : krimbleCommonStyleSheet());
     if (theme == QStringLiteral("Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
     else if (theme == QStringLiteral("Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
     if (!krimbleSheet.isEmpty()) {
@@ -366,18 +362,17 @@ void ThemeManager::slotChangePalette()
         if (theme == QStringLiteral("Painted")) {
             krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar::tab:selected { background: %1; }\n").arg(panel.name());
         }
-        if (theme == QStringLiteral("Light")) {
-            krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar::tab:!selected { background: %2; border: 2px solid %2; border-bottom: none; }\n"
-                                           "QMainWindow > QTabBar::tab:selected { border-top: 2px solid #ffffff; border-left: 2px solid #ffffff; border-right: none; border-bottom: none; }\n"
-                                           "QMainWindow > QTabBar::tab:previous-selected { border-left: 4px solid %1; }\n")
-                                .arg(panel.darker(170).name(), panel.darker(130).name());
+        if (theme == QStringLiteral("Black and White")) {
+            krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar { background: #ffffff; }\n"
+                                           "QMainWindow > QTabBar::tab:!selected { background: #ffffff; color: #000000; border: 1px solid #000000; border-bottom: none; }\n"
+                                           "QMainWindow > QTabBar::tab:selected { background: #000000; color: #ffffff; border: 1px solid #000000; border-bottom: none; }\n");
         }
         QString tabLine = QStringLiteral("#5d6a9c");
         int tabLineWidth = 1;
         if (theme == QStringLiteral("Blue-Gray")) tabLine = krimbleRecolorSheet(tabLine, 236, 33);
         else if (theme == QStringLiteral("Dark Gray")) tabLine = krimbleGraySheet(tabLine);
         else if (theme == QStringLiteral("Painted")) tabLine = QStringLiteral("#8a9acd");
-        else if (theme == QStringLiteral("Light")) { tabLine = QStringLiteral("#ffffff"); tabLineWidth = 2; }
+        else if (theme == QStringLiteral("Black and White")) tabLine = QStringLiteral("#000000");
         krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar::tab:!selected { border-bottom: %2px solid %1; }\nQMainWindow > QTabBar { border-bottom: %2px solid %1; }\n")
                             .arg(tabLine).arg(tabLineWidth);
     }
