@@ -103,6 +103,10 @@ protected:
         const qreal cy = height() / 2.0, gap = 3.0;
         for (int i = -2; i <= 2; ++i)
             p.drawRect(QRectF(18, cy + i * gap - 0.5, width() - 36, 1.0));
+        const qreal real = 1.0 / qMax<qreal>(1.0, devicePixelRatioF());
+        p.setRenderHint(QPainter::Antialiasing, false);
+        p.fillRect(QRectF(0, height() - 2.0 * real, width(), real), QColor(0, 0, 0));
+        p.fillRect(QRectF(0, height() - real, width(), real), QColor(255, 255, 255, 110));
     }
 };
 
