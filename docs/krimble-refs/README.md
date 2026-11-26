@@ -177,3 +177,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-26_1436_preferences-icons-too-big.jpg — George, build 80, issue 8: "Preferences icons need to be smaller."
 - 2026-11-26_1436_newfile-dialog-too-tall.jpg — George, build 80, issue 1: "New file dialog is SUPER TALL NO MATTER WHAT YOU DO."
 - 2026-11-26_1436_quickadjust-no-grip-and-dialog-glow.jpg — George, build 80, issue 7: QuickAdjust "missing the gadget on the corner for resize"; selection glow "not as good as before"
+- 2026-11-26_1500_preview-eyedropper-before-after.png — eyedropper icon before (left) and after (right): lines 1.5 → 1 (issue 10)
