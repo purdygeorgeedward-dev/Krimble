@@ -593,13 +593,12 @@ void KisKEditToolBarPrivate::init()
     KGuiItem::assign(m_buttonBox->button(QDialogButtonBox::RestoreDefaults), KStandardGuiItem::defaults());
     q->connect(m_buttonBox, SIGNAL(clicked(QAbstractButton*)), SLOT(_k_slotButtonClicked(QAbstractButton*)));
     q->connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    m_buttonBox->setProperty("krimbleKeepRows", true);
     m_layout->addWidget(m_buttonBox);
 
     q->connect(m_widget, SIGNAL(enableOk(bool)), SLOT(_k_acceptOK(bool)));
     q->connect(m_widget, SIGNAL(enableOk(bool)), SLOT(_k_enableApply(bool)));
     _k_enableApply(false);
-
-    q->setMinimumSize(q->sizeHint());
 }
 
 void KisKEditToolBar::setResourceFile(const QString &file, bool global)
@@ -801,7 +800,6 @@ void KisKEditToolBarWidgetPrivate::initOldStyle(const QString &resourceFile,
 
     loadToolBarCombo(defaultToolBar);
     m_widget->adjustSize();
-    m_widget->setMinimumSize(m_widget->sizeHint());
 }
 
 void KisKEditToolBarWidgetPrivate::initFromFactory(KisKXMLGUIFactory *factory,
@@ -841,7 +839,6 @@ void KisKEditToolBarWidgetPrivate::initFromFactory(KisKXMLGUIFactory *factory,
 
     loadToolBarCombo(defaultToolBar);
     m_widget->adjustSize();
-    m_widget->setMinimumSize(m_widget->sizeHint());
 
     m_widget->actionCollection()->addAssociatedWidget(m_widget);
     foreach (QAction *action, m_widget->actionCollection()->actions()) {
