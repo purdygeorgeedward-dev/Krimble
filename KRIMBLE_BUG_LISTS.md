@@ -18,6 +18,24 @@ Release notes take their Known issues from here. Newest first. The status of eac
 11. The Configure Toolbars window is far too big; it should be small. No stacked, very wide buttons.
 12. The Toolbars submenu causes a visual anomaly.
 
+## Status of the 1.0.80 list (Nov 26, 2026, 3:20 PM MST; pushed to cyber-theme, not built)
+
+| # | Status |
+|---|---|
+| 1 | Fixed, 904th. |
+| 2 | Fixed, 901st (pill buttons). |
+| 3 | Demo shown; George chose A (plain bevel pills, old glow selection). Aqua stays out. |
+| 4 | Fixed, 911th (see-through, text 25% larger). |
+| 5 | Noted (working better). |
+| 7 | Grip fixed, 905th. |
+| 8 | Fixed, 903rd. |
+| 9 | Fixed, 909th; the theme is now Black and White, 910th. |
+| 10 | Fixed, 908th. |
+| 11 | Fixed, 902nd. |
+| 12 | Fixed, 907th. |
+| 13 (added) | Open: the menu bar bottom edge is not drawn by Qt or the style sheets (checked in desktop Qt); source on the phone not found yet. |
+| 14 (added) | Fixed, 906th. |
+
 ## 1.0.74-beta (tested Nov 22, 2026; screenshots docs/krimble-refs/2026-11-22_12*, _13*, _030216*)
 
 1. Opening a new file does not keep the selected tool. Pan is the default only at program launch; on file open the current tool stays.
