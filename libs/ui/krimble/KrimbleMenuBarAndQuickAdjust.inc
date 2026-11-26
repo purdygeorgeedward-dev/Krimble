@@ -661,7 +661,6 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         return;
     }
     QDialog *dialog = new QDialog(win);
-    dialog->setProperty("krimbleSmallGrip", true);
     {
         QFont smaller = dialog->font();
         dialog->setFont(smaller);

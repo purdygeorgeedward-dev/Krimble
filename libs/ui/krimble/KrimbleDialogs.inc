@@ -12,7 +12,6 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
-        if (property("krimbleInvisible").toBool()) return;
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, true);
         QColor c = palette().color(QPalette::WindowText);
@@ -476,12 +475,7 @@ protected:
                             grip = new KrimbleResizeGrip(gripDialog);
                             grip->setObjectName(QStringLiteral("krimbleResizeGrip"));
                         }
-                        const bool krimbleSmallGrip = gripDialog->property("krimbleSmallGrip").toBool();
-                        if (krimbleSmallGrip && grip->width() != 16) {
-                            grip->setFixedSize(16, 16);
-                            grip->setProperty("krimbleInvisible", true);
-                        }
-                        if (gripDialog->layout() && !krimbleSmallGrip && !gripDialog->property("krimbleGripStrip").toBool()) {
+                        if (gripDialog->layout() && !gripDialog->property("krimbleGripStrip").toBool()) {
                             QMargins m = gripDialog->layout()->contentsMargins();
                             m.setBottom(m.bottom() + grip->height());
                             gripDialog->layout()->setContentsMargins(m);
