@@ -118,7 +118,7 @@ inline void krimblePaintSelectedGlow(QPainter &p, const QRectF &outer, qreal dpr
     const qreal real = 1.0 / qMax<qreal>(1.0, dpr);
     const QRectF r = outer.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
     if (r.width() < 2 || r.height() < 2) return;
-    const qreal radius = qMin<qreal>(12.0 * real, qMin(r.width(), r.height()) / 2.0);
+    const qreal radius = qMin(r.width(), r.height()) / 2.0;
     p.save();
     p.setRenderHint(QPainter::Antialiasing, true);
     p.setPen(Qt::NoPen);
@@ -144,7 +144,7 @@ inline void krimblePaintBevelButton(QPainter &p, const QRectF &outer, qreal dpr,
     const qreal real = 1.0 / qMax<qreal>(1.0, dpr);
     const QRectF r = outer.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
     if (r.width() < 2 || r.height() < 2) return;
-    const qreal radius = qMin<qreal>(12.0 * real, qMin(r.width(), r.height()) / 2.0);
+    const qreal radius = qMin(r.width(), r.height()) / 2.0;
     p.save();
     p.setRenderHint(QPainter::Antialiasing, true);
     QLinearGradient face(r.topLeft(), r.bottomLeft());
@@ -155,11 +155,9 @@ inline void krimblePaintBevelButton(QPainter &p, const QRectF &outer, qreal dpr,
     p.drawRoundedRect(r, radius, radius);
     p.setBrush(Qt::NoBrush);
     const QRectF in = r.adjusted(2.5 * real, 2.5 * real, -2.5 * real, -2.5 * real);
-    QPainterPath top;
-    top.moveTo(in.left(), in.top() + radius * 0.6);
-    top.quadTo(in.left(), in.top(), in.left() + radius * 0.6, in.top());
-    top.lineTo(in.right() - radius * 0.6, in.top());
+    const qreal inRadius = qMin(in.width(), in.height()) / 2.0;
+    p.setClipRect(QRectF(in.left() - 2.0, in.top() - 2.0, in.width() + 4.0, in.height() * 0.45 + 2.0));
     p.setPen(QPen(down ? window.darker(250) : window.lighter(140), 2.0 * real));
-    p.drawPath(top);
+    p.drawRoundedRect(in, inRadius, inRadius);
     p.restore();
 }
