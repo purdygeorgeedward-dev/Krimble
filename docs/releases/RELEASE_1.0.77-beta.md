@@ -1,0 +1,38 @@
+<!-- Backup of GitHub release v1.0.77-beta (Krimble v1.0.77-beta), published 2026-11-23T20:14:35Z, target release-1.0.77. Copied word for word. -->
+
+<!-- Release notes for v1.0.77-beta, written 2026-11-23 13:10 MST for George to post on GitHub (this session is not allowed to create or edit GitHub releases). Target branch: release-1.0.77 (commit 7a034e5b, branch cyber-theme). -->
+
+**KRIMBLE**
+Your Creative Companion
+
+Krimble is a mobile-first graphics editing app for Android, with familiar industry-standard terminology, pro customizations, and touch screen oriented controls.
+
+Krimble is open source software made with the assistance of Claude and ChatGPT.
+
+**NEW IN 1.0.77 BETA**
+
+Everything in 1.0.76, plus two new themes. Choose them under Window > Themes.
+
+**Krimble Cyber**
+
+- A red menu bar in the Orbitron typeface, with no line under it.
+- See-through dark blue menus with a cut corner at the bottom right and a faint cyan edge; menu text in Rajdhani. An open menu title takes the menu's color and joins it with no line between them.
+- The highlighted menu row is a cyan bar with a cut corner.
+- See-through dark blue panels with faint scanlines, over a background of distant, blurred blue holographic layers.
+- Color Lab and the toolbox keep their own look.
+
+**Krimble Glass**
+
+- See-through panels and menus with a soft mist texture, a brighter top and left edge, and a small shadow under menus.
+- A see-through menu bar; an open menu title is lighter glass and joins its menu.
+- A background of soft colored light behind the glass.
+- Color Lab and the toolbox keep their own look.
+
+**Fonts**
+
+- Rajdhani (Medium and SemiBold, SIL Open Font License) is included for the Cyber theme.
+
+**Known issues**
+
+- Still open from the 1.0.75 test: in portrait the window buttons overlap the menu titles; the strip for dragging the toolbox wider cannot be grabbed; the Quick Adjust window is narrow; pressed toggle buttons turn gray.
+- Turning the phone switches to a different panel layout instead of keeping the same panels.

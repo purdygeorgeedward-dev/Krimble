@@ -1,0 +1,35 @@
+<!-- Backup of GitHub release v1.0.44-beta (Krimble v1.0.44-beta), published 2026-10-27T03:32:40Z, target f3960e98c8ec92ce0e97838053386ec6c902c881. Copied word for word. -->
+
+**KRIMBLE**
+Your Creative Companion
+
+Krimble is a mobile-first graphics editing app for Android, a fork of Krita, with familiar industry-standard terminology, pro customizations, and touch screen oriented controls.
+
+Krimble is open source software made with the assistance of Claude and ChatGPT.
+
+**NEW IN 1.0.44 BETA**
+
+- **Crash fix:** three functions that the Android side calls still had their old Krita names, so Krimble crashed and started again every time you pressed Back or used the back gesture (and when another app opened a file in Krimble). They are fixed. This is the likely cause of "Krimble relaunches when I switch apps".
+- **Help > Show Krimble Log...:** shows how the last runs of Krimble ended (closed correctly, killed by Android, crashed) and the end of the log, so a relaunch can be explained.
+- **Polygonal Selection:** while you make a polygon, a bar over the picture has **Undo point**, **END** and **Cancel**. END closes the polygon and makes the selection.
+- **File > New > Custom Document:** every label is beside its field and **Cancel** and **Create** sit side by side, so the window is much shorter. Most other windows also keep their labels beside the fields now (a window that is wider than the screen scrolls sideways).
+- **Eraser tool:** a new tool in the toolbox, after Soften. It paints transparency with your current brush.
+- **Panels:** the little tab at the edge of the toolbox and the side panels is no longer drawn; it still works if you drag where it was, and the little dots stay.
+- **Image > Batch Process:** recipes (resize, JPG, PNG, WebP lossless or lossy, name), your own saved recipes, and **WebP with transparency**.
+- **Krimble Script:** a small script language (15 commands) for Batch Process: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder, frames, fps, loop. Animated GIF and WebP can be read; animated WebP can be written; frames can be saved as separate pictures.
+- **Help > Krimble Help:** a handbook inside the app, with a list of its parts, a search box, and the script reference.
+- **Icons:** your own keyboard (Preferences > Keyboard Shortcuts), house (Preferences > General) and clipboard (File > New > Create from Clipboard).
+
+**KNOWN ISSUES**
+
+- **Not yet seen on a phone:** this whole list is new in this build and was compiled together for the first time. The crash fix is the most important to test: leave Krimble with Back and the back gesture, and switch apps.
+- **Animated GIF:** Krimble uses Android's own GIF reader; if the phone build does not have one, GIF files are skipped. Writing an animated GIF is not possible yet.
+- **Windows:** some windows may now be wider than the screen (they scroll sideways); tell me which.
+- **Polygonal Selection:** the Magnetic Selection tool has no such bar yet; the bar can cover points near the bottom edge.
+- **Type tool:** tapping text can show a red box; parts of a text cannot yet be styled separately.
+- **Content-Aware Fill** can still look soft on busy pictures; small areas work best.
+- **Still to do:** the Quick Mask design, Auto Color, the user manual.
+
+This is a beta. Please report problems on the Issues page.
+
+**Install:** download the APK below and open it on your phone (arm64 devices).

@@ -1,0 +1,33 @@
+<!-- Backup of GitHub release v1.0.68-beta (Krimble v1.0.68-beta), published 2026-11-18T22:14:43Z, target eae918676f286cea8bc1d4872783d3ee10799168. Copied word for word. -->
+
+**KRIMBLE**
+Your Creative Companion
+
+Krimble is a mobile-first graphics editing app for Android, with familiar industry-standard terminology, pro customizations, and touch screen oriented controls.
+
+Krimble is open source software made with the assistance of Claude and ChatGPT.
+
+**NEW IN 1.0.68 BETA**
+
+**Version numbers:** this is build 68. The last stable release was 1.0.58 beta. You can try the more recent one, but I don't recommend it.
+
+**Menus**
+
+- Menus have extra room at the bottom and on the right, so the last item and long names are no longer cut off.
+- An open menu now meets its name, with no line between them.
+- The File menu has more room after the orange K.
+
+**Panels**
+
+- The line on the right of the toolbox and the left of the side panel is gone.
+- The toolbox and side panel edges have invisible grab areas along the whole edge, big enough for a finger.
+
+**Painted theme**
+
+- The selected tab and its page are #374165.
+
+**Known issues**
+
+- Panels can't be torn off.
+- Panels have no visible edges or inside margins.
+- Krimble often restarts after switching to another app.

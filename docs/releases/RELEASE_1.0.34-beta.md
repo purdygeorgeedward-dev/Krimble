@@ -1,0 +1,56 @@
+<!-- Backup of GitHub release v1.0.34-beta (Krimble v1.0.34-beta), published 2026-10-13T04:21:01Z, target master. Copied word for word. -->
+
+**KRIMBLE**
+Your Creative Companion
+
+Krimble is a mobile-first graphics editing app for Android, a fork of Krita, with familiar industry-standard terminology, pro customizations, and touch screen oriented controls.
+
+Krimble is free open source software made with the assistance of Claude and ChatGPT.
+
+**NEW IN 1.0.34 BETA**
+
+- **Quick Adjust (Window menu):** a small panel with six sliders: Brightness, Contrast, Saturation, Hue, Lightness and Vibrance. It works without changing your pixels: each group adds an adjustment layer you can hide, delete or edit later. It opens floating so it never has to fit beside the other panels.
+
+- **Batch Process (File menu):** pick a preset, pick pictures, and every one is resized or converted. Presets: HD 1080p (longest side 1920 px), Social (1080 px), Messages (1280 px), Thumbnail (256 px), Convert to JPG, Convert to PNG. Results go to Pictures/Krimble/Batch. Your originals are not changed.
+
+- **Style Presets (Layer menu):** one tap puts a ready-made layer style on the active layer: Drop Shadow, Inner Shadow, Outer Glow, Inner Glow, Stroke (white or black), Bevel and Emboss, or Clear Style.
+
+- **Startup layouts (Window menu):** Save Layout as Startup remembers how your panels, toolbars and toolbox are arranged, separately for portrait and landscape, and brings it back at start and when you turn the phone. Reset Layout returns to the original.
+
+- **Toolbox:** starts floating the first time, smaller edge handle, color wells right under the tools.
+
+- **Brushes panel:** hidden the first time the app runs (Window > Panels brings it back).
+
+- **Layers panel:** the buttons under the list are smaller, so the panel can be narrower.
+
+- **Toolbars:** seven extra toolbars (hidden until you turn them on in Window > Toolbars) and Close All Toolbars.
+
+- **Menus:** no keyboard shortcut column.
+
+- **New Document:** the window height follows the page; the size list is wider.
+
+- **Preferences:** colored page icons.
+
+- **Dialogs:** the resize grip sits below the buttons instead of on top of them.
+
+- **Removed:** Cheat Sheet and Mirror Layout (both caused problems in 1.0.33).
+
+**KNOWN ISSUES**
+
+- Menus are still wider than they need to be.
+
+- The toolbox can have empty space inside it, or its last rows cut off, when floating.
+
+- The toolbox edge handle is still too large.
+
+- New Document is wider than the screen in portrait.
+
+- Preferences and Brightness/Contrast are wider than the screen in portrait.
+
+- A docked toolbox does not change its width in portrait.
+
+- Quick Adjust, Batch Process, Style Presets and Startup Layouts are new and have had very little testing. Please report anything odd.
+
+All of these are being worked on for the next build. This is a beta. Please report problems on the Issues page.
+
+**Install:** download the APK below and open it on your phone (arm64 devices).

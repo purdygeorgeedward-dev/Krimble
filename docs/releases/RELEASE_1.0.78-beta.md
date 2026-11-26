@@ -1,0 +1,40 @@
+<!-- Backup of GitHub release v1.0.78-beta (Krimble v1.0.78-beta), published 2026-11-24T00:59:10Z, target cyber-theme. Copied word for word. -->
+
+**KRIMBLE**
+Your Creative Companion
+
+Krimble is a mobile-first graphics editing app for Android, with familiar industry-standard terminology, pro customizations, and touch screen oriented controls.
+
+Krimble is open source software made with the assistance of Claude and ChatGPT.
+
+**NEW IN 1.0.78 BETA**
+
+**Fixes from the 1.0.76 and 1.0.77 tests**
+
+- Turning the phone keeps the panels as they are, instead of switching to a different layout.
+- Menus have room under their last item again, without extra space on the top or sides.
+- The whole Layers + button responds to taps.
+- Unselected panel tabs are darker than the selected one.
+- The Krimble Cyber and Krimble Glass themes now show their own menu bars, docked panels are see-through so the theme's background shows behind them, Cyber menus are easier to read, and the toolbox has no scanlines.
+
+**Color Lab**
+
+- A torn-off Color Lab snaps to the size of its content, and can't be stretched past it.
+- It can be made smaller down to the height that shows four palette rows; making it narrower cuts off the right side, never the left or the top.
+
+**Krimble Light**
+
+- The selected panel tab is raised, with a light top and left edge and a shadow beside it.
+- The selected tool's icon in the toolbox is white on the selection blue.
+
+**Other**
+
+- The startup splash no longer shows the Show Supporter Options button.
+- Help > Support Krimble... opens the Buy Me a Coffee page.
+- The Layers blend mode list opens with a shorter press (0.4 s).
+
+**Known issues**
+
+- The first image opened can show tiny.
+- The right panel's edge can't be grabbed to resize it.
+- In Krimble Light the eyedropper icon in the toolbox looks grayed out.

@@ -1,0 +1,52 @@
+<!-- Backup of GitHub release v1.0.35-beta (Krimble v1.0.35-beta), published 2026-10-13T23:50:37Z, target a3725dc1e91593484861422b51a157394f5ff166. Copied word for word. -->
+
+**KRIMBLE**
+Your Creative Companion
+
+Krimble is a mobile-first graphics editing app for Android, a fork of Krita, with familiar industry-standard terminology, pro customizations, and touch screen oriented controls.
+
+Krimble is free open source software made with the assistance of Claude and ChatGPT.
+
+**NEW IN 1.0.35 BETA**
+
+- **Your own icons** for the pages of Edit > Preferences and for the sections of File > New.
+
+- **Polygon selection for a finger:** tap or drag to put down each point, with marching ants on the line, and drop a point on the first one to close the selection. Undo Point, Close and Cancel buttons are in Tool Options.
+
+- **Image > Upscale...:** 2, 3 or 4 times larger, with the resize method of your choice (Lanczos3 is the default) and an optional light sharpen layer.
+
+- **Image > Batch Process...:** resize or convert many pictures at once, with presets, a progress bar and a Cancel button. Results go to Pictures/Krimble/Batch.
+
+- **Quick Adjust (Window menu):** six sliders (Brightness, Contrast, Saturation, Hue, Lightness, Vibrance) that work through adjustment layers.
+
+- **Layer > Style Presets,** and **Window > Save Layout as Startup / Reset Layout.**
+
+- **View > Rotation Gadget:** the rotation dial in the bottom bar can be turned on and off. It is off by default.
+
+- **File > New:** the Custom Document page starts with the size of a picture you copied (this can be turned off in Edit > Preferences > General > Pasting).
+
+- **Layers panel:** the six buttons are in two rows of three.
+
+- **Toolbox:** it is only as tall as its tools, and it is no longer pushed back off the bottom of the screen.
+
+- **Windows:** any window wider than the screen is narrowed (label above field), and the PNG export options window has a narrow layout.
+
+- **Image windows:** a wider frame, so they are easier to grab and resize.
+
+**KNOWN ISSUES (found in testing)**
+
+- **File > Take Photo... crashes the app** after the photo is taken. Do not use it.
+- **Canvas Only mode has no way out** on a phone: the menu bar and the toolbox are hidden. Close and reopen the app to leave it.
+- **The Window menu can lock up** (it will not close).
+- **Menus are far wider than they need to be.**
+- **The edge handle for resizing the side panels cannot be seen.**
+- **In portrait,** the toolbox goes back to one column and the right panels will not resize.
+- **New Document:** the section icons (Animation, Comic, Design, DSLR, Texture) are smaller than the first two.
+- **Preferences icons are small.**
+- **Brushes opens by default.**
+- **Pasting** a picture into a new document sometimes shows nothing on the page.
+- **Help > Where is...?** is unreliable.
+
+This is a beta. Please report problems on the Issues page.
+
+**Install:** download the APK below and open it on your phone (arm64 devices).
