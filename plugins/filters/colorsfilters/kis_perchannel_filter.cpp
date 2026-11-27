@@ -7,6 +7,11 @@
  */
 
 #include "kis_perchannel_filter.h"
+#include "../levelfilter/KrimbleAutoAdjust.h"
+#include <QPushButton>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <cmath>
 
 #include <Qt>
 #include <QLayout>
@@ -49,6 +54,53 @@ KisPerChannelConfigWidget::KisPerChannelConfigWidget(QWidget * parent, KisPaintD
     // but the dialog is shared with KisCrossChannelFilter
     m_page->lblDriverChannel->hide();
     m_page->cmbDriverChannel->hide();
+
+    // Krimble: an Auto button beside Reset. It works out a curve for red, green and blue from the picture
+    // (the same as Image > Auto Color, without its saturation lift: KrimbleAutoAdjust.h) and puts the curves here,
+    // so they can be adjusted by hand before OK.
+    if (m_page->resetButton && m_page->resetButton->parentWidget()) {
+        QPushButton *autoButton = new QPushButton(i18n("Auto"), m_page->resetButton->parentWidget());
+        autoButton->setObjectName(QStringLiteral("krimbleCurvesAuto"));
+        if (QLayout *layout = m_page->resetButton->parentWidget()->layout()) {
+            if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout)) {
+                int index = grid->indexOf(m_page->resetButton), row = 0, column = 0, rowSpan = 1, columnSpan = 1;
+                grid->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
+                QHBoxLayout *pair = new QHBoxLayout();
+                grid->removeWidget(m_page->resetButton);
+                pair->addWidget(autoButton);
+                pair->addWidget(m_page->resetButton);
+                grid->addLayout(pair, row, column, rowSpan, columnSpan);
+            } else if (QBoxLayout *box = qobject_cast<QBoxLayout*>(layout)) {
+                box->insertWidget(box->indexOf(m_page->resetButton), autoButton);
+            }
+        }
+        connect(autoButton, &QPushButton::clicked, this, [this]() {
+            if (!m_dev) return;
+            const KrimbleAutoAdjust::Curves curves = KrimbleAutoAdjust::computeCurves(m_dev, m_dev->exactBounds(), KrimbleAutoAdjust::Color);
+            if (!curves.valid) return;
+            for (int i = 0; i < m_virtualChannels.size() && i < m_curves.size(); ++i) {
+                const VirtualChannelInfo &info = m_virtualChannels[i];
+                if (info.type() != VirtualChannelInfo::REAL || !info.channelInfo()) continue;
+                const QColor color = info.channelInfo()->color();
+                int c = -1;
+                if (color.red() > 200 && color.green() < 60 && color.blue() < 60) c = 0;
+                else if (color.green() > 200 && color.red() < 60 && color.blue() < 60) c = 1;
+                else if (color.blue() > 200 && color.red() < 60 && color.green() < 60) c = 2;
+                if (c < 0) continue;
+                const qreal b = curves.black[c], w = curves.white[c], p = curves.power[c];
+                QList<QPointF> points;
+                points << QPointF(b, 0.0);
+                for (int k = 1; k <= 3; ++k) {
+                    const qreal t = k / 4.0;
+                    points << QPointF(b + (w - b) * t, std::pow(t, p));
+                }
+                points << QPointF(w, 1.0);
+                m_curves[i] = KisCubicCurve(points);
+            }
+            syncActiveChannelUi();
+            emit sigConfigurationItemChanged();
+        });
+    }
 }
 
 KisPerChannelConfigWidget::~KisPerChannelConfigWidget()
