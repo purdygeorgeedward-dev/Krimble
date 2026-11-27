@@ -674,7 +674,8 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         {
             // File > A. I. Image generation: opens George's Perchance image generator (Image Donkey) in the browser; the address is a setting
             // (krimblerc, [Krimble] ImageDonkeyUrl) so it can change ("Actually, file has much fewer items. Put it in File as \"A. I. Image generation\".")
-            QAction *imageDonkey = new QAction(i18n("A. I. Image generation"), file);
+            // QAction *imageDonkey = new QAction(i18n("A. I. Image generation"), file);
+            QAction *imageDonkey = new QAction(i18n("A. I. Image gen"), file);   // "Maybe shorten it to gen instead of generation since that will stretch out the menu."
             imageDonkey->setObjectName(QStringLiteral("krimbleImageDonkey"));
             QObject::connect(imageDonkey, &QAction::triggered, win, []() {
                 KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
