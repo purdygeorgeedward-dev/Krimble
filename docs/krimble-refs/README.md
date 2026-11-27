@@ -185,3 +185,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-26_1925_preview-black-and-white-toolbox-outline.png — Black and White toolbox with a plain black outline instead of the bevel (real paint code)
 - 2026-11-26_1930_preview-black-and-white-toolbox-outline-4px.png — Black and White toolbox outline doubled to 4 real px (George: "the plain black outline needs to be thicker")
 - 2026-11-26_1935_preview-magic-wand-dark-and-light.png — magic wand: dark screens = solid ends, hollow body; white screens = solid body, hollow ends (George: so it doesn't look like a cigarette)
+- 2026-11-26_1940_preview-magic-wand-hollow-sparkles.png — magic wand on white screens with hollow sparkles (George: "on white screens the sparkles should be hollow")
