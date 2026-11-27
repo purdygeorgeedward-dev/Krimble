@@ -36,8 +36,8 @@ def main(argv):
     problems = []
     if used and n <= max(used):
         problems.append("build number %d is not higher than the last built number %d (KRIMBLE_BUILD_LOG.md): change krimbleBuildNumber in packaging/android/apk/build.gradle" % (n, max(used)))
-    if len(argv) > 1 and argv[1] != "1.0.%d-beta" % n:
-        problems.append("the label %r does not match the build number %d (it must be 1.0.%d-beta)" % (argv[1], n, n))
+    if len(argv) > 1 and argv[1] != "1.0.%d-beta" % n and not argv[1].startswith("1.0.%d-test-" % n):
+        problems.append("the label %r does not match the build number %d (it must be 1.0.%d-beta, or 1.0.%d-test-<name> for a special test build)" % (argv[1], n, n, n))
     for p in problems:
         print("BUILD NUMBER: " + p)
         if os.environ.get("GITHUB_ACTIONS"):
