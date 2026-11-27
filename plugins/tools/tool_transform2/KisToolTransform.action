@@ -15,10 +15,12 @@
     <!-- Krimble 2026-10-15: the Free Rotate toolbox button (see kis_tool_transform.h) -->
     <Action name="KisToolFreeRotate">
       <icon>krimble-free-rotate</icon>
-      <text>Free Rotate</text>
+      <!-- <text>Free Rotate</text> -->
+      <text>Rotate</text>
       <whatsThis></whatsThis>
       <toolTip>Turn a layer by any angle</toolTip>
-      <iconText>Free Rotate</iconText>
+      <!-- <iconText>Free Rotate</iconText> -->
+      <iconText>Rotate</iconText>
       <shortcut></shortcut>
       <isCheckable>false</isCheckable>
       <statusTip></statusTip>

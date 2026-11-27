@@ -26,6 +26,8 @@
 #include <QMenu>
 #include <QAction>
 #include <QScreen>
+#include <QDynamicPropertyChangeEvent>
+#include <kis_icon_utils.h>
 
 #include <klocalizedstring.h>
 #include <WidgetsDebug.h>
@@ -147,6 +149,7 @@ KoToolBox::KoToolBox()
     d->addSection(new Section(this), "dynamic");
 
     d->buttonGroup = new QButtonGroup(this);
+    qApp->installEventFilter(this);   // the Transform mode in use (the qApp property krimbleTransformMode, set by the Transform Tool Options)
 
     // Get screen the widget exists in, but fall back to primary screen if invalid.
     const int widgetsScreen = KisPortingUtils::getScreenNumberForWidget(QApplication::activeWindow());
@@ -303,6 +306,7 @@ void KoToolBox::setActiveTool(KoCanvasController *canvas)
     Q_UNUSED(canvas);
 
     QString id = KoToolManager::instance()->activeToolId();
+    if (id == QLatin1String("KisToolFreeRotate")) id = QStringLiteral("KisToolTransform");   // Rotate is a Transform mode: it has no button of its own
     KoToolBoxButton *button = d->buttonsByToolId.value(id);
     if (button) {
         for (int g = 0; g < d->groups.size(); ++g) {
@@ -371,11 +375,66 @@ void KoToolBox::krimbleApplyGroups()
     }
 }
 
+// The Transform modes, each a tool of its own for the user (George, 2026-11-22: "each mode is a different tool, just like how warp is a different tool"):
+// key (the Transform Tool Options understand it), name, picture. Scale is uniform; Stretch is the non-uniform scale.
+struct KrimbleTransformMode { const char *key; const char *name; const char *icon; };
+static const QList<KrimbleTransformMode> &krimbleTransformModes()
+{
+    static const QList<KrimbleTransformMode> modes = {
+        { "scale", "Scale", "krimble-transform-scale" },
+        { "stretch", "Stretch", "krimble-transform-stretch" },
+        { "rotate", "Rotate", "krimble-free-rotate" },
+        { "shear", "Shear", "krimble-transform-shear" },
+        { "perspective", "Perspective", "transform_icons_perspective" },
+        { "warp", "Warp", "transform_icons_warp" },
+        { "cage", "Cage", "transform_icons_cage" },
+        { "liquify", "Liquify", "transform_icons_liquify_main" },
+        { "mesh", "Mesh", "transform_icons_mesh" },
+    };
+    return modes;
+}
+
+bool KoToolBox::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == qApp && event->type() == QEvent::DynamicPropertyChange
+            && static_cast<QDynamicPropertyChangeEvent*>(event)->propertyName() == "krimbleTransformMode") {
+        if (KoToolBoxButton *transform = d->buttonsByToolId.value(QStringLiteral("KisToolTransform"))) {
+            const QString key = qApp->property("krimbleTransformMode").toString();
+            QString icon;   // Scale (and anything unknown): the Transform tool's own picture
+            Q_FOREACH (const KrimbleTransformMode &mode, krimbleTransformModes()) {
+                if (key == QLatin1String(mode.key) && key != QLatin1String("scale")) icon = QLatin1String(mode.icon);
+            }
+            transform->krimbleSetIconOverride(icon);
+        }
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
 void KoToolBox::krimbleShowFlyout(int groupIndex)
 {
     if (groupIndex < 0 || groupIndex >= d->groups.size()) return;
     Private::KrimbleGroup &group = d->groups[groupIndex];
     if (!group.shown) return;
+    // the Transform button: its flyout offers the Transform modes, not other tools
+    // (George: "The transform tool in the toolbox should only lead to versions of the transform tool")
+    if (krimbleToolGroupIds().at(groupIndex).first() == QLatin1String("KisToolTransform")) {
+        const QString activeId = KoToolManager::instance()->activeToolId();
+        QString current = qApp->property("krimbleTransformMode").toString();
+        if (current.isEmpty()) current = QStringLiteral("scale");
+        const bool transformActive = (activeId == QLatin1String("KisToolTransform") || activeId == QLatin1String("KisToolFreeRotate"));
+        KrimbleToolFlyout *flyout = new KrimbleToolFlyout(QList<KoToolBoxButton*>(), nullptr, this);
+        Q_FOREACH (const KrimbleTransformMode &mode, krimbleTransformModes()) {
+            const QString key = QLatin1String(mode.key);
+            flyout->addRow(KisIconUtils::loadIcon(QLatin1String(mode.icon)), i18n(mode.name), group.shown->iconSize(), group.shown->height(),
+                           transformActive && key == current, [key]() {
+                // the Transform Tool Options take the request (now, or when they are shown after the tool changes)
+                qApp->setProperty("krimbleTransformModeRequest", key);
+                KoToolManager::instance()->switchToolRequested(key == QLatin1String("rotate") ? QStringLiteral("KisToolFreeRotate") : QStringLiteral("KisToolTransform"));
+            });
+        }
+        flyout->showBeside(group.shown);
+        return;
+    }
     // the tools in the order of the group list
     QList<KoToolBoxButton*> ordered;
     Q_FOREACH (const QString &id, krimbleToolGroupIds().at(groupIndex)) {

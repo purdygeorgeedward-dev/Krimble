@@ -81,6 +81,8 @@ public Q_SLOTS:
 
     void slotSetFreeTransformModeButtonClicked(bool);
     void slotKrimbleRotateButtonClicked(bool);
+    void slotKrimbleStretchButtonClicked(bool);
+    void slotKrimbleShearButtonClicked(bool);
     void slotSetWarpModeButtonClicked(bool);
     void slotSetCageModeButtonClicked(bool);
     void slotCageOptionsChanged(int);
@@ -135,6 +137,15 @@ private:
 
     void resetUIOptions();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;   // a mode chosen in the toolbox flyout (qApp property krimbleTransformModeRequest)
+    void showEvent(QShowEvent *event) override;
+
+private:
+    void krimbleSetFreeKind(int kind);   // Scale (0), Stretch (1) or Shear (2): the free transform with one gesture
+    void krimbleApplyModeRequest();
+    void krimblePublishMode(const ToolTransformArgs &config);
+
 private:
     static const int DEFAULT_POINTS_PER_LINE;
 
@@ -143,6 +154,8 @@ private:
     QPointF m_handleDir[9];
     QButtonGroup *m_rotationCenterButtons;
     QToolButton *m_krimbleRotateButton = nullptr;
+    QToolButton *m_krimbleStretchButton = nullptr;
+    QToolButton *m_krimbleShearButton = nullptr;
     int m_notificationsBlocked;
     int m_uiSlotsBlocked;
     double m_scaleRatio;

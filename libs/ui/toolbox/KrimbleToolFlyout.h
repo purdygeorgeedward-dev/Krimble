@@ -13,6 +13,7 @@
 #include <QScreen>
 #include <QWindow>
 #include <QList>
+#include <functional>
 
 #include "KoToolBoxButton_p.h"
 #include <KoToolManager.h>
@@ -31,7 +32,9 @@ public:
             // "QToolButton { color: #ffffff; font-size: 15px; padding: 4px 14px 4px 8px; border: none; background: transparent; text-align: left; }"
             "QToolButton { color: #ffffff; font-size: 12px; padding: 1px 10px 1px 2px; border: none; background: transparent; text-align: left; }"
             "QToolButton:pressed { background: #10498c; }"
-            "QToolButton:checked { background: #0b2f66; }"));
+            // "QToolButton:checked { background: #0b2f66; }"));
+            "QToolButton:checked { background: #0b2f66; }"
+            "QToolButton#krimbleFlyoutCurrent { background: #0b87dd; }"));   // the row in use: the flat selection blue (a checked row was painted Aqua)
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setContentsMargins(2, 2, 2, 2);
         layout->setSpacing(0);
@@ -42,23 +45,43 @@ public:
             if (name.trimmed().isEmpty()) name = member->objectName().section(QLatin1Char('/'), -1);
             name.replace(QRegularExpression(QStringLiteral("\\s*\\(\\s*\\)\\s*$")), QString());
             name.replace(QRegularExpression(QStringLiteral("\\sTool\\s*$")), QString());
-            QToolButton *row = new QToolButton(this);
-            row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-            row->setIcon(member->icon());
-            row->setIconSize(member->iconSize());
-            row->setText(name);
-            row->setCheckable(true);
-            row->setChecked(member == current);
-            // row->setMinimumHeight(qMax(44, member->iconSize().height() * 3 / 2 + 14));
-            row->setMinimumHeight(qMax(member->height(), member->iconSize().height() + 6));
-            row->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-            layout->addWidget(row);
+            // QToolButton *row = new QToolButton(this);
+            // row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+            // row->setIcon(member->icon());
+            // row->setIconSize(member->iconSize());
+            // row->setText(name);
+            // row->setCheckable(true);
+            // row->setChecked(member == current);
+            // // row->setMinimumHeight(qMax(44, member->iconSize().height() * 3 / 2 + 14));
+            // row->setMinimumHeight(qMax(member->height(), member->iconSize().height() + 6));
+            // row->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+            // layout->addWidget(row);
+            // // a tap: close the flyout, then click the member's own button (it may be hidden: click() works on a hidden button)
+            // QObject::connect(row, &QToolButton::clicked, this, [this, member]() {
+            //     close();
+            //     member->click();
+            // });
             // a tap: close the flyout, then click the member's own button (it may be hidden: click() works on a hidden button)
-            QObject::connect(row, &QToolButton::clicked, this, [this, member]() {
-                close();
-                member->click();
-            });
+            addRow(member->icon(), name, member->iconSize(), member->height(), member == current, [member]() { member->click(); });
         }
+    }
+
+    // one row: picture and name; the row in use is marked in the flat selection blue (not a checked button, which is painted Aqua)
+    void addRow(const QIcon &icon, const QString &name, const QSize &iconSize, int minHeight, bool isCurrent, const std::function<void()> &onTap)
+    {
+        QToolButton *row = new QToolButton(this);
+        row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        row->setIcon(icon);
+        row->setIconSize(iconSize);
+        row->setText(name);
+        if (isCurrent) row->setObjectName(QStringLiteral("krimbleFlyoutCurrent"));
+        row->setMinimumHeight(qMax(minHeight, iconSize.height() + 6));
+        row->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        layout()->addWidget(row);
+        QObject::connect(row, &QToolButton::clicked, this, [this, onTap]() {
+            close();
+            onTap();
+        });
     }
 
     // beside the button: to the right of it, or to the left when there is no room, kept inside the screen

@@ -96,7 +96,8 @@ void KoToolBoxButton::contextMenuEvent(QContextMenuEvent *event)
 
 void KoToolBoxButton::krimbleRefreshIcon()
 {
-    setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
+    // setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
+    setIcon(KrimbleToolboxIcons::icon(m_krimbleIconOverride.isEmpty() ? m_toolAction->iconName() : m_krimbleIconOverride));
     krimbleFitIconSize();
 }
 

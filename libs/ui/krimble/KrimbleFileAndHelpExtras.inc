@@ -121,7 +121,7 @@ static void krimbleShowCheatSheet(QMainWindow *win)
         {"Crop", "Crop"}, {"Image Size", "Scale Image"}, {"Canvas Size", "Canvas Size"}, {"Rotate Image", "Rotate Image"},
         {"Flatten Image", "Flatten Image"}, {"Merge Visible", "Merge Visible"}, {"Merge Down", "Merge Down"},
         {"New Layer", "New Layer"}, {"Duplicate Layer", "Duplicate Layer"}, {"Layer Mask", "Mask"},
-        {"Free Transform", "Free Transform"}, {"Warp", "Warp"}, {"Liquify", "Liquify"}, {"Flip", "Flip"},
+        {"Transform Scale", "Transform Scale"}, {"Warp", "Warp"}, {"Liquify", "Liquify"}, {"Flip", "Flip"},
         {"Select All", "Select All"}, {"Deselect", "Deselect"}, {"Inverse Selection", "Inverse"}, {"Feather", "Feather"},
         {"Color Range", "Color Range"}, {"Brightness/Contrast", "Brightness"}, {"Levels", "Levels"}, {"Curves", "Curves"},
         {"Hue/Saturation", "Hue"}, {"Color Balance", "Color Balance"}, {"Vibrance", "Vibrance"}, {"Invert", "Invert"},
