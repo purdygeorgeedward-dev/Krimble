@@ -12,6 +12,8 @@
 #include <QToolButton>
 #include <QDialog>
 #include <QApplication>
+#include <QMdiArea>
+#include <QMenuBar>
 
 class KrimbleButtonStyle : public QProxyStyle
 {
@@ -128,6 +130,12 @@ public:
     QSize sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &size, const QWidget *widget = nullptr) const override
     {
         QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
+        if (type == CT_MdiControls && widget && qobject_cast<const QMdiArea *>(widget)) {
+            if (QMenuBar *bar = widget->window()->findChild<QMenuBar *>()) {
+                const int h = bar->fontMetrics().height() + 8;
+                return QSize(3 * h, h);
+            }
+        }
         if ((type == CT_PushButton || type == CT_ToolButton) && krimbleHandles(widget)) {
             const int h = qMax(s.height(), 36);
             s.setHeight(h);
