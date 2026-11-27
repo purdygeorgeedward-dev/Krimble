@@ -103,6 +103,25 @@ public:
         opt.subControls = QStyle::SC_All;
         const QRectF handle = bar->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSlider, bar);
         if (handle.width() < 6 || handle.height() < 6) return true;
+        if (qApp->property("krimbleBlackWhiteTheme").toBool()) {
+            QPainter mono(bar);
+            const qreal edge = 2.0;
+            mono.fillRect(QRectF(handle.left(), handle.top(), handle.width(), edge), Qt::black);
+            mono.fillRect(QRectF(handle.left(), handle.bottom() - edge + 1, handle.width(), edge), Qt::black);
+            mono.fillRect(QRectF(handle.left(), handle.top(), edge, handle.height()), Qt::black);
+            mono.fillRect(QRectF(handle.right() - edge + 1, handle.top(), edge, handle.height()), Qt::black);
+            const bool monoVertical = bar->orientation() == Qt::Vertical;
+            const qreal monoGap = 3.0;
+            const int monoRidges = qMax(2, int((monoVertical ? handle.height() : handle.width()) * 0.40 / monoGap));
+            const qreal monoAcross = (monoVertical ? handle.width() : handle.height()) * 0.55;
+            const QPointF mc = handle.center();
+            for (int i = 0; i < monoRidges; ++i) {
+                const qreal offset = qRound((i - (monoRidges - 1) / 2.0) * monoGap);
+                if (monoVertical) mono.fillRect(QRectF(mc.x() - monoAcross / 2, mc.y() + offset, monoAcross, 1), Qt::black);
+                else mono.fillRect(QRectF(mc.x() + offset, mc.y() - monoAcross / 2, 1, monoAcross), Qt::black);
+            }
+            return true;
+        }
         const QColor base = bar->palette().color(QPalette::Window);
         const QColor light = base.lighter(165);
         const QColor dark = base.darker(230);
