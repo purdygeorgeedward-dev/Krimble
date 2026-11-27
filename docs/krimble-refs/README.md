@@ -189,3 +189,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-26_1950_preview-magic-wand-white-screen-small.png — white-screen magic wand at real size (top row = chosen thicker version; George: "Top right is good.")
 - 2026-11-26_2008_preview-black-and-white-scrollbar.png — Black and White scrollbar grip: black outline, black ridges (George: "On white everything needs a black outline.")
 - 2026-11-26_2020_preview-black-and-white-outlines.png — Black and White dialog: black outlines on fields, lists, group boxes, check boxes, sliders, progress bars and scrollbars; black fills instead of Aqua (George: "Anything that otherwise just bleeds into white.")
+- 2026-11-26_2030_preview-black-and-white-spin-progress.png — Black and White: number box arrows drawn inside the box, gray progress fill so the percentage stays readable

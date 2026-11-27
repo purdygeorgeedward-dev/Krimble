@@ -348,6 +348,33 @@ void ThemeManager::slotChangePalette()
     if (!krimbleSheet.isEmpty()) krimbleSheet += (theme == QStringLiteral("Black and White") ? krimbleBlackWhiteSheet(krimbleCommonStyleSheet()) : krimbleCommonStyleSheet());
     if (theme == QStringLiteral("Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
     else if (theme == QStringLiteral("Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
+    if (!krimbleSheet.isEmpty() && theme == QStringLiteral("Black and White")) {
+        const QString monoDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+        QDir().mkpath(monoDir);
+        const QString upArrow = monoDir + QStringLiteral("/krimble-mono-up.png");
+        const QString downArrow = monoDir + QStringLiteral("/krimble-mono-down.png");
+        for (int dir = 0; dir < 2; ++dir) {
+            QImage arrow(40, 24, QImage::Format_ARGB32_Premultiplied);
+            arrow.fill(Qt::transparent);
+            QPainter p(&arrow);
+            p.setRenderHint(QPainter::Antialiasing, true);
+            p.setPen(Qt::NoPen);
+            p.setBrush(Qt::black);
+            QPolygonF tri;
+            if (dir == 0) tri << QPointF(20, 2) << QPointF(38, 22) << QPointF(2, 22);
+            else tri << QPointF(2, 2) << QPointF(38, 2) << QPointF(20, 22);
+            p.drawPolygon(tri);
+            p.end();
+            arrow.save(dir == 0 ? upArrow : downArrow);
+        }
+        krimbleSheet += QStringLiteral(
+            "\nQAbstractSpinBox::up-button { subcontrol-origin: padding; subcontrol-position: top right; width: 22px; background: #ffffff; border: none; border-left: 2px solid #000000; border-bottom: 1px solid #000000; }"
+            "\nQAbstractSpinBox::down-button { subcontrol-origin: padding; subcontrol-position: bottom right; width: 22px; background: #ffffff; border: none; border-left: 2px solid #000000; border-top: 1px solid #000000; }"
+            "\nQAbstractSpinBox::up-button:pressed, QAbstractSpinBox::down-button:pressed { background: #000000; }"
+            "\nQAbstractSpinBox::up-arrow { image: url(%1); width: 10px; height: 6px; }"
+            "\nQAbstractSpinBox::down-arrow { image: url(%2); width: 10px; height: 6px; }"
+            "\nQProgressBar::chunk { background: #808080; }\n").arg(upArrow, downArrow);
+    }
     if (!krimbleSheet.isEmpty() && theme != QStringLiteral("Black and White")) {
         const QString aquaDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
         QDir().mkpath(aquaDir);
