@@ -232,7 +232,8 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     if (isChecked()) {
         QPainter painter(this);
         const qreal s = qMin(width(), height());
-        painter.fillRect(QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), qApp->palette().color(QPalette::Window).darker(160));
+        const QColor selected = qApp->property("krimbleBlackWhiteTheme").toBool() ? QColor(Qt::black) : qApp->palette().color(QPalette::Window).darker(160);
+        painter.fillRect(QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), selected);
     }
     Q_UNUSED(event);
     {
@@ -240,6 +241,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         QStyleOptionToolButton opt;
         initStyleOption(&opt);
         if (!isDown()) opt.state &= ~QStyle::State_MouseOver;
+        if (isChecked()) opt.state &= ~(QStyle::State_On | QStyle::State_Sunken | QStyle::State_Raised);
         if (isChecked() && qApp->palette().color(QPalette::Window).lightness() > 160 && !opt.icon.isNull()) {
             const qreal dpr = devicePixelRatioF();
             QPixmap white(opt.iconSize * dpr);
@@ -263,7 +265,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         QPolygonF tri;
         tri << QPointF(width() - e, height() - e) << QPointF(width() - e - t, height() - e) << QPointF(width() - e, height() - e - t);
         mark.setPen(Qt::NoPen);
-        mark.setBrush(QColor(215, 228, 255, 210));
+        mark.setBrush(qApp->property("krimbleBlackWhiteTheme").toBool() ? QColor(Qt::black) : QColor(215, 228, 255, 210));
         mark.drawPolygon(tri);
     }
 }
