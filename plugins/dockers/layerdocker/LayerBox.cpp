@@ -557,14 +557,7 @@ LayerBox::LayerBox()
 
 
     // set up the configure menu for changing thumbnail size
-    QMenu* configureMenu = new QMenu(this);
-    configureMenu->setContentsMargins(6, 6, 6, 6);
-    configureMenu->addSection(i18n("Thumbnail Size"));
-
-    m_wdgLayerBox->configureLayerDockerToolbar->setMenu(configureMenu);
-    m_wdgLayerBox->configureLayerDockerToolbar->setIconSize(QSize(16, 16));
-    m_wdgLayerBox->configureLayerDockerToolbar->setPopupMode(QToolButton::InstantPopup);
-    m_wdgLayerBox->configureLayerDockerToolbar->setAutoRaise(true);
+    m_wdgLayerBox->configureLayerDockerToolbar->hide();
 
 
     // add horizontal slider
@@ -579,15 +572,11 @@ LayerBox::LayerBox()
     thumbnailSizeSlider->setTickInterval(5);
     m_nodeModel->setPreferredThumnalSize(cfg.layerThumbnailSize());
 
-    QWidgetAction *sliderAction= new QWidgetAction(this);
-    sliderAction->setDefaultWidget(thumbnailSizeSlider);
-    configureMenu->addAction(sliderAction);
 
 
     connect(thumbnailSizeSlider, SIGNAL(valueChanged(int)), &m_thumbnailSizeCompressor, SLOT(start()));
     connect(&m_thumbnailSizeCompressor, SIGNAL(timeout()), SLOT(slotUpdateThumbnailIconSize()));
 
-    configureMenu->addSection(i18nc("@item:inmenu Layers Panel settings, slider", "Tree Indentation"));
 
     // add horizontal slider
     indentationSlider = new QSlider(Qt::Horizontal, this);
@@ -598,9 +587,6 @@ LayerBox::LayerBox()
     indentationSlider->setValue(cfg.layerTreeIndentation());
 
 
-    sliderAction= new QWidgetAction(this);
-    sliderAction->setDefaultWidget(indentationSlider);
-    configureMenu->addAction(sliderAction);
 
     // NOTE: if KisConfig would just compress its file sync events, we wouldn't need
     // this extra compressor that juggles between slow UI and disk thrashing
@@ -610,7 +596,6 @@ LayerBox::LayerBox()
 
     // Layer info-text settings:
     // blending info-text style combobox
-    configureMenu->addSection(i18nc("@item:inmenu Layers Panel settings, combobox", "Blending Info Style"));
     infoTextCombobox = new QComboBox(this);
     infoTextCombobox->setToolTip(i18nc("@item:tooltip", "None: Show nothing.\n"
                                                         "Simple: Show changed opacities or blending modes.\n"
@@ -624,9 +609,6 @@ LayerBox::LayerBox()
     }));
     infoTextCombobox->setCurrentIndex((int)cfg.layerInfoTextStyle());
 
-    QWidgetAction *cmbboxAction = new QWidgetAction(this);
-    cmbboxAction->setDefaultWidget(infoTextCombobox);
-    configureMenu->addAction(cmbboxAction);
     connect(infoTextCombobox, SIGNAL(currentIndexChanged(int)), SLOT(slotUpdateLayerInfoTextStyle()));
 
     // info-text opacity slider
@@ -644,9 +626,6 @@ LayerBox::LayerBox()
         infoTextOpacitySlider->setDisabled(true);
     }
 
-    sliderAction= new QWidgetAction(this);
-    sliderAction->setDefaultWidget(infoTextOpacitySlider);
-    configureMenu->addAction(sliderAction);
     connect(infoTextOpacitySlider, SIGNAL(valueChanged(int)), &m_infoTextOpacityCompressor, SLOT(start()));
     connect(&m_infoTextOpacityCompressor, SIGNAL(timeout()), SLOT(slotUpdateLayerInfoTextOpacity()));
 
@@ -659,9 +638,6 @@ LayerBox::LayerBox()
         infoTextInlineChkbox->setDisabled(true);
     }
 
-    QWidgetAction *chkboxAction = new QWidgetAction(this);
-    chkboxAction->setDefaultWidget(infoTextInlineChkbox);
-    configureMenu->addAction(chkboxAction);
     connect(infoTextInlineChkbox, SIGNAL(stateChanged(int)), SLOT(slotUpdateUseInlineLayerInfoText()));
 
     layerSelectionCheckBox = new QCheckBox(
@@ -669,10 +645,26 @@ LayerBox::LayerBox()
     layerSelectionCheckBox->setToolTip(i18nc("@item:tooltip", "Show checkbox to select/unselect layers."));
     layerSelectionCheckBox->setChecked(cfg.useLayerSelectionCheckbox());
 
-    QWidgetAction *layerSelectionAction = new QWidgetAction(this);
-    layerSelectionAction->setDefaultWidget(layerSelectionCheckBox);
-    configureMenu->addAction(layerSelectionAction);
     connect(layerSelectionCheckBox, SIGNAL(stateChanged(int)), SLOT(slotUpdateUseLayerSelectionCheckbox()));
+
+    QWidget *krimbleSettings = new QWidget(m_wdgLayerBox->listLayers->parentWidget());
+    QGridLayout *krimbleGrid = new QGridLayout(krimbleSettings);
+    krimbleGrid->setContentsMargins(4, 4, 4, 4);
+    krimbleGrid->setHorizontalSpacing(8);
+    krimbleGrid->setVerticalSpacing(4);
+    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, slider", "Thumbnail Size"), krimbleSettings), 0, 0);
+    krimbleGrid->addWidget(thumbnailSizeSlider, 0, 1);
+    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, slider", "Tree Indentation"), krimbleSettings), 0, 2);
+    krimbleGrid->addWidget(indentationSlider, 0, 3);
+    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, combobox", "Blending Info Style"), krimbleSettings), 1, 0);
+    krimbleGrid->addWidget(infoTextCombobox, 1, 1);
+    krimbleGrid->addWidget(infoTextOpacitySlider, 1, 2, 1, 2);
+    krimbleGrid->addWidget(infoTextInlineChkbox, 2, 0, 1, 2);
+    krimbleGrid->addWidget(layerSelectionCheckBox, 2, 2, 1, 2);
+    krimbleGrid->setColumnStretch(1, 1);
+    krimbleGrid->setColumnStretch(3, 1);
+    const int krimbleListIndex = m_wdgLayerBox->verticalLayout->indexOf(m_wdgLayerBox->horizontalLayout);
+    m_wdgLayerBox->verticalLayout->insertWidget(krimbleListIndex + 1, krimbleSettings);
 }
 
 LayerBox::~LayerBox()
