@@ -671,6 +671,23 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
         QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
         file->insertAction(before, takePhoto);
+        {
+            // File > A. I. Image generation: opens George's Perchance image generator (Image Donkey) in the browser; the address is a setting
+            // (krimblerc, [Krimble] ImageDonkeyUrl) so it can change ("Actually, file has much fewer items. Put it in File as \"A. I. Image generation\".")
+            QAction *imageDonkey = new QAction(i18n("A. I. Image generation"), file);
+            imageDonkey->setObjectName(QStringLiteral("krimbleImageDonkey"));
+            QObject::connect(imageDonkey, &QAction::triggered, win, []() {
+                KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+                QString address = group.readEntry("ImageDonkeyUrl", QString());
+                if (address.trimmed().isEmpty()) {
+                    address = QStringLiteral("https://perchance.org/image-donkey");
+                    group.writeEntry("ImageDonkeyUrl", address);
+                    group.config()->sync();
+                }
+                QDesktopServices::openUrl(QUrl::fromUserInput(address.trimmed()));
+            });
+            file->insertAction(before, imageDonkey);
+        }
         QAction *shareLast = new QAction(KisIconUtils::loadIcon(QStringLiteral("krimble-share")), i18n("Share..."), file);
         QObject::connect(shareLast, &QAction::triggered, win, [win]() { krimbleShowShare(win); });
         file->insertAction(before, shareLast);
