@@ -79,8 +79,11 @@ protected:
 
     void showEvent(QShowEvent *) override;
 
+    void resizeEvent(QResizeEvent *event) override;
+
     KisOpenPane *m_openPane;
 private:
+    int m_numLayers {2};
 
     double m_width, m_height;
     quint8 backgroundOpacity() const;

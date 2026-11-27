@@ -64,8 +64,7 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QSize screenSize = scr->availableGeometry().size();
         const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
-        const int shortSide = qMin(screenSize.width(), screenSize.height());
-        resize(qMin(qMin(sizeHint().width(), int(screenSize.width() * 0.95)), int(shortSide * 0.75)),
+        resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
                qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
     }
 #endif
