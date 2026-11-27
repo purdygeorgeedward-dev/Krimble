@@ -30,14 +30,14 @@ protected:
     void mousePressEvent(QMouseEvent *e) override
     {
         m_start = e->globalPos();
-        m_startSize = window()->size();
+        m_startSize = target()->size();
         e->accept();
     }
     void mouseMoveEvent(QMouseEvent *e) override
     {
         if (!(e->buttons() & Qt::LeftButton)) return;
         const QPoint d = e->globalPos() - m_start;
-        QWidget *w = window();
+        QWidget *w = target();
         QSize size(m_startSize.width() + d.x(), m_startSize.height() + d.y());
         size = size.expandedTo(w->minimumSize().expandedTo(QSize(200, 120))).boundedTo(w->maximumSize());
         w->resize(size);
@@ -49,6 +49,11 @@ protected:
     }
 
 private:
+    QWidget *target() const
+    {
+        if (QMdiSubWindow *sub = qobject_cast<QMdiSubWindow *>(parentWidget())) return sub;
+        return window();
+    }
     QPoint m_start;
     QSize m_startSize;
 };
@@ -485,6 +490,16 @@ protected:
                         grip->show();
                         grip->raise();
                     }
+                }
+                if (QMdiSubWindow *gripSub = qobject_cast<QMdiSubWindow*>(dialog)) {
+                    QWidget *grip = gripSub->findChild<QWidget*>(QStringLiteral("krimbleResizeGrip"), Qt::FindDirectChildrenOnly);
+                    if (!grip) {
+                        grip = new KrimbleResizeGrip(gripSub);
+                        grip->setObjectName(QStringLiteral("krimbleResizeGrip"));
+                    }
+                    grip->move(gripSub->width() - grip->width(), gripSub->height() - grip->height());
+                    grip->setVisible(!gripSub->isMaximized() && !gripSub->isMinimized());
+                    grip->raise();
                 }
                 if (isKeptWindow(dialog)) {
                     if (QWindow *handle = dialog->windowHandle()) {
