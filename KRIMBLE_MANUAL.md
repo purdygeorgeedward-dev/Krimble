@@ -86,7 +86,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 - **Dock Left / Right / Top / Bottom** puts it on that side. **Undock** makes it float; drag it by the handle.
 - **Dock by Dragging** (on or off): when off, the toolbox and the panels stay wherever you let them go and never snap to an edge.
 - **Columns** sets how many columns it uses.
-- **Icon Size**, **Icon Style** (Full color or Silhouette) and **Button Style** (Flat or Raised) change its look.
+- **Icon Size**, **Icon Style** (White, Black, Grayscale, or Classic: black line art for shape tools and gray shaded art for object tools) and **Button Style** (Flat or Raised, on a Panel background, Light gray or White) change its look.
 
 ---
 
@@ -109,6 +109,10 @@ Turn the phone sideways and everything rearranges for the wide screen.
 - **Image > Image Rotation**: turn or flip the whole picture.
 - **Image > Upscale...**: makes a picture 2, 3 or 4 times larger.
 - **Filter** menu: Blur, Sharpen, Stylize and others.
+- **Quick Mask** and **Screen Mode**: the two buttons under the color swatches in the toolbox. Quick Mask turns the selection into a mask you paint (white selects, black deselects); Screen Mode shows the picture only (the X brings the panels back).
+- **Filter > Render > Lens Flare...**: adds a camera lens flare: choose the type, drag the light on the picture with a finger (or use Light across and Light down), and set brightness, rays, ghosts, ring and color.
+- **File > A. I. Image gen**: opens the free Image Donkey image generator (perchance.org/image-donkey) in the browser; save the picture there and open it with File > Open. The address is a setting (krimblerc, `[Krimble] ImageDonkeyUrl`).
+- **Filter > Render > Lightsaber...**: draws a glowing energy blade; drag either end on the picture with a finger, and set its color, width, glow and brightness.
 
 ---
 

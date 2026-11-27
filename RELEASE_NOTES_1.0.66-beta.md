@@ -7,9 +7,9 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.66 BETA**
 
-**Version numbers:** this is build 66. The last release was 1.0.58 beta.
+**Version numbers:** this is build 66. The last stable release was 1.0.58 beta. You can try the more recent one, but I don't recommend it.
 
-**Not tested yet.** This build holds the fixes for the faults George found in build 65.
+**Not tested yet.** This build holds the fixes for the faults found in build 65.
 
 **Speed and zoom**
 
@@ -49,3 +49,14 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - Layers once snapped into a column for no known reason. With "Dock by Dragging" off, a drag can't cause it.
 - Crashes, including one on a simple fill, were reported in earlier builds; the cause was not found.
+
+Found in testing this build:
+
+- The bottoms of menus were cut off.
+- A line still separated each open menu from its title.
+- The Layers top row jumbled its icons at small sizes.
+- A small gadget overlapped the + button at the bottom of Layers.
+- The Layers opacity bar ran to the edge with no margin.
+- Menus had no outline or bevel, so they merged with each other.
+- The "No options" text in Tool Options (Pan tool) sat too close to the left edge.
+- Menu selections had too much glow; a simple blue highlight was wanted.

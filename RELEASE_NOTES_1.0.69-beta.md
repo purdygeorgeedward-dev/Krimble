@@ -7,6 +7,8 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.69 BETA**
 
+**Version numbers:** this is build 69. The last release was 1.0.68 beta.
+
 **Painting**
 
 - The default brush, b) Basic-5 Size Opacity, is back (it was missing since Nov 15, which gave scratchy lines).
@@ -48,3 +50,8 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - Panels have thin margins.
 - Krimble often restarts after switching to another app.
+
+Found in testing this build:
+
+- The layer type slider came back at the top of Layers, where it had been moved away from.
+- The tabs slid sideways and sprang back instead of tearing a panel off; grab pads were wanted in the empty spots.

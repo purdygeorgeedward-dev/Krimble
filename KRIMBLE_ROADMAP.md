@@ -2,6 +2,56 @@
 
 Status: **planning only** — not started. Captured here so they don't stay stuck in chat.
 
+## Definite dev list (George, 2026-11-21 17:43: "Let's put those two features on the definite dev list. Virtual screens and voice control of the app.")
+
+After the Play Store release. Not started.
+
+### 1. Virtual screens
+- "Put different images and/or panels on different virtual screens and flip back and forth between them."
+- **No more than 3** screens ("No more than 3."). Each screen remembers one image and its own panel layout (which panels are open, where, and the zoom).
+- Switched with **dots** ("Dots make sense."), e.g. in the status bar. **No three-finger swipe** ("I don't think 3 finger swipes will catch on.").
+- Builds on what exists: image tabs (several open images) and Krita's workspaces (saved panel layouts). Weak spots to make solid first: restoring
+  panel layouts without wrong sizes, and memory with several large images open (Krimble uses about 525–636 MB with one image).
+- Estimate: about a week.
+
+### 2. Voice control
+- "Could we add voice control to the app? Activate tools, open and close files, that kind of thing?"
+- A microphone button (no always-on listening); Android's speech recognizer turns speech into text; Krimble matches it against the names of its
+  actions and tools (the same list the menus and toolbox are built from), plus a short list of everyday names ("eyedropper" → Color Sampler,
+  "magic wand" → Contiguous Select, "bigger brush"). A short note on screen shows what was heard and what was done.
+- "If necessary we could do voice profiling.": first step is learning from corrections (tap the right command when one is misheard; Krimble
+  remembers what it heard → that command; kept on the phone). A recorded voice profile only if that is not enough.
+- Needs the microphone permission; recognition may use Google's servers (mobile data) on some phones, on the phone itself on newer ones.
+- Estimate: about a week, plus a day for learning from corrections.
+
+### 3. Effects pack with custom shaders (Eye Candy-style equivalents)
+Requested 2026-11-22, 09:55–10:05 (MST): develop all of these, with custom shaders written from scratch. Planned; not started.
+- **Shaders:** written for Krimble, not copied (most Shadertoy shaders are licensed for non-commercial use only). Openly licensed building blocks
+  (e.g. Ashima/Gustavson simplex noise, MIT) and published math (distance fields, normal maps, refraction, reflection maps, lighting) may be used.
+- **Shared foundation first:** run a shader on an offscreen image through the GPU the canvas already uses (OpenGL ES); process large images in
+  tiles (phone GPUs limit texture size); copy the result back into the layer on Apply; a large live preview panel; a CPU fallback for phones
+  without a usable GPU.
+- **Every effect:** a large live preview, two or three sliders, presets, and a **Seed** (number field plus a dice button) for anything random;
+  the same seed gives the same result; presets and live effects store their seed.
+- **Effects, simplest first:**
+  1. Gradient Glow (several colors), Perspective Shadow (drag a point on the canvas), Textures (wood, marble, stone, brick, rust, reptile skin,
+     diamond plate; seamless, procedural, no added files), Lightsabers (a stroke becomes a glowing core and halo).
+  2. Bevel Boss (button, round, flat, carved; lit), Chrome (reflection maps), Corona (flares around edges; pairs with the planned lens flares),
+     Glass (raised, refracting, tinted).
+  3. Water Drops (random beads with refraction), Fire, Smoke and Lightning (procedural, from the selection's edges).
+- **Also:** text effect presets (one tap applies Chrome, Fire, Glass and so on to a type layer, which stays editable); live, editable effects
+  (each stays an object with movable handles, like the planned multi-point gradient).
+
+## Back burner (George, 2026-11-21 17:36: "Let's put these complicated things on the back burner.")
+- d4 (tetrahedron) color picker with 3D rotation: four corners hue, white, black and a chosen fourth color (mid-gray by default). About 4 days.
+  (George's earlier 3D color picker was "a complex polyhedron of colors", made in another app.) A color sphere was also considered ("a NURBS sphere ... that's a hassle").
+- Gradients: multi-color gradients with a large vertical preview in the editor (small: the editor exists); a gradient along a curve with the color
+  points on the curve (new tool, weeks); a freeform mesh gradient with nodes anywhere (builds on Krita's SVG mesh gradients, 1–3 weeks).
+- Bump map and normal map work: "I think editing/painting those maps requires a 3d interface." A 3D preview panel with live lighting (weeks); painting
+  directly on a 3D model (months). Existing parts: Height to Normal Map and Phong Bumpmap filters, the Tangent Normal brush.
+- True dual-screen (image on a monitor, controls on the phone): Qt 5 draws into one Android window; needs a separate display window fed by Krimble. Weeks.
+- Multi-point gradient tool (15:39 / 15:42): tapped control points, linear chains or free island nodes, as a vector object with movable nodes.
+
 ## George's priorities (2026-10-26, answering the "wish we could do it" list)
 
 - **AI upscaling: a separate app is a MUST** ("I think a separate upscaler is a must."). The "Krimble Upscaler" app, not a feature inside Krimble. Not started.
@@ -308,7 +358,7 @@ Branch `feature/krimble-ui-refresh`. Entries 324 to 332 are done on the branch (
 - **No new toolbox tools** (George, 2026-10-30).
 
 ### Icons and highlights (approved, not started)
-- Wire the 32 icons; Rotate icon first (the old one has corner lines without arrows). Glow for the selected tool; Color/Silver switch; smaller sizes by script. See `packaging/android/TOOLBOX-ICON-COVERAGE.md`.
+- Wire the 32 icons; Rotate icon first (the old one has corner lines without arrows). Glow for the selected tool; Color/Silver switch; smaller sizes by script. See `packaging/android/Toolbox-icon-coverage.md`.
 
 ### Transform and panels
 - Scale and Rotate are modes of Transform (done on the branch). Open: should dragging inside the box still move in Scale.
@@ -330,7 +380,7 @@ Icons: the 32 pictures are wired with a **Full color / Silhouette** switch in th
 - **The full-APK 16 KB alignment check was completed.**
 - **The Flarum forum setup was completed.**
 - **Channels docker:** the panel **exists** (George, 2026-10-30: "I think the channels docker/panel exists?" Yes: it has per-channel thumbnails and visibility boxes). Only **Ctrl+click to load a selection** is dropped (no keyboard). Single-click isolation (hide the other channels) is **not decided**; the line that said the Channels docker was dropped was wrong.
-- **Toolbox exclusions (George), recorded 7:12 PM MT 2026-10-30:** "The four tools you listed are supposed to be commented out." = **Dodge, Burn, Colorize Mask Editing, Enclose and Fill** (the four tools with no new graphic). Then: **"keep ruler and reference images."** (so Ruler/Measure and Reference Images stay in the toolbox; they were never among the four). **Dodge and Burn were already commented out** (George, 2026-10-20: "Dodge and Burn suck. It's just black and white. Comment out these tools for now."): my earlier statement that they are in the toolbox and keep their own icons was **wrong**. **Done in the 357th entry:** Colorize Mask Editing and Enclose and Fill are now commented out too (not registered; their code stays). Path-Based Selection and Assistant are registered and stay (George has not said otherwise). Consequence: **colorize masks can no longer be edited with a tool** until Colorize Mask Editing comes back.
+- **Toolbox exclusions (George), recorded 7:12 PM MT 2026-10-30:** "The four tools you listed are supposed to be commented out." = **Dodge, Burn, Colorize Mask Editing, Enclose and Fill** (the four tools with no new graphic). Then: **"keep ruler and reference images."** (so Ruler/Measure and Reference Images stay in the toolbox; they were never among the four). **Dodge and Burn were already commented out** (George, 2026-10-20: "Dodge and Burn don't work. It's just black and white. Comment out these tools for now."): my earlier statement that they are in the toolbox and keep their own icons was **wrong**. **Done in the 357th entry:** Colorize Mask Editing and Enclose and Fill are now commented out too (not registered; their code stays). Path-Based Selection and Assistant are registered and stay (George has not said otherwise). Consequence: **colorize masks can no longer be edited with a tool** until Colorize Mask Editing comes back.
 
 ### The toolbox is 32 tools (George, 2026-10-30, 7:28 PM MT: "we should have 32 tools.")
 The 32: Move; the 8 selection tools (Rectangular, Elliptical, Freehand/Outline, Polygonal, Magnetic, Contiguous, Similar, Path-Based); Crop; Color Sampler; Healing Brush (Smart Patch); Freehand Brush; Smudge; Soften; Eraser; Gradient; Fill; Pen (Path); Edit Shapes (the arrow); Text; Rectangle; Ellipse; Line; Polygon; Pan; Zoom; Transform; Rotate; Assistant; Ruler/Measure; Reference Images. **Done in the 358th entry** (before it, the phone showed 26: the Android-only list `krimbleHiddenOnMobile` in `KoToolBox::addButton()` (George, 2026-10-26: "For mobile, comment them out.") also hid Assistant, Ruler, Reference Images and Path-Based Selection; the 357th entry\'s statement that Ruler and Reference Images "stay in the toolbox" was wrong for the phone). Now only **Colorize Mask Editing** and **Enclose and Fill** are out (no picture; commented out of the registry too). **Not in the toolbox:** Dodge, Burn (commented out 2026-10-20), the Select Shapes tool (no button, it is the default tool). The arrow picture is the **Edit Shapes** tool (`shape_handling`), not Select Shapes (mapping fixed).
