@@ -618,6 +618,8 @@ void KisKEditToolBarPrivate::init()
     q->setModal(false);
 
     m_layout = new QVBoxLayout(q);
+    m_layout->setContentsMargins(6, 6, 6, 6);
+    m_layout->setSpacing(4);
 
     m_layout->addWidget(m_widget);
 
@@ -638,6 +640,10 @@ void KisKEditToolBarPrivate::init()
     q->connect(m_widget, SIGNAL(enableOk(bool)), SLOT(_k_acceptOK(bool)));
     q->connect(m_widget, SIGNAL(enableOk(bool)), SLOT(_k_enableApply(bool)));
     _k_enableApply(false);
+
+    if (QScreen *screen = QGuiApplication::primaryScreen()) {
+        q->setMaximumSize(screen->availableGeometry().size());
+    }
 }
 
 void KisKEditToolBar::setResourceFile(const QString &file, bool global)
@@ -1180,12 +1186,15 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
         stacked_layout->addLayout(active_layout, 1);
     }
 
+    top_layout->setSpacing(4);
+    name_layout->setSpacing(2);
     top_layout->addLayout(name_layout);
+    m_comboSeparator->hide();
     top_layout->addWidget(m_comboSeparator);
     if (narrow) top_layout->addLayout(stacked_layout, 10);
     else top_layout->addLayout(list_layout, 10);
+    m_helpArea->hide();
     top_layout->addWidget(m_helpArea);
-    top_layout->addWidget(new KSeparator(m_widget));
 }
 
 void KisKEditToolBarWidgetPrivate::loadToolBarCombo(const QString &defaultToolBar)
@@ -1313,6 +1322,10 @@ void KisKEditToolBarWidgetPrivate::loadActions(const QDomElement &elem)
     foreach (QAction *action, actionCollection->actions()) {
         // skip our active ones
         if (active_list.contains(action->objectName())) {
+            continue;
+        }
+        if (KLocalizedString::removeAcceleratorMarker(action->iconText()).trimmed().isEmpty()
+                && KLocalizedString::removeAcceleratorMarker(action->text()).trimmed().isEmpty()) {
             continue;
         }
 
