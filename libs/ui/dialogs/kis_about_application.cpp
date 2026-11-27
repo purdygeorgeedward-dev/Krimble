@@ -101,7 +101,9 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
             "<p><small>Purdy Design fonts (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
             "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"
             "<p><small>Also included: 53 open-license font families (SIL Open Font License 1.1 and Apache License 2.0), free for any use. "
-            "Their licenses: <a href=\"https://github.com/purdygeorgeedward-dev/krimble/tree/master/krita/data/fonts/open\">fonts/open</a></small></p>"));
+            "Their licenses: <a href=\"https://github.com/purdygeorgeedward-dev/krimble/tree/master/krita/data/fonts/open\">fonts/open</a></small></p>"
+            "<p><small>Intel One Mono &copy; 2023-2026 The Intel One Mono Project Authors (<a href=\"https://github.com/intel/intel-one-mono\">github.com/intel/intel-one-mono</a>), "
+            "licensed under the SIL Open Font License 1.1, with Reserved Font Name &quot;Intel&quot;.</small></p>"));
         if (sideways) {
             QHBoxLayout *columns = new QHBoxLayout();
             QVBoxLayout *left = new QVBoxLayout();

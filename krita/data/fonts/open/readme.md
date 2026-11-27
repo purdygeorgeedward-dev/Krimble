@@ -71,3 +71,9 @@ Added 2026-10-18. 53 families (Noto Emoji added 2026-10-24), picked by George Ed
 | Liberation Serif, Liberation Sans, Liberation Mono (2.1.5) | OFL 1.1 | Regular, Bold, Italic, Bold Italic; same letter widths as Times New Roman, Arial/Helvetica and Courier New. License: licenses/Liberation-OFL.txt |
 
 George (1.0.74 list, item 7): "We absolutely must have some version of Times New Roman, Helvetica/Arial, and Courier. These are absolutely necessary fonts. Make it happen."
+
+## Added Nov 26, 2026
+
+| Intel One Mono (from github.com/intel/intel-one-mono, commit 40cd758a) | OFL 1.1, Reserved Font Name "Intel" | Light, Regular, Medium, Bold, each with italic (8 files, as published). Copyright 2023-2026 The Intel One Mono Project Authors. License: licenses/IntelOneMono-OFL.txt |
+
+George: "Lets put them all in and add the notice."
