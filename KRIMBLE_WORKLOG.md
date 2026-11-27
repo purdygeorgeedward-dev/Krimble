@@ -896,3 +896,10 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-20, 04:12 (MST).** Branch krimble-cleanup: 759th (no grab lines on the COLOR LAB band). Not built.
 **2026-11-20, 05:00 (MST).** Branch krimble-cleanup: 760th (dead files and classes deleted, shared rules moved to KrimbleCommonStyle.h, dialog keeper coalesced, KisApplication.cpp split). Not built. Open: inline change notes vs the dual-documentation rule.
 **2026-11-20, 05:20 (MST).** Branch krimble-cleanup: 761st (inline change notes deleted; documentation in KRIMBLE_CHANGES.md only from now on). Not built.
+**2026-11-26, 14:18 (MST).** Branch master: docs/releases/ (word-for-word copies of all 42 GitHub releases, v1.0.29 to v1.0.80, with an index). 1cc24b8c.
+**2026-11-26, 14:38 (MST).** Branch cyber-theme: 1.0.80 test list and 7 screenshots. e8869d9.
+**2026-11-26, 14:52 to 15:20 (MST).** Branch cyber-theme: 901st to 911th (pill buttons 8f7387b, Configure Toolbars 5bd7fd7, Preferences icons 8c09e75, New File height 15b3862, QuickAdjust grip 219f78b, toolbox grip separator, menu shadow deleted 80421f4, thinner eyedropper, toolbox gadget icons on light backgrounds, Black and White theme 6e1f28b + 2408915, Cyber see-through f56d339), changelog 893rd to 911th c789ddf. Not built. Checked in desktop Qt 5.15 with the real style sheets.
+**2026-11-26, 18:33 (MST).** Branch cyber-theme: blurry upside-down image reported again. c4ca7e0.
+**2026-11-26, 18:40 (MST).** Branch cyber-theme: 912th, corner grip on image windows (tested in desktop Qt). ded3def.
+**2026-11-26, 18:58 (MST).** Branch cyber-theme: 913th, Intel One Mono fonts (8 styles, OFL 1.1) and About notice. 5b3e718.
+

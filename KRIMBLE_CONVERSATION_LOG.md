@@ -131,3 +131,21 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 2026-11-22 17:26 to 19:06: "free" removed from Krimble's description (open source, not a promise of free); Free Transform renamed Transform Scale, the Free mode Scale; toolbox grip a raised bevel with five lines; panel grips six lines; all UI demos made with the Preview Tool; build 75 would not install until space was freed on the phone; "Fix everything first", then "The icons. Yes. Push."
 - 2026-11-22 19:13 to 19:54: build 75 testing: Tool Options name under the grips (fixed), duplicate names, Magnetism slider, panel jumps on Snap to Assistants, no panel margins, files open as a miniature with the stamp tool ("a major bug"), menus with short bottoms, submenus without edges, toolbox Aqua a bit smaller; "Fix it all."
 - 2026-11-23 04:20 to 04:21: George: "The app has actually been running much faster recently." / "I think when we did that phase where we trimmed the fat it sped up the app. Cutting all the unnecessary stuff really helped a lot." (the krimble-cleanup branch, from the 755th, Nov 19-20: dead code removed, fewer app-wide event filters, one shared style sheet, KisMainWindow.cpp and KisApplication.cpp split). Noted: speed is a baseline for later builds.
+
+## Nov 26, 2026 (MST)
+
+- 14:12 to 14:20: A backup copy of the release documentation is kept on GitHub. A Duet session spent many credits on stale bugs from about 20 versions back. Claude must always know the current release (now 1.0.80) and the release history back to 1.0.29. All 42 release notes copied word for word to docs/releases/ (master, 1cc24b8c).
+- 14:20: The blurry, upside-down image seemed gone in 1.0.80.
+- 14:36: 1.0.80 test list (12 items, KRIMBLE_BUG_LISTS.md, screenshots 2026-11-26_1436_*): New File dialog always very tall; all buttons with pill curves; Aqua in or out, plain beveled shaded buttons okay, demo of a darker, more saturated Aqua wanted, otherwise a professional look with the old glow on the selected button and dark toolbox buttons for the selected tool; a fully see-through Cyber with larger text; multitasking better (the New dialog sat open a long time without a restart); review all pending changes; QuickAdjust lost its corner resize grip and its glow is not as good as before; Preferences icons smaller; Krimble Light toolbox bottom icons vanish; eyedropper lines too thick; Configure Toolbars far too big, no stacked very wide buttons; the Toolbars submenu causes a visual anomaly.
+- 14:38: Remove the lines from the menu bar (asked which lines).
+- 14:47: Fix the height; make the pills happen; show demo images of the styles; keep Cyber only if everything is see-through, with the menu text enlarged; QuickAdjust had a corner grip before; touch the Preferences icons; make Krimble Light a black and white theme like the old Mac, named Black and White; fix the eyedropper, Configure Toolbars and the Toolbars submenu now; the menu bar does not need its bottom edge (it makes menus look separated); the toolbox grip area gets a separator line like the menu separators, with the new grip lines and no big shadow or highlight. These should all be easy fixes.
+- 14:53 to 14:54: The Aqua buttons in the demo have an odd shape. Style A (plain bevel pills, old glow selection) is beautiful, tasteful and professional: chosen.
+- 18:30: The blurry, upside-down image is back. Many images were loaded at once in 1.0.80 and the Layers panel was hidden over and over; after it finally went away, the image showed blurry and upside down. Possibly memory related.
+- 18:31: Keep the sci-fi fonts in Cyber. The menu shadow experiment failed: cancelled. The menu bar edge (#13) can wait. The chat box's automatic list numbering gets in the way of typing numbers.
+- 18:35 to 18:37: A corner grip on the image windows for resizing is wanted, as long as it works.
+- 18:38 to 18:44: Feature videos (screen recordings) will be made once the app is stable.
+- 18:48: Plan: a subscription model, as the competition uses.
+- 18:50 to 18:54: Intel One Mono can be bundled: put all of it in, with the license notice.
+- 18:58: Intel One Mono as the UI font looks like Linux (not adopted).
+- 19:00: Update all documentation.
+
