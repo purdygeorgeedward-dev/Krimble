@@ -18,6 +18,10 @@ Release notes take their Known issues from here. Newest first. The status of eac
 11. The Configure Toolbars window is far too big; it should be small. No stacked, very wide buttons.
 12. The Toolbars submenu causes a visual anomaly.
 
+## 1.0.80-beta, later report (Nov 26, 2026, 6:30 PM MST)
+
+- The blurry, upside-down image is back. Many images were loaded at once; the Layers panel was hidden over and over until it finally went away, then the image showed blurry and upside down. George thinks it may have something to do with memory.
+
 ## Status of the 1.0.80 list (Nov 26, 2026, 3:20 PM MST; pushed to cyber-theme, not built)
 
 | # | Status |
