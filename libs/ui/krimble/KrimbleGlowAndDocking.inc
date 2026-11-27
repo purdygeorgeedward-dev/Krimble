@@ -239,15 +239,6 @@ protected:
             QMouseEvent *mouse = static_cast<QMouseEvent*>(event);
             if (mouse->buttons() & Qt::LeftButton) {
                 const QPoint p = mouse->globalPos();
-                if (!m_dragging) {
-                    m_startPos = p;
-                    m_others.clear();
-                    if (m_dock->objectName() != QLatin1String("ToolBox")) {
-                        Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
-                            if (other != m_dock && !other->isFloating() && other->isVisible()) m_others.append(other);
-                        }
-                    }
-                }
                 const QRect r(m_win->mapToGlobal(QPoint(0, 0)), m_win->size());
                 Qt::DockWidgetAreas allowed = Qt::NoDockWidgetArea;
                 if (p.x() - r.left() < Distance) allowed |= Qt::LeftDockWidgetArea;
@@ -268,13 +259,6 @@ protected:
                         allowed = Qt::NoDockWidgetArea;       // not deliberate (yet): no side of the window (panels to tab with are added below)
                     }
                 }
-                const bool farEnough = QLineF(QPointF(p), QPointF(m_startPos)).length() >= 120.0;
-                for (const QPointer<QDockWidget> &other : qAsConst(m_others)) {
-                    if (!farEnough) break;
-                    if (!other || other->isFloating() || !other->isVisible()) continue;
-                    const QRect otherRect(other->mapToGlobal(QPoint(0, 0)), other->size());
-                    if (otherRect.contains(p)) allowed |= m_win->dockWidgetArea(other);
-                }
                 if (m_dock->objectName() == QLatin1String("ToolBox")) allowed = Qt::NoDockWidgetArea;
                 if (!krimbleDragDockingOn()) allowed = Qt::NoDockWidgetArea;
                 if (m_dock->allowedAreas() != allowed) {
@@ -284,7 +268,6 @@ protected:
             }
         } else if (event->type() == QEvent::MouseButtonRelease && m_dragging) {
             m_dragging = false;
-            m_others.clear();
             const QPoint releasePos = static_cast<QMouseEvent*>(event)->globalPos();
             const bool dwelled = m_reachMask != Qt::NoDockWidgetArea && m_reachClock.isValid() && m_reachClock.elapsed() >= DwellMs;
             m_reachMask = Qt::NoDockWidgetArea;
@@ -335,8 +318,6 @@ private:
     QMainWindow *m_win;
     QDockWidget *m_dock;
     bool m_dragging {false};
-    QPoint m_startPos;
-    QVector<QPointer<QDockWidget>> m_others;                 // the docked panels, found once when the drag starts
     Qt::DockWidgetAreas m_reachMask {Qt::NoDockWidgetArea};
     QElapsedTimer m_reachClock;                              // since when
 };
