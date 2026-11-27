@@ -24,6 +24,8 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QScrollArea>
+#include <QLabel>
+#include <QHBoxLayout>
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
 #include <QMimeData>
@@ -181,10 +183,11 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
         }
     }
     if (layout()) {
-        layout()->setContentsMargins(4, 4, 4, 4);
+        layout()->setContentsMargins(4, 4, 4, 0);
         layout()->setSpacing(4);
     }
 #endif
+    setProperty("krimbleGripStrip", true);
 
     m_mimeFilter = mimeFilter;
 
@@ -363,10 +366,22 @@ void KisOpenPane::addCustomDocumentWidget(QWidget *widget, const QString& title,
     pageColumnLayout->setContentsMargins(0, 0, 0, 0);
     pageColumnLayout->setSpacing(4);
     pageColumnLayout->addWidget(pageScroll, 1);
+    if (QLabel *info = widget->findChild<QLabel *>(QStringLiteral("lblDocumentInfo"))) {
+        info->setParent(pageColumn);
+        info->setWordWrap(true);
+        info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+        pageColumnLayout->addWidget(info);
+        info->show();
+    }
     if (QDialogButtonBox *confirmButtons = widget->findChild<QDialogButtonBox *>(QStringLiteral("newDialogConfirmationButtonBox"))) {
         confirmButtons->setParent(pageColumn);   // leaves the page's layout
         confirmButtons->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        pageColumnLayout->addWidget(confirmButtons, 0, Qt::AlignRight);
+        QHBoxLayout *confirmRow = new QHBoxLayout();
+        confirmRow->setContentsMargins(0, 0, 0, 0);
+        confirmRow->addStretch(1);
+        confirmRow->addWidget(confirmButtons);
+        confirmRow->addSpacing(22);
+        pageColumnLayout->addLayout(confirmRow);
         confirmButtons->show();
     }
     paneWidget = pageColumn;
