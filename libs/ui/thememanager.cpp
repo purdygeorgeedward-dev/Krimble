@@ -203,7 +203,10 @@ static QString krimbleBlackWhiteSheet(const QString &sheet)
         const QColor c(m.captured());
         int h = 0, sat = 0, v = 0;
         c.getHsv(&h, &sat, &v);
-        if (h >= 180 && h <= 260 && sat > 140 && v > 90) out += QStringLiteral("#000000");
+        const int declStart = qMax(sheet.lastIndexOf(QLatin1Char(';'), m.capturedStart()), sheet.lastIndexOf(QLatin1Char('{'), m.capturedStart())) + 1;
+        const QString property = sheet.mid(declStart, m.capturedStart() - declStart).trimmed();
+        if (property.startsWith(QLatin1String("border")) || property.startsWith(QLatin1String("outline"))) out += QStringLiteral("#000000");
+        else if (h >= 180 && h <= 260 && sat > 140 && v > 90) out += QStringLiteral("#000000");
         else if (v <= 12) out += QStringLiteral("#000000");
         else if (v < 150) out += QStringLiteral("#ffffff");
         else out += QStringLiteral("#000000");
@@ -214,7 +217,16 @@ static QString krimbleBlackWhiteSheet(const QString &sheet)
     out.replace(QRegularExpression(QStringLiteral("rgba\\(255,\\s*255,\\s*255,\\s*[0-9]+\\)")), QStringLiteral("#000000"));
     out += QStringLiteral("\nQPushButton, QPushButton:hover, QPushButton:pressed, QPushButton:default, QPushButton:checked { color: #000000; }"
                           "\nQPushButton:disabled { color: #808080; }"
-                          "\nQAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; background: #000000; }\n");
+                          "\nQAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; background: #000000; }"
+                          "\nQLineEdit, QAbstractSpinBox, QComboBox, QAbstractItemView, QTextEdit, QPlainTextEdit { border: 2px solid #000000; border-radius: 0px; }"
+                          "\nQGroupBox { border: 2px solid #000000; }"
+                          "\nQCheckBox::indicator, QRadioButton::indicator { border: 2px solid #000000; background: #ffffff; image: none; border-image: none; }"
+                          "\nQCheckBox::indicator:checked, QRadioButton::indicator:checked { background: #000000; }"
+                          "\nQProgressBar { border: 2px solid #000000; background: #ffffff; color: #000000; }"
+                          "\nQProgressBar::chunk { background: #000000; border-image: none; image: none; }"
+                          "\nQSlider::groove:horizontal, QSlider::groove:vertical { border: 2px solid #000000; background: #ffffff; border-image: none; }"
+                          "\nQSlider::sub-page:horizontal, QSlider::add-page:vertical { background: #000000; border-image: none; }"
+                          "\nQScrollBar { border: 1px solid #000000; background: #ffffff; }\n");
     return out;
 }
 
@@ -336,7 +348,7 @@ void ThemeManager::slotChangePalette()
     if (!krimbleSheet.isEmpty()) krimbleSheet += (theme == QStringLiteral("Black and White") ? krimbleBlackWhiteSheet(krimbleCommonStyleSheet()) : krimbleCommonStyleSheet());
     if (theme == QStringLiteral("Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
     else if (theme == QStringLiteral("Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
-    if (!krimbleSheet.isEmpty()) {
+    if (!krimbleSheet.isEmpty() && theme != QStringLiteral("Black and White")) {
         const QString aquaDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
         QDir().mkpath(aquaDir);
         const QString aquaSquare = aquaDir + QStringLiteral("/krimble-aqua-square.png");

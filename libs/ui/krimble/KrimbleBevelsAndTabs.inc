@@ -77,6 +77,14 @@ protected:
             { QPolygonF poly; poly << QPointF(0, h) << QPointF(tb, h - tb) << QPointF(w - tb, h - tb) << QPointF(w, h); p.drawPolygon(poly); }
             return;
         }
+        if (!recessed && !menuBarTarget && qApp->property("krimbleBlackWhiteTheme").toBool()) {
+            const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
+            p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, 0, edge, height()), Qt::black);
+            p.fillRect(QRectF(width() - edge, 0, edge, height()), Qt::black);
+            return;
+        }
         if (recessed) {
             const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
             p.setPen(Qt::NoPen);
