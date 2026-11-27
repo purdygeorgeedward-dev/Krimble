@@ -369,7 +369,8 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
             // Krimble: the two gadgets under the color swatches, as in the industry-standard toolbox
             // (docs/krimble-refs/2026-11-21_0428_ps-toolbox-bottom-quickmask-screenmode.jpg): Quick Mask on the left,
             // Screen Mode on the right, with very simple icons.
-            QHBoxLayout *gadgets = new QHBoxLayout();
+            QBoxLayout *gadgets = new QBoxLayout(m_columns == 1 ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
+            m_krimbleGadgets = gadgets;
             gadgets->setContentsMargins(0, 4, 0, 0);
             gadgets->setSpacing(4);
             QToolButton *quickMask = new QToolButton(trailingBox);
@@ -781,6 +782,13 @@ void KoToolBoxDocker::krimbleLogState(const char *where) const
 void KoToolBoxDocker::applyColumns()
 {
     krimbleLogState("applyColumns (start)");
+    if (m_krimbleGadgets) {
+        const QBoxLayout::Direction direction = m_columns == 1 ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight;
+        if (m_krimbleGadgets->direction() != direction) {
+            m_krimbleGadgets->setDirection(direction);
+            if (m_toolBox && m_toolBox->layout()) m_toolBox->layout()->invalidate();
+        }
+    }
     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
     if (!mainWindow || !isVisible() || !m_toolBox || !m_toolBox->layout()) return;
     const bool columns = m_toolBox->layout()->hasHeightForWidth();   // true: vertical layout (columns); false: rows
