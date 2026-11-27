@@ -76,6 +76,13 @@ private:
     int m_hoveredStop;
     KoGradientStop m_removedStop;
     bool m_drag;
+    // Krimble: steady touch editing ("Can you adjust the timings so it's stable?"): a stop moves only after a deliberate drag,
+    // and a new stop is added only by a clean tap (press and release without moving)
+    QPoint m_krimblePressPos;
+    bool m_krimbleDragStarted {false};
+    bool m_krimbleTapToInsert {false};
+    qreal m_krimbleInsertT {0.0};
+    int krimbleDragThreshold() const;
     QSize m_handleSize;
     KisSignalCompressor m_updateCompressor;
 };

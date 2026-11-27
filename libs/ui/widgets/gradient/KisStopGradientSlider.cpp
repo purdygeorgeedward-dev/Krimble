@@ -66,7 +66,23 @@ void KisStopGradientSlider::updateHandleSize()
 int KisStopGradientSlider::handleClickTolerance() const
 {
     // the size of the default text!
+    // return m_handleSize.width();
+#ifdef Q_OS_ANDROID
+    // a finger-sized reach around each handle: 48 real pixels
+    return qMax(m_handleSize.width(), qRound(48.0 / qMax<qreal>(1.0, devicePixelRatioF())));
+#else
     return m_handleSize.width();
+#endif
+}
+
+// how far a finger must move before a handle starts to slide (a tap that wobbles a little does not move the stop)
+int KisStopGradientSlider::krimbleDragThreshold() const
+{
+#ifdef Q_OS_ANDROID
+    return qMax(QApplication::startDragDistance(), qRound(36.0 / qMax<qreal>(1.0, devicePixelRatioF())));
+#else
+    return 2;
+#endif
 }
 
 void KisStopGradientSlider::setGradientResource(KoStopGradientSP gradient)
@@ -179,6 +195,9 @@ void KisStopGradientSlider::mousePressEvent(QMouseEvent *e)
 
     const int clickedStop = findNearestHandle(t, qreal(handleClickTolerance()) / handlesRect.width(), stops);
 
+    m_krimblePressPos = e->pos();
+    m_krimbleDragStarted = false;
+    m_krimbleTapToInsert = false;
     if (clickedStop >= 0) {
         if (m_selectedStop != clickedStop) {
             m_selectedStop = clickedStop;
@@ -186,8 +205,12 @@ void KisStopGradientSlider::mousePressEvent(QMouseEvent *e)
         }
         m_drag = true;
     } else {
-        insertStop(qBound(0.0, t, 1.0));
-        m_drag = true;
+        // insertStop(qBound(0.0, t, 1.0));
+        // m_drag = true;
+        // a new stop only on a clean tap: it is added when the finger lifts without having moved
+        m_krimbleTapToInsert = true;
+        m_krimbleInsertT = qBound(0.0, t, 1.0);
+        m_drag = false;
     }
 
     updateHoveredStop(e->pos());
@@ -197,7 +220,15 @@ void KisStopGradientSlider::mousePressEvent(QMouseEvent *e)
 void KisStopGradientSlider::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_UNUSED(e);
+    if (m_krimbleTapToInsert) {
+        m_krimbleTapToInsert = false;
+        if ((e->pos() - m_krimblePressPos).manhattanLength() <= krimbleDragThreshold()) {
+            insertStop(m_krimbleInsertT);
+            Q_EMIT updateRequested();
+        }
+    }
     m_drag = false;
+    m_krimbleDragStarted = false;
     int previousHoveredStop = m_hoveredStop;
     updateHoveredStop(e->pos());
     if (previousHoveredStop != m_hoveredStop) {
@@ -223,6 +254,13 @@ void KisStopGradientSlider::mouseMoveEvent(QMouseEvent *e)
     int previousHoveredStop = m_hoveredStop;
     updateHoveredStop(e->pos());
 
+    if (m_krimbleTapToInsert && (e->pos() - m_krimblePressPos).manhattanLength() > krimbleDragThreshold()) {
+        m_krimbleTapToInsert = false;   // the finger moved: it was not a tap, no stop is added
+    }
+    if (m_drag && !m_krimbleDragStarted) {
+        if ((e->pos() - m_krimblePressPos).manhattanLength() <= krimbleDragThreshold()) return;   // not a deliberate drag yet
+        m_krimbleDragStarted = true;
+    }
     if (m_drag) {
         QList<KoGradientStop> stops = m_gradient->stops();
         const QRect augmentedRect = kisGrowRect(rect(), removeStopDistance);
