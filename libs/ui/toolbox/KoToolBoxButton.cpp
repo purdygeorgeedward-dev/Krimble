@@ -37,6 +37,7 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     // ensure same L&F
     setCheckable(true);
     setAutoRaise(true);
+    setProperty("krimbleGlowHooked", true);
     setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
 
     // only a fallback
@@ -169,24 +170,6 @@ void KoToolBoxButton::slotUpdateActionData()
     }
 }
 
-static const int krimbleSelSteps = 72;
-static const qreal krimbleSelOutline[krimbleSelSteps] = { 0.79, 0.78, 0.79, 0.80, 0.81, 0.84, 0.85, 0.85, 0.81, 0.66, 0.66, 0.69, 0.70, 0.73, 0.73, 0.69, 0.67, 0.66, 0.66, 0.68, 0.73, 0.76, 0.76, 0.74, 0.72, 0.68, 0.66, 0.66, 0.73, 0.81, 0.81, 0.81, 0.81, 0.81, 0.79, 0.76, 0.74, 0.73, 0.69, 0.69, 0.69, 0.71, 0.71, 0.71, 0.71, 0.75, 0.72, 0.73, 0.73, 0.79, 0.92, 0.96, 0.96, 0.94, 0.94, 0.94, 0.98, 0.99, 0.99, 0.94, 0.83, 0.73, 0.68, 0.70, 0.70, 0.84, 0.84, 0.84, 0.84, 0.83, 0.80, 0.79 };
-static const qreal krimbleSelGlow[krimbleSelSteps] = { 0.27, 0.27, 0.28, 0.28, 0.29, 0.32, 0.34, 0.34, 0.29, 0.29, 0.66, 0.81, 0.88, 0.88, 0.75, 0.62, 0.50, 0.48, 0.48, 0.58, 0.78, 0.90, 0.93, 0.93, 0.79, 0.67, 0.57, 0.26, 0.26, 0.34, 0.35, 0.34, 0.34, 0.33, 0.32, 0.31, 0.31, 0.30, 0.30, 0.30, 0.30, 0.31, 0.32, 0.32, 0.20, 0.20, 0.37, 0.41, 0.41, 0.41, 0.41, 0.39, 0.39, 0.36, 0.36, 0.36, 0.39, 0.41, 0.42, 0.41, 0.43, 0.42, 0.42, 0.24, 0.24, 0.36, 0.36, 0.34, 0.31, 0.29, 0.29, 0.28 };
-
-static QConicalGradient krimbleSelConical(const QPointF &center, const qreal *values, const std::function<QColor(qreal)> &color)
-{
-    QConicalGradient gradient(center, 0);
-    for (int i = 0; i <= krimbleSelSteps; ++i) gradient.setColorAt(i / qreal(krimbleSelSteps), color(values[i % krimbleSelSteps]));
-    return gradient;
-}
-
-static void krimbleMiterPen(QPainter &painter)
-{
-    QPen pen = painter.pen();
-    pen.setJoinStyle(Qt::MiterJoin);
-    painter.setPen(pen);
-}
-
 void KoToolBoxButton::krimblePaintRaisedBox(QWidget *widget, bool down)
 {
     QPainter box(widget);
@@ -223,69 +206,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     // The first version of the Raised style (near-white and near-black sides, a near-black outline), not used any more:
     if (isChecked()) {
         QPainter painter(this);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        const qreal s = qMin(width(), height());
-        const QRectF base = QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12);
-        const qreal bw = base.width();
-        const qreal r = 0.0;
-        const QPointF centre = base.center();
-        // the glow outside the outline: tight and weak, fading out within 6 percent of the width, stronger where the mockup's is
-        const int glowSteps = 18;
-        for (int i = glowSteps; i >= 1; --i) {
-            const qreal t = qreal(i) / glowSteps;
-            const qreal w = bw * 0.05 * t;
-            const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
-            painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
-            krimbleMiterPen(painter);   // task 37: a pen's corners are cut off (bevel join) unless it says miter; that is what looked rounded
-            painter.setBrush(Qt::NoBrush);
-            painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r, r);
-        }
-        // the fill, darker in the middle
-        QLinearGradient fill(base.topLeft(), base.bottomLeft());
-        fill.setColorAt(0.0, QColor("#10498c"));
-        fill.setColorAt(0.5, QColor("#07306f"));
-        fill.setColorAt(1.0, QColor("#033075"));
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(fill);
-        painter.drawRoundedRect(base, r, r);
-        QRadialGradient vignette(centre, bw * 0.62);
-        vignette.setColorAt(0.0, QColor(1, 8, 34, 235));
-        vignette.setColorAt(0.3, QColor(1, 10, 40, 150));
-        vignette.setColorAt(0.62, QColor(1, 12, 45, 34));
-        vignette.setColorAt(0.85, QColor(1, 12, 45, 0));
-        vignette.setColorAt(1.0, QColor(1, 12, 45, 0));
-        painter.setBrush(vignette);
-        painter.drawRoundedRect(base, r, r);
-        // vivid blue just inside the edge, fading toward the middle, as strong as the outline is bright at each place
-        const int innerSteps = 24;
-        for (int k = 1; k <= innerSteps; ++k) {
-            const qreal t = qreal(k) / innerSteps;
-            const qreal d = bw * 0.06 * t;
-            const qreal alpha = 255 * qExp(-4.5 * t);
-            painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
-            krimbleMiterPen(painter);   // task 37
-            painter.setBrush(Qt::NoBrush);
-            painter.drawRoundedRect(base.adjusted(d, d, -d, -d), r, r);
-        }
-        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(3.0, bw * 0.022)));
-        // qMax<qreal>(2.0, bw * 0.014)));   // the thinner try of task 37 (not wanted)
-        krimbleMiterPen(painter);   // task 37
-        painter.setBrush(Qt::NoBrush);
-        painter.drawRoundedRect(base, r, r);
-        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) {
-            const qreal t = qBound<qreal>(0.0, (v - 0.62) / 0.38, 1.0);
-            return QColor(int(105 + (205 - 105) * t), int(220 + (255 - 220) * t), 255);
-        })), qMax<qreal>(2.2, bw * 0.018)));
-        // qMax<qreal>(1.5, bw * 0.011)));   // the thinner try of task 37 (not wanted)
-        krimbleMiterPen(painter);   // task 37
-        painter.drawRoundedRect(base, r, r);
-        // the dark shadow behind the icon (the mockup's icon casts one): the icon is drawn over it below
-        QRadialGradient shadow(centre, s * 0.30);
-        shadow.setColorAt(0.0, QColor(0, 4, 24, 170));
-        shadow.setColorAt(1.0, QColor(0, 4, 24, 0));
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(shadow);
-        painter.drawEllipse(centre, s * 0.30, s * 0.30);
+        painter.fillRect(rect(), QColor(16, 17, 28));
     }
     Q_UNUSED(event);
     {
@@ -293,6 +214,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         QStyleOptionToolButton opt;
         initStyleOption(&opt);
         if (!isDown()) opt.state &= ~QStyle::State_MouseOver;
+        if (isChecked()) opt.state &= ~(QStyle::State_On | QStyle::State_Sunken | QStyle::State_Raised);
         stylePainter.drawComplexControl(QStyle::CC_ToolButton, opt);
     }
     if (m_krimbleLongPress) {
