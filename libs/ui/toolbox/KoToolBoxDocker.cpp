@@ -87,21 +87,23 @@ class KrimbleToolBoxGrip : public QLabel
 public:
     KrimbleToolBoxGrip(const QString &text, QWidget *parent) : QLabel(text, parent) {}
 protected:
-    void paintEvent(QPaintEvent *event) override
+    void paintEvent(QPaintEvent *) override
     {
-        QLabel::paintEvent(event);
         QPainter p(this);
-        const qreal dpr = devicePixelRatioF();
-        const qreal thick = 2.0 / dpr;    // 2 device pixels
-        const qreal gap = 6.0 / dpr;      // 6 device pixels between the lines
-        const qreal length = width() * 0.45;
-        QColor c = palette().color(QPalette::WindowText);
-        c.setAlpha(150);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        QColor line = palette().color(QPalette::WindowText);
+        line.setAlpha(160);
         p.setPen(Qt::NoPen);
-        for (int i = -1; i <= 1; ++i) {
-            const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
-            p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
-        }
+        p.setBrush(line);
+        const qreal sep = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
+        const qreal cy = (height() - sep) / 2.0, gap = 3.0;
+        const qreal inset = qMin<qreal>(18.0, width() * 0.2);
+        for (int i = -2; i <= 2; ++i)
+            p.drawRect(QRectF(inset, cy + i * gap - 0.5, width() - 2.0 * inset, 1.0));
+        const qreal real = 1.0 / qMax<qreal>(1.0, devicePixelRatioF());
+        p.setRenderHint(QPainter::Antialiasing, false);
+        p.fillRect(QRectF(0, height() - 2.0 * real, width(), real), QColor(0, 0, 0));
+        p.fillRect(QRectF(0, height() - real, width(), real), QColor(255, 255, 255, 110));
     }
 };
 
@@ -253,7 +255,7 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    w->setMinimumSize(titleSize, titleSize + 12);
+    w->setMinimumSize(titleSize, qMax(titleSize + 12, 34));
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
