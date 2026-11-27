@@ -48,6 +48,27 @@ private:
     QPointer<QAction> m_action;
 };
 
+// A submenu (Edit > Fill, Edit > Transform...) gets the same row height and the same room before and after the text
+// as the menu it opens from. Without this, Fill's submenu had no room at the left of its words and looked cramped.
+// The values are measured from the parent menu each time the submenu opens (the screen's density decides them).
+static void krimbleMatchSubmenu(QMenu *parent, QMenu *sub)
+{
+    if (!parent || !sub) return;
+    QAction *sample = nullptr;
+    Q_FOREACH (QAction *a, parent->actions()) {
+        if (a->isVisible() && !a->isSeparator() && !a->menu()) { sample = a; break; }
+    }
+    if (!sample) return;
+    const int rowH = parent->actionGeometry(sample).height();
+    if (rowH <= 0) return;
+    const int textH = sub->fontMetrics().height();
+    const int vertical = qMax(0, (rowH - textH) / 2);
+    const int left = qRound(rowH * 0.68);   // on the phone the parent's words start 47 real px in, on 69 real px rows
+    const QString sheet = QStringLiteral("QMenu::item { padding: %1px %2px %3px %4px; } QMenu::item:selected { color: #ffffff; background: #0b87dd; }")
+                              .arg(vertical).arg(left).arg(rowH - textH - vertical).arg(left);
+    if (sub->styleSheet() != sheet) sub->setStyleSheet(sheet);
+}
+
 static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
 {
     Q_FOREACH (QAction *top, win->menuBar()->actions()) {
@@ -55,6 +76,16 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
         if (!menu || menu->property("krimbleShortcutsStripped").toBool()) continue;
         menu->setProperty("krimbleShortcutsStripped", true);
         new KrimbleMenuPlacer(menu, win->menuBar(), top);
+        QObject::connect(menu, &QMenu::aboutToShow, menu, [menu]() {
+            Q_FOREACH (QAction *a, menu->actions()) {
+                if (QMenu *sub = a->menu()) {
+                    if (sub->property("krimbleSubmenuMatched").toBool()) continue;
+                    sub->setProperty("krimbleSubmenuMatched", true);
+                    QPointer<QMenu> parentMenu = menu;
+                    QObject::connect(sub, &QMenu::aboutToShow, sub, [parentMenu, sub]() { krimbleMatchSubmenu(parentMenu, sub); });
+                }
+            }
+        });
         QSharedPointer<KrimbleSavedShortcuts> saved(new KrimbleSavedShortcuts());
         QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, saved]() {
             krimbleStripShortcuts(menu, saved.data(), 0);
