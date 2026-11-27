@@ -450,6 +450,21 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
             QAction *topDivider = new QAction(imageMenu);
             topDivider->setSeparator(true);
             imageMenu->insertAction(topFirst, quickTop);
+            // Image > Generate Image (Image Donkey)...: opens George's Perchance image generator in the browser; the address is a setting
+            // (krimblerc, [Krimble] ImageDonkeyUrl) so it can change ("Just use one or the other. It's just a url." / "Add it now and document it." / "Image menu")
+            QAction *imageDonkey = new QAction(i18n("Generate Image (Image Donkey)..."), imageMenu);
+            imageDonkey->setObjectName(QStringLiteral("krimbleImageDonkey"));
+            QObject::connect(imageDonkey, &QAction::triggered, win, []() {
+                KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+                QString address = group.readEntry("ImageDonkeyUrl", QString());
+                if (address.trimmed().isEmpty()) {
+                    address = QStringLiteral("https://perchance.org/image-donkey");
+                    group.writeEntry("ImageDonkeyUrl", address);
+                    group.config()->sync();
+                }
+                QDesktopServices::openUrl(QUrl::fromUserInput(address.trimmed()));
+            });
+            imageMenu->insertAction(topFirst, imageDonkey);
             imageMenu->insertAction(topFirst, topDivider);
         }
         if (imageMenu->findChild<QAction*>(QStringLiteral("krimbleBatchProcess"))) return;
@@ -474,7 +489,8 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
         Q_FOREACH (QAction *action, imageMenu->actions()) {
             QString text = action->text();
             text.remove(QLatin1Char('&'));
-            if (text == QLatin1String("Image Rotation") && action->menu()) {
+            // if (text == QLatin1String("Image Rotation") && action->menu()) {
+            if ((text == QLatin1String("Image Rotation") || text == QLatin1String("Rotate")) && action->menu()) {   // George is renaming it "Rotate"
                 QMenu *rotation = action->menu();
                 QObject::connect(rotation, &QMenu::aboutToShow, win, [win, rotation]() {
                     if (rotation->findChild<QAction*>(QStringLiteral("krimbleFreeRotate"))) return;
