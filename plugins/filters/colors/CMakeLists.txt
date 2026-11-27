@@ -6,6 +6,7 @@ set(kritaextensioncolorsfilters_SOURCES
     KisFilterFastColorOverlay.cpp
     KisWdgFilterFastColorOverlay.cpp
     KisFilterPhotoFilter.cpp
+    KisFilterLensFlare.cpp
     )
 
 ki18n_wrap_ui(kritaextensioncolorsfilters_SOURCES
