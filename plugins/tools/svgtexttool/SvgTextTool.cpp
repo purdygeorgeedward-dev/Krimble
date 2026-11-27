@@ -6,6 +6,7 @@
 */
 
 #include "SvgTextTool.h"
+#include <KisApplication.h>
 #include "KoSvgTextProperties.h"
 #include "KoSvgTextShape.h"
 #include "KoSvgTextShapeMarkupConverter.h"
@@ -183,6 +184,7 @@ SvgTextTool::~SvgTextTool()
 
 void SvgTextTool::activate(const QSet<KoShape *> &shapes)
 {
+    krimbleEnsureBundledFonts();   // Krimble 2026-11-23: the bundled fonts are loaded the first time a text tool is chosen
     KoToolBase::activate(shapes);
     m_canvasConnections.addConnection(canvas()->selectedShapesProxy(), SIGNAL(selectionChanged()), this, SLOT(slotShapeSelectionChanged()));
 

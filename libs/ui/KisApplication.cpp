@@ -99,6 +99,7 @@
 #include <KoShapeRegistry.h>
 #include "KoConfig.h"
 #include <QFontDatabase>
+#include <QElapsedTimer>
 #include <QFileInfo>
 #include <KoFontRegistry.h>
 #include <KoResourcePaths.h>
@@ -620,6 +621,22 @@ void KisApplication::loadPlugins()
     KisMetadataBackendRegistry::instance();
 }
 
+// Krimble 2026-11-23: the bundled fonts (95 files, about 13 MB) are no longer loaded at every start. They are loaded the first time
+// they are needed: when a text tool is chosen, or before a file that can hold text (.kra, .ora, .psd, .svg, ...) is opened
+// (George: "we don't need extended fonts until the text tool loads."). The log says how long the loading took.
+static void krimbleLoadBundledFonts();
+void krimbleEnsureBundledFonts()
+{
+    static bool loaded = false;
+    if (loaded) return;
+    loaded = true;
+    QElapsedTimer clock;
+    clock.start();
+    krimbleLoadBundledFonts();
+    qInfo() << "Krimble: bundled fonts loaded on first use in" << clock.elapsed() << "ms";
+    KisUsageLogger::log(QStringLiteral("Krimble: bundled fonts loaded on first use in %1 ms").arg(clock.elapsed()));
+}
+
 static void krimbleLoadBundledFonts()
 {
     QStringList files;
@@ -689,7 +706,7 @@ bool KisApplication::start(const KisApplicationArguments &args)
 
     KisConfig cfg(false);
 
-    krimbleLoadBundledFonts();
+    // krimbleLoadBundledFonts();   // at every start until 2026-11-23; now on first use (krimbleEnsureBundledFonts)
 
     auto iconsInMenuMode = cfg.iconsInMenu();
     if (iconsInMenuMode == KisConfig::IIM_Yes) {

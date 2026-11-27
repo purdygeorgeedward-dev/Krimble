@@ -23,6 +23,7 @@ public:
     void mousePressEvent(KoPointerEvent *event) override;
     void mouseMoveEvent(KoPointerEvent *event) override;
     void mouseReleaseEvent(KoPointerEvent *event) override;
+    void activate(const QSet<KoShape *> &shapes) override;
     void deactivate() override;
 
 private:

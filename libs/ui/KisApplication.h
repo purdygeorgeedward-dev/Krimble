@@ -35,6 +35,9 @@ class KisAndroidScaling;
  *  If the last mainwindow becomes closed, KisApplication automatically
  *  calls QApplication::quit.
  */
+/// Krimble 2026-11-23: loads the fonts that come with Krimble, once, the first time they are needed (text tools, files that can hold text).
+KRITAUI_EXPORT void krimbleEnsureBundledFonts();
+
 class KRITAUI_EXPORT KisApplication : public QtSingleApplication
 {
     Q_OBJECT
