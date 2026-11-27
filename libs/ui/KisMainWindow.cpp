@@ -3542,7 +3542,7 @@ void KisMainWindow::updateWindowMenu()
         addActionByName("options_configure_toolbars");
         addActionByName("lock_toolbars");
         menu->addSeparator();
-        menu->addAction(d->dockWidgetMenu);
+        // menu->addAction(d->dockWidgetMenu);   // Panels is its own menu in the menu bar now, before Window (krita5.xmlgui)
         addActionByName("view_toggledockers");
         addActionByName("settings_detach_panel_menu");
         addActionByName("settings_attach_panel_menu");
