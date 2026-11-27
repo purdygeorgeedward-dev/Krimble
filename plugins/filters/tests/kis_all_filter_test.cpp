@@ -35,12 +35,10 @@ bool testFilterSrcNotIsDev(KisFilterSP f)
 
     dev->convertFromQImage(qimage, 0, 0, 0);
 
-    // Get the predefined configuration from a file
     KisFilterConfigurationSP  kfc = f->defaultConfiguration(KisGlobalResourcesInterface::instance());
 
     QFile file(QString(FILES_DATA_DIR) + '/' + f->id() + ".cfg");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        //qDebug() << "creating new file for " << f->id();
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&file);
             KisPortingUtils::setUtf8OnStream(out);
@@ -53,10 +51,9 @@ bool testFilterSrcNotIsDev(KisFilterSP f)
         QTextStream in(&file);
         KisPortingUtils::setUtf8OnStream(in);
         s = in.readAll();
-        //qDebug() << "Read for " << f->id() << "\n" << s;
         kfc->fromXML(s);
     }
-    dbgKrita << f->id();// << "\n" << kfc->toXML() << "\n";
+    dbgKrita << f->id();
 
     kfc->createLocalResourcesSnapshot(KisGlobalResourcesInterface::instance());
     f->process(dev, dstdev, 0, QRect(QPoint(0,0), qimage.size()), kfc);
@@ -83,19 +80,15 @@ bool testFilter(KisFilterSP f)
     QString resultFileName = QString(FILES_DATA_DIR) + '/' + "carrot_" + f->id() + ".png";
     QImage result(resultFileName);
 
-    //if (!f->id().contains("hsv")) return true;
-
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     dev->setDefaultBounds(new TestUtil::TestingTimedDefaultBounds(qimage.rect()));
     dev->convertFromQImage(qimage, 0, 0, 0);
     KisTransaction * cmd = new KisTransaction(kundo2_noi18n(f->name()), dev);
 
-    // Get the predefined configuration from a file
     KisFilterConfigurationSP  kfc = f->defaultConfiguration(KisGlobalResourcesInterface::instance());
 
     QFile file(QString(FILES_DATA_DIR) + '/' + f->id() + ".cfg");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        //qDebug() << "creating new file for " << f->id();
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&file);
             KisPortingUtils::setUtf8OnStream(out);
@@ -108,16 +101,14 @@ bool testFilter(KisFilterSP f)
         QTextStream in(&file);
         KisPortingUtils::setUtf8OnStream(in);
         s = in.readAll();
-        //qDebug() << "Read for " << f->id() << "\n" << s;
         const bool validConfig = kfc->fromXML(s);
-
 
         if (!validConfig) {
             qDebug() << QString("Couldn't parse XML settings for filter %1").arg(f->id()).toLatin1();
             return false;
         }
     }
-    dbgKrita << f->id();// << "\n" << kfc->toXML() << "\n";
+    dbgKrita << f->id();
     kfc->createLocalResourcesSnapshot(KisGlobalResourcesInterface::instance());
 
     f->process(dev, QRect(QPoint(0,0), qimage.size()), kfc);
@@ -138,7 +129,6 @@ bool testFilter(KisFilterSP f)
     return true;
 }
 
-
 bool testFilterWithSelections(KisFilterSP f)
 {
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -149,12 +139,10 @@ bool testFilterWithSelections(KisFilterSP f)
     dev->setDefaultBounds(new TestUtil::TestingTimedDefaultBounds(qimage.rect()));
     dev->convertFromQImage(qimage, 0, 0, 0);
 
-    // Get the predefined configuration from a file
     KisFilterConfigurationSP  kfc = f->defaultConfiguration(KisGlobalResourcesInterface::instance());
 
     QFile file(QString(FILES_DATA_DIR) + '/' + f->id() + ".cfg");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        //qDebug() << "creating new file for " << f->id();
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&file);
             KisPortingUtils::setUtf8OnStream(out);
@@ -167,10 +155,9 @@ bool testFilterWithSelections(KisFilterSP f)
         QTextStream in(&file);
         KisPortingUtils::setUtf8OnStream(in);
         s = in.readAll();
-        //qDebug() << "Read for " << f->id() << "\n" << s;
         kfc->fromXML(s);
     }
-    dbgKrita << f->id();// << "\n"; << kfc->toXML() << "\n";
+    dbgKrita << f->id();
 
     KisSelectionSP sel1 = new KisSelection(new KisSelectionDefaultBounds(dev), KisImageResolutionProxy::identity());
     sel1->pixelSelection()->select(qimage.rect());
@@ -201,8 +188,6 @@ void KisAllFilterTest::testAllFilters()
     excludeFilters << "phongbumpmap";
     excludeFilters << "raindrops";
 
-    // halftone has some bezier curve painting drifts, so
-    // let's just exclude it
     excludeFilters << "halftone";
 
     QStringList failures;
@@ -232,8 +217,6 @@ void KisAllFilterTest::testAllFiltersSrcNotIsDev()
     excludeFilters << "phongbumpmap";
     excludeFilters << "raindrops";
 
-    // halftone has some bezier curve painting drifts, so
-    // let's just exclude it
     excludeFilters << "halftone";
 
     QStringList failures;
@@ -264,8 +247,6 @@ void KisAllFilterTest::testAllFiltersWithSelections()
     excludeFilters << "phongbumpmap";
     excludeFilters << "raindrops";
 
-    // halftone has some bezier curve painting drifts, so
-    // let's just exclude it
     excludeFilters << "halftone";
 
     QStringList failures;

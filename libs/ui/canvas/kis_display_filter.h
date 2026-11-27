@@ -24,10 +24,6 @@ struct KisExposureGammaCorrectionInterface;
 class GLFunctions;
 class QOpenGLShaderProgram;
 
-/**
- * @brief The KisDisplayFilter class is the base class for filters that
- * are applied by the canvas to the projection before displaying.
- */
 class KRITAUI_EXPORT KisDisplayFilter : public QObject
 {
     Q_OBJECT
@@ -42,11 +38,7 @@ public:
     virtual bool useInternalColorManagement() const = 0;
     virtual KisExposureGammaCorrectionInterface *correctionInterface() const = 0;
     virtual bool lockCurrentColorVisualRepresentation() const = 0;
-    /**
-     * @return true if the shader should be recompiled
-     */
     virtual bool updateShader() = 0;
 };
-
 
 #endif

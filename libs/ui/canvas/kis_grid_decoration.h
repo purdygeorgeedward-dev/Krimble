@@ -15,7 +15,6 @@
 
 class KisGridConfig;
 
-
 class KisGridDecoration : public KisCanvasDecoration
 {
     Q_OBJECT
@@ -33,4 +32,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_GRID_DECORATION_H
+#endif

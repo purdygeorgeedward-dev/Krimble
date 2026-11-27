@@ -62,7 +62,7 @@ void KisWidgetChooser::updateArrowIcon()
     painter.setBrush(option.palette.text().color());
     painter.setPen(option.palette.text().color());
     painter.drawPrimitive(QStyle::PE_IndicatorArrowDown, option);
-    painter.end(); // Otherwise there will always be a copy
+    painter.end();
 
     m_arrowButton->setIcon(QIcon(QPixmap::fromImage(image)));
 }
@@ -215,10 +215,8 @@ void KisWidgetChooser::showPopupWidget()
     QSize popSize = m_popup->size();
     QRect popupRect(QFrame::mapToGlobal(QPoint(-1, QFrame::height())), popSize);
 
-    // Get the available geometry of the screen which contains this KisPopupButton
     QRect screenRect = this->screen()->availableGeometry();
 
-    // Make sure the popup is not drawn outside the screen area
     if(popupRect.right() > screenRect.right())
         popupRect.translate(screenRect.right() - popupRect.right(), 0);
     if(popupRect.left() < screenRect.left())
@@ -229,7 +227,6 @@ void KisWidgetChooser::showPopupWidget()
     m_popup->setGeometry(popupRect);
     m_popup->show();
 }
-
 
 void KisWidgetChooser::updateThemedIcons()
 {
@@ -250,7 +247,6 @@ void KisWidgetChooser::slotWidgetChosen(int index)
     chooseWidget(m_widgets[index].id);
     m_popup->hide();
 }
-
 
 void KisWidgetChooser::changeEvent(QEvent *e)
 {

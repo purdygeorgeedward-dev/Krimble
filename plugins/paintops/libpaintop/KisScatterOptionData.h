@@ -11,7 +11,6 @@
 #include <KisOptionTuple.h>
 #include <KisPrefixedOptionDataWrapper.h>
 
-
 struct PAINTOP_EXPORT KisScatterOptionMixInImpl
     : boost::equality_comparable<KisScatterOptionMixInImpl>
 {
@@ -34,5 +33,4 @@ struct PAINTOP_EXPORT KisScatterOptionData : KisOptionTuple<KisCurveOptionData, 
     KisScatterOptionData(const QString &prefix = "");
 };
 
-
-#endif // KISSCATTEROPTIONDATA_H
+#endif

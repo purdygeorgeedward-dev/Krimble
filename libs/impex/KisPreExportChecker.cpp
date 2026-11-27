@@ -61,7 +61,6 @@ QStringList KisPreExportChecker::errors() const
     return m_errors;
 }
 
-
 QStringList KisPreExportChecker::warnings() const
 {
     return m_warnings;

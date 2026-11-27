@@ -22,8 +22,6 @@
 #include "kis_lazy_wait_condition.h"
 #include <mutex>
 
-//#define DEBUG_BALANCING
-
 #ifdef DEBUG_BALANCING
 #define DEBUG_BALANCING_METRICS(decidedFirst, excl)                     \
     dbgKrita << "Balance decision:" << decidedFirst                     \
@@ -33,7 +31,6 @@
 #else
 #define DEBUG_BALANCING_METRICS(decidedFirst, excl)
 #endif
-
 
 struct Q_DECL_HIDDEN KisUpdateScheduler::Private {
     Private(KisUpdateScheduler *_q, KisProjectionUpdateListener *p)
@@ -48,7 +45,7 @@ struct Q_DECL_HIDDEN KisUpdateScheduler::Private {
     KisStrokesQueue strokesQueue;
     KisUpdaterContext updaterContext;
     bool processingBlocked = false;
-    qreal defaultBalancingRatio = 1.0; // desired strokes-queue-size / updates-queue-size
+    qreal defaultBalancingRatio = 1.0;
     KisProjectionUpdateListener *projectionUpdateListener;
     KisQueuesProgressUpdater *progressUpdater = 0;
 
@@ -85,11 +82,6 @@ void KisUpdateScheduler::setThreadsLimit(int value)
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(!m_d->processingBlocked);
 
-    /**
-     * Thread limit can be changed without the full-featured barrier
-     * lock, we can avoid waiting for all the jobs to complete. We
-     * should just ensure there is no more jobs in the updater context.
-     */
     immediateLockForReadOnly();
     m_d->updaterContext.lock();
     m_d->updaterContext.setThreadsLimit(value);
@@ -216,11 +208,6 @@ void KisUpdateScheduler::setLodPreferences(const KisLodPreferences &value)
 {
     m_d->strokesQueue.setLodPreferences(value);
 
-    /**
-     * The queue might have started an internal stroke for
-     * cache synchronization. Process the queues to execute
-     * it if needed.
-     */
     processQueues();
 }
 
@@ -233,7 +220,6 @@ void KisUpdateScheduler::explicitRegenerateLevelOfDetail()
 {
     m_d->strokesQueue.explicitRegenerateLevelOfDetail();
 
-    // \see a comment in setDesiredLevelOfDetail()
     processQueues();
 }
 
@@ -242,7 +228,6 @@ int KisUpdateScheduler::currentLevelOfDetail() const
     int levelOfDetail = m_d->updaterContext.currentLevelOfDetail();
 
     if (levelOfDetail < 0) {
-        // it is safe, because is called iff updaterContext has no running jobs at all
         levelOfDetail = m_d->updatesQueue.overrideLevelOfDetail();
     }
 
@@ -295,10 +280,6 @@ void KisUpdateScheduler::immediateLockForReadOnly()
 void KisUpdateScheduler::unlock(bool resetLodLevels)
 {
     if (resetLodLevels) {
-        /**
-         * Legacy strokes may have changed the image while we didn't
-         * control it. Notify the queue to take it into account.
-         */
         m_d->strokesQueue.notifyUFOChangedImage();
     }
 
@@ -308,11 +289,6 @@ void KisUpdateScheduler::unlock(bool resetLodLevels)
 
 bool KisUpdateScheduler::isIdle()
 {
-    /**
-     * First check the low-cost signs of the image not being
-     * idle to avoid contending over locks with the worker
-     * threads.
-     */
     if(!m_d->updatesQueue.isIdle() ||
         !m_d->strokesQueue.isIdle() ||
         !m_d->updaterContext.isIdle()) {

@@ -16,15 +16,12 @@
 #include <KisResourceTypes.h>
 #include <QObject>
 
-/// The resource item delegate for rendering the resource preview
 class KRITARESOURCEWIDGETS_EXPORT KisResourceThumbnailPainter : public QObject
 {
     Q_OBJECT
 public:
     explicit KisResourceThumbnailPainter(QObject *parent = 0);
     ~KisResourceThumbnailPainter() override {}
-
-    //  (QPainter*, QModelIndex&, QRect, const QPalette&, bool)’
 
     QImage getReadyThumbnail(const QModelIndex& globalIndex, QSize rect, const QPalette& palette) const;
     void paint(QPainter *painter,

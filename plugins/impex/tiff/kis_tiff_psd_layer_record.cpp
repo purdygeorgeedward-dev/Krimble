@@ -131,11 +131,9 @@ bool KisTiffPsdLayerRecord::writeImpl(QIODevice &device, KisNodeSP rootLayer, ps
 
     buf.close();
 
-    // Then get the size
     qint64 layerSectionLength = buf.size();
     dbgFile << "layer section has size" << layerSectionLength;
 
-    // and write the whole buffer
     return (device.write(buf.data()) == layerSectionLength);
 }
 

@@ -8,7 +8,6 @@
 #include <KoResourceLoadResult.h>
 #include "kis_brush_registry.h"
 
-
 KisBrushPropertiesModel::KisBrushPropertiesModel(lager::reader<KisBrushModel::BrushData> _brushData, KisResourcesInterfaceSP _resourcesInterface)
 
     : resourcesInterface(_resourcesInterface)

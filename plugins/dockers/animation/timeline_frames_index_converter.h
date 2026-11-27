@@ -42,4 +42,4 @@ private:
     bool m_showGlobalSelectionMask;
 };
 
-#endif /* __TIMELINE_FRAMES_INDEX_CONVERTER_H */
+#endif

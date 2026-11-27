@@ -65,7 +65,11 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         const qreal dpr = qApp->devicePixelRatio();
         int pageWidth = 600;
         const bool sideways = parent && parent->window() && parent->window()->width() > parent->window()->height();
-        if (parent && parent->window()) pageWidth = int(parent->window()->width() * (sideways ? 0.40 : 0.86));
+        if (parent && parent->window()) {
+            const QSize win = parent->window()->size();
+            pageWidth = int(win.width() * (sideways ? 0.56 : 0.90));
+            if (sideways) pageWidth = qMin(pageWidth, int(win.height() * 0.60 * 1672.0 / 941.0));
+        }
         QPixmap picture(QStringLiteral(":/splash/hd.jpg"));
         QLabel *pictureLabel = new QLabel(page);
         if (!picture.isNull()) {
@@ -97,7 +101,9 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
             "<p><small>Purdy Design fonts (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
             "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"
             "<p><small>Also included: 53 open-license font families (SIL Open Font License 1.1 and Apache License 2.0), free for any use. "
-            "Their licenses: <a href=\"https://github.com/purdygeorgeedward-dev/krimble/tree/master/krita/data/fonts/open\">fonts/open</a></small></p>"));
+            "Their licenses: <a href=\"https://github.com/purdygeorgeedward-dev/krimble/tree/master/krita/data/fonts/open\">fonts/open</a></small></p>"
+            "<p><small>Intel One Mono &copy; 2023-2026 The Intel One Mono Project Authors (<a href=\"https://github.com/intel/intel-one-mono\">github.com/intel/intel-one-mono</a>), "
+            "licensed under the SIL Open Font License 1.1, with Reserved Font Name &quot;Intel&quot;.</small></p>"));
         if (sideways) {
             QHBoxLayout *columns = new QHBoxLayout();
             QVBoxLayout *left = new QVBoxLayout();
@@ -124,7 +130,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
             pageLayout->addWidget(fontsLabel);
             pageLayout->addStretch(1);
         }
-        // The seven tabs (About, Authors, Translators, Sponsors, Also Thanks To, License, Third-party libraries) were as wide as the window needs: the tab row scrolls now
         if (QTabWidget *tabs = wdgTab->findChild<QTabWidget*>()) {
             tabs->tabBar()->setUsesScrollButtons(true);
             tabs->tabBar()->setElideMode(Qt::ElideNone);
@@ -134,7 +139,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
 #else
     wdgTab->aboutTab->layout()->addWidget(splash);
 #endif
-    // wdgTab->aboutTab->layout()->addWidget(splash);   (the original line; the phone uses the page above)
 
     QString authors = i18n("<html>"
                           "<head/>"
@@ -152,8 +156,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     authors.append(".</p></body></html>");
     wdgTab->lblAuthors->setText(authors);
 
-    // Translators
-    // TODO: move to KisApplication after string freeze is lifted
     KAboutData aboutData(KAboutData::applicationData());
     if (aboutData.translators().isEmpty()) {
         aboutData.setTranslator(i18nc("NAME OF TRANSLATORS", "Your names"),
@@ -241,7 +243,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
                            "<li>You can study how Krimble works and change it</li>"
                            "<li>You can distribute changed versions of Krimble</li>"
                            "</ul>"
-                           "<p>The Krimble Project is <b>committed</b> to preserving Krimble as free software.</p>"
                            "<h1 align=\"center\">Your artwork</h1>"
                            "<p>What you create with Krimble is your sole property. All your artwork is free for you to use as you like.</p>"
                            "<p>That means that Krimble can be used commercially, for any purpose. There are no restrictions whatsoever.</p>"

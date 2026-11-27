@@ -11,19 +11,14 @@
 #include "KoPathShape.h"
 #include <boost/operators.hpp>
 
-/**
- * @brief Describe a KoPathPoint by a KoPathShape and its indices
- */
 class KoPathPointData : public boost::equality_comparable<KoPathPointData>,
                         public boost::partially_ordered<KoPathPointData>
 {
 public:
-    /// constructor
     KoPathPointData(KoPathShape * path, const KoPathPointIndex & pointIndex)
             : pathShape(path)
             , pointIndex(pointIndex) {}
 
-    /// operator used for sorting
     bool operator<(const KoPathPointData & other) const {
         return pathShape < other.pathShape ||
                (pathShape == other.pathShape &&
@@ -37,9 +32,7 @@ public:
                pointIndex.first == other.pointIndex.first &&
                pointIndex.second == other.pointIndex.second;
     }
-    /// path shape the path point belongs too
     KoPathShape *pathShape;
-    /// position of the point in the path shape
     KoPathPointIndex pointIndex;
 };
 

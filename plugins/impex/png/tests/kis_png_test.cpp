@@ -6,7 +6,6 @@
 
 #include "kis_png_test.h"
 
-
 #include <simpletest.h>
 #include <QCoreApplication>
 
@@ -18,7 +17,6 @@
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing the importing of files in krita"
 #endif
-
 
 const QString PngMimetype = "image/png";
 
@@ -56,7 +54,6 @@ void roudTripHdrImage(const KoColorSpace *savingColorSpace)
         paintLayer0->paintDevice()->fill(image->bounds(), fillColor);
         image->addNode(paintLayer0, image->root());
 
-        // convert image color space before saving
         image->convertImageColorSpace(savingColorSpace, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags());
         image->waitForDone();
 
@@ -86,15 +83,10 @@ void roudTripHdrImage(const KoColorSpace *savingColorSpace)
 
         KoColor resultColor;
 
-//        qDebug() << ppVar(image->colorSpace()) << image->colorSpace()->profile()->name();
-//        image->projection()->pixel(1, 1, &resultColor);
-//        qDebug() << ppVar(resultColor);
-
         image->convertImageColorSpace(scRGBF32, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags());
         image->waitForDone();
 
         image->projection()->pixel(1, 1, &resultColor);
-//        qDebug() << ppVar(resultColor);
 
         const float tolerance = savingColorSpace->colorDepthId() == Integer8BitsColorDepthID ? 0.02 : 0.01;
         bool resultIsValid = true;
@@ -200,8 +192,6 @@ void KisPngTest::testRoundtripCicpIccProfile()
     exportConfiguration->setProperty("forceSRGB", false);
     doc->exportDocumentSync(name, "image/png", exportConfiguration);
 
-    //---//
-
     QScopedPointer<KisDocument> doc2(KisPart::instance()->createDocument());
     KisImportExportManager manager(doc2.data());
     doc2->setFileBatchMode(true);
@@ -232,11 +222,6 @@ void KisPngTest::testLoadPngWithLegacyProfile()
 
     QVERIFY(loadingStatus.isOk());
 
-    /**
-     * A PNG with the legacy profile should use the default Krita profille
-     * for a PQ space with all the cicp information set properly. The embedded
-     * profile should be ignored.
-     */
     const KoColorProfile *profile = doc->image()->colorSpace()->profile();
 
     QCOMPARE(profile->name(), KoColorSpaceRegistry::instance()->p2020PQProfile()->name());

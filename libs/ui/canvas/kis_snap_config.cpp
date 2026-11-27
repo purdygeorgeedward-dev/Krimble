@@ -23,7 +23,6 @@ KisSnapConfig::KisSnapConfig(bool loadValues)
     }
 }
 
-
 KisSnapConfig::~KisSnapConfig()
 {
 }

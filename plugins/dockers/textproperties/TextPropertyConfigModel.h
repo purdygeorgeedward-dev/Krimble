@@ -10,8 +10,6 @@
 #include <QSortFilterProxyModel>
 #include <QObject>
 
-// This model helps to keep track of the relevant properties.
-
 class TextPropertyConfigModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -20,18 +18,18 @@ class TextPropertyConfigModel : public QAbstractListModel
 public:
 
     enum VisibilityState {
-        FollowDefault = 0, ///< Follow the default property.
-        WhenRelevant = 1, ///< Show when either set or inherited.
-        WhenSet = 2, ///< Show only when set.
-        AlwaysVisible = 3, ///< Always show property.
-        NeverVisible = 4, ///< Never show property.
+        FollowDefault = 0,
+        WhenRelevant = 1,
+        WhenSet = 2,
+        AlwaysVisible = 3,
+        NeverVisible = 4,
     };
     Q_ENUM(VisibilityState)
 
     enum PropertyType {
-        Character, ///< This property can be applied on a character level.
-        Paragraph, ///< This property only does something when applied to a paragraph.
-        Mixed ///< This property can be in either.
+        Character,
+        Paragraph,
+        Mixed
     };
     Q_ENUM(PropertyType)
 
@@ -50,7 +48,6 @@ public:
 
     bool shouldFilter() const;
 
-    // Call this after adding all the properties.
     Q_INVOKABLE void loadFromConfiguration();
 
     Q_INVOKABLE void addProperty(const QString &name,
@@ -63,7 +60,6 @@ public:
     Q_INVOKABLE int visibilityStateForName(const QString &name) const;
 
     void saveConfiguration();
-    // QAbstractItemModel interface
 public:
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
@@ -89,7 +85,6 @@ class TextPropertyConfigFilterModel : public QSortFilterProxyModel
     Q_PROPERTY(QStringList filteredNames READ filteredNames NOTIFY filteredNamesChanged)
 public:
     TextPropertyConfigFilterModel(QObject *parent = nullptr);
-    // QSortFilterProxyModel interface
 
     bool showParagraphProperties() const;
 
@@ -109,4 +104,4 @@ protected:
     bool m_showParagraphProperties;
 };
 
-#endif // TEXTPROPERTYCONFIGMODEL_H
+#endif

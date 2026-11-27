@@ -45,7 +45,6 @@ KisMultiBoolFilterWidget::KisMultiBoolFilterWidget(const QString & filterid, QWi
     widgetLayout->addStretch();
 }
 
-
 void KisMultiBoolFilterWidget::setConfiguration(const KisPropertiesConfigurationSP  config)
 {
     if (!config) return;
@@ -54,7 +53,6 @@ void KisMultiBoolFilterWidget::setConfiguration(const KisPropertiesConfiguration
         m_boolWidgets[i]->setChecked(val);
     }
 }
-
 
 KisPropertiesConfigurationSP KisMultiBoolFilterWidget::configuration() const
 {

@@ -10,14 +10,6 @@
 #include "KoPathPoint.h"
 #include <klocalizedstring.h>
 
-/*
- * The algorithm to break a multiple open or closed subpaths is:
- * Subpath is closed
- * - open behind the last point in the subpath
- * - go on like as described in Not closed
- * Not closed
- * - break from the back of the subpath
- */
 KoPathBreakAtPointCommand::KoPathBreakAtPointCommand(const QList<KoPathPointData> & pointDataList, KUndo2Command *parent)
         : KUndo2Command(parent)
         , m_deletePoints(true)
@@ -33,7 +25,6 @@ KoPathBreakAtPointCommand::KoPathBreakAtPointCommand(const QList<KoPathPointData
         if(! point)
             continue;
 
-        // check if subpath is closed and the point is start or end point of the subpath
         if(! pathShape->isClosedSubpath(it->pointIndex.first)) {
             if(it->pointIndex.second == 0
                 || it->pointIndex.second == pathShape->subpathPointCount(it->pointIndex.first)) {
@@ -53,7 +44,6 @@ KoPathBreakAtPointCommand::KoPathBreakAtPointCommand(const QList<KoPathPointData
         if (last.pathShape != current.pathShape || last.pointIndex.first != current.pointIndex.first) {
             last = current;
             if (current.pathShape->isClosedSubpath(current.pointIndex.first)) {
-                // the break will happen before the inserted point so we have to increment by 1
                 m_closedIndex[i] = current.pointIndex;
                 ++m_closedIndex[i].second;
             }
@@ -73,7 +63,6 @@ void KoPathBreakAtPointCommand::redo()
     KUndo2Command::redo();
     KoPathPointData last(0, KoPathPointIndex(-1, -1));
 
-    // offset, needed when path was opened
     int offset = 0;
     for (int i = m_pointDataList.size() - 1; i >= 0; --i) {
         const KoPathPointData & pd = m_pointDataList.at(i);

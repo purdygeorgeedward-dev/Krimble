@@ -69,13 +69,11 @@ void KisSelectionBasedProcessingHelper::transformPaintDevice(KisPaintDeviceSP de
     KIS_SAFE_ASSERT_RECOVER_RETURN(!!m_selection == !!m_cutSelection);
 
     if (m_selection && m_cutSelection) {
-        // we have already processed the selection in the init command so try to skip it
         if (device != static_cast<KisPaintDevice*>(m_selection->pixelSelection().data())) {
             KisTransaction transaction(device);
 
             const QRect cutBounds = m_cutSelection->selectedExactRect();
             const QRect pasteBounds = m_selection->selectedExactRect();
-
 
             KisPaintDeviceSP tempDev = new KisPaintDevice(device->colorSpace());
             tempDev->makeCloneFromRough(device, cutBounds);

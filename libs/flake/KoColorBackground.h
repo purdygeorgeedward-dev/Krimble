@@ -16,35 +16,28 @@ class KoColorBackgroundPrivate;
 class QColor;
 class QBrush;
 
-/// A simple solid color shape background
 class KRITAFLAKE_EXPORT KoColorBackground : public KoShapeBackground
 {
 public:
     KoColorBackground();
 
-    /// Creates background from given color and style
     explicit KoColorBackground(const QColor &color, Qt::BrushStyle style = Qt::SolidPattern);
 
     ~KoColorBackground() override;
 
-    // Work around MSVC inability to generate copy ops with QSharedDataPointer.
     KoColorBackground(const KoColorBackground &);
     KoColorBackground &operator=(const KoColorBackground &);
 
     bool compareTo(const KoShapeBackground *other) const override;
 
-    /// Returns the background color
     QColor color() const;
 
-    /// Sets the background color
     void setColor(const QColor &color);
 
-    /// Returns the background style
     Qt::BrushStyle style() const;
 
     QBrush brush() const;
 
-    // reimplemented from KoShapeBackground
     void paint(QPainter &painter, const QPainterPath &fillPath) const override;
 
 private:
@@ -52,4 +45,4 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-#endif // KOCOLORBACKGROUND_H
+#endif

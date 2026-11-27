@@ -22,7 +22,7 @@
 #include <kis_spacing_information.h>
 #include <libmypaint/mypaint-brush.h>
 
-KisMyPaintPaintOp::KisMyPaintPaintOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP /*node*/, KisImageSP image)
+KisMyPaintPaintOp::KisMyPaintPaintOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP , KisImageSP image)
     : KisPaintOp (painter) {
 
     m_image = image;

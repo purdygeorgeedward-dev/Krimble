@@ -30,7 +30,6 @@
 #include "kis_display_color_converter.h"
 #include "strokes/kis_color_sampler_stroke_strategy.h"
 
-
 namespace {
 QColor colorWithAlpha(QColor color, int alpha)
 {
@@ -88,8 +87,6 @@ struct KisAsyncColorSamplerHelper::Private
 
     QRectF colorPreviewRectForRectangle() const
     {
-        // Offsetting to the sides is both vertical and horizontal, when
-        // offsetting above it's only vertical, so it needs a bit more space.
         constexpr qreal OFFSET = 32.0;
         constexpr qreal OFFSET_ABOVE = OFFSET * 1.5;
         constexpr qreal SIZE = PREVIEW_RECT_SIZE;
@@ -153,10 +150,6 @@ struct KisAsyncColorSamplerHelper::Private
             colorPreviewViewRect = colorPreviewRectForRectangle();
             break;
         default:
-            // Showing a preview without sampling a color (by just holding a
-            // modifier) is used to compare the foreground color with the
-            // canvas. The circle doesn't work well for that purpose, so we
-            // use the handedness-independent rectangle above instead.
             if (haveSample) {
                 colorPreviewViewRect = colorPreviewRectForCircle();
             } else {
@@ -173,7 +166,7 @@ struct KisAsyncColorSamplerHelper::Private
 KisAsyncColorSamplerHelper::KisAsyncColorSamplerHelper(KisCanvas2 *canvas)
     : m_d(new Private(canvas))
 {
-    using namespace std::placeholders; // For _1 placeholder
+    using namespace std::placeholders;
     std::function<void(QPointF)> callback =
         std::bind(&KisAsyncColorSamplerHelper::slotAddSamplingJob, this, _1);
     m_d->samplingCompressor.reset(
@@ -210,12 +203,11 @@ void KisAsyncColorSamplerHelper::activate(bool sampleCurrentLayer, bool pickFgCo
     m_d->sampleCurrentLayer = sampleCurrentLayer;
     m_d->haveSample = false;
 
-
     KisConfig cfg(true);
     m_d->style = cfg.colorSamplerPreviewStyle();
 
     m_d->circlePreviewDiameter = cfg.colorSamplerPreviewCircleDiameter();
-    m_d->circlePreviewThickness = cfg.colorSamplerPreviewCircleThickness()/100.0; // saved in percentages
+    m_d->circlePreviewThickness = cfg.colorSamplerPreviewCircleThickness()/100.0;
     m_d->circlePreviewOutlineEnabled = cfg.colorSamplerPreviewCircleOutlineEnabled();
     m_d->circlePreviewExtraCircles = cfg.colorSamplerPreviewCircleExtraCirclesEnabled();
 
@@ -224,8 +216,6 @@ void KisAsyncColorSamplerHelper::activate(bool sampleCurrentLayer, bool pickFgCo
 
 void KisAsyncColorSamplerHelper::activateDelayedPreview()
 {
-    // the event may come after we have started or even
-    // finished color picking if the user is quick
     if (!m_d->isActive || m_d->showPreview) {
         return;
     }
@@ -367,7 +357,6 @@ void KisAsyncColorSamplerHelper::paint(QPainter &gc, const KoViewConverter &conv
         paintRectangle(gc, viewRectF, currentColor, baseColor);
         break;
     default:
-        // See comment in colorPreviewDocRect.
         if (m_d->haveSample) {
             paintCircle(gc, viewRectF, currentColor, baseColor);
         } else {
@@ -436,8 +425,6 @@ void KisAsyncColorSamplerHelper::paintCircle(QPainter &gc,
         return;
     }
 
-
-
     gc.save();
 
     qreal dpr = gc.device()->devicePixelRatioF();
@@ -480,12 +467,7 @@ void KisAsyncColorSamplerHelper::paintCircle(QPainter &gc,
         tf.rotate(-canvasRotationAngle);
         tf.translate(-cacheCenter.x(), -cacheCenter.y());
 
-
         if (needsDualColor) {
-            // The color sampler preview is an outline and those rotate along
-            // with the canvas. That's undesirable for the sampler preview
-            // though, so we un-rotate its contents here accordingly.
-
 
             QPainterPath clipPath;
             clipPath.addPolygon(tf.map(QPolygonF(QRectF(0, 0, cacheRect.width(), cacheRect.height() / 2.0 + 1.0))));
@@ -519,9 +501,8 @@ void KisAsyncColorSamplerHelper::paintCircle(QPainter &gc,
         QPainterPath innerPath;
         innerPath.addPath(innerEllipse);
 
-
         if (m_d->circlePreviewThickness < 0.5 && m_d->circlePreviewExtraCircles) {
-            qreal extraMargin = 0.1*m_d->circlePreviewThickness*innerRect.width(); // looks better
+            qreal extraMargin = 0.1*m_d->circlePreviewThickness*innerRect.width();
             QPointF leftCenter = QPointF(innerRect.left() - extraMargin, innerRect.top() + innerRect.height()/2.0);
             QPointF rightCenter = QPointF(innerRect.right() + extraMargin, innerRect.top() + innerRect.height()/2.0);
 
@@ -550,10 +531,6 @@ void KisAsyncColorSamplerHelper::paintCircle(QPainter &gc,
 
 void KisAsyncColorSamplerHelper::slotAddSamplingJob(const QPointF &docPoint)
 {
-    /**
-     * The actual sampling is delayed by a compressor, so we can get this
-     * event when the stroke is already closed
-     */
     if (!m_d->strokeId) return;
 
     KisImageSP image = m_d->canvas->image();
@@ -576,7 +553,6 @@ void KisAsyncColorSamplerHelper::slotAddSamplingJob(const QPointF &docPoint)
         image->projection();
 
     if (device) {
-        // Used for color sampler blending.
         const KoColor currentColor =
             m_d->canvas->resourceManager()->koColorResource(m_d->sampleResourceId);
 

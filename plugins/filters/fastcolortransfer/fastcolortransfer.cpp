@@ -30,9 +30,7 @@
 #include <KisSequentialIteratorProgress.h>
 #include <KoProgressUpdater.h>
 
-
 K_PLUGIN_FACTORY_WITH_JSON(KritaFastColorTransferFactory, "kritafastcolortransfer.json", registerPlugin<FastColorTransferPlugin>();)
-
 
 FastColorTransferPlugin::FastColorTransferPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
@@ -52,7 +50,6 @@ KisFilterFastColorTransfer::KisFilterFastColorTransfer() : KisFilter(id(), Filte
     setSupportsPainting(false);
     setSupportsAdjustmentLayers(false);
 }
-
 
 KisConfigWidget * KisFilterFastColorTransfer::createConfigurationWidget(QWidget* parent, const KisPaintDeviceSP dev, bool) const
 {
@@ -78,13 +75,12 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
 
     dbgPlugins << "Start transferring color";
 
-    // Convert ref and src to LAB
     const KoColorSpace* labCS = KoColorSpaceRegistry::instance()->lab16();
     if (!labCS) {
         dbgPlugins << "The LAB colorspace is not available.";
         return;
     }
-    
+
     dbgPlugins << "convert a copy of src to lab";
     const KoColorSpace* oldCS = device->colorSpace();
     KisPaintDeviceSP srcLAB = new KisPaintDevice(*device.data());
@@ -95,7 +91,6 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     KoUpdater *updaterStats = compositeUpdater.startSubtask(1);
     KoUpdater *updaterMap = compositeUpdater.startSubtask(2);
 
-    // Compute the means and sigmas of src
     dbgPlugins << "Compute the means and sigmas of src";
     double meanL_src = 0., meanA_src = 0., meanB_src = 0.;
     double sigmaL_src = 0., sigmaA_src = 0., sigmaB_src = 0.;
@@ -119,8 +114,7 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
             totalWeight += w;
         }
     }
-    
-    // double totalSize = 1. / (applyRect.width() * applyRect.height());   // the old divisor: every pixel of the rectangle, transparent or not
+
     double totalSize = totalWeight > 0. ? 1. / totalWeight : 1. / (applyRect.width() * applyRect.height());
     meanL_src *= totalSize;
     meanA_src *= totalSize;
@@ -128,7 +122,7 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     sigmaL_src *= totalSize;
     sigmaA_src *= totalSize;
     sigmaB_src *= totalSize;
-    
+
     dbgPlugins << totalSize << "" << meanL_src << "" << meanA_src << "" << meanB_src << "" << sigmaL_src << "" << sigmaA_src << "" << sigmaB_src;
 
     const bool hasSource = config->getBool("hasSource", false);
@@ -140,7 +134,7 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     double sigmaB_ref = hasSource ? config->getDouble("sigmaB") : sigmaB_src;
 
     if (config->getBool("neutralize", false)) {
-        const double neutralAB = 32768.0; // Krita's lab16 encodes neutral a/b at the midpoint of the unsigned 16-bit range
+        const double neutralAB = 32768.0;
         meanA_ref = neutralAB;
         meanB_ref = neutralAB;
     }
@@ -149,8 +143,6 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     const double colorIntensityPct = config->getInt("colorIntensity", 100) / 100.0;
     const double fadePct = config->getInt("fade", 0) / 100.0;
 
-
-    // Transfer colors
     dbgPlugins << "Transfer colors";
     {
         auto spreadRatio = [](double refSigma, double refMean, double srcSigma, double srcMean) {
@@ -158,9 +150,6 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
             const double den = srcSigma - srcMean * srcMean;
             return (den > 1e-6 && num >= 0.) ? sqrt(num / den) : 1.0;
         };
-        // double coefL = sqrt((sigmaL_ref - meanL_ref * meanL_ref) / (sigmaL_src - meanL_src * meanL_src));
-        // double coefA = sqrt((sigmaA_ref - meanA_ref * meanA_ref) / (sigmaA_src - meanA_src * meanA_src));
-        // double coefB = sqrt((sigmaB_ref - meanB_ref * meanB_ref) / (sigmaB_src - meanB_src * meanB_src));
         double coefL = spreadRatio(sigmaL_ref, meanL_ref, sigmaL_src, meanL_src);
         double coefA = spreadRatio(sigmaA_ref, meanA_ref, sigmaA_src, meanA_src);
         double coefB = spreadRatio(sigmaB_ref, meanB_ref, sigmaB_src, meanB_src);
@@ -177,14 +166,10 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
             double matchedA = ((double)data[1] - meanA_src) * coefA + meanA_ref;
             double matchedB = ((double)data[2] - meanB_src) * coefB + meanB_ref;
 
-            // Luminance: direct brightness scale on the matched result.
             matchedL *= luminancePct;
-            // Color Intensity: scales chroma (distance from neutral gray);
-            // a value of 1% collapses a/b to neutral, i.e. grayscale.
             matchedA = neutralAB + (matchedA - neutralAB) * colorIntensityPct;
             matchedB = neutralAB + (matchedB - neutralAB) * colorIntensityPct;
 
-            // Fade: blend back toward the original, unmatched pixel.
             matchedL = matchedL * (1.0 - fadePct) + (double)data[0] * fadePct;
             matchedA = matchedA * (1.0 - fadePct) + (double)data[1] * fadePct;
             matchedB = matchedB * (1.0 - fadePct) + (double)data[2] * fadePct;

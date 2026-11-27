@@ -59,13 +59,12 @@ extern "C" {
 #include <vector>
 #include "KrimbleSmartCompression.h"
 
-#define ICC_MARKER  (JPEG_APP0 + 2) /* JPEG marker code for ICC */
-#define ICC_OVERHEAD_LEN  14    /* size of non-profile data in APP2 */
-#define MAX_BYTES_IN_MARKER  65533  /* maximum data len of a JPEG marker */
+#define ICC_MARKER  (JPEG_APP0 + 2)
+#define ICC_OVERHEAD_LEN  14
+#define MAX_BYTES_IN_MARKER  65533
 #define MAX_DATA_BYTES_IN_MARKER  (MAX_BYTES_IN_MARKER - ICC_OVERHEAD_LEN)
 
 const char photoshopMarker[] = "Photoshop 3.0\0";
-//const char photoshopBimId_[] = "8BIM";
 const uint16_t photoshopIptc = 0x0404;
 const char xmpMarker[] = "http://ns.adobe.com/xap/1.0/\0";
 const QByteArray photoshopIptc_((char*)&photoshopIptc, 2);
@@ -148,19 +147,13 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
         KisJPEGSource::setSource(&cinfo, io);
 
         jpeg_save_markers(&cinfo, JPEG_COM, 0xFFFF);
-        /* Save APP0..APP15 markers */
         for (int m = 0; m < 16; m++)
             jpeg_save_markers(&cinfo, JPEG_APP0 + m, 0xFFFF);
 
-
-        //     setup_read_icc_profile(&cinfo);
-        // read header
         jpeg_read_header(&cinfo, (boolean)true);
 
-        // start reading
         jpeg_start_decompress(&cinfo);
 
-        // Get the colorspace
         QString modelId = getColorSpaceModelForColorType(cinfo.out_color_space);
         if (modelId.isEmpty()) {
             dbgFile << "unsupported colorspace :" << cinfo.out_color_space;
@@ -175,12 +168,10 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
 
         if (read_icc_profile(&cinfo, &profile_data, &profile_len)) {
             QByteArray profile_rawdata(reinterpret_cast<char*>(profile_data), static_cast<int>(profile_len));
-            // read_icc_profile allocates memory, and we need to free it
             free(profile_data);
 
             profile = KoColorSpaceRegistry::instance()->createColorProfile(modelId, Integer8BitsColorDepthID.id(), profile_rawdata);
             dbgFile <<"profile name:" << profile->name() <<" product information:" << profile->info();
-            //This is stadard for profiles like this
             if (!profile->isSuitableForWorkspace()) {
               dbgFile << "the profile is not suitable for workspace and therefore cannot be used in krita, we need to convert the image to a standard profile";
             }
@@ -189,7 +180,6 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
         const QString colorSpaceId =
             KoColorSpaceRegistry::instance()->colorSpaceId(modelId, Integer8BitsColorDepthID.id());
 
-        // Check that the profile is used by the color space
         if (profile
             && (!KoColorSpaceRegistry::instance()->profileIsCompatible(profile, colorSpaceId)
             ||  !(profile->isSuitableForInput() || profile->isSuitableForOutput()))) {
@@ -197,7 +187,6 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
             profile = 0;
         }
 
-        // Retrieve a pointer to the colorspace
         const KoColorSpace* cs = nullptr;
         if (profile && profile->isSuitableForWorkspace()) {
             dbgFile << "image has embedded profile:" << profile -> name() << "";
@@ -211,7 +200,6 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
             return ImportExportCodes::FormatColorSpaceUnsupported;
         }
 
-        // Create the cmsTransform if needed
         KoColorTransformation* transform = 0;
         if (profile && !profile->isSuitableForWorkspace() && profile->isSuitableForInput()) {
             transform = KoColorSpaceRegistry::instance()
@@ -219,20 +207,16 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
                 ->createColorConverter(cs, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags());
         }
 
-        // Apparently an invalid transform was created from the profile. See bug https://bugs.kde.org/show_bug.cgi?id=255451.
-        // After 2.3: warn the user!
         if (transform && !transform->isValid()) {
             delete transform;
             transform = 0;
         }
 
-        // Creating the KisImageSP
         if (!m_d->image) {
             m_d->image = new KisImage(m_d->doc->createUndoStore(),  cinfo.image_width,  cinfo.image_height, cs, "built image");
             Q_CHECK_PTR(m_d->image);
         }
 
-        // Set resolution
         double xres = 72, yres = 72;
         if (cinfo.density_unit == 1) {
             xres = cinfo.X_density;
@@ -247,12 +231,10 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
         if (yres < 72) {
             yres = 72;
         }
-        m_d->image->setResolution(POINT_TO_INCH(xres), POINT_TO_INCH(yres));   // It is the "invert" macro because we convert from pointer-per-inch to points
+        m_d->image->setResolution(POINT_TO_INCH(xres), POINT_TO_INCH(yres));
 
-        // Create layer
         KisPaintLayerSP layer = KisPaintLayerSP(new KisPaintLayer(m_d->image.data(), m_d->image -> nextLayerName(), quint8_MAX));
 
-        // Read data
         JSAMPROW row_pointer = new JSAMPLE[cinfo.image_width*cinfo.num_components];
 
         for (; cinfo.output_scanline < cinfo.image_height;) {
@@ -299,15 +281,13 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
 
         m_d->image->addNode(KisNodeSP(layer.data()), m_d->image->rootLayer().data());
 
-        // Read exif information
-
         dbgFile << "Looking for exif information";
 
         for (jpeg_saved_marker_ptr marker = cinfo.marker_list; marker != 0; marker = marker->next) {
             dbgFile << "Marker is" << marker->marker;
             if (marker->marker != (JOCTET)(JPEG_APP0 + 1)
                     || marker->data_length < 14) {
-                continue; /* Exif data is in an APP1 marker of at least 14 octets */
+                continue;
             }
 
             if (GETJOCTET(marker->data[0]) != (JOCTET) 0x45 ||
@@ -316,7 +296,7 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
                     GETJOCTET(marker->data[3]) != (JOCTET) 0x66 ||
                     GETJOCTET(marker->data[4]) != (JOCTET) 0x00 ||
                     GETJOCTET(marker->data[5]) != (JOCTET) 0x00)
-                continue; /* no Exif header */
+                continue;
 
             dbgFile << "Found exif information of length :" << marker->data_length;
             KisMetaData::IOBackend *exifIO = KisMetadataBackendRegistry::instance()->value("exif");
@@ -324,7 +304,6 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
             QByteArray byteArray((const char*)marker->data + 6, marker->data_length - 6);
             QBuffer buf(&byteArray);
             exifIO->loadFrom(layer->metaData(), &buf);
-            // Interpret orientation tag
             if (layer->metaData()->containsEntry("http://ns.adobe.com/tiff/1.0/", "Orientation")) {
                 KisMetaData::Entry& entry = layer->metaData()->getEntry("http://ns.adobe.com/tiff/1.0/", "Orientation");
                 if (entry.value().type() == KisMetaData::Value::Variant) {
@@ -366,14 +345,14 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
         for (jpeg_saved_marker_ptr marker = cinfo.marker_list; marker != 0; marker = marker->next) {
             dbgFile << "Marker is" << marker->marker;
             if (marker->marker != (JOCTET)(JPEG_APP0 + 13) ||  marker->data_length < 14) {
-                continue; /* IPTC data is in an APP13 marker of at least 16 octets */
+                continue;
             }
             if (memcmp(marker->data, photoshopMarker, 14) != 0) {
                 for (int i = 0; i < 14; i++) {
                     dbgFile << (int)(*(marker->data + i)) << "" << (int)(photoshopMarker[i]);
                 }
                 dbgFile << "No PS marker";
-                continue; /* No IPTC Header */
+                continue;
             }
 
             dbgFile << "Found PS information of length :" << marker->data_length;
@@ -382,7 +361,6 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
             const Exiv2::byte *record = 0;
             uint32_t sizeIptc = 0;
             uint32_t sizeHdr = 0;
-            // Find actual Iptc data within the APP13 segment
             if (!Exiv2::Photoshop::locateIptcIrb((Exiv2::byte*)(marker->data + 14),
 #if EXIV2_TEST_VERSION(0,28,0)
                                                  marker->data_length - 14, &record, sizeHdr, sizeIptc)) {
@@ -390,7 +368,6 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
                                                  marker->data_length - 14, &record, &sizeHdr, &sizeIptc)) {
 #endif
                 if (sizeIptc) {
-                    // Decode the IPTC data
                     QByteArray byteArray((const char*)(record + sizeHdr), sizeIptc);
                     QBuffer buf(&byteArray);
                     iptcIO->loadFrom(layer->metaData(), &buf);
@@ -406,11 +383,11 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
         for (jpeg_saved_marker_ptr marker = cinfo.marker_list; marker != 0; marker = marker->next) {
             dbgFile << "Marker is" << marker->marker;
             if (marker->marker != (JOCTET)(JPEG_APP0 + 1) || marker->data_length < 31) {
-                continue; /* XMP data is in an APP1 marker of at least 31 octets */
+                continue;
             }
             if (memcmp(marker->data, xmpMarker, 29) != 0) {
                 dbgFile << "Not XMP marker";
-                continue; /* No xmp Header */
+                continue;
             }
             dbgFile << "Found XMP Marker of length " << marker->data_length;
             QByteArray byteArray((const char*)marker->data + 29, marker->data_length - 29);
@@ -420,19 +397,16 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
             break;
         }
 
-        // Dump loaded metadata
         layer->metaData()->debugDump();
 
-        // Check whether the metadata has resolution info, too...
         if (cinfo.density_unit == 0 && layer->metaData()->containsEntry("tiff:XResolution") && layer->metaData()->containsEntry("tiff:YResolution")) {
             double xres = layer->metaData()->getEntry("tiff:XResolution").value().asDouble();
             double yres = layer->metaData()->getEntry("tiff:YResolution").value().asDouble();
             if (xres != 0 && yres != 0) {
-                m_d->image->setResolution(POINT_TO_INCH(xres), POINT_TO_INCH(yres));   // It is the "invert" macro because we convert from pointer-per-inch to points
+                m_d->image->setResolution(POINT_TO_INCH(xres), POINT_TO_INCH(yres));
             }
         }
 
-        // Finish decompression
         jpeg_finish_decompress(&cinfo);
         jpeg_destroy_decompress(&cinfo);
         delete [] row_pointer;
@@ -444,19 +418,15 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
     }
 }
 
-
-
 KisImportExportErrorCode KisJPEGConverter::buildImage(QIODevice *io)
 {
     return decode(io);
 }
 
-
 KisImageSP KisJPEGConverter::image()
 {
     return m_d->image;
 }
-
 
 static std::vector<uint8_t> krimbleSmartMask(const KisJPEGOptions &options, KisImageSP image, KisPaintDeviceSP dev, J_COLOR_SPACE colorType, int w, int h)
 {
@@ -475,7 +445,7 @@ static std::vector<uint8_t> krimbleSmartMask(const KisJPEGOptions &options, KisI
         return mask;
     }
     if (colorType == JCS_CMYK) {
-        return mask;   // no Smart Selection for CMYK pictures: nothing protected
+        return mask;
     }
     std::vector<uint8_t> lum(size_t(w) * h);
     for (int y = 0; y < h; ++y) {
@@ -541,7 +511,7 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         fillPainter.bitBlt(QPoint(0, 0), layer->paintDevice(), QRect(0, 0, width, height));
         fillPainter.end();
     }
-    bool krimbleGray = false;   // SmartCompression: written as a one-channel gray JPEG
+    bool krimbleGray = false;
     bool krimbleLuma = false;
     if (options.smartForceGray && color_type == JCS_RGB) {
         krimbleGray = true;
@@ -558,37 +528,29 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         smartBuffer.open(QIODevice::WriteOnly);
     }
 
-    // Initialize structure
     struct jpeg_compress_struct cinfo;
-    // Initialize error output
     struct jpeg_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr);
     jerr.error_exit = jpegErrorExit;
 
     try {
 
-
         jpeg_create_compress(&cinfo);
-        // Initialize output stream
         KisJPEGDestination::setDestination(&cinfo, krimbleSmart ? static_cast<QIODevice *>(&smartBuffer) : io);
 
-        cinfo.image_width = width;  // image width and height, in pixels
+        cinfo.image_width = width;
         cinfo.image_height = height;
         cinfo.input_components = krimbleGray ? 1 : cs->colorChannelCount();
-        cinfo.in_color_space = color_type;   // colorspace of input image
+        cinfo.in_color_space = color_type;
 
-        // Set default compression parameters
         jpeg_set_defaults(&cinfo);
-        // Customize them
         jpeg_set_quality(&cinfo, options.quality, (boolean)options.baseLineJPEG);
 
         if (options.progressive) {
             jpeg_simple_progression(&cinfo);
         }
-        // Optimize ?
         cinfo.optimize_coding = (boolean)options.optimize;
 
-        // Smoothing
         cinfo.smoothing_factor = (boolean)options.smooth;
 
         if (krimbleGray) {
@@ -633,19 +595,15 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
             break;
         }
 
-        // Save resolution
-        cinfo.X_density = INCH_TO_POINT(image->xRes()); // It is the "invert" macro because we convert from pointer-per-inch to points
-        cinfo.Y_density = INCH_TO_POINT(image->yRes()); // It is the "invert" macro because we convert from pointer-per-inch to points
+        cinfo.X_density = INCH_TO_POINT(image->xRes());
+        cinfo.Y_density = INCH_TO_POINT(image->yRes());
         cinfo.density_unit = 1;
         cinfo.write_JFIF_header = (boolean)true;
 
-        // Start compression
         jpeg_start_compress(&cinfo, (boolean)true);
-        // Save exif and iptc information if any available
 
         if (metaData && !metaData->empty()) {
             metaData->applyFilters(options.filters);
-            // Save EXIF
             if (options.exif) {
                 dbgFile << "Trying to save exif information";
 
@@ -660,10 +618,9 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
                 if (data.size() < MAX_DATA_BYTES_IN_MARKER) {
                     jpeg_write_marker(&cinfo, JPEG_APP0 + 1, (const JOCTET*)data.data(), data.size());
                 } else {
-                    dbgFile << "EXIF information could not be saved."; // TODO: warn the user ?
+                    dbgFile << "EXIF information could not be saved.";
                 }
             }
-            // Save IPTC
             if (options.iptc) {
                 dbgFile << "Trying to save exif information";
                 KisMetaData::IOBackend *iptcIO = KisMetadataBackendRegistry::instance()->value("iptc");
@@ -677,10 +634,9 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
                 if (data.size() < MAX_DATA_BYTES_IN_MARKER) {
                     jpeg_write_marker(&cinfo, JPEG_APP0 + 13, (const JOCTET*)data.data(), data.size());
                 } else {
-                    dbgFile << "IPTC information could not be saved."; // TODO: warn the user ?
+                    dbgFile << "IPTC information could not be saved.";
                 }
             }
-            // Save XMP
             if (options.xmp) {
                 dbgFile << "Trying to save XMP information";
                 KisMetaData::IOBackend *xmpIO = KisMetadataBackendRegistry::instance()->value("xmp");
@@ -694,21 +650,16 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
                 if (data.size() < MAX_DATA_BYTES_IN_MARKER) {
                     jpeg_write_marker(&cinfo, JPEG_APP0 + 14, (const JOCTET*)data.data(), data.size());
                 } else {
-                    dbgFile << "XMP information could not be saved."; // TODO: warn the user ?
+                    dbgFile << "XMP information could not be saved.";
                 }
             }
         }
-
-
-
 
         if (options.saveProfile && !krimbleGray) {
             const KoColorProfile* colorProfile = layer->colorSpace()->profile();
             QByteArray colorProfileData = colorProfile->rawData();
             write_icc_profile(& cinfo, (uchar*) colorProfileData.data(), colorProfileData.size());
         }
-
-        // Write data information
 
         JSAMPROW row_pointer = new JSAMPLE[width*cinfo.input_components];
         int color_nb_bits = 8 * layer->paintDevice()->pixelSize() / layer->paintDevice()->channelCount();
@@ -720,15 +671,14 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
             case JCS_GRAYSCALE:
                 if (color_nb_bits == 16) {
                     do {
-                        //const quint16 *d = reinterpret_cast<const quint16 *>(it->oldRawData());
                         const quint8 *d = it->oldRawData();
-                        *(dst++) = cs->scaleToU8(d, 0);//d[0] / quint8_MAX;
+                        *(dst++) = cs->scaleToU8(d, 0);
 
                     } while (it->nextPixel());
                 } else {
                     do {
                         const quint8 *d = it->oldRawData();
-                        *(dst++) = krimbleLuma ? quint8((299 * d[2] + 587 * d[1] + 114 * d[0]) / 1000) : d[0];   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous."
+                        *(dst++) = krimbleLuma ? quint8((299 * d[2] + 587 * d[1] + 114 * d[0]) / 1000) : d[0];
 
                     } while (it->nextPixel());
                 }
@@ -736,11 +686,10 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
             case JCS_RGB:
                 if (color_nb_bits == 16) {
                     do {
-                        //const quint16 *d = reinterpret_cast<const quint16 *>(it->oldRawData());
                         const quint8 *d = it->oldRawData();
-                        *(dst++) = cs->scaleToU8(d, 2); //d[2] / quint8_MAX;
-                        *(dst++) = cs->scaleToU8(d, 1); //d[1] / quint8_MAX;
-                        *(dst++) = cs->scaleToU8(d, 0); //d[0] / quint8_MAX;
+                        *(dst++) = cs->scaleToU8(d, 2);
+                        *(dst++) = cs->scaleToU8(d, 1);
+                        *(dst++) = cs->scaleToU8(d, 0);
 
                     } while (it->nextPixel());
                 } else {
@@ -756,12 +705,11 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
             case JCS_CMYK:
                 if (color_nb_bits == 16) {
                     do {
-                        //const quint16 *d = reinterpret_cast<const quint16 *>(it->oldRawData());
                         const quint8 *d = it->oldRawData();
-                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 0);//quint8_MAX - d[0] / quint8_MAX;
-                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 1);//quint8_MAX - d[1] / quint8_MAX;
-                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 2);//quint8_MAX - d[2] / quint8_MAX;
-                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 3);//quint8_MAX - d[3] / quint8_MAX;
+                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 0);
+                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 1);
+                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 2);
+                        *(dst++) = quint8_MAX - cs->scaleToU8(d, 3);
 
                     } while (it->nextPixel());
                 } else {
@@ -783,8 +731,6 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
             jpeg_write_scanlines(&cinfo, &row_pointer, 1);
         }
 
-
-        // Writing is over
         jpeg_finish_compress(&cinfo);
 
         if (krimbleSmart) {
@@ -803,7 +749,6 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         }
 
         delete [] row_pointer;
-        // Free memory
         jpeg_destroy_compress(&cinfo);
 
         return ImportExportCodes::OK;
@@ -815,10 +760,8 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
 
 }
 
-
 void KisJPEGConverter::cancel()
 {
     m_d->stop = true;
 }
-
 

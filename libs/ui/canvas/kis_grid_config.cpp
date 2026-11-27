@@ -42,7 +42,6 @@ void KisGridConfig::transform(const QTransform &transform)
         }
 
         m_spacing = KisAlgebra2D::abs(t.map(m_spacing));
-        // Transform map may round spacing down to 0, but it must be at least 1
         m_spacing.setX(qMax(1, m_spacing.x()));
         m_spacing.setY(qMax(1, m_spacing.y()));
 
@@ -129,7 +128,6 @@ bool KisGridConfig::loadDynamicDataFromXml(const QDomElement &gridElement)
     result &= KisDomUtils::loadValue(gridElement, "cellSpacing", &m_cellSpacing);
     result &= KisDomUtils::loadValue(gridElement, "gridType", (int*)(&m_gridType));
 
-    // following variables may not be present in older files; do not update result variable
     KisDomUtils::loadValue(gridElement, "offsetActive", &m_offsetActive);
     KisDomUtils::loadValue(gridElement, "xSpacingActive", &m_xSpacingActive);
     KisDomUtils::loadValue(gridElement, "ySpacingActive", &m_ySpacingActive);
@@ -180,15 +178,12 @@ void KisGridConfig::updatePenStyle(QPen *pen, QColor color, LineTypeInternal typ
     } else if (type == LINE_NONE) {
         pen->setStyle(Qt::NoPen);
     } else {
-        // assume it's SOLID by default
         pen->setStyle(Qt::SolidLine);
     }
 }
 
 void KisGridConfig::updateTrigoCache()
 {
-    // Here some variable needed to render grid that can be calculated when grid settings in done, instead
-    // of doing recalculation on every canvas refresh
     const qreal cosAngleRight = qCos(qDegreesToRadians(m_angleRight));
     const qreal cosAngleLeft = qCos(qDegreesToRadians(m_angleLeft));
 
@@ -211,7 +206,6 @@ void KisGridConfig::updateTrigoCache()
     if (m_angleRight == m_angleLeft && m_lineTypeIsoVertical != LINE_NONE) {
         m_trigoCache.verticalSpace = m_subdivision * m_cellSize * (cosAngleLeft + cosAngleRight) / 2;
     } else {
-        // allow vertical grid line only if angle left and right are the same
         m_trigoCache.verticalSpace = 0;
     }
 }

@@ -26,10 +26,6 @@ KisExperimentPaintOpSettings::~KisExperimentPaintOpSettings()
 
 bool KisExperimentPaintOpSettings::paintIncremental()
 {
-    /**
-     * The experiment brush supports working in the
-     * WASH mode only!
-     */
     return false;
 }
 
@@ -60,8 +56,6 @@ KisOptimizedBrushOutline KisExperimentPaintOpSettings::brushOutline(const KisPai
 #include "kis_standard_uniform_properties_factory.h"
 #include <KisOptimizedBrushOutline.h>
 #include "KisExperimentOpOptionData.h"
-
-
 
 QList<KisUniformPaintOpPropertySP> KisExperimentPaintOpSettings::uniformProperties(KisPaintOpSettingsSP settings, QPointer<KisPaintOpPresetUpdateProxy> updateProxy)
 {

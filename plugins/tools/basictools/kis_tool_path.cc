@@ -13,7 +13,6 @@
 #include <canvas/kis_canvas2.h>
 #include <kis_canvas_resource_provider.h>
 
-
 KisToolPath::KisToolPath(KoCanvasBase * canvas)
     : DelegatedPathTool(canvas, Qt::ArrowCursor,
                         new __KisToolPathLocalTool(canvas, this))
@@ -56,9 +55,6 @@ void KisToolPath::mousePressEvent(KoPointerEvent *event)
     Q_UNUSED(event)
 }
 
-// Install an event filter to catch right-click events.
-// The simplest way to accommodate the popup palette binding.
-// This code is duplicated in kis_tool_select_path.cc
 bool KisToolPath::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
@@ -121,7 +117,6 @@ QList<QPointer<QWidget> > KisToolPath::createOptionWidgets()
     QList<QPointer<QWidget> > widgets = DelegatedPathTool::createOptionWidgets();
     return widgets;
 }
-
 
 __KisToolPathLocalTool::__KisToolPathLocalTool(KoCanvasBase * canvas, KisToolPath* parentTool)
     : KoCreatePathTool(canvas)

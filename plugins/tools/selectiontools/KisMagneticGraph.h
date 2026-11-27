@@ -56,8 +56,6 @@ struct VertexDescriptor {
         return x < rhs.x || (x == rhs.x && y < rhs.y);
     }
 
-    // returns one of the 8 neighboring pixel based on the direction
-    // it gives out multiple warnings, but I am lazy, sorry
     VertexDescriptor neighbor(Direction direction) const
     {
         int dx = 0, dy = 0;
@@ -100,7 +98,7 @@ struct VertexDescriptor {
 
         VertexDescriptor const neighbor(x + dx, y + dy);
         return neighbor;
-    } // neighbor
+    }
 };
 
 QDebug operator << (QDebug dbg, const VertexDescriptor &v)
@@ -136,7 +134,6 @@ struct KisMagneticGraph {
     typedef neighbour_iterator out_edge_iterator;
     typedef unsigned degree_size_type;
 
-
     quint8 getIntensity(VertexDescriptor pt)
     {
         m_randAccess->moveTo(pt.x, pt.y);
@@ -146,7 +143,6 @@ struct KisMagneticGraph {
 
     unsigned outDegree(VertexDescriptor pt)
     {
-        // corners
         if (pt == m_rect.topLeft() || pt == m_rect.topRight() ||
             pt == m_rect.bottomLeft() || pt == m_rect.bottomRight())
         {
@@ -156,7 +152,6 @@ struct KisMagneticGraph {
             return 3;
         }
 
-        // edges
         if (pt.x == m_rect.topLeft().x() || pt.y == m_rect.topLeft().y() ||
             pt.x == m_rect.bottomRight().x() || pt.y == m_rect.bottomRight().y())
         {
@@ -226,9 +221,6 @@ private:
     KisMagneticGraph            m_graph;
 };
 
-// Requirements for an Incidence Graph,
-// https://www.boost.org/doc/libs/1_70_0/libs/graph/doc/IncidenceGraph.html
-
 namespace boost {
 template <>
 struct graph_traits<KisMagneticGraph> {
@@ -275,4 +267,4 @@ typename KisMagneticGraph::degree_size_type out_degree(typename KisMagneticGraph
     return g.outDegree(v);
 }
 
-#endif // ifndef KISMAGNETICGRAPH_H
+#endif

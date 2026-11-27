@@ -13,7 +13,6 @@
 #include "kis_paint_device.h"
 #include "kis_iterator_ng.h"
 
-
 struct DevicePolicy {
     DevicePolicy(KisPaintDeviceSP dev) : m_dev(dev) {}
 
@@ -97,11 +96,11 @@ private:
 
 struct NoProgressPolicy
 {
-    ALWAYS_INLINE void setRange(int /* minimum */, int /* maximum */)
+    ALWAYS_INLINE void setRange(int , int )
     {
     }
 
-    ALWAYS_INLINE void setValue(int /* value */)
+    ALWAYS_INLINE void setValue(int )
     {
     }
 
@@ -109,69 +108,6 @@ struct NoProgressPolicy
     {
     }
 };
-
-/**
- * Sequential iterator is supposed to be used when you need to
- * read/write a rect of the image and you don't want to think about
- * row or column nested loops. For the sequential iterator you will
- * need a single loop: the data will be read line-by-line using an
- * internal hline iterator. Please note that thanks to inline
- * optimizations inside the sequential iterator when doing
- * pixel-by-pixel processing it is about twice faster(!)  than a usual
- * hline iterator.
- *
- * The follows the "java-style" iterators rules. Before requesting the
- * first pixel from the iterator you should call nextPixel() to "jump over"
- * this first pixel. After the jump is accomplished, you can easily request
- * the "jumped over" pixel data.
- *
- * The modified rules apply when the user wants accesses consequent pixels
- * in one go. The user first asks the iterator for the number of available
- * consequent pixels, and then calls nextPixels(numConseqPixels). In this
- * case, iterator inserts a "virtual" pixel that one should jump over before
- * doing any real iteration.
- *
- * Iteration in pixel-by-pixel manner:
- *
- * \code{.cpp}
- * KisSequentialConstIterator it(dev, rect);
- * while (it.nextPixel()) {
- *     quint *ptr = it.rawDataConst();
- *     // work with ptr...
- * }
- * \endcode
- *
- * Iteration with strides:
- *
- * \code{.cpp}
- * KisSequentialConstIterator it(dev, rect);
- *
- * // Here we jump over the first "virtual" pixel,
- * // which helps us to avoid an empty rect problem
- *
- * int numConseqPixels = it.nConseqPixels();
- * while (it.nextPixels(numConseqPixels)) {
- *
- *     // get real number of conseq pixels
- *
- *     numConseqPixels = it.nConseqPixels();
- *     quint *ptr = it.rawDataConst();
- *
- *     // process the data
- *     processPixelData(tr, numConseqPixels);
- * }
- * \endcode
- *
- *
- * Implementation:
- *
- * The iterator is implemented using a policy pattern. The class
- * itself is a template which accepts a special class (policy) that
- * defines: 1) which type of the hline iterator will be used; 2) what
- * methods of the internal hline iterator will be called. The choice
- * of the policy declares whether the iterator will be writable or
- * const.
- */
 
 template <class IteratorPolicy, class SourcePolicy = DevicePolicy, class ProgressPolicy = NoProgressPolicy>
 class KisSequentialIteratorBase
@@ -207,7 +143,6 @@ public:
     }
 
     inline bool nextPixels(int numPixels) {
-        // leave one step for the nextPixel() call
         numPixels--;
 
         m_columnsLeft -= numPixels;
@@ -241,7 +176,6 @@ public:
                 m_policy.updatePointersCache();
                 m_progressPolicy.setValue(m_policy.m_iter->y());
             } else if (m_rowsLeft == 0) {
-                // report that we have completed iteration
                 m_progressPolicy.setValue(m_policy.m_iter->y() + 1);
             }
 
@@ -251,7 +185,6 @@ public:
         return m_columnsLeft > 0;
     }
 
-
     ALWAYS_INLINE int x() const {
         return m_iteratorX + m_numConseqPixels - m_columnsLeft;
     }
@@ -260,8 +193,6 @@ public:
         return m_iteratorY;
     }
 
-    // SFINAE: This method becomes undefined for const version of the
-    //         iterator automatically
     ALWAYS_INLINE quint8* rawData() {
         return m_policy.rawData() + m_columnOffset;
     }
@@ -294,4 +225,4 @@ private:
 typedef KisSequentialIteratorBase<ReadOnlyIteratorPolicy<> > KisSequentialConstIterator;
 typedef KisSequentialIteratorBase<WritableIteratorPolicy<> > KisSequentialIterator;
 
-#endif /* __KIS_SEQUENTIAL_ITERATOR_H */
+#endif

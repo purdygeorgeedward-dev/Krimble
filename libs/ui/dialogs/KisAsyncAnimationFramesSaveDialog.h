@@ -10,7 +10,6 @@
 #include "KisAsyncAnimationRenderDialogBase.h"
 #include "kis_types.h"
 
-
 class KRITAUI_EXPORT KisAsyncAnimationFramesSaveDialog : public KisAsyncAnimationRenderDialogBase
 {
 public:
@@ -43,4 +42,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISASYNCANIMATIONFRAMESSAVEDIALOG_H
+#endif

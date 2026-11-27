@@ -35,4 +35,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // KIS_DLG_CHANGE_CLONE_SOURCE_H_
+#endif

@@ -31,4 +31,4 @@ private:
     Ui::DlgHeifImport *ui;
 };
 
-#endif // KIS_DLG_HDR_IMPORT_H
+#endif

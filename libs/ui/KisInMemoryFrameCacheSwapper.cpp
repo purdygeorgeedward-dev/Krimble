@@ -8,7 +8,6 @@
 #include <QMap>
 #include <kis_update_info.h>
 
-
 struct KRITAUI_NO_EXPORT KisInMemoryFrameCacheSwapper::Private
 {
     QMap<int, KisOpenGLUpdateInfoSP> framesMap;

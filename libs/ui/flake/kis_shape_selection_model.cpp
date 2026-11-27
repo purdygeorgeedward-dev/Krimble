@@ -16,7 +16,6 @@
 #include "kis_image.h"
 #include "kis_update_selection_job.h"
 
-
 KisShapeSelectionModel::KisShapeSelectionModel(KisImageResolutionProxySP resolutionProxy, KisSelectionWSP selection, KisShapeSelection* shapeSelection)
     : m_resolutionProxy(resolutionProxy)
     , m_parentSelection(selection)
@@ -73,9 +72,6 @@ void KisShapeSelectionModel::add(KoShape *child)
     updateRect = matrix.mapRect(updateRect);
 
     if (m_shapeMap.count() == 1) {
-        // The shape is the first one, so the shape selection just got created
-        // Pixel selection provides no longer the datamanager of the selection
-        // so update the whole selection
         requestUpdate(QRect());
     } else {
         requestUpdate(updateRect);
@@ -95,7 +91,7 @@ void KisShapeSelectionModel::remove(KoShape *child)
     QTransform matrix;
     matrix.scale(m_resolutionProxy->xRes(), m_resolutionProxy->yRes());
     updateRect = matrix.mapRect(updateRect);
-    if (m_shapeSelection) { // No m_shapeSelection indicates the selection is being deleted
+    if (m_shapeSelection) {
         requestUpdate(updateRect);
     }
 }
@@ -151,7 +147,6 @@ void KisShapeSelectionModel::childChanged(KoShape * child, KoShape::ChangeType t
 {
     if (!m_shapeSelection) return;
 
-    // TODO: check if still needed
     if (type == KoShape::ParentChanged) return;
 
     QRectF changedRect = m_shapeMap[child];

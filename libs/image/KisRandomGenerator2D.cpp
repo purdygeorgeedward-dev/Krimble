@@ -9,7 +9,6 @@
 
 #include "KisRandomGenerator2D.h"
 
-/* Mac OS X doesn't define a number of UINT* macros without this before stdlib.h */
 #define __STDC_LIMIT_MACROS
 
 #include <stdlib.h>
@@ -52,7 +51,6 @@ quint64 KisRandomGenerator2D::randomAt(qint64 x, qint64 y)
     const quint64 kxb = 48058817213113801LL;
     const quint64 kyb = 9206429469018994469LL;
 
-    // Generate salts
     quint64 n1 = (quint64(x + 5) * kxa) * d->seed;
     quint64 n2 = (quint64(y + 7) * kya) + (d->seed * 1040097393733LL);
     n1 = permuteWhole(n1, 8759824322359LL, 13);
@@ -62,7 +60,6 @@ quint64 KisRandomGenerator2D::randomAt(qint64 x, qint64 y)
     n1 ^= x ^ (quint64(y ^ d->seed) * kyb);
     n2 ^= y ^ (quint64(x + 13)   * kxb);
 
-    // Combine salts
     quint64 v = 0;
     for (int p = 0; p < 8; ++p)
         v |= part(n1, n2, p);

@@ -11,7 +11,6 @@
 #include "kis_queues_progress_updater.h"
 #include <testutil.h>
 
-
 void KisQueuesProgressUpdaterTest::testSlowProgress()
 {
     TestUtil::TestProgressBar progressProxy;
@@ -52,9 +51,6 @@ void KisQueuesProgressUpdaterTest::testSlowProgress()
 
 void KisQueuesProgressUpdaterTest::testFastProgress()
 {
-    /**
-     * If the progress is too fast we don't even touch the bar
-     */
 
     TestUtil::TestProgressBar progressProxy;
     KisQueuesProgressUpdater updater(&progressProxy);

@@ -28,11 +28,9 @@
 #include <kis_lod_transform.h>
 #include <kis_spacing_information.h>
 
-
-
 #include <KoColorSpaceRegistry.h>
 
-KisHatchingPaintOp::KisHatchingPaintOp(const KisPaintOpSettingsSP settings, KisPainter * painter, KisNodeSP node, KisImageSP /*image*/)
+KisHatchingPaintOp::KisHatchingPaintOp(const KisPaintOpSettingsSP settings, KisPainter * painter, KisNodeSP node, KisImageSP )
     : KisBrushBasedPaintOp(settings, painter)
     , m_angleOption(settings.data())
     , m_crosshatchingOption(settings.data())
@@ -59,7 +57,6 @@ KisHatchingPaintOp::~KisHatchingPaintOp()
 
 KisSpacingInformation KisHatchingPaintOp::paintAt(const KisPaintInformation& info)
 {
-    //------START SIMPLE ERROR CATCHING-------
     if (!painter()->device()) return KisSpacingInformation(1.0);
 
     if (!m_hatchedDab)
@@ -67,18 +64,14 @@ KisSpacingInformation KisHatchingPaintOp::paintAt(const KisPaintInformation& inf
     else
         m_hatchedDab->clear();
 
-    //Simple convenience renaming, I'm thinking of removing these inherited quirks
     KisBrushSP brush = m_brush;
     KisPaintDeviceSP device = painter()->device();
 
-    //Macro to catch errors
     Q_ASSERT(brush);
 
-    //----------SIMPLE error catching code, maybe it's not even needed------
     if (!brush) return KisSpacingInformation(1.0);
     if (!brush->canPaintFor(info)) return KisSpacingInformation(1.0);
 
-    //SENSOR-depending settings
     m_settings->anglesensorvalue = m_angleOption.apply(info);
     m_settings->crosshatchingsensorvalue = m_crosshatchingOption.apply(info);
     m_settings->separationsensorvalue = m_separationOption.apply(info);
@@ -91,7 +84,6 @@ KisSpacingInformation KisHatchingPaintOp::paintAt(const KisPaintInformation& inf
 
     m_opacityOption.apply(painter(), info);
 
-    /*----Fetch the Dab----*/
     static const KoColorSpace *cs = KoColorSpaceRegistry::instance()->alpha8();
     static KoColor color(Qt::black, cs);
 
@@ -101,22 +93,16 @@ KisSpacingInformation KisHatchingPaintOp::paintAt(const KisPaintInformation& inf
                              shape,
                              info, 1.0, &dstRect);
 
-    // sanity check
     KIS_ASSERT_RECOVER_NOOP(dstRect.size() == maskDab->bounds().size());
 
-    /*-----Convenient renaming for the limits of the maskDab, this will be used
-    to hatch a dab of just the right size------*/
     qint32 x, y, sw, sh;
     dstRect.getRect(&x, &y, &sw, &sh);
 
-    //------This If_block pre-fills the future m_hatchedDab with a pretty backgroundColor
     if (m_hatchingPreferences.useOpaqueBackground) {
         KoColor aersh = painter()->backgroundColor();
-        m_hatchedDab->fill(0, 0, (sw - 1), (sh - 1), aersh.data()); //this plus yellow background = french fry brush
+        m_hatchedDab->fill(0, 0, (sw - 1), (sh - 1), aersh.data());
     }
 
-    /* If block describing how to stack hatching passes to generate
-    crosshatching according to user specifications */
     if (m_crosshatchingOption.isChecked()) {
         if (m_hatchingOptions.crosshatchingStyle == CrosshatchingType::Perpendicular) {
             if (m_settings->crosshatchingsensorvalue > 0.5)
@@ -157,12 +143,9 @@ KisSpacingInformation KisHatchingPaintOp::paintAt(const KisPaintInformation& inf
     if (m_angleOption.isChecked())
       m_hatchingBrush->hatch(m_hatchedDab, x, y, sw, sh, spinAngle((m_settings->anglesensorvalue)*360+m_hatchingOptions.angle), painter()->paintColor(), additionalScale);
 
-    // The base hatch... unless moiré or angle
     if (m_hatchingOptions.crosshatchingStyle != CrosshatchingType::MoirePattern && !m_angleOption.isChecked())
         m_hatchingBrush->hatch(m_hatchedDab, x, y, sw, sh, m_hatchingOptions.angle, painter()->paintColor(), additionalScale);
 
-
-    // The most important line, the one that paints to the screen.
     painter()->bitBltWithFixedSelection(x, y, m_hatchedDab, maskDab, sw, sh);
     painter()->renderMirrorMaskSafe(QRect(QPoint(x, y), QSize(sw, sh)), m_hatchedDab, 0, 0, maskDab,
                                     !m_dabCache->needSeparateOriginal());
@@ -191,5 +174,5 @@ double KisHatchingPaintOp::spinAngle(double spin)
     else if ((tempangle > 90) && (tempangle <= 180))
         return factor * -(180 - tempangle);
 
-    return 0;   // this should never be executed except if NAN
+    return 0;
 }

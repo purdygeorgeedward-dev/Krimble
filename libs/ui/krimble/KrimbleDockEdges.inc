@@ -16,7 +16,7 @@ public:
             hide();
             return;
         }
-        const int size = 36;     // logical px: about 12 mm on the screen
+        const int size = 36;
         setGeometry(m_win->width() - size - 4, 4, size, size);
         show();
         raise();
@@ -81,7 +81,6 @@ public:
     KrimbleDockEdgeGrab(QMainWindow *win, QDockWidget *dock) : QWidget(win), m_win(win), m_dock(dock)
     {
         setCursor(Qt::SizeHorCursor);
-        // setAttribute(Qt::WA_NoSystemBackground);          (the invisible versions)
         dock->installEventFilter(this);
         reposition();
     }
@@ -105,7 +104,7 @@ public:
         }
         const int w = 22;
         const int h = 64;
-        QRect column;                       // the area covered by all docked panels on this side
+        QRect column;
         bool topmost = true;
         Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
             if (other->isFloating() || !other->isVisible() || m_win->dockWidgetArea(other) != area) continue;
@@ -122,7 +121,7 @@ public:
         {
             const int sepWidth = qMax(4, m_win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, nullptr, m_win));
             if (area == Qt::LeftDockWidgetArea) setGeometry(column.right() + 1, column.top(), sepWidth + 8, column.height());
-            else setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 4 + 16, column.height());
+            else setGeometry(column.left() - sepWidth - 8, column.top(), sepWidth + 8 + 20, column.height());
         }
         show();
         raise();
@@ -139,9 +138,9 @@ public:
     }
 
 protected:
-    static constexpr int kTabDepth = 10;    // logical px the tab sticks out from the panel's edge
-    static constexpr int kTabZone = 20;     // logical px wide touch zone (the tab plus room for a finger)
-    static constexpr int kTabHeight = 140;  // 70 -> 140 (2026-10-26)
+    static constexpr int kTabDepth = 10;
+    static constexpr int kTabZone = 20;
+    static constexpr int kTabHeight = 140;
 
     static constexpr bool kTabVisible = false;
 
@@ -154,9 +153,9 @@ protected:
             const bool leftArea = m_win->dockWidgetArea(m_dock) == Qt::LeftDockWidgetArea;
             const qreal h = height();
             const qreal d = kTabDepth;
-            const qreal slope = d * 1.6;                      // how far down the angled end runs
-            const qreal x0 = leftArea ? 0 : width();          // the panel's edge
-            const qreal x1 = leftArea ? d : width() - d;      // the tab's outer edge
+            const qreal slope = d * 1.6;
+            const qreal x0 = leftArea ? 0 : width();
+            const qreal x1 = leftArea ? d : width() - d;
             QPainterPath tab;
             tab.moveTo(x0, 0);
             tab.lineTo(x1, slope);
@@ -180,8 +179,6 @@ protected:
         }
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, true);
-        // QColor fill = palette().color(QPalette::Mid);   (the canvas's gray: it could not be seen)
-        // fill.setAlpha(215);
         QColor fill = m_dock->palette().color(QPalette::Window);
         QColor edge = m_dock->palette().color(QPalette::WindowText);
         edge.setAlpha(150);
@@ -189,12 +186,12 @@ protected:
         p.setBrush(fill);
         const qreal w = width();
         const qreal h = height();
-        const qreal depth = 7;     // how far the curve sticks out; the rest of the zone is only a bigger place to put a finger
+        const qreal depth = 7;
         QPainterPath bulge;
-        if (m_win->dockWidgetArea(m_dock) == Qt::LeftDockWidgetArea) {     // the panel is on the left: the curve bulges to the right
+        if (m_win->dockWidgetArea(m_dock) == Qt::LeftDockWidgetArea) {
             bulge.moveTo(0, h * 0.1);
             bulge.cubicTo(depth * 1.3, h * 0.28, depth * 1.3, h * 0.72, 0, h * 0.9);
-        } else {                                                           // the panels are on the right: the curve bulges to the left
+        } else {
             bulge.moveTo(w, h * 0.1);
             bulge.cubicTo(w - depth * 1.3, h * 0.28, w - depth * 1.3, h * 0.72, w, h * 0.9);
         }

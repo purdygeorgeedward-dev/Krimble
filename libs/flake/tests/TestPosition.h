@@ -17,10 +17,9 @@ public:
     TestPosition();
 
 private Q_SLOTS:
-    void init(); // will be called before each testfunction is executed.
-    void cleanup();  // will be called after each testfunction is executed.
+    void init();
+    void cleanup();
 
-    // tests
     void testBasePosition();
     void testAbsolutePosition();
     void testSetAbsolutePosition();
@@ -31,7 +30,6 @@ private:
     void resetValues();
     void resetValues(KoShape *shape);
 
-    // vars
     KoShape *shape1, *shape2, *childShape1, *childShape2;
     KoShapeContainer *container, *container2;
 };

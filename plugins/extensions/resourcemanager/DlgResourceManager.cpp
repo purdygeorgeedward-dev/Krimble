@@ -64,16 +64,13 @@ DlgResourceManager::DlgResourceManager(KisActionManager *actionMgr, QWidget *par
     connect(m_ui->btnImportResources, SIGNAL(clicked(bool)), SLOT(slotImportResources()));
     connect(m_ui->btnExtractTagsToResourceFolder, SIGNAL(clicked(bool)), SLOT(slotSaveTags()));
 
-
     m_tagsController.reset(new KisWdgTagSelectionControllerOneResource(m_ui->wdgResourcesTags, true));
 
 #ifdef Q_OS_ANDROID
-    // TODO(sh_zam): Opening a directory can cause a crash. A ContentProvider is needed for this.
     m_ui->btnOpenResourceFolder->setEnabled(false);
     m_ui->btnOpenResourceFolder->setVisible(false);
 #endif
 
-    // make sure the panel is properly cleared. -Amy
     slotResourcesSelectionChanged({});
 }
 
@@ -186,8 +183,6 @@ void DlgResourceManager::slotDeleteResources()
         return;
     }
 
-    // deleting a resource with "Show deleted resources" disabled will update the proxy model
-    // and next index in selection now points at wrong item.
     QList<int> resourceIds;
     Q_FOREACH (QModelIndex index, list) {
         int resourceId = model->data(index, Qt::UserRole + KisResourceModel::Id).toInt();
@@ -224,7 +219,6 @@ void DlgResourceManager::slotCreateBundle()
     dlg->exec();
 }
 
-
 void DlgResourceManager::slotSaveTags()
 {
     KisResourceLocator::instance()->saveTags();
@@ -241,11 +235,9 @@ void DlgResourceManager::updateDeleteButtonState(const QModelIndexList &list)
         allInactive = allInactive && !active;
     }
 
-    // if nothing selected or selected are mixed active/inactive state
     if (allActive == allInactive) {
         m_ui->btnDeleteResource->setEnabled(false);
     }
-    // either all are active or all are inactive
     else {
         m_undeleteMode = allInactive;
         m_ui->btnDeleteResource->setEnabled(true);
@@ -274,7 +266,6 @@ QString DlgResourceManager::constructMetadata(const QMap<QString, QVariant> &met
                 response.append(paintopId);
             }
         }
-
 
     } else if (resourceType == ResourceType::GamutMasks) {
         QString descriptionKey = "description";

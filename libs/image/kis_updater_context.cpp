@@ -43,12 +43,6 @@ void KisUpdaterContext::getJobsSnapshot(qint32 &numMergeJobs,
     numMergeJobs = 0;
     numStrokeJobs = 0;
 
-    /**
-     * We cannot use Q_FOREACH here since the function may
-     * be called concurrently without any locks, causing detaching
-     * of the vector and causing a crash. Only read-only accesses
-     * are allowed in such environment
-     */
     for (const KisUpdateJobItem *item : std::as_const(m_jobs)) {
 
         if(item->type() == KisUpdateJobItem::Type::MERGE ||
@@ -65,12 +59,6 @@ KisUpdaterContextSnapshotEx KisUpdaterContext::getContextSnapshotEx() const
 {
     KisUpdaterContextSnapshotEx state = ContextEmpty;
 
-    /**
-     * We cannot use Q_FOREACH here since the function may
-     * be called concurrently without any locks, causing detaching
-     * of the vector and causing a crash. Only read-only accesses
-     * are allowed in such environment
-     */
     for (const KisUpdateJobItem *item : std::as_const(m_jobs)) {
         if (item->type() == KisUpdateJobItem::Type::MERGE ||
             item->type() == KisUpdateJobItem::Type::SPONTANEOUS) {
@@ -105,12 +93,6 @@ bool KisUpdaterContext::hasSpareThread()
 {
     bool found = false;
 
-    /**
-     * We cannot use Q_FOREACH here since the function may
-     * be called concurrently without any locks, causing detaching
-     * of the vector and causing a crash. Only read-only accesses
-     * are allowed in such environment
-     */
     for (const KisUpdateJobItem *item : std::as_const(m_jobs)) {
         if(!item->isRunning()) {
             found = true;
@@ -127,12 +109,6 @@ bool KisUpdaterContext::isJobAllowed(KisBaseRectsWalkerSP walker)
 
     bool intersects = false;
 
-    /**
-     * We cannot use Q_FOREACH here since the function may
-     * be called concurrently without any locks, causing detaching
-     * of the vector and causing a crash. Only read-only accesses
-     * are allowed in such environment
-     */
     for (const KisUpdateJobItem *item : std::as_const(m_jobs)) {
         if(item->isRunning() && walkerIntersectsJob(walker, item)) {
             intersects = true;
@@ -153,14 +129,6 @@ void KisUpdaterContext::startThread(int index)
     m_threadPool.start(m_jobs[index]);
 }
 
-/**
- * NOTE: In theory, isJobAllowed() and addMergeJob() should be merged into
- * one atomic method like `bool push()`, because this implementation
- * of KisUpdaterContext will not work in case of multiple
- * producers. But currently we have only one producer (one thread
- * in a time), that is guaranteed by the lock()/unlock() pair in
- * KisAbstractUpdateQueue::processQueue.
- */
 void KisUpdaterContext::addMergeJob(KisBaseRectsWalkerSP walker)
 {
     m_lodCounter.addLod(walker->levelOfDetail());
@@ -169,8 +137,6 @@ void KisUpdaterContext::addMergeJob(KisBaseRectsWalkerSP walker)
 
     const bool shouldStartThread = m_jobs[jobIndex]->setWalker(walker);
 
-    // it might happen that we call this function from within
-    // the thread itself, right when it finished its work
     if (shouldStartThread && !m_testingMode) {
         startThread(jobIndex);
     }
@@ -184,8 +150,6 @@ void KisUpdaterContext::addStrokeJob(KisStrokeJob *strokeJob)
 
     const bool shouldStartThread = m_jobs[jobIndex]->setStrokeJob(strokeJob);
 
-    // it might happen that we call this function from within
-    // the thread itself, right when it finished its work
     if (shouldStartThread && !m_testingMode) {
         startThread(jobIndex);
     }
@@ -199,8 +163,6 @@ void KisUpdaterContext::addSpontaneousJob(KisSpontaneousJob *spontaneousJob)
 
     const bool shouldStartThread = m_jobs[jobIndex]->setSpontaneousJob(spontaneousJob);
 
-    // it might happen that we call this function from within
-    // the thread itself, right when it finished its work
     if (shouldStartThread && !m_testingMode) {
         startThread(jobIndex);
     }
@@ -226,12 +188,6 @@ bool KisUpdaterContext::isIdle() const
 bool KisUpdaterContext::walkerIntersectsJob(KisBaseRectsWalkerSP walker,
                                             const KisUpdateJobItem* job)
 {
-    /**
-     * TODO: theoretically, we should compare rects intersection
-     * on a per-layer basis. The current solution is too rough and
-     * basically makes updates single-threaded in some cases (e.g.
-     * when a transform mask is present in the stack)
-     */
     return walker->accessRect().intersects(job->accessRect());
 }
 
@@ -260,7 +216,6 @@ void KisUpdaterContext::setThreadsLimit(int value)
 
     for (int i = 0; i < m_jobs.size(); i++) {
         KIS_SAFE_ASSERT_RECOVER_RETURN(!m_jobs[i]->isRunning());
-        // don't delete the jobs until all of them are checked!
     }
 
     for (int i = 0; i < m_jobs.size(); i++) {
@@ -325,7 +280,6 @@ void KisUpdaterContext::clear()
 
     m_lodCounter.testingClear();
 }
-
 
 KisTestableUpdaterContext::KisTestableUpdaterContext(qint32 threadCount)
     : KisUpdaterContext(threadCount)

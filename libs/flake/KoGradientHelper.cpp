@@ -35,7 +35,6 @@ QGradient* KoGradientHelper::defaultGradient(QGradient::Type type, QGradient::Sp
 QGradient* KoGradientHelper::convertGradient(const QGradient * gradient, QGradient::Type newType)
 {
     QPointF start, stop;
-    // try to preserve gradient positions
     switch (gradient->type()) {
     case QGradient::LinearGradient: {
         const QLinearGradient *g = static_cast<const QLinearGradient*>(gradient);
@@ -100,7 +99,6 @@ QColor KoGradientHelper::colorAt(qreal position, const QGradientStops &stops)
 
     QGradientStop prevStop(-1.0, QColor());
     QGradientStop nextStop(2.0, QColor());
-    // find framing gradient stops
     Q_FOREACH (const QGradientStop & stop, stops) {
         if (stop.first > prevStop.first && stop.first < position)
             prevStop = stop;
@@ -111,13 +109,10 @@ QColor KoGradientHelper::colorAt(qreal position, const QGradientStops &stops)
     QColor theColor;
 
     if (prevStop.first < 0.0) {
-        // new stop is before the first stop
         theColor = nextStop.second;
     } else if (nextStop.first > 1.0) {
-        // new stop is after the last stop
         theColor = prevStop.second;
     } else {
-        // linear interpolate colors between framing stops
         QColor prevColor = prevStop.second, nextColor = nextStop.second;
         qreal colorScale = (position - prevStop.first) / (nextStop.first - prevStop.first);
         theColor.setRedF(prevColor.redF() + colorScale *(nextColor.redF() - prevColor.redF()));

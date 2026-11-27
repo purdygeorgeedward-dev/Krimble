@@ -9,7 +9,6 @@
 
 #include <simpletest.h>
 
-
 class KisSimpleUpdateQueueTest : public QObject
 {
     Q_OBJECT
@@ -26,5 +25,5 @@ private Q_SLOTS:
     void testSpontaneousJobsCompression();
 };
 
-#endif /* KIS_SIMPLE_UPDATE_QUEUE_TEST_H */
+#endif
 

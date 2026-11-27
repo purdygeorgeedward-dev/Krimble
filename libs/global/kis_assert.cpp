@@ -18,19 +18,6 @@
 #include <string>
 #include "config-safe-asserts.h"
 
-/**
- * TODO: Add automatic saving of the documents
- *
- * Requirements:
- * 1) Should save all open KisDocument objects
- * 2) Should *not* overwrite original document since the saving
- *    process may fail.
- * 3) Should *not* overwrite any autosaved documents since the saving
- *    process may fail.
- * 4) Double-fault tolerance! Assert during emergency saving should not
- *    lead to an infinite loop.
- */
-
 void kis_assert_common(const char *assertion, const char *file, int line, bool abort, bool isIgnorable)
 {
     QString shortMessage =
@@ -54,8 +41,6 @@ void kis_assert_common(const char *assertion, const char *file, int line, bool a
     bool disableAssertMsg =
         QProcessEnvironment::systemEnvironment().value("KRITA_NO_ASSERT_MSG", "0").toInt();
 
-    // disable message box if the assert happened in non-gui thread
-    // or if the GUI is not yet instantiated
     if (!QCoreApplication::instance() || QThread::currentThread() != QCoreApplication::instance()->thread()) {
         disableAssertMsg = true;
     }
@@ -88,12 +73,9 @@ void kis_assert_common(const char *assertion, const char *file, int line, bool a
     if (button == QMessageBox::Abort || abort) {
         qFatal("%s", shortMessage.toLatin1().data());
     } else if (isIgnorable) {
-        // Assert is a bug! Please don't change this line to warnKrita,
-        // the user must see it!
         qWarning("%s", shortMessage.toLatin1().data());
     }
 }
-
 
 void kis_assert_recoverable(const char *assertion, const char *file, int line)
 {

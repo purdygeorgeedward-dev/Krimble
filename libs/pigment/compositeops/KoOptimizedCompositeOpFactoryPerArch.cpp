@@ -124,4 +124,4 @@ KoCompositeOp *KoOptimizedCompositeOpFactoryPerArch<
     return new KoOptimizedCompositeOpAlphaDarkenCreamyU64<xsimd::current_arch>(param);
 }
 
-#endif // XSIMD_UNIVERSAL_BUILD_PASS
+#endif

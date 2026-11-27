@@ -75,4 +75,4 @@ struct OperatorWrapper {
     KisBrushMaskApplicatorBase *m_applicator;
 };
 
-#endif /* __KIS_BRUSH_MASK_APPLICATOR_BASE_H */
+#endif

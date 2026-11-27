@@ -17,13 +17,6 @@ class KisResourceModel;
 
 #include <kritaresources_export.h>
 
-/**
- * @brief The KisResourceItem class represents a resource, but until resource() is called,
- * the resource is not loaded; the rest of the information comes from the cache database.
- * 
- * KisResourceItem is used in the KisStoragePlugin's resource iterators to populate the
- * database.
- */
 class KRITARESOURCES_EXPORT KisResourceItem {
 private:
     friend class KisResourceIterator;
@@ -44,10 +37,6 @@ private:
 
 typedef QSharedPointer<KisResourceItem> KisResourceItemSP;
 
-/**
- * @brief The KisResourceIterator class provides an iterator
- * for a KisResourceModel.
- */
 class KRITARESOURCES_EXPORT KisResourceIterator
 {
 public:
@@ -68,4 +57,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KISRESOURCEITERATOR_H
+#endif

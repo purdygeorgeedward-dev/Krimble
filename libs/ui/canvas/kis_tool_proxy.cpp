@@ -10,7 +10,6 @@
 
 #include <KoToolProxy_p.h>
 
-
 KisToolProxy::KisToolProxy(KoCanvasBase *canvas, QObject *parent)
     : KoToolProxy(canvas, parent),
       m_isActionActivated(false),

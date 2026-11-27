@@ -12,7 +12,6 @@
 #include <kis_transaction.h>
 #include <QRect>
 
-
 qreal KisGaussianKernel::sigmaFromRadius(qreal radius)
 {
     return 0.3 * radius + 0.3;
@@ -22,7 +21,6 @@ int KisGaussianKernel::kernelSizeFromRadius(qreal radius)
 {
     return 6 * ceil(sigmaFromRadius(radius)) + 1;
 }
-
 
 Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic>
 KisGaussianKernel::createHorizontalMatrix(qreal radius)
@@ -34,10 +32,6 @@ KisGaussianKernel::createHorizontalMatrix(qreal radius)
     const qreal multiplicand = 1 / (sqrt(2 * M_PI * sigma * sigma));
     const qreal exponentMultiplicand = 1 / (2 * sigma * sigma);
 
-    /**
-     * The kernel size should always be odd, then the position of the
-     * central pixel can be easily calculated
-     */
     KIS_ASSERT_RECOVER_NOOP(kernelSize & 0x1);
     const int center = kernelSize / 2;
 
@@ -59,10 +53,6 @@ KisGaussianKernel::createVerticalMatrix(qreal radius)
     const qreal multiplicand = 1 / (sqrt(2 * M_PI * sigma * sigma));
     const qreal exponentMultiplicand = 1 / (2 * sigma * sigma);
 
-    /**
-     * The kernel size should always be odd, then the position of the
-     * central pixel can be easily calculated
-     */
     KIS_ASSERT_RECOVER_NOOP(kernelSize & 0x1);
     const int center = kernelSize / 2;
 
@@ -98,7 +88,6 @@ KisGaussianKernel::createUniform2DKernel(qreal xRadius, qreal yRadius)
     return KisConvolutionKernel::fromMatrix(uni, 0, uni.sum());
 }
 
-
 void KisGaussianKernel::applyGaussian(KisPaintDeviceSP device,
                                       const QRect& rect,
                                       qreal xRadius, qreal yRadius,
@@ -108,7 +97,6 @@ void KisGaussianKernel::applyGaussian(KisPaintDeviceSP device,
                                       KisConvolutionBorderOp borderOp)
 {
     QPoint srcTopLeft = rect.topLeft();
-
 
     if (KisConvolutionPainter::supportsFFTW()) {
         KisConvolutionPainter painter(device, KisConvolutionPainter::FFTW);
@@ -140,7 +128,6 @@ void KisGaussianKernel::applyGaussian(KisPaintDeviceSP device,
                                  srcTopLeft - QPoint(0, ceil(verticalCenter)),
                                  srcTopLeft - QPoint(0, ceil(verticalCenter)),
                                  rect.size() + QSize(0, 2 * ceil(verticalCenter)), borderOp);
-
 
         KisConvolutionPainter verticalPainter(device);
         verticalPainter.setChannelFlags(channelFlags);
@@ -183,14 +170,10 @@ KisGaussianKernel::createLoGMatrix(qreal radius, qreal coeff, bool zeroCentered,
     int kernelSize = 2 * (includeWrappedArea ? 2 : 1) * std::ceil(radius) + 1;
     Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic> matrix(kernelSize, kernelSize);
 
-    const qreal sigma = radius/* / sqrt(2)*/;
+    const qreal sigma = radius ;
     const qreal multiplicand = -1.0 / (M_PI * pow2(pow2(sigma)));
     const qreal exponentMultiplicand = 1 / (2 * pow2(sigma));
 
-    /**
-     * The kernel size should always be odd, then the position of the
-     * central pixel can be easily calculated
-     */
     KIS_ASSERT_RECOVER_NOOP(kernelSize & 0x1);
     const int center = kernelSize / 2;
 
@@ -247,14 +230,12 @@ KisGaussianKernel::createLoGMatrix(qreal radius, qreal coeff, bool zeroCentered,
         }
     }
 
-
     const qreal scale = coeff * 2.0 / positiveSum;
     matrix *= scale;
     positiveSum *= scale;
     sideSum *= scale;
     quarterSum *= scale;
 
-    //qDebug() << ppVar(positiveSum) << ppVar(sideSum) << ppVar(quarterSum);
     Q_UNUSED(sideSum);
     Q_UNUSED(quarterSum);
 
@@ -312,10 +293,6 @@ Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic> KisGaussianKernel::createDi
 
     const qreal fadeStart = qMax(1.0, radius - 1.0);
 
-    /**
-     * The kernel size should always be odd, then the position of the
-     * central pixel can be easily calculated
-     */
     KIS_ASSERT_RECOVER_NOOP(kernelSize & 0x1);
     const int center = kernelSize / 2;
 

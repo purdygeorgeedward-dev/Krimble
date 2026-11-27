@@ -28,4 +28,4 @@ struct PAINTOP_EXPORT KisCompositeOpOptionData : boost::equality_comparable<KisC
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KISCOMPOSITEOPOPTIONDATA_H
+#endif

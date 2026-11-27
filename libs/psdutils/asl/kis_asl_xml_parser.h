@@ -18,4 +18,4 @@ public:
     void parseXML(const QDomDocument &doc, KisAslObjectCatcher &catcher);
 };
 
-#endif /* __KIS_ASL_XML_PARSER_H */
+#endif

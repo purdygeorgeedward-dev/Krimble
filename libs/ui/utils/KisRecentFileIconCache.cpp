@@ -15,11 +15,7 @@
 #include "KisFileIconCreator.h"
 #include "KisRecentDocumentsModelWrapper.h"
 
-
 namespace {
-    /*
-    * Parameters for fetching a file icon
-    */
     struct GetFileIconParameters
     {
         QUrl m_documentUrl;
@@ -27,22 +23,12 @@ namespace {
         qreal m_devicePixelRatioF;
     };
 
-    /**
-     * Info for an icon that was fetched (or, at least, we tried to fetch)
-     */
     struct IconFetchResult
     {
         bool m_iconWasFetchedOk = false;
-        /**
-         * Url of the document (file) we're generating an icon for
-         */
         QUrl m_documentUrl;
-        /**
-         * Expensive member to generate
-         */
         QIcon m_icon;
     };
-
 
     IconFetchResult getFileIcon(GetFileIconParameters gfip)
     {
@@ -55,8 +41,7 @@ namespace {
                                                                     gfip.m_iconSize);
         return iconFetched;
     }
-} /* namespace */
-
+}
 
 struct KisRecentFileIconCache::CacheItem
 {
@@ -67,9 +52,6 @@ struct KisRecentFileIconCache::CacheItem
 
 KisRecentFileIconCache::KisRecentFileIconCache()
 {
-    // Limit the number of threads used for icon fetching to prevent it from
-    // impacting normal usage too much, and to prevent it from consuming too
-    // much memory by loading too many large files.
     if (QThread::idealThreadCount() > 2) {
         m_iconFetchThreadPool.setMaxThreadCount(2);
     }
@@ -96,18 +78,16 @@ QIcon KisRecentFileIconCache::getOrQueueFileIcon(const QUrl &url)
 {
     const QMap<QUrl, CacheItem>::const_iterator findItem = m_iconCacheMap.constFind(url);
     if (findItem != m_iconCacheMap.constEnd()) {
-        // If the icon is still being fetched, this returns `QIcon()`.
         return findItem.value().cachedIcon;
     } else {
         if (!url.isLocalFile()) {
-            // We don't fetch thumbnails for non-local files.
             return QIcon();
         }
         constexpr QSize iconSize(KisRecentDocumentsModelWrapper::ICON_SIZE_LENGTH, KisRecentDocumentsModelWrapper::ICON_SIZE_LENGTH);
         const GetFileIconParameters param = {
-            url, // m_documentUrl
-            iconSize, // m_iconSize
-            m_devicePixelRatioF, // m_devicePixelRatioF
+            url,
+            iconSize,
+            m_devicePixelRatioF,
         };
         QFuture<IconFetchResult> future = QtConcurrent::run(&m_iconFetchThreadPool, getFileIcon, param);
         auto *watcher = new QFutureWatcher<IconFetchResult>(this);
@@ -126,8 +106,6 @@ void KisRecentFileIconCache::invalidateFileIcon(const QUrl &url)
     if (findItem == m_iconCacheMap.end()) {
         return;
     }
-    // Note: Futures returned by `QtConcurrent::run` does not support
-    // cancellation, but we try anyway.
     if (!findItem.value().fetchingFuture.isCanceled()) {
         findItem.value().fetchingFuture.cancel();
     }
@@ -142,8 +120,6 @@ void KisRecentFileIconCache::reloadFileIcon(const QUrl &url)
 
 void KisRecentFileIconCache::cleanupOnQuit()
 {
-    // We need to wait for the icon fetching to finish before letting qApp
-    // be deleted, because the icon generation relies on qApp.
     m_iconFetchThreadPool.clear();
     m_iconFetchThreadPool.waitForDone();
 }

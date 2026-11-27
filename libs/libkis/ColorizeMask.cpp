@@ -16,8 +16,6 @@
 #include <kis_undo_stores.h>
 #include <kis_default_bounds.h>
 
-
-
 ColorizeMask::ColorizeMask(KisImageSP image, QString name, QObject *parent) :
     Node(image, new KisColorizeMask(image,name), parent)
 {
@@ -33,7 +31,6 @@ ColorizeMask::~ColorizeMask()
 {
 
 }
-
 
 QList<ManagedColor*> ColorizeMask::keyStrokesColors() const
 {
@@ -53,15 +50,6 @@ void ColorizeMask::initializeKeyStrokeColors(QList<ManagedColor*> colors, int tr
     KisColorizeMaskSP mask = qobject_cast<KisColorizeMask*>(this->node().data());
     KIS_SAFE_ASSERT_RECOVER_RETURN(mask);
 
-    /**
-     *  This method is supposed to to initial initialization only!
-     *
-     *  It is necessary because the function also changes the color
-     *  space and blending mode of the mask
-     *
-     *  TODO: implement a proper API that modifies key strokes
-     *  of a colorize mask without breaking undo history
-     */
     KIS_SAFE_ASSERT_RECOVER_RETURN(mask->keyStrokesColors().colors.size() == 0);
 
     mask->initializeCompositeOp();
@@ -75,15 +63,12 @@ void ColorizeMask::initializeKeyStrokeColors(QList<ManagedColor*> colors, int tr
         keyStroke.dev = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
         keyStroke.dev->setDefaultBounds(new KisDefaultBounds(this->node()->image()));
         keyStroke.isTransparent = transparentIndex == i;
-        // NOTE: the parent node link is initialized in
-        //       setKeyStrokesDirect
 
         keyStrokes.append(keyStroke);
     }
 
     mask->setKeyStrokesDirect(keyStrokes);
 }
-
 
 int ColorizeMask::transparencyIndex() const
 {

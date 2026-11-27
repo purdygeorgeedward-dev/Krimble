@@ -13,7 +13,6 @@
 #include <testui.h>
 #include <testutil.h>
 
-
 class SelectionManagerTester : public TestUtil::UiManagerTest
 {
 public:
@@ -24,7 +23,6 @@ public:
     }
 
 };
-
 
 void KisSelectionManagerTest::testFillForegroundWithoutSelection()
 {
@@ -181,7 +179,6 @@ void KisSelectionManagerTest::testCopyPaste()
     t.checkUndo();
     t.startConcurrentTask();
 
-
     QEXPECT_FAIL("", "Fix some race condition on clone layers!", Continue);
     t.selectionManager->paste();
     t.image->waitForDone();
@@ -315,20 +312,10 @@ void KisSelectionManagerTest::testSmoothSelectionSimplified()
 
 void KisSelectionManagerTest::testErodeSelectionSimplified()
 {
-//     SelectionManagerTester t(true);
-// 
-//     t.selectionManager->erode();
-//     t.image->waitForDone();
-//     QVERIFY(t.checkSelectionOnly("erode_selection"));
 }
 
 void KisSelectionManagerTest::testDilateSelectionSimplified()
 {
-//     SelectionManagerTester t(true);
-// 
-//     t.selectionManager->dilate();
-//     t.image->waitForDone();
-//     QVERIFY(t.checkSelectionOnly("dilate_selection"));
 }
 
 void KisSelectionManagerTest::testBorderSelectionSimplified()

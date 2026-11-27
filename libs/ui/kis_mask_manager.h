@@ -19,9 +19,6 @@ class KisActionManager;
 
 #include "kis_mask.h"
 
-/**
- * Handle the gui for manipulating masks.
- */
 class KisMaskManager : public QObject
 {
 
@@ -29,45 +26,26 @@ class KisMaskManager : public QObject
 
 public:
 
-
     KisMaskManager(KisViewManager * view);
     ~KisMaskManager() override {}
     void setView(QPointer<KisView>view);
 
 private:
-    
+
     friend class KisNodeManager;
-    
+
     void setup(KisKActionCollection * actionCollection, KisActionManager *actionManager);
 
     void updateGUI();
-    
-    /**
-     * @return the paint device associated with the currently
-     *         active mask, if there is one.
-     */
+
     KisPaintDeviceSP activeDevice();
 
-    /**
-     * @return the active mask, if there is one
-     */
     KisMaskSP activeMask();
 
-    /**
-     * Show the mask properties dialog
-     */
     void maskProperties();
 
-    /**
-     * called whenever the mask stack is updated to enable/disable all
-     * menu items
-     */
     void masksUpdated();
 
-    /**
-     * Activate a new mask. There can be only one mask active per
-     * view; and if the mask is active, it becomes the paint device.
-     */
     void activateMask(KisMaskSP mask);
 
     void adjustMaskPosition(KisNodeSP node, KisNodeSP activeNode, bool avoidActiveNode, KisNodeSP &parent, KisNodeSP &above);
@@ -87,4 +65,4 @@ private:
 
 };
 
-#endif // KIS_MASK_MANAGER
+#endif

@@ -45,7 +45,6 @@ public:
     }
 };
 
-
 PresetHistoryPlugin::PresetHistoryPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

@@ -16,7 +16,6 @@
 #include "kis_grid_interpolation_tools.h"
 #include "KisSpatialContainer.h"
 
-
 void writeOutVector(QVector<QPointF> &vector)
 {
     int n = vector.length();
@@ -47,36 +46,18 @@ void KisSpatialContainerTest::testSpatialContainerAddMovePoints()
 
     KisSpatialContainer container(QRectF(0, 0, max, max), 5);
 
-
-    //qCritical() << "initial:";
-    //writeOutVector(initial);
-    //qCritical() << "first change:";
-    //writeOutVector(firstChange);
-    //qCritical() << "second change:";
-    //writeOutVector(secondChange);
-
-
     QRectF boundsInitial;
     for (int i = 0; i < n; i++)
     {
         container.addPoint(i, initial[i]);
         KisAlgebra2D::accumulateBounds(initial[i], &boundsInitial);
     }
-    //qCritical() << "After initial:";
-    //container.debugWriteOut();
 
-
-    //qCritical() << container.exactBounds() << container.exactBounds().topLeft() << container.exactBounds().bottomRight();
     QCOMPARE(boundsInitial, container.exactBounds());
-
-
 
     for (int i = 0; i < n; i++) {
         container.movePoint(i, initial[i], firstChange[i]);
     }
-
-    //qCritical() << "After first change:";
-    //container.debugWriteOut();
 
     QCOMPARE(KisAlgebra2D::accumulateBounds(firstChange), container.exactBounds());
 
@@ -86,25 +67,13 @@ void KisSpatialContainerTest::testSpatialContainerAddMovePoints()
 
     QCOMPARE(KisAlgebra2D::accumulateBounds(secondChange), container.exactBounds());
 
-    //qCritical() << "After second change:";
-    //container.debugWriteOut();
-
     QVector<QPointF> inContainer = container.toVector();
-
-    /*
-    for (int i = 0; i < n; i++) {
-        qCritical() << "expected:" << secondChange[i] << "actual: " << inContainer[i];
-    }
-    */
-    //container.debugWriteOut();
 
     for (int i = 0; i < n; i++) {
         QCOMPARE(inContainer[i], secondChange[i]);
     }
 
-
 }
-
 
 void KisSpatialContainerTest::testSpatialContainerSearchPoints()
 {
@@ -128,38 +97,21 @@ void KisSpatialContainerTest::testSpatialContainerSearchPoints()
 
     KisSpatialContainer container(QRectF(0, 0, max, max));
 
-    //qCritical() << "initial:";
-    //writeOutVector(initial);
-    /*
-    qCritical() << "first change:";
-    writeOutVector(firstChange);
-    qCritical() << "second change:";
-    writeOutVector(secondChange);
-    */
-
     for (int i = 0; i < n; i++)
     {
         container.addPoint(i, initial[i]);
     }
-    //qCritical() << "After initial:";
-    //container.debugWriteOut();
 
     for (int i = 0; i < n; i++) {
         container.movePoint(i, initial[i], firstChange[i]);
     }
 
-    //qCritical() << "After first change:";
-    //container.debugWriteOut();
-
     for (int i = 0; i < n; i++) {
         container.movePoint(i, firstChange[i], secondChange[i]);
     }
 
-    //qCritical() << "After second change:";
-    //container.debugWriteOut();
 }
 
-// NOTE: copied from Liquify Transform Worker cpp file
 struct AllPointsFetcherOp
 {
     AllPointsFetcherOp(QRectF srcRect) : m_srcRect(srcRect) {}
@@ -205,12 +157,9 @@ void KisSpatialContainerTest::testSpatialContainerInitializeWithGridPoints()
     int pixelPrecision = 8;
     int countPointsInNode = 100;
     QPoint startingPoint = QPoint(123, 256);
-    // size should be:
     QRect srcBounds = QRect(startingPoint, QSize(size, 2*size + 10));
     QSize gridSize =
         GridIterationTools::calcGridSize(srcBounds, pixelPrecision);
-
-    //ENTER_FUNCTION() << "Grid size = " << gridSize;
 
     AllPointsFetcherOp pointsOp(srcBounds);
     GridIterationTools::processGrid(pointsOp, srcBounds, pixelPrecision);
@@ -219,24 +168,13 @@ void KisSpatialContainerTest::testSpatialContainerInitializeWithGridPoints()
     const int numPoints = points.size();
 
     if (numPoints != gridSize.width() * gridSize.height()) {
-        //ENTER_FUNCTION() << "Wrong num points!" << ppVar(numPoints) << ppVar(gridSize);
     }
     KIS_ASSERT_RECOVER_RETURN(numPoints == gridSize.width() * gridSize.height());
     QRectF gridArea = srcBounds;
 
-
     KisSpatialContainer container(gridArea, countPointsInNode);
 
-    //ENTER_FUNCTION() << "Initialize the grid with: " << ppVar(gridSize) << ppVar(gridArea);
-    //ENTER_FUNCTION() << ppVar(gridSize.height() * gridSize.width()) << ppVar(points.count());
-
-    //qCritical() << pointsVectorToString(points, "original points");
-
     container.initializeWithGridPoints(gridArea, pixelPrecision);
-    //ENTER_FUNCTION() << "Count: " << container.count();
-
-    //container.debugWriteOut();
-
 
     QVector<QPointF> pointsInContainer = container.toVector();
 
@@ -253,7 +191,6 @@ void KisSpatialContainerTest::testSpatialContainerInitializeWithGridPoints()
         }
         QCOMPARE(pointsInContainer[i], points[i]);
     }
-
 
 }
 
@@ -280,16 +217,6 @@ void KisSpatialContainerTest::testMemoryCleanup()
 
         KisSpatialContainer container(QRectF(0, 0, max, max));
 
-
-        //qCritical() << "initial:";
-        //writeOutVector(initial);
-        /*
-        qCritical() << "first change:";
-        writeOutVector(firstChange);
-        qCritical() << "second change:";
-        writeOutVector(secondChange);
-        */
-
         for (int i = 0; i < n; i++)
         {
             container.addPoint(i, initial[i]);
@@ -313,11 +240,7 @@ void KisSpatialContainerTest::testMemoryCleanup()
         for (int i = 0; i < n; i++)
         {
             QCOMPARE(original[i], copied[i]);
-            //ENTER_FUNCTION() << "They seem to be the same: " << original[i] << copied[i] << "While initial was: " << initial[i];
         }
-
-
-        // FIXME: this should also check whether the points can be searched for!!!
 
     }
 
@@ -345,28 +268,14 @@ void KisSpatialContainerTest::testDeepCopy()
 
     KisSpatialContainer container(QRectF(0, 0, max, max));
 
-    //qCritical() << "initial:";
-    //writeOutVector(initial);
-    /*
-    qCritical() << "first change:";
-    writeOutVector(firstChange);
-    qCritical() << "second change:";
-    writeOutVector(secondChange);
-    */
-
     for (int i = 0; i < n; i++)
     {
         container.addPoint(i, initial[i]);
     }
-    //qCritical() << "After initial:";
-    //container.debugWriteOut();
 
     for (int i = 0; i < n; i++) {
         container.movePoint(i, initial[i], firstChange[i]);
     }
-
-    //qCritical() << "After first change:";
-    //container.debugWriteOut();
 
     for (int i = 0; i < n; i++) {
         container.movePoint(i, firstChange[i], secondChange[i]);
@@ -381,9 +290,6 @@ void KisSpatialContainerTest::testDeepCopy()
         QCOMPARE(pointsInOriginalContainer[i], secondChange[i]);
         QCOMPARE(pointsInCopiedContainer[i], secondChange[i]);
     }
-
-
-
 
 }
 

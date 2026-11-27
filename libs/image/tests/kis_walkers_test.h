@@ -40,7 +40,6 @@ public:
     }
 
     KisPaintDeviceSP original() const override {
-        // This test doesn't use updateProjection so just return 0
         return 0;
     }
 
@@ -178,7 +177,6 @@ public:
             : ComplexRectsLayer(image, name, opacity) {
     }
 
-
     QRect needRect(const QRect &rect, PositionToFilthy pos = N_FILTHY) const override {
         QRect retval;
 
@@ -199,7 +197,6 @@ public:
     ComplexAccessLayer(KisImageWSP image, const QString & name, quint8 opacity)
             : ComplexRectsLayer(image, name, opacity) {
     }
-
 
     QRect accessRect(const QRect &rect, PositionToFilthy pos = N_FILTHY) const override {
         Q_UNUSED(pos);

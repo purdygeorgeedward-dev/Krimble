@@ -13,20 +13,13 @@
 
 #define EllipseShapeId "EllipseShape"
 
-/**
- * This class adds support for arc, pie, chord, circle and ellipse
- * shapes. The ellipse/circle radii are defined by the actual size
- * of the ellipse shape which can be changed with the setSize
- * method.
- */
 class EllipseShape : public KoParameterShape, public SvgShape
 {
 public:
-    /// the possible ellipse types
     enum EllipseType {
-        Arc = 0,   ///< an ellipse arc
-        Pie = 1,   ///< an ellipse pie
-        Chord = 2  ///< an ellipse chord
+        Arc = 0,
+        Pie = 1,
+        Chord = 2
     };
 
     EllipseShape();
@@ -37,40 +30,22 @@ public:
     void setSize(const QSizeF &newSize) override;
     QPointF normalize() override;
 
-    /**
-     * Sets the type of the ellipse.
-     * @param type the new ellipse type
-     */
     void setType(EllipseType type);
 
-    /// Returns the actual ellipse type
     EllipseType type() const;
 
-    /**
-     * Sets the start angle of the ellipse.
-     * @param angle the new start angle in degree
-     */
     void setStartAngle(qreal angle);
 
-    /// Returns the actual ellipse start angle in degree
     qreal startAngle() const;
 
-    /**
-     * Sets the end angle of the ellipse.
-     * @param angle the new end angle in degree
-     */
     void setEndAngle(qreal angle);
 
-    /// Returns the actual ellipse end angle in degree
     qreal endAngle() const;
 
-    /// reimplemented
     QString pathShapeId() const override;
 
-    /// reimplemented from SvgShape
     bool saveSvg(SvgSavingContext &context) override;
 
-    /// reimplemented from SvgShape
     bool loadSvg(const QDomElement &element, SvgLoadingContext &context) override;
 
 protected:
@@ -87,19 +62,13 @@ private:
 
     EllipseShape(const EllipseShape &rhs);
 
-    // start angle in degree
     qreal m_startAngle;
-    // end angle in degree
     qreal m_endAngle;
-    // angle for modifying the kind in radiant
     qreal m_kindAngle;
-    // the center of the ellipse
     QPointF m_center;
-    // the radii of the ellipse
     QPointF m_radii;
-    // the actual ellipse type
     EllipseType m_type;
 };
 
-#endif /* KOELLIPSESHAPE_H */
+#endif
 

@@ -45,7 +45,7 @@ struct KoShapeQtQuickLabel::Private {
         const double newWidth = widgetBounds.width() - (leftPadding + rightPadding);
         const double newHeight = widgetBounds.height() - (topPadding + bottomPadding);
 
-        QRectF newBox = bbox; ///< "Fit" behaviour.
+        QRectF newBox = bbox;
         if (scalingType == KoShapeQtQuickLabel::FitWidth) {
             const double docWidth = bbox.width();
             const double docHeight = bbox.width() * (newHeight / newWidth);
@@ -133,7 +133,6 @@ void KoShapeQtQuickLabel::setSvgData(const QString &newSvgData)
 
     QList<KoShape*> shapes = p.parseSvg(doc.documentElement(), &sz);
 
-    // TODO: Evaluate if this can't be faster.
     d->shapePainter.reset(new KoShapePainter());
 
     if (!d->shapes.isEmpty()) {

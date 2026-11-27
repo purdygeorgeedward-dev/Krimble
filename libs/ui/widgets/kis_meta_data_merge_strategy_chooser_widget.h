@@ -15,25 +15,15 @@ namespace KisMetaData
 class MergeStrategy;
 }
 
-/**
- * This widget allows to select a meta data merge strategy.
- */
 class KisMetaDataMergeStrategyChooserWidget : public QWidget
 {
     Q_OBJECT
 public:
-    /**
-     * Creates a widget to select a merge strategy.
-     */
     KisMetaDataMergeStrategyChooserWidget(QWidget* parent);
     ~KisMetaDataMergeStrategyChooserWidget() override;
 
     const KisMetaData::MergeStrategy* currentStrategy();
 
-    /**
-     * Show a dialog which embed that widget, and have an Ok and Cancel button.
-     * @return 0 if no merge strategy was selected, or the selected merge strategy
-     */
     static const KisMetaData::MergeStrategy* showDialog(QWidget* parent);
 
 private Q_SLOTS:

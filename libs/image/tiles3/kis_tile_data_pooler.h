@@ -15,7 +15,6 @@
 class KisTileDataStore;
 class KisTileData;
 
-
 class KRITAIMAGE_EXPORT KisTileDataPooler : public QThread
 {
     Q_OBJECT
@@ -34,11 +33,6 @@ public:
     qint64 lastRealMemoryMetric() const;
     qint64 lastHistoricalMemoryMetric() const;
 
-
-    /**
-     * Is case the pooler thread is not running, the user might force
-     * recalculation of the memory statistics explicitly.
-     */
     void forceUpdateMemoryStats();
 
 protected:
@@ -85,7 +79,5 @@ protected:
     qint32 m_lastHistoricalMemoryMetric;
 };
 
-
-
-#endif /* KIS_TILE_DATA_POOLER_H_ */
+#endif
 

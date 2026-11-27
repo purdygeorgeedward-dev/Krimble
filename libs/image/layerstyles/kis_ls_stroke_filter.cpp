@@ -35,17 +35,11 @@
 #include "krita_utils.h"
 #include "KisLayerStyleKnockoutBlower.h"
 
-
 namespace {
 
 int borderSize(psd_stroke_position position, int size)
 {
     int border = 1;
-
-    // The need rect border should not depend on the position;
-    // instead it should extend the area all the time. Otherwise
-    // small changes on the borderline will not be propagated to
-    // the inner side of the blob. See bug 429165.
 
     switch (position) {
     case psd_stroke_outside:
@@ -61,7 +55,6 @@ int borderSize(psd_stroke_position position, int size)
 }
 
 }
-
 
 KisLsStrokeFilter::KisLsStrokeFilter()
     : KisLayerStyleFilter(KoID("lsstroke", i18n("Stroke (style)")))

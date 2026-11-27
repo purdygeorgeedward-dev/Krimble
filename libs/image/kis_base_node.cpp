@@ -26,7 +26,7 @@ struct Q_DECL_HIDDEN KisBaseNode::Private
 {
     QString compositeOp;
     KoProperties properties;
-    KisBaseNode::Property hack_visible; //HACK
+    KisBaseNode::Property hack_visible;
     QUuid id;
     QMap<QString, KisKeyframeChannel*> keyframeChannels;
     KisAnimatedOpacityProperty opacityProperty;
@@ -66,15 +66,6 @@ struct Q_DECL_HIDDEN KisBaseNode::Private
 KisBaseNode::KisBaseNode(KisImageWSP image)
     : m_d(new Private(image))
 {
-    /**
-     * Be cautious! These two calls are vital to warm-up KoProperties.
-     * We use it and its QMap in a threaded environment. This is not
-     * officially supported by Qt, but our environment guarantees, that
-     * there will be the only writer and several readers. Whilst the
-     * value of the QMap is boolean and there are no implicit-sharing
-     * calls provocated, it is safe to work with it in such an
-     * environment.
-     */
     setVisible(true, true);
     setUserLocked(false);
     setCollapsed(false);
@@ -84,7 +75,6 @@ KisBaseNode::KisBaseNode(KisImageWSP image)
 
     connect(&m_d->opacityProperty, SIGNAL(changed(quint8)), this, SIGNAL(opacityChanged(quint8)));
 }
-
 
 KisBaseNode::KisBaseNode(const KisBaseNode & rhs)
     : QObject()
@@ -193,7 +183,6 @@ bool KisBaseNode::check(const KoProperties & properties) const
     }
     return true;
 }
-
 
 QImage KisBaseNode::createThumbnail(qint32 w, qint32 h, Qt::AspectRatioMode aspectRatioMode, KisThumbnailBoundsMode boundsMode)
 {
@@ -404,7 +393,6 @@ void KisBaseNode::setSupportsLodMoves(bool value)
 {
     m_d->supportsLodMoves = value;
 }
-
 
 QMap<QString, KisKeyframeChannel*> KisBaseNode::keyframeChannels() const
 {

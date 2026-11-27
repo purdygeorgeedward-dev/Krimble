@@ -59,7 +59,6 @@ public:
             Node *top = (Node*) m_top;
             if(!top) break;
 
-            // This is safe as we ref'ed m_deleteBlockers
             Node *next = top->next;
 
             if(m_top.testAndSetOrdered(top, next)) {
@@ -68,12 +67,6 @@ public:
 
                 value = top->data;
 
-                /**
-                 * Test if we are the only delete blocker left
-                 * (it means that we are the only owner of 'top')
-                 * If there is someone else in "delete-blocked section",
-                 * then just add the struct to the list of free nodes.
-                 */
                 if (m_deleteBlockers == 1) {
                     cleanUpNodes();
                     delete top;
@@ -92,7 +85,6 @@ public:
     }
 
     void clear() {
-        // a fast-path without write ops
         if(!m_top) return;
 
         m_deleteBlockers.ref();
@@ -111,10 +103,6 @@ public:
             Node *next = top->next;
 
             if (m_deleteBlockers == 1) {
-                /**
-                 * We  are the only owner of top contents.
-                 * So we can delete it freely.
-                 */
                 cleanUpNodes();
                 freeList(top);
                 next = 0;
@@ -151,11 +139,6 @@ public:
         m_numNodes.fetchAndAddOrdered(removedChunkSize);
     }
 
-    /**
-     * This is impossible to measure the size of the stack
-     * in highly concurrent environment. So we return approximate
-     * value! Do not rely on this value much!
-     */
     qint32 size() const {
         return m_numNodes;
     }
@@ -178,12 +161,6 @@ private:
         Node *cleanChain = m_freeNodes.fetchAndStoreOrdered(0);
         if (!cleanChain) return;
 
-        /**
-         * If we are the only users of the objects is cleanChain,
-         * then just free it. Otherwise, push them back into the
-         * recycling list and keep them there till another
-         * chance comes.
-         */
         if (m_deleteBlockers == 1) {
             freeList(cleanChain);
         } else {
@@ -208,7 +185,6 @@ private:
         }
     }
 
-
 private:
     Q_DISABLE_COPY(KisLocklessStack)
 
@@ -219,5 +195,5 @@ private:
     QAtomicInt m_numNodes;
 };
 
-#endif /* __KIS_LOCKLESS_STACK_H */
+#endif
 

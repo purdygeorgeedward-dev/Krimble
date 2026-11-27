@@ -39,7 +39,6 @@
 #include "kis_shape_selection.h"
 #include "kis_processing_applicator.h"
 
-
 KisToolShape::KisToolShape(KoCanvasBase * canvas, const QCursor & cursor)
         : KisToolPaint(canvas, cursor)
 {
@@ -48,7 +47,6 @@ KisToolShape::KisToolShape(KoCanvasBase * canvas, const QCursor & cursor)
 
 KisToolShape::~KisToolShape()
 {
-    // in case the widget hasn't been shown
     if (m_shapeOptionsWidget && !m_shapeOptionsWidget->parent()) {
         delete m_shapeOptionsWidget;
     }
@@ -59,7 +57,6 @@ void KisToolShape::activate(const QSet<KoShape*> &shapes)
     KisToolPaint::activate(shapes);
     m_configGroup =  KSharedConfig::openConfig()->group(toolId());
 }
-
 
 int KisToolShape::flags() const
 {
@@ -81,7 +78,6 @@ QWidget * KisToolShape::createOptionWidget()
     m_shapeOptionsWidget->sldScale->setSoftMaximum(500);
     m_shapeOptionsWidget->sldScale->setSingleStep(1.0);
 
-    //connect two combo box event. Inherited classes can call the slots to make appropriate changes
     connect(m_shapeOptionsWidget->cmbOutline, SIGNAL(currentIndexChanged(int)), this, SLOT(outlineSettingChanged(int)));
     connect(m_shapeOptionsWidget->cmbFill, SIGNAL(currentIndexChanged(int)), this, SLOT(fillSettingChanged(int)));
     connect(m_shapeOptionsWidget->angleSelectorRotation, SIGNAL(angleChanged(qreal)), this, SLOT(patternRotationSettingChanged(qreal)));
@@ -92,11 +88,10 @@ QWidget * KisToolShape::createOptionWidget()
     m_shapeOptionsWidget->sldScale->setValue(m_configGroup.readEntry("patternTransformScale", 100));
     m_shapeOptionsWidget->angleSelectorRotation->setAngle(m_configGroup.readEntry("patternTransformRotation", 0));
 
-    //if both settings are empty, force the outline to brush so the tool will work when first activated
     if (  m_shapeOptionsWidget->cmbFill->currentIndex() == 0 &&
           m_shapeOptionsWidget->cmbOutline->currentIndex() == 0)
     {
-        m_shapeOptionsWidget->cmbOutline->setCurrentIndex(1); // brush
+        m_shapeOptionsWidget->cmbOutline->setCurrentIndex(1);
     }
 
     bool enablePatternTransform = (m_shapeOptionsWidget->cmbFill->currentIndex() == int(KisToolShapeUtils::FillStylePattern));
@@ -233,8 +228,6 @@ void KisToolShape::addShape(KoShape* shape)
     KoSelection *selection = canvas()->selectedShapesProxy()->selection();
     const QList<KoShape*> oldSelectedShapes = selection->selectedShapes();
 
-    // reset selection on the newly added shape :)
-    // TODO: think about moving this into controller->addShape?
     new KoKeepShapesSelectedCommand(oldSelectedShapes, {shape}, canvas()->selectedShapesProxy(), false, parentCommand);
     KUndo2Command *cmd = canvas()->shapeController()->addShape(shape, 0, parentCommand);
     parentCommand->setText(cmd->text());
@@ -250,7 +243,6 @@ void KisToolShape::addPathShape(KoPathShape* pathShape, const KUndo2MagicString&
         return;
     }
 
-    // Compute the outline
     KisImageSP image = this->image();
     QTransform matrix;
     matrix.scale(image->xRes(), image->yRes());

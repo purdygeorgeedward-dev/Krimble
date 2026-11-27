@@ -39,5 +39,4 @@ void KisPaintopTest::testCreation()
     TestPaintOp test(&p);
 }
 
-
 SIMPLE_TEST_MAIN(KisPaintopTest)

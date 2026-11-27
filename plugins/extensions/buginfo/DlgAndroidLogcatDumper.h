@@ -37,4 +37,4 @@ private:
     KisSignalCompressor m_updateWidgetCompressor;
 };
 
-#endif // __DLGANDROIDLOGCATDUMPER_H_
+#endif

@@ -11,27 +11,17 @@
 #include <QScopedPointer>
 #include "kis_tool.h"
 
-/**
- * \brief Alternate Invocation implementation of KisAbstractInputAction.
- *
- * The Alternate Invocation action performs an alternate action with the
- * current tool. For example, using the brush tool it samples a color from
- * the canvas.
- */
 class KisAlternateInvocationAction : public KisAbstractInputAction
 {
 public:
-    /**
-     * The different behaviours for this action.
-     */
     enum Shortcut {
-        PrimaryAlternateModeShortcut, ///< Toggle Primary mode.
-        SecondaryAlternateModeShortcut, ///< Toggle Secondary mode.
+        PrimaryAlternateModeShortcut,
+        SecondaryAlternateModeShortcut,
         SampleColorFgLayerModeShortcut,
         SampleColorBgLayerModeShortcut,
         SampleColorFgImageModeShortcut,
         SampleColorBgImageModeShortcut,
-        TertiaryAlternateModeShortcut ///< Warning: don't reorder the items of this enum, it breaks user configs!
+        TertiaryAlternateModeShortcut
     };
 
     explicit KisAlternateInvocationAction();
@@ -48,7 +38,6 @@ public:
 
     bool supportsHiResInputEvents(int shortcut) const override;
 
-
 private:
     KisTool::ToolAction shortcutToToolAction(int shortcut) const;
 
@@ -57,4 +46,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_ALTERNATE_INVOCATION_ACTION_H
+#endif

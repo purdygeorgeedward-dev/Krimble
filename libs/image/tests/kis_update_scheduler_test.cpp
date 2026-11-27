@@ -28,7 +28,6 @@
 #include "../../sdk/tests/testutil.h"
 #include "kistest.h"
 
-
 KisImageSP KisUpdateSchedulerTest::buildTestingImage()
 {
     QImage sourceImage1(QString(FILES_DATA_DIR) + '/' + "hakonepa.png");
@@ -69,12 +68,7 @@ void KisUpdateSchedulerTest::testMerge()
 
     QCOMPARE(paintLayer1->name(), QString("paint1"));
 
-
     KisUpdateScheduler scheduler(image.data());
-
-    /**
-     * Test synchronous Full Refresh
-     */
 
     scheduler.fullRefreshAsync(rootLayer, image->bounds(), image->bounds());
     scheduler.waitForDone();
@@ -82,10 +76,6 @@ void KisUpdateSchedulerTest::testMerge()
 
     QImage resultFRProjection = rootLayer->projection()->convertToQImage(0);
     resultFRProjection.save(QString(FILES_OUTPUT_DIR) + '/' + "scheduler_fr_merge_result.png");
-
-    /**
-     * Test incremental updates
-     */
 
     rootLayer->projection()->clear();
 
@@ -139,7 +129,6 @@ void KisUpdateSchedulerTest::benchmarkOverlappedMerge()
         QRect dirtyRect(0, 0, 200, imageRect.height());
 
         for(int i = 0; i < numShifts; i++) {
-            // dbgKrita << dirtyRect;
             scheduler.updateProjection(paintLayer1, dirtyRect, image->bounds());
             dirtyRect.translate(xShift, yShift);
         }
@@ -335,7 +324,7 @@ public:
         for (int i = 0; i < NUM_CYCLES; i++) {
             if(i % NTH_CHECK == 0) {
                 m_scheduler->blockUpdates();
-                QTest::qSleep(1); // a bit of salt for crashiness ;)
+                QTest::qSleep(1);
                 Q_ASSERT(!m_scheduler->haveUpdatesRunning());
                 m_scheduler->unblockUpdates();
             }

@@ -8,7 +8,6 @@
 
 #include <cstdlib>
 
-
 #include <KoUpdater.h>
 #include <resources/KoAbstractGradient.h>
 
@@ -29,8 +28,6 @@
 #include "kis_ls_utils.h"
 #include "kis_layer_style_filter_environment.h"
 #include "kis_cached_paint_device.h"
-
-
 
 KisLsDropShadowFilter::KisLsDropShadowFilter(Mode mode)
     : KisLayerStyleFilter(KoID("lsdropshadow", i18n("Drop Shadow (style)")))
@@ -65,7 +62,6 @@ struct ShadowRectsData
         blur_size = shadow->size() - spread_size;
         offset = shadow->calculateOffset(context);
 
-        // need rect calculation in reverse order
         dstRect = applyRect;
 
         const int directionCoeff = direction == NEED_RECT ? -1 : 1;
@@ -80,11 +76,6 @@ struct ShadowRectsData
         spreadNeedRect = spread_size ?
             KisLsUtils::growRectFromRadius(blurNeedRect, spread_size) : blurNeedRect;
 
-        // dbgKrita << ppVar(dstRect);
-        // dbgKrita << ppVar(srcRect);
-        // dbgKrita << ppVar(noiseNeedRect);
-        // dbgKrita << ppVar(blurNeedRect);
-        // dbgKrita << ppVar(spreadNeedRect);
     }
 
     inline QRect finalNeedRect() const {
@@ -92,7 +83,6 @@ struct ShadowRectsData
     }
 
     inline QRect finalChangeRect() const {
-        // TODO: is it correct?
         return spreadNeedRect;
     }
 
@@ -125,15 +115,10 @@ void KisLsDropShadowFilter::applyDropShadow(KisPaintDeviceSP srcDevice,
 
     KisPixelSelectionSP selection = baseSelection->pixelSelection();
 
-    //selection->convertToQImage(0, QRect(0,0,300,300)).save("0_selection_initial.png");
-
     if (shadow->invertsSelection()) {
         selection->invert();
     }
 
-    /**
-     * Copy selection which will be erased from the original later
-     */
     KisCachedSelection::Guard s2(*env->cachedSelection());
     KisPixelSelectionSP knockOutSelection;
     if (shadow->knocksOut()) {
@@ -145,23 +130,15 @@ void KisLsDropShadowFilter::applyDropShadow(KisPaintDeviceSP srcDevice,
         KisLsUtils::findEdge(selection, d.blurNeedRect, true);
     }
 
-    /**
-     * Spread and blur the selection
-     */
     if (d.spread_size) {
         KisLsUtils::applyGaussianWithTransaction(selection, d.blurNeedRect, d.spread_size);
 
-        // TODO: find out why in libpsd we pass false here. If we do so,
-        //       the result is fully black, which is not expected
-        KisLsUtils::findEdge(selection, d.blurNeedRect, true /*shadow->edgeHidden()*/);
+        KisLsUtils::findEdge(selection, d.blurNeedRect, true );
     }
-
-    //selection->convertToQImage(0, QRect(0,0,300,300)).save("1_selection_spread.png");
 
     if (d.blur_size) {
         KisLsUtils::applyGaussianWithTransaction(selection, d.noiseNeedRect, d.blur_size);
     }
-    //selection->convertToQImage(0, QRect(0,0,300,300)).save("2_selection_blur.png");
 
     if (shadow->range() != KisLsUtils::FULL_PERCENT_RANGE) {
         KisLsUtils::adjustRange(selection, d.noiseNeedRect, shadow->range());
@@ -175,20 +152,12 @@ void KisLsDropShadowFilter::applyDropShadow(KisPaintDeviceSP srcDevice,
         selection->invert();
     }
 
-    /**
-     * Contour correction
-     */
     KisLsUtils::applyContourCorrection(selection,
                                        d.noiseNeedRect,
                                        shadow->contourLookupTable(),
                                        shadow->antiAliased(),
                                        shadow->edgeHidden());
 
-    //selection->convertToQImage(0, QRect(0,0,300,300)).save("3_selection_contour.png");
-
-    /**
-     * Noise
-     */
     if (shadow->noise() > 0) {
         KisLsUtils::applyNoise(selection,
                                d.srcRect,
@@ -196,15 +165,11 @@ void KisLsDropShadowFilter::applyDropShadow(KisPaintDeviceSP srcDevice,
                                context,
                                env);
     }
-    //selection->convertToQImage(0, QRect(0,0,300,300)).save("4_selection_noise.png");
 
     if (!d.offset.isNull()) {
         selection->moveTo(selection->offset() + d.offset);
     }
 
-    /**
-     * Knock-out original outline of the device from the resulting shade
-     */
     if (shadow->knocksOut()) {
         KIS_ASSERT_RECOVER_RETURN(knockOutSelection);
 
@@ -217,7 +182,6 @@ void KisLsDropShadowFilter::applyDropShadow(KisPaintDeviceSP srcDevice,
         gc.setCompositeOpId(COMPOSITE_ERASE);
         gc.bitBlt(knockOutRect.topLeft(), knockOutSelection, knockOutRect);
     }
-    //selection->convertToQImage(0, QRect(0,0,300,300)).save("5_selection_knockout.png");
 
     KisLsUtils::applyFinalSelection(KisMultipleProjection::defaultProjectionId(),
                                     baseSelection,

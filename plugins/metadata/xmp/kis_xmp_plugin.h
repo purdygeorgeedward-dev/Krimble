@@ -19,4 +19,4 @@ public:
     ~KisXmpPlugin() override;
 };
 
-#endif // _KIS_IPTC_PLUGIN_H_
+#endif

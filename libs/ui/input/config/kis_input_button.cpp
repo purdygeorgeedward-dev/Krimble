@@ -15,7 +15,6 @@
 
 #include "kis_icon_utils.h"
 
-
 class KisInputButton::Private
 {
 public:

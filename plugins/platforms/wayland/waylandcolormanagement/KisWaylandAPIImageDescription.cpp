@@ -8,7 +8,6 @@
 
 using namespace Qt::Literals::StringLiterals;
 
-
 KisWaylandAPIImageDescriptionInfo::KisWaylandAPIImageDescriptionInfo(::wp_image_description_info_v1 *info)
     : QtWayland::wp_image_description_info_v1(info)
 {

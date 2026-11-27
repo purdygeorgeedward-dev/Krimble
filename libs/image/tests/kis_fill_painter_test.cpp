@@ -32,7 +32,6 @@ void KisFillPainterTest::benchmarkFillPainter(const QPoint &startPoint, bool use
 
     dev->convertFromQImage(srcImage, 0, 0, 0);
 
-
     QBENCHMARK_ONCE {
         KisFillPainter gc(dev);
         gc.setFillThreshold(THRESHOLD);
@@ -52,7 +51,6 @@ void KisFillPainterTest::benchmarkFillPainter(const QPoint &startPoint, bool use
         .arg(startPoint.x())
         .arg(startPoint.y())
         .arg(useCompositing ? "composed" : "direct");
-
 
     QVERIFY(TestUtil::checkQImage(resultImage,
                                   "fill_painter",
@@ -87,7 +85,6 @@ void KisFillPainterTest::benchmarkFillingScanlineColor()
 
     dev->convertFromQImage(srcImage, 0, 0, 0);
 
-
     QBENCHMARK_ONCE {
         KisScanlineFill gc(dev, QPoint(), imageRect);
         gc.setThreshold(THRESHOLD);
@@ -117,7 +114,6 @@ void KisFillPainterTest::benchmarkFillSelection(int closeGap)
 
     dev->convertFromQImage(srcImage, 0, 0, 0);
 
-
     KisPixelSelectionSP pixelSelection = new KisPixelSelection();
 
     QBENCHMARK_ONCE {
@@ -145,8 +141,6 @@ void KisFillPainterTest::benchmarkFillingScanlineSelection()
 
 void KisFillPainterTest::benchmarkFillingGapClosingSelection()
 {
-    // This is the largest size that will produce the same result as the regular scanline fill.
-    // However, this is still useful because we are using the gap closing algorithm.
     benchmarkFillSelection(24);
 }
 
@@ -164,8 +158,7 @@ void KisFillPainterTest::testPatternFill()
     const QRect fillRect(-128,-128,384,384);
     KisFillPainter painter(dst);
 
-
-    { // fill aligned
+    {
         const QRect patternRect = pattern->exactBounds();
         painter.fillRect(fillRect.x(), fillRect.y(), fillRect.width(), fillRect.height(), pattern, patternRect);
         dst->fill(QRect(0,0,10,10), KoColor(Qt::black, cs));
@@ -181,11 +174,10 @@ void KisFillPainterTest::testPatternFill()
                                       "null_origin"));
     }
 
-    { // fill with offset
+    {
         dst->clear();
         pattern->setX(7);
         pattern->setY(-13);
-
 
         const QRect patternRect = pattern->exactBounds();
 
@@ -204,6 +196,5 @@ void KisFillPainterTest::testPatternFill()
     }
 
 }
-
 
 SIMPLE_TEST_MAIN(KisFillPainterTest)

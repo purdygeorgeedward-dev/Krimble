@@ -17,7 +17,6 @@
 class KoShape;
 class KisShapeSelection;
 
-
 class KisTakeAllShapesCommand : public KUndo2Command
 {
 public:
@@ -36,4 +35,4 @@ private:
     bool m_restoreSilently;
 };
 
-#endif /* __KIS_TAKE_ALL_SHAPES_COMMAND_H */
+#endif

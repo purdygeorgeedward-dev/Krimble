@@ -29,7 +29,6 @@
 #include <KisGlobalResourcesInterface.h>
 #include <KisAutoBrushModel.h>
 
-
 struct KisAutoBrushWidget::Private {
     Private(KisAutoBrushModel *_model)
         : model(_model),
@@ -40,8 +39,6 @@ struct KisAutoBrushWidget::Private {
     KisAutoBrushModel *model {0};
     KisSignalCompressor previewCompressor;
 };
-
-
 
 KisAutoBrushWidget::KisAutoBrushWidget(int maxBrushSize,
                                        KisAutoBrushModel *model,
@@ -151,8 +148,8 @@ KisAutoBrushWidget::~KisAutoBrushWidget()
 
 void KisAutoBrushWidget::resizeEvent(QResizeEvent *)
 {
-    brushPreview->setMinimumHeight(brushPreview->width()); // dirty hack !
-    brushPreview->setMaximumHeight(brushPreview->width()); // dirty hack !
+    brushPreview->setMinimumHeight(brushPreview->width());
+    brushPreview->setMaximumHeight(brushPreview->width());
 }
 
 void KisAutoBrushWidget::setStackedWidget(int index)

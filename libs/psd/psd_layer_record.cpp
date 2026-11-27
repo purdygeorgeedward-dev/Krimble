@@ -40,7 +40,6 @@
 #include "psd_pixel_utils.h"
 #include <kundo2command.h>
 
-// Just for pretty debug messages
 QString channelIdToChannelType(int channelId, psd_color_mode colormode)
 {
     switch (channelId) {
@@ -300,8 +299,7 @@ bool PSDLayerRecord::readImpl(QIODevice &io)
     if (extraDataLength > 0) {
         dbgFile << "Going to read extra data field. Bytes available: " << io.bytesAvailable() << "pos" << io.pos();
 
-        // See https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_22582
-        quint32 layerMaskLength = 1; // invalid...
+        quint32 layerMaskLength = 1;
         if (!psdread<byteOrder>(io, layerMaskLength) || io.bytesAvailable() < layerMaskLength) {
             error = QString("Could not read layer mask length: %1").arg(layerMaskLength);
             return false;
@@ -432,7 +430,6 @@ bool PSDLayerRecord::readImpl(QIODevice &io)
             }
         }
 
-        // layer blending thingies
         quint32 blendingDataLength = 0;
         if (!psdread<byteOrder>(io, blendingDataLength) || io.bytesAvailable() < blendingDataLength) {
             error = "Could not read extra blending data.";
@@ -495,7 +492,6 @@ bool PSDLayerRecord::readImpl(QIODevice &io)
         layerNameLength = ((layerNameLength + 1 + 3) & ~0x03) - 1;
 
         dbgFile << "\tlayer name length padded" << layerNameLength << "pos" << io.pos();
-        // XXX: This should use psdread_pascalstring
         layerName = io.read(layerNameLength);
         dbgFile << "\tlayer name" << layerName << io.pos();
 
@@ -576,7 +572,6 @@ void PSDLayerRecord::writeImpl(QIODevice &io,
 
             channel->channelInfoPosition = static_cast<int>(io.pos());
 
-            // to be filled in when we know how big channel block is
             const quint32 fakeChannelSize = 0;
             SAFE_WRITE_EX(byteOrder, io, fakeChannelSize);
         }
@@ -591,16 +586,14 @@ void PSDLayerRecord::writeImpl(QIODevice &io,
             SAFE_WRITE_EX(byteOrder, io, fakeTransparencyMaskSize);
         }
 
-        // blend mode
         dbgFile << ppVar(blendModeKey) << ppVar(io.pos());
 
         KisAslWriterUtils::writeFixedString<byteOrder>("8BIM", io);
         KisAslWriterUtils::writeFixedString<byteOrder>(blendModeKey, io);
 
         SAFE_WRITE_EX(byteOrder, io, opacity);
-        SAFE_WRITE_EX(byteOrder, io, clipping); // unused
+        SAFE_WRITE_EX(byteOrder, io, clipping);
 
-        // visibility and protection
         quint8 flags = 0;
         if (transparencyProtected)
             flags |= 1;
@@ -619,34 +612,30 @@ void PSDLayerRecord::writeImpl(QIODevice &io,
         }
 
         {
-            // extra fields with their own length tag
             KisAslWriterUtils::OffsetStreamPusher<quint32, byteOrder> extraDataSizeTag(io);
 
             if (m_onlyTransparencyMask) {
                 {
-                    const quint32 layerMaskDataSize = 20; // support simple case only
+                    const quint32 layerMaskDataSize = 20;
                     SAFE_WRITE_EX(byteOrder, io, layerMaskDataSize);
                 }
 
                 KisAslWriterUtils::writeRect<byteOrder>(m_onlyTransparencyMaskRect, io);
 
                 {
-                    // NOTE: in PSD the default color of the mask is stored in 1 byte value!
-                    //       Even when the mask is actually 16/32 bit! I have no idea how it is
-                    //       actually treated in this case.
                     KIS_ASSERT_RECOVER_NOOP(m_onlyTransparencyMask->paintDevice()->pixelSize() == 1);
                     const quint8 defaultPixel = *m_onlyTransparencyMask->paintDevice()->defaultPixel().data();
                     SAFE_WRITE_EX(byteOrder, io, defaultPixel);
                 }
 
                 {
-                    quint8 maskFlags = 0; // nothing serious
+                    quint8 maskFlags = 0;
                     if (!vectorMask.path.subPaths.isEmpty()) {
-                        maskFlags |= 8; // bit 3 = indicates that the user mask actually came from rendering other data
+                        maskFlags |= 8;
                     }
                     SAFE_WRITE_EX(byteOrder, io, maskFlags);
 
-                    const quint16 padding = 0; // 2-byte padding
+                    const quint16 padding = 0;
                     SAFE_WRITE_EX(byteOrder, io, padding);
                 }
             } else {
@@ -655,47 +644,38 @@ void PSDLayerRecord::writeImpl(QIODevice &io,
             }
 
             {
-                // blending ranges are not implemented yet
                 const quint32 nullBlendingRangesSize = 0;
                 SAFE_WRITE_EX(byteOrder, io, nullBlendingRangesSize);
             }
 
-            // layer name: Pascal string, padded to a multiple of 4 bytes.
             psdwrite_pascalstring<byteOrder>(io, layerName, 4);
 
             PsdAdditionalLayerInfoBlock additionalInfoBlock(m_header);
 
-            // write 'luni' data block
             additionalInfoBlock.writeLuniBlockEx(io, layerName);
 
             additionalInfoBlock.writeLclrBlockEx(io, psdLabelColor(labelColor));
 
-            // write 'lsct' data block
             if (sectionType != psd_other) {
                 additionalInfoBlock.writeLsctBlockEx(io, sectionType, isPassThrough, blendModeKey);
             }
 
-            // write 'lfx2' data block
             if (!stylesXmlDoc.isNull()) {
                 additionalInfoBlock.writeLfx2BlockEx(io, stylesXmlDoc, useLfxsLayerStyleFormat);
             }
 
-            // write SoCo, GdFl, PtFl data blocks.
             if (!fillConfig.isNull()) {
                 additionalInfoBlock.writeFillLayerBlockEx(io, fillConfig, fillType);
             }
 
-            // write 'vmsk' data block
             if (!vectorMask.path.subPaths.isEmpty()) {
                 additionalInfoBlock.writeVmskBlockEx(io, vectorMask);
             }
 
-            // write 'tysh' data block
             if (!textShape.engineData.isEmpty()) {
                 additionalInfoBlock.writeTypeToolBlockEx(io, textShape);
             }
 
-            // write 'vstk' data block
             if (!vectorStroke.isNull()) {
                 additionalInfoBlock.writeVectorStrokeDataEx(io, vectorStroke);
             }
@@ -728,31 +708,31 @@ quint16 PSDLayerRecord::psdLabelColor(int colorLabelIndex)
 {
     quint16 color = 0;
     switch (colorLabelIndex) {
-    case 0: // none
+    case 0:
         color = 0;
         break;
-    case 1: // Blue
+    case 1:
         color = 5;
         break;
-    case 2: // Green
+    case 2:
         color = 4;
         break;
-    case 3: // Yellow
+    case 3:
         color = 3;
         break;
-    case 4: // Orange
+    case 4:
         color = 2;
         break;
-    case 5: // Brown, don't save.
+    case 5:
         color = 0;
         break;
-    case 6: // Red
+    case 6:
         color = 1;
         break;
-    case 7: // Purple
+    case 7:
         color = 6;
         break;
-    case 8: // Grey
+    case 8:
         color = 7;
         break;
     default:
@@ -768,25 +748,25 @@ int PSDLayerRecord::kritaColorLabelIndex(quint16 labelColor)
     case 0:
         color = 0;
         break;
-    case 1: // red
+    case 1:
         color = 6;
         break;
-    case 2: // Orange
+    case 2:
         color = 4;
         break;
-    case 3: // Yellow
+    case 3:
         color = 3;
         break;
-    case 4: // Green
+    case 4:
         color = 2;
         break;
-    case 5: // Blue
+    case 5:
         color = 1;
         break;
-    case 6: // Purple
+    case 6:
         color = 7;
         break;
-    case 7: // Grey
+    case 7:
         color = 8;
         break;
     default:
@@ -853,7 +833,6 @@ void PSDLayerRecord::writePixelDataImpl(QIODevice &io, psd_compression_type comp
         return;
     }
 
-    // now write all the channels in display order
     dbgFile << "layer" << layerName;
 
     const int channelSize = m_header.channelDepth / 8;
@@ -870,7 +849,6 @@ void PSDLayerRecord::writePixelDataImpl(QIODevice &io, psd_compression_type comp
 
 bool PSDLayerRecord::valid()
 {
-    // XXX: check validity!
     return true;
 }
 
@@ -882,7 +860,6 @@ bool PSDLayerRecord::readPixelData(QIODevice &io, KisPaintDeviceSP device)
     const QRect layerRect = QRect(left, top, right - left, bottom - top);
 
     try {
-        // WARNING: Pixel data is ALWAYS in big endian!!!
         PsdPixelUtils::readChannels(io, device, m_header.colormode, channelSize, layerRect, channelInfoRecords, psd_byte_order::psdBigEndian);
     } catch (KisAslReaderUtils::ASLParseException &e) {
         device->clear();
@@ -921,7 +898,6 @@ bool PSDLayerRecord::readMask(QIODevice &io, KisPaintDeviceSP dev, ChannelInfo *
         return true;
     }
 
-    // the device must be a pixel selection
     KIS_ASSERT_RECOVER(dev->pixelSize() == 1)
     {
         return false;
@@ -942,7 +918,6 @@ KoPathShape *PSDLayerRecord::constructPathShape(psd_path path, double shapeWidth
 {
     KoPathShape *shape = new KoPathShape();
 
-    // psd paths are stored normalized.
     QTransform tf = QTransform::fromScale(shapeWidth, shapeHeight);
 
     QString nodeTypes;
@@ -988,7 +963,6 @@ void PSDLayerRecord::addPathShapeToPSDPath(psd_path &path, KoPathShape *shape, d
 {
     QTransform tf = QTransform::fromScale(shapeWidth, shapeHeight).inverted();
     tf = shape->absoluteTransformation()*tf;
-
 
     for (int i = 0; i < shape->subpathCount(); i++) {
         psd_path_sub_path subPath;

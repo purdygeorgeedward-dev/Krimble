@@ -22,12 +22,6 @@
 #include <kconfiggroup.h>
 
 namespace {
-    /**
-     * Event filter to be installed on the scroll bars of QAbstractScrollArea,
-     * used to detect cursor entering/leaving the scrollbars in order to
-     * temporarily disable/re-enable the QScroller. This allows the scroll bars
-     * to be dragged normally even when kinetic scrolling is enabled.
-     */
     class KisKineticScrollerEventFilter : public QObject
     {
         Q_OBJECT
@@ -58,7 +52,7 @@ namespace {
             return QObject::eventFilter(watched, event);
         }
     };
-} /* namespace */
+}
 
 QScroller* KisKineticScroller::createPreconfiguredScroller(QAbstractScrollArea *scrollArea) {
     KConfigGroup config = KSharedConfig::openConfig()->group("");
@@ -97,16 +91,10 @@ QScroller* KisKineticScroller::createPreconfiguredScroller(QAbstractScrollArea *
 
         QScrollerProperties properties;
 
-        // DragStartDistance seems to be based on meter per second; though it's
-        // not explicitly documented, other QScroller values are in that metric.
-        // To start kinetic scrolling, with minimal sensitivity, we expect a drag
-        // of 10 mm, with minimum sensitivity any > 0 mm.
         const float mm = 0.001f;
         const float resistance = 1.0f - (sensitivity / 100.0f);
         float mousePressEventDelay = config.readEntry("KineticScrollingMousePressDelay", 1.0f - 0.75f * resistance);
 
-        // If the mouse press event delay is too large, it also ends up delaying
-        // long-presses. Cap the value there for consistency.
 #ifdef Q_OS_ANDROID
         int maxDelayMs =
             QAndroidJniObject::callStaticMethod<jint>("org/krimble/android/MainActivity", "getLongPressTimeout", "()I");
@@ -143,7 +131,6 @@ QScroller* KisKineticScroller::createPreconfiguredScroller(QAbstractScrollArea *
 QScroller::ScrollerGestureType KisKineticScroller::getConfiguredGestureType() {
     KConfigGroup config = KSharedConfig::openConfig()->group("");
 #ifdef Q_OS_ANDROID
-    // Use a different default. Shouldn't we use KisConfig::kineticScrollingGesture?
     int gesture = config.readEntry("KineticScrollingGesture", 1);
 #else
     int gesture = config.readEntry("KineticScrollingGesture", 0);

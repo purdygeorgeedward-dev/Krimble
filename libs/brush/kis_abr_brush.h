@@ -23,13 +23,11 @@ typedef KisSharedPtr<KisQImagemask> KisQImagemaskSP;
 class QString;
 class QIODevice;
 
-
 class BRUSH_EXPORT KisAbrBrush : public KisScalingSizeBrush
 {
 
 public:
 
-    /// Construct brush to load filename later as brush
     KisAbrBrush(const QString& filename, KisAbrBrushCollection *parent);
     KisAbrBrush(const KisAbrBrush& rhs);
     KisAbrBrush(const KisAbrBrush& rhs, KisAbrBrushCollection *parent);
@@ -44,9 +42,6 @@ public:
         return QPair<QString, QString>(ResourceType::Brushes, ResourceSubType::AbrBrushes);
     }
 
-    /**
-     * @return default file extension for saving the brush
-     */
     QString defaultFileExtension() const override;
 
     QImage brushTipImage() const override;
@@ -63,5 +58,5 @@ private:
 
 typedef QSharedPointer<KisAbrBrush> KisAbrBrushSP;
 
-#endif // KIS_ABR_BRUSH_
+#endif
 

@@ -74,16 +74,13 @@ public:
         : localResources(_localResources)
     {
 
-        // sanity check that we don't have any null resources
         KIS_SAFE_ASSERT_RECOVER(!localResources.contains(KoResourceSP())) {
             localResources.removeAll(KoResourceSP());
         }
 
-
     }
     QList<KoResourceSP> localResources;
 };
-
 
 KisLocalStrokeResources::KisLocalStrokeResources()
     : KisResourcesInterface(new KisLocalStrokeResourcesPrivate({}))

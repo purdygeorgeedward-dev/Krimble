@@ -104,12 +104,11 @@
 #include <KisCanvasSurfaceColorSpaceManager.h>
 #include <KisRootSurfaceInfoProxy.h>
 
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
 #include <KisPlatformPluginInterfaceFactory.h>
 #include <KisMultiSurfaceStateManager.h>
 #include <KisCanvasState.h>
-
 
 namespace {
     struct ShapeLifetimeWrapper : KoShape::ShapeChangeListener
@@ -143,11 +142,6 @@ namespace {
 
 class Q_DECL_HIDDEN KisCanvas2::KisCanvas2Private
 {
-    /**
-     * Interface that can be void-ed when original canvas has been deleted
-     * Providing a void interface is necessary to avoid a KisInputActionGroupsMaskGuard updating
-     * an already-deleted canvas
-     */
     struct CanvasInputActionGroupsMaskInterface : public KisInputActionGroupsMaskInterface
     {
         KisCanvas2Private * m_canvasPrivateRef = nullptr;
@@ -157,7 +151,7 @@ class Q_DECL_HIDDEN KisCanvas2::KisCanvas2Private
         { }
         KisInputActionGroupsMask inputActionGroupsMask() const override
         {
-            Q_ASSERT(m_canvasPrivateRef); // this method should only be used upon creating a KisInputActionGroupsMaskGuard
+            Q_ASSERT(m_canvasPrivateRef);
             return m_canvasPrivateRef->inputActionGroupsMask;
         }
         void setInputActionGroupsMask(KisInputActionGroupsMask mask) override
@@ -165,7 +159,7 @@ class Q_DECL_HIDDEN KisCanvas2::KisCanvas2Private
             if(m_canvasPrivateRef)
                 m_canvasPrivateRef->inputActionGroupsMask = mask;
         }
-    }; // class CanvasInputActionGroupsMask
+    };
 
 public:
     KisCanvas2Private(KisCanvas2 *parent,
@@ -205,13 +199,8 @@ public:
     {
         inputActionGroupsMaskInterface->m_canvasPrivateRef = nullptr;
 
-        // We need to make sure that the QScopedPointer gets freed within the scope
-        // of KisCanvas2Private's lifespan. For some reason, this isn't guaranteed
-        // and was causing a crash when closing a file when playback is happening
-        // and there are multiple images. See Bug: 499658
         animationPlayer.reset();
     }
-
 
     KisCanvas2 *q = 0;
     KisCoordinatesConverter *coordinatesConverter = 0;
@@ -259,7 +248,6 @@ public:
 
     QRect renderingLimit;
     int isBatchUpdateActive = 0;
-
 
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
     QScopedPointer<KisCanvasSurfaceColorSpaceManager> surfaceColorManager;
@@ -328,11 +316,6 @@ KisCanvas2::KisCanvas2(KisCoordinatesConverter *coordConverter, KoCanvasResource
     : KoCanvasBase(sc, resourceManager)
     , m_d(new KisCanvas2Private(this, coordConverter, view, resourceManager))
 {
-    /**
-     * While loading LoD should be blocked. Only when GUI has finished
-     * loading and zoom level settled down, LoD is given a green
-     * light.
-     */
     m_d->bootstrapLodBlocked = true;
     connect(mainWindow, SIGNAL(guiLoadingFinished()), SLOT(bootstrapFinished()));
 
@@ -350,7 +333,6 @@ KisCanvas2::KisCanvas2(KisCoordinatesConverter *coordConverter, KoCanvasResource
 
 void KisCanvas2::setup()
 {
-    // a bit of duplication from slotConfigChanged()
     KisConfig cfg(true);
     m_d->lodPreferredInImage = cfg.levelOfDetailEnabled();
     m_d->regionOfInterestMargin = KisImageConfig(true).animationCacheRegionOfInterestMargin();
@@ -365,21 +347,6 @@ void KisCanvas2::setup()
     connect(KisConfigNotifier::instance(), SIGNAL(configChanged()), SLOT(slotConfigChanged()));
     connect(KisImageConfigNotifier::instance(), &KisImageConfigNotifier::globalProofingConfigChanged,
             this, &KisCanvas2::slotChangeGlobalProofingConfig);
-
-    /**
-     * We switch the shape manager every time vector layer or
-     * shape selection is activated. Flake does not expect this
-     * and connects all the signals of the global shape manager
-     * to the clients in the constructor. To workaround this we
-     * forward the signals of local shape managers stored in the
-     * vector layers to the signals of global shape manager. So the
-     * sequence of signal deliveries is the following:
-     *
-     * shapeLayer.m_d.canvas.m_shapeManager.selection() ->
-     * shapeLayer ->
-     * shapeController ->
-     * globalShapeManager.selection()
-     */
 
     KisShapeController *kritaShapeController = static_cast<KisShapeController*>(shapeController()->documentBase());
     connect(kritaShapeController, SIGNAL(selectionChanged()),
@@ -440,10 +407,6 @@ void KisCanvas2::setCanvasWidget(KisAbstractCanvasWidget *widget)
     }
 
     if (m_d->canvasWidget) {
-        /**
-         * We are switching the canvas type. We should reinitialize our
-         * connections to decorations and input manager
-         */
 
         widget->setDecorations(m_d->canvasWidget->decorations());
 
@@ -474,12 +437,7 @@ void KisCanvas2::setCanvasWidget(KisAbstractCanvasWidget *widget)
         controller->changeCanvasWidget(widget->widget());
     }
 
-
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
-    /**
-     * Load platform plugin for surface color management and set
-     * the surface color space to sRGB exactly
-     */
     if (KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS()) {
         m_d->surfaceColorManager.reset();
 
@@ -490,8 +448,6 @@ void KisCanvas2::setCanvasWidget(KisAbstractCanvasWidget *widget)
             std::unique_ptr<KisSurfaceColorManagerInterface> iface(
                 KisPlatformPluginInterfaceFactory::instance()->createSurfaceColorManager(nativeWindow));
 
-            // if surfaceColorManagedByOS() is true, then interface is guaranteed to
-            // be present
             KIS_SAFE_ASSERT_RECOVER_NOOP(iface);
 
             if (iface) {
@@ -573,7 +529,6 @@ void KisCanvas2::channelSelectionChanged()
 
 void KisCanvas2::addCommand(KUndo2Command *command)
 {
-    // This method exists to support flake-related operations
     m_d->view->image()->undoAdapter()->addCommand(command);
 }
 
@@ -589,7 +544,6 @@ KoShapeManager* KisCanvas2::shapeManager() const
 {
     KoShapeManager *localShapeManager = this->localShapeManager();
 
-    // sanity check for consistency of the local shape manager
     KIS_SAFE_ASSERT_RECOVER (localShapeManager == m_d->currentlyActiveShapeManager) {
         localShapeManager = globalShapeManager();
     }
@@ -618,16 +572,12 @@ void KisCanvas2::setCurrentShapeManagerOwnerShape(KoShape *source)
 
     m_d->groupModeShapeWrapper = std::nullopt;
 
-    // we currently support entering text shapes only
     if (source && dynamic_cast<KoSvgTextShape*>(source)) {
         m_d->groupModeShapeWrapper.emplace(source, [this] () {
             this->setCurrentShapeManagerOwnerShape(nullptr);
         });
     }
 
-    /// recalculate the local shape manager and make sure
-    /// that selected shapes proxy emits all the necessary
-    /// signals
     (void) localShapeManager();
 }
 
@@ -636,10 +586,6 @@ KoShapeManager *KisCanvas2::localShapeManager() const
     KisNodeSP node = m_d->view->currentNode();
     KoShapeManager *localShapeManager = fetchShapeManagerFromNode(node);
 
-    /**
-     * The group shape should be manually reset by the external code
-     * when the active layer is switched.
-     */
     KIS_SAFE_ASSERT_RECOVER(
         !m_d->groupModeShapeWrapper ||
         !localShapeManager ||
@@ -651,7 +597,6 @@ KoShapeManager *KisCanvas2::localShapeManager() const
     if (m_d->groupModeShapeWrapper) {
         auto textShape = dynamic_cast<KoSvgTextShape*>(m_d->groupModeShapeWrapper->shape());
 
-        // we currently support entering text shapes only
         KIS_SAFE_ASSERT_RECOVER(textShape) {
             m_d->groupModeShapeWrapper = std::nullopt;
         }
@@ -702,7 +647,6 @@ const QWidget* KisCanvas2::canvasWidget() const
 {
     return m_d->canvasWidget->widget();
 }
-
 
 KoUnit KisCanvas2::unit() const
 {
@@ -773,7 +717,6 @@ void KisCanvas2::createOpenGLCanvas()
 
 void KisCanvas2::createCanvas(bool useOpenGL)
 {
-    // deinitialize previous canvas structures
     m_d->prescaledProjection = 0;
     m_d->frameCache = 0;
 
@@ -787,7 +730,6 @@ void KisCanvas2::createCanvas(bool useOpenGL)
     if (useOpenGL) {
         createOpenGLCanvas();
         if (cfg.canvasState() == "OPENGL_FAILED") {
-            // Creating the opengl canvas failed, fall back
             warnKrita << "OpenGL Canvas initialization returned OPENGL_FAILED. Falling back to QPainter.";
             createQPainterCanvas();
         }
@@ -832,13 +774,6 @@ void KisCanvas2::disconnectImage()
 {
     KisImageSP image = m_d->view->image();
 
-    /**
-     * We explicitly don't use barrierLock() here, because we don't care about
-     * all the updates completed (we don't use image's content). We only need to
-     * guarantee that the image will not try to access us in a multithreaded way,
-     * while we are being destroyed.
-     */
-
     image->immediateLockForReadOnly();
     disconnect(image.data(), 0, this, 0);
     image->unlock();
@@ -861,8 +796,6 @@ void KisCanvas2::connectCurrentCanvas()
 
 void KisCanvas2::resetCanvas(bool useOpenGL)
 {
-    // we cannot reset the canvas before it's created, but this method might be called,
-    // for instance when setting the monitor profile.
     if (!m_d->canvasWidget) {
         return;
     }
@@ -889,11 +822,6 @@ void KisCanvas2::resetCanvas(bool useOpenGL)
 
 void KisCanvas2::startUpdateInPatches(const QRect &imageRect)
 {
-    /**
-     * We don't do patched loading for openGL canvas, because it loads
-     * the tiles, which are basically "patches". Therefore, big chunks
-     * of memory are never allocated.
-     */
     if (m_d->currentCanvasIsOpenGL) {
         startUpdateCanvasProjection(imageRect);
     } else {
@@ -937,7 +865,6 @@ void KisCanvas2::slotImageColorSpaceChanged()
     m_d->channelFlags = image->rootLayer()->channelFlags();
     m_d->canvasWidget->channelSelectionChanged(m_d->channelFlags);
 
-    // Not all color spaces are supported by soft-proofing, so update state
     if (imageView()->softProofing()) {
         updateProofingState();
     }
@@ -1006,8 +933,6 @@ void KisCanvas2::slotGamutCheck()
 void KisCanvas2::slotChangeGlobalProofingConfig()
 {
     if (image() && !image()->proofingConfiguration()) {
-        // global config should be updated only when
-        // the image doesn't have its own config
         slotChangeProofingConfig();
     }
 }
@@ -1064,16 +989,13 @@ void KisCanvas2::updateCanvasProjection()
 {
     auto tryIssueCanvasUpdates = [this](const QRect &vRect) {
         if (!m_d->isBatchUpdateActive) {
-            // TODO: Implement info->dirtyViewportRect() for KisOpenGLCanvas2 to avoid updating whole canvas
             if (m_d->currentCanvasIsOpenGL) {
                 m_d->savedCanvasProjectionUpdateRect |= vRect;
 
-                // we already had a compression in frameRenderStartCompressor, so force the update directly
                 slotDoCanvasUpdate();
-            } else if (/* !m_d->currentCanvasIsOpenGL && */ !vRect.isEmpty()) {
+            } else if ( !vRect.isEmpty()) {
                 m_d->savedCanvasProjectionUpdateRect |= m_d->coordinatesConverter->viewportToWidget(vRect).toAlignedRect();
 
-                // we already had a compression in frameRenderStartCompressor, so force the update directly
                 slotDoCanvasUpdate();
             }
         }
@@ -1163,10 +1085,6 @@ void KisCanvas2::slotSetLodUpdatesBlocked(bool value)
 
 void KisCanvas2::requestCanvasUpdateMaybeCompressed()
 {
-    /**
-    * If Qt has our custom patch for global updates compression, then we shouldn't do
-    * our own compression here in the canvas. Everything will be done in Qt.
-    */
 #if !KRITA_QT_HAS_UPDATE_COMPRESSION_PATCH
     m_d->canvasUpdateCompressor.start();
 #else
@@ -1178,13 +1096,7 @@ void KisCanvas2::slotDoCanvasUpdate()
 {
 
 #if !KRITA_QT_HAS_UPDATE_COMPRESSION_PATCH
-    /**
-     * WARNING: in isBusy() we access openGL functions without making the painting
-     * context current. We hope that currently active context will be Qt's one,
-     * which is shared with our own.
-     */
     if (m_d->canvasWidget->isBusy()) {
-        // just restarting the timer
         m_d->canvasUpdateCompressor.start();
         return;
     }
@@ -1192,7 +1104,6 @@ void KisCanvas2::slotDoCanvasUpdate()
 
     QRect combinedUpdateRect = m_d->savedCanvasProjectionUpdateRect | m_d->savedOverlayUpdateRect;
     if (!combinedUpdateRect.isEmpty()) {
-        // TODO: Remove this signal (only used by the old KisSketchView)
         Q_EMIT updateCanvasRequested(combinedUpdateRect);
 
         if (wrapAroundViewingMode() && !m_d->savedCanvasProjectionUpdateRect.isEmpty()) {
@@ -1235,8 +1146,6 @@ void KisCanvas2::updateCanvasWidgetImpl(const QRect &rc)
             return;
         }
     }
-    // We don't know if it's the canvas projection or the overlay that's
-    // changed, so we update both.
     m_d->savedCanvasProjectionUpdateRect |= rect;
     m_d->savedOverlayUpdateRect |= rect;
     requestCanvasUpdateMaybeCompressed();
@@ -1256,8 +1165,6 @@ QRect KisCanvas2::KisCanvas2Private::docUpdateRectToWidget(const QRectF &docRect
 
 void KisCanvas2::updateCanvas(const QRectF& documentRect)
 {
-    // updateCanvas is called from tools, never from the projection
-    // updates, so no need to prescale!
     QRect widgetRect = m_d->docUpdateRectToWidget(documentRect);
     if (!widgetRect.isEmpty()) {
         updateCanvasWidgetImpl(widgetRect);
@@ -1265,7 +1172,7 @@ void KisCanvas2::updateCanvas(const QRectF& documentRect)
 }
 
 void KisCanvas2::updateCanvasProjection(const QRectF &docRect)
-{   
+{
     QRect widgetRect = m_d->docUpdateRectToWidget(docRect);
     if (!widgetRect.isEmpty()) {
         m_d->savedCanvasProjectionUpdateRect |= widgetRect;
@@ -1325,8 +1232,6 @@ void KisCanvas2::slotEffectiveZoomChanged(qreal newZoom)
 {
     Q_UNUSED(newZoom)
 
-
-
     notifyLevelOfDetailChange();
 }
 
@@ -1379,7 +1284,6 @@ KisPopupPalette *KisCanvas2::popupPalette()
 
 void KisCanvas2::slotTrySwitchShapeManager()
 {
-    // Still needs to be recalculated in some cases, like when deleting vector layers
     localShapeManager();
 }
 
@@ -1489,7 +1393,6 @@ void KisCanvas2::refetchDataFromImage()
 
 void KisCanvas2::KisCanvas2Private::assignChangedMultiSurfaceStateSkipCanvasSurface(const KisMultiSurfaceStateManager::State &newState)
 {
-    // the surface state is supposed to be initialized on canvas creation
     KIS_SAFE_ASSERT_RECOVER_RETURN(multiSurfaceState);
 
     if (*multiSurfaceState == newState) return;
@@ -1506,8 +1409,6 @@ void KisCanvas2::KisCanvas2Private::assignChangedMultiSurfaceStateSkipCanvasSurf
 
         q->refetchDataFromImage();
 
-        // we changed the canvas conversion mode, so the canvas background color
-        // has changed as well
         q->updateCanvas();
     }
 }
@@ -1564,14 +1465,8 @@ KisCanvasDecorationSP KisCanvas2::decoration(const QString& id) const
     return m_d->canvasWidget->decoration(id);
 }
 
-
 QPoint KisCanvas2::documentOrigin() const
 {
-    /**
-     * In Krita we don't use document origin anymore.
-     * All the centering when needed (vastScrolling < 0.5) is done
-     * automatically by the KisCoordinatesConverter.
-     */
 
     return QPoint();
 }
@@ -1591,7 +1486,7 @@ void KisCanvas2::setFavoriteResourceManager(KisFavoriteResourceManager* favorite
 }
 
 void KisCanvas2::slotPopupPaletteRequestedZoomChange(int zoom ) {
-    m_d->view->canvasController()->setZoom(KoZoomMode::ZOOM_CONSTANT, (qreal)(zoom/100.0)); // 1.0 is 100% zoom
+    m_d->view->canvasController()->setZoom(KoZoomMode::ZOOM_CONSTANT, (qreal)(zoom/100.0));
 }
 
 void KisCanvas2::setCursor(const QCursor &cursor)
@@ -1656,7 +1551,6 @@ void KisCanvas2::bootstrapFinished()
     m_d->bootstrapLodBlocked = false;
     setLodPreferredInCanvas(m_d->lodPreferredInImage);
 
-    // Initialization of audio tracks is deferred until after canvas has been completely constructed.
     m_d->animationPlayer->setupAudioTracks();
 }
 

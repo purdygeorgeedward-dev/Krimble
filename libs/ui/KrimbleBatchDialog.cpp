@@ -1,6 +1,3 @@
-/*
- * Krimble 2026-10-25: see KrimbleBatchDialog.h.
- */
 #include "KrimbleBatchDialog.h"
 
 #include <klocalizedstring.h>
@@ -48,7 +45,6 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
 
     QLabel *intro = new QLabel(i18n("Pick a recipe (or change its settings), then the pictures. Results go to %1; the originals are not changed.", m_where), this);
     intro->setWordWrap(true);
-    // the recipe and its settings (and the first line): in a scroll area, so that it fits a phone held sideways
     QWidget *form = new QWidget();
     QVBoxLayout *formLayout = new QVBoxLayout(form);
     formLayout->setContentsMargins(0, 0, 0, 0);
@@ -72,7 +68,6 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     line1->setFrameShadow(QFrame::Sunken);
     formLayout->addWidget(line1);
 
-    // resize
     m_resizeCombo = new QComboBox(form);
     m_resizeCombo->addItems(QStringList() << i18n("Keep the size") << i18n("Longest side") << i18n("Width") << i18n("Height"));
     m_resizeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
@@ -89,7 +84,6 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     formLayout->addLayout(sizeRow);
     formLayout->addWidget(m_noEnlarge);
 
-    // format and quality
     m_formatCombo = new QComboBox(form);
     m_formatCombo->addItems(QStringList() << i18n("JPG") << i18n("PNG") << i18n("WebP, lossless") << i18n("WebP, lossy"));
     m_formatCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
@@ -107,7 +101,6 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     qualityRow->addWidget(m_qualityValue);
     formLayout->addLayout(qualityRow);
 
-    // the name
     m_suffixEdit = new QLineEdit(form);
     m_suffixEdit->setPlaceholderText(i18n("nothing added"));
     formLayout->addWidget(new QLabel(i18n("Add to the end of the name"), form));
@@ -147,12 +140,11 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     area->setWidget(form);
     root->addWidget(area, 1);
 
-    // the run
     m_startButton = new QPushButton(i18n("Choose Pictures and Start..."), this);
     m_bar = new QProgressBar(this);
     m_bar->setRange(0, 100);
     m_bar->setValue(0);
-    m_bar->setVisible(false);   // shown while a run goes on
+    m_bar->setVisible(false);
     m_status = new QLabel(this);
     m_status->setWordWrap(true);
     m_cancelButton = new QPushButton(i18n("Cancel"), this);
@@ -166,7 +158,6 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     root->addWidget(m_status);
     root->addLayout(buttonRow);
 
-    // WebP cannot be written on this build: the two WebP formats are shown, but cannot be chosen
     if (!webpAvailable()) {
         if (QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_formatCombo->model())) {
             for (int i = FormatWebPLossless; i <= FormatWebPLossy; ++i) {
@@ -213,7 +204,7 @@ void KrimbleBatchDialog::fillRecipeCombo(const QString &select)
 {
     m_recipeCombo->clear();
     for (const KrimbleBatch::Recipe &r : m_recipes) {
-        m_recipeCombo->addItem(r.builtIn ? i18n(r.name.toUtf8().constData()) : QStringLiteral("\u2605 ") + r.name);   // a star marks the user's own
+        m_recipeCombo->addItem(r.builtIn ? i18n(r.name.toUtf8().constData()) : QStringLiteral("\u2605 ") + r.name);
     }
     int index = 0;
     if (!select.isEmpty()) {
@@ -246,7 +237,6 @@ void KrimbleBatchDialog::setScript(const QString &text)
     checkScript();
 }
 
-// the script is checked as it is typed: the first mistake is shown under it
 void KrimbleBatchDialog::checkScript()
 {
     QString error;
@@ -346,8 +336,6 @@ void KrimbleBatchDialog::deleteRecipe()
     fillRecipeCombo();
 }
 
-// one animated picture: every frame gets the steps of the program; then it is written as an animated WebP, or as separate numbered pictures ("frames"),
-// or, for JPG and PNG (which cannot move), as its first frame only
 bool KrimbleBatchDialog::processAnimation(const QString &path, KrimbleBatch::Animation animation, const KrimbleBatch::Program &program, int format, const QString &dirPath)
 {
     using namespace KrimbleBatch;
@@ -407,11 +395,10 @@ void KrimbleBatchDialog::runOn(const QStringList &files)
         m_status->setText(i18n("Picture %1 of %2...", i + 1, files.size()));
         m_bar->setValue(100 * i / files.size());
         QCoreApplication::processEvents();
-        if (!guard) return;                     // the window was closed (Android's back button) while a picture was processed
+        if (!guard) return;
         if (*m_cancelRequested) break;
         const int format = resolveFormat(program, files.at(i));
-        if ((format == FormatWebPLossless || format == FormatWebPLossy) && !webpAvailable()) { ++failed; continue; }   // this build cannot write WebP
-        // an animated GIF or WebP: kept as an animated WebP, or written frame by frame, or (JPG, PNG) its first frame
+        if ((format == FormatWebPLossless || format == FormatWebPLossy) && !webpAvailable()) { ++failed; continue; }
         const QString ext = QFileInfo(files.at(i)).suffix().toLower();
         if (ext == QLatin1String("gif") || ext == QLatin1String("webp")) {
             Animation animation;
@@ -419,7 +406,7 @@ void KrimbleBatchDialog::runOn(const QStringList &files)
                 if (processAnimation(files.at(i), animation, program, format, dirPath)) ++done; else ++failed;
                 continue;
             }
-            if (ext == QLatin1String("gif") && !gifReadable()) { ++failed; continue; }   // this build has no GIF reader
+            if (ext == QLatin1String("gif") && !gifReadable()) { ++failed; continue; }
         }
         QImage image = loadPicture(files.at(i));
         if (image.isNull()) { ++failed; continue; }

@@ -24,22 +24,17 @@ public:
 
     bool eventFilter(QObject* watched, QEvent* e) override;
 
-    /// @return the model used in the document list
     QStandardItemModel* model() const;
 
 Q_SIGNALS:
-    /// Emitted when a file is requested to be opened
     void openUrl(const QUrl&);
 
-    /// This is used to keep all splitters in different details panes synced
     void splitterResized(KisDetailsPane* sender, const QList<int>& sizes);
 
 public Q_SLOTS:
-    /// This is used to keep all splitters in different details panes synced
     void resizeSplitter(KisDetailsPane* sender, const QList<int>& sizes);
 
 protected Q_SLOTS:
-    /// This is called when the selection in the listview changed
     virtual void selectionChanged(const QModelIndex& index) = 0;
     virtual void openFile();
     virtual void openFile(const QModelIndex& index) = 0;
@@ -56,4 +51,4 @@ private:
     KisDetailsPanePrivate * const d;
 };
 
-#endif // KISDETAILSPANE_H
+#endif

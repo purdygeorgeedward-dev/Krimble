@@ -31,4 +31,4 @@ private:
     bool m_lastSampleRealCanvas;
 };
 
-#endif // KISSAMPLESCREENCOLOR_H
+#endif

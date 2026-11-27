@@ -21,21 +21,13 @@ static const KoID flow("flow", ki18n("Flow"));
 static const KoID angle("angle", ki18n("Angle"));
 static const KoID spacing("spacing", ki18n("Spacing"));
 
-
-/**
-     * Overload of createProperty(const QString &id, ...)
-     */
 KisUniformPaintOpPropertySP createProperty(const KoID &id,
                                            KisPaintOpSettingsRestrictedSP settings,
                                            KisPaintOpPresetUpdateProxy *updateProxy);
 
-/**
-     * Factory for creating standard uniform properties. Right now
-     * it supports only size, opacity and flow.
-     */
 KisUniformPaintOpPropertySP createProperty(const QString &id,
                                            KisPaintOpSettingsRestrictedSP settings,
                                            KisPaintOpPresetUpdateProxy *updateProxy);
 }
 
-#endif /* __KIS_STANDARD_UNIFORM_PROPERTIES_FACTORY_H */
+#endif

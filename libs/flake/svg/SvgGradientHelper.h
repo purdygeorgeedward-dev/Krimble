@@ -18,38 +18,26 @@ class SvgGradientHelper
 public:
     SvgGradientHelper();
     ~SvgGradientHelper();
-    /// Copy constructor
     SvgGradientHelper(const SvgGradientHelper &other);
 
-    /// Sets the gradient units type
     void setGradientUnits(KoFlake::CoordinateSystem units);
-    /// Returns gradient units type
     KoFlake::CoordinateSystem gradientUnits() const;
 
-    /// Sets the gradient
     void setGradient(QGradient * g);
-    /// Returns the gradient
     QGradient * gradient() const;
 
-    /// Sets the meshgradient
     void setMeshGradient(SvgMeshGradient* g);
-    /// Returns the meshgradient
     QScopedPointer<SvgMeshGradient>& meshgradient();
 
-    // To distinguish between SvgMeshGradient and QGradient
     bool isMeshGradient() const;
 
-    /// Returns the gradient transformation
     QTransform transform() const;
-    /// Sets the gradient transformation
     void setTransform(const QTransform &transform);
 
-    /// Assignment operator
     SvgGradientHelper & operator = (const SvgGradientHelper & rhs);
 
     QGradient * adjustedGradient(const QRectF &bound) const;
 
-    /// Converts a gradient from LogicalMode to ObjectBoundingMode 
     static QGradient *convertGradient(const QGradient * originalGradient, const QTransform &userToRelativeTransform, const QRectF &size);
 
     QGradient::Spread spreadMode() const;
@@ -63,4 +51,4 @@ private:
     QTransform m_gradientTransform;
 };
 
-#endif // SVGGRADIENTHELPER_H
+#endif

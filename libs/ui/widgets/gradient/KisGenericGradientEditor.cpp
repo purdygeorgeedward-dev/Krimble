@@ -85,7 +85,7 @@ public:
             (presetChooserHidden ? 0 : widgetGradientPresetChooser->minimumHeight()) +
             buttonConvertGradient->sizeHint().height() +
             (widgetGradientEditor ? widgetGradientEditor->sizeHint().height() : 0) +
-            (presetChooserHidden ? 15 : 25) // spacing
+            (presetChooserHidden ? 15 : 25)
         );
 
         cachedMinimumSizeHint = QSize(
@@ -94,7 +94,7 @@ public:
             (presetChooserHidden ? 0 : widgetGradientPresetChooser->minimumHeight()) +
             buttonConvertGradient->minimumSizeHint().height() +
             (widgetGradientEditor ? widgetGradientEditor->minimumSizeHint().height() : 0) +
-            (presetChooserHidden ? 15 : 25) // spacing
+            (presetChooserHidden ? 15 : 25)
         );
     }
 };
@@ -143,7 +143,7 @@ KisGenericGradientEditor::KisGenericGradientEditor(QWidget* parent)
     QWidgetAction *widgetActionToolButtonGradientPresetChooser = new QWidgetAction(this);
     widgetActionToolButtonGradientPresetChooser->setDefaultWidget(m_d->widgetToolButtonGradientPresetChooser);
     m_d->toolButtonGradientPresetChooser->addAction(widgetActionToolButtonGradientPresetChooser);
-    
+
     m_d->buttonUpdateGradient = new QPushButton(this);
     m_d->buttonUpdateGradient->setIcon(KisIconUtils::loadIcon("document-save"));
     m_d->buttonUpdateGradient->setToolTip(
@@ -152,7 +152,7 @@ KisGenericGradientEditor::KisGenericGradientEditor(QWidget* parent)
             "Update the selected gradient preset with the current gradient"
         )
     );
-    
+
     m_d->buttonAddGradient = new QPushButton(this);
     m_d->buttonAddGradient->setIcon(KisIconUtils::loadIcon("list-add"));
     m_d->buttonAddGradient->setToolTip(
@@ -273,7 +273,7 @@ void KisGenericGradientEditor::loadUISettings(const QString &prefix)
 
     m_d->useGradientPresetChooserPopUp = configGroup.readEntry(pfx + "useGradientPresetChooserPopUp", m_d->useGradientPresetChooserPopUp);
     m_d->compactGradientPresetChooserMode = configGroup.readEntry(pfx + "compactGradientPresetChooserMode", m_d->compactGradientPresetChooserMode);
-    
+
     updateGradientPresetChooser();
 }
 
@@ -368,7 +368,7 @@ void KisGenericGradientEditor::setGradient(KoAbstractGradientSP newGradient)
     if (m_d->canvasResourcesInterface) {
         m_d->gradient->updateVariableColors(m_d->canvasResourcesInterface);
     }
-    
+
     QWidget *newGradientEditorWidget = nullptr;
     if (m_d->gradient.dynamicCast<KoStopGradient>()) {
         if (dynamic_cast<KisStopGradientEditor*>(m_d->widgetGradientEditor)) {
@@ -438,7 +438,7 @@ void KisGenericGradientEditor::setCanvasResourcesInterface(KoCanvasResourcesInte
 void KisGenericGradientEditor::setCompactMode(bool compact)
 {
     m_d->compactMode = compact;
-    
+
     updateConvertGradientButton();
     updateUpdateGradientButton();
     updateAddGradientButton();
@@ -497,7 +497,6 @@ void KisGenericGradientEditor::setCompactGradientEditorMode(bool compact)
     m_d->updateCachedSizeHint();
 }
 
-
 QSize KisGenericGradientEditor::sizeHint() const
 {
     return m_d->cachedSizeHint;
@@ -522,7 +521,7 @@ void KisGenericGradientEditor::updateConvertGradientButton()
 
     m_d->buttonConvertGradient->setVisible(!m_d->compactMode && m_d->isConvertGradientButtonVisible);
     m_d->labelConvertGradientWarning->setVisible(!m_d->compactMode && m_d->isConvertGradientButtonVisible && isSegmentGradient);
-    
+
     m_d->buttonConvertGradient->setText(
         m_d->gradient
         ?   isSegmentGradient
@@ -643,7 +642,7 @@ void KisGenericGradientEditor::on_buttonAddGradient_clicked()
     if (!m_d->gradient || !m_d->gradient->valid() || m_d->gradient->name().isEmpty()) {
         return;
     }
-    
+
     m_d->gradient->updatePreview();
     KisResourceModel model(ResourceType::Gradients);
     KisResourceUserOperations::addResourceWithUserInput(this, m_d->gradient);

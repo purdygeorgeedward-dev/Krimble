@@ -10,10 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-
-/**
- * Storyboard Docker showing frames and comments
- */
 class StoryboardDockerPlugin : public QObject
 {
     Q_OBJECT

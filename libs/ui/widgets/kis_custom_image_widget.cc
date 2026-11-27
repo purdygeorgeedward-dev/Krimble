@@ -19,6 +19,9 @@
 #include <QSpacerItem>
 
 #include <QMessageBox>
+#include <QInputDialog>
+#include <QResizeEvent>
+#include <QShowEvent>
 #include <KoResourcePaths.h>
 
 #include <KFormat>
@@ -81,6 +84,9 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
         QScreen *screenForWidth = QGuiApplication::primaryScreen();
         const bool narrowScreen = screenForWidth && screenForWidth->availableGeometry().width() < 450;
         cmbPredefined->setMaximumWidth(narrowScreen ? 104 : 170);
+        for (QComboBox *colorCombo : colorSpaceSelector->findChildren<QComboBox *>()) {
+            colorCombo->setMaximumWidth(130);
+        }
     }
     grpImage->setProperty("krimbleKeepRows", true);
     colorSpaceSelector->setProperty("krimbleKeepRows", true);
@@ -130,26 +136,21 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     connect(cmbResolutionUnit, SIGNAL(currentIndexChanged(int)),
             this, SLOT(resolutionUnitChanged()));
 
-
-    // Create image
     newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok)->setText(i18n("&Create"));
+    newDialogConfirmationButtonBox->setStyleSheet(QStringLiteral("QDialogButtonBox { button-layout: 1; }"));
+    setStyleSheet(QStringLiteral("QLineEdit, QAbstractSpinBox, QComboBox { border: 1px solid palette(mid); border-radius: 6px; }\n"
+                                 "QGroupBox { border: 1px solid palette(mid); border-radius: 8px; }"));
     KGuiItem::assign(newDialogConfirmationButtonBox->button(QDialogButtonBox::Cancel), KStandardGuiItem::cancel());
     connect(newDialogConfirmationButtonBox, SIGNAL(accepted()), this, SLOT(createImage()));
 
-
-    // Cancel Create image button
     connect(newDialogConfirmationButtonBox, SIGNAL(rejected()), m_openPane, SLOT(reject()));
 
-
-
-    bnPortrait->setIcon(KisIconUtils::loadIcon("portrait"));
-    connect(bnPortrait, SIGNAL(clicked()), SLOT(setPortrait()));
-    connect(bnLandscape, SIGNAL(clicked()), SLOT(setLandscape()));
-    bnLandscape->setIcon(KisIconUtils::loadIcon("landscape"));
+    connect(bnOrientation, SIGNAL(clicked()), SLOT(switchWidthHeight()));
 
     connect(doubleWidth, SIGNAL(valueChanged(double)), this, SLOT(switchPortraitLandscape()));
     connect(doubleHeight, SIGNAL(valueChanged(double)), this, SLOT(switchPortraitLandscape()));
-    connect(bnSaveAsPredefined, SIGNAL(clicked()), this, SLOT(saveAsPredefined()));
+    bnSavePreset->setIcon(KisIconUtils::loadIcon("document-save"));
+    connect(bnSavePreset, SIGNAL(clicked()), this, SLOT(saveAsPredefined()));
 
     colorSpaceSelector->setCurrentColorModel(KoID(defColorModel));
     colorSpaceSelector->setCurrentColorDepth(KoID(defColorDepth));
@@ -158,9 +159,8 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
 
     connect(colorSpaceSelector, SIGNAL(selectionChanged(bool)), newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok), SLOT(setEnabled(bool)));
 
-
     KisConfig cfg(true);
-    intNumLayers->setValue(cfg.numDefaultLayers());
+    m_numLayers = cfg.numDefaultLayers();
     KoColor bcol(KoColorSpaceRegistry::instance()->rgb8());
     bcol.fromQColor(cfg.defaultBackgroundColor());
     cmbColor->setColor(bcol);
@@ -179,19 +179,33 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     fillPredefined();
     switchPortraitLandscape();
 
-    // this makes the portrait and landscape buttons more
-    // obvious what is selected by changing the highlight color
-    QPalette p = QApplication::palette();
-    QPalette palette_highlight(p );
-    QColor c = p.color(QPalette::Highlight);
-    palette_highlight.setColor(QPalette::Button, c);
-    bnLandscape->setPalette(palette_highlight);
-    bnPortrait->setPalette(palette_highlight);
     changeDocumentInfoLabel();
+}
+
+void KisCustomImageWidget::resizeEvent(QResizeEvent *event)
+{
+    WdgNewImage::resizeEvent(event);
+    krimbleUpdateStacking();
+}
+
+bool KisCustomImageWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == parentWidget() && event->type() == QEvent::Resize) krimbleUpdateStacking();
+    return WdgNewImage::eventFilter(watched, event);
+}
+
+void KisCustomImageWidget::krimbleUpdateStacking()
+{
+    QWidget *visibleArea = parentWidget() ? parentWidget() : this;
+    const QBoxLayout::Direction direction = visibleArea->width() < grpImage->sizeHint().width() + grpMode->sizeHint().width() + 24
+            ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight;
+    if (horizontalLayout_3->direction() != direction) horizontalLayout_3->setDirection(direction);
 }
 
 void KisCustomImageWidget::showEvent(QShowEvent *)
 {
+    if (parentWidget()) parentWidget()->installEventFilter(this);
+    krimbleUpdateStacking();
     fillPredefined();
     newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok)->setFocus();
     newDialogConfirmationButtonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
@@ -203,7 +217,7 @@ KisCustomImageWidget::~KisCustomImageWidget()
 }
 
 void KisCustomImageWidget::resolutionChanged(double res)
-{  
+{
     if (m_widthUnit.type() == KoUnit::Pixel) {
         m_widthUnit.setFactor(res / 72.0);
         m_width = m_widthUnit.fromUserValue(doubleWidth->value());
@@ -332,7 +346,7 @@ KisDocument* KisCustomImageWidget::createNewImage()
     double resolution ;
     KIS_SAFE_ASSERT_RECOVER(cmbResolutionUnit->currentText() == pixelsInchStr() || cmbResolutionUnit->currentText() == pixelsCentimeterStr()) { resolution = 1.0; }
     if (cmbResolutionUnit->currentText() == pixelsInchStr()) {
-        resolution = doubleResolution->value() / 72.0;  // internal resolution is in pixels per pt
+        resolution = doubleResolution->value() / 72.0;
     } else if (cmbResolutionUnit->currentText() == pixelsCentimeterStr()) {
         resolution = doubleResolution->value() / 28.34;
     } else {
@@ -352,10 +366,9 @@ KisDocument* KisCustomImageWidget::createNewImage()
         bgStyle = KisConfig::FILL_LAYER;
     }
 
-    doc->newImage(txtName->text(), width, height, cs, bgColor, bgStyle, intNumLayers->value(), txtDescription->toPlainText(), resolution);
+    doc->newImage(txtName->text(), width, height, cs, bgColor, bgStyle, m_numLayers, QString(), resolution);
 
     KisConfig cfg(true);
-    cfg.setNumDefaultLayers(intNumLayers->value());
     cfg.setDefaultBackgroundOpacity(backgroundOpacity());
     cfg.setDefaultBackgroundColor(cmbColor->color().toQColor());
     cfg.setDefaultBackgroundStyle(bgStyle);
@@ -365,7 +378,7 @@ KisDocument* KisCustomImageWidget::createNewImage()
 
 void KisCustomImageWidget::setNumberOfLayers(int layers)
 {
-    intNumLayers->setValue(layers);
+    m_numLayers = layers;
 }
 
 quint8 KisCustomImageWidget::backgroundOpacity() const
@@ -417,13 +430,11 @@ void KisCustomImageWidget::fillPredefined()
 
 }
 
-
 void KisCustomImageWidget::predefinedClicked(int index)
 {
     if (index < 1 || index > m_predefined.size()) return;
 
     KisPropertiesConfigurationSP predefined = m_predefined[index - 1];
-    txtPredefinedName->setText(predefined->getString("name"));
     if (cmbResolutionUnit->currentText() == pixelsInchStr()) {
         doubleResolution->setValue(predefined->getDouble("resolution"));
     } else {
@@ -443,10 +454,13 @@ void KisCustomImageWidget::predefinedClicked(int index)
 
 void KisCustomImageWidget::saveAsPredefined()
 {
-    QString fileName = txtPredefinedName->text();
-    if (fileName.isEmpty()) {
+    bool ok = false;
+    const QString presetName = QInputDialog::getText(this, i18n("Save Preset"), i18n("Preset name:"), QLineEdit::Normal,
+                                                     cmbPredefined->currentIndex() > 0 ? cmbPredefined->currentText() : QString(), &ok).trimmed();
+    if (!ok || presetName.isEmpty()) {
         return;
     }
+    QString fileName = presetName;
     QString saveLocation = KoResourcePaths::saveLocation("data", "predefined_image_sizes/", true);
     QFile f(saveLocation + '/' + fileName.replace(' ', '_').replace('(', '_').replace(')', '_').replace(':', '_') + ".predefinedimage");
 
@@ -456,7 +470,7 @@ void KisCustomImageWidget::saveAsPredefined()
         return;
     }
     KisPropertiesConfigurationSP predefined = new KisPropertiesConfiguration();
-    predefined->setProperty("name", txtPredefinedName->text());
+    predefined->setProperty("name", presetName);
     predefined->setProperty("width", doubleWidth->value());
     predefined->setProperty("height", doubleHeight->value());
     predefined->setProperty("resolution", doubleResolution->value());
@@ -472,7 +486,7 @@ void KisCustomImageWidget::saveAsPredefined()
     int i = 0;
     bool found = false;
     Q_FOREACH (KisPropertiesConfigurationSP pr, m_predefined) {
-        if (pr->getString("name") == txtPredefinedName->text()) {
+        if (pr->getString("name") == presetName) {
             found = true;
             break;
         }
@@ -483,23 +497,10 @@ void KisCustomImageWidget::saveAsPredefined()
     }
     else {
         m_predefined.append(predefined);
-        cmbPredefined->addItem(txtPredefinedName->text());
+        cmbPredefined->addItem(presetName);
+        cmbPredefined->setCurrentIndex(cmbPredefined->count() - 1);
     }
 
-}
-
-void KisCustomImageWidget::setLandscape()
-{
-    if (doubleWidth->value() < doubleHeight->value()) {
-        switchWidthHeight();
-    }
-}
-
-void KisCustomImageWidget::setPortrait()
-{
-    if (doubleWidth->value() > doubleHeight->value()) {
-        switchWidthHeight();
-    }
 }
 
 void KisCustomImageWidget::switchWidthHeight()
@@ -533,10 +534,7 @@ void KisCustomImageWidget::switchWidthHeight()
 
 void KisCustomImageWidget::switchPortraitLandscape()
 {
-    if(doubleWidth->value() > doubleHeight->value())
-        bnLandscape->setChecked(true);
-    else
-        bnPortrait->setChecked(true);
+    bnOrientation->setIcon(KisIconUtils::loadIcon(doubleWidth->value() > doubleHeight->value() ? "landscape" : "portrait"));
 }
 
 void KisCustomImageWidget::changeDocumentInfoLabel()
@@ -544,14 +542,14 @@ void KisCustomImageWidget::changeDocumentInfoLabel()
 
     qint64 width, height;
     double resolution;
-    resolution = doubleResolution->value() / 72.0;  // internal resolution is in pixels per pt
+    resolution = doubleResolution->value() / 72.0;
 
     width = static_cast<qint64>(0.5  + KoUnit(KoUnit::Pixel, resolution).toUserValuePrecise(m_width));
     height = static_cast<qint64>(0.5 + KoUnit(KoUnit::Pixel, resolution).toUserValuePrecise(m_height));
 
     qint64 layerSize = width * height;
     const KoColorSpace *cs = colorSpaceSelector->currentColorSpace();
-    int bitSize = 8 * cs->pixelSize(); //pixelsize is in bytes.
+    int bitSize = 8 * cs->pixelSize();
     layerSize = layerSize * cs->pixelSize();
     QString text = i18nc("arg1: width. arg2: height. arg3: colorspace name. arg4: size of a channel in bits. arg5: image size",
                          "This document will be %1 pixels by %2 pixels in %3. The pixel size is %4 bit. A single paint layer will use %5 of RAM.",

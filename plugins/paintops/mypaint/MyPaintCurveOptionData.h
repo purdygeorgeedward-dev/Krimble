@@ -10,7 +10,6 @@
 #include <KisCurveOptionDataCommon.h>
 #include "MyPaintSensorPack.h"
 
-
 struct MyPaintCurveOptionData : KisCurveOptionDataCommon
 {
     MyPaintCurveOptionData(const QString &prefix,
@@ -19,7 +18,7 @@ struct MyPaintCurveOptionData : KisCurveOptionDataCommon
                               bool isChecked = false,
                               qreal minValue = 0.0,
                               qreal maxValue = 1.0);
-        
+
     MyPaintCurveOptionData(const KoID &id,
                               bool isCheckable = true,
                               bool isChecked = false,
@@ -40,4 +39,4 @@ public:
     const MyPaintSensorData& sensorStruct() const;
 };
 
-#endif // MYPAINTCURVEOPTIONDATA_H
+#endif

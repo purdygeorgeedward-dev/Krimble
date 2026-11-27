@@ -70,4 +70,4 @@ private:
     void reloadExactToolConfig();
 };
 
-#endif /* __KIS_SELECTION_TOOL_CONFIG_WIDGET_HELPER_H */
+#endif

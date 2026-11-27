@@ -57,7 +57,6 @@ public:
     void addRect(const QString &path, const QRectF &rect) override;
     void addUnitRect(const QString &path, const QString &unit, const QRectF &rect) override;
 
-
     void subscribeDouble(const QString &path, ASLCallbackDouble callback);
     void subscribeInteger(const QString &path, ASLCallbackInteger callback);
     void subscribeEnum(const QString &path, const QString &typeId, ASLCallbackString callback);
@@ -81,4 +80,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_ASL_CALLBACK_OBJECT_CATCHER_H */
+#endif

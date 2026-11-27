@@ -7,7 +7,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.60 BETA**
 
-**Version numbers:** this is build 60. The last release was 1.0.58 beta.
+**Version numbers:** this is build 60. The last stable release was 1.0.58 beta. You can try the more recent one, but I don't recommend it.
 
 **Do not install this build.** It has many faults, listed under Known issues at the end.
 

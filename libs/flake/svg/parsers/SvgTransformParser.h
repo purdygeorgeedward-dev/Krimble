@@ -10,7 +10,6 @@
 #include <QTransform>
 #include "kritaflake_export.h"
 
-
 class KRITAFLAKE_EXPORT SvgTransformParser
 {
 public:
@@ -23,4 +22,4 @@ private:
     QTransform m_transform;
 };
 
-#endif // SVGTRANSFORMPARSER_H
+#endif

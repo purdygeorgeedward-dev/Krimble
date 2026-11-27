@@ -6,7 +6,6 @@
 #ifndef KIS_KRA_LOADER_H
 #define KIS_KRA_LOADER_H
 
-
 #include <QStringList>
 #include <QString>
 #include "QDomDocument"
@@ -23,11 +22,6 @@ class QVersionNumber;
 #include "kritalibkra_export.h"
 #include "KoColor.h"
 
-/**
- * Load old-style 1.x .kra files. Updated for 2.0, let's try to stay
- * compatible. But 2.0 won't be able to save 1.x .kra files unless we
- * implement an export filter.
- */
 class KRITALIBKRA_EXPORT KisKraLoader
 {
 
@@ -37,10 +31,6 @@ public:
 
     ~KisKraLoader();
 
-    /**
-     * Loading is done in two steps: first all xml is loaded, then, in finishLoading,
-     * the actual layer data is loaded.
-     */
     KisImageSP loadXML(const QDomElement& imageElement);
 
     void loadBinaryData(KoStore* store, KisImageSP image, const QString & uri, bool external);
@@ -53,28 +43,20 @@ public:
 
     vKisNodeSP selectedNodes() const;
 
-    // it's neater to follow the same design as with selectedNodes, so let's have a getter here
     QList<KisPaintingAssistantSP> assistants() const;
 
     StoryboardItemList storyboardItemList() const;
 
     StoryboardCommentList storyboardCommentList() const;
 
-    /// if empty, loading didn't fail...
     QStringList errorMessages() const;
 
-    /// if not empty, loading didn't fail, but there are problems
     QStringList warningMessages() const;
 
-    /// Returns the name of the image as defined in maindoc.xml. This might
-    /// be different from the name of the image as used in the path to the
-    /// layers, because before Krita 4.2, under some circumstances, this
-    /// string is in utf8, but the paths were stored in a different encoding.
     QString imageName() const;
 
 private:
 
-    // this needs to be private, for neatness sake
     void loadAssistants(KoStore* store, const QString & uri, bool external);
 
     void loadAnimationMetadataFromXML(const QDomElement& element, KisImageSP image);

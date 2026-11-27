@@ -35,5 +35,4 @@ private:
     QPointer<KisCanvas2> m_canvas;
 };
 
-
 #endif

@@ -28,8 +28,6 @@
 #include "kis_coordinates_converter.h"
 #include "kis_icon_utils.h"
 
-
-
 #define HANDLE_DISTANCE 10
 
 SelectionDecorator::SelectionDecorator(KoCanvasResourceProvider *resourceManager, KoColorDisplayRendererInterface *displayInterface)
@@ -130,7 +128,6 @@ void SelectionDecorator::paint(QPainter &painter, const KoViewConverter &convert
 
     const QRectF handleArea = m_selection->outlineRect();
 
-    // draw extra rubber line around all the shapes
     if (selectedShapes.size() > 1 || forceBoundingRubberLine) {
         KisHandlePainterHelper helper =
             KoShape::createHandlePainterHelperView(&painter, m_selection, converter, m_handleRadius, m_decorationThickness);
@@ -139,8 +136,6 @@ void SelectionDecorator::paint(QPainter &painter, const KoViewConverter &convert
         helper.drawRubberLine(handleArea);
     }
 
-    // if we have no editable shape selected there
-    // is no need drawing the selection handles
     if (editable) {
         KisHandlePainterHelper helper =
             KoShape::createHandlePainterHelperView(&painter, m_selection, converter, m_handleRadius, m_decorationThickness);
@@ -173,7 +168,6 @@ void SelectionDecorator::paint(QPainter &painter, const KoViewConverter &convert
             paintGradientHandles(shape, KoFlake::StrokeFill, painter, converter);
         }
 
-        // paint meshgradient handles
         if(m_showFillMeshGradientHandles) {
             paintMeshGradientHandles(shape, KoFlake::Fill, painter, converter);
         }
@@ -226,7 +220,6 @@ void SelectionDecorator::paintMeshGradientHandles(KoShape *shape,
 
     helper.drawPath(gradientHandles.path());
 
-    // invert them, because we draw in logical coordinates.
     const QTransform t = shape->absoluteTransformation().inverted();
     const QVector<KoShapeMeshGradientHandles::Handle> cornerHandles = gradientHandles.handles();
     for (const auto& corner: cornerHandles) {
@@ -241,12 +234,10 @@ void SelectionDecorator::paintMeshGradientHandles(KoShape *shape,
 
     helper.setHandleStyle(KisHandleStyle::highlightedPrimaryHandlesWithSolidOutline(palette));
 
-    // highlight the selected handle (only corner)
     if (m_selectedMeshHandle.type == KoShapeMeshGradientHandles::Handle::Corner) {
         helper.drawHandleRect(t.map(gradientHandles.getHandle(m_selectedMeshHandle.getPosition()).pos));
     }
 
-    // highlight the path which is being hovered/moved
     if (m_currentHoveredMeshHandle.type != KoShapeMeshGradientHandles::Handle::None) {
         QVector<QPainterPath> paths = gradientHandles.getConnectedPath(m_currentHoveredMeshHandle);
         for (const auto &path: paths) {

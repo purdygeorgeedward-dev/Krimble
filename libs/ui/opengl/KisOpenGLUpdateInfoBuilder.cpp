@@ -5,7 +5,6 @@
  */
 #include "KisOpenGLUpdateInfoBuilder.h"
 
-// TODO: conversion options into a separate file!
 #include "kis_update_info.h"
 #include "opengl/kis_texture_tile_info_pool.h"
 
@@ -14,7 +13,6 @@
 #include <QReadWriteLock>
 #include <QReadLocker>
 #include <QWriteLocker>
-
 
 struct KRITAUI_NO_EXPORT KisOpenGLUpdateInfoBuilder::Private
 {
@@ -33,7 +31,6 @@ struct KRITAUI_NO_EXPORT KisOpenGLUpdateInfoBuilder::Private
     KisTextureTileInfoPoolSP pool;
     QReadWriteLock lock;
 };
-
 
 KisOpenGLUpdateInfoBuilder::KisOpenGLUpdateInfoBuilder()
     : m_d(new Private)
@@ -66,7 +63,6 @@ KisOpenGLUpdateInfoSP KisOpenGLUpdateInfoBuilder::buildUpdateInfo(const QRect &r
                 m_d->proofingConfig->displayFlags.testFlag(KoColorConversionTransformation::SoftProofing);
         };
 
-    // lazily create transform
     if (convertColorSpace && needCreateProofingTransform()) {
 
         QWriteLocker locker(&m_d->lock);
@@ -91,15 +87,6 @@ KisOpenGLUpdateInfoSP KisOpenGLUpdateInfoBuilder::buildUpdateInfo(const QRect &r
 
     QReadLocker locker(&m_d->lock);
 
-    /**
-     * Why the rect is artificial? That's easy!
-     * It does not represent any real piece of the image. It is
-     * intentionally stretched to get through the overlapping
-     * stripes of neutrality and poke neighbouring tiles.
-     * Thanks to the rect we get the coordinates of all the tiles
-     * involved into update process
-     */
-
     QRect artificialRect = kisGrowRect(updateRect, m_d->textureBorder);
     artificialRect &= bounds;
 
@@ -108,7 +95,7 @@ KisOpenGLUpdateInfoSP KisOpenGLUpdateInfoBuilder::buildUpdateInfo(const QRect &r
     int firstRow = yToRow(artificialRect.top());
     int lastRow = yToRow(artificialRect.bottom());
 
-    QBitArray channelFlags; // empty by default
+    QBitArray channelFlags;
 
     if (!m_d->channelFlags.isEmpty() &&
         m_d->channelFlags.size() == projection->colorSpace()->channelCount()) {
@@ -139,7 +126,6 @@ KisOpenGLUpdateInfoSP KisOpenGLUpdateInfoBuilder::buildUpdateInfo(const QRect &r
                                                      alignedBounds,
                                                      levelOfDetail,
                                                      m_d->pool));
-            // Don't update empty tiles
             if (tileInfo->valid()) {
                 tileInfo->retrieveData(projection, channelFlags, m_d->onlyOneChannelSelected, m_d->selectedChannelIndex);
 
@@ -185,7 +171,6 @@ QRect KisOpenGLUpdateInfoBuilder::calculatePhysicalTileRect(int col, int row, co
     return alignedTileTextureRect;
 }
 
-
 int KisOpenGLUpdateInfoBuilder::xToCol(int x) const
 {
     return x / m_d->effectiveTextureSize.width();
@@ -208,7 +193,6 @@ void KisOpenGLUpdateInfoBuilder::setConversionOptions(const ConversionOptions &o
     QWriteLocker lock(&m_d->lock);
 
     m_d->conversionOptions = options;
-    // the proofing transform becomes invalid when the target colorspace changes
     m_d->proofingTransform.reset();
 }
 

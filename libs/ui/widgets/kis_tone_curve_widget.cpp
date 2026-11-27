@@ -1,4 +1,4 @@
-/* 
+/*
  * SPDX-FileCopyrightText: 2015 Wolthera van Hövell tot Westerflier <griffinvalley@gmail.com>
  *
  * Based on the Digikam CIE Tongue widget
@@ -18,18 +18,17 @@
 #include <cmath>
 #include <klocalizedstring.h>
 
-
 #include "kis_tone_curve_widget.h"
 
 class Q_DECL_HIDDEN KisToneCurveWidget::Private
 {
 public:
-    
+
     bool            profileDataAvailable {false};
     bool            needUpdatePixmap {false};
     bool            TRCGray {true};
     bool            TRCRGB {false};
- 
+
     int             xBias {0};
     int             yBias {0};
     int             pxcols {0};
@@ -39,9 +38,9 @@ public:
     QPolygonF       ToneCurveRed;
     QPolygonF       ToneCurveGreen;
     QPolygonF       ToneCurveBlue;
- 
+
     double          gridside {0.0};
- 
+
     QPainter        painter;
     QPainter        painter2;
     QPixmap         pixmap;
@@ -51,7 +50,6 @@ public:
 KisToneCurveWidget::KisToneCurveWidget(QWidget *parent) :
     QWidget(parent), d(new Private)
 {
-    /*this is a tone curve widget*/
 }
 
 KisToneCurveWidget::~KisToneCurveWidget()
@@ -109,7 +107,7 @@ void KisToneCurveWidget::biasedLine(int x1, int y1, int x2, int y2)
 {
     d->painter.drawLine(x1 + d->xBias, y1, x2 + d->xBias, y2);
 }
- 
+
 void KisToneCurveWidget::biasedText(int x, int y, const QString& txt)
 {
     d->painter.drawText(QPoint(d->xBias + x, y), txt);
@@ -121,34 +119,34 @@ void KisToneCurveWidget::drawGrid()
     d->painter.setPen(qRgb(255, 255, 255));
     biasedLine(0, 0,           0,           d->pxrows - 1);
     biasedLine(0, d->pxrows-1, d->pxcols-1, d->pxrows - 1);
-    
+
     QFont font;
     font.setPointSize(6);
     d->painter.setFont(font);
-    
+
     for (int y = 1; y <= 9; y += 1)
     {
         QString s;
         int xstart = (y * (d->pxcols - 1)) / 10;
         int ystart = (y * (d->pxrows - 1)) / 10;
- 
+
         QTextStream(&s) << y;
         biasedLine(xstart, d->pxrows - grids(1), xstart,   d->pxrows - grids(4));
         biasedText(xstart - grids(11), d->pxrows + grids(15), s);
- 
+
         QTextStream(&s) << 10 - y;
         biasedLine(0, ystart, grids(3), ystart);
         biasedText(grids(-25), ystart + grids(5), s);
     }
-    
+
     d->painter.setPen(qRgb(128, 128, 128));
     d->painter.setOpacity(0.5);
- 
+
     for (int y = 1; y <= 9; y += 1)
     {
         int xstart =  (y * (d->pxcols - 1)) / 10;
         int ystart =  (y * (d->pxrows - 1)) / 10;
- 
+
         biasedLine(xstart, grids(4), xstart,   d->pxrows - grids(4) - 1);
         biasedLine(grids(7), ystart, d->pxcols-1-grids(7), ystart);
     }
@@ -231,7 +229,6 @@ void KisToneCurveWidget::updatePixmap()
     } else {
         d->painter2.begin(&d->curvemap);
         d->painter2.setRenderHint(QPainter::Antialiasing);
-        //d->painter2.setCompositionMode(QPainter::CompositionMode_Multiply);
         QPainterPath path;
         start = d->ToneCurveRed.at(0);
         mapPoint(start);
@@ -281,51 +278,44 @@ void KisToneCurveWidget::updatePixmap()
 void KisToneCurveWidget::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
- 
-    // Widget is disable : drawing grayed frame.
- 
+
     if ( !isEnabled() )
     {
         p.fillRect(0, 0, width(), height(),
                    palette().color(QPalette::Disabled, QPalette::Window));
- 
+
         QPen pen(palette().color(QPalette::Disabled, QPalette::WindowText));
         pen.setStyle(Qt::SolidLine);
         pen.setWidth(1);
- 
+
         p.setPen(pen);
         p.drawRect(0, 0, width(), height());
- 
+
         return;
     }
 
- 
-    // No profile data to show, or RAW file
- 
     if (!d->profileDataAvailable)
     {
         p.fillRect(0, 0, width(), height(), palette().color(QPalette::Active, QPalette::Window));
         QPen pen(palette().color(QPalette::Active, QPalette::Text));
         pen.setStyle(Qt::SolidLine);
         pen.setWidth(1);
- 
+
         p.setPen(pen);
         p.drawRect(0, 0, width(), height());
- 
+
         p.setPen(Qt::red);
         p.drawText(0, 0, width(), height(), Qt::AlignCenter,
         i18n("No tone curve available..."));
- 
+
         return;
     }
- 
-    // Create CIE tongue if needed
+
     if (d->needUpdatePixmap)
     {
         updatePixmap();
     }
- 
-    // draw prerendered tongue
+
     p.drawPixmap(0, 0, d->pixmap);
 }
 

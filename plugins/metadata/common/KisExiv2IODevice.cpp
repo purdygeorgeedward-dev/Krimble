@@ -26,7 +26,6 @@ int KisExiv2IODevice::open()
         m_file.close();
     }
 
-    // return zero if successful
     return !m_file.open(QFile::ReadWrite);
 }
 
@@ -124,7 +123,6 @@ long KisExiv2IODevice::read(Exiv2::byte *buf, long rcount)
         return bytesRead;
     } else {
         qWarning() << "KisExiv2IODevice: Couldn't read file:" << m_file.errorString();
-        // some error or EOF
         return 0;
     }
 }
@@ -146,7 +144,6 @@ void KisExiv2IODevice::transfer(Exiv2::BasicIo &src)
 
     if (isFileBased) {
         const QString srcPath = QString::fromStdString(src.path());
-        // use fallback if copying failed (e.g on Android :( )
         useFallback = !renameToCurrent(srcPath);
     }
 
@@ -154,7 +151,6 @@ void KisExiv2IODevice::transfer(Exiv2::BasicIo &src)
         const bool wasOpen = isopen();
         const QIODevice::OpenMode oldMode = m_file.openMode();
 
-        // this sets file positioner to the beginning.
         if (src.open() != 0) {
             qWarning() << "KisExiv2IODevice::transfer: Couldn't open src file" << QString::fromStdString(src.path());
             return;
@@ -207,7 +203,6 @@ Exiv2::byte *KisExiv2IODevice::mmap(bool isWriteable)
 
     m_mappedArea = m_file.map(0, size(), QFile::NoOptions);
     if (!m_mappedArea) {
-        // We show a warning, but originally we should be throwing an exception.
         qWarning() << "KisExiv2IODevice::mmap: Couldn't map the file" << m_file.fileName();
     }
     return m_mappedArea;
@@ -254,7 +249,6 @@ bool KisExiv2IODevice::isopen() const
 
 int KisExiv2IODevice::error() const
 {
-    // zero if no error
     return m_file.error() != QFileDevice::NoError;
 }
 

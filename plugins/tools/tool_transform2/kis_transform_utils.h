@@ -16,7 +16,6 @@
 #include <kis_processing_visitor.h>
 #include <limits>
 
-// for kisSquareDistance only
 #include "kis_global.h"
 
 #include "tool_transform_args.h"
@@ -77,8 +76,6 @@ public:
 
         QTransform BRI;
 
-        // the final transformation looks like
-        // transform = TS * BRI * SC * S * projectedP * T
         QTransform finalTransform() const;
     };
 
@@ -143,11 +140,6 @@ public:
         Function m_function;
     };
 
-    /**
-     * A special class that ensures that the view position of the anchor point of the
-     * transformation is unchanged during the lifetime of the object. On destruction
-     * of the keeper the position of the anchor point will be restored.
-     */
     struct AnchorHolder {
         AnchorHolder(bool enabled, ToolTransformArgs *config);
         ~AnchorHolder();
@@ -197,4 +189,4 @@ public:
 
 };
 
-#endif /* __KIS_TRANSFORM_UTILS_H */
+#endif

@@ -11,10 +11,6 @@
 
 class KisNodeModel;
 
-/**
- * A default tooltip for a NodeView that shows a thumbnail
- * image and the list of properties associated with a node.
- */
 class NodeToolTip: public KoItemToolTip
 {
     Q_OBJECT

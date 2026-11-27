@@ -105,6 +105,9 @@ tasks.register('copyAssets', Copy) {
     from "$installPrefix/share/"
     into 'assets/'
     include '**'
+    // Krimble 2026-11-23: share/doc is the documentation of the third-party libraries Krita is built with (for example zlib's crc-doc
+    // PDF); nothing in the app reads it. 4.1 MB packed (George: "Remove all the obvious waste for the next build.")
+    exclude 'doc/**'
 }
 
 tasks.register('copyLocaleFiles', Copy) {
@@ -161,6 +164,9 @@ android {
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true
+            // Krimble 2026-11-23: Qt Quick Controls 2 "Imagine" style plugin (0.7 MB). Krita's QML never selects it (no style is set, and no
+            // QML file imports it), so it is never loaded.
+            excludes += ['**/libqml_QtQuick_Controls.2_Imagine_*.so']
         }
     }
 
@@ -284,7 +290,16 @@ android {
     // def krimbleBuildNumber = 67   // 2026-11-17 (George: "Build it.")
     // def krimbleBuildNumber = 68   // 2026-11-17 (George: "Build 1.0.68 now.")
     // def krimbleBuildNumber = 69   // 2026-11-19 (George: "Build")
-    def krimbleBuildNumber = 71   // 2026-11-20 (branch krimble-cleanup; George: "Build it.")
+    // def krimbleBuildNumber = 71   // 2026-11-20 (branch krimble-cleanup; George: "Build it.")
+    // def krimbleBuildNumber = 72   (2026-11-20)
+    // def krimbleBuildNumber = 73   (2026-11-21)
+    // def krimbleBuildNumber = 74   (2026-11-22)
+    // def krimbleBuildNumber = 75   // 2026-11-23 (run 45158674034, commit 972169d1)
+    // def krimbleBuildNumber = 76
+    // def krimbleBuildNumber = 77   // 2026-11-23 cyber-theme: Cyber and Glass themes test build (run 45246744317)
+    // def krimbleBuildNumber = 78   // 2026-11-23 cyber-theme + krimble-cleanup fixes
+    // def krimbleBuildNumber = 80   // 2026-11-24 (run 45548800464, commit 723f73e5; released as v1.0.80-beta)
+    def krimbleBuildNumber = 81
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {

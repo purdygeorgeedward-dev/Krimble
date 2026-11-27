@@ -45,7 +45,6 @@ private:
     QSharedPointer<KisTagResourceModel> m_tagResourceModel;
 };
 
-
 class KisWdgTagSelectionControllerBundleTags : public QObject
 {
     Q_OBJECT
@@ -88,5 +87,4 @@ private:
     QSharedPointer<KisTagResourceModel> m_tagResourceModel;
 };
 
-
-#endif // WDG_TAG_SELECTION_H
+#endif

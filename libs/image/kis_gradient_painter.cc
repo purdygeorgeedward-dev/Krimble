@@ -72,19 +72,16 @@ double LinearGradientStrategy::valueAt(double x, double y) const
     double vx = x - m_gradientVectorStart.x();
     double vy = y - m_gradientVectorStart.y();
 
-    // Project the vector onto the normalised gradient vector.
     double t = vx * m_normalisedVectorX + vy * m_normalisedVectorY;
 
     if (m_vectorLength < DBL_EPSILON) {
         t = 0;
     } else {
-        // Scale to 0 to 1 over the gradient vector length.
         t /= m_vectorLength;
     }
 
     return t;
 }
-
 
 class BiLinearGradientStrategy : public LinearGradientStrategy
 {
@@ -104,14 +101,12 @@ double BiLinearGradientStrategy::valueAt(double x, double y) const
 {
     double t = LinearGradientStrategy::valueAt(x, y);
 
-    // Reflect
     if (t < -DBL_EPSILON) {
         t = -t;
     }
 
     return t;
 }
-
 
 class RadialGradientStrategy : public KisGradientShapeStrategy
 {
@@ -151,7 +146,6 @@ double RadialGradientStrategy::valueAt(double x, double y) const
 
     return t;
 }
-
 
 class SquareGradientStrategy : public KisGradientShapeStrategy
 {
@@ -196,18 +190,12 @@ double SquareGradientStrategy::valueAt(double x, double y) const
 
     if (m_vectorLength > DBL_EPSILON) {
 
-        // Point to line distance is:
-        // distance = ((l0.y() - l1.y()) * p.x() + (l1.x() - l0.x()) * p.y() + l0.x() * l1.y() - l1.x() * l0.y()) / m_vectorLength;
-        //
-        // Here l0 = (0, 0) and |l1 - l0| = 1
-
         distance1 = -m_normalisedVectorY * px + m_normalisedVectorX * py;
         distance1 = fabs(distance1);
 
-        // Rotate point by 90 degrees and get the distance to the perpendicular
         distance2 = -m_normalisedVectorY * -py + m_normalisedVectorX * px;
         distance2 = fabs(distance2);
-        
+
         t = qMax(distance1, distance2) / m_vectorLength;
     } else {
         t = 0;
@@ -215,7 +203,6 @@ double SquareGradientStrategy::valueAt(double x, double y) const
 
     return t;
 }
-
 
 class ConicalGradientStrategy : public KisGradientShapeStrategy
 {
@@ -235,7 +222,6 @@ ConicalGradientStrategy::ConicalGradientStrategy(const QPointF& gradientVectorSt
     double dx = gradientVectorEnd.x() - gradientVectorStart.x();
     double dy = gradientVectorEnd.y() - gradientVectorStart.y();
 
-    // Get angle from 0 to 2 PI.
     m_vectorAngle = atan2(dy, dx) + M_PI;
 }
 
@@ -257,7 +243,6 @@ double ConicalGradientStrategy::valueAt(double x, double y) const
     return t;
 }
 
-
 class ConicalSymetricGradientStrategy : public KisGradientShapeStrategy
 {
 public:
@@ -275,7 +260,6 @@ ConicalSymetricGradientStrategy::ConicalSymetricGradientStrategy(const QPointF& 
     double dx = gradientVectorEnd.x() - gradientVectorStart.x();
     double dy = gradientVectorEnd.y() - gradientVectorStart.y();
 
-    // Get angle from 0 to 2 PI.
     m_vectorAngle = atan2(dy, dx) + M_PI;
 }
 
@@ -321,7 +305,6 @@ SpiralGradientStrategy::SpiralGradientStrategy(const QPointF& gradientVectorStar
     double dx = gradientVectorEnd.x() - gradientVectorStart.x();
     double dy = gradientVectorEnd.y() - gradientVectorStart.y();
 
-    // Get angle from 0 to 2 PI.
     m_vectorAngle = atan2(dy, dx) + M_PI;
     m_radius = sqrt((dx * dx) + (dy * dy));
 };
@@ -371,7 +354,6 @@ ReverseSpiralGradientStrategy::ReverseSpiralGradientStrategy(const QPointF& grad
     double dx = gradientVectorEnd.x() - gradientVectorStart.x();
     double dy = gradientVectorEnd.y() - gradientVectorStart.y();
 
-    // Get angle from 0 to 2 PI.
     m_vectorAngle = atan2(dy, dx) + M_PI;
     m_radius = sqrt((dx * dx) + (dy * dy));
 };
@@ -397,7 +379,6 @@ double ReverseSpiralGradientStrategy::valueAt(double x, double y) const
         angle += 2 * M_PI;
     }
 
-    //Reverse direction of spiral gradient
     t += 1 - (angle / (2 * M_PI));
 
     return t;
@@ -412,7 +393,6 @@ public:
 
     virtual double valueAt(double t) const = 0;
 };
-
 
 class GradientRepeatNoneStrategy : public GradientRepeatStrategy
 {
@@ -439,7 +419,6 @@ GradientRepeatNoneStrategy *GradientRepeatNoneStrategy::instance()
     return m_instance;
 }
 
-// Output is clamped to 0 to 1.
 double GradientRepeatNoneStrategy::valueAt(double t) const
 {
     double value = t;
@@ -452,7 +431,6 @@ double GradientRepeatNoneStrategy::valueAt(double t) const
 
     return value;
 }
-
 
 class GradientRepeatForwardsStrategy : public GradientRepeatStrategy
 {
@@ -479,7 +457,6 @@ GradientRepeatForwardsStrategy *GradientRepeatForwardsStrategy::instance()
     return m_instance;
 }
 
-// Output is 0 to 1, 0 to 1, 0 to 1...
 double GradientRepeatForwardsStrategy::valueAt(double t) const
 {
     int i = static_cast<int>(t);
@@ -492,7 +469,6 @@ double GradientRepeatForwardsStrategy::valueAt(double t) const
 
     return value;
 }
-
 
 class GradientRepeatAlternateStrategy : public GradientRepeatStrategy
 {
@@ -519,7 +495,6 @@ GradientRepeatAlternateStrategy *GradientRepeatAlternateStrategy::instance()
     return m_instance;
 }
 
-// Output is 0 to 1, 1 to 0, 0 to 1, 1 to 0...
 double GradientRepeatAlternateStrategy::valueAt(double t) const
 {
     if (t < 0) {
@@ -536,7 +511,6 @@ double GradientRepeatAlternateStrategy::valueAt(double t) const
 
     return value;
 }
-//Had to create this class to solve alternating mode for cases where values should be repeated for every HalfValues like for example, spirals...
 class GradientRepeatModuloDivisiveContinuousHalfStrategy : public GradientRepeatStrategy
 {
 public:
@@ -562,7 +536,6 @@ GradientRepeatModuloDivisiveContinuousHalfStrategy *GradientRepeatModuloDivisive
     return m_instance;
 }
 
-// Output is 0 to 1, 1 to 0, 0 to 1, 1 to 0 per HalfValues
 double GradientRepeatModuloDivisiveContinuousHalfStrategy::valueAt(double t) const
 {
     if (t < 0) {
@@ -625,12 +598,10 @@ void RepeatForwardsPaintPolicy::setup(const QPointF& gradientVectorStart,
     qreal dx = gradientVectorEnd.x() - gradientVectorStart.x();
     qreal dy = gradientVectorEnd.y() - gradientVectorStart.y();
     qreal distanceInPixels = sqrt(dx * dx + dy * dy);
-    // Compute the area to be be smoothed
-    // based on the length of the gradient
     m_antiAliasThresholdNormalized = antiAliasThreshold / distanceInPixels;
     m_antiAliasThresholdNormalizedRev = 1. - m_antiAliasThresholdNormalized;
     m_antiAliasThresholdNormalizedDbl = 2. * m_antiAliasThresholdNormalized;
-    
+
     m_shapeStrategy = shapeStrategy;
     m_repeatStrategy = repeatStrategy;
 
@@ -648,10 +619,6 @@ void RepeatForwardsPaintPolicy::setup(const QPointF& gradientVectorStart,
 const quint8 *RepeatForwardsPaintPolicy::colorAt(qreal x, qreal y) const
 {
     qreal t = m_shapeStrategy->valueAt(x, y);
-    // Early return if the pixel is near the center of the gradient if
-    // the shape is radial or square.
-    // This prevents applying smoothing since there are
-    // no aliasing artifacts in these gradient shapes at the center
     if (t <= m_antiAliasThresholdNormalized &&
         (m_shape == KisGradientPainter::GradientShapeBiLinear ||
          m_shape == KisGradientPainter::GradientShapeRadial ||
@@ -668,8 +635,6 @@ const quint8 *RepeatForwardsPaintPolicy::colorAt(qreal x, qreal y) const
         t = 1 - t;
     }
 
-    // If this pixel is in the area of the smoothing,
-    // then perform bilinear interpolation between the extreme colors.
     if (t <= m_antiAliasThresholdNormalized || t >= m_antiAliasThresholdNormalizedRev) {
         qreal s;
         if (t <= m_antiAliasThresholdNormalized) {
@@ -683,7 +648,7 @@ const quint8 *RepeatForwardsPaintPolicy::colorAt(qreal x, qreal y) const
         colorWeights[1] = qint16_MAX - colorWeights[0];
 
         m_colorSpace->mixColorsOp()->mixColors(m_extremeColors, colorWeights, 2, m_resultColor.data(), qint16_MAX);
-        
+
         return m_resultColor.data();
     }
 
@@ -727,7 +692,7 @@ void ConicalGradientPaintPolicy::setup(const QPointF& gradientVectorStart,
     Q_UNUSED(gradientVectorEnd);
 
     m_gradientVectorStart = gradientVectorStart;
-    
+
     m_shapeStrategy = shapeStrategy;
     m_repeatStrategy = repeatStrategy;
 
@@ -747,16 +712,10 @@ void ConicalGradientPaintPolicy::setup(const QPointF& gradientVectorStart,
 
 const quint8 *ConicalGradientPaintPolicy::colorAt(qreal x, qreal y) const
 {
-    // Compute the distance from the center of the gradient to the current pixel
     qreal dx = x - m_gradientVectorStart.x();
     qreal dy = y - m_gradientVectorStart.y();
     qreal distanceInPixels = sqrt(dx * dx + dy * dy);
-    // Compute the perimeter for this distance
     qreal perimeter = 2. * M_PI * distanceInPixels;
-    // The smoothing is applied in the vicinity of the aliased border.
-    // The width of the vicinity is an area antiAliasThreshold pixels wide
-    // to each side of the border, but in this case the area is scaled down
-    // if it is too close to the center
     qreal antiAliasThresholdNormalized;
     if (distanceInPixels < m_singularityThreshold){
         antiAliasThresholdNormalized = distanceInPixels * m_antiAliasThreshold / m_singularityThreshold;
@@ -767,15 +726,13 @@ const quint8 *ConicalGradientPaintPolicy::colorAt(qreal x, qreal y) const
     qreal antiAliasThresholdNormalizedRev = 1. - antiAliasThresholdNormalized;
     qreal antiAliasThresholdNormalizedDbl = 2. * antiAliasThresholdNormalized;
 
-    qreal t = m_shapeStrategy->valueAt(x, y); 
+    qreal t = m_shapeStrategy->valueAt(x, y);
     t = m_repeatStrategy->valueAt(t);
 
     if (m_reverseGradient) {
         t = 1 - t;
     }
 
-    // If this pixel is in the area of the smoothing,
-    // then perform bilinear interpolation between the extreme colors.
     if (t <= antiAliasThresholdNormalized || t >= antiAliasThresholdNormalizedRev) {
         qreal s;
         if (t <= antiAliasThresholdNormalized) {
@@ -847,7 +804,7 @@ void SpyralGradientRepeatNonePaintPolicy::setup(const QPointF& gradientVectorSta
     m_distanceInPixels = sqrt(dx * dx + dy * dy);
     m_singularityThreshold = m_distanceInPixels / 32.;
     m_angle = atan2(dy, dx) + M_PI;
-    
+
     m_shapeStrategy = shapeStrategy;
     m_repeatStrategy = repeatStrategy;
 
@@ -864,16 +821,10 @@ void SpyralGradientRepeatNonePaintPolicy::setup(const QPointF& gradientVectorSta
 
 const quint8 *SpyralGradientRepeatNonePaintPolicy::colorAt(qreal x, qreal y) const
 {
-    // Compute the distance from the center of the gradient to thecurrent pixel
     qreal dx = x - m_gradientVectorStart.x();
     qreal dy = y - m_gradientVectorStart.y();
     qreal distanceInPixels = sqrt(dx * dx + dy * dy);
-    // Compute the perimeter for this distance
     qreal perimeter = 2. * M_PI * distanceInPixels;
-    // The smoothing is applied in the vicinity of the aliased border.
-    // The width of the vicinity is an area antiAliasThreshold pixels wide
-    // to each side of the border, but in this case the area is scaled down
-    // if it is too close to the center
     qreal antiAliasThresholdNormalized;
     if (distanceInPixels < m_singularityThreshold) {
         antiAliasThresholdNormalized = distanceInPixels * m_antiAliasThreshold / m_singularityThreshold;
@@ -884,26 +835,22 @@ const quint8 *SpyralGradientRepeatNonePaintPolicy::colorAt(qreal x, qreal y) con
     qreal antiAliasThresholdNormalizedRev = 1. - antiAliasThresholdNormalized;
     qreal antiAliasThresholdNormalizedDbl = 2. * antiAliasThresholdNormalized;
 
-    qreal t = m_shapeStrategy->valueAt(x, y); 
+    qreal t = m_shapeStrategy->valueAt(x, y);
     t = m_repeatStrategy->valueAt(t);
 
     if (m_reverseGradient) {
         t = 1 - t;
     }
 
-    // Compute the area to be be smoothed based on the angle of the gradient
-    // and the angle of the current pixel to the center of the gradient
     qreal angle = atan2(dy, dx) + M_PI;
     angle -= m_angle;
     if (angle < 0.) {
         angle += 2. * M_PI;
     }
     angle /= (2. * M_PI);
-    
+
     angle = m_repeatStrategy->valueAt(angle);
 
-    // If this pixel is in the area of the smoothing,
-    // then perform bilinear interpolation between the extreme colors.
     if (distanceInPixels < m_distanceInPixels && (angle <= antiAliasThresholdNormalized || angle >= antiAliasThresholdNormalizedRev)) {
         qreal s;
         if (angle <= antiAliasThresholdNormalized) {
@@ -1035,7 +982,6 @@ void KisGradientPainter::setGradientShape(enumGradientShape shape)
 
 KisGradientShapeStrategy* createPolygonShapeStrategy(const QPainterPath &path, const QRect &boundingRect)
 {
-    // TODO: implement UI for exponent option
     const qreal exponent = 2.0;
     KisGradientShapeStrategy *strategy =
         new KisPolygonalGradientShapeStrategy(path, exponent);
@@ -1049,9 +995,6 @@ KisGradientShapeStrategy* createPolygonShapeStrategy(const QPainterPath &path, c
     return new KisCachedGradientShapeStrategy(boundingRect, step, step, strategy);
 }
 
-/**
- * TODO: make this call happen asynchronously when the user does nothing
- */
 void KisGradientPainter::precalculateShape()
 {
     if (!m_d->processRegions.isEmpty()) return;
@@ -1114,11 +1057,6 @@ bool KisGradientPainter::paintGradient(const QPointF& gradientVectorStart,
                                        const QRect &applyRect,
                                        bool useDithering)
 {
-    // The following combinations of options have aliasing artifacts
-    // where the first color meets the last color of the gradient.
-    // so antialias threshold is used to compute if the pixel is in
-    // the smoothing area. Then linear interpolation is used to blend
-    // between the first and last colors
     if (antiAliasThreshold > DBL_EPSILON) {
         if ((m_d->shape == GradientShapeLinear || m_d->shape == GradientShapeBiLinear ||
             m_d->shape == GradientShapeRadial || m_d->shape == GradientShapeSquare ||
@@ -1159,7 +1097,6 @@ bool KisGradientPainter::paintGradient(const QPointF& gradientVectorStart,
         }
     }
 
-    // Default behavior: no antialiasing required
     NoAntialiasPaintPolicy paintPolicy;
     return paintGradient(gradientVectorStart,
                          gradientVectorEnd,
@@ -1171,7 +1108,7 @@ bool KisGradientPainter::paintGradient(const QPointF& gradientVectorStart,
                          paintPolicy);
 }
 
-template <class T> 
+template <class T>
 bool KisGradientPainter::paintGradient(const QPointF& gradientVectorStart,
                                        const QPointF& gradientVectorEnd,
                                        enumGradientRepeat repeat,
@@ -1185,7 +1122,6 @@ bool KisGradientPainter::paintGradient(const QPointF& gradientVectorStart,
 
     QRect requestedRect = applyRect;
 
-    //If the device has a selection only iterate over that selection united with our area of interest
     if (selection()) {
         requestedRect &= selection()->selectedExactRect();
     }
@@ -1270,7 +1206,6 @@ bool KisGradientPainter::paintGradient(const QPointF& gradientVectorStart,
         break;
     }
     Q_ASSERT(repeatStrategy != 0);
-
 
     KisPaintDeviceSP dev = device()->createCompositionSourceDevice();
 

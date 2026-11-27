@@ -45,7 +45,6 @@ public:
     KisFixedPaintDeviceSP originalDevice;
     KisFixedPaintDeviceSP postprocessedDevice;
 
-    // high-level members, not directly related to job execution itself
     Status status = New;
 
     qreal opacity = OPACITY_OPAQUE_F;
@@ -73,5 +72,4 @@ private:
     KisRunnableStrokeJobsInterface *m_runnableJobsInterface = 0;
 };
 
-
-#endif // KISDABRENDERINGJOB_H
+#endif

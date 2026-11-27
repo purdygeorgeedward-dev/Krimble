@@ -154,7 +154,6 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
 
     const QSize effectiveSize = m_shapeProperties->effectiveSize(m_sprayOpOptionData->diameter, m_sprayOpOptionData->scale);
 
-    // initializing painter
     if (!m_painter) {
         m_painter = new KisPainter(dab);
         m_painter->setFillStyle(KisPainter::FillStyleForegroundColor);
@@ -171,7 +170,6 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
         m_imageDevice = new KisPaintDevice(dab->colorSpace());
     }
 
-
     qreal x = info.pos().x();
     qreal y = info.pos().y();
     KisRandomAccessorSP accessor = dab->createRandomAccessorNG();
@@ -180,17 +178,12 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
     m_inkColor = color;
     KisCrossDeviceColorSampler colorSampler(source, m_inkColor);
 
-    // apply size sensor
     m_radius = m_sprayOpOption->data.diameter/2 * scale * additionalScale;
 
-    // jitter movement
     if (m_sprayOpOption->data.jitterMovement) {
         x = x + ((2 * m_radius * randomSource->generateNormalized()) - m_radius) * m_sprayOpOption->data.jitterAmount;
         y = y + ((2 * m_radius * randomSource->generateNormalized()) - m_radius) * m_sprayOpOption->data.jitterAmount;
     }
-
-    // this is wrong for every shape except pixel and anti-aliased pixel
-
 
     if (m_sprayOpOption->data.useDensity) {
         m_particlesCount = (m_sprayOpOption->data.coverage * (M_PI * pow2(m_radius)) / pow2(additionalScale));
@@ -220,13 +213,10 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
     m.scale(m_sprayOpOption->data.scale, m_sprayOpOption->data.scale);
 
     for (quint32 i = 0; i < m_particlesCount; i++) {
-        // generate random angle
         angle = angularDistribution(randomSource) * M_PI * 2;
-        // generate random length
         length = radialDistribution(randomSource);
 
         if (m_shapeDynamicsProperties->enabled) {
-            // rotation
             rotationZ = rotationAngle(randomSource);
 
             if (m_shapeDynamicsProperties->followCursor) {
@@ -234,35 +224,27 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
                 rotationZ = linearInterpolation(rotationZ, angle, m_shapeDynamicsProperties->followCursorWeight);
             }
 
-
             if (m_shapeDynamicsProperties->followDrawingAngle) {
 
                 rotationZ = linearInterpolation(rotationZ, info.drawingAngle(), m_shapeDynamicsProperties->followDrawingAngleWeight);
             }
 
-            // random size - scale
             if (m_shapeDynamicsProperties->randomSize) {
                 particleScale = randomSource->generateNormalized();
             }
         }
-        // generate polar coordinate
         nx = (m_radius * cos(angle)  * length);
         ny = (m_radius * sin(angle)  * length);
 
-        // compute the height of the ellipse
         ny *= m_sprayOpOption->data.aspect;
 
-        // transform
         m.map(nx, ny, &nx, &ny);
-
-        // color transformation
 
         if (shouldColor) {
             if (m_colorProperties->sampleInputColor) {
                 colorSampler.sampleOldColor(nx + x, ny + y, m_inkColor.data());
             }
 
-            // mix the color with background color
             if (m_colorProperties->mixBgColor) {
                 KoMixColorsOp * mixOp = dab->colorSpace()->mixColorsOp();
 
@@ -284,8 +266,8 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
                 params["s"] = (m_colorProperties->saturation / 100.0) * randomSource->generateNormalized();
                 params["v"] = (m_colorProperties->value / 100.0) * randomSource->generateNormalized();
                 m_transfo->setParameters(params);
-                m_transfo->setParameter(3, 1);//sets the type to HSV. For some reason 0 is not an option.
-                m_transfo->setParameter(4, false);//sets the colorize to false.
+                m_transfo->setParameter(3, 1);
+                m_transfo->setParameter(4, false);
                 m_transfo->transform(m_inkColor.data(), m_inkColor.data() , 1);
             }
 
@@ -307,7 +289,6 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
 
         if (m_shapeProperties->enabled){
         switch (m_shapeProperties->shape){
-            // ellipse
             case 0:
             {
                 if (effectiveSize.width() == effectiveSize.height()){
@@ -318,18 +299,15 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
                 }
                 break;
             }
-            // rectangle
             case 1:
             {
                 paintRectangle(m_painter, nx + x, ny + y, qRound(jitteredWidth) , qRound(jitteredHeight), rotationZ);
                 break;
             }
-            // wu-particle
             case 2: {
                 paintParticle(accessor, m_inkColor, nx + x, ny + y);
                 break;
             }
-            // pixel
             case 3: {
                 ix = qRound(nx + x);
                 iy = qRound(ny + y);
@@ -370,7 +348,6 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
                 }
             }
             }
-            // Auto-brush
         }
         else {
             KisDabShape shape(particleScale * additionalScale, 1.0, -rotationZ);
@@ -388,7 +365,6 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
 
             m_brush->prepareForSeqNo(info, m_dabSeqNo);
 
-            //KisFixedPaintDeviceSP dab;
             if (m_brush->brushApplication() == IMAGESTAMP) {
                 m_fixedDab = m_brush->paintDevice(m_fixedDab->colorSpace(),
                           shape, info, xFraction, yFraction);
@@ -407,20 +383,14 @@ void SprayBrush::paintImpl(KisPaintDeviceSP dab, KisPaintDeviceSP source,
             m_painter->bltFixed(QPoint(ix, iy), m_fixedDab, m_fixedDab->bounds());
         }
         if (m_colorProperties->colorPerParticle){
-            m_inkColor=color;//reset color//
+            m_inkColor=color;
         }
     }
-    // recover from jittering of color,
-    // m_inkColor.opacity is recovered with every paint
 }
-
-
 
 void SprayBrush::paintParticle(KisRandomAccessorSP &writeAccessor, const KoColor &color, qreal rx, qreal ry)
 {
-    // opacity top left, right, bottom left, right
     KoColor pcolor(color);
-    //int opacity = pcolor.opacityU8();
 
     int ipx = int (rx);
     int ipy = int (ry);
@@ -431,10 +401,6 @@ void SprayBrush::paintParticle(KisRandomAccessorSP &writeAccessor, const KoColor
     qreal btr = (fx)  * (1 - fy);
     qreal bbl = (1 - fx) * (fy);
     qreal bbr = (fx)  * (fy);
-
-    // this version overwrite pixels, e.g. when it sprays two particle next
-    // to each other, the pixel with lower opacity can override other pixel.
-    // Maybe some kind of compositing using here would be cool
 
     pcolor.setOpacity(btl);
     writeAccessor->moveTo(ipx  , ipy);
@@ -460,7 +426,6 @@ void SprayBrush::paintCircle(KisPainter* painter, qreal x, qreal y, qreal radius
     painter->fillPainterPath(path);
 }
 
-
 void SprayBrush::paintEllipse(KisPainter* painter, qreal x, qreal y, qreal a, qreal b, qreal angle)
 {
     QPainterPath path;
@@ -483,7 +448,6 @@ void SprayBrush::paintRectangle(KisPainter* painter, qreal x, qreal y, qreal wid
     painter->fillPainterPath(path);
 }
 
-
 void SprayBrush::paintOutline(KisPaintDeviceSP dev , const KoColor &outlineColor, qreal posX, qreal posY, qreal radius)
 {
     QList<QPointF> antiPixels;
@@ -495,67 +459,50 @@ void SprayBrush::paintOutline(KisPaintDeviceSP dev , const KoColor &outlineColor
             qreal alpha = dev->colorSpace()->opacityU8(accessor->rawData());
 
             if (alpha != 0) {
-                // top left
                 accessor->moveTo(x - 1, y - 1);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x - 1, y - 1));
-                    //continue;
                 }
 
-                // top
                 accessor->moveTo(x, y - 1);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x, y - 1));
-                    //continue;
                 }
 
-                // top right
                 accessor->moveTo(x + 1, y - 1);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x + 1, y - 1));
-                    //continue;
                 }
 
-                //left
                 accessor->moveTo(x - 1, y);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x - 1, y));
-                    //continue;
                 }
 
-                //right
                 accessor->moveTo(x + 1, y);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x + 1, y));
-                    //continue;
                 }
 
-                // bottom left
                 accessor->moveTo(x - 1, y + 1);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x - 1, y + 1));
-                    //continue;
                 }
 
-                // bottom
                 accessor->moveTo(x, y + 1);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x, y + 1));
-                    //continue;
                 }
 
-                // bottom right
                 accessor->moveTo(x + 1, y + 1);
                 if (dev->colorSpace()->opacityU8(accessor->rawData()) == 0) {
                     antiPixels.append(QPointF(x + 1, y + 1));
-                    //continue;
                 }
             }
 
         }
     }
 
-    // anti-alias it
     int size = antiPixels.size();
     for (int i = 0; i < size; i++) {
         accessor->moveTo(antiPixels[i].x(), antiPixels[i].y());

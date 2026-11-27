@@ -21,7 +21,6 @@
 
 Q_GLOBAL_STATIC(KisBrushRegistry, s_instance)
 
-
 KisBrushRegistry::KisBrushRegistry()
 {
 }
@@ -46,7 +45,6 @@ KisBrushRegistry* KisBrushRegistry::instance()
     }
     return s_instance;
 }
-
 
 KoResourceLoadResult KisBrushRegistry::createBrush(const QDomElement& element, KisResourcesInterfaceSP resourcesInterface)
 {

@@ -9,7 +9,7 @@
 #include "kis_debug.h"
 
 namespace {
-void writeToFile(QFile &file, QColor /*color*/)
+void writeToFile(QFile &file, QColor )
 {
     file.reset();
     file.resize(0);
@@ -33,7 +33,6 @@ void KisSafeDocumentLoaderTest::test()
     QSignalSpy spy(&loader, &KisSafeDocumentLoader::loadingFinished);
     QSignalSpy spyFailed(&loader, &KisSafeDocumentLoader::loadingFailed);
 
-    // reloadImage() is synchronous
     loader.reloadImage();
     QCOMPARE(spy.size(), 1);
     QCOMPARE(spyFailed.size(), 0);
@@ -71,7 +70,6 @@ void KisSafeDocumentLoaderTest::testFileLost()
     QSignalSpy spyFailed(&loader, &KisSafeDocumentLoader::loadingFailed);
     QSignalSpy spyExistsState(&loader, &KisSafeDocumentLoader::fileExistsStateChanged);
 
-    // reloadImage() is synchronous
     loader.reloadImage();
     QCOMPARE(spy.size(), 1);
     QCOMPARE(spyFailed.size(), 0);
@@ -102,7 +100,6 @@ void KisSafeDocumentLoaderTest::testFileLost()
     QCOMPARE(spyFailed.size(), 0);
     QCOMPARE(spyExistsState.size(), 0);
     spy.clear();
-
 
     writeToFile(file, Qt::yellow);
     spy.wait(1500);

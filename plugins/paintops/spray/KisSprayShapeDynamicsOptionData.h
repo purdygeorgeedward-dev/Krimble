@@ -7,7 +7,6 @@
 #ifndef KIS_SPRAY_SHAPE_DYNAMICS_OPTION_DATA_H
 #define KIS_SPRAY_SHAPE_DYNAMICS_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 #include <kritapaintop_export.h>
@@ -28,11 +27,9 @@ struct KisSprayShapeDynamicsOptionData : boost::equality_comparable<KisSprayShap
 			&& lhs.followCursorWeight == rhs.followCursorWeight
 			&& lhs.followDrawingAngleWeight == rhs.followDrawingAngleWeight;
     }
-    
+
     bool enabled;
-    // particle size dynamics
     bool randomSize;
-    // rotation dynamics
     bool fixedRotation;
     bool randomRotation;
     bool followCursor;
@@ -46,4 +43,4 @@ struct KisSprayShapeDynamicsOptionData : boost::equality_comparable<KisSprayShap
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_SPRAY_SHAPE_DYNAMICS_OPTION_DATA_H
+#endif

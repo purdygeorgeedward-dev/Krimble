@@ -248,7 +248,6 @@ QVector4D WGShadeSlider::calculateChannelValues(qreal sliderPos) const
     }
 
     QVector4D channelVec = m_d->baseValues + m_d->offset + delta * m_d->range;
-    // Hue wraps around
     if (m_d->selectorModel->isHSXModel()) {
         channelVec[0] = (float)fmod(channelVec[0], 1.0);
         if (channelVec[0] < 0) {
@@ -314,8 +313,6 @@ QImage WGShadeSlider::renderBackground()
         return QImage();
     }
 
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     const qreal deviceDivider = 1.0 / devicePixelRatioF();
     const int deviceWidth = qCeil(width() * devicePixelRatioF());
     const int deviceHeight = qCeil(height() * devicePixelRatioF());

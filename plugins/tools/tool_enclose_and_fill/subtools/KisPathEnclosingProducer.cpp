@@ -95,9 +95,6 @@ void KisPathEnclosingProducer::mousePressEvent(KoPointerEvent *event)
     Q_UNUSED(event)
 }
 
-// Install an event filter to catch right-click events.
-// The simplest way to accommodate the popup palette binding.
-// This code is duplicated in kis_tool_select_path.cc
 bool KisPathEnclosingProducer::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);

@@ -37,4 +37,4 @@ private:
     bool m_blockUpdates {false};
 };
 
-#endif // CSSSTYLEPRESETEDITDIALOG_H
+#endif

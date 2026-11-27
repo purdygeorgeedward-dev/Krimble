@@ -43,7 +43,6 @@ OverviewDockerPage::OverviewDockerPage(QWidget *parent, const char *name, Qt::Wi
     m_overviewWidget = new OverviewWidget(this);
     m_overviewWidget->setMinimumHeight(50);
     m_overviewWidget->setBackgroundRole(QPalette::Base);
-    // paints background role before paint()
     m_overviewWidget->setAutoFillBackground(true);
     m_overviewWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
     m_overviewWidget->installEventFilter(this);
@@ -112,7 +111,6 @@ void OverviewDockerPage::setCanvas(KoCanvasBase * canvas)
         m_pinControlsButton = nullptr;
     }
 
-    // Delete the stretch
     while (m_controlsSecondRowLayout && m_controlsSecondRowLayout->count() && m_controlsSecondRowLayout->itemAt(0)->spacerItem()) {
         delete m_controlsSecondRowLayout->takeAt(0);
     }
@@ -171,10 +169,8 @@ void OverviewDockerPage::setCanvas(KoCanvasBase * canvas)
         m_controlsSecondRowLayout->addWidget(m_pinControlsButton);
         m_controlsLayout->addLayout(m_controlsSecondRowLayout);
 
-        //m_zoomSlider->setVisible(true);
         m_rotateAngleSelector->setVisible(true);
 
-        // Show/hide the controls
         if (m_pinControls) {
             showControls(0);
         } else {
@@ -264,8 +260,6 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
     }
 
     if (o == m_overviewWidget) {
-        // Filter out the mouse events if we are touching the overview widget
-        // and the event was not synthesized in this function  from the touch events
         if (e->type() == QEvent::MouseButtonPress) {
             if (m_isTouching) {
                 return static_cast<QMouseEvent*>(e)->source() != Qt::MouseEventSynthesizedByApplication;
@@ -300,11 +294,9 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
             if (!m_isTouching) {
                 QTouchEvent *te = static_cast<QTouchEvent*>(e);
                 m_isTouching = true;
-                // Store the first touch point. We will only track this one
                 m_touchPointId = te->touchPoints().first().id();
                 m_lastTouchPos = te->touchPoints().first().pos();
             }
-            // Accept the event so that other touch events keep coming
             e->accept();
             return true;
 
@@ -313,12 +305,9 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
                 return true;
             }
             QTouchEvent *te = static_cast<QTouchEvent*>(e);
-            // Get the touch point position
             QPointF currentPosition;
             for (const QTouchEvent::TouchPoint &touchPoint : te->touchPoints()) {
                 if (touchPoint.id() == m_touchPointId) {
-                    // If the touch point wasn't moved, this event wasn't
-                    // generated from our touch point
                     if (touchPoint.state() == Qt::TouchPointStationary) {
                         return true;
                     }
@@ -327,12 +316,10 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
                 }
             }
             if (!m_isDraggingWithTouch) {
-                // Compute distance
                 const QPointF delta = currentPosition - m_lastTouchPos;
                 const qreal distanceSquared = delta.x() * delta.x() + delta.y() * delta.y();
                 if (distanceSquared >= touchDragDistanceSquared) {
                     m_isDraggingWithTouch = true;
-                    // synthesize mouse press event
                     QMouseEvent *se = new QMouseEvent(QEvent::MouseButtonPress,
                                                       m_lastTouchPos, QPointF(), QPointF(),
                                                       Qt::LeftButton, Qt::LeftButton, Qt::NoModifier,
@@ -341,13 +328,11 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
                 }
             }
             if (m_isDraggingWithTouch) {
-                // Synthesize mouse move event
                 QMouseEvent *se = new QMouseEvent(QEvent::MouseMove,
                                                   currentPosition, QPointF(), QPointF(),
                                                   Qt::LeftButton, Qt::LeftButton, Qt::NoModifier,
                                                   Qt::MouseEventSynthesizedByApplication);
                 qApp->sendEvent(m_overviewWidget, se);
-                // Update
                 m_lastTouchPos = currentPosition;
             }
             return true;
@@ -358,8 +343,6 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
             }
             QTouchEvent *te = static_cast<QTouchEvent*>(e);
             if (e->type() == QEvent::TouchEnd) {
-                // If the touch point is not in the released state
-                // then this event wasn't generated from our touch point
                 for (const QTouchEvent::TouchPoint &touchPoint : te->touchPoints()) {
                     if (touchPoint.id() == m_touchPointId) {
                         if (touchPoint.state() != Qt::TouchPointReleased) {
@@ -369,8 +352,6 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
                     }
                 }
             }
-            // If we are dragging then synthesize mouse release event.
-            // Show/hide the controls otherwise
             if (m_isDraggingWithTouch) {
                 QMouseEvent *se = new QMouseEvent(QEvent::MouseButtonRelease,
                                                   m_lastTouchPos, QPointF(), QPointF(),
@@ -387,7 +368,6 @@ bool OverviewDockerPage::eventFilter(QObject *o, QEvent *e)
                     hideControls(0);
                 }
             }
-            // Reset
             m_isTouching = false;
             m_isDraggingWithTouch = false;
             return true;

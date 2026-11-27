@@ -21,8 +21,6 @@ KisCategorizedListView::KisCategorizedListView(QWidget* parent):
 {
     connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(slotIndexChanged(QModelIndex)));
 
-    // Because this widget has a darker background, the checkbox borders get hidden with default palette
-    // This palette update makes the checkboxes easier to see by starting with the text color
     QPalette newPall = palette();
     newPall.setColor(QPalette::Active, QPalette::Window, palette().text().color() );
     setPalette(newPall);
@@ -83,8 +81,6 @@ void KisCategorizedListView::dataChanged(const QModelIndex& topLeft, const QMode
     QListView::dataChanged(topLeft, bottomRight);
     updateRows(topLeft.row(), bottomRight.row()+1);
 
-    // check to see if the data changed was a check box
-    // if it is a checkbox tell the brush editor that the preset is now "dirty"
     int i = 0;
     for (QVector<int>::const_iterator iterator = roles.begin(); iterator != roles.end(); ++iterator) {
 
@@ -94,7 +90,6 @@ void KisCategorizedListView::dataChanged(const QModelIndex& topLeft, const QMode
 
             Q_EMIT sigEntryChecked(model()->index(row, column));
         } else if (__CategorizedListModelBase::ExpandCategoryRole == roles.at(i)) {
-           // logic to target the expand/contract menus if needed
         }
 
         i++;
@@ -120,9 +115,6 @@ void KisCategorizedListView::mousePressEvent(QMouseEvent* event)
 
     QModelIndex index = QListView::indexAt(event->pos());
 
-
-    // hack: the custom compositeop combo box has issues with events being sent
-    // those widgets will run this extra code to help them know if a checkbox is clicked
     if (isCompositeBoxControl) {
 
         if (index.isValid() && (event->pos().x() < 25) && (model()->flags(index) & Qt::ItemIsUserCheckable)) {
@@ -137,11 +129,9 @@ void KisCategorizedListView::mousePressEvent(QMouseEvent* event)
             QListView::mouseReleaseEvent(&releaseEvent);
             Q_EMIT sigEntryChecked(index);
 
-            return; // don't worry about running the 'right' click logic below. that is not relevant with composite ops
+            return;
         }
     }
-
-
 
     if (event->button() == Qt::RightButton){
 
@@ -153,8 +143,6 @@ void KisCategorizedListView::mousePressEvent(QMouseEvent* event)
 
             QIcon icon = locked ? KisIconUtils::loadIcon("unlocked") : KisIconUtils::loadIcon("locked");
 
-            // Add an empty section so there's a bit more space before users accidentally press lock
-            // See https://bugs.kde.org/show_bug.cgi?id=447367
             menu.addSection("     ");
 
             QAction* action1 = menu.addAction(icon, locked ? i18n("Unlock (restore settings from preset)")
@@ -180,6 +168,4 @@ void KisCategorizedListView::slotScrollerStateChange(QScroller::State state)
 {
     KisKineticScroller::updateCursor(this, state);
 }
-
-
 

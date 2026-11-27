@@ -30,7 +30,7 @@ XyzU8ColorSpace::XyzU8ColorSpace(const QString &name, KoColorProfile *p)
     addStandardDitherOps<KoXyzU8Traits>(this);
 }
 
-bool XyzU8ColorSpace::willDegrade(ColorSpaceIndependence /*independence*/) const
+bool XyzU8ColorSpace::willDegrade(ColorSpaceIndependence ) const
 {
     return false;
 }

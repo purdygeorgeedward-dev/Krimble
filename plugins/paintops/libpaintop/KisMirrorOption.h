@@ -25,4 +25,4 @@ private:
     bool m_enableVerticalMirror;
 };
 
-#endif // KISMIRROROPTION_H
+#endif

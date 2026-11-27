@@ -22,23 +22,6 @@ using KoCanvasResourcesInterfaceSP = QSharedPointer<KoCanvasResourcesInterface>;
 
 class KoResourceLoadResult;
 
-/**
- * This is a special base class for all the options that load/save
- * settings into a properties objects and do *not* store the properties
- * themselves. A KisPaintOpOption derived class generates a QWidget for
- * its configuration page. This cannot be created from a KisPaintO[
- *
- * This class adapts your option to allow its easy use with
- * both raw pointers and shared pointers.
- *
- * Motivation:
- * In quite a lot of places we call some options from the KisPaintOpSettings
- * class itself with patting 'this' as a parameter into
- * read/writeOptionSetting(). Conversion of 'this' into a shared pointer is
- * extremely dangerous, and, ideally, should be prohibited. We cannot prohibit
- * it atm, but we still can create a special interface for accepting raw pointers,
- * which will be used automatically, when 'this' is passed.
- */
 class KRITAUI_EXPORT KisPaintopPropertiesCanvasResourcesBase
 {
 public:
@@ -104,7 +87,6 @@ public:
         return prepareEmbeddedResourcesImpl(removeSharedPointer(settings), resourcesInterface);
     }
 
-
 protected:
     virtual void readOptionSettingResourceImpl(const KisPropertiesConfiguration *settings, KisResourcesInterfaceSP resourcesInterface) = 0;
     virtual void writeOptionSettingImpl(KisPropertiesConfiguration *settings) const = 0;
@@ -112,7 +94,7 @@ protected:
     virtual QList<KoResourceLoadResult> prepareEmbeddedResourcesImpl(const KisPropertiesConfiguration *settings, KisResourcesInterfaceSP resourcesInterface) const = 0;
 };
 
-class KRITAUI_EXPORT KisPaintopPropertiesBase /*: public KisPaintopPropertiesResourcesBase*/
+class KRITAUI_EXPORT KisPaintopPropertiesBase
 {
 public:
     virtual ~KisPaintopPropertiesBase();
@@ -135,4 +117,4 @@ protected:
     virtual void writeOptionSettingImpl(KisPropertiesConfiguration *settings) const = 0;
 };
 
-#endif // KISBASEOPTION_H
+#endif

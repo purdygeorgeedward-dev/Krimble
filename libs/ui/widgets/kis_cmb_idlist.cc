@@ -101,22 +101,18 @@ void KisCmbIDList::buildItems()
 
     clear();
 
-    // m_idList has auto, remove it temporarily.
     if (m_idList.contains(AutoOptionID)) {
         m_idList.removeAll(AutoOptionID);
     }
 
-    // Sort id list..
     if (m_sorted) {
         std::sort(m_idList.begin(), m_idList.end(), KoID::compareNames);
     }
 
-    // Re-add "Auto" option to front of list if auto enabled..
     if (m_autoOption) {
         m_idList.insert(0, AutoOptionID);
     }
 
-    // Populate GUI item list..
     for (qint32 i = 0; i < m_idList.count(); ++i) {
         const KoID &id = m_idList.at(i);
         if (id == AutoOptionID && !m_autoHint.isEmpty()) {
@@ -128,5 +124,4 @@ void KisCmbIDList::buildItems()
 
     setCurrent(selectedID);
 }
-
 

@@ -54,7 +54,7 @@ RGBEImport::RGBEImport(QObject *parent, const QVariantList &)
 }
 
 KisImportExportErrorCode
-RGBEImport::convert(KisDocument *document, QIODevice *io, KisPropertiesConfigurationSP /*configuration*/)
+RGBEImport::convert(KisDocument *document, QIODevice *io, KisPropertiesConfigurationSP )
 {
     if (!io->isReadable()) {
         errFile << "Cannot read image contents";
@@ -75,17 +75,16 @@ RGBEImport::convert(KisDocument *document, QIODevice *io, KisPropertiesConfigura
     QByteArray rawExposure;
     QByteArray rawHeaderInfo;
 
-    // Parse header
     do {
         len = io->readLine(line.data(), MAXLINE);
         if (line.startsWith("# ")) {
-            rawHeaderInfo = line.mid(2, len - 2 - 1 /*\n*/);
+            rawHeaderInfo = line.mid(2, len - 2 - 1 );
         } else if (line.startsWith("GAMMA=")) {
-            rawGamma = line.mid(6, len - 6 - 1 /*\n*/);
+            rawGamma = line.mid(6, len - 6 - 1 );
         } else if (line.startsWith("EXPOSURE=")) {
-            rawExposure = line.mid(9, len - 9 - 1 /*\n*/);
+            rawExposure = line.mid(9, len - 9 - 1 );
         } else if (line.startsWith("FORMAT=")) {
-            rawFormat = line.mid(7, len - 7 - 1 /*\n*/);
+            rawFormat = line.mid(7, len - 7 - 1 );
         }
     } while ((len > 0) && (line[0] != '\n'));
 
@@ -101,7 +100,6 @@ RGBEImport::convert(KisDocument *document, QIODevice *io, KisPropertiesConfigura
         return QString();
     }();
 
-    // Unused fields, I don't know what to do with gamma and exposure fields yet.
     if (!rawGamma.isEmpty()) {
         bool gammaOk = false;
         const float gammaTemp = QString(rawGamma).toFloat(&gammaOk);
@@ -120,19 +118,6 @@ RGBEImport::convert(KisDocument *document, QIODevice *io, KisPropertiesConfigura
     len = io->readLine(line.data(), MAXLINE);
     line.resize(len);
 
-    /*
-       TODO: handle flipping and rotation, as per the spec below
-       The single resolution line consists of 4 values, a X and Y label each followed by a numerical
-       integer value. The X and Y are immediately preceded by a sign which can be used to indicate
-       flipping, the order of the X and Y indicate rotation. The standard coordinate system for
-       Radiance images would have the following resolution string -Y N +X N. This indicates that the
-       vertical axis runs down the file and the X axis is to the right (imagining the image as a
-       rectangular block of data). A -X would indicate a horizontal flip of the image. A +Y would
-       indicate a vertical flip. If the X value appears before the Y value then that indicates that
-       the image is stored in column order rather than row order, that is, it is rotated by 90 degrees.
-       The reader can convince themselves that the 8 combinations cover all the possible image orientations
-       and rotations.
-    */
     QRegularExpression resolutionRegExp(QStringLiteral("([+\\-][XY]) ([0-9]+) ([+\\-][XY]) ([0-9]+)\n"));
     QRegularExpressionMatch match = resolutionRegExp.match(QString::fromLatin1(line));
     if (!match.hasMatch()) {

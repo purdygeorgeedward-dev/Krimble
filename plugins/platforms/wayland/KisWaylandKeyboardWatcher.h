@@ -27,7 +27,4 @@ private:
     std::unique_ptr<Seat> m_seat;
 };
 
-
-
-
-#endif /* KISWAYLANDKEYBOARDWATCHER_H */
+#endif

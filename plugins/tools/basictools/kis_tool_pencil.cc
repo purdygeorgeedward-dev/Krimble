@@ -108,8 +108,6 @@ void __KisToolPencilLocalTool::paint(QPainter &painter, const KoViewConverter &c
     }
 }
 
-
-
 void __KisToolPencilLocalTool::paintPath(KoPathShape *pathShape, QPainter &painter, const KoViewConverter &converter)
 {
     Q_UNUSED(converter);

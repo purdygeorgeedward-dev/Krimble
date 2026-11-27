@@ -12,7 +12,6 @@
 
 #include "kis_emboss_filter.h"
 
-
 #include <stdlib.h>
 #include <vector>
 
@@ -39,7 +38,6 @@
 #include "widgets/kis_multi_integer_filter_widget.h"
 #include <KisSequentialIteratorProgress.h>
 
-
 KisEmbossFilter::KisEmbossFilter() : KisFilter(id(), FiltersCategoryStylizeId, i18n("&Emboss with Variable Depth..."))
 {
     setSupportsPainting(false);
@@ -55,19 +53,6 @@ KisFilterConfigurationSP KisEmbossFilter::defaultConfiguration(KisResourcesInter
     return config;
 }
 
-// This method have been ported from Pieter Z. Voloshyn algorithm code.
-
-/* Function to apply the Emboss effect
- *
- * data             => The image data in RGBA mode.
- * Width            => Width of image.
- * Height           => Height of image.
- * d                => Emboss value
- *
- * Theory           => This is an amazing effect. And the theory is very simple to
- *                     understand. You get the difference between the colors and
- *                     increase it. After this, get the gray tone
- */
 void KisEmbossFilter::processImpl(KisPaintDeviceSP device,
                                   const QRect& applyRect,
                                   const KisFilterConfigurationSP config,
@@ -77,11 +62,7 @@ void KisEmbossFilter::processImpl(KisPaintDeviceSP device,
     QPoint srcTopLeft = applyRect.topLeft();
     Q_ASSERT(device);
 
-    //read the filter configuration values from the KisFilterConfiguration object
     quint32 embossdepth = config ?  config->getInt("depth", 30) : 30;
-
-    //the actual filter function from digikam. It needs a pointer to a quint8 array
-    //with the actual pixel data.
 
     float Depth = embossdepth / 10.0;
     int R = 0, G = 0, B = 0;
@@ -95,7 +76,6 @@ void KisEmbossFilter::processImpl(KisPaintDeviceSP device,
     KisRandomConstAccessorSP acc = device->createRandomAccessorNG();
     while (it.nextPixel()) {
 
-        // XXX: COLORSPACE_INDEPENDENCE or at least work IN RGB16A
         device->colorSpace()->toQColor(it.oldRawData(), &color1);
         acc->moveTo(srcTopLeft.x() + it.x() + Lim_Max(it.x(), 1, Width), srcTopLeft.y() + it.y() + Lim_Max(it.y(), 1, Height));
 
@@ -110,23 +90,6 @@ void KisEmbossFilter::processImpl(KisPaintDeviceSP device,
         device->colorSpace()->fromQColor(QColor(Gray, Gray, Gray, color1.alpha()), it.rawData());
     }
 }
-
-// This method have been ported from Pieter Z. Voloshyn algorithm code.
-
-/* This function limits the max and min values
- * defined by the developer
- *
- * Now               => Original value
- * Up                => Increments
- * Max               => Maximum value
- *
- * Theory            => This function is used in some functions to limit the
- *                      "for step". E.g. I have a picture with 309 pixels (width), and
- *                      my "for step" is 5. All the code goes alright until it reaches the
- *                      w = 305, because in the next step we will go to 310, but we want
- *                      to analyze all the pixels. So, this function will reduce the
- *                      "for step", when necessary, until we reach the last possible value
- */
 
 int KisEmbossFilter::Lim_Max(int Now, int Up, int Max) const
 {

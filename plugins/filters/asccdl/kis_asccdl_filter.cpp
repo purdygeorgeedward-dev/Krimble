@@ -17,7 +17,6 @@ K_PLUGIN_FACTORY_WITH_JSON(KritaASCCDLFactory,
                            "kritaasccdl.json",
                            registerPlugin<KritaASCCDL>();)
 
-
 KritaASCCDL::KritaASCCDL(QObject *parent, const QVariantList &) : QObject(parent)
 {
     KisFilterRegistry::instance()->add(KisFilterSP(new KisFilterASCCDL()));

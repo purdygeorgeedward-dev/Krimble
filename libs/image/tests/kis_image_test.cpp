@@ -62,7 +62,6 @@ void KisImageTest::benchmarkCreation()
     QList<KisImageSP> images;
     QList<KisSurrogateUndoStore*> stores;
 
-
     QBENCHMARK {
         for (int i = 0; i < 10; i++) {
             stores << new KisSurrogateUndoStore();
@@ -78,7 +77,6 @@ void KisImageTest::benchmarkCreation()
 #include <testutil.h>
 #include "kis_stroke_strategy.h"
 #include <functional>
-
 
 class ForbiddenLodStrokeStrategy : public KisStrokeStrategy
 {
@@ -220,7 +218,6 @@ void KisImageTest::testAssignImageProfile()
     KisPaintDeviceSP device2 = new KisPaintDevice(gray8);
     KisLayerSP paint2 = new KisPaintLayer(image, "paint2", OPACITY_OPAQUE_U8, device2);
 
-
     KisFilterSP filter = KisFilterRegistry::instance()->value("blur");
     Q_ASSERT(filter);
     KisFilterConfigurationSP configuration = filter->defaultConfiguration(KisGlobalResourcesInterface::instance());
@@ -242,7 +239,6 @@ void KisImageTest::testAssignImageProfile()
 
     QCOMPARE(*blur1->colorSpace(), *rgb8);
     QCOMPARE(*blur1->colorSpace()->profile(), *KoColorSpaceRegistry::instance()->p709SRGBProfile());
-
 
     image->assignImageProfile(KoColorSpaceRegistry::instance()->p2020G10Profile());
     image->waitForDone();
@@ -291,8 +287,6 @@ void KisImageTest::testGlobalSelection()
     QCOMPARE(image->globalSelection(), selection2);
     QCOMPARE(image->canReselectGlobalSelection(), false);
     QCOMPARE(image->root()->childCount(), 1U);
-
-    // mixed deselecting/setting/reselecting
 
     image->undoAdapter()->addCommand(new KisDeselectGlobalSelectionCommand(image));
     QCOMPARE(image->globalSelection(), KisSelectionSP(0));
@@ -352,7 +346,6 @@ void KisImageTest::testCloneImage()
         KisAnnotationSP newAnnotation = newImage->annotation("mytype");
         QVERIFY(newAnnotation);
         QVERIFY(newAnnotation != annotation);
-
 
         KisProofingConfigurationSP newProofing = newImage->proofingConfiguration();
         QVERIFY(newProofing);
@@ -471,8 +464,6 @@ struct FlattenTestImage
         layer2 = new KisPaintLayer(p.image, "paint2", OPACITY_OPAQUE_U8);
         tmask = new KisTransparencyMask(p.image, "tmask");
 
-        // check channel flags
-        // make addition composite op
         group1 = new KisGroupLayer(p.image, "group1", OPACITY_OPAQUE_U8);
         layer3 = new KisPaintLayer(p.image, "paint3", OPACITY_OPAQUE_U8);
         layer4 = new KisPaintLayer(p.image, "paint4", OPACITY_OPAQUE_U8);
@@ -541,13 +532,6 @@ struct FlattenTestImage
 
         p.image->initialRefreshGraph();
 
-        // dbgKrita << ppVar(layer1->exactBounds());
-        // dbgKrita << ppVar(layer5->exactBounds());
-        // dbgKrita << ppVar(layer2->exactBounds());
-        // dbgKrita << ppVar(group1->exactBounds());
-        // dbgKrita << ppVar(layer3->exactBounds());
-        // dbgKrita << ppVar(layer4->exactBounds());
-
         TestUtil::ReferenceImageChecker chk("flatten", "imagetest");
         QVERIFY(chk.checkDevice(p.image->projection(), p.image, "00_initial"));
     }
@@ -579,7 +563,6 @@ KisLayerSP flattenLayerHelper(ContainerTest &p, KisLayerSP layer, bool nothingHa
 {
     QSignalSpy spy(p.image.data(), SIGNAL(sigNodeAddedAsync(KisNodeSP, KisNodeAdditionFlags)));
 
-    //p.image->flattenLayer(layer);
     KisLayerUtils::flattenLayer(p.image, layer);
     p.image->waitForDone();
 
@@ -607,9 +590,6 @@ void KisImageTest::testFlattenLayer()
 
         KisLayerSP newLayer = flattenLayerHelper(p, p.layer2);
 
-        //KisLayerSP newLayer = p.image->flattenLayer(p.layer2);
-        //p.image->waitForDone();
-
         QVERIFY(chk.checkDevice(p.image->projection(), p.image, "00_initial"));
         QVERIFY(chk.checkDevice(newLayer->projection(), p.image, "01_layer2_layerproj"));
 
@@ -620,9 +600,6 @@ void KisImageTest::testFlattenLayer()
         QCOMPARE(p.group1->compositeOpId(), COMPOSITE_ADD);
 
         KisLayerSP newLayer = flattenLayerHelper(p, p.group1);
-
-        //KisLayerSP newLayer = p.image->flattenLayer(p.group1);
-        //p.image->waitForDone();
 
         QVERIFY(chk.checkDevice(p.image->projection(), p.image, "00_initial"));
         QVERIFY(chk.checkDevice(newLayer->projection(), p.image, "02_group1_layerproj"));
@@ -636,9 +613,6 @@ void KisImageTest::testFlattenLayer()
         QCOMPARE(p.layer5->alphaChannelDisabled(), true);
 
         KisLayerSP newLayer = flattenLayerHelper(p, p.layer5, true);
-
-        //KisLayerSP newLayer = p.image->flattenLayer(p.layer5);
-        //p.image->waitForDone();
 
         QVERIFY(chk.checkDevice(p.image->projection(), p.image, "00_initial"));
         QVERIFY(chk.checkDevice(newLayer->projection(), p.image, "03_layer5_layerproj"));
@@ -660,7 +634,6 @@ KisLayerSP mergeHelper(ContainerTest &p, KisLayerSP layer)
 
     p.image->mergeDown(layer, KisMetaData::MergeStrategyRegistry::instance()->get("Drop"));
 
-    //KisLayerUtils::mergeDown(p.image, layer, KisMetaData::MergeStrategyRegistry::instance()->get("Drop"));
     p.image->waitForDone();
 
     KisLayerSP newLayer = qobject_cast<KisLayer*>(parent->at(newIndex).data());
@@ -673,7 +646,6 @@ void KisImageTest::testMergeDown()
 
     TestUtil::ReferenceImageChecker img("flatten", "imagetest");
     TestUtil::ReferenceImageChecker chk("mergedown_simple", "imagetest");
-
 
     {
         QCOMPARE(p.layer5->compositeOpId(), COMPOSITE_OVER);
@@ -730,7 +702,6 @@ void KisImageTest::testMergeDownDestinationInheritsAlpha()
 
         KisLayerSP newLayer = mergeHelper(p, p.layer2);
 
-        // WARN: this check is suspicious!
         QVERIFY(img.checkDevice(p.image->projection(), p.image, "00_proj_merged_layer2_over_layer5_IA"));
         QVERIFY(chk.checkDevice(newLayer->projection(), p.image, "01_layer2_layerproj"));
 
@@ -874,7 +845,6 @@ KisNodeSP mergeMultipleHelper(ContainerTest &p, QList<KisNodeSP> selectedNodes, 
     QSignalSpy spy(p.image.data(), SIGNAL(sigNodeAddedAsync(KisNodeSP, KisNodeAdditionFlags)));
 
     p.image->mergeMultipleLayers(selectedNodes, putAfter);
-    //KisLayerUtils::mergeMultipleLayers(p.image, selectedNodes, putAfter);
     p.image->waitForDone();
 
     Q_ASSERT(spy.count() == 1);
@@ -899,9 +869,6 @@ void KisImageTest::testMergeMultiple()
         {
             KisNodeSP newLayer = mergeMultipleHelper(p, selectedNodes, 0);
 
-            //KisNodeSP newLayer = p.image->mergeMultipleLayers(selectedNodes, 0);
-            //p.image->waitForDone();
-
             QVERIFY(img.checkDevice(p.image->projection(), p.image, "00_initial"));
             QVERIFY(chk.checkDevice(newLayer->projection(), p.image, "01_layer8_layerproj"));
 
@@ -913,9 +880,6 @@ void KisImageTest::testMergeMultiple()
     p.p.undoStore->undo();
     p.image->waitForDone();
 
-
-    // Test reversed order, the result must be the same
-
     {
         QList<KisNodeSP> selectedNodes;
 
@@ -925,9 +889,6 @@ void KisImageTest::testMergeMultiple()
 
         {
             KisNodeSP newLayer = mergeMultipleHelper(p, selectedNodes, 0);
-
-            //KisNodeSP newLayer = p.image->mergeMultipleLayers(selectedNodes, 0);
-            //p.image->waitForDone();
 
             QVERIFY(img.checkDevice(p.image->projection(), p.image, "00_initial"));
             QVERIFY(chk.checkDevice(newLayer->projection(), p.image, "01_layer8_layerproj"));
@@ -1075,7 +1036,7 @@ void KisImageTest::testFlattenImage()
     }
 
     {
-        KisLayerUtils::flattenImage(p.image, p.layer5); // flatten with active layer just under the root (not inside any group)
+        KisLayerUtils::flattenImage(p.image, p.layer5);
         p.image->waitForDone();
         QVERIFY(img.checkDevice(p.image->projection(), p.image, "00_initial"));
 
@@ -1086,7 +1047,7 @@ void KisImageTest::testFlattenImage()
     }
 
     {
-        KisLayerUtils::flattenImage(p.image, p.layer2); // flatten with active layer just under the root (not inside any group), but with a mask
+        KisLayerUtils::flattenImage(p.image, p.layer2);
         p.image->waitForDone();
         QVERIFY(img.checkDevice(p.image->projection(), p.image, "00_initial"));
 
@@ -1097,7 +1058,7 @@ void KisImageTest::testFlattenImage()
     }
 
     {
-        KisLayerUtils::flattenImage(p.image, p.layer3); // flatten with active layer inside of a group
+        KisLayerUtils::flattenImage(p.image, p.layer3);
         p.image->waitForDone();
         QVERIFY(img.checkDevice(p.image->projection(), p.image, "00_initial"));
 
@@ -1139,7 +1100,6 @@ struct FlattenPassThroughTestImage
         group4->setPassThroughMode(true);
         layer5->paintDevice()->fill(rect5, KoColor(Qt::blue, p.image->colorSpace()));
         layer6->paintDevice()->fill(rect6, KoColor(Qt::yellow, p.image->colorSpace()));
-
 
         p.image->addNode(group1);
         p.image->addNode(layer2, group1);
@@ -1271,12 +1231,8 @@ void KisImageTest::testPaintOverlayMask()
 
     mask->setSelection(selection);
 
-    //mask->setVisible(false);
-    //mask->setActive(false);
-
     p.image->addNode(mask, layer1);
 
-    // a simple layer to disable oblige-child mechanism
     KisPaintLayerSP layer2 = new KisPaintLayer(p.image, "layer2", OPACITY_OPAQUE_U8);
     p.image->addNode(layer2);
 

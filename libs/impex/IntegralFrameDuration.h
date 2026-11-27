@@ -48,7 +48,7 @@ public:
         return std::round(frameDuration) != frameDuration;
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -75,4 +75,4 @@ public:
     }
 };
 
-#endif // INTEGRAL_FRAME_DURATION_H
+#endif

@@ -15,42 +15,24 @@
 #include "KoPathPointData.h"
 #include "kritaflake_export.h"
 
-/// The undo / redo command for changing segments to curves/lines
 class KRITAFLAKE_EXPORT KoPathSegmentTypeCommand : public KUndo2Command
 {
 public:
-    /// Segment Types
     enum SegmentType {
         Curve = 1,
         Line = 2
     };
 
-    /**
-    * Command for changing the segment type ( curve/line )
-    * @param pointData point data identifying the segment that should be changed.
-    * @param segmentType to which the segment should be changed to
-    * @param parent the parent command used for macro commands
-    */
     KoPathSegmentTypeCommand(const KoPathPointData &pointData, SegmentType segmentType, KUndo2Command *parent = 0);
 
-    /**
-     * Command for changing the segment type ( curve/line )
-     * @param pointDataList List of point data identifying the segments that should be changed.
-     * @param segmentType to which the segments should be changed to
-     * @param parent the parent command used for macro commands
-     */
     KoPathSegmentTypeCommand(const QList<KoPathPointData> &pointDataList, SegmentType segmentType, KUndo2Command *parent = 0);
     ~KoPathSegmentTypeCommand() override;
 
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 
 private:
-    // used for storing the data for undo
     struct SegmentTypeData {
-        // old control points in document coordinates
         QPointF m_controlPoint1;
         QPointF m_controlPoint2;
         KoPathPoint::PointProperties m_properties1;
@@ -64,4 +46,4 @@ private:
     SegmentType m_segmentType;
 };
 
-#endif // KOPATHSEGMENTTYPECOMMAND_H
+#endif

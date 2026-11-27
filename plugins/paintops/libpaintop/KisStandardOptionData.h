@@ -8,7 +8,6 @@
 
 #include <KisCurveOptionData.h>
 
-
 struct KisOpacityOptionData : KisCurveOptionData
 {
     KisOpacityOptionData(const QString &prefix = QString())
@@ -30,7 +29,6 @@ struct KisFlowOptionData : KisCurveOptionData
     {
     }
 };
-
 
 struct KisRatioOptionData : KisCurveOptionData
 {
@@ -127,7 +125,6 @@ struct KisLightnessStrengthOptionData : KisCurveOptionData
     }
 };
 
-
 class KisCurveOptionWidget;
 
 namespace KisPaintOpOptionWidgetUtils {
@@ -155,4 +152,4 @@ PAINTOP_EXPORT KisCurveOptionWidget* createMaskingScatterOptionWidget();
 
 }
 
-#endif // KISSTANDARDOPTIONDATA_H
+#endif

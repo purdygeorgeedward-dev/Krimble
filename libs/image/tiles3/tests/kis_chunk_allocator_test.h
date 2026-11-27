@@ -28,5 +28,5 @@ private:
     QRandomGenerator m_rng{};
 };
 
-#endif /* KIS_CHUNK_ALLOCATOR_TEST_H */
+#endif
 

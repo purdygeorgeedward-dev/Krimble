@@ -13,6 +13,6 @@ namespace KisAndroidLogHandler {
 
 KRITAGLOBAL_EXPORT void handler_init();
 
-} // namespace KisAndroidLogHandler
+}
 
-#endif // __KISANDROIDLOGHANDLER_H_
+#endif

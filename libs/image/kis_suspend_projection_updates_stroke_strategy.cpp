@@ -21,7 +21,6 @@
 
 #include <memory>
 
-
 inline uint qHash(const QRect &rc) {
     return rc.x() +
         (rc.y() << 16) +
@@ -168,7 +167,6 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
 
                     const QVector<QRect> simplifiedRects = KisRegion::fromOverlappingRects(dirtyRects, step).rects();
 
-                    // FIXME: constness: port requestProjectionUpdate to shared pointers
                     image->requestProjectionUpdate(const_cast<KisNode*>(node.data()), simplifiedRects, finalFlags);
                 }
             };
@@ -185,7 +183,6 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
     };
 
     QVector<QSharedPointer<SuspendLod0Updates>> usedFilters;
-
 
     struct StrokeJobCommand : public KUndo2Command
     {
@@ -215,10 +212,6 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
         std::unique_ptr<StrokeJobCommand> m_command;
     };
 
-    // Suspend job should be a barrier to ensure all
-    // previous lodN strokes reach the GUI. Otherwise,
-    // they will be blocked in
-    // KisImage::notifyProjectionUpdated()
     struct SuspendUpdatesCommand : public StrokeJobCommand
     {
         SuspendUpdatesCommand(Private *d)
@@ -235,20 +228,17 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
                 toQShared(new Private::SuspendLod0Updates()));
         }
 
-
         void undo() override {
             KisImageSP image = m_d->image.toStrongRef();
             KIS_SAFE_ASSERT_RECOVER_RETURN(image);
             KIS_SAFE_ASSERT_RECOVER_RETURN(image->currentProjectionUpdatesFilter());
             KIS_SAFE_ASSERT_RECOVER_RETURN(image->currentProjectionUpdatesFilter() == m_d->sharedData->installedFilterCookie);
 
-
             m_d->tryFetchUsedUpdatesFilter(image);
         }
 
         Private *m_d;
     };
-
 
     struct ResumeAndIssueGraphUpdatesCommand : public StrokeJobCommand
     {
@@ -292,7 +282,6 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
         }
 
         void run() override {
-            // check if we've already started stinking...
             if (m_strategy->m_d->updatesEpoch > m_updateEpoch) {
                 return;
             }
@@ -338,10 +327,6 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
             KisImageSP image = m_strategy->m_d->image.toStrongRef();
             KIS_SAFE_ASSERT_RECOVER_RETURN(image);
 
-            /**
-             * We accumulate dirty rects from all(!) epochs, because some updates of the
-             * previous epochs might have been cancelled without doing any real work.
-             */
             const QVector<QRect> totalDirtyRects =
                 image->enableUIUpdates() + m_strategy->m_d->accumulatedDirtyRects;
 
@@ -393,17 +378,6 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
         }
 
         void undo() override {
-            /**
-             * Even though this command is the last command of the stroke is can
-             * still be undone by suspendStrokeCallback(). It happens when a LodN
-             * stroke is started right after the last job of resume strategy was
-             * being executed. In such a case new stroke is placed right in front
-             * of our resume strategy and all the resuming work is undone (mimicking
-             * a normal suspend strategy).
-             *
-             * The only thing we should control here is whether the state of the
-             * stroke is reset to default. Otherwise we'll do all the updates twice.
-             */
 
             KIS_SAFE_ASSERT_RECOVER_NOOP(m_strategy->m_d->usedFilters.isEmpty());
             KIS_SAFE_ASSERT_RECOVER_NOOP(m_strategy->m_d->accumulatedDirtyRects.isEmpty());
@@ -419,7 +393,6 @@ struct KisSuspendProjectionUpdatesStrokeStrategy::Private
         KisSuspendProjectionUpdatesStrokeStrategy *m_strategy;
     };
 
-
     QVector<StrokeJobCommand*> executedCommands;
 };
 
@@ -433,13 +406,6 @@ KisSuspendProjectionUpdatesStrokeStrategy::KisSuspendProjectionUpdatesStrokeStra
     m_d->suspend = suspend;
     m_d->sharedData = sharedData;
 
-    /**
-     * Here we add a dumb INIT job so that KisStrokesQueue would know that the
-     * stroke has already started or not. When the queue reaches the resume
-     * stroke and starts its execution, no Lod0 can execute anymore. So all the
-     * new Lod0 strokes should go to the end of the queue and wrapped into
-     * their own Suspend/Resume pair.
-     */
     enableJob(JOB_INIT, true);
 
     enableJob(JOB_DOSTROKE, true);
@@ -474,43 +440,6 @@ void KisSuspendProjectionUpdatesStrokeStrategy::initStrokeCallback()
     runnableJobsInterface()->addRunnableJobs(jobs);
 }
 
-/**
- * When the Lod0 stroke is being recalculated in the background we
- * should block all the updates it issues to avoid user distraction.
- * The result of the final stroke should be shown to the user in the
- * very end when everything is fully ready. Ideally the use should not
- * notice that the image has changed :)
- *
- * (Don't mix this process with suspend/resume capabilities of a
- * single stroke. That is a different system!)
- *
- * The process of the Lod0 regeneration consists of the following:
- *
- * 1) Suspend stroke executes. It sets a special updates filter on the
- *    image. The filter blocks all the updates and saves them in an
- *    internal structure to be emitted in the future.
- *
- * 2) Lod0 strokes are being recalculated. All their updates are
- *    blocked and saved in the filter.
- *
- * 3) Resume stroke starts:
- *
- *     3.1) First it disables emitting of sigImageUpdated() so the gui
- *          will not get any update notifications.
- *
- *     3.2) Then it enables updates themselves.
- *
- *     3.3) Initiates all the updates that were requested by the Lod0
- *          stroke. The node graph is regenerated, but the GUI does
- *          not get this change.
- *
- *     3.4) Special barrier job waits for all the updates to finish
- *          and, when they are done, enables GUI notifications again.
- *
- *     3.5) In a multithreaded way emits the GUI notifications for the
- *          entire image. Multithreaded way is used to conform the
- *          double-stage update principle of KisCanvas2.
- */
 void KisSuspendProjectionUpdatesStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
 {
     KisRunnableStrokeJobDataBase *runnable = dynamic_cast<KisRunnableStrokeJobDataBase*>(data);
@@ -524,12 +453,12 @@ void KisSuspendProjectionUpdatesStrokeStrategy::doStrokeCallback(KisStrokeJobDat
     }
 }
 
-QList<KisStrokeJobData*> KisSuspendProjectionUpdatesStrokeStrategy::createSuspendJobsData(KisImageWSP /*image*/)
+QList<KisStrokeJobData*> KisSuspendProjectionUpdatesStrokeStrategy::createSuspendJobsData(KisImageWSP )
 {
     return QList<KisStrokeJobData*>();
 }
 
-QList<KisStrokeJobData*> KisSuspendProjectionUpdatesStrokeStrategy::createResumeJobsData(KisImageWSP /*_image*/)
+QList<KisStrokeJobData*> KisSuspendProjectionUpdatesStrokeStrategy::createResumeJobsData(KisImageWSP )
 {
     return QList<KisStrokeJobData*>();
 }
@@ -585,26 +514,13 @@ void KisSuspendProjectionUpdatesStrokeStrategy::cancelStrokeCallback()
         image->signalRouter()->emitRequestLodPlanesSyncBlocked(false);
     }
 
-    /**
-     * We shouldn't Q_EMIT any ad-hoc updates when cancelling the
-     * stroke.  It generates weird temporary holes on the canvas,
-     * making the user feel awful, thinking his image got
-     * corrupted. We will just Q_EMIT a common refreshGraphAsync() that
-     * will do all the work in a beautiful way
-     */
     if (!m_d->suspend) {
-        // FIXME: optimize
         image->refreshGraphAsync();
     }
 }
 
 void KisSuspendProjectionUpdatesStrokeStrategy::suspendStrokeCallback()
 {
-    /**
-     * The resume stroke can be suspended even when all its jobs are completed.
-     * In such a case, we should just ensure that all the internal state is reset
-     * to default.
-     */
 
     KIS_SAFE_ASSERT_RECOVER_NOOP(m_d->suspend ||
                                  !m_d->sanityResumingFinished ||
@@ -616,7 +532,6 @@ void KisSuspendProjectionUpdatesStrokeStrategy::suspendStrokeCallback()
         (*it)->undo();
     }
 
-    // reset all the issued updates
     m_d->updatesEpoch++;
 }
 

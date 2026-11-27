@@ -24,7 +24,6 @@
 #include <testui.h>
 #include <testutil.h>
 
-
 void KisShapeCommandsTest::testGrouping()
 {
     TestUtil::ReferenceImageChecker chk("grouping", "shape_commands_test");
@@ -38,7 +37,6 @@ void KisShapeCommandsTest::testGrouping()
     p.image->setResolution(resolution, resolution);
 
     doc->setCurrentImage(p.image);
-
 
     KisShapeLayerSP shapeLayer = new KisShapeLayer(doc->shapeController(), p.image, "shapeLayer1", 75);
 
@@ -193,7 +191,6 @@ void KisShapeCommandsTest::testResizeShape(bool normalizeGroup)
     QCOMPARE(group->absolutePosition(KoFlake::TopLeft), QPointF(5,5));
     QCOMPARE(group->absolutePosition(KoFlake::BottomRight), QPointF(60,60));
 
-
     const QPointF stillPoint = group->absolutePosition(KoFlake::BottomRight);
     KoFlake::resizeShapeCommon(group, 1.2, 1.4, stillPoint, false, true, QTransform());
 
@@ -307,7 +304,6 @@ void KisShapeCommandsTest::testResizeNullShape()
     }
 
     {
-        // TODO: perhaps wrong? (though this combination is not used atm)
         ShapeWrapper w;
         qDebug() << "Normal resize mode, Y, 200%, outside-y";
         KoFlake::resizeShape(w.path, 1.0, 2.0, QPointF(110,20), false);
@@ -352,7 +348,6 @@ void KisShapeCommandsTest::testResizeNullShapeGlobal()
         KoFlake::resizeShape(w.path, 2.0, 1.0, QPointF(-20,110), true);
         QCOMPARE(w.path->outlineRect(), QRectF(10, 10, 100, 0));
 
-        // TODO: perhaps wrong? (though this combination is not used atm)
         QCOMPARE(w.path->absoluteOutlineRect(), QRectF(-10, 10, 0, 100));
     }
 

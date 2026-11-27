@@ -19,17 +19,6 @@ bool KisNodeVisitor::visitAll(KisNode * node, bool breakOnFail)
     return true;
 }
 
-
-
-/**
- * Visit all child nodes of the given node starting with the last one until one node returns
- * false. Then visitAll returns false, otherwise true.
- *
- * @param node the parent node whose children will be visited
- * @param breakOnFail break if one of the children returns false on accept
- * @return true if none of the childnodes returns false on
- * accepting the visitor.
- */
 bool KisNodeVisitor::visitAllInverse(KisNode * node, bool breakOnFail)
 {
     KisNodeSP child = node->lastChild();

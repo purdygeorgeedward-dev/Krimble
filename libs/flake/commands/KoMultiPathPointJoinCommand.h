@@ -23,4 +23,4 @@ protected:
                                               const KoPathPointData &pointData2) override;
 };
 
-#endif // KOMULTIPATHPOINTJOINCOMMAND_H
+#endif

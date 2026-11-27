@@ -7,7 +7,6 @@
 #ifndef KISSELECTIONTAGS_H
 #define KISSELECTIONTAGS_H
 
-
 enum SelectionMode {
     PIXEL_SELECTION = 0,
     SHAPE_PROTECTION
@@ -22,4 +21,4 @@ enum SelectionAction {
     SELECTION_DEFAULT
 };
 
-#endif // KISSELECTIONTAGS_H
+#endif

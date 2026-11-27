@@ -5,7 +5,6 @@
  */
 #include "KisIdleTaskStrokeStrategy.h"
 
-
 KisIdleTaskStrokeStrategy::KisIdleTaskStrokeStrategy(const QLatin1String &id, const KUndo2MagicString &name)
     : KisRunnableBasedStrokeStrategy(id, name)
 {
@@ -21,21 +20,9 @@ KisIdleTaskStrokeStrategy::KisIdleTaskStrokeStrategy(const QLatin1String &id, co
 
 KisIdleTaskStrokeStrategy::~KisIdleTaskStrokeStrategy() = default;
 
-
 KisStrokeStrategy *KisIdleTaskStrokeStrategy::createLodClone(int levelOfDetail)
 {
     Q_UNUSED(levelOfDetail);
-    /**
-     * We do not generate preview for Instant Preview mode. Even though we
-     * could do that, it is not very needed, because KisIdleWatcher ensures
-     * that overview preview is generated only when all the background jobs
-     * are completed.
-     *
-     * The only thing we should do about Instant Preview is to avoid resetting
-     * LoDN planes, when the thumbnail is running. Therefore we should return
-     * a fake noop strategy as our LoDN clone (that is a marker of non-legacy
-     * stroke for the scheduler)
-     */
     return new KisSimpleStrokeStrategy(QLatin1String("KisIdleTaskStrokeStrategy_FakeLodN"));
 }
 
@@ -48,12 +35,6 @@ void KisIdleTaskStrokeStrategy::finishStrokeCallback()
 {
     Q_EMIT sigIdleTaskFinished();
 
-    /**
-     * Just a small sanity check if idle tasks don't occupy too much time
-     * and don't interfere with user's workflow. Theoretically, even if the
-     * time consumed is too high, it may still be acceptable if the task is
-     * split in multiple jobs, which would be cancelled but the user's action.
-     */
     const qint64 elapsedTime = m_idleStrokeTime.elapsed();
 
     if (elapsedTime > preferredIdleTaskMaximumTime()) {
@@ -74,28 +55,12 @@ QWeakPointer<boost::none_t> KisIdleTaskStrokeStrategy::idleTaskCookie()
 
 int KisIdleTaskStrokeStrategy::preferredIdleTaskMaximumTime()
 {
-    /**
-     * Sometimes (unless split into multiple jobs) idle tasks can interfere
-     * with user actions. We have a sanity check that checks if the tasks are
-     * quick enough to not interfere into the user's actions. This time limit
-     * is the maximum "allowed" idle task size.
-     *
-     * Definition of "allowed" here is not strict, since the tasks are not
-     * cancelled when reaching the limit. Just a warning is spit into the
-     * terminal.
-     */
 
-    return 200; // ms
+    return 200;
 }
 
 int KisIdleTaskStrokeStrategy::preferredIdleWatcherInterval()
 {
-    /**
-     * Preferred idle watcher interval for checks of the image idleness
-     * state. Idle watcher checks the image four times before starting an
-     * idle task, so the actual idle task delay is
-     * `4 * preferredIdleWatcherInterval()` milliseconds.
-     */
-    return 50; // ms
+    return 50;
 }
 

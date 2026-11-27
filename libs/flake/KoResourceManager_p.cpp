@@ -198,7 +198,6 @@ KoShape *KoResourceManager::koShapeResource(int key) const
     return resource(key).value<KoShape *>();
 }
 
-
 KoUnit KoResourceManager::unitResource(int key) const
 {
     return resource(key).value<KoUnit>();
@@ -249,10 +248,8 @@ bool KoResourceManager::hasResource(int key) const
 
 void KoResourceManager::clearResource(int key)
 {
-    // we cannot remove a derived resource
     if (m_derivedResources.contains(key)) return;
 
-    // we cannot remove an abstract resource either
     if (m_abstractResources.contains(key)) return;
 
     if (m_resources.contains(key)) {

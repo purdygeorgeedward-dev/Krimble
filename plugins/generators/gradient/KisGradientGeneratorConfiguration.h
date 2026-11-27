@@ -61,7 +61,7 @@ public:
     {
         return "gradient";
     }
-    
+
     static constexpr qint32 defaultVersion()
     {
         return 1;
@@ -101,62 +101,62 @@ public:
     {
         return 50.0;
     }
-    
+
     static constexpr SpatialUnits defaultStartPositionXUnits()
     {
         return SpatialUnitsPercentOfWidth;
     }
-    
-    static constexpr SpatialUnits defaultStartPositionYUnits() 
+
+    static constexpr SpatialUnits defaultStartPositionYUnits()
     {
         return SpatialUnitsPercentOfHeight;
     }
-    
+
     static constexpr CoordinateSystem defaultEndPositionCoordinateSystem()
     {
         return CoordinateSystemCartesian;
     }
-    
+
     static constexpr qreal defaultEndPositionX()
     {
         return 100.0;
     }
-    
+
     static constexpr qreal defaultEndPositionY()
     {
         return 50.0;
     }
-    
+
     static constexpr SpatialUnits defaultEndPositionXUnits()
     {
         return SpatialUnitsPercentOfWidth;
     }
-    
+
     static constexpr SpatialUnits defaultEndPositionYUnits()
     {
         return SpatialUnitsPercentOfHeight;
     }
-    
+
     static constexpr Positioning defaultEndPositionXPositioning()
     {
         return PositioningAbsolute;
     }
-    
+
     static constexpr Positioning defaultEndPositionYPositioning()
     {
         return PositioningAbsolute;
     }
-    
+
     static constexpr qreal defaultEndPositionAngle()
     {
         return 0.0;
     }
-    
+
     static constexpr qreal defaultEndPositionDistance()
     {
         return 100.0;
     }
-    
+
     static constexpr SpatialUnits defaultEndPositionDistanceUnits()
     {
         return SpatialUnitsPercentOfWidth;

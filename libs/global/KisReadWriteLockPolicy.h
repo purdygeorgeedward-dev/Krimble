@@ -35,4 +35,4 @@ struct NoLockPolicy {
     typedef FakeLocker ReadLocker;
     typedef FakeLocker WriteLocker;
 };
-#endif // KISREADWRITELOCKPOLICY_H
+#endif

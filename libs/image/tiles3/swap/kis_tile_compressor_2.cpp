@@ -12,7 +12,6 @@
 
 const QString KisTileCompressor2::m_compressionName = "LZF";
 
-
 KisTileCompressor2::KisTileCompressor2()
 {
     m_compression = new KisLzfCompression();
@@ -82,10 +81,6 @@ bool KisTileCompressor2::readTile(QIODevice *stream, KisTiledDataManager *dm)
 
 void KisTileCompressor2::prepareStreamingBuffer(qint32 tileDataSize)
 {
-    /**
-     * TODO: delete this buffer!
-     * It is better to use one of other two buffers to store streams
-     */
     m_streamingBuffer.resize(tileDataSize + 1);
 }
 

@@ -23,10 +23,6 @@ class QString;
 class KisCanvasResourceProvider;
 class KoResource;
 
-/**
- * Popup widget for presets with built-in functionality
- * for adding and removing presets.
- */
 class KisPaintOpPresetsEditor : public QWidget
 {
     Q_OBJECT
@@ -42,16 +38,12 @@ public:
 
     void setPaintOpSettingsWidget(QWidget * widget);
 
-
-    ///Image for preset preview
-    ///@return image cut out from the scratchpad
     QImage cutOutOverlay();
 
     void setPaintOpList(const QList<KisPaintOpFactory*>& list);
 
     void setCurrentPaintOpId(const QString & paintOpId);
 
-    /// returns the internal ID for the paint op (brush engine)
     QString currentPaintOpId();
 
     void resizeEvent(QResizeEvent* ) override;
@@ -62,7 +54,6 @@ public:
 
     KisPresetSaveWidget * saveDialog;
 
-    // toggle the state when we are creating a brush from scratch
     void setCreatingBrushFromScratch(bool enable);
 
     void readOptionSetting(const KisPropertiesConfigurationSP setting);
@@ -76,7 +67,6 @@ protected:
 public Q_SLOTS:
     void resourceSelected(KoResourceSP resource);
     void updateThemedIcons();
-
 
     void slotUpdatePresetSettings();
     void slotRenameBrushActivated();
@@ -108,7 +98,6 @@ private Q_SLOTS:
     void slotToggleDetach(bool detach);
     void slotUpdateEffectiveLodAvailable(bool value);
 
-    /// we do not delete brush presets, but blacklist them so they disappear from the interface
     void slotBlackListCurrentPreset();
 
 private:

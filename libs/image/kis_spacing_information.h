@@ -7,11 +7,6 @@
 
 #include "kritaimage_export.h"
 
-/**
- * Contains information about distance-based spacing settings in a stroke. The spacing settings may
- * be different at different parts of a stroke, e.g. if spacing is linked to pressure; a
- * KisSpacingInformation represents the effective spacing at a single specific part of the stroke.
- */
 class KRITAIMAGE_EXPORT KisSpacingInformation {
 public:
     explicit KisSpacingInformation()
@@ -58,9 +53,6 @@ public:
     {
     }
 
-    /**
-     * @return True if and only if distance-based spacing is enabled.
-     */
     inline bool isDistanceSpacingEnabled() const {
         return m_distanceSpacingEnabled;
     }
@@ -87,7 +79,6 @@ public:
 
 private:
 
-    // Distance-based spacing
     bool m_distanceSpacingEnabled;
     QPointF m_distanceSpacing;
 
@@ -95,4 +86,4 @@ private:
     bool m_coordinateSystemFlipped;
 };
 
-#endif // KIS_SPACING_INFORMATION_H
+#endif

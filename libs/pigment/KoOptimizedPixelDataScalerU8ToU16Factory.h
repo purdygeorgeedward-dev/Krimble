@@ -9,9 +9,6 @@
 
 #include "KoOptimizedPixelDataScalerU8ToU16Base.h"
 
-/**
- * \see KoOptimizedPixelDataScalerU8ToU16Base
- */
 class KRITAPIGMENT_EXPORT KoOptimizedPixelDataScalerU8ToU16Factory
 {
 public:
@@ -20,5 +17,4 @@ public:
 
 };
 
-
-#endif // KoOptimizedPixelDataScalerU8ToU16FACTORY_H
+#endif

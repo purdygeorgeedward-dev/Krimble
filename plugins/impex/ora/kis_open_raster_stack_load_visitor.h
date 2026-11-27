@@ -33,6 +33,5 @@ private:
     Private* const d;
 };
 
-
-#endif // KIS_LAYER_VISITOR_H_
+#endif
 

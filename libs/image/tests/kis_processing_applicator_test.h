@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testNoUIUpdates();
 };
 
-#endif /* __KIS_PROCESSING_APPLICATOR_TEST_H */
+#endif

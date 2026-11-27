@@ -28,9 +28,6 @@
 #include <kis_meta_data_tags.h>
 #include <kis_meta_data_value.h>
 
-// ---- Exception conversion functions ---- //
-
-// convert ExifVersion and FlashpixVersion to a KisMetaData value
 #if EXIV2_TEST_VERSION(0,28,0)
 KisMetaData::Value exifVersionToKMDValue(const Exiv2::Value::UniquePtr value)
 #else
@@ -49,7 +46,6 @@ KisMetaData::Value exifVersionToKMDValue(const Exiv2::Value::AutoPtr value)
     }
 }
 
-// convert from KisMetaData value to ExifVersion and FlashpixVersion
 Exiv2::Value *kmdValueToExifVersion(const KisMetaData::Value &value)
 {
     Exiv2::DataValue *dvalue = new Exiv2::DataValue;
@@ -58,7 +54,6 @@ Exiv2::Value *kmdValueToExifVersion(const KisMetaData::Value &value)
     return dvalue;
 }
 
-// Convert an exif array of integer string to a KisMetaData array of integer
 #if EXIV2_TEST_VERSION(0,28,0)
 KisMetaData::Value exifArrayToKMDIntOrderedArray(const Exiv2::Value::UniquePtr value)
 #else
@@ -84,7 +79,6 @@ KisMetaData::Value exifArrayToKMDIntOrderedArray(const Exiv2::Value::AutoPtr val
     return KisMetaData::Value(v, KisMetaData::Value::OrderedArray);
 }
 
-// Convert a KisMetaData array of integer to an exif array of integer string
 Exiv2::Value *kmdIntOrderedArrayToExifArray(const KisMetaData::Value &value)
 {
     std::vector<Exiv2::byte> v;
@@ -153,8 +147,7 @@ KisMetaData::Value exifOECFToKMDOECFStructure(const Exiv2::Value::AutoPtr value,
 #endif
 
     if ((columns * rows + 4)
-        > dvalue->count()) { // Sometime byteOrder get messed up (especially if metadata got saved with kexiv2 library,
-                             // or any library that doesn't save back with the same byte order as the camera)
+        > dvalue->count()) {
         order = invertByteOrder(order);
 #if EXIV2_TEST_VERSION(0,28,0)
         columns = fixEndianness<qsizetype>((reinterpret_cast<qsizetype *>(array.data()))[0], order);
@@ -217,7 +210,7 @@ Exiv2::Value *kmdOECFStructureToExifOECF(const KisMetaData::Value &value)
     QList<KisMetaData::Value> names = oecfStructure["Names"].asArray();
     QList<KisMetaData::Value> values = oecfStructure["Values"].asArray();
     Q_ASSERT(columns * rows == values.size());
-    int length = 4 + rows * columns * 8; // The 4 byte for storing rows/columns and the rows*columns*sizeof(rational)
+    int length = 4 + rows * columns * 8;
     bool saveNames = (!names.empty() && names[0].asVariant().toString().size() > 0);
     if (saveNames) {
         for (int i = 0; i < columns; i++) {
@@ -273,8 +266,8 @@ KisMetaData::Value deviceSettingDescriptionExifToKMD(const Exiv2::Value::AutoPtr
     for (int index = 4; index < array.size();) {
         const int lastIndex = array.indexOf(null, index);
         if (lastIndex < 0)
-            break; // Data is not a String, ignore
-        const int numChars = (lastIndex - index) / 2; // including trailing zero
+            break;
+        const int numChars = (lastIndex - index) / 2;
 
         QString setting = QString::fromUtf16((char16_t *)(void *)(array.data() + index), numChars);
         index = lastIndex + 2;
@@ -324,8 +317,7 @@ KisMetaData::Value cfaPatternExifToKMD(const Exiv2::Value::AutoPtr value, Exiv2:
     int rows = fixEndianness<quint16>((reinterpret_cast<quint16 *>(array.data()))[1], order);
 #endif
     if ((columns * rows + 4)
-        != dvalue->count()) { // Sometime byteOrder get messed up (especially if metadata got saved with kexiv2 library,
-                              // or any library that doesn't save back with the same byte order as the camera)
+        != dvalue->count()) {
         order = invertByteOrder(order);
         columns = fixEndianness<quint16>((reinterpret_cast<quint16 *>(array.data()))[0], order);
         rows = fixEndianness<quint16>((reinterpret_cast<quint16 *>(array.data()))[1], order);
@@ -366,8 +358,6 @@ Exiv2::Value *cfaPatternKMDToExif(const KisMetaData::Value &value)
     return new Exiv2::DataValue((const Exiv2::byte *)array.data(), array.size());
 }
 
-// Read and write Flash //
-
 #if EXIV2_TEST_VERSION(0,28,0)
 KisMetaData::Value flashExifToKMD(const Exiv2::Value::UniquePtr value)
 #else
@@ -380,15 +370,15 @@ KisMetaData::Value flashExifToKMD(const Exiv2::Value::AutoPtr value)
     const uint16_t v = static_cast<uint16_t>(value->toLong());
 #endif
     QMap<QString, KisMetaData::Value> flashStructure;
-    bool fired = (v & 0x01); // bit 1 is whether flash was fired or not
+    bool fired = (v & 0x01);
     flashStructure["Fired"] = QVariant(fired);
-    int ret = ((v >> 1) & 0x03); // bit 2 and 3 are Return
+    int ret = ((v >> 1) & 0x03);
     flashStructure["Return"] = QVariant(ret);
-    int mode = ((v >> 3) & 0x03); // bit 4 and 5 are Mode
+    int mode = ((v >> 3) & 0x03);
     flashStructure["Mode"] = QVariant(mode);
-    bool function = ((v >> 5) & 0x01); // bit 6 if function
+    bool function = ((v >> 5) & 0x01);
     flashStructure["Function"] = QVariant(function);
-    bool redEye = ((v >> 6) & 0x01); // bit 7 if function
+    bool redEye = ((v >> 6) & 0x01);
     flashStructure["RedEyeMode"] = QVariant(redEye);
     return KisMetaData::Value(flashStructure);
 }
@@ -405,7 +395,6 @@ Exiv2::Value *flashKMDToExif(const KisMetaData::Value &value)
     return new Exiv2::ValueType<uint16_t>(v);
 }
 
-// ---- Implementation of KisExifIO ----//
 KisExifIO::KisExifIO()
     : KisMetaData::IOBackend()
 {
@@ -438,7 +427,7 @@ bool KisExifIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Hea
             if (entry.schema()->uri() == KisMetaData::Schema::TIFFSchemaUri) {
                 exivKey = "Exif.Image." + entry.name();
             } else if (entry.schema()->uri()
-                       == KisMetaData::Schema::EXIFSchemaUri) { // Distinguish between exif and gps
+                       == KisMetaData::Schema::EXIFSchemaUri) {
                 if (entry.name().left(3) == "GPS") {
                     exivKey = "Exif.GPSInfo." + entry.name();
                 } else {
@@ -479,7 +468,7 @@ bool KisExifIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Hea
                     v = new Exiv2::DataValue((const Exiv2::byte *)s, 1);
                 } else if (exivKey == "Exif.Photo.ComponentsConfiguration") {
                     v = kmdIntOrderedArrayToExifArray(entry.value());
-                } else if (exivKey == "Exif.Image.Artist") { // load as dc:creator
+                } else if (exivKey == "Exif.Image.Artist") {
                     KisMetaData::Value creator = entry.value();
                     if (entry.value().asArray().size() > 0) {
                         creator = entry.value().asArray()[0];
@@ -528,7 +517,7 @@ bool KisExifIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Hea
                     exifData.add(exifKey, v);
                 } else {
                     dbgMetaData << "No exif value was created for" << entry.qualifiedName() << " as"
-                                << exivKey; // << " of KMD value" << entry.value();
+                                << exivKey;
                 }
             }
 #if EXIV2_TEST_VERSION(0,28,0)
@@ -551,9 +540,9 @@ bool KisExifIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Hea
     return true;
 }
 
-bool KisExifIO::canSaveAllEntries(KisMetaData::Store * /*store*/) const
+bool KisExifIO::canSaveAllEntries(KisMetaData::Store * ) const
 {
-    return false; // It's a known fact that exif can't save all information, but TODO: write the check
+    return false;
 }
 
 bool KisExifIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
@@ -606,19 +595,18 @@ bool KisExifIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
             dbgMetaData << it.key().c_str() << " is ignored";
         } else if (tag == Exif::Photo::MakerNote) {
             store->addEntry({makerNoteSchema, "RawData", exivValueToKMDValue(it.getValue(), false)});
-        } else if (tag == Exif::Image::DateTime) { // load as xmp:ModifyDate
+        } else if (tag == Exif::Image::DateTime) {
             store->addEntry({xmpSchema, "ModifyDate", exivValueToKMDValue(it.getValue(), false)});
-        } else if (tag == Exif::Image::ImageDescription) { // load as "dc:description"
+        } else if (tag == Exif::Image::ImageDescription) {
             store->addEntry({dcSchema, "description", exivValueToKMDValue(it.getValue(), false)});
-        } else if (tag == Exif::Image::Software) { // load as "xmp:CreatorTool"
+        } else if (tag == Exif::Image::Software) {
             store->addEntry({xmpSchema, "CreatorTool", exivValueToKMDValue(it.getValue(), false)});
-        } else if (tag == Exif::Image::Artist) { // load as dc:creator
+        } else if (tag == Exif::Image::Artist) {
             QList<KisMetaData::Value> creators = {exivValueToKMDValue(it.getValue(), false)};
             store->addEntry({dcSchema, "creator", {creators, KisMetaData::Value::OrderedArray}});
-        } else if (tag == Exif::Image::Copyright) { // load as dc:rights
+        } else if (tag == Exif::Image::Copyright) {
             store->addEntry({dcSchema, "rights", exivValueToKMDValue(it.getValue(), false)});
         } else if (it.groupName() == "Image") {
-            // Tiff tags
             const QString fixedTN(it.tagName().c_str());
             if (tag == Exif::Image::ExifTag || tag == Exif::Image::GPSTag) {
                 dbgMetaData << "Ignoring " << it.key().c_str();
@@ -628,7 +616,6 @@ bool KisExifIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
                 dbgMetaData << "Invalid tag name: " << fixedTN;
             }
         } else if (it.groupName() == "Photo") {
-            // Exif tags
             KisMetaData::Value metaDataValue;
             if (tag == Exif::Photo::ExifVersion || tag == Exif::Photo::FlashpixVersion) {
                 metaDataValue = exifVersionToKMDValue(it.getValue());
@@ -678,8 +665,7 @@ bool KisExifIO::loadFrom(KisMetaData::Store *store, QIODevice *ioDevice) const
                 metaDataValue = exivValueToKMDValue(it.getValue(), forceSeq, arrayType);
             }
             if (tag == Exif::Photo::InteroperabilityTag || tag == 0xea1d
-                || metaDataValue.type() == KisMetaData::Value::Invalid) { // InteroperabilityTag isn't useful for XMP,
-                // 0xea1d isn't a valid Exif tag
+                || metaDataValue.type() == KisMetaData::Value::Invalid) {
                 warnMetaData << "Ignoring " << it.key().c_str();
 
             } else {

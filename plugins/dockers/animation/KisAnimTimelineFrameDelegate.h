@@ -9,7 +9,6 @@
 
 #include <QItemDelegate>
 
-
 class KisAnimTimelineFrameDelegate : public QItemDelegate
 {
 public:
@@ -18,7 +17,6 @@ public:
 
     static void paintActiveFrameSelector(QPainter *painter, const QRect &rc, bool isCurrentFrame);
 
-    /// the opacity keyframe
     void paintSpecialKeyframeIndicator(QPainter *painter, const QModelIndex &index, const QRect &rc) const;
 
     void drawBackground(QPainter *painter, const QModelIndex &index, const QRect &rc) const;
@@ -34,4 +32,4 @@ private:
     QPixmap stripes;
 };
 
-#endif /* __TIMELINE_FRAMES_ITEM_DELEGATE_H */
+#endif

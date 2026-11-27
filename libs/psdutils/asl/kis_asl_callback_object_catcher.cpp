@@ -237,10 +237,6 @@ void KisAslCallbackObjectCatcher::addUnitRect(const QString &path, const QString
     }
 }
 
-/*****************************************************************/
-/*      Subscription methods                                      */
-/*****************************************************************/
-
 void KisAslCallbackObjectCatcher::subscribeDouble(const QString &path, ASLCallbackDouble callback)
 {
     m_d->mapDouble.insert(path, callback);

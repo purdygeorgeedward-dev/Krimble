@@ -36,4 +36,4 @@ private:
     KoID m_compositeOp;
 };
 
-#endif // KISWDGFILTERFASTCOLOROVERLAY_H
+#endif

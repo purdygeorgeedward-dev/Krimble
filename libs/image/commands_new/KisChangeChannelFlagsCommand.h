@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_CHANGE_CHANNEL_FLAGS_COMMAND_H_
 #define KIS_CHANGE_CHANNEL_FLAGS_COMMAND_H_
 
@@ -22,7 +21,6 @@ public:
     KisChangeChannelFlagsCommand(const QBitArray &newFlags,
                                  KisLayerSP layer,
                                  KUndo2Command *parentCommand = 0);
-
 
     KisChangeChannelFlagsCommand(const QBitArray &newFlags,
                                  const QBitArray &oldFlags,

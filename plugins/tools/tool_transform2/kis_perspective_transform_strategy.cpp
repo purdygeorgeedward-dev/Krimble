@@ -63,15 +63,10 @@ struct KisPerspectiveTransformStrategy::Private
 
     KisPerspectiveTransformStrategy *q;
 
-    /// standard members ///
-
     const KisCoordinatesConverter *converter;
 
-    //////
     ToolTransformArgs &currentArgs;
-    //////
     TransformTransactionProperties &transaction;
-
 
     QTransform thumbToImageTransform;
     QImage originalImage;
@@ -80,8 +75,6 @@ struct KisPerspectiveTransformStrategy::Private
     QPointF paintingOffset;
 
     QTransform handlesTransform;
-
-    /// custom members ///
 
     StrokeFunction function {NONE};
 
@@ -225,7 +218,6 @@ void KisPerspectiveTransformStrategy::paint(QPainter &gc, const KoColorDisplayRe
 
     gc.restore();
 
-    // Draw Handles
     QPainterPath handles;
 
     handles.moveTo(m_d->transaction.originalTopLeft());
@@ -233,7 +225,6 @@ void KisPerspectiveTransformStrategy::paint(QPainter &gc, const KoColorDisplayRe
     handles.lineTo(m_d->transaction.originalBottomRight());
     handles.lineTo(m_d->transaction.originalBottomLeft());
     handles.lineTo(m_d->transaction.originalTopLeft());
-
 
     auto addHandleRectFunc =
         [&](const QPointF &pt) {
@@ -259,18 +250,6 @@ void KisPerspectiveTransformStrategy::paint(QPainter &gc, const KoColorDisplayRe
         gc.setOpacity(0.1);
     }
 
-    /**
-     * WARNING: we cannot install a transform to paint the handles here!
-     *
-     * There is a bug in Qt that prevents painting of cosmetic-pen
-     * brushes in openGL mode when a TxProject matrix is active on
-     * a QPainter. So just convert it manually.
-     *
-     * https://bugreports.qt-project.org/browse/QTBUG-42658
-     */
-
-    //gc.setTransform(m_d->handlesTransform, true); <-- don't do like this!
-
     QPainterPath mappedHandles = m_d->handlesTransform.map(handles);
 
     QPen pen[2];
@@ -287,7 +266,7 @@ void KisPerspectiveTransformStrategy::paint(QPainter &gc, const KoColorDisplayRe
 
     gc.restore();
 
-    { // painting perspective handles
+    {
         QPainterPath perspectiveHandles;
 
         QRectF handleRect =
@@ -420,22 +399,7 @@ void KisPerspectiveTransformStrategy::Private::transformIntoArgs(const Eigen::Ma
 
     m = T.inverse() * m;
 
-    /**
-     * We disabled decomposed transformation due to bug
-     * https://bugs.kde.org/show_bug.cgi?id=447255
-     *
-     * In some cases decomposed preliminary transformation
-     * shrinks the image into a very small size, which is later
-     * inflated by the perspective transform. It creates a really
-     * bad and blurry result.
-     *
-     * Even though the usage of preliminary rotation makes the bug
-     * much less obvious, but the image is still really blurred.
-     */
-
 #if 0
-    // Decomposition according to:
-    // https://www.w3.org/TR/css-transforms-1/#decomposing-a-3d-matrix
     KisAlgebra2D::DecomposedMatrix dm(toQTransform(m));
 
     currentArgs.setScaleX(dm.scaleX);
@@ -494,10 +458,8 @@ void KisPerspectiveTransformStrategy::continuePrimaryAction(const QPointF &mouse
         KIS_ASSERT_RECOVER_RETURN(m_d->currentDraggingHandlePoint >= 0);
         KIS_ASSERT_RECOVER_RETURN(m_d->currentDraggingHandlePoint < HANDLE_COUNT);
         if (m_d->currentDraggingHandlePoint < HANDLE_MIDDLE_TOP) {
-            // Corner point, transform directly.
             m_d->dstHandlePoints[m_d->currentDraggingHandlePoint] = mousePos;
         } else {
-            // Middle point, move adjacent corners.
             QPointF delta = mousePos - m_d->dstHandlePoints[m_d->currentDraggingHandlePoint];
             switch(m_d->currentDraggingHandlePoint) {
             case HANDLE_MIDDLE_TOP:
@@ -523,13 +485,10 @@ void KisPerspectiveTransformStrategy::continuePrimaryAction(const QPointF &mouse
         Eigen::Matrix3f B = getTransitionMatrix(m_d->dstHandlePoints);
         Eigen::Matrix3f result = B * A.inverse();
 
-        // Points in dstHandlePoints are not arranged in an organized way, so if we used it directly as a polygon it
-        // will never be considered convex
         QPolygonF poly;
         poly << m_d->dstHandlePoints[HANDLE_TOP_LEFT] << m_d->dstHandlePoints[HANDLE_TOP_RIGHT]
              << m_d->dstHandlePoints[HANDLE_BOTTOM_RIGHT] << m_d->dstHandlePoints[HANDLE_BOTTOM_LEFT];
 
-        //Don't apply the handle movement if it makes the transform area not convex
         if (!KisAlgebra2D::isPolygonTrulyConvex(poly)) {
             break;
         }
@@ -581,7 +540,6 @@ void KisPerspectiveTransformStrategy::continuePrimaryAction(const QPointF &mouse
 
         if (m_d->function == DRAG_X_VANISHING_POINT) {
 
-            // topLeft (far) --- topRight (near) --- vanishing
             if (kisSquareDistance(v_dst, tl_dst) > kisSquareDistance(v_dst, tr_dst)) {
                 far1_src = tl;
                 far2_src = bl;
@@ -593,7 +551,6 @@ void KisPerspectiveTransformStrategy::continuePrimaryAction(const QPointF &mouse
                 near1_dst = tr_dst;
                 near2_dst = br_dst;
 
-                // topRight (far) --- topLeft (near) --- vanishing
             } else {
                 far1_src = tr;
                 far2_src = br;
@@ -606,8 +563,7 @@ void KisPerspectiveTransformStrategy::continuePrimaryAction(const QPointF &mouse
                 near2_dst = bl_dst;
             }
 
-        } else /* if (m_d->function == DRAG_Y_VANISHING_POINT) */{
-            // topLeft (far) --- bottomLeft (near) --- vanishing
+        } else {
             if (kisSquareDistance(v_dst, tl_dst) > kisSquareDistance(v_dst, bl_dst)) {
                 far1_src = tl;
                 far2_src = tr;
@@ -619,7 +575,6 @@ void KisPerspectiveTransformStrategy::continuePrimaryAction(const QPointF &mouse
                 near1_dst = bl_dst;
                 near2_dst = br_dst;
 
-                // bottomLeft (far) --- topLeft (near) --- vanishing
             } else {
                 far1_src = bl;
                 far2_src = br;
@@ -685,7 +640,6 @@ void KisPerspectiveTransformStrategy::Private::recalculateTransformations()
     paintingTransform = tl.inverted() * q->thumbToImageTransform() * tl * transform * viewScaleTransform;
     paintingOffset = transaction.originalTopLeft();
 
-    // check whether image is too big to be displayed or not
     const qreal maxScale = 20.0;
 
     imageTooBig = false;
@@ -736,7 +690,6 @@ void KisPerspectiveTransformStrategy::Private::recalculateTransformations()
         }
     }
 
-    // recalculate cached handles position
     recalculateTransformedHandles();
 
     Q_EMIT q->requestShowImageTooBig(imageTooBig);

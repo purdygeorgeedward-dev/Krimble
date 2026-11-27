@@ -11,7 +11,6 @@
 
 class KisPainter;
 
-
 class KRITAIMAGE_EXPORT KisLayerStyleKnockoutBlower
 {
 public:
@@ -23,7 +22,6 @@ public:
     void setKnockoutSelection(KisSelectionSP selection);
     void resetKnockoutSelection();
 
-
     void apply(KisPainter *painter, KisPaintDeviceSP mergedStyle, const QRect &rect) const;
     bool isEmpty() const;
 
@@ -32,4 +30,4 @@ private:
     KisSelectionSP m_knockoutSelection;
 };
 
-#endif // KISLAYERSTYLEKNOCKOUTBLOWER_H
+#endif

@@ -27,16 +27,14 @@ public:
     ~Private() {
         delete[] indentBuffer;
         delete[] escapeBuffer;
-        //TODO: look at if we must delete "dev". For me we must delete it otherwise we will leak it
     }
 
     QIODevice* dev;
     QStack<Tag> tags;
     int baseIndentLevel;
 
-    char* indentBuffer; // maybe make it static, but then it needs a K_GLOBAL_STATIC
-    // and would eat 1K all the time... Maybe refcount it :)
-    char* escapeBuffer; // can't really be static if we want to be thread-safe
+    char* indentBuffer;
+    char* escapeBuffer;
 };
 
 KoXmlWriter::KoXmlWriter(QIODevice* dev, int indentLevel)
@@ -44,7 +42,7 @@ KoXmlWriter::KoXmlWriter(QIODevice* dev, int indentLevel)
 {
     d->indentBuffer = new char[ s_indentBufferLength ];
     memset(d->indentBuffer, ' ', s_indentBufferLength);
-    *d->indentBuffer = '\n'; // write newline before indentation, in one go
+    *d->indentBuffer = '\n';
 
     d->escapeBuffer = new char[s_escapeBufferLen];
     if (!d->dev->isOpen())
@@ -61,8 +59,6 @@ void KoXmlWriter::startDocument(const char* rootElemName, const char* publicId, 
 {
     Q_ASSERT(d->tags.isEmpty());
     writeCString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    // There isn't much point in a doctype if there's no DTD to refer to
-    // (I'm told that files that are validated by a RelaxNG schema cannot refer to the schema)
     if (publicId) {
         writeCString("<!DOCTYPE ");
         writeCString(rootElemName);
@@ -77,12 +73,10 @@ void KoXmlWriter::startDocument(const char* rootElemName, const char* publicId, 
 
 void KoXmlWriter::endDocument()
 {
-    // just to do exactly like QDom does (newline at end of file).
     writeChar('\n');
     Q_ASSERT(d->tags.isEmpty());
 }
 
-// returns the value of indentInside of the parent
 bool KoXmlWriter::prepareForChild(bool indentInside)
 {
     if (!d->tags.isEmpty()) {
@@ -116,21 +110,17 @@ void KoXmlWriter::startElement(const char* tagName, bool indentInside)
 {
     Q_ASSERT(tagName != 0);
 
-    // Tell parent that it has children
     indentInside = prepareForChild(indentInside);
 
     d->tags.push(Tag(tagName, indentInside));
     writeChar('<');
     writeCString(tagName);
-    //kDebug(s_area) << tagName;
 }
 
 void KoXmlWriter::addCompleteElement(QIODevice* indev)
 {
     prepareForChild();
     const bool wasOpen = indev->isOpen();
-    // Always (re)open the device in readonly mode, it might be
-    // already open but for writing, and we need to rewind.
     const bool openOk = indev->open(QIODevice::ReadOnly);
     Q_ASSERT(openOk);
     if (!openOk) {
@@ -151,7 +141,6 @@ void KoXmlWriter::addCompleteElement(QIODevice* indev)
     }
 
     if (!wasOpen) {
-        // Restore initial state
         indev->close();
     }
 }
@@ -180,7 +169,6 @@ void KoXmlWriter::endElement()
 
 void KoXmlWriter::addTextNode(const QByteArray& cstr)
 {
-    // Same as the const char* version below, but here we know the size
     prepareForTextNode();
     char* escaped = escapeForXML(cstr.constData(), cstr.size());
     writeCString(escaped);
@@ -199,7 +187,6 @@ void KoXmlWriter::addTextNode(const char* cstr)
 
 void KoXmlWriter::addAttribute(const char* attrName, const QByteArray& value)
 {
-    // Same as the const char* one, but here we know the size
     writeChar(' ');
     writeCString(attrName);
     writeCString("=\"");
@@ -234,31 +221,21 @@ void KoXmlWriter::addAttribute(const char* attrName, float value)
 
 void KoXmlWriter::writeIndent()
 {
-    // +1 because of the leading '\n'
     d->dev->write(d->indentBuffer, qMin(d->tags.size() + d->baseIndentLevel + 1,
                                         s_indentBufferLength));
 }
 
-
-// In case of a reallocation (ret value != d->buffer), the caller owns the return value,
-// it must delete it (with [])
 char* KoXmlWriter::escapeForXML(const char* source, int length = -1) const
 {
-    // we're going to be pessimistic on char length; so lets make the outputLength less
-    // the amount one char can take: 6
     char* destBoundary = d->escapeBuffer + s_escapeBufferLen - 6;
     char* destination = d->escapeBuffer;
     char* output = d->escapeBuffer;
-    const char* src = source; // src moves, source remains
+    const char* src = source;
     for (;;) {
         if (destination >= destBoundary) {
-            // When we come to realize that our escaped string is going to
-            // be bigger than the escape buffer (this shouldn't happen very often...),
-            // we drop the idea of using it, and we allocate a bigger buffer.
-            // Note that this if() can only be hit once per call to the method.
             if (length == -1)
-                length = qstrlen(source);   // expensive...
-            uint newLength = length * 6 + 1; // worst case. 6 is due to &quot; and &apos;
+                length = qstrlen(source);
+            uint newLength = length * 6 + 1;
             char* buffer = new char[ newLength ];
             destBoundary = buffer + newLength;
             uint amountOfCharsAlreadyCopied = destination - d->escapeBuffer;
@@ -267,39 +244,37 @@ char* KoXmlWriter::escapeForXML(const char* source, int length = -1) const
             destination = buffer + amountOfCharsAlreadyCopied;
         }
         switch (*src) {
-        case 60: // <
+        case 60:
             memcpy(destination, "&lt;", 4);
             destination += 4;
             break;
-        case 62: // >
+        case 62:
             memcpy(destination, "&gt;", 4);
             destination += 4;
             break;
-        case 34: // "
+        case 34:
             memcpy(destination, "&quot;", 6);
             destination += 6;
             break;
-#if 0 // needed?
-        case 39: // '
+#if 0
+        case 39:
             memcpy(destination, "&apos;", 6);
             destination += 6;
             break;
 #endif
-        case 38: // &
+        case 38:
             memcpy(destination, "&amp;", 5);
             destination += 5;
             break;
         case 0:
             *destination = '\0';
             return output;
-        // Control codes accepted in XML 1.0 documents.
         case 9:
         case 10:
         case 13:
             *destination++ = *src++;
             continue;
         default:
-            // Don't add control codes not accepted in XML 1.0 documents.
             if (*src > 0 && *src < 32) {
                 ++src;
             } else {
@@ -309,7 +284,6 @@ char* KoXmlWriter::escapeForXML(const char* source, int length = -1) const
         }
         ++src;
     }
-    // NOTREACHED (see case 0)
     return output;
 }
 
@@ -321,12 +295,10 @@ void KoXmlWriter::addManifestEntry(const QString& fullPath, const QString& media
     endElement();
 }
 
-// TODO check return value!!!
 void KoXmlWriter::writeCString(const char* cstr) {
     d->dev->write(cstr, qstrlen(cstr));
 }
 
-// TODO check return value!!!
 void KoXmlWriter::writeChar(char c) {
     d->dev->putChar(c);
 }

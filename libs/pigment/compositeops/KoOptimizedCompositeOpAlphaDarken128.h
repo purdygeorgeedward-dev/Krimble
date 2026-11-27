@@ -24,18 +24,6 @@ struct AlphaDarkenCompositor128 {
         channels_type alpha;
     };
 
-    /**
-     * This is a vector equivalent of compositeOnePixelScalar(). It is considered
-     * to process float_v::size pixels in a single pass.
-     *
-     * o the \p haveMask parameter points whether the real (non-null) mask
-     *   pointer is passed to the function.
-     * o the \p src pointer may be aligned to vector boundary or may be
-     *   not. In case not, it must be pointed with a special parameter
-     *   \p src_aligned.
-     * o the \p dst pointer must always(!) be aligned to the boundary
-     *   of a streaming vector. Unaligned writes are really expensive.
-     */
     template<bool haveMask, bool src_aligned, typename _impl>
     static ALWAYS_INLINE void compositeVector(const quint8 *src, quint8 *dst, const quint8 *mask, float opacity, const ParamsWrapper &oparams)
     {
@@ -61,10 +49,8 @@ struct AlphaDarkenCompositor128 {
             }
         }();
 
-        // we don't use directly passed value
         Q_UNUSED(opacity);
 
-        // instead we use value calculated by ParamsWrapper
         opacity = oparams.opacity;
         const float_v opacity_vec(opacity);
 
@@ -131,9 +117,6 @@ struct AlphaDarkenCompositor128 {
         dataWrapper.write(dst, dst_c1, dst_c2, dst_c3, dst_alpha);
     }
 
-    /**
-     * Composes one pixel of the source into the destination
-     */
     template <bool haveMask, typename _impl>
     static ALWAYS_INLINE void compositeOnePixelScalar(const quint8 *s, quint8 *d, const quint8 *mask, float opacity, const ParamsWrapper &oparams)
     {
@@ -190,11 +173,6 @@ struct AlphaDarkenCompositor128 {
     }
 };
 
-/**
- * An optimized version of a composite op for the use in 16 byte
- * colorspaces with alpha channel placed at the last byte of
- * the pixel: C1_C2_C3_A.
- */
 template<typename _impl, typename ParamsWrapper>
 class KoOptimizedCompositeOpAlphaDarken128Impl : public KoCompositeOp
 {
@@ -269,5 +247,4 @@ public:
         : KoOptimizedCompositeOpAlphaDarkenU64Impl<_impl, KoAlphaDarkenParamsWrapperCreamy>(cs) {}
 };
 
-
-#endif // KOOPTIMIZEDCOMPOSITEOPALPHADARKEN128_H
+#endif

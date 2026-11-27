@@ -49,22 +49,6 @@ struct hash<KisWeakSharedPtr<T>>
 
 }
 
-
-/**
- * Define lots of shared pointer versions of Krita classes.
- * Shared pointer classes have the advantage of near automatic
- * memory management (but beware of circular references)
- * These types should never be passed by reference,
- * because that will mess up their reference counter.
- *
- * An example of the naming pattern used:
- *
- * KisPaintDeviceSP is a KisSharedPtr of KisPaintDevice
- * KisPaintDeviceWSP is a KisWeakSharedPtr of KisPaintDevice
- * vKisPaintDeviceSP is a QVector of KisPaintDeviceSP
- * vKisPaintDeviceSP_it is an iterator of vKisPaintDeviceSP
- *
- */
 class KisImage;
 typedef KisSharedPtr<KisImage> KisImageSP;
 typedef KisWeakSharedPtr<KisImage> KisImageWSP;
@@ -193,7 +177,6 @@ class KisReferenceImage;
 typedef QSharedPointer<KisReferenceImage> KisReferenceImageSP;
 typedef QWeakPointer<KisReferenceImage> KisReferenceImageWSP;
 
-// Repeat iterators
 class KisHLineIterator2;
 template<class T> class KisRepeatHLineIteratorPixelBase;
 typedef KisRepeatHLineIteratorPixelBase< KisHLineIterator2 > KisRepeatHLineConstIteratorNG;
@@ -204,8 +187,6 @@ template<class T> class KisRepeatVLineIteratorPixelBase;
 typedef KisRepeatVLineIteratorPixelBase< KisVLineIterator2 > KisRepeatVLineConstIteratorNG;
 typedef KisSharedPtr<KisRepeatVLineConstIteratorNG> KisRepeatVLineConstIteratorSP;
 
-
-// NG Iterators
 class KisHLineIteratorNG;
 typedef KisSharedPtr<KisHLineIteratorNG> KisHLineIteratorSP;
 
@@ -226,8 +207,6 @@ typedef KisSharedPtr<KisRandomAccessorNG> KisRandomAccessorSP;
 
 class KisRandomSubAccessor;
 typedef KisSharedPtr<KisRandomSubAccessor> KisRandomSubAccessorSP;
-
-// Things
 
 typedef QVector<QPointF> vQPointF;
 
@@ -329,10 +308,6 @@ typedef QVector<StoryboardComment> StoryboardCommentList;
 class KisImageResolutionProxy;
 using KisImageResolutionProxySP = QSharedPointer<KisImageResolutionProxy>;
 
-/**
- * Thumbnail generation mode, 'Precise' means to use exactBounds() and
- * 'Coarse' means to use extent() for the thumbnail generation.
- */
 enum class KisThumbnailBoundsMode {
     Coarse,
     Precise
@@ -344,5 +319,5 @@ enum class KisThumbnailBoundsMode {
 #include <kis_restricted_shared_ptr.h>
 #include <kis_pinned_shared_ptr.h>
 
-#endif // KISTYPES_H_
+#endif
 

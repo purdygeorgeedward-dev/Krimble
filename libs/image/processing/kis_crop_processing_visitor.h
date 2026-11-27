@@ -11,7 +11,6 @@
 #include <QRect>
 #include "kis_types.h"
 
-
 class KRITAIMAGE_EXPORT  KisCropProcessingVisitor : public KisSimpleProcessingVisitor
 {
 public:
@@ -37,4 +36,4 @@ private:
     bool m_moveLayers;
 };
 
-#endif /* __KIS_CROP_PROCESSING_VISITOR_H */
+#endif

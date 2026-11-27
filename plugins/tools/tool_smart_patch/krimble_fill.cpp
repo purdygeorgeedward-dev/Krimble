@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-10-19: moved here from content_aware_fill_plugin.cpp (krimbleContentAwareFill, 2026-10-18 and 19) so that the healing brush can use it too,
-// with a choice of method (George: "Make the different types options in the tool options panel.").
 #include "krimble_fill.h"
 #include "krimble_inpaint.h"
 
@@ -71,7 +69,7 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     for (int y = 0; y < h; ++y) std::memcpy(&pixels[size_t(y) * w * 4], img.constScanLine(y), size_t(w) * 4);
 
     std::vector<uint8_t> maskBytes(size_t(w) * h);
-    maskDev->readBytes(maskBytes.data(), roi);                            // the selection is an 8-bit alpha device: one byte per pixel
+    maskDev->readBytes(maskBytes.data(), roi);
     std::vector<uint8_t> hole(size_t(w) * h);
     size_t holeCount = 0;
     for (size_t i = 0; i < hole.size(); ++i) { hole[i] = maskBytes[i] > 127 ? 1 : 0; holeCount += hole[i]; }
@@ -93,7 +91,6 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     for (uint8_t v : filled) filledCount += v ? 1 : 0;
     if (filledCount == 0) return say(QStringLiteral("nothing filled"));
 
-    // the result, in the colour space of the layer, and only the replaced pixels copied
     QImage out(w, h, QImage::Format_ARGB32);
     for (int y = 0; y < h; ++y) std::memcpy(out.scanLine(y), &pixels[size_t(y) * w * 4], size_t(w) * 4);
     KisPaintDeviceSP result = new KisPaintDevice(imageDev->colorSpace());

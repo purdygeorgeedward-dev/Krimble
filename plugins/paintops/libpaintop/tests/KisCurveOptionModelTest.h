@@ -15,4 +15,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif // KISCURVEOPTIONMODELTEST_H
+#endif

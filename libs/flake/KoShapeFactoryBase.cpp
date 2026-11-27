@@ -25,7 +25,6 @@
 #include <QMutex>
 #include <QPointer>
 
-
 #include <FlakeDebug.h>
 
 class Q_DECL_HIDDEN KoShapeFactoryBase::Private
@@ -57,11 +56,10 @@ public:
     QString tooltip;
     QString iconName;
     int loadingPriority;
-    QList<QPair<QString, QStringList> > xmlElements; // xml name space -> xml element names
+    QList<QPair<QString, QStringList> > xmlElements;
     bool hidden;
     QList<QPointer<KoDocumentResourceManager> > resourceManagers;
 };
-
 
 KoShapeFactoryBase::KoShapeFactoryBase(const QString &id, const QString &name, const QString &deferredPluginName)
     : d(new Private(id, name, deferredPluginName))

@@ -63,6 +63,5 @@ KisColorSource* KisColorSourceOption::createColorSource(const KisPainter* _paint
 
     }
     }
-    // Fallback in case the patterns are messed up
     return new KisPlainColorSource(_painter->backgroundColor(), _painter->paintColor());
 }

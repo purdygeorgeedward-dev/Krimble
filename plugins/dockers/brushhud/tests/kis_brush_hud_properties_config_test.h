@@ -16,4 +16,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif /* __KIS_BRUSH_HUD_PROPERTIES_CONFIG_TEST_H */
+#endif

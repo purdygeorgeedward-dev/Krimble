@@ -14,7 +14,7 @@
 #include <filter/kis_filter_configuration.h>
 #include <KisGlobalResourcesInterface.h>
 
-KisWdgSimplexNoise::KisWdgSimplexNoise(KisFilter* /*nfilter*/, QWidget* parent)
+KisWdgSimplexNoise::KisWdgSimplexNoise(KisFilter* , QWidget* parent)
         : KisConfigWidget(parent),
           updateCompressor(250, KisSignalCompressor::Mode::POSTPONE)
 {
@@ -75,5 +75,4 @@ KisPropertiesConfigurationSP KisWdgSimplexNoise::configuration() const
     config->setProperty("seed", this->seed);
     return config;
 }
-
 

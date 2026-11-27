@@ -30,4 +30,4 @@ private:
     KoSvgText::TextOnPathInfo m_newInfo;
 };
 
-#endif // SVGTEXTPATHINFOCHANGECOMMAND_H
+#endif

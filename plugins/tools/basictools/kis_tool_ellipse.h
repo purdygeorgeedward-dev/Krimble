@@ -18,7 +18,6 @@
 #include <kis_tool_ellipse_base.h>
 #include <kis_icon.h>
 
-
 class KoCanvasBase;
 
 class KisToolEllipse : public KisToolEllipseBase
@@ -60,6 +59,5 @@ public:
 
 };
 
-
-#endif //__KIS_TOOL_ELLIPSE_H__
+#endif
 

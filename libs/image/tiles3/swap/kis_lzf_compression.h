@@ -20,8 +20,7 @@ public:
 
     qint32 outputBufferSize(qint32 dataSize) override;
 
-    //void adjustForDataSize(qint32 dataSize);
 };
 
-#endif /* __KIS_LZF_COMPRESSION_H */
+#endif
 

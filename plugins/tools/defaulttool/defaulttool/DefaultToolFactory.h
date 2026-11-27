@@ -10,11 +10,9 @@
 
 #include <KoToolFactoryBase.h>
 
-/// Factory for the KoInteractionTool
 class DefaultToolFactory : public KoToolFactoryBase
 {
 public:
-    /// constructor
     DefaultToolFactory();
     DefaultToolFactory(const QString &id);
     ~DefaultToolFactory() override;

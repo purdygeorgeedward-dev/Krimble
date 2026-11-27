@@ -35,7 +35,6 @@ KisOptimizedBrushOutline KisSketchPaintOpSettings::brushOutline(const KisPaintIn
     KisBrushSP brush = this->brush();
 
     if (brush && mode.isVisible) {
-        // just circle supported
         qreal diameter = qMax(brush->width(), brush->height());
         path = ellipseOutline(diameter, diameter, 1.0, 0.0);
 

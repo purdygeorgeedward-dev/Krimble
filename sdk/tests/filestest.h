@@ -83,8 +83,6 @@ void testFiles(const QString& _dirname, const QStringList& exclusions, const QSt
             doc->image()->waitForDone();
             QImage sourceImage = doc->image()->projection()->convertToQImage(0, doc->image()->bounds());
 
-
-
             QImage resultImage(resultFileInfo.absoluteFilePath());
             resultImage.convertTo(QImage::Format_ARGB32);
             sourceImage.convertTo(QImage::Format_ARGB32);
@@ -110,7 +108,6 @@ void testFiles(const QString& _dirname, const QStringList& exclusions, const QSt
 
     QFAIL("Failed testing files");
 }
-
 
 void prepareFile(QFileInfo sourceFileInfo, bool removePermissionToWrite, bool removePermissionToRead)
 {
@@ -172,12 +169,9 @@ const QString &impexTempFilesDir() {
     return s_path;
 }
 
-
 void testImportFromWriteonly(QString mimetype)
 {
 #ifdef Q_OS_WIN
-    /// on Windows one cannot create a write-only file, so just skip this test
-    /// (but keep it compiled to avoid compilation issues)
     QSKIP("Cannot test write-only file on Windows.");
 #endif
 
@@ -229,7 +223,6 @@ void testImportFromWriteonly(QString mimetype)
     }
 
 }
-
 
 void testExportToReadonly(QString mimetype)
 {
@@ -285,8 +278,6 @@ void testExportToReadonly(QString mimetype)
     }
 }
 
-
-
 void testImportIncorrectFormat(QString mimetype)
 {
     QString incorrectFormatFilename = impexTempFilesDir() + "incorrectFormatFile.txt";
@@ -312,10 +303,9 @@ void testImportIncorrectFormat(QString mimetype)
 
     QVERIFY(!status.isOk());
     QVERIFY(status == KisImportExportErrorCode(ImportExportCodes::FileFormatIncorrect)
-            || status == KisImportExportErrorCode(ImportExportCodes::ErrorWhileReading)); // in case the filter doesn't know if it can't read or just parse
+            || status == KisImportExportErrorCode(ImportExportCodes::ErrorWhileReading));
 
 }
-
 
 void testExportToColorSpace(QString mimetype, const KoColorSpace* space, KisImportExportErrorCode expected)
 {
@@ -378,11 +368,6 @@ void testExportToColorSpace(QString mimetype, const KoColorSpace* space, KisImpo
     QVERIFY(statusExport.isOk());
     QVERIFY(statusExport == expected);
 }
-
-
-
-
-
 
 }
 #endif

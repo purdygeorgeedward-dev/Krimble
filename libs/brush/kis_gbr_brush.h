@@ -30,18 +30,14 @@ protected:
 
 public:
 
-    /// Construct brush to load filename later as brush
     KisGbrBrush(const QString& filename);
 
-    /// Load brush from the specified data, at position dataPos, and set the filename
     KisGbrBrush(const QString& filename,
                 const QByteArray & data,
                 qint32 & dataPos);
 
-    /// Load brush from the specified paint device, in the specified region
     KisGbrBrush(KisPaintDeviceSP image, int x, int y, int w, int h);
 
-    /// Load brush as a copy from the specified QImage (handy when you need to copy a brush!)
     KisGbrBrush(const QImage& image, const QString& name = QString());
 
     ~KisGbrBrush() override;
@@ -59,25 +55,11 @@ public:
         return QPair<QString, QString>(ResourceType::Brushes, ResourceSubType::GbrBrushes);
     }
 
-    /**
-     * Convert the mask to inverted gray scale, so it is alpha mask.
-     * It can be used as MASK brush type. This operates on the data of the brush,
-     * so it destruct the original brush data.
-     *
-     * @param preserveAlpha convert to grayscale, but save as full RGBA format, to allow
-     *                      preserving lightness option
-     */
     virtual void makeMaskImage(bool preserveAlpha);
 
-    /**
-     * @return default file extension for saving the brush
-     */
     QString defaultFileExtension() const override;
 
 protected:
-    /**
-     * save the content of this brush to an IO device
-     */
     friend class KisImageBrushesPipe;
     friend class KisBrushExport;
 
@@ -96,5 +78,5 @@ private:
 
 typedef QSharedPointer<KisGbrBrush> KisGbrBrushSP;
 
-#endif // KIS_GBR_BRUSH_
+#endif
 

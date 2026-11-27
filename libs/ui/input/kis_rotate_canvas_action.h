@@ -9,25 +9,16 @@
 
 #include "kis_abstract_input_action.h"
 
-/**
- * \brief Rotate Canvas implementation of KisAbstractInputAction.
- *
- * The Rotate Canvas action rotates the canvas.
- */
-
 class KisRotateCanvasAction : public KisAbstractInputAction
 {
 
 public:
-    /**
-     * The different behaviours for this action.
-     */
     enum Shortcut {
-        RotateModeShortcut, ///< Toggle Rotate mode.
-        DiscreteRotateModeShortcut, ///< Toggle Discrete Rotate mode.
-        RotateLeftShortcut, ///< Rotate left by a fixed amount.
-        RotateRightShortcut, ///< Rotate right by a fixed amount.
-        RotateResetShortcut ///< Reset the rotation to 0.
+        RotateModeShortcut,
+        DiscreteRotateModeShortcut,
+        RotateLeftShortcut,
+        RotateRightShortcut,
+        RotateResetShortcut
     };
     explicit KisRotateCanvasAction();
     ~KisRotateCanvasAction() override;
@@ -49,4 +40,4 @@ private:
     Private * const d {nullptr};
 };
 
-#endif // KIS_ROTATE_CANVAS_ACTION_H
+#endif

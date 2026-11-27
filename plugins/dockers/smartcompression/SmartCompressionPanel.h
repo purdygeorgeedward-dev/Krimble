@@ -31,22 +31,19 @@ class SmartCompressionPanel : public QWidget
 public:
     enum Protect { ProtectSmart = 0, ProtectSelection = 1, ProtectNone = 2 };
 
-    // the pictures for the header and the buttons are handed in (the dock loads them from the program's icon set, a test loads files)
     struct Icons {
         QIcon wand, picture, regions, rectangle, freehand, invert, all, save;
-        QPixmap logo;   // the SmartCompression logo
+        QPixmap logo;
     };
 
     explicit SmartCompressionPanel(const Icons &icons, QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        // the chosen Protection row is marked with a soft blue field (as in the mockup)
         setStyleSheet(QStringLiteral("QRadioButton:checked { background: rgba(11, 135, 221, 70); border: 1px solid #0b87dd; border-radius: 6px; }"));
         QVBoxLayout *root = new QVBoxLayout(this);
         root->setContentsMargins(0, 0, 0, 6);
         root->setSpacing(8);
 
-        // the header: the wand and the logo on a black band
         QWidget *band = new QWidget(this);
         band->setStyleSheet(QStringLiteral("background: #000000;"));
         QHBoxLayout *bandLayout = new QHBoxLayout(band);
@@ -67,7 +64,6 @@ public:
         bodyLayout->setSpacing(8);
         root->addWidget(body);
 
-        // Whole Picture / Regions
         QHBoxLayout *modeRow = new QHBoxLayout();
         modeRow->setSpacing(6);
         m_whole = new QPushButton(icons.picture, QStringLiteral(" ") + tr("Whole Picture"), body);
@@ -84,13 +80,11 @@ public:
         bodyLayout->addLayout(modeRow);
         connect(m_regions, &QPushButton::toggled, this, &SmartCompressionPanel::regionsToggled);
 
-        // JPEG Quality and Smart Compression
         addSliderRow(bodyLayout, body, tr("JPEG Quality"), 85, &m_quality, &m_qualitySpin);
         addSliderRow(bodyLayout, body, tr("Smart Compression"), 35, &m_level, &m_levelSpin);
         m_levelSpin->setSuffix(QStringLiteral("%"));
         bodyLayout->addWidget(divider(body));
 
-        // Protection
         QLabel *protection = new QLabel(tr("Protection"), body);
         QFont f = protection->font();
         f.setPointSizeF(f.pointSizeF() * 1.15);
@@ -109,7 +103,6 @@ public:
         addSliderRow(bodyLayout, body, tr("Protection Sensitivity"), 35, &m_sensitivity, &m_sensitivitySpin);
         bodyLayout->addWidget(divider(body));
 
-        // the region tools: Rectangle, Freehand, Invert, All (enabled in Regions mode)
         m_tools = new QWidget(body);
         QHBoxLayout *toolsRow = new QHBoxLayout(m_tools);
         toolsRow->setContentsMargins(0, 0, 0, 0);
@@ -133,12 +126,10 @@ public:
         bodyLayout->addWidget(m_tools);
         bodyLayout->addWidget(divider(body));
 
-        // Extra Color, Grayscale, Progressive, each with a short line under it
         m_extraColor = addCheck(bodyLayout, body, tr("Extra Color"), tr("preserve subtle color"), false);
         m_grayscale = addCheck(bodyLayout, body, tr("Grayscale"), tr("convert to monochrome"), false);
         m_progressive = addCheck(bodyLayout, body, tr("Progressive"), tr("faster web loading"), true);
 
-        // the preview: Original, how much smaller, Compressed
         m_previewFrame = new QFrame(body);
         m_previewFrame->setObjectName(QStringLiteral("smartPreview"));
         m_previewFrame->setStyleSheet(QStringLiteral("QFrame#smartPreview { background: #0f1428; border: 1px solid #2d3866; border-radius: 10px; }"
@@ -169,7 +160,6 @@ public:
         previewGrid->setColumnStretch(2, 3);
         bodyLayout->addWidget(m_previewFrame);
 
-        // Save JPEG...
         QPushButton *save = new QPushButton(icons.save, QStringLiteral("  ") + tr("Save JPEG..."), body);
         save->setDefault(true);
         save->setMinimumHeight(44);
@@ -198,7 +188,6 @@ public:
     void setToolsEnabled(bool on) { m_tools->setEnabled(on); }
     bool isRegions() const { return m_regions->isChecked(); }
 
-    // the preview: the pictures (already scaled by the caller) and the sizes in bytes
     void setPreview(const QPixmap &original, const QPixmap &compressed, qint64 originalBytes, qint64 compressedBytes)
     {
         m_originalPicture->setPixmap(original);

@@ -126,8 +126,8 @@ public:
         return 0;
     }
 
-    void handleMouseMove(const QPointF & /*mouseLocation*/, Qt::KeyboardModifiers /*modifiers*/) override {}
-    void finishInteraction(Qt::KeyboardModifiers /*modifiers*/) override {}
+    void handleMouseMove(const QPointF & , Qt::KeyboardModifiers ) override {}
+    void finishInteraction(Qt::KeyboardModifiers ) override {}
 
     void paint(QPainter &painter, const KoViewConverter &converter, const KoColorDisplayRendererInterface *displayRendererInterface) override {
         Q_UNUSED(painter);
@@ -300,7 +300,6 @@ public:
         q->m_selectedMeshHandle = m_currentHandle;
         Q_EMIT q->meshgradientHandleSelected(m_currentHandle);
 
-
         if (m_currentHandle.type != KoShapeMeshGradientHandles::Handle::None) {
             KoShape *shape = onlyEditableShape();
             KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(shape, 0);
@@ -313,10 +312,8 @@ public:
 
     bool hoverEvent(KoPointerEvent *ev) override
     {
-        // for custom cursor
         KoShapeMeshGradientHandles::Handle handle = handleAt(ev->point);
 
-        // refresh
         if (handle.type != m_currentHandle.type && handle.type == KoShapeMeshGradientHandles::Handle::None) {
             q->repaintDecorations();
         }
@@ -324,7 +321,6 @@ public:
         m_currentHandle = handle;
         q->m_hoveredMeshHandle = m_currentHandle;
 
-        // highlight the decoration which is being hovered
         if (m_currentHandle.type != KoShapeMeshGradientHandles::Handle::None) {
             q->repaintDecorations();
         }
@@ -349,10 +345,8 @@ public:
         return false;
     }
 
-
 private:
     KoShape* onlyEditableShape() const {
-        // FIXME: copy of KoShapeGradientHandles
         KoSelection *selection = q->koSelection();
         QList<KoShape*> shapes = selection->selectedEditableShapes();
 
@@ -366,7 +360,6 @@ private:
 
     KoShapeMeshGradientHandles::Handle handleAt(const QPointF &pos) const
     {
-        // FIXME: copy of KoShapeGradientHandles. use a template?
         KoShapeMeshGradientHandles::Handle result;
 
         KoShape *shape = onlyEditableShape();
@@ -449,16 +442,6 @@ DefaultTool::DefaultTool(KoCanvasBase *canvas, bool connectToSelectedShapesProxy
     m_rotateCursors[5] = QCursor(rotatePixmap.transformed(QTransform().rotate(270)));
     m_rotateCursors[6] = QCursor(rotatePixmap.transformed(QTransform().rotate(315)));
     m_rotateCursors[7] = QCursor(rotatePixmap);
-    /*
-        m_rotateCursors[0] = QCursor(Qt::RotateNCursor);
-        m_rotateCursors[1] = QCursor(Qt::RotateNECursor);
-        m_rotateCursors[2] = QCursor(Qt::RotateECursor);
-        m_rotateCursors[3] = QCursor(Qt::RotateSECursor);
-        m_rotateCursors[4] = QCursor(Qt::RotateSCursor);
-        m_rotateCursors[5] = QCursor(Qt::RotateSWCursor);
-        m_rotateCursors[6] = QCursor(Qt::RotateWCursor);
-        m_rotateCursors[7] = QCursor(Qt::RotateNWCursor);
-    */
     m_shearCursors[0] = QCursor(shearPixmap);
     m_shearCursors[1] = QCursor(shearPixmap.transformed(QTransform().rotate(45)));
     m_shearCursors[2] = QCursor(shearPixmap.transformed(QTransform().rotate(90)));
@@ -636,15 +619,9 @@ void DefaultTool::slotPutTextOnPath()
        new KoSvgConvertTextTypeCommand(textShape, KoSvgTextShape::PreformattedText, 0, parentCommand);
    }
 
-   /// This will always remove all previous text paths.
-   /// While Krita's layout engine can handle multiple of them, the interaction
-   /// hasn't been fully verified yet. So if someone implements multiple textpaths,
-   /// they will also need to check if the cursor interaction makes sense.
    KoSvgTextRemoveShapeCommand::removeContourShapesFromFlow(textShape, parentCommand, true, true);
    new KoSvgTextSetTextPathOnRangeCommand(textShape, textPath, 0, textShape->posForIndex(textShape->plainText().size()), parentCommand);
 
-   /// We need to adjust the startOffset by the anchor/direction, because otherwise the text might be largely off the path.
-   /// This isn't a problem when using cursor to set it, as the cursor-pos can be the startOffset position.
    KoSvgText::TextAnchor anchor = KoSvgText::TextAnchor(textShape->textProperties().propertyOrDefault(KoSvgTextProperties::TextAnchorId).toInt());
    if ((textShape->direction() == KoSvgText::DirectionRightToLeft && anchor == KoSvgText::AnchorStart)
            || (textShape->direction() == KoSvgText::DirectionLeftToRight && anchor == KoSvgText::AnchorEnd)) {
@@ -999,7 +976,7 @@ void DefaultTool::updateCursor()
     QString statusText;
 
     KoSelection *selection = koSelection();
-    if (selection && selection->count() > 0) { // has a selection
+    if (selection && selection->count() > 0) {
         bool editable = !selection->selectedEditableShapes().isEmpty();
 
         if (!m_mouseWasInsideHandles) {
@@ -1052,7 +1029,6 @@ void DefaultTool::updateCursor()
                 statusText = i18n("Click and drag to shear selection.");
             }
 
-
         } else {
             statusText = i18n("Click and drag to resize selection.");
             m_angle = rotationOfHandle(m_lastHandle, false);
@@ -1100,7 +1076,6 @@ void DefaultTool::updateCursor()
             cursor = Qt::ArrowCursor;
         }
     } else {
-        // there used to be guides... :'''(
     }
     useCursor(cursor);
     if (currentStrategy() == 0) {
@@ -1115,16 +1090,11 @@ void DefaultTool::paint(QPainter &painter, const KoViewConverter &converter)
         m_decorator.reset(new SelectionDecorator(canvas()->resourceManager(), canvas()->displayRendererInterface()));
 
         {
-            /**
-             * Selection masks don't render the outline of the shapes, so we should
-             * do that explicitly when rendering them via selection
-             */
 
             KisCanvas2 *kisCanvas = static_cast<KisCanvas2 *>(canvas());
             KisNodeSP node = kisCanvas->viewManager()->nodeManager()->activeNode();
             const bool isSelectionMask = node && node->inherits("KisSelectionMask");
             m_decorator->setForceShapeOutlines(isSelectionMask);
-
 
         }
 
@@ -1152,8 +1122,6 @@ void DefaultTool::paint(QPainter &painter, const KoViewConverter &converter)
 
 bool DefaultTool::isValidForCurrentLayer() const
 {
-    // if the currently active node has a shape manager, then it is
-    // probably our client :)
 
     KisCanvas2 *kisCanvas = static_cast<KisCanvas2 *>(canvas());
     return bool(kisCanvas->localShapeManager());
@@ -1165,7 +1133,6 @@ KoShapeManager *DefaultTool::shapeManager() const {
 
 void DefaultTool::mousePressEvent(KoPointerEvent *event)
 {
-    // this tool only works on a vector layer right now, so give a warning if another layer type is trying to use it
     if (!isValidForCurrentLayer()) {
         KisCanvas2 *kiscanvas = static_cast<KisCanvas2 *>(canvas());
         kiscanvas->viewManager()->showFloatingMessage(
@@ -1203,12 +1170,9 @@ void DefaultTool::mouseMoveEvent(KoPointerEvent *event)
             m_lastHandle = KoFlake::NoHandle;
             m_mouseWasInsideHandles = false;
 
-            // there used to be guides... :'''(
         }
     } else {
-        // there used to be guides... :'''(
     }
-
 
     updateCursor();
 }
@@ -1222,7 +1186,6 @@ QRectF DefaultTool::handlesSize()
 
     QRectF bound = m_selectionOutline.boundingRect();
 
-    // expansion Border
     if (!canvas() || !canvas()->viewConverter()) {
         return bound;
     }
@@ -1270,12 +1233,12 @@ bool DefaultTool::moveSelection(int direction, Qt::KeyboardModifiers modifiers)
         y = 5;
     }
 
-    if (x != 0.0 || y != 0.0) { // actually move
+    if (x != 0.0 || y != 0.0) {
 
         if ((modifiers & Qt::ShiftModifier) != 0) {
             x *= 10;
             y *= 10;
-        } else if ((modifiers & Qt::AltModifier) != 0) { // more precise
+        } else if ((modifiers & Qt::AltModifier) != 0) {
             x /= 5;
             y /= 5;
         }
@@ -1315,9 +1278,6 @@ QRectF DefaultTool::decorationsRect() const
     QRectF dirtyRect;
 
     if (koSelection() && koSelection()->count() > 0) {
-        /// TODO: avoid cons_cast by implementing proper
-        ///       caching strategy inrecalcSelectionBox() and
-        ///       handlesSize()
         dirtyRect = const_cast<DefaultTool*>(this)->handlesSize();
     }
 
@@ -1331,7 +1291,6 @@ QRectF DefaultTool::decorationsRect() const
 
 void DefaultTool::copy() const
 {
-    // all the selected shapes, not only editable!
     QList<KoShape *> shapes = koSelection()->selectedShapes();
 
     if (!shapes.isEmpty()) {
@@ -1357,7 +1316,6 @@ void DefaultTool::deleteSelection()
 
 bool DefaultTool::paste()
 {
-    // we no longer have to do anything as tool Proxy will do it for us
     return false;
 }
 
@@ -1391,7 +1349,6 @@ KoSelection *DefaultTool::koSelection() const
 
 KoFlake::SelectionHandle DefaultTool::handleAt(const QPointF &point, bool *innerHandleMeaning)
 {
-    // check for handles in this order; meaning that when handles overlap the one on top is chosen
     static const KoFlake::SelectionHandle handleOrder[] = {
         KoFlake::BottomRightHandle,
         KoFlake::TopLeftHandle,
@@ -1427,7 +1384,6 @@ KoFlake::SelectionHandle DefaultTool::handleAt(const QPointF &point, bool *inner
         const QPointF handlePoint = converter->documentToView(m_selectionBox[handle]);
         const qreal distanceSq = kisSquareDistance(viewPoint, handlePoint);
 
-        // if just inside the outline
         if (distanceSq < HANDLE_DISTANCE_SQ) {
 
             if (innerHandleMeaning) {
@@ -1450,7 +1406,7 @@ void DefaultTool::recalcSelectionBox(KoSelection *selection)
     m_selectionOutline = matrix.map(QPolygonF(selection->outlineRect()));
     m_angle = 0.0;
 
-    QPolygonF outline = m_selectionOutline; //shorter name in the following :)
+    QPolygonF outline = m_selectionOutline;
     m_selectionBox[KoFlake::TopMiddleHandle] = (outline.value(0) + outline.value(1)) / 2;
     m_selectionBox[KoFlake::TopRightHandle] = outline.value(1);
     m_selectionBox[KoFlake::RightMiddleHandle] = (outline.value(1) + outline.value(2)) / 2;
@@ -1460,15 +1416,15 @@ void DefaultTool::recalcSelectionBox(KoSelection *selection)
     m_selectionBox[KoFlake::LeftMiddleHandle] = (outline.value(3) + outline.value(0)) / 2;
     m_selectionBox[KoFlake::TopLeftHandle] = outline.value(0);
     if (selection->count() == 1) {
-#if 0        // TODO detect mirroring
+#if 0
         KoShape *s = koSelection()->firstSelectedShape();
 
-        if (s->scaleX() < 0) { // vertically mirrored: swap left / right
+        if (s->scaleX() < 0) {
             std::swap(m_selectionBox[KoFlake::TopLeftHandle], m_selectionBox[KoFlake::TopRightHandle]);
             std::swap(m_selectionBox[KoFlake::LeftMiddleHandle], m_selectionBox[KoFlake::RightMiddleHandle]);
             std::swap(m_selectionBox[KoFlake::BottomLeftHandle], m_selectionBox[KoFlake::BottomRightHandle]);
         }
-        if (s->scaleY() < 0) { // vertically mirrored: swap top / bottom
+        if (s->scaleY() < 0) {
             std::swap(m_selectionBox[KoFlake::TopLeftHandle], m_selectionBox[KoFlake::BottomLeftHandle]);
             std::swap(m_selectionBox[KoFlake::TopMiddleHandle], m_selectionBox[KoFlake::BottomMiddleHandle]);
             std::swap(m_selectionBox[KoFlake::TopRightHandle], m_selectionBox[KoFlake::BottomRightHandle]);
@@ -1608,7 +1564,6 @@ void DefaultTool::selectionGroup()
 
     KoShapeGroup *group = new KoShapeGroup();
     group->setZIndex(groupZIndex);
-    // TODO what if only one shape is left?
     KUndo2Command *cmd = new KUndo2Command(kundo2_i18n("Group shapes"));
     new KoKeepShapesSelectedCommand(selectedShapes, {}, canvas()->selectedShapesProxy(), false, cmd);
     canvas()->shapeController()->addShapeDirect(group, 0, cmd);
@@ -1616,7 +1571,6 @@ void DefaultTool::selectionGroup()
     new KoKeepShapesSelectedCommand({}, {group}, canvas()->selectedShapesProxy(), true, cmd);
     canvas()->addCommand(cmd);
 
-    // update selection so we can ungroup immediately again
     selection->deselectAll();
     selection->select(group);
 }
@@ -1632,7 +1586,6 @@ void DefaultTool::selectionUngroup()
     KUndo2Command *cmd = 0;
     QList<KoShape*> newShapes;
 
-    // add a ungroup command for each found shape container to the macro command
     Q_FOREACH (KoShape *shape, selectedShapes) {
         KoShapeGroup *group = dynamic_cast<KoShapeGroup *>(shape);
         if (group) {
@@ -1666,7 +1619,6 @@ void DefaultTool::selectionTransform(int transformAction)
     QTransform applyTransform;
     bool shouldReset = false;
     KUndo2MagicString actionName = kundo2_noi18n("BUG: No transform action");
-
 
     switch (TransformActionType(transformAction)) {
     case TransformRotate90CW:
@@ -1705,7 +1657,6 @@ void DefaultTool::selectionTransform(int transformAction)
     const QTransform centerTrans = QTransform::fromTranslate(centerPoint.x(), centerPoint.y());
     const QTransform centerTransInv = QTransform::fromTranslate(-centerPoint.x(), -centerPoint.y());
 
-    // we also add selection to the list of transformed shapes, so that its outline is updated correctly
     QList<KoShape*> transformedShapes = editableShapes;
     transformedShapes << selection;
 
@@ -1745,7 +1696,6 @@ void DefaultTool::selectionBooleanOp(int booleanOp)
     QPainterPath dstOutline;
     KUndo2MagicString actionName = kundo2_noi18n("BUG: boolean action name");
 
-    // TODO: implement a reference shape selection dialog!
     const int referenceShapeIndex = 0;
     KoShape *referenceShape = editableShapes[referenceShapeIndex];
 
@@ -1775,8 +1725,6 @@ void DefaultTool::selectionBooleanOp(int booleanOp)
             }
         }
 
-        // there is a bug in Qt, sometimes it leaves the resulting
-        // outline open, so just close it explicitly.
         dstOutline.closeSubpath();
 
         actionName = kundo2_i18n("Intersect Shapes");
@@ -1872,12 +1820,8 @@ void DefaultTool::selectionAlign(int _align)
         return;
     }
 
-    // TODO add an option to the widget so that one can align to the page
-    // with multiple selected shapes too
-
     QRectF bb;
 
-    // single selected shape is automatically aligned to document rect
     if (editableShapes.count() == 1) {
         if (!canvas()->resourceManager()->hasResource(KoCanvasResource::PageSize)) {
             return;
@@ -1971,7 +1915,6 @@ QList<QPointer<QWidget> > DefaultTool::createOptionWidgets()
     connect(m_tabbedOptionWidget,
             SIGNAL(sigSwitchModeEditFillGradient(bool)),
             SLOT(slotActivateEditFillMeshGradient(bool)));
-    // TODO: strokes!!
 
     connect(m_tabbedOptionWidget,
             SIGNAL(sigMeshGradientResetted()),
@@ -2003,7 +1946,6 @@ KoInteractionStrategy *DefaultTool::createStrategy(KoPointerEvent *event)
     const bool avoidSelection = event->modifiers() & Qt::AltModifier;
 
     if (selectNextInStack) {
-        // change the hot selection position when middle clicking on a handle
         KoFlake::AnchorPosition newHotPosition = m_hotPosition;
         switch (handle) {
         case KoFlake::TopMiddleHandle:
@@ -2032,11 +1974,9 @@ KoInteractionStrategy *DefaultTool::createStrategy(KoPointerEvent *event)
             break;
         case KoFlake::NoHandle:
         default:
-            // check if we had hit the center point
             const KoViewConverter *converter = canvas()->viewConverter();
             QPointF pt = converter->documentToView(event->point);
 
-            // TODO: use calculated values instead!
             QPointF centerPt = converter->documentToView(selection->absolutePosition());
 
             if (kisSquareDistance(pt, centerPt) < HANDLE_DISTANCE_SQ) {
@@ -2053,9 +1993,7 @@ KoInteractionStrategy *DefaultTool::createStrategy(KoPointerEvent *event)
     }
 
     if (!avoidSelection && editableShape) {
-        // manipulation of selected shapes goes first
         if (handle != KoFlake::NoHandle) {
-            // resizing or shearing only with left mouse button
             if (insideSelection) {
                 bool forceUniformScaling = m_tabbedOptionWidget && m_tabbedOptionWidget->useUniformScaling();
                 return new ShapeResizeStrategy(this, selection, event->point, handle, forceUniformScaling);
@@ -2067,7 +2005,6 @@ KoInteractionStrategy *DefaultTool::createStrategy(KoPointerEvent *event)
                 return new ShapeShearStrategy(this, selection, event->point, handle);
             }
 
-            // rotating is allowed for right mouse button too
             if (handle == KoFlake::TopLeftHandle || handle == KoFlake::TopRightHandle ||
                     handle == KoFlake::BottomLeftHandle || handle == KoFlake::BottomRightHandle) {
 
@@ -2096,12 +2033,11 @@ KoInteractionStrategy *DefaultTool::createStrategy(KoPointerEvent *event)
         if (selectMultiple) {
             selection->deselect(shape);
         }
-    } else if (handle == KoFlake::NoHandle) { // clicked on shape which is not selected
+    } else if (handle == KoFlake::NoHandle) {
         if (!selectMultiple) {
             selection->deselectAll();
         }
         selection->select(shape);
-        // tablet selection isn't precise and may lead to a move, preventing that
         if (event->isTabletEvent()) {
             return new NopInteractionStrategy(this);
         }
@@ -2158,7 +2094,6 @@ void DefaultTool::updateActions()
     action("object_distribute_vertical_bottom")->setEnabled(distributionEnabled);
     action("object_distribute_vertical_gaps")->setEnabled(distributionEnabled);
 
-    /* Handling the text actions */
     bool textShape = false;
     bool otherShapes = false;
     bool filledShapes = false;
@@ -2218,7 +2153,6 @@ void DefaultTool::updateDistinctiveActions(const QList<KoShape*> &editableShapes
         }
     action("object_split")->setEnabled(hasShapesWithMultipleSegments);
 
-
     bool hasGroupShape = false;
             foreach (KoShape *shape, editableShapes) {
             if (dynamic_cast<KoShapeGroup *>(shape)) {
@@ -2256,7 +2190,6 @@ void DefaultTool::updateDistinctiveActions(const QList<KoShape*> &editableShapes
     action("text_type_pre_positioned")->setEnabled(enablePrePositioned);
     action("text_type_inline_wrap")->setEnabled(enableInlineWrapped);
 }
-
 
 KoToolSelection *DefaultTool::selection()
 {

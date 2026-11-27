@@ -19,7 +19,7 @@
 #include <KoColorSpaceTraits.h>
 #include <KoColorTransformation.h>
 #include <KoID.h>
- 
+
 template<typename _channel_type_, typename traits >
 class KisDodgeMidtonesAdjustment : public KoColorTransformation
  {
@@ -30,7 +30,7 @@ public:
     KisDodgeMidtonesAdjustment(){}
 
 public:
-    
+
     void transform(const quint8 *srcU8, quint8 *dstU8, qint32 nPixels) const override
     {
     	const RGBPixel* src = reinterpret_cast<const RGBPixel*>(srcU8);
@@ -42,12 +42,12 @@ public:
             value_red = pow((float)KoColorSpaceMaths<_channel_type_, float>::scaleToA(src->red), factor);
             value_green = pow((float)KoColorSpaceMaths<_channel_type_, float>::scaleToA(src->green), factor);
             value_blue = pow((float)KoColorSpaceMaths<_channel_type_, float>::scaleToA(src->blue), factor);
-            
+
             dst->red = KoColorSpaceMaths< float, _channel_type_ >::scaleToA(value_red);
             dst->green = KoColorSpaceMaths< float, _channel_type_ >::scaleToA(value_green);
             dst->blue = KoColorSpaceMaths< float, _channel_type_ >::scaleToA(value_blue);
             dst->alpha = src->alpha;
-            
+
             --nPixels;
             ++src;
             ++dst;
@@ -95,7 +95,7 @@ QList< QPair< KoID, KoID > > KisDodgeMidtonesAdjustmentFactory::supportedModels(
     l.append(QPair< KoID, KoID >(RGBAColorModelID , Integer8BitsColorDepthID));
     l.append(QPair< KoID, KoID >(RGBAColorModelID , Integer16BitsColorDepthID));
     l.append(QPair< KoID, KoID >(RGBAColorModelID , Float16BitsColorDepthID));
-    l.append(QPair< KoID, KoID >(RGBAColorModelID , Float32BitsColorDepthID)); 
+    l.append(QPair< KoID, KoID >(RGBAColorModelID , Float32BitsColorDepthID));
     return l;
 }
 

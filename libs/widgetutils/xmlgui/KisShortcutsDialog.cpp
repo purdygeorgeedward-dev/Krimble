@@ -44,7 +44,6 @@ KisShortcutsDialog::KisShortcutsDialog(KisShortcutsEditor::ActionTypes types,
 
     d->m_shortcutsEditor = new KisShortcutsEditor(this, types, allowLetterShortcuts);
 
-    /*  Construct & Connect UI  */
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(d->m_shortcutsEditor);
@@ -78,7 +77,6 @@ void KisShortcutsDialog::addCollection(KisKActionCollection *collection, const Q
     d->m_shortcutsEditor->addCollection(collection, title);
     d->m_collections.insert(title, collection);
 }
-
 
 void KisShortcutsDialog::save()
 {

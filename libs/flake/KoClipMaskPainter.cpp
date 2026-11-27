@@ -86,8 +86,6 @@ KoClipMaskPainter::KoClipMaskPainter(QPainter *painter, const QRectF &globalClip
     m_d->maskPainter.setBrush(painter->brush());
     m_d->maskPainter.setPen(painter->pen());
 
-
-
 }
 
 KoClipMaskPainter::~KoClipMaskPainter()

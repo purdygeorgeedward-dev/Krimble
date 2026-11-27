@@ -32,14 +32,14 @@ public:
                   const QSize& size,
                   const KisScreentoneGeneratorConfigurationSP config,
                   KoUpdater* progressUpdater) const;
-    
+
     template <class Sampler>
     void generate(KisProcessingInformation dst,
                   const QSize &size,
                   const KisScreentoneGeneratorConfigurationSP config,
                   KoUpdater *progressUpdater,
                   const Sampler &sampler) const;
-    
+
     template <class Sampler, class PostprocessingFunction>
     void generate(KisProcessingInformation dst,
                   const QSize &size,

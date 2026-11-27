@@ -26,7 +26,6 @@ public:
     QColor selectionColor() const;
     QColor activeLayerBackground() const;
 
-
     QBrush headerEmpty() const;
     QBrush headerCachedFrame() const;
     QBrush headerActive() const;
@@ -38,4 +37,4 @@ public:
     QFont getOnionSkinsFont(const QString &maxString, const QSize &availableSize) const;
 };
 
-#endif /* __TIMELINE_COLOR_SCHEME_H */
+#endif

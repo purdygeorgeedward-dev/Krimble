@@ -24,6 +24,4 @@ struct KisGradientOptionData : KisCurveOptionData
     {}
 };
 
-
-
-#endif // KISCOLORSMUDGESTANDARDOPTIONDATA_H
+#endif

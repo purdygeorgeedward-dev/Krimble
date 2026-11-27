@@ -26,4 +26,4 @@ private:
     TextPropertyConfigModel *m_model;
 };
 
-#endif // TEXTPROPERTYCONFIGDIALOG_H
+#endif

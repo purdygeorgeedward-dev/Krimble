@@ -52,5 +52,4 @@ private:
 
 };
 
-
-#endif /* TESTKOCOLORSET_H */
+#endif

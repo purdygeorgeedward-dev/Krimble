@@ -10,11 +10,10 @@
 #include <kis_debug.h>
 #include <QVector>
 
-
 class KisIncrementalAverage
 {
 public:
-    KisIncrementalAverage(int size) 
+    KisIncrementalAverage(int size)
         : m_size(size),
           m_index(-1),
           m_sum(0),
@@ -51,4 +50,4 @@ private:
     QVector<int> m_values;
 };
 
-#endif /* __KIS_INCREMENTAL_AVERAGE_H */
+#endif

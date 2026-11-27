@@ -30,4 +30,4 @@ private:
                            int index);
 };
 
-#endif /* __KIS_LOW_MEMORY_BENCHMARK_H */
+#endif

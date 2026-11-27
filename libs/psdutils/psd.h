@@ -4,9 +4,6 @@
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
-/*
- * Constants and defines taken from gimp and psdparse
- */
 #ifndef PSD_H
 #define PSD_H
 
@@ -28,7 +25,7 @@ const int MAX_CHANNELS = 56;
 
 const int MAX_PSD_SIZE = 30000;
 
-typedef qint32 Fixed; /* Represents a fixed point implied decimal */
+typedef qint32 Fixed;
 
 enum class psd_byte_order : std::uint_least8_t {
     psdBigEndian = 0,
@@ -44,9 +41,6 @@ enum psd_compression_type : std::uint16_t {
     Unknown = 255,
 };
 
-/**
- * Image color/depth modes
- */
 enum psd_color_mode {
     Bitmap = 0,
     Grayscale = 1,
@@ -72,44 +66,40 @@ struct PsdResource {
     QString name;
 };
 
-/**
- * Color samplers, apparently distinct from PSDColormode
- */
 namespace psd_color_sampler
 {
 enum PSDColorSamplers {
     RGB,
     HSB,
     CMYK,
-    PANTONE, // LAB
-    FOCOLTONE, // CMYK
-    TRUMATCH, // CMYK
-    TOYO, // LAB
+    PANTONE,
+    FOCOLTONE,
+    TRUMATCH,
+    TOYO,
     LAB,
     GRAYSCALE,
-    HKS, // CMYK
-    DIC, // LAB
+    HKS,
+    DIC,
     TOTAL_INK,
     MONITOR_RGB,
     DUOTONE,
     OPACITY,
-    ANPA = 3000 // LAB
+    ANPA = 3000
 };
 }
 
-// EFFECTS
 enum psd_gradient_style {
-    psd_gradient_style_linear, // 'Lnr '
-    psd_gradient_style_radial, // 'Rdl '
-    psd_gradient_style_angle, // 'Angl'
-    psd_gradient_style_reflected, // 'Rflc'
-    psd_gradient_style_diamond // 'Dmnd'
+    psd_gradient_style_linear,
+    psd_gradient_style_radial,
+    psd_gradient_style_angle,
+    psd_gradient_style_reflected,
+    psd_gradient_style_diamond
 };
 
 enum psd_color_stop_type {
-    psd_color_stop_type_foreground_color, // 'FrgC'
-    psd_color_stop_type_background_Color, // 'BckC'
-    psd_color_stop_type_user_stop // 'UsrS'
+    psd_color_stop_type_foreground_color,
+    psd_color_stop_type_background_Color,
+    psd_color_stop_type_user_stop
 };
 
 enum psd_technique_type {
@@ -143,40 +133,36 @@ enum psd_direction { psd_direction_up, psd_direction_down };
 
 enum psd_section_type { psd_other = 0, psd_open_folder, psd_closed_folder, psd_bounding_divider };
 
-// GRADIENT MAP
-// Each color stop
 struct psd_gradient_color_stop {
-    qint32 location; // Location of color stop
-    qint32 midpoint; // Midpoint of color stop
+    qint32 location;
+    qint32 midpoint;
     KoColor actual_color;
     psd_color_stop_type color_stop_type;
 };
 
-// Each transparency stop
 struct psd_gradient_transparency_stop {
-    qint32 location; // Location of transparency stop
-    qint32 midpoint; // Midpoint of transparency stop
-    qint8 opacity; // Opacity of transparency stop
+    qint32 location;
+    qint32 midpoint;
+    qint8 opacity;
 };
 
-// Gradient settings (PS 6.0)
 struct psd_layer_gradient_map {
-    bool reverse; // Is gradient reverse
-    bool dithered; // Is gradient dithered
+    bool reverse;
+    bool dithered;
     qint32 name_length;
-    quint16 *name; // Name of the gradient: Unicode string, padded
-    qint8 number_color_stops; // Number of color stops to follow
+    quint16 *name;
+    qint8 number_color_stops;
     psd_gradient_color_stop *color_stop;
-    qint8 number_transparency_stops; // Number of transparency stops to follow
+    qint8 number_transparency_stops;
     psd_gradient_transparency_stop *transparency_stop;
-    qint8 expansion_count; // Expansion count ( = 2 for PS 6.0)
-    qint8 interpolation; // Interpolation if length above is non-zero
-    qint8 length; // Length (= 32 for PS 6.0)
-    qint8 mode; // Mode for this gradient
-    qint32 random_number_seed; // Random number seed
-    qint8 showing_transparency_flag; // Flag for showing transparency
-    qint8 using_vector_color_flag; // Flag for using vector color
-    qint32 roughness_factor; // Roughness factor
+    qint8 expansion_count;
+    qint8 interpolation;
+    qint8 length;
+    qint8 mode;
+    qint32 random_number_seed;
+    qint8 showing_transparency_flag;
+    qint8 using_vector_color_flag;
+    qint32 roughness_factor;
     QColor min_color;
     QColor max_color;
     QColor lookup_table[256];
@@ -185,25 +171,25 @@ struct psd_layer_gradient_map {
 struct psd_gradient_color {
     qint32 smoothness;
     qint32 name_length;
-    quint16 *name; // Name of the gradient: Unicode string, padded
-    qint8 number_color_stops; // Number of color stops to follow
+    quint16 *name;
+    qint8 number_color_stops;
     psd_gradient_color_stop *color_stop;
-    qint8 number_transparency_stops; // Number of transparency stops to follow
+    qint8 number_transparency_stops;
     psd_gradient_transparency_stop *transparency_stop;
 };
 
 struct psd_pattern {
-    psd_color_mode color_mode = Bitmap; // The image mode of the file.
-    quint8 height = 0; // Point: vertical, 2 bytes and horizontal, 2 bytes
+    psd_color_mode color_mode = Bitmap;
+    quint8 height = 0;
     quint8 width = 0;
     QString name;
     QString uuid;
     qint32 version = 0;
-    quint8 top = 0; // Rectangle: top, left, bottom, right
+    quint8 top = 0;
     quint8 left = 0;
     quint8 bottom = 0;
     quint8 right = 0;
-    qint32 max_channel = 0; // Max channels
+    qint32 max_channel = 0;
     qint32 channel_number = 0;
     QVector<QRgb> color_table;
 };
@@ -219,7 +205,6 @@ struct psd_layer_effects_context {
 
 #define PSD_LOOKUP_TABLE_SIZE 256
 
-// dsdw, isdw: https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/PhotoshopFileFormats.htm#50577409_22203
 class KRITAPSDUTILS_EXPORT psd_layer_effects_shadow_base
 {
 public:
@@ -475,29 +460,27 @@ public:
     virtual void scaleLinearSizes(qreal scale);
 
 private:
-    // internal
     bool m_invertsSelection;
     bool m_edgeHidden;
 
 private:
-    bool m_effectEnabled; // Effect enabled
+    bool m_effectEnabled;
 
-    QString m_blendMode; // already in Krita format!
+    QString m_blendMode;
     KoColor m_color;
     KoColor m_nativeColor;
-    qint32 m_opacity; // Opacity as a percent (0...100)
-    qint32 m_angle; // Angle in degrees
-    bool m_useGlobalLight; // Use this angle in all of the layer effects
-    qint32 m_distance; // Distance in pixels
-    qint32 m_spread; // Intensity as a percent
-    qint32 m_size; // Blur value in pixels
+    qint32 m_opacity;
+    qint32 m_angle;
+    bool m_useGlobalLight;
+    qint32 m_distance;
+    qint32 m_spread;
+    qint32 m_size;
 
     quint8 m_contourLookupTable[PSD_LOOKUP_TABLE_SIZE];
     bool m_antiAliased;
     qint32 m_noise;
     bool m_knocksOut;
 
-    // for Outer/Inner Glow
     psd_fill_type m_fillType;
     psd_technique_type m_technique;
     qint32 m_range;
@@ -508,21 +491,6 @@ private:
 class KRITAPSDUTILS_EXPORT psd_layer_effects_shadow_common : public psd_layer_effects_shadow_base
 {
 public:
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
-
-    // using psd_layer_effects_shadow_base::setBlendMode;
-    // using psd_layer_effects_shadow_base::setColor;
-    // using psd_layer_effects_shadow_base::setOpacity;
-    // using psd_layer_effects_shadow_base::setAngle;
-    // using psd_layer_effects_shadow_base::setUseGlobalLight;
-    // using psd_layer_effects_shadow_base::setDistance;
-    // using psd_layer_effects_shadow_base::setSpread;
-    // using psd_layer_effects_shadow_base::setSize;
-    // using psd_layer_effects_shadow_base::setContourLookupTable;
-    // using psd_layer_effects_shadow_base::setAntiAliased;
-    // using psd_layer_effects_shadow_base::setNoise;
 
     ~psd_layer_effects_shadow_common() override;
 };
@@ -530,15 +498,10 @@ public:
 class KRITAPSDUTILS_EXPORT psd_layer_effects_drop_shadow : public psd_layer_effects_shadow_common
 {
 public:
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
 
-    // using psd_layer_effects_shadow_base::setKnocksOut;
     ~psd_layer_effects_drop_shadow();
 };
 
-// isdw: https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/PhotoshopFileFormats.htm#50577409_22203
 class KRITAPSDUTILS_EXPORT psd_layer_effects_inner_shadow : public psd_layer_effects_shadow_common
 {
 public:
@@ -563,35 +526,15 @@ public:
         setColor(KoColor::fromXML("<color channeldepth='U8'><sRGB r='1.0' g='1.0' b='1.0'/></color>"));
     }
     ~psd_layer_effects_glow_common() override;
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
 
-    // using psd_layer_effects_shadow_base::setBlendMode;
-    // using psd_layer_effects_shadow_base::setColor;
-    // using psd_layer_effects_shadow_base::setOpacity;
-
-    // using psd_layer_effects_shadow_base::setSpread;
-    // using psd_layer_effects_shadow_base::setSize;
-    // using psd_layer_effects_shadow_base::setContourLookupTable;
-    // using psd_layer_effects_shadow_base::setAntiAliased;
-    // using psd_layer_effects_shadow_base::setNoise;
-
-    // using psd_layer_effects_shadow_base::setFillType;
-    // using psd_layer_effects_shadow_base::setTechnique;
-    // using psd_layer_effects_shadow_base::setRange;
-    // using psd_layer_effects_shadow_base::setJitter;
-    // using psd_layer_effects_shadow_base::setGradient;
 };
 
-// oglw: https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/PhotoshopFileFormats.htm#50577409_25738
 class KRITAPSDUTILS_EXPORT psd_layer_effects_outer_glow : public psd_layer_effects_glow_common
 {
 public:
     ~psd_layer_effects_outer_glow() override;
 };
 
-// iglw: https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/PhotoshopFileFormats.htm#50577409_27692
 class KRITAPSDUTILS_EXPORT psd_layer_effects_inner_glow : public psd_layer_effects_glow_common
 {
 public:
@@ -630,23 +573,6 @@ struct psd_layer_effects_satin : public psd_layer_effects_shadow_base {
         setBlendMode(COMPOSITE_LINEAR_BURN);
     }
 
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
-
-    // using psd_layer_effects_shadow_base::setBlendMode;
-    // using psd_layer_effects_shadow_base::setColor;
-    // using psd_layer_effects_shadow_base::setOpacity;
-
-    // // NOTE: no global light setting explicitly!
-    // using psd_layer_effects_shadow_base::setAngle;
-    // using psd_layer_effects_shadow_base::setDistance;
-
-    // using psd_layer_effects_shadow_base::setSize;
-
-    // using psd_layer_effects_shadow_base::setContourLookupTable;
-    // using psd_layer_effects_shadow_base::setAntiAliased;
-
     bool invert() const
     {
         return m_invert;
@@ -661,7 +587,6 @@ private:
     bool m_invert;
 };
 
-// bevl: https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/PhotoshopFileFormats.htm#50577409_31889
 struct psd_layer_effects_bevel_emboss : public psd_layer_effects_shadow_base {
     psd_layer_effects_bevel_emboss()
         : m_style(psd_bevel_inner_bevel)
@@ -705,18 +630,6 @@ struct psd_layer_effects_bevel_emboss : public psd_layer_effects_shadow_base {
             m_glossContourLookupTable[i] = i;
         }
     }
-
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
-
-    // using psd_layer_effects_shadow_base::setSize;
-
-    // using psd_layer_effects_shadow_base::setAngle;
-    // using psd_layer_effects_shadow_base::setUseGlobalLight;
-
-    // using psd_layer_effects_shadow_base::setContourLookupTable;
-    // using psd_layer_effects_shadow_base::setAntiAliased;
 
     psd_bevel_style style() const
     {
@@ -967,21 +880,21 @@ private:
     psd_bevel_style m_style;
     psd_technique_type m_technique;
     int m_depth;
-    psd_direction m_direction; // Up or down
-    int m_soften; // Blur value in pixels.
+    psd_direction m_direction;
+    int m_soften;
 
     int m_altitude;
 
     quint8 m_glossContourLookupTable[256];
     bool m_glossAntiAliased;
 
-    QString m_highlightBlendMode; // already in Krita format
+    QString m_highlightBlendMode;
     KoColor m_highlightColor;
-    qint32 m_highlightOpacity; // Highlight opacity as a percent
+    qint32 m_highlightOpacity;
 
-    QString m_shadowBlendMode; // already in Krita format
+    QString m_shadowBlendMode;
     KoColor m_shadowColor;
-    qint32 m_shadowOpacity; // Shadow opacity as a percent
+    qint32 m_shadowOpacity;
 
     bool m_contourEnabled;
     int m_contourRange;
@@ -993,8 +906,8 @@ private:
     bool m_textureInvert;
 
     bool m_textureAlignWithLayer;
-    int m_textureHorizontalPhase; // 0..100%
-    int m_textureVerticalPhase; // 0..100%
+    int m_textureHorizontalPhase;
+    int m_textureVerticalPhase;
 };
 
 struct psd_layer_effects_overlay_base : public psd_layer_effects_shadow_base {
@@ -1011,13 +924,6 @@ struct psd_layer_effects_overlay_base : public psd_layer_effects_shadow_base {
     {
         setUseGlobalLight(false);
     }
-
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
-
-    // using psd_layer_effects_shadow_base::setBlendMode;
-    // using psd_layer_effects_shadow_base::setOpacity;
 
     int scale() const
     {
@@ -1074,7 +980,6 @@ struct psd_layer_effects_overlay_base : public psd_layer_effects_shadow_base {
         return m_verticalPhase;
     }
 
-    // refactor that
 public:
     void setScale(int value)
     {
@@ -1138,32 +1043,23 @@ public:
     }
 
 private:
-    // Gradient+Pattern
     int m_scale;
     bool m_alignWithLayer;
 
-    // Gradient
     bool m_dither;
     bool m_reverse;
     psd_gradient_style m_style;
-    int m_gradientXOffset; // 0..100%
-    int m_gradientYOffset; // 0..100%
+    int m_gradientXOffset;
+    int m_gradientYOffset;
 
-    // Pattern
     KoResourceSignature m_patternLink;
-    int m_horizontalPhase; // 0..100%
-    int m_verticalPhase; // 0..100%
+    int m_horizontalPhase;
+    int m_verticalPhase;
 
 protected:
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
 
-    // must be called in the derived classes' c-tor
-    // using psd_layer_effects_shadow_base::setFillType;
 };
 
-// sofi: https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/PhotoshopFileFormats.htm#50577409_70055
 struct psd_layer_effects_color_overlay : public psd_layer_effects_overlay_base {
     psd_layer_effects_color_overlay()
     {
@@ -1171,11 +1067,6 @@ struct psd_layer_effects_color_overlay : public psd_layer_effects_overlay_base {
         setColor(KoColor::fromXML("<color channeldepth='U8'><sRGB r='1.0' g='1.0' b='1.0'/></color>"));
     }
 
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
-
-    // using psd_layer_effects_shadow_base::setColor;
 };
 
 struct psd_layer_effects_gradient_overlay : public psd_layer_effects_overlay_base {
@@ -1190,20 +1081,7 @@ struct psd_layer_effects_gradient_overlay : public psd_layer_effects_overlay_bas
     }
 
 public:
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
 
-    // using psd_layer_effects_shadow_base::setGradient;
-    // using psd_layer_effects_shadow_base::setAngle;
-
-    // using psd_layer_effects_overlay_base::setReverse;
-    // using psd_layer_effects_overlay_base::setScale;
-    // using psd_layer_effects_overlay_base::setAlignWithLayer;
-    // using psd_layer_effects_overlay_base::setStyle;
-
-    // using psd_layer_effects_overlay_base::setGradientOffset;
-    // using psd_layer_effects_overlay_base::gradientOffset;
 };
 
 struct psd_layer_effects_pattern_overlay : public psd_layer_effects_overlay_base {
@@ -1214,26 +1092,7 @@ struct psd_layer_effects_pattern_overlay : public psd_layer_effects_overlay_base
         setAlignWithLayer(true);
     }
 
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
-
-    // using psd_layer_effects_overlay_base::setScale;
-    // using psd_layer_effects_overlay_base::setAlignWithLayer;
-
-    // using psd_layer_effects_overlay_base::setPattern;
-
-    // using psd_layer_effects_overlay_base::setPatternPhase;
-    // using psd_layer_effects_overlay_base::patternPhase;
-
 private:
-    // These are unused
-    /*int m_scale;
-    bool m_alignWithLayer;
-    KoPatternSP m_pattern;
-
-    int m_horizontalPhase;
-    int m_verticalPhase;*/
 };
 
 struct psd_layer_effects_stroke : public psd_layer_effects_overlay_base {
@@ -1253,30 +1112,6 @@ struct psd_layer_effects_stroke : public psd_layer_effects_overlay_base {
         setAlignWithLayer(true);
     }
 
-    /// FIXME: 'using' is not supported by MSVC, so please refactor in
-    ///        some other way to ensure that the setters are not used
-    ///        in the classes we don't want
-
-    // using psd_layer_effects_shadow_base::setFillType;
-    // using psd_layer_effects_shadow_base::setSize;
-
-    // using psd_layer_effects_shadow_base::setColor;
-
-    // using psd_layer_effects_shadow_base::setGradient;
-    // using psd_layer_effects_shadow_base::setAngle;
-    // using psd_layer_effects_overlay_base::setReverse;
-    // using psd_layer_effects_overlay_base::setScale;
-    // using psd_layer_effects_overlay_base::setAlignWithLayer;
-    // using psd_layer_effects_overlay_base::setStyle;
-
-    // using psd_layer_effects_overlay_base::setGradientOffset;
-    // using psd_layer_effects_overlay_base::gradientOffset;
-
-    // using psd_layer_effects_overlay_base::setPattern;
-
-    // using psd_layer_effects_overlay_base::setPatternPhase;
-    // using psd_layer_effects_overlay_base::patternPhase;
-
     psd_stroke_position position() const
     {
         return m_position;
@@ -1290,20 +1125,10 @@ private:
     psd_stroke_position m_position;
 };
 
-/**
- * Convert PsdColorMode to pigment colormodelid and colordepthid.
- * @see KoColorModelStandardIds
- *
- * @return a QPair containing ColorModelId and ColorDepthID
- */
 QPair<QString, QString> KRITAPSDUTILS_EXPORT psd_colormode_to_colormodelid(psd_color_mode colormode, quint16 channelDepth);
 
-/**
- * Convert the PS blend mode strings to Pigment compositeop id's
- */
 QString KRITAPSDUTILS_EXPORT psd_blendmode_to_composite_op(const QString &blendmode);
 QString KRITAPSDUTILS_EXPORT composite_op_to_psd_blendmode(const QString &compositeOp);
-
 
 #if defined(__clang__) && __clang_major__ < 10
 inline QDebug &operator<<(QDebug &self, psd_compression_type type)
@@ -1313,4 +1138,4 @@ inline QDebug &operator<<(QDebug &self, psd_compression_type type)
 };
 #endif
 
-#endif // PSD_H
+#endif

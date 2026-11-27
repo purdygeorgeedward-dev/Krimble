@@ -35,9 +35,6 @@ public:
     void updateSettings() override;
     void setPreset(Preset preset);
     QPoint popupOffset() const override;
-    /*! set buttons, that should be drawn additionally to the patches
-     * this class takes ownership of them and will delete them
-     * they will be resized to the patchsize */
     void setAdditionalButtons(QList<QToolButton*> buttonList);
     void setColorHistoryModel(KisUniqueColorSet *history);
 public Q_SLOTS:
@@ -85,4 +82,4 @@ Q_SIGNALS:
 
 };
 
-#endif // WGCOLORPATCHES_H
+#endif

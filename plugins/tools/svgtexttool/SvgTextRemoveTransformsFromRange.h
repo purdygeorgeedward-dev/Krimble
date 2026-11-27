@@ -9,11 +9,6 @@
 #include <kundo2command.h>
 #include <KoSvgTextShape.h>
 
-/**
- * @brief The SvgTextRemoveTransformsFromRange class
- * Removes the SVG 1.1 character transforms from the range.
- */
-
 class SvgTextRemoveTransformsFromRange : public KUndo2Command
 {
 public:
@@ -29,4 +24,4 @@ private:
     KoSvgTextShapeMementoSP m_textData;
 };
 
-#endif // SVGTEXTREMOVETRANSFORMSFROMRANGE_H
+#endif

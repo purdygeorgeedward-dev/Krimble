@@ -14,9 +14,6 @@
 
 #include "kritawidgets_export.h"
 
-/**
- * @brief A circular widget that allows to choose an angle
- */
 class KRITAWIDGETS_EXPORT KisAngleGauge : public QWidget
 {
     Q_OBJECT
@@ -28,83 +25,23 @@ public:
         IncreasingDirection_Clockwise
     };
 
-    /**
-     * @brief Construct a new KisAngleGauge widget
-     * @param parent the parent widget
-     */
     explicit KisAngleGauge(QWidget *parent = 0);
     ~KisAngleGauge();
-    
-    /**
-     * @brief Gets the current angle
-     * @return The current angle 
-     * @see setAngle(qreal)
-     */
+
     qreal angle() const;
-    /**
-     * @brief Gets the angle to which multiples the selected angle will snap
-     * 
-     * The default snap angle is 15 degrees so the selected angle will snap
-     * to its multiples (0, 15, 30, 45, etc.)
-     * @return The angle to which multiples the selected angle will snap
-     * @see setSnapAngle(qreal)
-     */
     qreal snapAngle() const;
-    /**
-     * @brief Gets the angle that is used to reset the current angle
-     * 
-     * This angle is used when the user double clicks on the widget
-     * @return The angle that is used to reset the current angle
-     * @see setResetAngle(qreal)
-     */
     qreal resetAngle() const;
-    /**
-     * @brief Gets the direction in which the angle increases
-     * @return The direction in which the angle increases
-     * @see IncreasingDirection
-     * @see setIncreasingDirection(IncreasingDirection)
-     */
     IncreasingDirection increasingDirection() const;
-    
-    /**
-     * @brief Sets the angle to which multiples the selected angle will snap
-     * @param newSnapAngle the new angle to which multiples the selected angle will snap
-     * @see snapAngle() const
-     */
+
     void setSnapAngle(qreal newSnapAngle);
-    /**
-     * @brief Sets the angle that is used to reset the current angle
-     * @param newResetAngle the new angle that is used to reset the current angle
-     * @see resetAngle() const
-     */
     void setResetAngle(qreal newResetAngle);
-    /**
-     * @brief Sets the increasing direction
-     * @param newIncreasingDirection The new increasing direction
-     * @see IncreasingDirection
-     * @see increasingDirection() const
-     */
     void setIncreasingDirection(IncreasingDirection newIncreasingDirection);
 
 public Q_SLOTS:
-    /**
-     * @brief Sets the current angle
-     * @param newAngle the new angle
-     * @see angle() const
-     */
     void setAngle(qreal newAngle);
-    /**
-     * @brief Sets the current angle to the reset angle
-     * @see resetAngle() const
-     * @see setResetAngle(qreal) const
-     */
     void reset();
 
 Q_SIGNALS:
-    /**
-     * @brief Signal emitted when the angle has changed
-     * @param angle The new angle
-     */
     void angleChanged(qreal angle);
 
 protected:

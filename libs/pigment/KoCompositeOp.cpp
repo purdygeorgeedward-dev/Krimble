@@ -155,7 +155,6 @@ void KoCompositeOp::composite(quint8 *dstRowStart, qint32 dstRowStride,
     composite(params);
 }
 
-
 void KoCompositeOp::composite(const KoCompositeOp::ParameterInfo& params) const
 {
     composite(params.dstRowStart           , params.dstRowStride ,

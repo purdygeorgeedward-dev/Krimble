@@ -16,9 +16,6 @@
 class KoColorSpace;
 #include <KoID.h>
 
-// TODO : convert this data blob into a modern design with an enum class.
-// This will reduce the need for runtime string comparisons.
-
 const QString COMPOSITE_OVER         = "normal";
 const QString COMPOSITE_ERASE        = "erase";
 const QString COMPOSITE_IN           = "in";
@@ -82,7 +79,7 @@ const QString COMPOSITE_PENUMBRAD     = "penumbra d";
 const QString COMPOSITE_MARKER        = "marker";
 
 const QString COMPOSITE_DARKEN      = "darken";
-const QString COMPOSITE_BURN        = "burn";//this is also known as 'color burn'.
+const QString COMPOSITE_BURN        = "burn";
 const QString COMPOSITE_LINEAR_BURN = "linear_burn";
 const QString COMPOSITE_GAMMA_DARK  = "gamma_dark";
 const QString COMPOSITE_SHADE_IFS_ILLUSIONS = "shade_ifs_illusions";
@@ -113,7 +110,6 @@ const QString COMPOSITE_TINT_IFS_ILLUSIONS = "tint_ifs_illusions";
 const QString COMPOSITE_FOG_LIGHTEN_IFS_ILLUSIONS = "fog_lighten_ifs_illusions";
 const QString COMPOSITE_EASY_DODGE        = "easy dodge";
 const QString COMPOSITE_LUMINOSITY_SAI        = "luminosity_sai";
-
 
 const QString COMPOSITE_HUE            = "hue";
 const QString COMPOSITE_COLOR          = "color";
@@ -165,7 +161,7 @@ const QString COMPOSITE_CLEAR        = "clear";
 const QString COMPOSITE_DISSOLVE     = "dissolve";
 const QString COMPOSITE_DISPLACE     = "displace";
 const QString COMPOSITE_NO           = "nocomposition";
-const QString COMPOSITE_PASS_THROUGH = "pass through"; // XXX: not implemented anywhere yet
+const QString COMPOSITE_PASS_THROUGH = "pass through";
 const QString COMPOSITE_DARKER_COLOR = "darker color";
 const QString COMPOSITE_LIGHTER_COLOR = "lighter color";
 const QString COMPOSITE_UNDEF        = "undefined";
@@ -182,7 +178,6 @@ const QString COMPOSITE_FHYRD     = "heat_glow_freeze_reflect_hybrid";
 
 const QString COMPOSITE_LAMBERT_LIGHTING   = "lambert_lighting";
 const QString COMPOSITE_LAMBERT_LIGHTING_GAMMA_2_2   = "lambert_lighting_gamma2.2";
-
 
 class KRITAPIGMENT_EXPORT KoCompositeOpRegistry
 {
@@ -222,5 +217,4 @@ private:
     KoIDMap  m_map;
 };
 
-
-#endif // KOCOMPOSITEOPREGISTRY_H
+#endif

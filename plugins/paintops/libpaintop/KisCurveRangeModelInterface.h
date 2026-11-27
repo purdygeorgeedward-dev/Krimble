@@ -32,11 +32,10 @@ public:
     virtual lager::reader<QString> xValueSuffix() = 0;
 };
 
-// usage: factory(curve, curveRange, activeSensorId, activeSensorLength)
-using KisCurveRangeModelFactory = 
-    std::function<KisCurveRangeModelInterface *(lager::cursor<QString>, 
+using KisCurveRangeModelFactory =
+    std::function<KisCurveRangeModelInterface *(lager::cursor<QString>,
                                                 lager::cursor<QRectF>,
-                                                lager::reader<QString>, 
+                                                lager::reader<QString>,
                                                 lager::reader<int>)>;
 
-#endif // KISCURVERANGEMODELINTERFACE_H
+#endif

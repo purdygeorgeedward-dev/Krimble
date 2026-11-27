@@ -11,12 +11,6 @@
 #include <kis_types.h>
 #include <filter/kis_filter.h>
 
-/**
- * This class is an implementation of the phong illumination model.
- * It uses a heightmap as an input mesh (normally taken from 1
- * channel of a colorspace) to achieve a bumpmapping effect with
- * multiple illumination sources.
- */
 class KisFilterPhongBumpmap : public KisFilter
 {
 public:
@@ -36,7 +30,6 @@ public:
     KisConfigWidget *createConfigurationWidget(QWidget *parent, const KisPaintDeviceSP dev, bool useForMasks) const override;
     KisFilterConfigurationSP defaultConfiguration(KisResourcesInterfaceSP resourcesInterface) const override;
 private:
-    //bool m_usenormalmap;
 };
 
-#endif  //KIS_PHONG_BUMPMAP_FILTER_H
+#endif

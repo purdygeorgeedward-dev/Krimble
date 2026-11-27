@@ -33,7 +33,7 @@ public:
     QDockWidget* createDockWidget() override
     {
         DigitalMixerDock * dockWidget = new DigitalMixerDock();
-        
+
         dockWidget->setObjectName(id());
 
         return dockWidget;
@@ -45,9 +45,7 @@ public:
     }
 private:
 
-
 };
-
 
 DigitalMixerPlugin::DigitalMixerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

@@ -8,8 +8,8 @@
  */
 
 #include "kis_color_space_selector.h"
+#include <kis_icon_utils.h>
 #include "kis_advanced_color_space_selector.h"
-
 
 #include <QUrl>
 
@@ -26,7 +26,6 @@
 #include <QStandardPaths>
 
 #include <KoResourcePaths.h>
-
 
 #include <kis_debug.h>
 
@@ -56,6 +55,7 @@ KisColorSpaceSelector::KisColorSpaceSelector(QWidget *parent)
 
     d->colorSpaceSelector->bnInstallProfile->setIcon(koIcon("document-import-16"));
     d->colorSpaceSelector->bnInstallProfile->setToolTip(i18n("Import profile"));
+    d->colorSpaceSelector->bnAdvanced->setIcon(KisIconUtils::loadIcon("krimble-color-space"));
 
     connect(d->colorSpaceSelector->cmbColorModels, SIGNAL(activated(KoID)),
             this, SLOT(slotModelsComboBoxActivated(KoID)));
@@ -80,7 +80,6 @@ KisColorSpaceSelector::~KisColorSpaceSelector()
     delete d->colorSpaceSelector;
     delete d;
 }
-
 
 void KisColorSpaceSelector::fillCmbProfiles()
 {
@@ -122,8 +121,6 @@ void KisColorSpaceSelector::fillCmbDepths(const KoID& id)
         d->colorSpaceSelector->cmbColorDepth->setCurrent(activeDepth);
     }
 }
-
-
 
 const KoColorSpace* KisColorSpaceSelector::currentColorSpace()
 {
@@ -248,7 +245,6 @@ void KisColorSpaceSelector::slotProfileValid(bool valid)
     d->profileValid = valid;
 }
 
-
 void KisColorSpaceSelector::slotModelsComboBoxActivated(const KoID& id)
 {
     if (d->previousModel != id) {
@@ -263,7 +259,6 @@ void KisColorSpaceSelector::slotDepthsComboBoxActivated()
 {
     fillCmbProfiles();
 }
-
 
 void KisColorSpaceSelector::slotProfilesComboBoxActivated()
 {

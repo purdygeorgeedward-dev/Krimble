@@ -20,38 +20,25 @@ class KRITAPSD_EXPORT PSDHeader
 public:
     PSDHeader();
 
-    /**
-     * Reads a psd header from the given device.
-     *
-     * @return false if:
-     *   <li>reading failed
-     *   <li>if the 8BPS signature is not found
-     *   <li>if the version is not 1 or 2
-     */
     bool read(QIODevice &device);
 
-    /**
-     * write the header data to the given device
-     *
-     * @return false if writing failed or if this is not a valid header
-     */
     bool write(QIODevice &device);
 
     bool valid();
 
-    QString signature; // 8PBS
-    quint16 version; // 1 or 2
-    quint16 nChannels; // 1 - 56
-    quint32 height; // 1-30,000 or 1 - 300,000
-    quint32 width; // 1-30,000 or 1 - 300,000
-    quint16 channelDepth; // 1, 8, 16. XXX: check whether 32 is used!
+    QString signature;
+    quint16 version;
+    quint16 nChannels;
+    quint32 height;
+    quint32 width;
+    quint16 channelDepth;
     psd_color_mode colormode;
     psd_byte_order byteOrder;
-    bool tiffStyleLayerBlock; // if true, treat layer section as 4-byte aligned blocks
+    bool tiffStyleLayerBlock;
 
     QString error;
 };
 
 KRITAPSD_EXPORT QDebug operator<<(QDebug dbg, const PSDHeader &header);
 
-#endif // PSD_HEADER_H
+#endif

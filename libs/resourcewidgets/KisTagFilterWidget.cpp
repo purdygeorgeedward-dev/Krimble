@@ -46,7 +46,6 @@ KisTagFilterWidget::KisTagFilterWidget(KisTagModel* model, QWidget* parent)
 
     QGridLayout* filterBarLayout = new QGridLayout(this);
 
-
     d->tagSearchLineEdit = new QLineEdit(this);
     d->tagSearchLineEdit->setClearButtonEnabled(true);
     d->tagSearchLineEdit->setPlaceholderText(i18n("Search"));
@@ -70,7 +69,6 @@ KisTagFilterWidget::KisTagFilterWidget(KisTagModel* model, QWidget* parent)
     bool filterByTagCheckboxChecked = cfg.readEntry(d->configName, true);
     d->filterByTagCheckbox->setChecked(filterByTagCheckboxChecked);
 
-
     filterBarLayout->addWidget(d->filterByTagCheckbox, 0, 1);
     connect(d->tagSearchLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(onTextChanged(QString)));
@@ -91,7 +89,6 @@ bool KisTagFilterWidget::isFilterByTagChecked()
 {
     return d->filterByTagCheckbox->isChecked();
 }
-
 
 void KisTagFilterWidget::onTextChanged(const QString& lineEditText)
 {

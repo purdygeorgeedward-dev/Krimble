@@ -58,7 +58,7 @@ bool KisResourceItemView::viewportEvent(QEvent *event)
     return QTableView::viewportEvent(event);
 }
 
-void KisResourceItemView::selectionChanged(const QItemSelection &selected, const QItemSelection &/*deselected*/)
+void KisResourceItemView::selectionChanged(const QItemSelection &selected, const QItemSelection & )
 {
     if (selected.isEmpty()) {
         Q_EMIT currentResourceChanged(QModelIndex());
@@ -101,12 +101,12 @@ void KisResourceItemView::setViewMode(ViewMode mode)
 
     switch (m_viewMode) {
     case FIXED_COLUMNS:
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // Horizontal scrollbar is never needed
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         break;
     case FIXED_ROWS:
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // Vertical scrollbar is never needed
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         break;
     default:
         setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -129,14 +129,13 @@ void KisResourceItemView::updateView()
         for (int i = 0; i < columnCount; ++i) {
             setColumnWidth(i, columnWidth);
         }
-        // keep aspect ratio always square.
         if (columnCount > 1) {
             for (int i = 0; i < rowCount; ++i) {
                 setRowHeight(i, columnWidth);
             }
         }
     } else if (m_viewMode == FIXED_ROWS) {
-        if (rowCount == 0) return;  // Don't divide by zero
+        if (rowCount == 0) return;
         rowHeight = qFloor(viewport()->size().height() / static_cast<double>(rowCount));
 
         for (int i = 0; i < rowCount; ++i) {

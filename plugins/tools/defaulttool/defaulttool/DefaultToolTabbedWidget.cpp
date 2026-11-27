@@ -14,10 +14,9 @@
 
 #include <kis_document_aware_spin_box_unit_manager.h>
 
-
 DefaultToolTabbedWidget::DefaultToolTabbedWidget(KoInteractionTool *tool, QWidget *parent)
     : KoTitledTabWidget(parent)
-{    
+{
     setObjectName("default-tool-tabbed-widget");
 
     m_geometryWidget = new DefaultToolGeometryWidget(tool, this);
@@ -30,11 +29,10 @@ DefaultToolTabbedWidget::DefaultToolTabbedWidget(KoInteractionTool *tool, QWidge
     KisDocumentAwareSpinBoxUnitManager* managerLineWidth = new KisDocumentAwareSpinBoxUnitManager(m_strokeWidget);
     KisDocumentAwareSpinBoxUnitManager* managerMitterLimit = new KisDocumentAwareSpinBoxUnitManager(m_strokeWidget);
     managerLineWidth->setApparentUnitFromSymbol("px");
-    managerMitterLimit->setApparentUnitFromSymbol("px"); //set unit to px by default
+    managerMitterLimit->setApparentUnitFromSymbol("px");
     m_strokeWidget->setUnitManagers(managerLineWidth, managerMitterLimit);
 
     addTab(m_strokeWidget, KisIconUtils::loadIcon("krita_tool_line"), QString());
-
 
     m_fillWidget = new KoFillConfigWidget(tool->canvas(), KoFlake::Fill, true, this);
     m_fillWidget->setWindowTitle(i18n("Fill"));
@@ -84,7 +82,6 @@ void DefaultToolTabbedWidget::slotMeshGradientHandleSelected(KoShapeMeshGradient
 
 void DefaultToolTabbedWidget::slotCurrentIndexChanged(int current)
 {
-    // because of nesting we are required to only let one widget be active at at time
     deactivate();
     activate();
 

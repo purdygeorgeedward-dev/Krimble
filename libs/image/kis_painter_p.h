@@ -59,7 +59,7 @@ struct Q_DECL_HIDDEN KisPainter::Private {
     QPointF                     axesCenter;
     bool                        mirrorHorizontally {false};
     bool                        mirrorVertically {false};
-    bool                        isOpacityUnit {true}; // TODO: move into ParameterInfo
+    bool                        isOpacityUnit {true};
     KoCompositeOp::ParameterInfo paramInfo;
     KoColorConversionTransformation::Intent renderingIntent {KoColorConversionTransformation::IntentPerceptual};
     KoColorConversionTransformation::ConversionFlags conversionFlags {KoColorConversionTransformation::Empty};
@@ -97,4 +97,4 @@ struct Q_DECL_HIDDEN KisPainter::Private {
 
 };
 
-#endif // KISPAINTERPRIVATE_H
+#endif

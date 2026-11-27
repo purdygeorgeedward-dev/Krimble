@@ -139,7 +139,7 @@ KisXCFImport::~KisXCFImport()
 {
 }
 
-KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     int errorStatus;
 
@@ -149,7 +149,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
     xcf_length = data.size();
     io->close();
 
-    // Decode the data
     if (getBasicXcfInfo() != XCF_OK) {
         if (XCF.version < 0 || XCF.version > 2) {
             document->setErrorMessage(i18n("This XCF file is too new; Krimble cannot support XCF files written by GIMP 2.9 or newer."));
@@ -164,13 +163,11 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
 
     dbgFile << XCF.version << "width = " << XCF.width << "height = " << XCF.height << "layers = " << XCF.numLayers;
 
-    // Create the image
     KisImageSP image = new KisImage(document->createUndoStore(), XCF.width, XCF.height, KoColorSpaceRegistry::instance()->rgb8(), "built image");
 
     QVector<Layer> layers;
     uint maxDepth = 0;
 
-    // Read layers
     for (int i = 0; i < XCF.numLayers; ++i) {
 
         Layer layer;
@@ -182,7 +179,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
         maxDepth = qMax(maxDepth, xcflayer.pathLength);
 
         bool isRgbA = false;
-        // Select the color space
         const KoColorSpace* colorSpace = 0;
         switch (xcflayer.type) {
         case GIMP_INDEXED_IMAGE:
@@ -199,7 +195,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
             break;
         }
 
-        // Create the layer
         KisLayerSP kisLayer;
         if (xcflayer.isGroup) {
             kisLayer = new KisGroupLayer(image, QString::fromUtf8(xcflayer.name), xcflayer.opacity);
@@ -208,7 +203,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
             kisLayer = new KisPaintLayer(image, QString::fromUtf8(xcflayer.name), xcflayer.opacity, colorSpace);
         }
 
-        // Set some properties
         kisLayer->setCompositeOpId(layerModeG2K(xcflayer.mode));
         kisLayer->setVisible(xcflayer.isVisible);
         kisLayer->disableAlphaChannel(xcflayer.mode != GIMP_NORMAL_MODE);
@@ -216,7 +210,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
         layer.layer = kisLayer;
         layer.depth = xcflayer.pathLength;
 
-        // Copy the data in the image
         if ((errorStatus = initLayer(&xcflayer)) != XCF_OK) {
             return ImportExportCodes::FileFormatIncorrect;
         }
@@ -226,7 +219,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
 
         if (!xcflayer.isGroup) {
 
-            // Copy the data;
             for (unsigned int x = 0; x < xcflayer.dim.width; x += TILE_WIDTH) {
                 for (unsigned int y = 0; y < xcflayer.dim.height; y += TILE_HEIGHT) {
                     rect want;
@@ -242,7 +234,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
                     rgba* data = tile->pixels;
                     for (int v = 0; v < TILE_HEIGHT; ++v) {
                         if (isRgbA) {
-                            // RGB image
                            do {
                                 KoBgrTraits<quint8>::setRed(it->rawData(), GET_RED(*data));
                                 KoBgrTraits<quint8>::setGreen(it->rawData(), GET_GREEN(*data));
@@ -251,7 +242,6 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
                                 ++data;
                             } while (it->nextPixel());
                         } else {
-                            // Grayscale image
                             do {
                                 it->rawData()[0] = GET_RED(*data);
                                 it->rawData()[1] = GET_ALPHA(*data);
@@ -264,11 +254,9 @@ KisImportExportErrorCode KisXCFImport::convert(KisDocument *document, QIODevice 
                 }
             }
 
-            // Move the layer to its position
             kisLayer->paintDevice()->setX(left);
             kisLayer->paintDevice()->setY(top);
         }
-        // Create the mask
         if (xcflayer.hasMask) {
             KisTransparencyMaskSP mask = new KisTransparencyMask(image, i18n("Transparency Mask"));
             layer.mask = mask;

@@ -14,7 +14,6 @@
 #include <KisPaintOpOptionUtils.h>
 namespace kpou = KisPaintOpOptionUtils;
 
-
 KisRotationOption::KisRotationOption(const KisPropertiesConfiguration *setting)
     : KisRotationOption(kpou::loadOptionData<KisRotationOptionData>(setting))
 {
@@ -39,14 +38,10 @@ qreal KisRotationOption::apply(const KisPaintInformation & info) const
 
     const qreal normalizedBaseAngle = -info.canvasRotation() / 360.0;
 
-    // we should invert scaling part because it is expected
-    // to rotate the brush counterclockwise
     const qreal scalingPartCoeff = -1.0;
 
     qreal value = computeRotationLikeValue(info, normalizedBaseAngle, absoluteAxesFlipped, scalingPartCoeff, info.isHoveringMode());
 
-    /// flip to conform global legacy code
-    /// we measure rotation in the opposite direction relative Qt's way
     value = 1.0 - value;
 
     return normalizeAngle(value * M_PI);
@@ -56,9 +51,5 @@ void KisRotationOption::applyFanCornersInfo(KisPaintOp *op)
 {
     if (!this->isChecked()) return;
 
-    /**
-     * A special case for the Drawing Angle sensor, because it
-     * changes the behavior of KisPaintOp::paintLine()
-     */
     op->setFanCornersInfo(m_fanCornersEnabled, m_fanCornersStep * M_PI / 180.0);
 }

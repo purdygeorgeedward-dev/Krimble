@@ -17,7 +17,6 @@ PresetChooser::PresetChooser(QWidget *parent)
     showTaggingBar(true);
 }
 
-
 void PresetChooser::setCurrentPreset(Resource *resource)
 {
     KoResourceSP r = resource->resource();

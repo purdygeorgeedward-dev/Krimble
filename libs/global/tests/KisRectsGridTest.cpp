@@ -41,8 +41,6 @@ void KisRectsGridTest::test()
 
     result = grid.removeRect(QRect(64,0,64,64));
 
-    //qDebug() << ppVar(result);
-
     QCOMPARE(result, QVector<QRect>({QRect(64,0,64,64)}));
     QVERIFY(!grid.contains(QRect(64,10,1,1)));
     QVERIFY(grid.contains(QRect(128,10,1,1)));

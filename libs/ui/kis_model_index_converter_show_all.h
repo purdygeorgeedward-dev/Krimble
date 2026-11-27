@@ -12,13 +12,6 @@
 class KisDummiesFacadeBase;
 class KisNodeModel;
 
-
-/**
- * The class for converting to/from QModelIndex and KisNodeDummy when
- * the root node is *shown* (ShowRootLayer == *true*). The selection
- * masks owned by the root layer are shown as well.
- */
-
 class KRITAUI_EXPORT KisModelIndexConverterShowAll : public KisModelIndexConverterBase
 {
 public:
@@ -40,4 +33,4 @@ private:
     KisNodeModel *m_model;
 };
 
-#endif /* __KIS_MODEL_INDEX_CONVERTER_SHOW_ALL_H */
+#endif

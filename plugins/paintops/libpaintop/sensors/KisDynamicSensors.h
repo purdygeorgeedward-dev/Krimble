@@ -117,4 +117,4 @@ public:
     }
 };
 
-#endif // KISDYNAMICSENSORS_H
+#endif

@@ -5,7 +5,6 @@
  */
 #include "SnapshotPlugin.h"
 
-
 #include <kpluginfactory.h>
 #include <klocalizedstring.h>
 
@@ -41,7 +40,6 @@ public:
         return DockMinimized;
     }
 };
-
 
 SnapshotPlugin::SnapshotPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)

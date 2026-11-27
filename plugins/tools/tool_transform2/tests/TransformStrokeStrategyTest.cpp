@@ -95,16 +95,12 @@ protected:
             m_transformMask->forceUpdateTimedNode();
             image->waitForDone();
 
-            //KIS_DUMP_DEVICE_2(m_node->paintDevice(), QRect(0,0,512,512), "00_initial_pd", "dd");
-            //KIS_DUMP_DEVICE_2(m_node->projection(), QRect(0,0,512,512), "01_initial_proj", "dd");
-
             m_offset = QPointF(-2.5, 0);
 
         } else if (iteration == 1) {
             m_offset = QPointF(0, -2.5);
         }
 
-        // clear stats
         testingInterface()->clear();
 
         LEAVE_FUNCTION();
@@ -153,23 +149,13 @@ protected:
                               InplaceTransformStrokeStrategy::UpdateTransformData::PAINT_DEVICE));
         }
 
-
         m_updatesHelper.endUpdateStream();
 
-
-        /**
-         * HINT: we cannot read data from the device at this point when working LoD is
-         *       non-zero, because this LoD is actual only at the context of the
-         *       jobs actually executing the update request
-         */
         ENTER_FUNCTION() << ppVar(image->currentLevelOfDetail());
         QTest::qWait(200);
-        //KIS_DUMP_DEVICE_2(m_node->paintDevice(), QRect(0,0,512,512), "80_semi-ended_pd", "dd");
-        //KIS_DUMP_DEVICE_2(m_node->projection(), QRect(0,0,512,512), "81_semi-ended_proj", "dd");
 
         compareStats("JOBS", m_testPlan[iteration].jobsPhase);
     }
-
 
     void compareStats(const char *title, KisTransformMaskTestingListener::Data &expected)
     {
@@ -189,13 +175,8 @@ protected:
         Q_UNUSED(activeNode);
 
         qDebug() << "Waiting for the final update...";
-        /// the delay in the mask is 3000ms, so we should wait a little bit longer to catch
-        /// spurious updates
         QTest::qWait(4000);
         qDebug() << "(done)";
-
-        //KIS_DUMP_DEVICE_2(m_node->paintDevice(), QRect(0,0,512,512), "90_ended_pd", "dd");
-        //KIS_DUMP_DEVICE_2(m_node->projection(), QRect(0,0,512,512), "91_ended_proj", "dd");
 
         compareStats("FINALIZATION", m_testPlan[iteration].finalizationPhase);
     }
@@ -288,7 +269,7 @@ void TransformStrokeStrategyTest::testLod2()
         init.decorateRectTriggeredStaticImageUpdate = 0;
         init.slotDelayedStaticImageUpdate = 0;
         init.forceUpdateTimedNode = 1;
-        init.threadSafeForceStaticImageUpdate = 1; // we have one more call due to undo() step in the commands
+        init.threadSafeForceStaticImageUpdate = 1;
         init.recalculateStaticImage = 2;
 
         KisTransformMaskTestingListener::Data jobs;
@@ -379,7 +360,7 @@ void TransformStrokeStrategyTest::testLod2ContinueAndCancel()
         init.decorateRectTriggeredStaticImageUpdate = 0;
         init.slotDelayedStaticImageUpdate = 0;
         init.forceUpdateTimedNode = 1;
-        init.threadSafeForceStaticImageUpdate = 1; // we have one more call due to undo() step in the commands
+        init.threadSafeForceStaticImageUpdate = 1;
         init.recalculateStaticImage = 2;
 
         KisTransformMaskTestingListener::Data jobs;
@@ -436,7 +417,7 @@ void TransformStrokeStrategyTest::testLod0()
         init.decorateRectTriggeredStaticImageUpdate = 0;
         init.slotDelayedStaticImageUpdate = 0;
         init.forceUpdateTimedNode = 1;
-        init.threadSafeForceStaticImageUpdate = 1; // we have one more call due to undo() step in the commands
+        init.threadSafeForceStaticImageUpdate = 1;
         init.recalculateStaticImage = 2;
 
         KisTransformMaskTestingListener::Data jobs;
@@ -483,7 +464,7 @@ void TransformStrokeStrategyTest::testLod0Cancelled()
         end.decorateRectTriggeredStaticImageUpdate = 1;
         end.slotDelayedStaticImageUpdate = 0;
         end.forceUpdateTimedNode = 0;
-        end.threadSafeForceStaticImageUpdate = 2; // TODO: check why we get dirty?
+        end.threadSafeForceStaticImageUpdate = 2;
         end.recalculateStaticImage = 1;
         tester.m_testPlan << TestPlan{init, jobs, end};
     }
@@ -527,7 +508,7 @@ void TransformStrokeStrategyTest::testLod0ContinueAndCancel()
         init.decorateRectTriggeredStaticImageUpdate = 0;
         init.slotDelayedStaticImageUpdate = 0;
         init.forceUpdateTimedNode = 1;
-        init.threadSafeForceStaticImageUpdate = 1; // we have one more call due to undo() step in the commands
+        init.threadSafeForceStaticImageUpdate = 1;
         init.recalculateStaticImage = 2;
 
         KisTransformMaskTestingListener::Data jobs;

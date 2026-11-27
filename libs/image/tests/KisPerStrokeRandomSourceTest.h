@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testDifferentKeys();
 };
 
-#endif // KISPERSTROKERANDOMSOURCETEST_H
+#endif

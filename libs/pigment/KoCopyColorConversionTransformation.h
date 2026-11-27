@@ -27,5 +27,4 @@ public:
                                                                        KoColorConversionTransformation::ConversionFlags conversionFlags) const override;
 };
 
-
 #endif

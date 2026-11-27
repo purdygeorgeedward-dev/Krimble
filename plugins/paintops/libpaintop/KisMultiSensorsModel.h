@@ -16,7 +16,6 @@
 class KisCubicCurve;
 class KisCurveOption;
 
-
 class KisMultiSensorsModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -40,9 +39,6 @@ public:
 
     QString getSensorId(const QModelIndex& index);
 
-    /**
-     * Create an index that correspond to the sensor given in argument.
-     */
     QModelIndex sensorIndex(const QString &id);
 
 private:

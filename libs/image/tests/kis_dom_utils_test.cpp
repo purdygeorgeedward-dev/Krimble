@@ -11,7 +11,6 @@
 #include "kis_dom_utils.h"
 #include "kis_debug.h"
 
-
 const qreal f1 = 0.0003;
 const qreal f2 = 1e-15;
 const qreal f3 = 1356.78301;
@@ -149,7 +148,6 @@ void KisDomUtilsTest::testIntegralType()
 {
     KisTimeSpan r1 = KisTimeSpan::fromTimeWithDuration(1, 10);
     KisTimeSpan r2 = KisTimeSpan::fromTimeWithDuration(5, 15);
-
 
     QDomDocument doc("testdoc");
 

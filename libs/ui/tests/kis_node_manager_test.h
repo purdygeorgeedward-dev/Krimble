@@ -24,4 +24,4 @@ private Q_SLOTS:
     void testConvertBlurToSelectionMask();
 };
 
-#endif /* __KIS_NODE_MANAGER_TEST_H */
+#endif

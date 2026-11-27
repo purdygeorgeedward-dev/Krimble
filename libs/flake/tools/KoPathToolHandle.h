@@ -25,7 +25,6 @@ class KoPathShape;
 class KisHandlePainterHelper;
 class KoColorDisplayRendererInterface;
 
-
 class KoPathToolHandle
 {
 public:
@@ -34,7 +33,6 @@ public:
     virtual void paint(QPainter &painter, const KoViewConverter &converter, qreal handleRadius, int decorationThickness, KoColorDisplayRendererInterface *renderInterface) = 0;
     virtual QRectF boundingRect() const = 0;
     virtual KoInteractionStrategy * handleMousePress(KoPointerEvent *event) = 0;
-    // test if handle is still valid
     virtual bool check(const QList<KoPathShape*> &selectedShapes) = 0;
 
     virtual void trySelectHandle() {};
@@ -73,4 +71,4 @@ protected:
     int m_handleId;
 };
 
-#endif // KOPATHTOOLHANDLE_H
+#endif

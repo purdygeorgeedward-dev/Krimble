@@ -17,7 +17,6 @@
 #include "kis_sequential_iterator.h"
 #include <floodfill/kis_scanline_fill.h>
 
-
 using namespace KisLazyFillTools;
 
 struct KisMultiwayCut::Private
@@ -51,7 +50,6 @@ void KisMultiwayCut::addKeyStroke(KisPaintDeviceSP dev, const KoColor &color)
 {
     m_d->keyStrokes << KeyStroke(dev, color);
 }
-
 
 void KisMultiwayCut::Private::maskOutKeyStroke(KisPaintDeviceSP keyStrokeDevice, KisPaintDeviceSP mask, const QRect &boundingRect)
 {
@@ -95,22 +93,11 @@ void KisMultiwayCut::run()
 {
     KisPaintDeviceSP other(new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8()));
 
-    /**
-     * First sort all the key strokes in a way that all the
-     * transparent strokes go to the beginning of the list.
-     *
-     * This is juat an heuristic: the transparent stroke usually
-     * represents the background so it is the bigger one. And since
-     * our algorithm is greedy, we should cover the biggest area
-     * as fast as possible.
-     */
-
     std::stable_sort(m_d->keyStrokes.begin(), m_d->keyStrokes.end(), keyStrokesOrder);
 
     while (m_d->keyStrokes.size() > 1) {
         KeyStroke current = m_d->keyStrokes.takeFirst();
 
-        // if current scribble is empty, it just has no effect
         if (current.dev->exactBounds().isEmpty()) continue;
 
         KisPainter gc(other);
@@ -120,8 +107,6 @@ void KisMultiwayCut::run()
             gc.bitBlt(rc.topLeft(), s.dev, rc);
         }
 
-        // if other is empty, it means that *all* other strokes are
-        // empty, so there is no reason to continue the process
         if (other->exactBounds().isEmpty()) {
             m_d->keyStrokes.clear();
             m_d->keyStrokes << current;
@@ -138,8 +123,6 @@ void KisMultiwayCut::run()
 
         other->clear();
     }
-
-    // TODO: check if one can use the last cut for this purpose!
 
     if (m_d->keyStrokes.size() == 1) {
         KeyStroke current = m_d->keyStrokes.takeLast();

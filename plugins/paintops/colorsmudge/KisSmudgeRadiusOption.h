@@ -11,4 +11,4 @@
 
 using KisSmudgeRadiusOption2 = KisStandardOptionNoApply<KisSmudgeRadiusOptionData>;
 
-#endif // KISSMUDGERADIUSOPTION_H
+#endif

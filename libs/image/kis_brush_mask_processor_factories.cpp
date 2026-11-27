@@ -89,19 +89,15 @@ void FastRowProcessor<KisCircleMaskGenerator>::process<xsimd::current_arch>(floa
             const float_m vNormLowMask = vNormFade < vOne;
             vNormFade = xsimd::set_zero(vNormFade, vNormLowMask);
 
-            // 255 * n * (normeFade - 1) / (normeFade - n)
             float_v vFade = n * (vNormFade - vOne) / (vNormFade - n);
 
-            // Mask in the inner circle of the mask
             const float_m mask = vNormFade < vOne;
             vFade = xsimd::set_zero(vFade, mask);
 
-            // Mask out the outer circle of the mask
             vFade = xsimd::set_one(vFade, outsideMask);
 
             vFade.store_aligned(bufferPointer);
         } else {
-            // Mask out everything outside the circle
             vOne.store_aligned(bufferPointer);
         }
 
@@ -157,7 +153,6 @@ void FastRowProcessor<KisGaussCircleMaskGenerator>::process<xsimd::current_arch>
         float_v dist =
             xsimd::sqrt(xsimd::pow2(xr) + xsimd::pow2(yr * vYCoeff));
 
-        // Apply FadeMaker mask and operations
         const float_m excludeMask = d->fadeMaker.needFade(dist);
 
         if (!xsimd::all(excludeMask)) {
@@ -166,18 +161,14 @@ void FastRowProcessor<KisGaussCircleMaskGenerator>::process<xsimd::current_arch>
                 * (VcExtraMath::erf(valDist + vCenter)
                    - VcExtraMath::erf(valDist - vCenter));
 
-            // Mask in the inner circle of the mask
             const float_m mask = fullFade < vZero;
             fullFade = xsimd::set_zero(fullFade, mask);
 
-            // Mask the outer circle
             const float_m outerMask = fullFade > 254.974f;
             fullFade = xsimd::select(outerMask, vValMax, fullFade);
 
-            // Mask (value - value), precision errors.
             float_v vFade = (vValMax - fullFade) / vValMax;
 
-            // return original dist values before vFade transform
             vFade = xsimd::select(excludeMask, dist, vFade);
             vFade.store_aligned(bufferPointer);
         } else {
@@ -239,12 +230,10 @@ void FastRowProcessor<KisCurveCircleMaskGenerator>::process<xsimd::current_arch>
 
         float_v dist = xsimd::pow2(xr * vXCoeff) + xsimd::pow2(yr * vYCoeff);
 
-        // Apply FadeMaker mask and operations
         const float_m excludeMask = d->fadeMaker.needFade(dist);
 
         if (!xsimd::all(excludeMask)) {
             const float_v valDist = dist * vCurveResolution;
-            // truncate
             int_v vAlphaValue = xsimd::to_int(valDist);
             const float_v vFloatAlphaValue = xsimd::to_float(vAlphaValue);
 
@@ -256,20 +245,16 @@ void FastRowProcessor<KisCurveCircleMaskGenerator>::process<xsimd::current_arch>
             vCurvedData = float_v::gather(curveDataPointer, vAlphaValue);
             vCurvedData1 = float_v::gather(curveDataPointer, vAlphaValue + 1);
 
-            // vAlpha
             float_v fullFade = ((vOne - alphaValueF) * vCurvedData
                                       + alphaValueF * vCurvedData1);
 
-            // Mask in the inner circle of the mask
             const float_m mask = fullFade < vZero;
             fullFade = xsimd::set_zero(fullFade, mask);
 
-            // Mask outer circle of mask
             const float_m outerMask = fullFade >= vOne;
             float_v vFade = (vOne - fullFade);
             vFade = xsimd::set_zero(vFade, outerMask);
 
-            // return original dist values before vFade transform
             vFade = xsimd::select(excludeMask, dist, vFade);
             vFade.store_aligned(bufferPointer);
         } else {
@@ -353,11 +338,9 @@ void FastRowProcessor<KisRectangleMaskGenerator>::process<xsimd::current_arch>(f
             vMaxVal = xsimd::select(vFadeMask && fyr > vOne, fyrNorm, vMaxVal);
             vFade = vMaxVal;
 
-            // Mask out the outer circle of the mask
             vFade = xsimd::select(outsideMask, vOne, vFade);
             vFade.store_aligned(bufferPointer);
         } else {
-            // Mask out everything outside the circle
             vOne.store_aligned(bufferPointer);
         }
 
@@ -413,7 +396,6 @@ void FastRowProcessor<KisGaussRectangleMaskGenerator>::process<xsimd::current_ar
         float_v xr = x_ * vCosa - vSinaY_;
         float_v yr = xsimd::abs(x_ * vSina + vCosaY_);
 
-        // check if we need to apply fader on values
         float_m excludeMask = d->fadeMaker.needFade(xr, yr);
 
         if (!xsimd::all(excludeMask)) {
@@ -421,18 +403,14 @@ void FastRowProcessor<KisGaussRectangleMaskGenerator>::process<xsimd::current_ar
                 - (vAlphafactor * (VcExtraMath::erf((vhalfWidth + xr) * vXFade) + VcExtraMath::erf((vhalfWidth - xr) * vXFade))
                    * (VcExtraMath::erf((vhalfHeight + yr) * vYFade) + VcExtraMath::erf((vhalfHeight - yr) * vYFade)));
 
-            // apply antialias fader
             d->fadeMaker.apply2DFader(fullFade, excludeMask, xr, yr);
 
-            // Mask in the inner circle of the mask
             const float_m mask = fullFade < vZero;
             fullFade = xsimd::set_zero(fullFade, mask);
 
-            // Mask the outer circle
             const float_m outerMask = fullFade > 254.974f;
             fullFade = xsimd::select(outerMask, vValMax, fullFade);
 
-            // Mask (value - value), precision errors.
             float_v vFade = fullFade / vValMax;
 
             vFade = xsimd::select(excludeMask, vOne, vFade);
@@ -492,13 +470,10 @@ void FastRowProcessor<KisCurveRectangleMaskGenerator>::process<xsimd::current_ar
         float_v xr = x_ * vCosa - vSinaY_;
         float_v yr = xsimd::abs(x_ * vSina + vCosaY_);
 
-        // check if we need to apply fader on values
         float_m excludeMask = d->fadeMaker.needFade(xr, yr);
         const float_v vValue = xsimd::set_one(float_v(0), excludeMask);
 
         if (!xsimd::all(excludeMask)) {
-            // We need to mask the extra area given for aliniation
-            // the next operation should never give values above 1
             float_v preSIndex = xsimd::abs(xr) * vXCoeff;
             float_v preTIndex = xsimd::abs(yr) * vYCoeff;
 
@@ -521,21 +496,16 @@ void FastRowProcessor<KisCurveRectangleMaskGenerator>::process<xsimd::current_ar
                    - (vCurvedDataSIndex * (vOne - vCurvedDataSIndexInv) * vCurvedDataTIndex
                       * (vOne - vCurvedDataTIndexInv)));
 
-            // apply antialias fader
             d->fadeMaker.apply2DFader(fullFade, excludeMask, xr, yr);
 
-            // Mask in the inner circle of the mask
             const float_m mask = fullFade < vZero;
             fullFade = xsimd::set_zero(fullFade, mask);
 
-            // Mask the outer circle
             const float_m outerMask = fullFade > 254.974f;
             fullFade = xsimd::select(outerMask, vValMax, fullFade);
 
-            // Mask (value - value), precision errors.
             float_v vFade = fullFade / vValMax;
 
-            // return original vValue values before vFade transform
             vFade = xsimd::select(excludeMask, vValue, vFade);
             vFade.store_aligned(bufferPointer);
         } else {
@@ -547,4 +517,4 @@ void FastRowProcessor<KisCurveRectangleMaskGenerator>::process<xsimd::current_ar
     }
 }
 
-#endif /* XSIMD_UNIVERSAL_BUILD_PASS */
+#endif

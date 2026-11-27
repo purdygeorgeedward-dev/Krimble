@@ -14,7 +14,6 @@
 #include "kis_assert.h"
 #include "KoPathMergeUtils.h"
 
-
 class Q_DECL_HIDDEN KoPathPointMergeCommand::Private
 {
 public:
@@ -90,12 +89,6 @@ public:
     boost::optional<QPointF> savedControlPoint12;
 };
 
-/**
- * How does is work:
- *
- * The goal is to merge the point that is ending an open subpath with the one
- * starting the same or another open subpath.
- */
 KoPathPointMergeCommand::KoPathPointMergeCommand(const KoPathPointData &pointData1, const KoPathPointData &pointData2, KUndo2Command *parent)
     : KUndo2Command(parent), d(new Private(pointData1, pointData2))
 {
@@ -117,7 +110,6 @@ KoPathPointMergeCommand::KoPathPointMergeCommand(const KoPathPointData &pointDat
         std::swap(d->pointIndex2, d->pointIndex1);
     }
 
-    // if we have two different subpaths we might need to reverse them
     if (!d->closeSubpathMode()) {
         if (d->pointIndex1.second == 0 &&
             d->pathShape->subpathPointCount(d->pointIndex1.first) > 1) {
@@ -203,7 +195,6 @@ void KoPathPointMergeCommand::undo()
         d->restorePointState(d->pathShape->pointByIndex(d->mergedPointIndex));
         d->pathShape->moveSubpath(d->mergedPointIndex.first+1, d->pointIndex2.first);
 
-        // undo the reversion of the subpaths
         if (d->reverse & Private::ReverseFirst) {
             d->pathShape->reverseSubpath(d->pointIndex1.first);
         }
@@ -213,7 +204,6 @@ void KoPathPointMergeCommand::undo()
         }
     }
 
-    // reset the removed point
     d->removedPoint = 0;
     d->mergedPointIndex = KoPathPointIndex(-1,-1);
 

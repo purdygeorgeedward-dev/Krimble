@@ -15,7 +15,6 @@
 
 class KisImageAnimationInterface;
 
-
 class KRITAIMAGE_EXPORT KisSwitchCurrentTimeCommand : public KUndo2Command
 {
 public:
@@ -54,4 +53,4 @@ private:
     KisKeyframeSP m_targetKeyframe;
 };
 
-#endif /* __KIS_SWITCH_CURRENT_TIME_COMMAND_H */
+#endif

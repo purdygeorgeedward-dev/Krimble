@@ -3,7 +3,7 @@
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
- 
+
 #ifndef _TANGENTNORMAL_PAINTOP_PLUGIN_H_
 #define _TANGENTNORMAL_PAINTOP_PLUGIN_H_
 
@@ -18,5 +18,4 @@ public:
     ~TangentNormalPaintOpPlugin() override;
 };
 
-
-#endif // _TANGENTNORMAL_PAINTOP_PLUGIN_H_
+#endif

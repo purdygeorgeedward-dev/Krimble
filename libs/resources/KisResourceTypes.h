@@ -8,11 +8,6 @@
 
 #include <klocalizedstring.h>
 #include "kritaresources_export.h"
-/**
- * These namespaces define the type keys and sub-type keys for resource types.
- * The type keys correspond to folders in the resource folder, the sub-type
- * keys to different types that have their own resource loader instance.
- */
 namespace ResourceType {
     KRITARESOURCES_EXPORT extern const QString PaintOpPresets;
     KRITARESOURCES_EXPORT extern const QString Brushes;
@@ -64,6 +59,4 @@ namespace ResourceName {
 
 }
 
-
-
-#endif // KISRESOURCETYPES_H
+#endif

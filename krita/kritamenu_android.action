@@ -21,10 +21,12 @@
       <icon></icon>
       <!-- Krimble 2026-10-13: George: "In help change Manage Supporter Benefits to just Benefits..." The old text was:
            <text>Manage Supporter Benefits...</text> -->
-      <text>Benefits...</text>
+      <!-- Krimble 2026-11-23: George: "Help - support Krimble should go to the Buy me a Coffee page." The old text was:
+           <text>Benefits...</text> -->
+      <text>Support Krimble...</text>
       <whatsThis></whatsThis>
-      <toolTip>Manage Supporter Benefits</toolTip>
-      <iconText>Manage Supporter Benefits</iconText>
+      <toolTip>Support Krimble</toolTip>
+      <iconText>Support Krimble</iconText>
       <activationFlags>0</activationFlags>
       <activationConditions>0</activationConditions>
       <shortcut></shortcut>

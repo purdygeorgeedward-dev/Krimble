@@ -8,7 +8,6 @@
 
 #include <QApplication>
 
-
 KisThreadSafeSignalCompressor::KisThreadSafeSignalCompressor(int delay, KisSignalCompressor::Mode mode)
     : m_compressor(new KisSignalCompressor(delay, mode, this))
 {
@@ -17,7 +16,6 @@ KisThreadSafeSignalCompressor::KisThreadSafeSignalCompressor(int delay, KisSigna
     connect(this, SIGNAL(internalSetDelay(int)), m_compressor, SLOT(setDelay(int)), Qt::AutoConnection);
     connect(m_compressor, SIGNAL(timeout()), SIGNAL(timeout()));
 
-    // due to this line the object *must not* be deleted explicitly!
     this->setObjectName("KisThreadSafeSignalCompressor");
     this->moveToThread(QApplication::instance()->thread());
 }

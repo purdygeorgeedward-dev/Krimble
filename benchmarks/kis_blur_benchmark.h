@@ -21,13 +21,13 @@ private:
     const KoColorSpace * m_colorSpace;
     KisPaintDeviceSP m_device;
     KoColor m_color;
-    
+
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
-    
+
     void benchmarkFilter();
-    
+
 };
 
 #endif

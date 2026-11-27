@@ -18,7 +18,6 @@ namespace KisSurfaceColorimetry {
     struct SurfaceDescription;
 }
 
-
 class KRITAUI_EXPORT KisCanvasSurfaceColorSpaceManager : public QObject
 {
     Q_OBJECT
@@ -40,10 +39,6 @@ public:
 
     std::optional<KisSurfaceColorimetry::SurfaceDescription> currentSurfaceDescription() const;
 
-    /**
-     * Non-empty string means there was an error with setting up the
-     * surface format
-     */
     QString lastErrorString() const;
 
 Q_SIGNALS:
@@ -61,4 +56,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif /* KISCANVASSURFACECOLORSPACEMANAGER_H */
+#endif

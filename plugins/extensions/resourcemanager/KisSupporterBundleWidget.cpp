@@ -42,8 +42,6 @@ KisSupporterBundleWidget::KisSupporterBundleWidget(KisSupporterBundlesFetcher *f
     for (const KisSupporterProduct &product : bundleProducts) {
         switch (product.availability) {
         case KisSupporterProductAvailability::Missing:
-            // Product is neither available for purchase nor does the user own
-            // it, so we'll pretend like it doesn't exist.
             break;
         case KisSupporterProductAvailability::Available:
             productList.append(product.title);
@@ -72,7 +70,6 @@ KisSupporterBundleWidget::KisSupporterBundleWidget(KisSupporterBundlesFetcher *f
     m_lblTitle->setText(QStringLiteral("<strong>%1</strong> by %2").arg(m_bundle.title.toHtmlEscaped(), author));
     m_lblDescription->setText(m_bundle.description);
 
-    // The margins on this stuff is ginormous by default, cut that down.
     QString productsText = QStringLiteral(
         "<style>\n"
         "ul { margin-top: 0px; margin-bottom: 4px; margin-left: -10px; }\n"
@@ -223,7 +220,7 @@ void KisSupporterBundleWidget::handleDownloadFinished(QNetworkReply *reply)
 void KisSupporterBundleWidget::showFinishedDownload(bool success, bool cancel, const QString &errorMessage)
 {
     if (success) {
-        m_btnGet->clearFocus(); // Prevent auto-scrolling to the next button.
+        m_btnGet->clearFocus();
         closeProgressDlg();
         m_canImport = false;
         m_stkDownload->setCurrentWidget(m_pgDone);
@@ -232,10 +229,6 @@ void KisSupporterBundleWidget::showFinishedDownload(bool success, bool cancel, c
         m_btnGet->setEnabled(true);
         m_stkDownload->setCurrentWidget(m_pgGet);
     } else {
-        // Delay this a bit to avoid excessively fast retries and to make it
-        // clear to the user that a retry is actually happening. Otherwise the
-        // download progress bar may flash so quickly that it seems like it's
-        // not doing anything at all.
         QTimer::singleShot(1000, [=] {
             closeProgressDlg();
             QMessageBox::warning(this, i18n("Download failed"), i18n("Bundle download failed: %1").arg(errorMessage));

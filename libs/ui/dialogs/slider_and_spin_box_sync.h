@@ -13,18 +13,6 @@
 class QSpinBox;
 class KisDoubleSliderSpinBox;
 
-/**
- * Syncs a slider measured in percentage with a spin box
- * measuring real value getting value from \p parentValueOp.
- *
- * E.g.
- *
- * parentValueOp() --- total system memory in MiB
- * slider --- percentage of the memory we can use
- * spinBox --- amount o fmemory we can use in MiB
- * slotParentValueChanged() --- should be called every time
- *                              total memory changes
- */
 class SliderAndSpinBoxSync : public QObject
 {
     Q_OBJECT
@@ -52,4 +40,4 @@ private:
     bool m_blockUpdates;
 };
 
-#endif /* __SLIDER_AND_SPIN_BOX_SYNC_H */
+#endif

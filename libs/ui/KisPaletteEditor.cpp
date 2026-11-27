@@ -43,7 +43,7 @@ struct KisPaletteEditor::PaletteInfo {
 struct KisPaletteEditor::Private
 {
     bool isEditing {false};
-    QSet<QString> modifiedGroupNames; // key is original group name
+    QSet<QString> modifiedGroupNames;
     QSet<QString> newGroupNames;
     QSet<QString> keepColorGroups;
     QSet<QString> pathsToRemove;
@@ -107,7 +107,6 @@ KoColorSetSP KisPaletteEditor::addPalette()
     QCheckBox *chkSaveInDocument = new QCheckBox(i18n("Save Palette in the Current Document"));
     chkSaveInDocument->setChecked(false);
     layout->addRow(chkSaveInDocument);
-
 
     if (dialog.exec() != QDialog::Accepted) { return 0; }
 
@@ -472,7 +471,6 @@ void KisPaletteEditor::addEntry(const KoColor &color)
     newSwatch.setSpotColor(chkSpot->isChecked());
     m_d->model->addSwatch(newSwatch, groupName);
     m_d->modifiedGroupNames.insert(groupName);
-    // TODO: This is getting called when startEditing is never called. This avoids the crash, but what is its purpose?
     if (m_d->isEditing) {
         KisSwatchGroupSP cs = m_d->modifiedPaletteInfo.groups.value(groupName);
         cs->addSwatch(newSwatch);
@@ -544,7 +542,6 @@ void KisPaletteEditor::endEditing(bool applyChanges)
     }
     QString resourceLocation = m_d->model->colorSet()->storageLocation();
     if (resourceLocation != m_d->modifiedPaletteInfo.storageLocation) {
-        // We need functionality for moving the resource to the new resource storage...
     }
 
     Q_FOREACH (const QString &groupName, palette->swatchGroupNames()) {
@@ -598,7 +595,6 @@ void KisPaletteEditor::saveNewPaletteVersion()
         if (m_d->view) {
             res = KisResourceUserOperations::updateResourceWithUserInput(m_d->view->mainWindowAsQWidget(), m_d->model->colorSet());
         } else if (m_d->model->colorSet()->version() >= 0) {
-            //if the version is -1, then the resource should not be updated, because it was never saved to begin with...
             res = m_d->rServer->resourceModel()->updateResource(m_d->model->colorSet());
             dbgResources << Q_FUNC_INFO << "-- Updating resource without user input: " << m_d->model->colorSet()->name() << "Result:" << res;
         }

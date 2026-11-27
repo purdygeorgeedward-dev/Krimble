@@ -45,13 +45,6 @@ const QString profilePrefix = "-reinit_filter 0\n-framerate $IN_FPS\n-i \"$INPUT
 
 const QList<RecorderProfile> defaultProfiles = {
     { "MP4 x264",   "mp4",  profilePrefix % "-filter_complex \"\n"
-      /* Filter documentation https://trac.ffmpeg.org/wiki/FilteringGuide
-       * Inside the complex filter command each line is a different filter that is applied to an input stream.
-       * The input stream to transform is specified at the start of each line in the format '[$STREAM_NAME]' (ex. [p1], [v1], [v2]).
-       * Immediately following the input stream name will be the filter to apply (ex: trim, scale, loop)
-       * Depending on the filter it may or may have various options set
-       * After all options for the filter a name can be specified that will correspond to the output stream of the filter. If no name is specified it will be used as the final result for the output file.
-       */
                                             " [1]scale='min($WIDTH, iw*($HEIGHT/ih))':'min($HEIGHT, ih*($WIDTH/iw))'[hold1];\n"
                                             " [hold1]pad=$WIDTH:$HEIGHT:(ow-iw)/2:(oh-ih)/2[hold2];\n"
                                             " [hold2]setsar=1:1[hold3];\n"
@@ -233,7 +226,6 @@ void RecorderExportConfig::setInputFps(int value)
     config->writeEntry(keyInputFps, value);
 }
 
-
 int RecorderExportConfig::fps() const
 {
     return config->readEntry(keyFps, 30);
@@ -263,7 +255,6 @@ void RecorderExportConfig::setFirstFrameSec(int value)
 {
     config->writeEntry(keyFirstFrameSec, value);
 }
-
 
 bool RecorderExportConfig::extendResult() const
 {
@@ -295,7 +286,6 @@ void RecorderExportConfig::setResize(bool value)
     config->writeEntry(keyResize, value);
 }
 
-
 QSize RecorderExportConfig::size() const
 {
     return config->readEntry(keySize, QSize(1024, 1024));
@@ -305,7 +295,6 @@ void RecorderExportConfig::setSize(const QSize &value)
 {
     config->writeEntry(keySize, value);
 }
-
 
 bool RecorderExportConfig::lockRatio() const
 {
@@ -376,14 +365,12 @@ QList<RecorderProfile> RecorderExportConfig::profiles() const
     const QStringList &profilesList = profilesStr.split("\n");
     int index = 0;
     for (const QString &profileStr : profilesList) {
-        // take saved profile in case it's edited.. or something bad happen
         if (editedIndexes.contains(index) || index >= ::defaultProfiles.size()) {
             const QStringList& profileList = profileStr.split("|");
             if (profileList.size() == 3) {
                 profiles.append({profileList[0], profileList[1], QString(profileList[2]).replace("\\n", "\n")});
             }
         } else {
-            // use default profile to make it possible to upgrade
             profiles.append(::defaultProfiles[index]);
         }
 
@@ -422,7 +409,6 @@ void RecorderExportConfig::setProfiles(const QList<RecorderProfile> &value)
     }
 }
 
-
 QList<RecorderProfile> RecorderExportConfig::defaultProfiles() const
 {
     return ::defaultProfiles;
@@ -447,7 +433,6 @@ void RecorderExportConfig::setEditedProfilesIndexes(const QSet<int> &value)
     config->writeEntry(keyEditedProfiles, writeValue);
 }
 
-
 QString RecorderExportConfig::ffmpegPath() const
 {
     return KisConfig(true).ffmpegLocation();
@@ -458,7 +443,6 @@ void RecorderExportConfig::setFfmpegPath(const QString &value)
     KisConfig cfg(false);
     cfg.setFFMpegLocation(value);
 }
-
 
 QString RecorderExportConfig::videoDirectory() const
 {

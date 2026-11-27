@@ -18,7 +18,6 @@ private:
     void doLowLevelRoundTrip(KisAbstractTileCompressor *compressor);
     void doLowLevelRoundTripIncompressible(KisAbstractTileCompressor *compressor);
 
-
 private Q_SLOTS:
     void testRoundTripLegacy();
     void testLowLevelRoundTripLegacy();
@@ -28,5 +27,5 @@ private Q_SLOTS:
     void testLowLevelRoundTripIncompressible2();
 };
 
-#endif /* KIS_TILE_COMPRESSORS_TEST_H */
+#endif
 

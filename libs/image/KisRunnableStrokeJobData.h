@@ -30,4 +30,4 @@ private:
     std::function<void()> m_func;
 };
 
-#endif // KISRUNNABLESTROKEJOBDATA_H
+#endif

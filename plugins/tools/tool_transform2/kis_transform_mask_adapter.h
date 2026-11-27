@@ -13,7 +13,6 @@
 
 class ToolTransformArgs;
 
-
 class KRITATOOLTRANSFORM_EXPORT KisTransformMaskAdapter : public KisTransformMaskParamsInterface
 {
 public:
@@ -43,7 +42,6 @@ public:
     void transformSrcAndDst(const QTransform &t) override;
     void translateDstSpace(const QPointF &offset) override;
 
-
     QRect nonAffineChangeRect(const QRect &rc) override;
     QRect nonAffineNeedRect(const QRect &rc, const QRect &srcBounds) override;
 
@@ -58,4 +56,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_TRANSFORM_MASK_ADAPTER_H */
+#endif

@@ -26,7 +26,6 @@ KoParameterHandleMoveCommand::~KoParameterHandleMoveCommand()
 {
 }
 
-/// redo the command
 void KoParameterHandleMoveCommand::redo()
 {
     KUndo2Command::redo();
@@ -35,7 +34,6 @@ void KoParameterHandleMoveCommand::redo()
     m_shape->update();
 }
 
-/// revert the actions done in redo
 void KoParameterHandleMoveCommand::undo()
 {
     KUndo2Command::undo();

@@ -30,7 +30,6 @@ namespace {
 
 const qreal s_sqrt3 = 1.7320508075688772;
 
-// The center of the hex cell nearest to a point, on the lattice the hex overlay of View > Show > Hex draws (the same as the Hexagon Selection tool).
 QPointF nearestHexCenter(const QPointF &p, qreal size, bool flatTop)
 {
     QPointF best = p;
@@ -70,7 +69,7 @@ QPointF nearestHexCenter(const QPointF &p, qreal size, bool flatTop)
     return best;
 }
 
-} // namespace
+}
 
 KisToolPolygonStar::Settings KisToolPolygonStar::readSettings()
 {
@@ -90,7 +89,6 @@ KisToolPolygonStar::Settings KisToolPolygonStar::readSettings()
 
 QPolygonF KisToolPolygonStar::shapeInRect(const QRectF &rect, const Settings &s)
 {
-    // unit shape: pointed top starts with a corner straight up; flat top turns it half a step so an edge is on top (for a hexagon: corners at 0, 60, ... degrees)
     const int n = s.sides;
     const int count = s.star ? 2 * n : n;
     const qreal start = -M_PI / 2.0 + (s.flatTop ? M_PI / n : 0.0);
@@ -116,7 +114,6 @@ QPolygonF KisToolPolygonStar::shapeInRect(const QRectF &rect, const Settings &s)
     return out;
 }
 
-// The options of the tool: Sides, Star and its inner size, Pointed or Flat top, Snap to the hex grid, and the shared Lock. (The line and fill options are the shape tools' own.)
 class KrimblePolyOptionsWidget : public QWidget
 {
 public:
@@ -166,7 +163,6 @@ public:
         });
     }
 
-    // reads the settings again (the lock may have been changed in View > Show > Lock Hex Settings or in the Hexagon Selection tool)
     void refresh()
     {
         const KisToolPolygonStar::Settings s = KisToolPolygonStar::readSettings();
@@ -255,14 +251,11 @@ void KisToolPolygonStar::activate(const QSet<KoShape*> &shapes)
     }
 }
 
-// Locked or snapping: no rotation (the shape sits on the grid as it is).
 qreal KisToolPolygonStar::shapeRotationAngle()
 {
     return readSettings().fixedSize() ? 0.0 : getRotationAngle();
 }
 
-// The box of the shape. Free: the dragged box. Snapping or locked: the box of one hex cell of the grid (the grid's size), centered on the nearest cell when snapping,
-// or on the point where the finger went down when only locked.
 QRectF KisToolPolygonStar::createRect(const QPointF &start, const QPointF &end)
 {
     const Settings s = readSettings();
@@ -311,12 +304,10 @@ void KisToolPolygonStar::finishRect(const QRectF &rect, qreal roundCornersX, qre
     path.closeSubpath();
     getRotatedPath(path, box.center(), shapeRotationAngle());
 
-    // a path shape in document points; addPathShape() paints it on a paint layer (line and fill from the tool options) or adds it to a vector layer
     KoPathShape *shape = new KoPathShape();
     const QPolygonF polygon = path.toFillPolygon();
     bool first = true;
     for (int i = 0; i < polygon.size(); ++i) {
-        // toFillPolygon repeats the first point at the end
         if (i == polygon.size() - 1 && polygon.at(i) == polygon.first()) break;
         const QPointF pt = convertToPt(QRectF(polygon.at(i), QSizeF(1.0, 1.0))).topLeft();
         if (first) { shape->moveTo(pt); first = false; }

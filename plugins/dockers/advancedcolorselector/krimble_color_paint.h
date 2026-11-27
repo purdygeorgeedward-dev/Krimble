@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-08: the shared base of the pages of the Color panel (Picker, Sliders, Values, Palette, History): a page is a card of 1178 design units wide (the mockups' card, scaled
-// to the same width) that places its parts at the measured rectangles times the scale (the width / 1178), and paints with the same frames, wells, lines and symbols.
 #pragma once
 #include <QWidget>
 #include <QPainter>
@@ -13,8 +11,8 @@
 #include <QFontMetricsF>
 #include "krimble_color_symbols.h"
 #include "krimble_color_icons.h"
+#include "KrimbleAquaPaint.h"
 
-// sets a widget's own style sheet only when it changes (setting one, even the same text, makes Qt restyle the widget)
 inline void krimbleSetSheet(QWidget *w, const QString &sheet)
 {
     if (w && w->styleSheet() != sheet) w->setStyleSheet(sheet);
@@ -23,7 +21,7 @@ inline void krimbleSetSheet(QWidget *w, const QString &sheet)
 class KrimbleColorBase : public QWidget
 {
 public:
-    static constexpr double DW = 1178.0;   // the card's width in design units
+    static constexpr double DW = 1178.0;
     static constexpr double MinWidth = 330.0;
     explicit KrimbleColorBase(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual double designHeight() const = 0;
@@ -48,7 +46,6 @@ protected:
         const qreal s = scale();
         return QRectF(x * s, y * s, w * s, h * s);
     }
-    // the largest font (up to the base size) in which the text is not wider than the width
     static QFont fittedFont(const QFont &base, const QString &text, qreal width)
     {
         QFont f = base;
@@ -76,7 +73,6 @@ protected:
         p.setPen(QPen(QColor(110, 125, 175, 95), 1.0));
         p.drawLine(QPointF(x0 * s, y * s + 1.6), QPointF(x1 * s, y * s + 1.6));
     }
-    // a raised button frame: a gradient from lighter to darker, a dark outline and a light line along the inside top
     static void paintButton(QPainter &p, const QRectF &rect, qreal radius)
     {
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
@@ -97,7 +93,6 @@ protected:
         p.setPen(QPen(QBrush(hl), 1.2));
         p.drawRoundedRect(b.adjusted(1.6, 1.6, -1.6, -1.6), qMax<qreal>(1.0, radius - 1.6), qMax<qreal>(1.0, radius - 1.6));
     }
-    // a dark inset field (number boxes, HEX, the name of the palette): dark at the top, a lighter outline, a light line along the bottom edge
     static void paintField(QPainter &p, const QRectF &rect, qreal radius)
     {
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
@@ -108,13 +103,11 @@ protected:
         p.setBrush(g);
         p.drawRoundedRect(b, radius, radius);
         p.setBrush(Qt::NoBrush);
-        // p.setPen(QPen(QColor("#4a557b"), 1.3));
-        p.setPen(QPen(QColor("#5b6ea6"), 1.5));   // 2026-11-08: the rim measured in the Sliders mockup is #6175B0
+        p.setPen(QPen(QColor("#5b6ea6"), 1.5));
         p.drawRoundedRect(b, radius, radius);
         p.setPen(QPen(QColor(6, 8, 18, 210), 1.2));
         p.drawLine(QPointF(b.left() + radius, b.top() + 1.6), QPointF(b.right() - radius, b.top() + 1.6));
     }
-    // a recessed well (recent colors, palette): very dark, a dark outline and a light line along the bottom edge
     static void paintWell(QPainter &p, const QRectF &rect, qreal radius)
     {
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
@@ -131,9 +124,7 @@ protected:
         p.drawLine(QPointF(b.left() + radius, b.bottom() + 0.2), QPointF(b.right() - radius, b.bottom() + 0.2));
     }
 
-
 public:
-    // a dark raised button (the model buttons of the Sliders page, measured): a bright line along the top, a lighter line along the bottom, dark in between
     static void paintDarkButton(QPainter &p, const QRectF &rect, qreal radius)
     {
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
@@ -155,7 +146,6 @@ public:
         p.setPen(QPen(QBrush(hl), 1.4));
         p.drawRoundedRect(b.adjusted(1.5, 1.5, -1.5, -1.5), qMax<qreal>(1.0, radius - 1.5), qMax<qreal>(1.0, radius - 1.5));
     }
-    // a number box with its arrow section (the right 38 units): the field, a lighter section with a divider, and the up and down arrows
     void paintSpinFrame(QPainter &p, const QRectF &box, double arrowUnits = 38.0)
     {
         const qreal s = scale();
@@ -176,7 +166,6 @@ public:
         drawSymbol(p, QStringLiteral("spin_up"), QPointF(arrows.center().x(), arrows.top() + arrows.height() * 0.26), 1.0);
         drawSymbol(p, QStringLiteral("spin_down"), QPointF(arrows.center().x(), arrows.top() + arrows.height() * 0.74), 1.0);
     }
-    // a divider of the groups (measured in the Sliders mockup: a bright line with a dark one under it)
     static void paintBrightLine(QPainter &p, double x0, double y, double x1, qreal s)
     {
         p.setPen(QPen(QColor(120, 138, 192, 200), 1.6));
@@ -184,7 +173,6 @@ public:
         p.setPen(QPen(QColor(8, 11, 26, 190), 1.2));
         p.drawLine(QPointF(x0 * s, y * s + 1.8), QPointF(x1 * s, y * s + 1.8));
     }
-    // a checker pattern (transparency): two grays, square cells, clipped to a rounded rectangle
     static void paintChecker(QPainter &p, const QRectF &rect, qreal cell, qreal radius)
     {
         p.save();
@@ -201,7 +189,6 @@ public:
                 if ((x + y) % 2 == 0) p.drawRect(QRectF(rect.left() + x * cell, rect.top() + y * cell, cell, cell));
         p.restore();
     }
-    // a titled group: a frame a little darker than the card, a bright line along its top edge, a lighter left edge
     static void paintGroup(QPainter &p, const QRectF &rect, qreal radius)
     {
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
@@ -224,23 +211,12 @@ public:
         p.setPen(QPen(QColor(80, 94, 140, 150), 1.2));
         p.drawLine(QPointF(b.left() + 1.0, b.top() + radius), QPointF(b.left() + 1.0, b.bottom() - radius));
     }
-    // the look of a selected item: a deep blue fill, a bright cyan outline and a glow (measured in the mockups' selected buttons and tabs)
     static void paintSelected(QPainter &p, const QRectF &rect, qreal radius, qreal s)
     {
-        for (int i = 6; i >= 1; --i) {
-            p.setPen(QPen(QColor(40, 190, 255, 20 + (6 - i) * 9), 2.0));
-            p.setBrush(Qt::NoBrush);
-            p.drawRoundedRect(rect.adjusted(-i * 1.1 * s, -i * 1.1 * s, i * 1.1 * s, i * 1.1 * s), radius + i * s, radius + i * s);
-        }
-        const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor("#0b87dd"));
-        p.drawRoundedRect(b, radius, radius);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#6fe3ff"), 2.4 * qMax<qreal>(0.5, s * 2)));
-        p.drawRoundedRect(b, radius, radius);
+        Q_UNUSED(s);
+        Q_UNUSED(radius);
+        krimblePaintSelectedGlow(p, rect, p.device() ? p.device()->devicePixelRatioF() : 1.0);
     }
-    // a pill that keeps the color and the glow of the item it shows (the preview boxes): a colored rounded square with the cyan outline and its glow
     static void paintColorBox(QPainter &p, const QRectF &rect, const QColor &c, qreal radius, qreal s, bool glow)
     {
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
@@ -252,9 +228,7 @@ public:
             p.setPen(QPen(QColor("#e6ecfa"), qMax<qreal>(2.0, 3.0 * s)));
             p.drawRoundedRect(b, radius, radius);
         }
-        // p.drawRoundedRect(b, radius, radius);
     }
-    // the icon pictures (colored, from krimble_color_icons.h) are drawn at the mockup's own size times the scale
     void drawIcon(QPainter &p, const QString &name, const QPointF &center, qreal factor = 1.0) const
     {
         const QPixmap pm = krimbleStudioIcon(name);

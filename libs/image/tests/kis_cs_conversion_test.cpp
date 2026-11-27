@@ -53,7 +53,7 @@ void KisCsConversionTest::testColorSpaceConversion()
 
             KisPaintDeviceSP dev  = new KisPaintDevice(srcCs);
             dev->convertFromQImage(image, 0);
-            dev->moveTo(10, 10);   // Unalign with tile boundaries
+            dev->moveTo(10, 10);
             dev->setDefaultBounds(new TestUtil::TestingTimedDefaultBounds(dev->exactBounds()));
             dev->convertTo(dstCs);
 
@@ -83,5 +83,4 @@ void KisCsConversionTest::testColorSpaceConversion()
 }
 
 KISTEST_MAIN(KisCsConversionTest)
-
 

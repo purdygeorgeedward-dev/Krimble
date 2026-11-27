@@ -13,30 +13,12 @@
 
 #include <QtGlobal>
 
-/**
- * This is a class that return a pseudo-random number that will be constant for a given
- * pixel coordinate.
- * The rational is that filters that use random number (such as noises, or raindrops)
- * needs to always get the same random value at each run, or else the result will constantly
- * changes when used as an adjustment layer.
- */
 class KRITAIMAGE_EXPORT KisRandomGenerator2D
 {
 public:
-    /**
-     * Creates a new instance of a random generator with the given seed.
-     */
     KisRandomGenerator2D(quint64 seed);
     ~KisRandomGenerator2D();
-    /**
-     * @return the constant random value corresponding to a given pixel, the value is between 0
-     *         and RAND_MAX
-     */
     quint64 randomAt(qint64 x, qint64 y);
-    /**
-     * @return the constant random value corresponding to a given pixel, the value is between 0
-     *         and 1.0
-     */
     double doubleRandomAt(qint64 x, qint64 y);
 private:
     struct Private;

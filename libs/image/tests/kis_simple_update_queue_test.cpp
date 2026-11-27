@@ -27,8 +27,6 @@
 
 #include "lod_override.h"
 
-
-
 void KisSimpleUpdateQueueTest::testJobProcessing()
 {
     KisTestableUpdaterContext context(2);
@@ -48,15 +46,10 @@ void KisSimpleUpdateQueueTest::testJobProcessing()
     QRect dirtyRect2(0,0,100,100);
     QRect dirtyRect3(50,0,50,100);
     QRect dirtyRect4(150,150,50,50);
-    QRect dirtyRect5(dirtyRect4); // theoretically, should be merged with 4
+    QRect dirtyRect5(dirtyRect4);
 
     QVector<KisUpdateJobItem*> jobs;
     KisWalkersList walkersList;
-
-    /**
-     * Process the queue and look what has been added into
-     * the updater context
-     */
 
     KisTestableSimpleUpdateQueue queue;
 
@@ -79,7 +72,6 @@ void KisSimpleUpdateQueueTest::testJobProcessing()
     QCOMPARE(jobs.size(), 2);
 
     QCOMPARE(context.currentLevelOfDetail(), 0);
-
 
     walkersList = queue.getWalkersList();
 
@@ -131,8 +123,6 @@ void KisSimpleUpdateQueueTest::testSplit(bool useFullRefresh)
 
     queue.optimize();
 
-    //must change nothing
-
     QCOMPARE(walkersList.size(), 4);
     QVERIFY(checkWalker(walkersList[0], QRect(0,0,512,512)));
     QVERIFY(checkWalker(walkersList[1], QRect(512,0,488,512)));
@@ -160,7 +150,6 @@ void KisSimpleUpdateQueueTest::testChecksum()
     Q_ASSERT(filter);
     KisFilterConfigurationSP configuration = filter->defaultConfiguration(KisGlobalResourcesInterface::instance());
 
-
     KisTestableSimpleUpdateQueue queue;
     KisWalkersList& walkersList = queue.getWalkersList();
 
@@ -177,7 +166,6 @@ void KisSimpleUpdateQueueTest::testChecksum()
         TestUtil::LodOverride l(1, image);
         QCOMPARE(walkersList[0]->checksumValid(), false);
     }
-
 
     QVector<KisUpdateJobItem*> jobs;
     KisTestableUpdaterContext context(2);
@@ -251,7 +239,6 @@ void KisSimpleUpdateQueueTest::testSpontaneousJobsCompression()
     QCOMPARE(queue.sizeMetric(), 0);
     QVERIFY(jobsList.isEmpty());
 
-    // we cannot use scoped pointers for the jobs, since they become owned by the queue
     KisSpontaneousJob *job1 = new KisNoopSpontaneousJob(false);
     queue.addSpontaneousJob(job1);
 

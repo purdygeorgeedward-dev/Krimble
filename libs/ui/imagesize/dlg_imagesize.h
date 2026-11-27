@@ -34,4 +34,4 @@ private:
     QScopedPointer<WdgImageSize> m_page;
 };
 
-#endif // DLG_IMAGESIZE
+#endif

@@ -6,7 +6,6 @@
 
 #include "kis_gradient_shape_strategy.h"
 
-
 KisGradientShapeStrategy::KisGradientShapeStrategy()
 {
 }

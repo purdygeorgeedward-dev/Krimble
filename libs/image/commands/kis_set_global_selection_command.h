@@ -11,20 +11,10 @@
 #include "kis_types.h"
 #include "kis_command_utils.h"
 
-/**
- * This command sets the global selection of the image. No saving
- * of the previous selection for "Reselect" action happens
- */
 class KRITAIMAGE_EXPORT KisSetGlobalSelectionCommand : public KisCommandUtils::AggregateCommand
 {
 
 public:
-    /**
-     * Constructor
-     * @param image the image to set the global selection on
-     * @param selection the selection that will be set a global selection,
-     *        null selection will remove the selection
-     */
     KisSetGlobalSelectionCommand(KisImageWSP image, KisSelectionSP selection);
 
     void populateChildCommands() override;
@@ -35,14 +25,10 @@ private:
     KisSelectionSP m_oldSelection;
 };
 
-/**
- * Sets initial selection for the image. Nothing is selected,
- * but the defaultBounds are set properly
- */
 class KRITAIMAGE_EXPORT KisSetEmptyGlobalSelectionCommand : public KisSetGlobalSelectionCommand
 {
 public:
     KisSetEmptyGlobalSelectionCommand(KisImageWSP image);
 };
 
-#endif //KIS_SET_GLOBAL_SELECTION_COMMAND_H
+#endif

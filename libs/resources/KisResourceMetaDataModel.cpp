@@ -42,7 +42,7 @@ KisResourceMetaDataModel::~KisResourceMetaDataModel()
 QVariant KisResourceMetaDataModel::metaDataValue(int resourceId, const QString &key)
 {
     QVariant resultValue;
-    
+
     if (!m_d->isQueryPrepared) return resultValue;
 
     m_d->query.bindValue(":id", resourceId);

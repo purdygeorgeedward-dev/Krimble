@@ -18,7 +18,6 @@
 #include "KisBundleStorage.h"
 #include <KisResourceStorage.h>
 
-
 namespace Ui
 {
 class WdgDlgCreateBundle;
@@ -73,4 +72,4 @@ private:
     QString m_bundleCreaterMode;
 };
 
-#endif // KOBUNDLECREATIONWIDGET_H
+#endif

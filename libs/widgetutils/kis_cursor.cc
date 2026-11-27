@@ -10,7 +10,6 @@
 
 #include "kis_cursor.h"
 
-
 #include <QtGlobal>
 #include <QCursor>
 
@@ -18,9 +17,6 @@
 
 KisCursor::KisCursor() {}
 
-/*
- * Predefined Qt cursors
- */
 QCursor KisCursor::arrowCursor()
 {
     return Qt::ArrowCursor;
@@ -105,7 +101,6 @@ QCursor KisCursor::pointingHandCursor()
 {
     return Qt::PointingHandCursor;
 }
-
 
 QCursor KisCursor::samplerCursor()
 {

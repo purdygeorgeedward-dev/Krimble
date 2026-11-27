@@ -21,7 +21,6 @@ KoUpdater::KoUpdater(KoUpdaterPrivate *_d)
     connect(this, SIGNAL(sigNestedNameChanged(QString)), d, SLOT(setAutoNestedName(QString)));
     connect(this, SIGNAL(sigHasValidRangeChanged(bool)), d, SLOT(setHasValidRange(bool)));
 
-
     setRange(0, 100);
     m_interrupted = false;
 }
@@ -65,7 +64,6 @@ void KoUpdater::setValue( int value )
 {
     value = qBound(min, value, max);
 
-    // Go from range to percent
     const int range = max - min;
 
     if (range == 0) {

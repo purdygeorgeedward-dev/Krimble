@@ -28,20 +28,20 @@ public:
         STORE,
         APPLY
     };
-    
+
     KisCompositionVisitor(KisLayerComposition* layerComposition, Mode mode)
         : m_layerComposition(layerComposition)
         , m_mode(mode)
-    {        
+    {
     }
 
     bool visit(KisNode* node) override { return process(node); }
     bool visit(KisGroupLayer* layer) override
-    { 
+    {
         bool result = visitAll(layer);
         if(layer == layer->image()->rootLayer()) {
             return result;
-        }        
+        }
         return result && process(layer);
     }
     bool visit(KisAdjustmentLayer* layer) override { return process(layer); }
@@ -79,7 +79,7 @@ public:
                 node->setCollapsed(m_layerComposition->m_collapsedMap[node->uuid()]);
             }
         }
-        
+
         return result;
     }
 private:

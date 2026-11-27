@@ -8,11 +8,9 @@
 #include <QtMath>
 #include <kis_debug.h>
 
-
-
 double KisSpinBoxSplineUnitConverter::io2sp(int x, int min, int max)
 {
-    int reversedRange = max - min > 0 ? 1 : -1; // tilt elevation has range (90; 0)
+    int reversedRange = max - min > 0 ? 1 : -1;
     int rangeLen = qAbs(max - min);
 
     double response = reversedRange * double(x - min) / rangeLen;
@@ -21,12 +19,9 @@ double KisSpinBoxSplineUnitConverter::io2sp(int x, int min, int max)
 
 int KisSpinBoxSplineUnitConverter::sp2io(double x, int min, int max)
 {
-    int rangeLen = max - min; // tilt elevation has range (90; 0)
+    int rangeLen = max - min;
     int response = qRound(x*rangeLen) + min;
 
     return response;
 }
-
-
-
 

@@ -24,7 +24,6 @@ void KisMemoryWindowTest::testWindow()
     quint8 oddBuf[chunkLength];
     memset(oddBuf, oddValue, chunkLength);
 
-
     KisChunkData chunk1(0, chunkLength);
     KisChunkData chunk2(1025, chunkLength);
 
@@ -46,10 +45,7 @@ void KisMemoryWindowTest::testWindow()
 void KisMemoryWindowTest::testTopReports()
 {
 
-    // default window size in 16 MiB
     KisMemoryWindow memory(QString(QDir::currentPath()), DEFAULT_WINDOW_SIZE);
-
-    // write 1024 chunks 4 MiB each, hi-limit 4GiB
 
     const quint8 oddValue = 0xee;
     const qint64 chunkLength = 4 * MiB;

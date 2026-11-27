@@ -19,4 +19,4 @@ private:
 
 };
 
-#endif /* __KIS_CLONEOP_TEST_H */
+#endif

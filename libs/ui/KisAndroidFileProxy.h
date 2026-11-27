@@ -9,17 +9,11 @@
 
 #include <QString>
 
-
 class KisAndroidFileProxy {
 public:
 
-    /**
-     * This clones the file to internal storage so we can return it. This is useful for APIs
-     * which don't work on file descriptors.
-     */
     static QString getFileFromContentUri(QString contentUri);
 
 };
 
-
-#endif // __KISANDROIDFILEPROXY_H_
+#endif

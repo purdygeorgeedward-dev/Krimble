@@ -21,4 +21,4 @@ private Q_SLOTS:
     void testSelectionMaskOverlay();
 };
 
-#endif /* __KIS_PROJECTION_LEAF_TEST_H */
+#endif

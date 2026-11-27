@@ -20,7 +20,6 @@ class QDomDocument;
 class QColor;
 class QPen;
 
-
 class KRITAUI_EXPORT KisGuidesConfig : boost::equality_comparable<KisGuidesConfig>
 {
 public:
@@ -39,26 +38,10 @@ public:
     bool operator==(const KisGuidesConfig &rhs) const;
     bool hasSamePositionAs(const KisGuidesConfig &rhs) const;
 
-    /**
-     * @brief Set the positions of the horizontal guide lines
-     *
-     * @param lines a list of positions of the horizontal guide lines
-     */
     void setHorizontalGuideLines(const QList<qreal> &lines);
 
-    /**
-     * @brief Set the positions of the vertical guide lines
-     *
-     * @param lines a list of positions of the vertical guide lines
-     */
     void setVerticalGuideLines(const QList<qreal> &lines);
 
-    /**
-     * @brief Add a guide line to the canvas.
-     *
-     * @param orientation the orientation of the guide line
-     * @param position the position in document coordinates of the guide line
-     */
     void addGuideLine(Qt::Orientation orientation, qreal position);
     void removeAllGuides();
 
@@ -83,10 +66,8 @@ public:
 
     QPen guidesPen() const;
 
-    /// Returns the list of horizontal guide lines.
     const QList<qreal>& horizontalGuideLines() const;
 
-    /// Returns the list of vertical guide lines.
     const QList<qreal>& verticalGuideLines() const;
 
     bool hasGuides() const;
@@ -99,16 +80,12 @@ public:
 
     bool isDefault() const;
 
-    /// Transform the guides using the given \p transform. Please note that \p transform
-    /// should be in 'document' coordinate system.
-    /// Used with image-wide transformations.
     void transform(const QTransform &transform);
 
 private:
     class Private;
     const QScopedPointer<Private> d;
 };
-
 
 #endif
 

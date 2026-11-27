@@ -26,7 +26,6 @@
 #include "KisViewManager.h"
 #include <kis_icon_utils.h>
 
-
 KisDlgAdjustmentLayer::KisDlgAdjustmentLayer(KisNodeSP node,
                                              KisNodeFilterInterface* nfi,
                                              KisPaintDeviceSP paintDevice,

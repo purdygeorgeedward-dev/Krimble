@@ -13,16 +13,6 @@
 class QString;
 class QIcon;
 
-/**
- * This singleton class provides a `QStandardItemModel` representing the
- * recent files list and also supports lazy-loading of the file thumbnail
- * icons. Each recent file entry is represented as a QStandardItem. When
- * `QStandardItem::icon()` is called for the first time, it fetches the icon
- * via `KisRecentFileIconCache`, which triggers loading the file icon in
- * background if it hasn't already been loaded and cached.
- *
- * See also `KisRecentFilesManager`.
- */
 class KisRecentDocumentsModelWrapper : public QObject
 {
     Q_OBJECT
@@ -35,17 +25,9 @@ private:
     KisRecentDocumentsModelWrapper();
     ~KisRecentDocumentsModelWrapper();
 
-    /**
-     * Update m_filesAndThumbnailsModel and launch worker thread to fetch icons in background
-     */
     void setFiles(const QList<QUrl> &urls);
 
 public:
-    /**
-     * Get underlying model
-     *
-     * No need for any extra setup. This will hold the provided files
-     */
     QStandardItemModel &model();
 
 private:
@@ -58,10 +40,7 @@ private Q_SLOTS:
     void listRenewed();
 
 Q_SIGNALS:
-    /**
-     * Report when the model has been updated with the latest recent file list.
-     */
     void sigModelIsUpToDate();
-}; // class KisRecentDocumentsModelWrapper
+};
 
-#endif // KISRECENTDOCUMENTSMODELWRAPPER_H
+#endif

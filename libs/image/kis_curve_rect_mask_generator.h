@@ -19,9 +19,6 @@ class QDomDocument;
 template<typename V>
 struct FastRowProcessor;
 
-/**
- * Curve based softness for this rectangular mask generator
- */
 class KRITAIMAGE_EXPORT KisCurveRectangleMaskGenerator : public KisMaskGenerator
 {
 public:
@@ -36,7 +33,7 @@ public:
     void setScale(qreal scaleX, qreal scaleY) override;
 
     void toXML(QDomDocument& , QDomElement&) const override;
-    
+
     void setSoftness(qreal softness) override;
 
     bool shouldVectorize() const override;

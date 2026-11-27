@@ -61,7 +61,7 @@ void KisImageLayerRemoveCommandImpl::undo()
     if (!image) {
         return;
     }
-    m_d->restoreClones(); // so that we can get prevAbove back, if it is our clone
+    m_d->restoreClones();
     image->addNode(m_d->node, m_d->prevParent, m_d->prevAbove);
 }
 
@@ -89,9 +89,6 @@ void KisImageLayerRemoveCommandImpl::Private::processClones(KisNodeSP node)
     if(!layer || !layer->hasClones()) return;
 
     if(reincarnatedNodes.isEmpty()) {
-        /**
-         * Initialize the list of reincarnates nodes
-         */
         Q_FOREACH (KisCloneLayerWSP _clone, layer->registeredClones()) {
             KisCloneLayerSP clone = _clone;
             Q_ASSERT(clone);
@@ -106,10 +103,6 @@ void KisImageLayerRemoveCommandImpl::Private::processClones(KisNodeSP node)
         return;
     }
 
-    /**
-     * Move the children and transitive clones to the
-     * reincarnated nodes
-     */
     for (int i = 0; i < reincarnatedNodes.size(); i++) {
         KisCloneLayerSP clone = clonesList[i];
         KisLayerSP newNode = reincarnatedNodes[i];

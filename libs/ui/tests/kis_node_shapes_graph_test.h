@@ -29,4 +29,4 @@ private:
     KisNodeShapesGraph *m_shapesGraph;
 };
 
-#endif /* __KIS_NODE_SHAPES_GRAPH_TEST_H */
+#endif

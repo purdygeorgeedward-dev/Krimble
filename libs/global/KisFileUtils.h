@@ -10,18 +10,10 @@
 #include "kritaglobal_export.h"
 #include <functional>
 
-
 class QString;
 
 namespace KritaUtils {
 
-/**
- * @brief Resolve absolute file path from a file path and base dir
- *
- * If the @p filePath is absolute, just return this path, otherwise
- * try to merge @p baseDir and @p filePath to form an absolute file
- * path
- */
 QString KRITAGLOBAL_EXPORT resolveAbsoluteFilePath(const QString &baseDir, const QString &filePath);
 
 QString KRITAGLOBAL_EXPORT deduplicateFileName(const QString &fileName,
@@ -29,4 +21,4 @@ QString KRITAGLOBAL_EXPORT deduplicateFileName(const QString &fileName,
                                                std::function<bool(QString)> fileAllowedCallback);
 }
 
-#endif // KISFILEUTILS_H
+#endif

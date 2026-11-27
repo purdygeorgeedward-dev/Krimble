@@ -6,7 +6,6 @@
 
 #include "kis_brush_hud_properties_list.h"
 
-
 struct KisBrushHudPropertiesList::Private
 {
 };
@@ -45,7 +44,5 @@ QList<QString> KisBrushHudPropertiesList::selectedPropertiesIds() const
 
 Qt::DropActions KisBrushHudPropertiesList::supportedDropActions() const
 {
-    // we cannot change drop actions to Move only! It stops working
-    // for some reason :(
     return QListWidget::supportedDropActions();
 }

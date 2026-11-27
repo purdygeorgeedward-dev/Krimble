@@ -36,14 +36,11 @@ KisAndroidScaling::KisAndroidScaling(KisConfig &cfg, KisApplication *app)
     if (scale >= 1.0) {
         setPrimaryScreenScale(scale);
     } else {
-        // Reset the configuration, it wasn't valid or the screen changed.
         cfg.setAndroidScalingLastInitialScale(cfg.androidScalingLastInitialScale(true));
         cfg.setAndroidScalingTargetScale(cfg.androidScalingTargetScale(true));
         cfg.setAndroidScalingAskOnStartup(cfg.androidScalingAskOnStartup(true));
     }
 
-    // Queued connections are used in the following to make sure they run on
-    // the main thread. The signals may come from the Android UI thread.
     connect(this,
             &KisAndroidScaling::sigJniSetPrimaryScreenScale,
             this,
@@ -113,9 +110,6 @@ void KisAndroidScaling::slotJniScalingDialogActive(bool active)
 
 bool KisAndroidScaling::isHighDpiScalingEnabled()
 {
-    // Detects whether we have scaling available in this session. Compare
-    // with the startup handling of the scaling setting in main.cc. We do
-    // *not* check the config value here, it only applies after a restart.
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     return !qEnvironmentVariableIsSet("QT_ENABLE_HIGHDPI_SCALING")
         && qgetenv("QT_ENABLE_HIGHDPI_SCALING") != QByteArrayLiteral("0");
@@ -131,8 +125,6 @@ qreal KisAndroidScaling::getValidInitialScale(KisConfig &cfg) const
         return 0.0;
     }
 
-    // If we don't have a previous screen scale or the default screen scale
-    // changed, the configuration is invalid and we fall back to the default.
     qreal lastInitialScale = cfg.androidScalingLastInitialScale();
     if (lastInitialScale < 1.0 || !qFuzzyCompare(lastInitialScale, m_initialPrimaryScreenDevicePixelRatio)) {
         return 0.0;
@@ -161,14 +153,6 @@ void KisAndroidScaling::setPrimaryScreenScale(qreal scale)
 
 void KisAndroidScaling::maybeShowDialog(bool startup)
 {
-    // We want to see the dialog if scaling is supported, the dialog isn't
-    // already up and either the user manually summoned it or they want to
-    // see the dialog on startup. The user can only decide to remember the
-    // scaling setting after they decided on a target scale at least once
-    // before. This is to make sure that they actually used the application
-    // at that scale and can make an informed decision about not wanting to
-    // see the dialog again instead of despairing at choosing a wrong scale
-    // and being unable to find the dialog again.
     if (m_scalingDialogActive) {
         return;
     }

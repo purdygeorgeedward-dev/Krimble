@@ -36,7 +36,6 @@ WdgShrinkSelection::WdgShrinkSelection(QWidget* parent, KisViewManager *view, Ki
     cmbUnit->setCurrentIndex(KoUnit(KoUnit::Pixel).indexInListForUi());
     ckbShrinkFromImageBorder->setChecked(m_shrinkFromImageBorder);
 
-    // ensure that both spinboxes request the same horizontal size
     KisSizeGroup *spbGroup = new KisSizeGroup(this);
     spbGroup->addWidget(spbShrinkValue);
     spbGroup->addWidget(spbShrinkValueDouble);

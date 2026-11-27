@@ -6,17 +6,16 @@
 
 #include "SvgShape.h"
 
-
 SvgShape::~SvgShape()
 {
 }
 
-bool SvgShape::saveSvg(SvgSavingContext &/*context*/)
+bool SvgShape::saveSvg(SvgSavingContext & )
 {
     return false;
 }
 
-bool SvgShape::loadSvg(const QDomElement &/*element*/, SvgLoadingContext &/*context*/)
+bool SvgShape::loadSvg(const QDomElement & , SvgLoadingContext & )
 {
     return false;
 }

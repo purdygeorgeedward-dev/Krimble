@@ -19,7 +19,4 @@ public:
     static bool doesFileExist(QString filepath);
 };
 
-
-
-
-#endif // #ifndef KIS_IMPORT_EXPORT_ADDITIONAL_CHECKS_H
+#endif

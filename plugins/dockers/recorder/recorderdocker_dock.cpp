@@ -61,7 +61,6 @@ const QColor buttonColorRed(0xda, 0x44, 0x53);
 
 }
 
-
 class RecorderDockerDock::Private
 {
 public:
@@ -318,7 +317,6 @@ public:
             label.append(QString("<font%1>▍</font>")
                              .arg(threadNr <= threadsInUse ? activeColor : inactiveColor));
         }
-        // don't remove empty <font></font> tag else label will jump a few pixels around
         label.append(QString("</font><font> %1 </font><font%2>●</font>")
                          .arg(i18nc("Recording symbol", "REC"))
                          .arg(paused ? "" : activeColorRed));
@@ -339,8 +337,6 @@ public:
         QString toolTipText;
         auto threads = writer.recorderThreads.get();
         if (threads > ThreadSystemValue::MaxRecordThreadCount) {
-            // Number of threads exceeds ideal thread count
-            // -> switch color of threads slider and spin wheel to red
             QPalette pal;
             pal.setColor(QPalette::Text, textColorRed);
             pal.setColor(QPalette::Button, buttonColorRed);
@@ -350,8 +346,6 @@ public:
                 i18n("Set the number of recording threads.\nThe number of threads exceeds the ideal max number of your hardware setup.\nPlease be aware, that a number greater than %1 probably won't give you any performance boost.")
                     .arg(ThreadSystemValue::MaxRecordThreadCount));
         } else if (threads > ThreadSystemValue::IdealRecordThreadCount) {
-            // Number of threads exceeds ideal recorder thread count
-            // -> switch color of threads slider and spin wheel to orange
             QPalette pal;
             pal.setColor(QPalette::Text, textColorOrange);
             pal.setColor(QPalette::Button, buttonColorOrange);
@@ -373,8 +367,6 @@ public:
     void fixInternalSnapshotDirectory()
     {
         if (snapshotDirectory == RecorderConfig::defaultInternalSnapshotDirectory()) {
-            // Internal path got persisted to settings. Clear that out, replace
-            // it with the default of nothing.
             snapshotDirectory = QString();
         } else {
             q->moveFilesFromInternalSnapshotDirectory();
@@ -425,8 +417,6 @@ RecorderDockerDock::RecorderDockerDock()
     if (d->recordAutomatically)
         d->ui->buttonExport->setDisabled(true);
 
-    // Need to register toolbar actions before attaching canvas else it wont appear after restart.
-    // Is there any better way to do this?
     connect(KisPart::instance(), SIGNAL(sigMainWindowIsBeingCreated(KisMainWindow *)),
             this, SLOT(onMainWindowIsBeingCreated(KisMainWindow *)));
 
@@ -450,14 +440,12 @@ RecorderDockerDock::RecorderDockerDock()
     connect(&d->writer, SIGNAL(recorderStopWarning()), this, SLOT(onRecorderStopWarning()));
     connect(&d->writer, SIGNAL(lowPerformanceWarning()), this, SLOT(onLowPerformanceWarning()));
 
-
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(d->ui->scrollArea);
     if (scroller) {
         connect(scroller, SIGNAL(stateChanged(QScroller::State)),
                 this, SLOT(slotScrollerStateChanged(QScroller::State)));
     }
 
-    // The system is not efficient enough for the RealTime Recording Feature
     if (ThreadSystemValue::MaxRecordThreadCount <= 1)
     {
         d->ui->checkBoxRealTimeCaptureMode->setCheckState(Qt::Unchecked);
@@ -497,7 +485,7 @@ void RecorderDockerDock::setCanvas(KoCanvasBase* canvas)
         && !d->enabledIds.contains(document->linkedResourcesStorageId())) {
         wasToggled = onRecordButtonToggled(true);
     }
-    if (!wasToggled) { // onRecordButtonToggled(true) may call these, don't call them twice.
+    if (!wasToggled) {
         d->updateWriterSettings();
         d->updateUiFormat();
     }
@@ -530,9 +518,6 @@ bool RecorderDockerDock::onRecordButtonToggled(bool checked)
 {
     QSignalBlocker blocker(d->ui->buttonRecordToggle);
 
-    // Ask the user to pick a directory if we don't have one. This should only
-    // happen on Android, other operating systems have a non-empty default that
-    // the user is not able to clear out via the user interface.
     if (checked && d->snapshotDirectory.isEmpty()) {
         slotSelectSnapshotDirectory();
         if (d->snapshotDirectory.isEmpty()) {
@@ -562,7 +547,6 @@ bool RecorderDockerDock::onRecordButtonToggled(bool checked)
         return false;
     }
 
-
     d->ui->buttonRecordToggle->setEnabled(false);
 
     if (checked) {
@@ -570,10 +554,6 @@ bool RecorderDockerDock::onRecordButtonToggled(bool checked)
         d->updateUiFormat();
         d->writer.start();
 
-        // Calculate Rec symbol activity timeout depending on the capture interval
-        // The pausedTimer interval is set to a slightly greater value than the capture interval
-        // to avoid flickering for ongoing painting. This is also the reason for the min and max
-        // values 305 and 2005 (instead of 300 and 2000, respectively).
         if (d->realTimeCaptureMode) {
             d->pausedTimer.setInterval(qBound(305, static_cast<int>(1000.0/static_cast<double>(exportSettings->fps)) + 5,2005));
         } else {
@@ -776,13 +756,6 @@ void RecorderDockerDock::moveFilesFromInternalSnapshotDirectory()
     if (!d->internalMoveInProgress) {
         const QString &internalPath = RecorderConfig::defaultInternalSnapshotDirectory();
         if (!d->snapshotDirectory.isEmpty() && QFileInfo::exists(internalPath)) {
-            // The user has picked a directory to record to, but the nonsense
-            // internal directory is present and may have stuff inside that
-            // would become effectively inaccessible. To fix that, we move the
-            // files over to the selected directory. Of course moving files on
-            // Android is gobsmackingly slow, so we'll have to do it in the
-            // background to not lock the UI for ages. The moving should be
-            // re-entrant, so getting interrupted and continuing later is fine.
             qWarning().nospace() << "Moving recordings stuck in internal directory '" << internalPath
                                  << "' to selected directory '" << d->snapshotDirectory << "'";
             RecorderDockerInternalSnapshotsMover *mover =
@@ -802,7 +775,6 @@ void RecorderDockerDock::slotInternalSnapshotMoveFinished(const QString &srcRoot
 {
     d->internalMoveInProgress = false;
     if (srcRoot != d->snapshotDirectory) {
-        // Directory changed meanwhile, trigger another move.
         moveFilesFromInternalSnapshotDirectory();
     }
 }
@@ -830,25 +802,18 @@ void RecorderDockerInternalSnapshotsMover::moveFromInternalSnapshotDirectory(con
         QString dstPath = dst.filePath(srcName);
 
         if (srcInfo.isDir()) {
-            // Move the directory over recursively.
             if (dst.mkpath(dstPath)) {
                 moveFromInternalSnapshotDirectory(QDir(srcInfo.filePath()), QDir(dstPath));
             } else {
                 qWarning().nospace() << "Failed to create directory '" << dstPath << "' in '" << dst.path() << "'";
             }
 
-            // Removal will fail if the directory is non-empty, so we
-            // can just attempt it unconditionally.
             if (!src.rmdir(srcName)) {
                 qWarning().nospace() << "Failed to remove directory '" << srcName << "' in '" << src.path() << "'";
             }
 
         } else {
             QFile srcFile(srcInfo.filePath());
-            // Rename refuses to replace files in the destination, so
-            // try to remove that first. The only reason it should
-            // already exist is if a previous attempt to move the file
-            // partially copied it and then got interrupted.
             QFile::remove(dstPath);
             if (!srcFile.rename(dstPath)) {
                 qWarning().nospace() << "Error " << srcFile.error() << " moving '" << srcFile.fileName() << "' to '"

@@ -18,7 +18,6 @@
 #include "KoCopyColorConversionTransformation.h"
 #include "KoMultipleColorConversionTransformation.h"
 
-
 KoColorConversionSystem::KoColorConversionSystem(RegistryInterface *registryInterface)
     : d(new Private(registryInterface))
 {
@@ -47,7 +46,7 @@ KoColorConversionSystem::Node* KoColorConversionSystem::insertEngine(const KoCol
     n->modelId = engine->id();
     n->depthId = engine->id();
     n->profileName = engine->id();
-    n->referenceDepth = 64; // engine don't have reference depth,
+    n->referenceDepth = 64;
     d->graph.insert(key, n);
     n->init(engine);
     return n;
@@ -62,7 +61,6 @@ QList<KoColorProfileQuery> KoColorConversionSystem::requiredConnectionProfilesFo
         profileQueries.append(csf->requiredConnectionProfiles(profile));
     }
 
-    // TODO: make a better 'unique' function without sorting
     QList<KoColorProfileQuery> uniqueProfileQueries;
     std::copy_if(profileQueries.begin(),
                  profileQueries.end(),
@@ -81,7 +79,7 @@ void KoColorConversionSystem::insertColorSpace(const KoColorSpaceFactory* csf)
     QString modelId = csf->colorModelId().id();
     QString depthId = csf->colorDepthId().id();
     QList<KoColorConversionTransformationFactory*> cctfs;
-    if (profiles.isEmpty()) { // There is no profile for this CS, create a node without profile name if the color engine isn't icc-based
+    if (profiles.isEmpty()) {
         if (csf->colorSpaceEngine() != "icc") {
             Node* n = nodeFor(modelId, depthId, "default");
             n->init(csf);
@@ -90,7 +88,6 @@ void KoColorConversionSystem::insertColorSpace(const KoColorSpaceFactory* csf)
             dbgPigment << "Cannot add node for " << csf->name() << ", since there are no profiles available";
         }
     } else {
-        // Initialise the nodes
         Q_FOREACH (const KoColorProfile* profile, profiles) {
             Node* n = nodeFor(modelId, depthId, profile->name());
             cctfs.append(csf->colorConversionLinksFromProfile(profile));
@@ -113,20 +110,17 @@ void KoColorConversionSystem::insertColorSpace(const KoColorSpaceFactory* csf)
             }
         }
     }
-    // Construct a link for "custom" transformation
     cctfs.append(csf->colorConversionLinks());
     Q_FOREACH (KoColorConversionTransformationFactory* cctf, cctfs) {
         Node* srcNode = nodeFor(cctf->srcColorModelId(), cctf->srcColorDepthId(), cctf->srcProfile());
         Q_ASSERT(srcNode);
         Node* dstNode = nodeFor(cctf->dstColorModelId(), cctf->dstColorDepthId(), cctf->dstProfile());
         Q_ASSERT(dstNode);
-        // Check if the two nodes are already connected
         Vertex* v = vertexBetween(srcNode, dstNode);
-        // If the vertex doesn't already exist, then create it
         if (!v) {
             v = createVertex(srcNode, dstNode);
         }
-        Q_ASSERT(v); // we should have one now
+        Q_ASSERT(v);
         if (dstNode->modelId == modelId && dstNode->depthId == depthId) {
             v->setFactoryFromDst(cctf);
         }
@@ -145,7 +139,6 @@ QList<KoColorProfileQuery> KoColorConversionSystem::requiredConnectionProfilesFo
         profileQueries.append(factory->requiredConnectionProfiles(profile));
     }
 
-    // TODO: make a better 'unique' function without sorting
     QList<KoColorProfileQuery> uniqueProfileQueries;
     std::copy_if(profileQueries.begin(),
                  profileQueries.end(),
@@ -184,13 +177,11 @@ void KoColorConversionSystem::insertColorProfile(const KoColorProfile* _profile)
             Node* dstNode = nodeFor(cctf->dstColorModelId(), cctf->dstColorDepthId(), cctf->dstProfile());
             Q_ASSERT(dstNode);
             if (srcNode == n || dstNode == n) {
-                // Check if the two nodes are already connected
                 Vertex* v = vertexBetween(srcNode, dstNode);
-                // If the vertex doesn't already exist, then create it
                 if (!v) {
                     v = createVertex(srcNode, dstNode);
                 }
-                Q_ASSERT(v); // we should have one now
+                Q_ASSERT(v);
                 if (dstNode->modelId == modelId && dstNode->depthId == depthId) {
                     v->setFactoryFromDst(cctf);
                 }
@@ -284,12 +275,8 @@ KoColorConversionTransformation* KoColorConversionSystem::createColorConverter(c
 
 void KoColorConversionSystem::createColorConverters(const KoColorSpace* colorSpace, const QList< QPair<KoID, KoID> >& possibilities, KoColorConversionTransformation*& fromCS, KoColorConversionTransformation*& toCS) const
 {
-    // TODO This function currently only select the best conversion only based on the transformation
-    // from colorSpace to one of the color spaces in the list, but not the other way around
-    // it might be worth to look also the return path.
     const Node* csNode = nodeFor(colorSpace);
     PathQualityChecker pQC(csNode->referenceDepth);
-    // Look for a color conversion
     Path bestPath;
     typedef QPair<KoID, KoID> KoID2KoID;
     Q_FOREACH (const KoID2KoID & possibility, possibilities) {
@@ -327,7 +314,7 @@ KoColorConversionTransformation* KoColorConversionSystem::createTransformationFr
 
     const QList< Path::node2factory > pathOfNode = path.compressedPath();
 
-    if (pathOfNode.size() == 2) { // Direct connection
+    if (pathOfNode.size() == 2) {
         transfo = pathOfNode[1].second->createColorTransformation(srcColorSpace, dstColorSpace, renderingIntent, conversionFlags);
     }
     else {
@@ -336,7 +323,6 @@ KoColorConversionTransformation* KoColorConversionSystem::createTransformationFr
 
         transfo = mccTransfo;
 
-        // Get the first intermediary color space
         dbgPigmentCCS << pathOfNode[ 0 ].first->id() << " to " << pathOfNode[ 1 ].first->id();
 
         const KoColorSpace* intermCS =
@@ -358,7 +344,6 @@ KoColorConversionTransformation* KoColorConversionSystem::createTransformationFr
     return transfo;
 }
 
-
 KoColorConversionSystem::Vertex* KoColorConversionSystem::vertexBetween(KoColorConversionSystem::Node* srcNode, KoColorConversionSystem::Node* dstNode)
 {
     Q_FOREACH (Vertex* oV, srcNode->outputVertexes) {
@@ -376,8 +361,6 @@ KoColorConversionSystem::Vertex* KoColorConversionSystem::createVertex(Node* src
     d->vertexes.append(v);
     return v;
 }
-
-// -- Graph visualization functions --
 
 QString KoColorConversionSystem::vertexToDot(KoColorConversionSystem::Vertex* v, const QString &options) const
 {
@@ -441,7 +424,6 @@ KoColorConversionSystem::Path KoColorConversionSystem::findBestPath(const KoColo
     return findBestPath(srcNode, dstNode);
 }
 
-
 QString KoColorConversionSystem::bestPathToDot(const QString& srcKey, const QString& dstKey) const
 {
     const Node* srcNode = 0;
@@ -478,20 +460,18 @@ KoColorConversionSystem::Path KoColorConversionSystem::findBestPath(const KoColo
     dbgPigmentCCS << "Find best path between " << srcNode->id() << " and  " << dstNode->id();
 
     PathQualityChecker pQC(qMin(srcNode->referenceDepth, dstNode->referenceDepth));
-    Node2PathHash node2path; // current best path to reach a given node
-    QList<Path> possiblePaths; // list of all paths
-    // Generate the initial list of paths
+    Node2PathHash node2path;
+    QList<Path> possiblePaths;
     Q_FOREACH (Vertex* v, srcNode->outputVertexes) {
         if (v->dstNode->isInitialized) {
             Path p;
             p.appendVertex(v);
             Node* endNode = v->dstNode;
             if (endNode == dstNode) {
-                Q_ASSERT(pQC.isGoodPath(p));  // <- it's a direct link, it has to be a good path
+                Q_ASSERT(pQC.isGoodPath(p));
                 p.isGood = true;
                 return p;
             } else {
-                //Q_ASSERT(!node2path.contains(endNode));   // That would be a total fuck up if there are two vertices between two nodes
                 node2path.insert(endNode, p);
                 possiblePaths.append(p);
             }
@@ -499,33 +479,28 @@ KoColorConversionSystem::Path KoColorConversionSystem::findBestPath(const KoColo
     }
 
     Path currentBestPath;
-    // Continue while there are any possibilities remaining
     while (possiblePaths.size() > 0) {
 
-        // Loop through all paths and explore one step further
         const QList<Path> currentPaths = possiblePaths;
         for (const Path &p : currentPaths) {
             const Node* endNode = p.endNode();
             for (Vertex* v : endNode->outputVertexes) {
                 if (v->dstNode->isInitialized && !p.contains(v->dstNode)) {
-                    Path newP = p;  // Candidate
+                    Path newP = p;
                     newP.appendVertex(v);
                     Node* newEndNode = v->dstNode;
                     if (newEndNode == dstNode) {
-                        if (pQC.isGoodPath(newP)) { // Victory
+                        if (pQC.isGoodPath(newP)) {
                             newP.isGood = true;
                             return newP;
                         } else if (pQC.lessWorseThan(newP, currentBestPath)) {
                             if (newP.startNode() && newP.endNode() && currentBestPath.startNode() && currentBestPath.endNode()) {
                                 Q_ASSERT(newP.startNode()->id() == currentBestPath.startNode()->id());
                                 Q_ASSERT(newP.endNode()->id() == currentBestPath.endNode()->id());
-                                // Can we do better than dumping memory values???
-                                // warnPigment << pQC.lessWorseThan(newP, currentBestPath) << " " << newP << "  " << currentBestPath;
                                 currentBestPath = newP;
                             }
                         }
                     } else {
-                        // This is an incomplete path. Check if there's a better way to get to its endpoint.
                         Node2PathHash::Iterator it = node2path.find(newEndNode);
                         if (it != node2path.end()) {
                             Path &p2 = it.value();
@@ -540,7 +515,7 @@ KoColorConversionSystem::Path KoColorConversionSystem::findBestPath(const KoColo
                     }
                 }
             }
-            possiblePaths.removeAll(p); // Remove from list of remaining paths
+            possiblePaths.removeAll(p);
         }
     }
 

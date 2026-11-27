@@ -15,11 +15,6 @@
 
 #include "kritaui_export.h"
 
-/**
- * @brief The KisScreenColorSampler class
- * Based on the original QColorDialog's screen color picker, this class provides a button
- * that can be used to activate a color sampler that can sample from anywhere on the screen.
- */
 class KRITAUI_EXPORT KisScreenColorSampler : public KisScreenColorSamplerBase
 {
     Q_OBJECT
@@ -33,7 +28,6 @@ public:
     bool handleColorSamplingMouseButtonRelease(QMouseEvent *e);
     bool handleColorSamplingKeyPress(QKeyEvent *e);
 
-    /// reloads icon(s) when theme is updated
     void updateIcons() override;
 
     bool performRealColorSamplingOfCanvas() const;
@@ -55,8 +49,8 @@ private Q_SLOTS:
 protected:
     void changeEvent(QEvent *event) override;
 private:
-    struct Private; //The private struct
-    const QScopedPointer<Private> m_d; //the private pointer
+    struct Private;
+    const QScopedPointer<Private> m_d;
 
     KoColor grabScreenColor(const QPoint &p);
     void updateColorLabelText(const QPoint &globalPos);
@@ -73,4 +67,4 @@ private:
     KisScreenColorSampler *m_w;
 };
 
-#endif // KISSCREENCOLORSAMPLER_H
+#endif

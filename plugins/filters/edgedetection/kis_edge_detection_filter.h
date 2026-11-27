@@ -38,4 +38,4 @@ public:
     QRect changedRect(const QRect & rect, const KisFilterConfigurationSP _config, int lod) const override;
 };
 
-#endif // KIS_EDGE_DETECTION_FILTER_H
+#endif

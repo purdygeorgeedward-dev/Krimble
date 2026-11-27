@@ -45,14 +45,12 @@
 #include <KoSelection.h>
 #include <KoShapeManager.h>
 
-
 struct KisToolKnife::Private {
     KisToolKnifeOptionsWidget *optionsWidget = nullptr;
     QPointF startPoint = QPointF(0, 0);
     QPointF endPoint = QPointF(0, 0);
     QRectF previousLineDirtyRect = QRectF();
 };
-
 
 KisToolKnife::KisToolKnife(KoCanvasBase * canvas)
     : KoInteractionTool(canvas),
@@ -91,14 +89,11 @@ void paintSelectedEdge(QPainter &painter, const KoViewConverter &converter, cons
     pen.setCosmetic(true);
     painter.setPen(pen);
 
-    //painter.drawLines(parallels.toVector());
     painter.drawLine(lineInView);
 
     alternative.setCosmetic(true);
     painter.setPen(alternative);
-    //painter.drawLines(parallels.toVector());
     painter.drawLine(lineInView);
-
 
     painter.restore();
 
@@ -145,12 +140,10 @@ void KisToolKnife::paint(QPainter &painter, const KoViewConverter &converter)
 
     painter.save();
     painter.setBrush(Qt::darkGray);
-    //painter.drawEllipse(converter.documentToView(m_d->mousePoint), 4, 4);
 
     painter.restore();
 
     KoInteractionTool::paint(painter, converter);
-
 
 #ifdef KNIFE_DEBUG
     bool paintSelection = true;
@@ -181,7 +174,6 @@ void KisToolKnife::paint(QPainter &painter, const KoViewConverter &converter)
     }
 #endif
 
-
 }
 
 void KisToolKnife::activate(const QSet<KoShape *> &shapes)
@@ -198,7 +190,6 @@ void KisToolKnife::deactivate()
 
 void KisToolKnife::mousePressEvent(KoPointerEvent *event)
 {
-    // this tool only works on a vector layer right now, so give a warning if another layer type is trying to use it
     if (!isValidForCurrentLayer()) {
         KisCanvas2 *kiscanvas = static_cast<KisCanvas2 *>(canvas());
         kiscanvas->viewManager()->showFloatingMessage(
@@ -258,7 +249,6 @@ KoInteractionStrategy *KisToolKnife::createStrategy(KoPointerEvent *event)
         return new RemoveGutterStrategy(this, canvas()->selectedShapesProxy()->selection(), shapes, event->point);
     }
 
-    //return NULL;
 }
 
 bool KisToolKnife::isValidForCurrentLayer() const
@@ -275,13 +265,11 @@ QWidget * KisToolKnife::createOptionWidget()
     KIS_ASSERT(kiscanvas);
     qreal resolution = 1.0;
     if (kiscanvas->image()) {
-        // we're going to assume isotropic image
         resolution = kiscanvas->image()->xRes();
     }
 
     m_d->optionsWidget = new KisToolKnifeOptionsWidget(kiscanvas->viewManager()->canvasResourceProvider(), 0, toolId(), resolution);
     m_d->optionsWidget->setObjectName(toolId() + "option widget");
-
 
     return m_d->optionsWidget;
 }

@@ -30,8 +30,6 @@ struct RecorderWriterSettings
     bool realTimeCaptureMode;
 };
 
-// This class is used to provide mechanism ro sync the number of available
-// and used recording threads between the GUI and the RecorderWriterManager
 class ThreadCounter : public QObject
 {
     Q_OBJECT
@@ -107,9 +105,7 @@ public:
     RecorderWriterManager& operator=(const RecorderWriterManager&) = delete;
     RecorderWriterManager& operator=(RecorderWriterManager&&) = delete;
 
-    // restarts recorder
     void setCanvas(QPointer<KisCanvas2> canvas);
-    // restarts recorder
     void setup(const RecorderWriterSettings &settings);
 
     void start(bool toggleEnabled = true);
@@ -143,4 +139,4 @@ private:
 
 };
 
-#endif // RECORDER_WRITER_H
+#endif

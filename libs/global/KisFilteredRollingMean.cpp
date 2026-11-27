@@ -12,7 +12,6 @@
 #include "kis_assert.h"
 #include "kis_debug.h"
 
-
 KisFilteredRollingMean::KisFilteredRollingMean(int windowSize, qreal effectivePortion)
     : m_values(windowSize),
       m_rollingSum(0.0),

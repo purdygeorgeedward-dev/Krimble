@@ -58,4 +58,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_FREE_TRANSFORM_STRATEGY_H */
+#endif

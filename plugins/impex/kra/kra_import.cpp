@@ -23,7 +23,7 @@ KraImport::~KraImport()
 {
 }
 
-KisImportExportErrorCode KraImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KraImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     KraConverter kraConverter(document);
     KisImportExportErrorCode result = kraConverter.buildImage(io);

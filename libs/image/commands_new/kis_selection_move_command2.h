@@ -8,10 +8,6 @@
 
 #include "kis_move_command_common.h"
 
-/**
- * A specialized class for moving a selection without its flattening and recalculation
- * of the outline cache. See details in a comment to KisMoveCommandCommon.
- */
 class KRITAIMAGE_EXPORT KisSelectionMoveCommand2 : public KisMoveCommandCommon<KisSelectionSP>
 {
 public:

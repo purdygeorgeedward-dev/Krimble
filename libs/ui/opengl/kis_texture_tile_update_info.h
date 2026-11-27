@@ -26,16 +26,6 @@ class KisTextureTileUpdateInfo;
 typedef QSharedPointer<KisTextureTileUpdateInfo> KisTextureTileUpdateInfoSP;
 typedef QVector<KisTextureTileUpdateInfoSP> KisTextureTileUpdateInfoSPList;
 
-/**
- * A buffer object for temporary data needed during the update process.
- *
- * - the buffer is allocated from the common pool to avoid memory
- *   fragmentation
- *
- * - the buffer's lifetime defines the lifetime of the allocated chunk
- *   of memory, so you don't have to thing about freeing the memory
- */
-
 class DataBuffer
 {
 public:
@@ -137,8 +127,6 @@ public:
         m_patchLevelOfDetail = levelOfDetail;
 
         if (m_patchLevelOfDetail) {
-            // TODO: check if isBottommost() works correctly when m_originalPatchRect gets aligned
-            //       and m_currentImageRect has non-aligned size
             m_originalPatchRect = KisLodTransform::alignedRect(m_originalPatchRect, m_patchLevelOfDetail);
             m_patchRect = KisLodTransform::scaledRect(m_originalPatchRect, m_patchLevelOfDetail);
             m_tileRect = KisLodTransform::scaledRect(m_originalTileRect, m_patchLevelOfDetail);
@@ -157,8 +145,6 @@ public:
                                        m_patchRect.x(), m_patchRect.y(),
                                        m_patchRect.width(), m_patchRect.height());
 
-        // XXX: if the paint colorspace is rgb, we should do the channel swizzling in
-        //      the display shader
         if (!channelFlags.isEmpty() && selectedChannelIndex >= 0 && selectedChannelIndex < m_patchColorSpace->channelCount()) {
             DataBuffer conversionCache(m_patchColorSpace->pixelSize(), m_pool);
 
@@ -181,8 +167,6 @@ public:
                    KoColorConversionTransformation::Intent renderingIntent,
                    KoColorConversionTransformation::ConversionFlags conversionFlags)
     {
-        // we use two-stage check of the color space equivalence:
-        // first check pointers, and if not, check the spaces themselves
         if ((dstCS == m_patchColorSpace || *dstCS == *m_patchColorSpace) &&
             conversionFlags == KoColorConversionTransformation::Empty) {
 
@@ -330,6 +314,5 @@ private:
     KisTextureTileInfoPoolSP m_pool;
 };
 
-
-#endif /* KIS_TEXTURE_TILE_UPDATE_INFO_H_ */
+#endif
 

@@ -54,11 +54,10 @@ void TestKisPaletteModel::testAddSwatch()
     QCOMPARE(grp->colorCount(), 1);
     QCOMPARE(cs->getGroup(QString())->colorCount(), 1);
 
-    cs->undoStack()->undo(); // addSwatch
-    cs->undoStack()->undo(); // addGroup
+    cs->undoStack()->undo();
+    cs->undoStack()->undo();
     QCOMPARE(model.rowCount(), 20);
 }
-
 
 void TestKisPaletteModel::testSetSwatch()
 {
@@ -84,7 +83,6 @@ void TestKisPaletteModel::testSetSwatch()
     QCOMPARE(cs->colorCount(), 2);
 }
 
-
 void TestKisPaletteModel::testRemoveSwatch()
 {
     KoColorSetSP cs = createColorSet();
@@ -100,7 +98,6 @@ void TestKisPaletteModel::testRemoveSwatch()
     model.removeSwatch(idx);
     QCOMPARE(cs->colorCount(), 0);
 }
-
 
 void TestKisPaletteModel::testChangeGroupName()
 {
@@ -124,7 +121,6 @@ void TestKisPaletteModel::testRemoveGroup()
     model.removeGroup("newgroup1", false);
     QVERIFY(!cs->swatchGroupNames().contains("newgroup1"));
 }
-
 
 void TestKisPaletteModel::testAddGroup()
 {
@@ -173,7 +169,6 @@ void TestKisPaletteModel::testSetRowCountForGroup()
     QCOMPARE(cs->rowCount(), 30);
     QCOMPARE(cs->rowCountWithTitles(), 31);
 }
-
 
 void TestKisPaletteModel::testClear()
 {
@@ -262,8 +257,6 @@ void TestKisPaletteModel::testIndexForClosest()
     QCOMPARE(c2, red().toQColor());
 }
 
-
-
 void TestKisPaletteModel::testData()
 {
     KoColorSetSP cs = createColorSet();
@@ -335,7 +328,6 @@ void TestKisPaletteModel::testRowNumberInGroup()
     KisPaletteModel model;
     model.setColorSet(cs);
 
-
     QCOMPARE(model.rowCount(), 25);
 
     QVector<int> rowCountsInGroup {    0, 1, 2, 3, 4, 5, 6,
@@ -343,14 +335,12 @@ void TestKisPaletteModel::testRowNumberInGroup()
                                    -1, 0, 1, 2, 3, 4,
                                    -1, 0, 1, 2, 3};
 
-
     QCOMPARE(model.rowCount(), rowCountsInGroup.size());
 
     for (int i = 0; i < model.rowCount(); ++i) {
         QCOMPARE(model.rowNumberInGroup(i), rowCountsInGroup[i]);
     }
 }
-
 
 KoColorSetSP TestKisPaletteModel::createColorSet()
 {
@@ -377,6 +367,5 @@ KoColor TestKisPaletteModel::red()
     KoColor  kc(c, KoColorSpaceRegistry::instance()->rgb8());
     return kc;
 }
-
 
 SIMPLE_TEST_MAIN(TestKisPaletteModel)

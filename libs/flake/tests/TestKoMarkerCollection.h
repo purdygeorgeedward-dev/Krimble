@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testMarkerBounds();
 };
 
-#endif // TESTKOMARKERCOLLECTION_H
+#endif

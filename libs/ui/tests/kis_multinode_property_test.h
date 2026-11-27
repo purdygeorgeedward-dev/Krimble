@@ -16,4 +16,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif /* __KIS_MULTINODE_PROPERTY_TEST_H */
+#endif

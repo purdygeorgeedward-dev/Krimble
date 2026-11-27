@@ -230,7 +230,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
             info->num_color_channels = 3;
             info->num_extra_channels = 2;
         }
-        // Use original profile on lossless, non-matrix profile or unsupported transfer curve.
         if (cfg->getBool("lossless") || (!hasPrimaries && !(cs->colorModelId() == GrayAColorModelID))
             || !isSupportedTRC) {
             info->uses_original_profile = JXL_TRUE;
@@ -243,7 +242,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
             info->have_animation = JXL_TRUE;
             info->animation.have_timecodes = JXL_FALSE;
             info->animation.num_loops = 0;
-            // Unlike WebP, JXL does allow for setting proper frame rates.
             info->animation.tps_numerator =
                 static_cast<uint32_t>(image->animationInterface()->framerate());
             info->animation.tps_denominator = 1;
@@ -262,7 +260,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
         return ImportExportCodes::InternalError;
     }
 
-    // CMYKA extra channel info
     if (cs->colorModelId() == CMYKAColorModelID) {
         const auto blackInfo = [&]() {
             auto black{std::make_unique<JxlExtraChannelInfo>()};
@@ -387,10 +384,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
             dbgFile << "Saving with CICP profile";
 
             if (cs->colorModelId() == GrayAColorModelID) {
-                // XXX: JXL can't parse custom white point for grayscale (yet) and returned as linear on roundtrip so
-                // let's use default D65 as whitepoint instead...
-                //
-                // See: https://github.com/libjxl/libjxl/issues/1933
                 warnFile << "Using workaround for libjxl grayscale whitepoint";
                 cicpDescription.white_point = JXL_WHITE_POINT_D65;
                 cicpDescription.color_space = JXL_COLOR_SPACE_GRAY;
@@ -418,7 +411,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                     break;
                 }
 
-                // Unfortunately, Wolthera never wrote an enum for white points...
                 const KoColorimetryUtils::xyY whitePoint = image->colorSpace()->profile()->getWhitePointxyY();
                 cicpDescription.white_point = JXL_WHITE_POINT_CUSTOM;
                 cicpDescription.white_point_xy[0] = whitePoint.x;
@@ -476,7 +468,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
 
             QBuffer ioDevice;
 
-            // Inject the data as any other IOBackend
             io->saveTo(metaDataStore.get(), &ioDevice);
 
             if (JXL_ENC_SUCCESS
@@ -495,7 +486,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
 
             QBuffer ioDevice;
 
-            // Inject the data as any other IOBackend
             io->saveTo(metaDataStore.get(), &ioDevice);
 
             if (JXL_ENC_SUCCESS
@@ -514,7 +504,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
 
             QBuffer ioDevice;
 
-            // Inject the data as any other IOBackend
             io->saveTo(metaDataStore.get(), &ioDevice);
 
             if (JXL_ENC_SUCCESS
@@ -540,7 +529,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
         };
 
         const auto setSetting = [&](JxlEncoderFrameSettingId id, int v) {
-            // https://github.com/libjxl/libjxl/issues/1210
             if (id == JXL_ENC_FRAME_SETTING_RESAMPLING && v == -1)
                 return true;
             if (JxlEncoderFrameSettingsSetOption(frameSettings, id, v) != JXL_ENC_SUCCESS) {
@@ -550,7 +538,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
             return true;
         };
 
-        // Using cjxl quality mapping that translates from arbitrary quality value to JPEG-XL distance
         const auto setDistance = [&](float v) {
             const float distance = cfg->getBool("lossless") ? 0.0
                                    : v >= 30 ? 0.1 + (100 - v) * 0.09
@@ -561,7 +548,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                 return false;
             }
 #if JPEGXL_NUMERIC_VERSION >= JPEGXL_COMPUTE_NUMERIC_VERSION(0, 9, 0)
-            // Lossless alpha (extra channel), only available on libjxl 0.9.0+
             if (!cfg->getBool("lossless")) {
                 if (cfg->getBool("losslessAlpha")) {
                     if (JxlEncoderSetExtraChannelDistance(frameSettings,
@@ -585,12 +571,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
             return true;
         };
 
-        // XXX: Workaround for a buggy lossy F32.
-        //
-        // See: https://github.com/libjxl/libjxl/issues/2064
-        //
-        // Update: It's not the modular mode that caused the bug, but the progressive/responsive setting
-        // that didn't work well with F32. So let's disable it on F32 instead.
         const int setResponsive = [&]() -> int {
             if (pixelFormat.data_type == JXL_TYPE_FLOAT && !cfg->getBool("lossless")) {
                 warnFile << "Using workaround for lossy 32-bit float, disabling progressive option";
@@ -599,10 +579,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
             return cfg->getInt("responsive", -1);
         }();
 
-        // XXX: Workaround for a buggy lossless patches. Set to disable instead.
-        // Patch only for libjxl under v0.9.0
-        //
-        // See: https://github.com/libjxl/libjxl/issues/2463
         const int setPatches = [&]() -> int {
 #if JPEGXL_NUMERIC_VERSION < JPEGXL_COMPUTE_NUMERIC_VERSION(0, 9, 0)
             if ((cfg->getInt("effort", 7) > 4) && cfgFlattenLayer) {
@@ -672,7 +648,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
         }();
 
         if (isAnimated) {
-            // Flatten the image, projections don't have keyframes.
             KisLayerUtils::flattenImage(image, nullptr);
             image->waitForDone();
 
@@ -723,7 +698,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                     const KoID colorModel = cs->colorModelId();
 
                     if (colorModel != RGBAColorModelID) {
-                        // blast it wholesale
                         QByteArray p;
                         p.resize(bounds.width() * bounds.height() * static_cast<int>(cs->pixelSize()));
                         dev->readBytes(reinterpret_cast<quint8 *>(p.data()), bounds);
@@ -731,8 +705,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                     } else {
                         KisHLineConstIteratorSP it = dev->createHLineConstIteratorNG(0, 0, bounds.width());
 
-                        // detect traits based on depth
-                        // if u8 or u16, also trigger swap
                         return HDR::writeLayer(cs->colorDepthId(),
                                                convertToRec2020,
                                                cs->profile()->isLinear(),
@@ -776,8 +748,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
         } else {
             auto frameHeader = std::make_unique<JxlFrameHeader>();
 
-            // (On layered export) Convert group layer to paint layer to preserve
-            // out-of-bound pixels so that it won't get clipped to canvas size
             quint32 lastValidLayer = 0;
             if (cfgMultiLayer || cfgMultiPage) {
                 for (quint32 pos = 0; pos < image->root()->childCount(); pos++) {
@@ -795,10 +765,8 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                 image->waitForDone();
             }
 
-            // Iterate through the layers (non-recursively)
             for (quint32 pos = 0; pos < image->root()->childCount(); pos++) {
                 KisNodeSP node = image->root()->at(pos);
-                // Skip invalid and invisible layers
                 if ((cfgMultiLayer || cfgMultiPage) && (!node || !node->visible() || node->isFakeNode())) {
                     dbgFile << "Skipping hidden layer" << node->name();
                     continue;
@@ -816,7 +784,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                     const KoColorSpace *lcs = node->colorSpace();
                     if (lcs && (lcs != cs)) {
                         node->paintDevice()->convertTo(cs);
-                        // Kampidh: Do I also need to call waitForDone() here?
                     }
                 } else {
                     dbgFile << "Saving flattened image";
@@ -837,7 +804,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                 }
 
                 if (cs->colorModelId() == CMYKAColorModelID) {
-                    // Inverting colors for CMYK
                     const KisFilterSP f = KisFilterRegistry::instance()->value("invert");
                     KIS_ASSERT(f);
                     const KisFilterConfigurationSP kfc =
@@ -853,12 +819,10 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                     if (colorModel != RGBAColorModelID
                         || (colorDepth != Integer8BitsColorDepthID && colorDepth != Integer16BitsColorDepthID
                             && conversionPolicy == ConversionPolicy::KeepTheSame)) {
-                        // CMYK
                         if (colorModel == CMYKAColorModelID) {
                             KisHLineConstIteratorSP it =
                                 dev->createHLineConstIteratorNG(layerBounds.x(), layerBounds.y(), layerBounds.width());
 
-                            // interleaved CMY buffer
                             return JXLExpTool::writeCMYKLayer(cs->colorDepthId(),
                                                               true,
                                                               0,
@@ -866,7 +830,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                                                               layerBounds.height(),
                                                               it);
                         }
-                        // blast it wholesale
                         QByteArray p;
                         p.resize(layerBounds.width() * layerBounds.height() * static_cast<int>(cs->pixelSize()));
                         dev->readBytes(reinterpret_cast<quint8 *>(p.data()), layerBounds);
@@ -875,8 +838,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                         KisHLineConstIteratorSP it =
                             dev->createHLineConstIteratorNG(layerBounds.x(), layerBounds.y(), layerBounds.width());
 
-                        // detect traits based on depth
-                        // if u8 or u16, also trigger swap
                         return HDR::writeLayer(cs->colorDepthId(),
                                                convertToRec2020,
                                                cs->profile()->isLinear(),
@@ -894,15 +855,12 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                 if (cfgMultiLayer || cfgMultiPage) {
                     JxlEncoderInitFrameHeader(frameHeader.get());
 
-                    // Set frame duration to 0 to indicate a multi-layered image
                     if (cfgMultiLayer) {
                         frameHeader->duration = 0;
                     } else if (cfgMultiPage) {
                         frameHeader->duration = 0xFFFFFFFF;
                     }
 
-                    // Enable crop info if layer dimension is different than main
-                    // This also enables out-of-bound pixels to be preserved
                     if (node->exactBounds() == image->bounds()) {
                         frameHeader->layer_info.have_crop = false;
                     } else {
@@ -919,8 +877,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                         frameHeader->layer_info.blend_info.alpha = 0;
                     }
 
-                    // EXPERIMENTAL! Additive blending mode on JPEG-XL produces
-                    // slightly different result than Krita.
                     const QString frameName = node->name();
                     if (!isFirstLayer && cfgMultiLayer) {
                         if (node->compositeOpId() == QString("add")) {
@@ -949,7 +905,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
                     return ImportExportCodes::InternalError;
                 }
 
-                // CMYKA separate planar buffer for Key and Alpha
                 if (cs->colorModelId() == CMYKAColorModelID) {
                     KisHLineConstIteratorSP it =
                         dev->createHLineConstIteratorNG(layerBounds.x(), layerBounds.y(), layerBounds.width());
@@ -1008,7 +963,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
             }
         }
 #else
-                // Quit loop if flatten is active
                 if (cfgFlattenLayer) {
                     break;
                 }
@@ -1043,8 +997,6 @@ KisImportExportErrorCode JPEGXLExport::convert(KisDocument *document, QIODevice 
 
 void JPEGXLExport::initializeCapabilities()
 {
-    // This checks before saving for what the file format supports: anything that is supported needs to be mentioned
-    // here
 
     QList<QPair<KoID, KoID>> supportedColorModels;
     addCapability(KisExportCheckRegistry::instance()
@@ -1082,7 +1034,7 @@ void JPEGXLExport::initializeCapabilities()
 }
 
 KisConfigWidget *
-JPEGXLExport::createConfigurationWidget(QWidget *parent, const QByteArray & /*from*/, const QByteArray & /*to*/) const
+JPEGXLExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray & ) const
 {
     return new KisWdgOptionsJPEGXL(parent);
 }
@@ -1090,21 +1042,6 @@ JPEGXLExport::createConfigurationWidget(QWidget *parent, const QByteArray & /*fr
 KisPropertiesConfigurationSP JPEGXLExport::defaultConfiguration(const QByteArray &, const QByteArray &) const
 {
     KisPropertiesConfigurationSP cfg = new KisPropertiesConfiguration();
-
-    // WARNING: libjxl only allows setting encoding properties,
-    // so I hardcoded values from https://libjxl.readthedocs.io/en/latest/api_encoder.html
-    // https://readthedocs.org/projects/libjxl/builds/16271112/
-
-    // Options for the following were not added because they rely
-    // on the image's specific color space, or can introduce more
-    // trouble than help:
-    //   JXL_ENC_FRAME_SETTING_GROUP_ORDER_CENTER_X
-    //   JXL_ENC_FRAME_SETTING_GROUP_ORDER_CENTER_Y
-    //   JXL_ENC_FRAME_SETTING_MODULAR_COLOR_SPACE
-    //   JXL_ENC_FRAME_SETTING_MODULAR_NB_PREV_CHANNELS
-    // These are directly incompatible with the export logic:
-    //   JXL_ENC_FRAME_SETTING_ALREADY_DOWNSAMPLED
-    //   JXL_ENC_FRAME_SETTING_COLOR_TRANSFORM
 
     cfg->setProperty("haveAnimation", false);
     cfg->setProperty("flattenLayers", true);

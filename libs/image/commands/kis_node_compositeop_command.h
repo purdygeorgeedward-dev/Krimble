@@ -11,17 +11,10 @@
 #include "commands_new/KisAsynchronouslyMergeableCommandInterface.h"
 #include <boost/optional.hpp>
 
-/// The command for setting the composite op
 class KRITAIMAGE_EXPORT KisNodeCompositeOpCommand : public KisNodeCommand, public KisAsynchronouslyMergeableCommandInterface
 {
 
 public:
-    /**
-     * Constructor
-     * @param node The node the command will be working on.
-     * @param oldCompositeOp the old node composite op
-     * @param newCompositeOp the new node composite op
-     */
     KisNodeCompositeOpCommand(KisNodeSP node, const QString& newCompositeOp);
 
     void redo() override;
@@ -41,4 +34,4 @@ private:
     QString m_newCompositeOp;
 };
 
-#endif /* KIS_NODE_COMPOSITEOP_COMMAND_H */
+#endif

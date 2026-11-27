@@ -19,4 +19,4 @@ private Q_SLOTS:
     void testConflictingEmbeddedPatterns();
 };
 
-#endif // KISPAINTOPPRESETTEST_H
+#endif

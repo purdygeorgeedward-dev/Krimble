@@ -8,7 +8,6 @@
 #ifndef PSD_UTILS_H
 #define PSD_UTILS_H
 
-
 #include <QtEndian>
 #include <QtGlobal>
 #include <QIODevice>
@@ -19,10 +18,6 @@
 
 class QIODevice;
 class QString;
-
-/**
- * Writing functions.
- */
 
 inline bool psdwriteBE(QIODevice &io, const quint8 &v)
 {
@@ -113,10 +108,6 @@ inline bool psdwriteLE(QIODevice &io, const quint64 &v)
     const qint64 written = io.write(reinterpret_cast<const char *>(val.data()), 8);
     return written == 8;
 }
-
-/**
- * Templated writing fallbacks for non-integral types.
- */
 
 template<typename T>
 inline bool psdwriteBE(QIODevice &io, std::enable_if_t<sizeof(T) == sizeof(quint8), T &> v)
@@ -234,7 +225,6 @@ inline bool psdwrite_pascalstring(QIODevice &io, const QString &s, int padding)
     if (written != length)
         return false;
 
-    // If the total length (length byte + content) is not a multiple of padding, add zeroes to pad
     length++;
     if ((length % padding) != 0) {
         for (int i = 0; i < (padding - (length % padding)); i++) {
@@ -254,10 +244,6 @@ inline bool psdpad(QIODevice &io, quint32 padding)
     }
     return true;
 }
-
-/**
- * Reading functions.
- */
 
 inline bool psdreadBE(QIODevice &io, quint8 &v)
 {
@@ -341,10 +327,6 @@ inline bool psdreadLE(QIODevice &io, quint64 &v)
     return true;
 }
 
-/**
- * Templated reading fallbacks for non-integral types.
- */
-
 template<typename T>
 inline bool psdreadBE(QIODevice &io, std::enable_if_t<sizeof(T) == sizeof(quint8), T &> v)
 {
@@ -422,7 +404,6 @@ inline bool psdread_pascalstring(QIODevice &io, QString &s, qint64 padding)
     }
 
     if (length == 0) {
-        // read the padding
         for (qint64 i = 0; i < padding - 1; ++i) {
             io.seek(io.pos() + 1);
         }
@@ -434,7 +415,6 @@ inline bool psdread_pascalstring(QIODevice &io, QString &s, qint64 padding)
         return false;
     }
 
-    // read padding byte
     quint32 paddedLength = length + 1;
     if (padding > 0) {
         while (paddedLength % padding != 0) {
@@ -469,7 +449,6 @@ inline bool psdread_unicodestring(QIODevice &io, QString &s)
             return false;
         }
 
-        // XXX: this makes it possible to append garbage
         if (ch != 0) {
             s[i] = QChar(ch);
         }
@@ -495,7 +474,6 @@ inline bool psd_read_blendmode(QIODevice &io, QString &blendModeKey)
     return true;
 }
 
-// Copied from Scribus decodePSDfloat in scimgdataloader.cpp by Franz Schmid
 template<psd_byte_order byteOrder = psd_byte_order::psdBigEndian>
 inline double psdreadFixedPoint(QIODevice &io)
 {
@@ -523,7 +501,6 @@ inline void psdwriteFixedPoint(QIODevice &io, double val)
 {
     qint32 data;
     double max24 = 16777215.0;
-    // val is bound to -16 to +16
 
     qint32 man = qint32(val);
     quint32 frac= quint32(fabs(val - man) * max24);
@@ -535,4 +512,4 @@ inline void psdwriteFixedPoint(QIODevice &io, double val)
     psdwrite<byteOrder>(io, data);
 }
 
-#endif // PSD_UTILS_H
+#endif

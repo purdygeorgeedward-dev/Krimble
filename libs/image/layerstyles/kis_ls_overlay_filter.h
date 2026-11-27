@@ -7,12 +7,10 @@
 #ifndef KIS_LS_OVERLAY_FILTER_H
 #define KIS_LS_OVERLAY_FILTER_H
 
-
 #include "kis_layer_style_filter.h"
 #include <kritaimage_export.h>
 
 struct psd_layer_effects_overlay_base;
-
 
 class KRITAIMAGE_EXPORT KisLsOverlayFilter : public KisLayerStyleFilter
 {

@@ -50,7 +50,7 @@ public:
         return false;
     }
 
-    bool profileIsCompatible(const KoColorProfile* /*profile*/) const override {
+    bool profileIsCompatible(const KoColorProfile* ) const override {
         return true;
     }
 
@@ -200,7 +200,6 @@ public:
         return true;
     }
 
-
     virtual QString colorSpaceEngine() const {
         return "simple";
     }
@@ -213,5 +212,4 @@ private:
 
 };
 
-
-#endif // KOSIMPLECOLORSPACE_H
+#endif

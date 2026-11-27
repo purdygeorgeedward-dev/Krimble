@@ -51,25 +51,25 @@ QPointF RulerAssistant::project(const QPointF& pt) const
     Q_ASSERT(isAssistantComplete());
     QPointF pt1 = *handles()[0];
     QPointF pt2 = *handles()[1];
-    
+
     QPointF a = pt - pt1;
     QPointF u = pt2 - pt1;
-    
+
     qreal u_norm = sqrt(u.x() * u.x() + u.y() * u.y());
-    
+
     if(u_norm == 0) return pt;
-    
+
     u /= u_norm;
-    
+
     double t = a.x() * u.x() + a.y() * u.y();
-    
+
     if(t < 0.0) return pt1;
     if(t > u_norm) return pt2;
-    
+
     return t * u + pt1;
 }
 
-QPointF RulerAssistant::adjustPosition(const QPointF& pt, const QPointF& /*strokeBegin*/, const bool /*snapToAny*/, qreal /*moveThresholdPt*/)
+QPointF RulerAssistant::adjustPosition(const QPointF& pt, const QPointF& , const bool , qreal )
 {
     return project(pt);
 }
@@ -84,62 +84,49 @@ void RulerAssistant::drawSubdivisions(QPainter& gc, const KisCoordinatesConverte
     if (subdivisions() == 0) {
         return;
     }
-  
-    // Get handle positions
+
     QTransform document2widget = converter->documentToWidgetTransform();
-  
+
     QPointF p1 = document2widget.map(*handles()[0]);
     QPointF p2 = document2widget.map(*handles()[1]);
-  
+
     const qreal scale = 16.0 / 2;
     const qreal minorScale = scale / 2;
     const QRectF clipping = QRectF(gc.viewport()).adjusted(-scale, -scale, scale, scale);
-    // If the lines would end up closer to each other than this threshold (in
-    // screen coordinates), they are not rendered, as they wouldn't be
-    // distinguishable anymore.
     const qreal threshold = 3.0;
-    
-    // Calculate line direction and normal vector
+
     QPointF delta = p2 - p1;
     qreal length = sqrt(KisPaintingAssistant::norm2(delta));
     qreal stepsize = length / subdivisions();
-    
-    // Only draw if lines are far enough apart
+
     if (stepsize >= threshold) {
         QPointF normal = QPointF(delta.y(), -delta.x());
         normal /= length;
-  
+
         QPainterPath path;
-        
-        // Draw the major subdivisions
+
         for (int ii = 0; ii <= subdivisions(); ++ii) {
-          
+
             QPointF pos = p1 + delta * ((qreal)ii / subdivisions());
-            
+
             if (clipping.contains(pos)) {
                 path.moveTo(pos - normal * scale);
                 path.lineTo(pos + normal * scale);
             }
-            
-            // Draw minor subdivisions, if they exist (implicit check due to
-            // the loop bounds)
-            // Skip for the last iteration of the outer loop, which would
-            // already be beyond the ruler's length
-            // Also skip if major subdivisions are too close already
+
             if (ii == subdivisions() || stepsize / minorSubdivisions() < threshold)
                 continue;
-            // Draw minor marks in between the major ones
             for (int jj = 1; jj < minorSubdivisions(); ++jj) {
-              
+
                 QPointF mpos = pos + delta * ((qreal)jj / (subdivisions() * minorSubdivisions()));
-    
+
                 if (clipping.contains(mpos)) {
                     path.moveTo(mpos - normal * minorScale);
                     path.lineTo(mpos + normal * minorScale);
                 }
             }
         }
-  
+
         gc.save();
         gc.resetTransform();
         drawPath(gc, path, displayRenderInterface, isSnappingActive());
@@ -150,50 +137,43 @@ void RulerAssistant::drawSubdivisions(QPainter& gc, const KisCoordinatesConverte
 void RulerAssistant::drawHandleAnnotations(QPainter& gc, const KisCoordinatesConverter* converter, const KoColorDisplayRendererInterface *displayRenderInterface) {
     gc.save();
     gc.resetTransform();
-    
+
     QTransform doc2widget = converter->documentToWidgetTransform();
     QPointF center = doc2widget.map(*handles()[0]);
     QPointF handle = doc2widget.map(*handles()[1]);
-  
+
     QPainterPath path;
-  
-    // Center / Movement handle
+
     for (int i = 0; i < 4; ++i) {
         QTransform rot = QTransform().rotate(i * 90);
-      
+
         path.moveTo(center + rot.map(QPointF(12, -3)));
         path.lineTo(center + rot.map(QPointF(9, 0)));
         path.lineTo(center + rot.map(QPointF(12, 3)));
     }
-    
-    // Rotation handle
+
     QRectF bounds = QRectF(handle, QSizeF(0, 0)).adjusted(-11, -11, 11, 11);
     for (int i = 0; i < 2; ++i) {
         int dir = i == 0 ? 1 : -1;
-        
+
         path.moveTo(handle + QPointF(dir * 11, 0));
         path.arcTo(bounds, i * 180, -90);
     }
-    
+
     drawPath(gc, path, displayRenderInterface);
     gc.restore();
 }
 
 void RulerAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, const KisCoordinatesConverter* converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool cached, KisCanvas2* canvas, bool assistantVisible, bool previewVisible)
 {
-    // Draw the subdivisions
-    // When the number of subdivisions (or minor subdivisions) is set to
-    // 0, the respective feature is turned off and won't be rendered.
     if (assistantVisible && isAssistantComplete() && subdivisions() > 0) {
         drawSubdivisions(gc, converter, displayRenderInterface);
     }
-    
-    // Indicate handle type on fixed-length handles
+
     if (canvas && canvas->paintingAssistantsDecoration()->isEditingAssistants() && hasFixedLength()) {
         drawHandleAnnotations(gc, converter, displayRenderInterface);
     }
-    
-    // Draw the ruler itself via drawCache
+
     KisPaintingAssistant::drawAssistant(gc, updateRect, converter, displayRenderInterface, cached, canvas, assistantVisible, previewVisible);
 }
 
@@ -205,7 +185,6 @@ void RulerAssistant::drawCache(QPainter& gc, const KisCoordinatesConverter *conv
 
     QTransform initialTransform = converter->documentToWidgetTransform();
 
-    // Draw the line
     QPointF p1 = *handles()[0];
     QPointF p2 = *handles()[1];
 
@@ -286,7 +265,7 @@ void RulerAssistant::ensureLength() {
     if (!hasFixedLength() || fixedLength() < 1e-3) {
         return;
     }
-    
+
     QPointF center = *handles()[0];
     QPointF handle = *handles()[1];
     QPointF direction = handle - center;
@@ -328,8 +307,6 @@ bool RulerAssistant::loadCustomXml(QXmlStreamReader *xml) {
     }
     return true;
 }
-
-
 
 RulerAssistantFactory::RulerAssistantFactory() = default;
 

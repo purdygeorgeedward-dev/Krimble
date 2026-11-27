@@ -29,7 +29,6 @@
 #include <kis_algebra_2d.h>
 #include <cmath>
 
-
 struct KisAnimationFrameCache::Private
 {
     Private(KisOpenGLImageTexturesSP _textures)
@@ -109,11 +108,6 @@ struct KisAnimationFrameCache::Private
         swapper->saveFrame(range.start(), info, image->bounds());
     }
 
-    /**
-     * Invalidate any cached frames within the given time range.
-     * @param range
-     * @return true if frames were invalidated, false if nothing was changed
-     */
     bool invalidate(const KisTimeSpan& range)
     {
         if (newFrames.isEmpty()) return false;
@@ -135,7 +129,6 @@ struct KisAnimationFrameCache::Private
                 }
 
                 if (!range.isInfinite() && (frameIsInfinite || end > range.end())) {
-                    // Reinsert with a later start
                     int newStart = range.end() + 1;
                     int newLength = frameIsInfinite ? -1 : (end - newStart + 1);
 
@@ -173,8 +166,6 @@ struct KisAnimationFrameCache::Private
         return lodLimit;
     }
 
-
-    // TODO: verify that we don't have any leak here!
     typedef QMap<KisOpenGLImageTexturesSP, KisAnimationFrameCache*> CachesMap;
     static CachesMap caches;
 };
@@ -212,7 +203,6 @@ const KisAnimationFrameCacheSP KisAnimationFrameCache::cacheForImage(KisImageWSP
 KisAnimationFrameCache::KisAnimationFrameCache(KisOpenGLImageTexturesSP textures)
     : m_d(new Private(textures))
 {
-    // create swapping backend
     slotConfigChanged();
 
     connect(m_d->image->animationInterface(), SIGNAL(sigFramesChanged(KisTimeSpan,QRect)), this, SLOT(framesChanged(KisTimeSpan,QRect)));
@@ -229,10 +219,6 @@ bool KisAnimationFrameCache::uploadFrame(int time)
     KisOpenGLUpdateInfoSP info = m_d->getFrame(time);
 
     if (!info) {
-        // Do nothing!
-        //
-        // Previously we were trying to start cache regeneration in this point,
-        // but it caused even bigger slowdowns when scrubbing
     } else {
         m_d->textures->recalculateCache(info, false);
     }
@@ -265,7 +251,6 @@ bool FramesGluerBase::glueFrames(const KisTimeSpan &range) {
 
     if (frames.isEmpty()) return framesChanged;
 
-    // find the first element, which `end` is greater or equal to `range.start()`
     auto it = frames.begin();
     for (; it != frames.end(); ++it) {
         if (it.key() + it.value() - 1 >= range.start()) {
@@ -275,7 +260,6 @@ bool FramesGluerBase::glueFrames(const KisTimeSpan &range) {
 
     if (it != frames.end()) {
         if (it.key() > range.start()) {
-            // Reinsert with an earilier start
             const int oldStart = it.key();
             const int newStart = range.start();
             const int newLength = range.isInfinite() ? -1 : range.duration();
@@ -304,7 +288,6 @@ bool FramesGluerBase::glueFrames(const KisTimeSpan &range) {
             } else if (it.key() > range.end()) {
                 break;
             } else if (it.value() == -1 || it.key() + it.value() - 1 > range.end()) {
-                // Reinsert with a later start
                 int oldStart = it.key();
                 int newStart = range.end() + 1;
                 int newLength = it.value() == -1 ? -1 : (it.key() + it.value() - 1 - newStart + 1);
@@ -409,7 +392,6 @@ KisOpenGLUpdateInfoSP KisAnimationFrameCache::fetchFrameData(int time, KisImageS
         qWarning() << "    "  << ppVar(image->animationInterface()->currentTime()) << ppVar(time);
     }
 
-    // the frames are always generated at full scale
     KIS_SAFE_ASSERT_RECOVER_NOOP(image->currentLevelOfDetail() == 0);
 
     const int lod = m_d->effectiveLevelOfDetail(requestedRegion.boundingRect());
@@ -446,8 +428,6 @@ void KisAnimationFrameCache::dropLowQualityFrames(const KisTimeSpan &range, cons
 
     auto it = m_d->newFrames.upperBound(range.start());
 
-    // the vector is guaranteed to be non-empty,
-    // so decrementing iterator is safe
     if (it != m_d->newFrames.begin()) it--;
 
     while (it != m_d->newFrames.end() && it.key() <= range.end()) {

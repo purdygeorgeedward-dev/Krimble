@@ -30,23 +30,10 @@ class DefaultToolTabbedWidget;
 class KisViewManager;
 class DefaultToolTextPropertiesInterface;
 
-/**
- * The default tool (associated with the arrow icon) implements the default
- * interactions you have with flake objects.<br>
- * The tool provides scaling, moving, selecting, rotation and soon skewing of
- * any number of shapes.
- * <p>Note that the implementation of those different strategies are delegated
- * to the InteractionStrategy class and its subclasses.
- */
 class DefaultTool : public KoInteractionTool
 {
     Q_OBJECT
 public:
-    /**
-     * Constructor for basic interaction tool where user actions are translated
-     * and handled by interaction strategies of type KoInteractionStrategy.
-     * @param canvas the canvas this tool will be working for.
-     */
     explicit DefaultTool(KoCanvasBase *canvas, bool connectToSelectedShapesProxy = false);
     ~DefaultTool() override;
 
@@ -61,34 +48,20 @@ public:
 
     QRectF decorationsRect() const override;
 
-    ///reimplemented
     void copy() const override;
 
-    ///reimplemented
     void deleteSelection() override;
 
-    ///reimplemented
     bool paste() override;
 
-    ///reimplemented
     bool selectAll() override;
 
-    ///reimplemented
     void deselect() override;
 
-    ///reimplemented
     KoToolSelection *selection() override;
 
     QMenu *popupActionsMenu() override;
 
-    /**
-     * Returns which selection handle is at params point (or NoHandle if none).
-     * @return which selection handle is at params point (or NoHandle if none).
-     * @param point the location (in pt) where we should look for a handle
-     * @param innerHandleMeaning this boolean is altered to true if the point
-     *   is inside the selection rectangle and false if it is just outside.
-     *   The value of innerHandleMeaning is undefined if the handle location is NoHandle
-     */
     KoFlake::SelectionHandle handleAt(const QPointF &point, bool *innerHandleMeaning = 0);
 
     bool updateTextContourMode();
@@ -133,10 +106,9 @@ private Q_SLOTS:
     void slotReorderFlowShapes(int type);
 
 protected Q_SLOTS:
-    /// Update actions on selection change
     void updateActions();
 
-public: // Events
+public:
 
     void mousePressEvent(KoPointerEvent *event) override;
     void mouseMoveEvent(KoPointerEvent *event) override;
@@ -157,9 +129,6 @@ protected:
     virtual KoShapeManager *shapeManager() const;
     virtual KoSelection *koSelection() const;
 
-    /**
-     * Enable/disable actions specific to the tool (vector vs. reference images)
-     */
     virtual void updateDistinctiveActions(const QList<KoShape*> &editableShapes);
 
     void addTransformActions(QMenu *menu) const;
@@ -173,7 +142,6 @@ private:
     void setupActions();
     void recalcSelectionBox(KoSelection *selection);
     void updateCursor();
-    /// Returns rotation angle of given handle of the current selection
     qreal rotationOfHandle(KoFlake::SelectionHandle handle, bool useEdgeRotation);
 
     void addMappedAction(KisSignalMapper *mapper, const QString &actionId, int type);
@@ -181,9 +149,7 @@ private:
     void selectionReorder(KoShapeReorderCommand::MoveShapeType order);
     bool moveSelection(int direction, Qt::KeyboardModifiers modifiers);
 
-    /// Returns selection rectangle adjusted by handle proximity threshold
     QRectF handlesSize();
-
 
     void canvasResourceChanged(int key, const QVariant &res) override;
 
@@ -200,7 +166,6 @@ private:
     KoShapeMeshGradientHandles::Handle m_selectedMeshHandle;
     KoShapeMeshGradientHandles::Handle m_hoveredMeshHandle;
 
-    // TODO alter these 3 arrays to be static const instead
     QCursor m_sizeCursors[8];
     QCursor m_rotateCursors[8];
     QCursor m_shearCursors[8];
@@ -222,7 +187,6 @@ private:
 
 #include <KoSvgTextShape.h>
 
-/// Interface to interact with the text property manager.
 class DefaultToolTextPropertiesInterface: public KoSvgTextPropertiesInterface, public KoSvgTextShape::TextCursorChangeListener
 {
     Q_OBJECT
@@ -248,6 +212,5 @@ private:
     struct Private;
     const QScopedPointer<Private> d;
 };
-
 
 #endif

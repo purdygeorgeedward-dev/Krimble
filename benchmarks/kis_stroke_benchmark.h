@@ -15,7 +15,6 @@
 #include <kis_image.h>
 #include <kis_layer.h>
 
-
 const QString PRESET_FILE_NAME = "hairy-benchmark1.kpp";
 
 class KisStrokeBenchmark : public QObject
@@ -42,7 +41,6 @@ private:
     QVector<QPoint> m_rectangleLeftLowerCorners;
     QVector<QPoint> m_rectangleRightUpperCorners;
 
-
     void initCurvePoints(int width, int height);
     void initLines(int width, int height);
     void initRectangles(int width, int height);
@@ -63,11 +61,9 @@ private Q_SLOTS:
 
     void init();
 
-    // AutoBrush
     void pixelbrush300px();
     void pixelbrush300pxRL();
 
-    // Soft brush benchmarks
     void softbrushDefault30();
     void softbrushDefault30RL();
     void softbrushCircle30();
@@ -77,7 +73,6 @@ private Q_SLOTS:
     void softbrushSoftness();
     void softbrushOpacity();
 
-    // Hairy brush benchmarks
     void hairy30pxDefault();
     void hairy30pxDefaultRL();
 
@@ -90,7 +85,6 @@ private Q_SLOTS:
     void hairy30InkDepletion();
     void hairy30InkDepletionRL();
 
-    // Spray brush benchmark1
     void spray30px21particles();
     void spray30px21particlesRL();
 
@@ -123,10 +117,6 @@ private Q_SLOTS:
     void roundMarkerRandomLinesHalfPixel();
     void roundMarkerRectangleHalfPixel();
 
-/*
-    void predefinedBrush();
-    void predefinedBrushRL();
-*/
     void benchmarkRand();
     void benchmarkRand48();
 

@@ -28,17 +28,8 @@ class KRITAWIDGETS_EXPORT KoResourcePopupAction : public QAction
     Q_OBJECT
 
 public:
-    /**
-     * Constructs a KoResourcePopupAction (gradient or pattern) with the specified parent.
-     *
-     * @param gradientResourceAdapter pointer to the gradient or pattern
-     * @param parent The parent for this action.
-     */
     explicit KoResourcePopupAction(const QString &resourceType, KoCanvasResourcesInterfaceSP canvasResourcesInterface, QObject *parent = 0);
 
-    /**
-     * Destructor
-     */
     ~KoResourcePopupAction() override;
 
     QSharedPointer<KoShapeBackground> currentBackground() const;
@@ -50,7 +41,6 @@ public:
     void setCanvasResourcesInterface(KoCanvasResourcesInterfaceSP canvasResourcesInterface);
 
 Q_SIGNALS:
-    /// Emitted when a resource was selected
     void resourceSelected(QSharedPointer<KoShapeBackground>  background);
 
 public Q_SLOTS:
@@ -64,4 +54,4 @@ private:
     Private * const d;
 };
 
-#endif /* KORESOURCEPOPUPACTION_H */
+#endif

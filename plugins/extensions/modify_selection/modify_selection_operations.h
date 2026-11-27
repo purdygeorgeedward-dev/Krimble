@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef MODIFY_SELECTION_OPERATIONS_H
 #define MODIFY_SELECTION_OPERATIONS_H
 
@@ -39,4 +38,4 @@ struct SmoothSelectionOperation : public KisFilterSelectionOperation {
     void runFromXML(KisViewManager *view, const KisOperationConfiguration &config) override;
 };
 
-#endif // MODIFY_SELECTION_OPERATIONS_H
+#endif

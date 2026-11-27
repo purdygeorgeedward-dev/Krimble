@@ -13,7 +13,6 @@
 #include <KisResourceLoaderRegistry.h>
 #include <KisMimeDatabase.h>
 
-
 bool KisRequiredResourcesOperators::detail::isLocalResourcesStorage(KisResourcesInterfaceSP resourcesInterface)
 {
     return !resourcesInterface.dynamicCast<KisLocalStrokeResources>().isNull();
@@ -35,18 +34,12 @@ void KisRequiredResourcesOperators::detail::addResourceOrWarnIfNotLoaded(KoResou
     case KoResourceLoadResult::ExistingResource:
         KIS_SAFE_ASSERT_RECOVER(loadedResource.resource())
         {
-            // XXX: remove once KoResourceLoadResult takes std::monostate
             qWarning() << "Attempt to retrieve a resource that is null";
             return;
         }
         *resources << loadedResource.resource();
         break;
     case KoResourceLoadResult::EmbeddedResource: {
-        /**
-         * Some resources, like filter configurations may be assigned to the
-         * layers without being loaded to the resource system. In such a case,
-         * the embedded resources will be loaded here, when we make a snapshot.
-         */
 
         const KoEmbeddedResource embeddedResource = loadedResource.embeddedResource();
         const KoResourceSignature sig = embeddedResource.signature();

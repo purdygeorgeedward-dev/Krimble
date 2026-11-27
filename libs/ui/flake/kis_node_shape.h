@@ -14,13 +14,8 @@
 #include <kritaui_export.h>
 #include <kis_types.h>
 
-
 #define KIS_NODE_SHAPE_ID "KisNodeShape"
 
-/**
- * A KisNodeShape is a flake wrapper around Krita nodes. It is used
- * for dealing with currently active node for tools.
- */
 class KRITAUI_EXPORT KisNodeShape : public QObject, public KoShapeLayer
 {
     Q_OBJECT
@@ -30,7 +25,6 @@ public:
 
     KisNodeSP node();
 
-    // Empty implementations as the node is not painted anywhere
     QSizeF size() const override;
     QRectF boundingRect() const override;
     void setPosition(const QPointF &) override;

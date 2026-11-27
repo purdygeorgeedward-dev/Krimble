@@ -9,9 +9,6 @@ class QUrl;
 
 #include <kritaui_export.h>
 
-/**
- * @brief Network Access Manager for use with Krita.
- */
 class KRITAUI_EXPORT KisNetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT

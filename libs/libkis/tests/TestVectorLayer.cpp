@@ -5,9 +5,7 @@
 #include "TestVectorLayer.h"
 #include <simpletest.h>
 
-
 #include <KritaVersionWrapper.h>
-
 
 #include <kis_image.h>
 #include <kis_shape_layer.h>
@@ -19,8 +17,6 @@
 
 #include "VectorLayer.h"
 #include "Shape.h"
-
-
 
 void TestVectorLayer::initTestCase()
 {

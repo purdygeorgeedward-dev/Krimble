@@ -69,8 +69,6 @@ QString KoCssTextUtils::transformTextCapitalize(const QString &text, const QStri
         } else if (capitalizeGrapheme) {
             graphemes[i] = locale.toUpper(grapheme);
             if (i + 1 < graphemes.size()) {
-                /// While this is the only case I know of, make no mistake,
-                /// "IJsbeer" (Polar bear) is much more readable than "Ijsbeer".
                 if (locale == QLocale::Dutch && grapheme.toLower().startsWith("i") && graphemes.at(i + 1).toLower().startsWith("j")) {
                     capitalizeGrapheme = true;
                     continue;
@@ -88,11 +86,10 @@ static QChar findProportionalToFullWidth(const QChar &value, const QChar &defaul
 {
     static QMap<QChar, QChar> map = []() {
         QMap<QChar, QChar> map;
-        // https://stackoverflow.com/questions/8326846/
         for (int i = 0x0021; i < 0x007F; i++) {
             map.insert(QChar(i), QChar(i + 0xFF00 - 0x0020));
         }
-        map.insert(QChar(0x0020), QChar(0x3000)); // Ideographic space.
+        map.insert(QChar(0x0020), QChar(0x3000));
 
         return map;
     }();
@@ -118,8 +115,6 @@ QString KoCssTextUtils::transformTextFullWidth(const QString &text)
 static QChar findSmallKanaToBigKana(const QChar &value, const QChar &defaultValue)
 {
     static QMap<QChar, QChar> map = {
-        // NOTE: these are not fully sequential!
-        // clang-format off
         {QChar{0x3041}, QChar{0x3042}},
         {QChar{0x3043}, QChar{0x3044}},
         {QChar{0x3045}, QChar{0x3046}},
@@ -180,7 +175,6 @@ static QChar findSmallKanaToBigKana(const QChar &value, const QChar &defaultValu
         {QChar{0xFF6C}, QChar{0xFF94}},
         {QChar{0xFF6D}, QChar{0xFF95}},
         {QChar{0xFF6E}, QChar{0xFF96}},
-        // clang-format on
     };
 
     return map.value(value, defaultValue);
@@ -208,7 +202,6 @@ QVector<bool> KoCssTextUtils::collapseSpaces(QString *text, QMap<int, KoSvgText:
         bool firstOrLast = (i == 0 || i == modifiedText.size() - 1);
         bool collapse = false;
         if (collapseMethods.contains(i)) {
-            // If a whitespace:collapse sequence is inside a pre-wrap sequence, the first space needs to be left alone.
             if (collapseMethods.value(i) != collapseMethod) spaceSequenceCount = 0;
             collapseMethod = collapseMethods.value(i);
         }
@@ -250,7 +243,6 @@ QVector<bool> KoCssTextUtils::collapseSpaces(QString *text, QMap<int, KoSvgText:
         }
         collapseList[i] = collapse;
     }
-    // go backward to ensure any dangling space characters are marked as collapsed.
     for (int i = modifiedText.size()-1; i>=0; i--) {
         if (collapseMethods.contains(i)) {
             int pos = collapseMethods.keys().indexOf(i);
@@ -303,16 +295,9 @@ bool KoCssTextUtils::hangLastSpace(const QChar c,
 {
     if (c.isSpace()) {
         if (collapseMethod == KoSvgText::Collapse || collapseMethod == KoSvgText::PreserveBreaks) {
-            // [css-text-3] white-space is set to normal, nowrap, or pre-line; or
-            // [css-text-4] white-space-collapse is collapse or preserve-breaks:
-            // hang unconditionally.
             force = true;
             return true;
         } else if (collapseMethod == KoSvgText::Preserve && wrapMethod != KoSvgText::NoWrap) {
-            // [css-text-3] white-space is set to pre-wrap; or
-            // [css-text-4] white-space-collapse is preserve and text-wrap is not nowrap:
-            // hang unconditionally, unless followed by a force line break,
-            // in which case conditionally hang.
 
             if (nextCharIsHardBreak) {
                 force = false;
@@ -329,41 +314,41 @@ bool KoCssTextUtils::hangLastSpace(const QChar c,
 bool KoCssTextUtils::characterCanHang(const QChar c, KoSvgText::HangingPunctuations hangType)
 {
     if (hangType.testFlag(KoSvgText::HangFirst)) {
-        if (c.category() == QChar::Punctuation_InitialQuote || // Pi
-            c.category() == QChar::Punctuation_Open || // Ps
-            c.category() == QChar::Punctuation_FinalQuote || // Pf
-            c == "\u0027" || // Apostrophe
-            c == "\uFF07" || // Fullwidth Apostrophe
-            c == "\u0022" || // Quotation Mark
-            c == "\uFF02") { // Fullwidth Quotation Mark
+        if (c.category() == QChar::Punctuation_InitialQuote ||
+            c.category() == QChar::Punctuation_Open ||
+            c.category() == QChar::Punctuation_FinalQuote ||
+            c == "\u0027" ||
+            c == "\uFF07" ||
+            c == "\u0022" ||
+            c == "\uFF02") {
             return true;
         }
     }
     if (hangType.testFlag(KoSvgText::HangLast)) {
-        if (c.category() == QChar::Punctuation_InitialQuote || // Pi
-            c.category() == QChar::Punctuation_FinalQuote || // Pf
-            c.category() == QChar::Punctuation_Close || // Pe
-            c == "\u0027" || // Apostrophe
-            c == "\uFF07" || // Fullwidth Apostrophe
-            c == "\u0022" || // Quotation Mark
-            c == "\uFF02") { // Fullwidth Quotation Mark
+        if (c.category() == QChar::Punctuation_InitialQuote ||
+            c.category() == QChar::Punctuation_FinalQuote ||
+            c.category() == QChar::Punctuation_Close ||
+            c == "\u0027" ||
+            c == "\uFF07" ||
+            c == "\u0022" ||
+            c == "\uFF02") {
             return true;
         }
     }
     if (hangType.testFlag(KoSvgText::HangEnd)) {
-        if (c == "\u002c" || // Comma
-            c == "\u002e" || // Full Stop
-            c == "\u060c" || // Arabic Comma
-            c == "\u06d4" || // Arabic Full Stop
-            c == "\u3001" || // Ideographic Comma
-            c == "\u3002" || // Ideographic Full Stop
-            c == "\uff0c" || // Fullwidth Comma
-            c == "\uff0e" || // Fullwidth full stop
-            c == "\ufe50" || // Small comma
-            c == "\ufe51" || // Small ideographic comma
-            c == "\ufe52" || // Small full stop
-            c == "\uff61" || // Halfwidth ideographic full stop
-            c == "\uff64" // halfwidth ideographic comma
+        if (c == "\u002c" ||
+            c == "\u002e" ||
+            c == "\u060c" ||
+            c == "\u06d4" ||
+            c == "\u3001" ||
+            c == "\u3002" ||
+            c == "\uff0c" ||
+            c == "\uff0e" ||
+            c == "\ufe50" ||
+            c == "\ufe51" ||
+            c == "\ufe52" ||
+            c == "\uff61" ||
+            c == "\uff64"
         ) {
             return true;
         }
@@ -373,11 +358,11 @@ bool KoCssTextUtils::characterCanHang(const QChar c, KoSvgText::HangingPunctuati
 
 bool KoCssTextUtils::IsCssWordSeparator(const QString grapheme)
 {
-    return (grapheme == "\u0020" || // Space
-        grapheme == "\u00A0" || // No Break Space
-        grapheme == "\u1361" || // Ethiopic Word Space
-        grapheme == "\u10100" || // Aegean Word Sepator Line
-        grapheme == "\u10101" || // Aegean Word Sepator Dot
+    return (grapheme == "\u0020" ||
+        grapheme == "\u00A0" ||
+        grapheme == "\u1361" ||
+        grapheme == "\u10100" ||
+        grapheme == "\u10101" ||
         grapheme == "\u1039F");
 }
 
@@ -503,19 +488,15 @@ QString KoCssTextUtils::getBidiClosing(KoSvgText::UnicodeBidi bidi)
 }
 
 bool isVariationSelector(uint val) {
-    // Original set of VS
     if (val == 0xfe00 || (val > 0xfe00 && val <= 0xfe0f)) {
         return true;
     }
-    // Extended set VS
     if (val == 0xe0100 || (val > 0xe0100 && val <= 0xe01ef)) {
         return true;
     }
-    // Mongolian VS
     if (val == 0x180b || (val > 0x180b && val <= 0x180f)) {
         return true;
     }
-    // Emoji skin tones
     if (val == 0x1f3fb || (val > 0x1f3fb && val <= 0x1f3ff)) {
         return true;
     }
@@ -559,7 +540,6 @@ void KoCssTextUtils::removeText(QString &text, int &start, int length)
                 start -= regionalIndicatorCount;
                 regionalIndicatorCount = 0;
             }
-            // Always delete any zero-width-joiners as well.
             if (ZWJ && index > start) {
                 start = -1;
             }
@@ -567,12 +547,10 @@ void KoCssTextUtils::removeText(QString &text, int &start, int length)
                 start -= lastCharZWJ;
                 lastCharZWJ = 0;
             }
-            // remove any clusters too.
             if (lastVS > 0) {
                 start = vsClusterStart;
             }
         }
-
 
         if (j >= end && addToEnd) {
             end = j;
@@ -594,8 +572,6 @@ qreal KoCssTextUtils::cssSelectFontStyleValue(const QVector<qreal> &values, cons
     if(values.isEmpty()) {
         return targetValue;
     }
-    // follow the CSS Fonts selection mechanism.
-    // See https://drafts.csswg.org/css-fonts-4/#font-style-matching
     QVector<qreal> sortedValues = values;
     std::sort(sortedValues.begin(), sortedValues.end());
     qreal selectedValue = defaultValue;
@@ -608,15 +584,11 @@ qreal KoCssTextUtils::cssSelectFontStyleValue(const QVector<qreal> &values, cons
         lower--;
     }
 
-    // ... Which wants to select the lower possible selection when the value is below the default.
     if (targetValue < defaultValue) {
         selectedValue = *lower;
-    // ... the higher closest value when the value is higher than the default (upper bound)
     } else if (targetValue > defaultValueUpper) {
         selectedValue = *upper;
     } else {
-        // ... and if the value is between the lower and upper default bounds, first higher (within bounds)
-        // then lower, then higher.
         if (*upper <= defaultValueUpper && *lower != targetValue) {
             selectedValue = *upper;
         } else {

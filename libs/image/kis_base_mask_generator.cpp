@@ -79,7 +79,6 @@ struct KisMaskGenerator::Private {
     qreal scaleY;
 };
 
-
 KisMaskGenerator::KisMaskGenerator(qreal diameter, qreal ratio, qreal fh, qreal fv, int spikes, bool antialiasEdges, Type type, const KoID& id)
     : d(new Private), m_id(id)
 {
@@ -87,7 +86,7 @@ KisMaskGenerator::KisMaskGenerator(qreal diameter, qreal ratio, qreal fh, qreal 
     d->ratio = ratio;
     d->fh = 0.5 * fh;
     d->fv = 0.5 * fv;
-    d->softness = 1.0; // by default don't change fade/softness/hardness
+    d->softness = 1.0;
     d->spikes = spikes;
     d->cachedSpikesAngle = M_PI / d->spikes;
     d->type = type;
@@ -129,7 +128,6 @@ bool KisMaskGenerator::shouldVectorize() const
     return false;
 }
 
-
 bool KisMaskGenerator::isEmpty() const
 {
     return d->empty;
@@ -138,7 +136,6 @@ bool KisMaskGenerator::isEmpty() const
 void KisMaskGenerator::toXML(QDomDocument& doc, QDomElement& e) const
 {
     Q_UNUSED(doc);
-    //e.setAttribute("radius", d->radius);
     e.setAttribute("diameter", QString::number(d->diameter));
     e.setAttribute("ratio", QString::number(d->ratio));
     e.setAttribute("hfade", QString::number(horizontalFade()));
@@ -152,11 +149,10 @@ void KisMaskGenerator::toXML(QDomDocument& doc, QDomElement& e) const
 KisMaskGenerator* KisMaskGenerator::fromXML(const QDomElement& elt)
 {
     double diameter = 1.0;
-    // backward compatibility -- it was mistakenly named radius for 2.2
     if (elt.hasAttribute("radius")){
         diameter = KisDomUtils::toDouble(elt.attribute("radius", "1.0"));
     }
-    else /*if (elt.hasAttribute("diameter"))*/{
+    else {
         diameter = KisDomUtils::toDouble(elt.attribute("diameter", "1.0"));
     }
     double ratio = KisDomUtils::toDouble(elt.attribute("ratio", "1.0"));
@@ -194,7 +190,6 @@ KisMaskGenerator* KisMaskGenerator::fromXML(const QDomElement& elt)
         }
     }
 
-    // if unknown
     return new KisCircleMaskGenerator(diameter, ratio, hfade, vfade, spikes, true);
 }
 
@@ -218,11 +213,6 @@ qreal KisMaskGenerator::effectiveSrcWidth() const
 
 qreal KisMaskGenerator::effectiveSrcHeight() const
 {
-    /**
-     * This height is related to the source of the brush mask, so we
-     * don't take spikes into account, they will be generated from
-     * this data.
-     */
     return d->diameter * d->ratio * d->scaleY;
 }
 
@@ -248,21 +238,19 @@ qreal KisMaskGenerator::softness() const
     return d->softness;
 }
 
-
 void KisMaskGenerator::setSoftness(qreal softness)
 {
     d->softness = softness;
 }
 
-
 qreal KisMaskGenerator::horizontalFade() const
 {
-    return 2.0 * d->fh; // 'cause in init we divide it again
+    return 2.0 * d->fh;
 }
 
 qreal KisMaskGenerator::verticalFade() const
 {
-    return 2.0 * d->fv; // 'cause in init we divide it again
+    return 2.0 * d->fv;
 }
 
 int KisMaskGenerator::spikes() const

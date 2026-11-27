@@ -44,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 TouchDockerPlugin::TouchDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

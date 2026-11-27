@@ -32,4 +32,4 @@ public:
     LAGER_QT_CURSOR(int, separationIntervals);
 };
 
-#endif // KIS_HATCHING_OPTIONS_MODEL_H
+#endif

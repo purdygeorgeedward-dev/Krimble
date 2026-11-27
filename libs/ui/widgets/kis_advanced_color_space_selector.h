@@ -19,8 +19,6 @@
 class KoID;
 class KoColorSpace;
 
-/* Use KisColorSpaceSelector instead of directly using this one*/
-
 class KRITAUI_EXPORT KisAdvancedColorSpaceSelector : public QDialog
 {
     Q_OBJECT
@@ -46,6 +44,5 @@ private:
     struct Private;
     Private * const d;
 };
-
 
 #endif

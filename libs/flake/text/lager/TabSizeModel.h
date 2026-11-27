@@ -39,4 +39,4 @@ public:
 
 };
 
-#endif // TABSIZEMODEL_H
+#endif

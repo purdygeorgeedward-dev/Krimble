@@ -18,28 +18,17 @@
 
 #include <KisRegion.h>
 
-//#define USE_LAZY_FILL_SANITY_CHECKS 1
-
 #ifdef USE_LAZY_FILL_SANITY_CHECKS
 #define LF_SANITY_ASSERT(x) KIS_ASSERT(x)
 #define LF_SANITY_ASSERT_RECOVER(x) KIS_ASSERT_RECOVER(x)
 #else
 #define LF_SANITY_ASSERT(x)
 #define LF_SANITY_ASSERT_RECOVER(x) if (0)
-#endif /* USE_LAZY_FILL_SANITY_CHECKS */
-
+#endif
 
 using namespace boost;
 
-/*
-BOOST_CONCEPT_ASSERT(( ReadablePropertyMapConcept<ScribbleMap, vertex_descriptor> )); //read flow-values from vertices
-*/
-
 class KisLazyFillGraph;
-
-//===================
-// Index Property Map
-//===================
 
 template <typename Graph,
           typename Descriptor,
@@ -74,10 +63,6 @@ protected:
     const Graph* m_graph;
 };
 
-//==========================
-// Reverse Edge Property Map
-//==========================
-
 template <typename Descriptor>
 struct lazy_fill_graph_reverse_edge_map {
 public:
@@ -101,13 +86,8 @@ public:
         }
 };
 
-//=================
-// Function Objects
-//=================
-
 namespace kis_detail {
 
-    // vertex_at
     template <typename Graph>
     struct lazy_fill_graph_vertex_at {
 
@@ -128,7 +108,6 @@ namespace kis_detail {
         const Graph* m_graph;
     };
 
-    // out_edge_at
     template <typename Graph>
     struct lazy_fill_graph_out_edge_at {
 
@@ -156,7 +135,6 @@ namespace kis_detail {
         const Graph* m_graph;
     };
 
-    // in_edge_at
     template <typename Graph>
     struct lazy_fill_graph_in_edge_at {
 
@@ -184,7 +162,6 @@ namespace kis_detail {
         const Graph* m_graph;
     };
 
-    // edge_at
     template <typename Graph>
     struct lazy_fill_graph_edge_at {
 
@@ -205,7 +182,6 @@ namespace kis_detail {
         const Graph* m_graph;
     };
 
-    // adjacent_vertex_at
     template <typename Graph>
     struct lazy_fill_graph_adjacent_vertex_at {
 
@@ -228,19 +204,16 @@ namespace kis_detail {
         const Graph* m_graph;
     };
 
-} // namespace kis_detail
-
+}
 
 class KisLazyFillGraph
 {
 public:
     typedef KisLazyFillGraph type;
 
-
     typedef long VertexIndex;
     typedef long EdgeIndex;
 
-    // sizes
     typedef VertexIndex vertices_size_type;
     typedef EdgeIndex edges_size_type;
     typedef EdgeIndex degree_size_type;
@@ -260,7 +233,6 @@ public:
         VertexDescriptor(vertices_size_type _x, vertices_size_type _y, VertexType _type = NORMAL)
             : x(_x), y(_y), type(_type) {}
 
-        // TODO: Extra constructors look unnecessary, ask Dmitry before removing
         VertexDescriptor(VertexType _type)
             : x(0), y(0), type(_type) {}
 
@@ -272,33 +244,27 @@ public:
         }
     };
 
-    // descriptors
     typedef VertexDescriptor vertex_descriptor;
     typedef std::pair<vertex_descriptor, vertex_descriptor> edge_descriptor;
 
     friend QDebug operator<<(QDebug dbg, const KisLazyFillGraph::edge_descriptor &e);
     friend QDebug operator<<(QDebug dbg, const KisLazyFillGraph::vertex_descriptor &v);
 
-    // vertex_iterator
     typedef counting_iterator<vertices_size_type> vertex_index_iterator;
     typedef kis_detail::lazy_fill_graph_vertex_at<KisLazyFillGraph> vertex_function;
     typedef transform_iterator<vertex_function, vertex_index_iterator> vertex_iterator;
 
-    // edge_iterator
     typedef counting_iterator<edges_size_type> edge_index_iterator;
     typedef kis_detail::lazy_fill_graph_edge_at<type> edge_function;
     typedef transform_iterator<edge_function, edge_index_iterator> edge_iterator;
 
-    // out_edge_iterator
     typedef counting_iterator<degree_size_type> degree_iterator;
     typedef kis_detail::lazy_fill_graph_out_edge_at<type> out_edge_function;
     typedef transform_iterator<out_edge_function, degree_iterator> out_edge_iterator;
 
-    // adjacency_iterator
     typedef kis_detail::lazy_fill_graph_adjacent_vertex_at<type> adjacent_vertex_function;
     typedef transform_iterator<adjacent_vertex_function, degree_iterator> adjacency_iterator;
 
-    // categories
     typedef directed_tag directed_category;
     typedef disallow_parallel_edge_tag edge_parallel_category;
     struct traversal_category : virtual public incidence_graph_tag,
@@ -349,7 +315,6 @@ public:
             m_edgeBins << EdgeIndexBin(m_edgeBins.last(), rc, LABEL_A);
         }
 
-        // out_edge_at relies on the sequential layout of reversed edges of one type
         m_aReversedEdgesStart = m_edgeBins.last().last() + 1;
 
         Q_FOREACH (const QRect &rc, m_aLabelRects) {
@@ -362,7 +327,6 @@ public:
             m_edgeBins << EdgeIndexBin(m_edgeBins.last(), rc, LABEL_B);
         }
 
-        // out_edge_at relies on the sequential layout of reversed edges of one type
         m_bReversedEdgesStart = m_edgeBins.last().last() + 1;
 
         Q_FOREACH (const QRect &rc, m_bLabelRects) {
@@ -380,7 +344,6 @@ public:
 
     QSize size() const { return QSize(m_width, m_height); }
     QRect rect() const { return QRect(m_x, m_y, m_width, m_height); }
-
 
     vertices_size_type m_x;
     vertices_size_type m_y;
@@ -499,7 +462,6 @@ public:
                 std::swap(src_vertex, dst_vertex);
             }
 
-            // using direct QRect::contains makes the code 30% slower
             const int x = src_vertex.x;
             const int y = src_vertex.y;
             if (x < rect.x() || x > rect.right() ||
@@ -517,7 +479,6 @@ public:
 
             return internalIndex + start;
         }
-
 
         edge_descriptor edgeAt(edges_size_type index) const {
             edges_size_type localOffset = index - start;
@@ -583,17 +544,14 @@ public:
 
 public:
 
-    // Returns the number of vertices in the graph
     inline vertices_size_type num_vertices() const {
       return (m_numVertices);
     }
 
-    // Returns the number of edges in the graph
     inline edges_size_type num_edges() const {
       return (m_numEdges);
     }
 
-    // Returns the index of [vertex] (See also vertex_at)
     vertices_size_type index_of(vertex_descriptor vertex) const {
         vertices_size_type vertex_index = -1;
 
@@ -612,8 +570,6 @@ public:
         return vertex_index;
     }
 
-    // Returns the vertex whose index is [vertex_index] (See also
-    // index_of(vertex_descriptor))
     vertex_descriptor vertex_at (vertices_size_type vertex_index) const {
         vertex_descriptor vertex;
 
@@ -630,9 +586,6 @@ public:
       return vertex;
     }
 
-    // Returns the edge whose index is [edge_index] (See also
-    // index_of(edge_descriptor)).  NOTE: The index mapping is
-    // dependent upon dimension wrapping.
     edge_descriptor edge_at(edges_size_type edge_index) const {
 
         int binIndex = 0;
@@ -650,7 +603,6 @@ public:
         return m_edgeBins[binIndex].edgeAt(edge_index);
     }
 
-    // Returns the index for [edge] (See also edge_at)
     edges_size_type index_of(edge_descriptor edge) const {
         edges_size_type index = -1;
 
@@ -701,7 +653,6 @@ private:
         return result;
     }
 public:
-    // Returns the number of out-edges for [vertex]
     degree_size_type out_degree(vertex_descriptor vertex) const {
         degree_size_type out_edge_count = 0;
         if (index_of(vertex) < 0) return out_edge_count;
@@ -733,8 +684,6 @@ public:
         return (out_edge_count);
     }
 
-    // Returns an out-edge for [vertex] by index. Indices are in the
-    // range [0, out_degree(vertex)).
     edge_descriptor out_edge_at (vertex_descriptor vertex,
                                  degree_size_type out_edge_index) const {
 
@@ -777,10 +726,6 @@ public:
 
 public:
 
-    //================
-    // VertexListGraph
-    //================
-
     friend inline std::pair<typename type::vertex_iterator,
                             typename type::vertex_iterator>
     vertices(const type& graph) {
@@ -806,10 +751,6 @@ public:
 
         return (graph.vertex_at(vertex_index));
     }
-
-    //===============
-    // IncidenceGraph
-    //===============
 
     friend inline std::pair<typename type::out_edge_iterator,
                             typename type::out_edge_iterator>
@@ -840,10 +781,6 @@ public:
         return (graph.out_edge_at(vertex, out_edge_index));
     }
 
-    //===============
-    // AdjacencyGraph
-    //===============
-
     friend typename std::pair<typename type::adjacency_iterator,
                               typename type::adjacency_iterator>
     adjacent_vertices (typename type::vertex_descriptor vertex,
@@ -859,10 +796,6 @@ public:
                                  adjacent_vertex_function(vertex, &graph))));
     }
 
-    //==================
-    // Adjacency Matrix
-    //==================
-
     friend std::pair<typename type::edge_descriptor, bool>
     edge (typename type::vertex_descriptor source_vertex,
           typename type::vertex_descriptor destination_vertex,
@@ -877,10 +810,6 @@ public:
 
         return edge_exists;
     }
-
-    //==============
-    // EdgeListGraph
-    //==============
 
     friend inline typename type::edges_size_type
     num_edges(const type& graph) {
@@ -906,10 +835,6 @@ public:
                edge_iterator(edge_index_iterator(graph.num_edges()),
                              edge_function(&graph))));
     }
-
-    //=============================
-    // Index Property Map Functions
-    //=============================
 
     friend inline typename type::vertices_size_type
     get(vertex_index_t,
@@ -1014,4 +939,4 @@ QDebug operator<<(QDebug dbg, const KisLazyFillGraph::edge_descriptor &e) {
     return dbg.space();
 }
 
-#endif /* __KIS_LAZY_FILL_GRAPH_H */
+#endif

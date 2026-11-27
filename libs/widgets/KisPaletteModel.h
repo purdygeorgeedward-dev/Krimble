@@ -18,12 +18,6 @@
 
 class KisPaletteView;
 
-/**
- * @brief The KisPaletteModel class
- * This, together with KisPaletteView and KisPaletteDelegate forms a mvc way to access kocolorsets.
- * A display renderer is given to this model to convert KoColor to QColor when
- * colors are requested
- */
 class KRITAWIDGETS_EXPORT KisPaletteModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -31,13 +25,7 @@ public:
     explicit KisPaletteModel(QObject* parent = 0);
     ~KisPaletteModel() override;
 
-    /**
-     * Installs a display renderer object for a palette that will
-     * convert the KoColor to the displayable QColor. Default is the
-     * dumb renderer.
-     */
     void setDisplayRenderer(const KoColorDisplayRendererInterface *displayRenderer);
-
 
     enum AdditionalRoles {
         IsGroupNameRole = Qt::UserRole + 1,
@@ -46,7 +34,7 @@ public:
         RowInGroupRole
     };
 
-public: // QAbstractTableModel
+public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
@@ -69,16 +57,8 @@ public: // QAbstractTableModel
 
 Q_SIGNALS:
 
-    /**
-     * @brief sigPaletteModified
-     * emitted when palette associated with the model is modified
-     */
     void sigPaletteModified();
 
-    /**
-     * @brief sigPaletteChanged
-     * emitted when the palette associated with the model is changed for another palette
-     */
     void sigPaletteChanged();
 
 public:
@@ -112,7 +92,6 @@ public:
 
     QModelIndex indexForClosest(const KoColor &compare);
 
-
     void slotExternalPaletteModified(QSharedPointer<KoColorSet> resource);
 
 private Q_SLOTS:
@@ -134,7 +113,7 @@ private:
     QVariant dataForGroupNameRow(const QModelIndex &idx, int role) const;
     QVariant dataForSwatch(const QModelIndex &idx, int role) const;
 
-private /* member variables */:
+private :
     KoColorSetSP m_colorSet;
     QPointer<const KoColorDisplayRendererInterface> m_displayRenderer;
     bool m_editing {false};

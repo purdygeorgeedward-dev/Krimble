@@ -19,17 +19,12 @@ class QDomElement;
 class QDomDocument;
 class KisBrushMaskApplicatorBase;
 
-const KoID DefaultId("default", ki18n("Default")); ///< generate Krita default mask generator
-const KoID SoftId("soft", ki18n("Soft")); ///< generate brush mask from former softbrush paintop, where softness is based on curve
-const KoID GaussId("gauss", ki18n("Gaussian")); ///< generate brush mask with a Gaussian-blurred edge
+const KoID DefaultId("default", ki18n("Default"));
+const KoID SoftId("soft", ki18n("Soft"));
+const KoID GaussId("gauss", ki18n("Gaussian"));
 
 static const int OVERSAMPLING = 4;
 
-/**
- * This is the base class for mask shapes
- * You should subclass it if you want to create a new
- * shape.
- */
 class KRITAIMAGE_EXPORT KisMaskGenerator
 {
 public:
@@ -38,17 +33,6 @@ public:
     };
 public:
 
-    /**
-     * This function creates an auto brush shape with the following values:
-     * @param radius radius
-     * @param ratio aspect ratio
-     * @param fh horizontal fade
-     * @param fv vertical fade
-     * @param spikes number of spikes
-     * @param antialiasEdges whether to antialias edges
-     * @param type type
-     * @param id the brush identifier
-     */
     KisMaskGenerator(qreal radius, qreal ratio, qreal fh, qreal fv, int spikes, bool antialiasEdges, Type type, const KoID& id = DefaultId);
     KisMaskGenerator(const KisMaskGenerator &rhs);
 
@@ -61,9 +45,6 @@ private:
     void init();
 
 public:
-    /**
-     * @return the alpha value at the position (x,y)
-     */
     virtual quint8 valueAt(qreal x, qreal y) const = 0;
 
     virtual bool shouldSupersample() const;
@@ -76,16 +57,13 @@ public:
 
     virtual void toXML(QDomDocument& , QDomElement&) const;
 
-    /**
-     * Unserialise a \ref KisMaskGenerator
-     */
     static KisMaskGenerator* fromXML(const QDomElement&);
 
     qreal width() const;
 
     qreal height() const;
 
-    qreal diameter() const;    
+    qreal diameter() const;
     void setDiameter(qreal value);
 
     qreal ratio() const;
@@ -95,15 +73,15 @@ public:
     Type type() const;
     bool isEmpty() const;
     void fixRotation(qreal &xr, qreal &yr) const;
-    
+
     inline QString id() const { return m_id.id(); }
     inline QString name() const { return m_id.name(); }
 
     static QList<KoID> maskGeneratorIds();
-    
+
     qreal softness() const;
     virtual void setSoftness(qreal softness);
-    
+
     QString curveString() const;
     void setCurveString(const QString& curveString);
 

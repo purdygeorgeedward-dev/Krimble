@@ -166,7 +166,7 @@ private:
 
     template<typename U = typename dstCSTraits::channels_type, typename std::enable_if<!std::numeric_limits<U>::is_integer, void>::type * = nullptr> constexpr float scale() const
     {
-        return 0.f; // no dithering for floating point
+        return 0.f;
     }
 
     template<typename U = typename dstCSTraits::channels_type, typename std::enable_if<std::numeric_limits<U>::is_integer, void>::type * = nullptr> constexpr float scale() const

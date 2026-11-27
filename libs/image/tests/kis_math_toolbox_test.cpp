@@ -15,5 +15,4 @@ void KisMathToolboxTest::testCreation()
     Q_UNUSED(tb);
 }
 
-
 SIMPLE_TEST_MAIN(KisMathToolboxTest)

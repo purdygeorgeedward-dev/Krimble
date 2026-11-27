@@ -39,7 +39,7 @@ ParallelRulerAssistant::ParallelRulerAssistant(const ParallelRulerAssistant &rhs
 {
 }
 
-QPointF ParallelRulerAssistant::project(const QPointF& pt, const QPointF& strokeBegin, qreal /*moveThresholdPt*/)
+QPointF ParallelRulerAssistant::project(const QPointF& pt, const QPointF& strokeBegin, qreal )
 {
     Q_ASSERT(isAssistantComplete());
 
@@ -51,7 +51,6 @@ QPointF ParallelRulerAssistant::project(const QPointF& pt, const QPointF& stroke
         }
     }
 
-    //dbgKrita<<strokeBegin<< ", " <<*handles()[0];
     QLineF snapLine = QLineF(*handles()[0], *handles()[1]);
     QPointF translation = (*handles()[0]-strokeBegin)*-1.0;
     snapLine = snapLine.translated(translation);
@@ -69,7 +68,7 @@ QPointF ParallelRulerAssistant::project(const QPointF& pt, const QPointF& stroke
     return r;
 }
 
-QPointF ParallelRulerAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool /*snapToAny*/, qreal moveThresholdPt)
+QPointF ParallelRulerAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool , qreal moveThresholdPt)
 {
     return project(pt, strokeBegin, moveThresholdPt);
 }
@@ -90,23 +89,18 @@ void ParallelRulerAssistant::drawAssistant(QPainter& gc, const QRectF& updateRec
     const QRect viewport= gc.viewport();
     QPolygonF viewportAndLocal = !localTransformed.isEmpty() ? QPolygonF(QRectF(viewport)).intersected(localTransformed) : QRectF(viewport);
 
-
-
     if (assistantVisible && isLocal() && isAssistantComplete()) {
         QPainterPath path;
-        // note: be careful; bottom and right only work with RectF, not Rect
         path.moveTo(initialTransform.map(local.topLeft()));
 
         path.lineTo(initialTransform.map(local.topRight()));
         path.lineTo(initialTransform.map(local.bottomRight()));
         path.lineTo(initialTransform.map(local.bottomLeft()));
         path.lineTo(initialTransform.map(local.topLeft()));
-        drawPath(gc, path, displayRenderInterface, isSnappingActive());//and we draw the preview.
+        drawPath(gc, path, displayRenderInterface, isSnappingActive());
     }
 
-
     if (isAssistantComplete() && isSnappingActive() && previewVisible==true) {
-        //don't draw if invalid.
         QLineF snapLine= QLineF(initialTransform.map(*handles()[0]), initialTransform.map(*handles()[1]));
 
         QPointF mousePos = effectiveBrushPosition(converter, canvas);
@@ -116,12 +110,11 @@ void ParallelRulerAssistant::drawAssistant(QPainter& gc, const QRectF& updateRec
 
         KisAlgebra2D::cropLineToConvexPolygon(snapLine, viewportAndLocal, true, true);
 
-
         QPainterPath path;
         path.moveTo(snapLine.p1());
         path.lineTo(snapLine.p2());
 
-        drawPreview(gc, path, displayRenderInterface);//and we draw the preview.
+        drawPreview(gc, path, displayRenderInterface);
     }
     gc.restore();
 
@@ -137,7 +130,6 @@ void ParallelRulerAssistant::drawCache(QPainter& gc, const KisCoordinatesConvert
 
     QTransform initialTransform = converter->documentToWidgetTransform();
 
-    // Draw the line
     QPointF p1 = *handles()[0];
     QPointF p2 = *handles()[1];
 

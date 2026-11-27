@@ -8,7 +8,6 @@
 #include <QElapsedTimer>
 #include "kis_debug.h"
 
-
 struct KisTimedSignalThreshold::Private
 {
     Private(int _delay, int _cancelDelay)
@@ -28,7 +27,6 @@ struct KisTimedSignalThreshold::Private
     int cancelDelay;
     bool enabled;
 };
-
 
 KisTimedSignalThreshold::KisTimedSignalThreshold(int delay, int cancelDelay, QObject *parent)
     : QObject(parent),

@@ -23,7 +23,6 @@ void Bristle::setLength(float length)
     m_length = length;
 }
 
-
 void Bristle::addInk(float value)
 {
     m_inkAmount = m_inkAmount + value;
@@ -50,7 +49,6 @@ void Bristle::setColor(const KoColor &color)
 {
     m_color = color;
 }
-
 
 void Bristle::setEnabled(bool enabled)
 {

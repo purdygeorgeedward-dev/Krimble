@@ -36,11 +36,8 @@ RecorderConfig::~RecorderConfig()
     delete config;
 }
 
-
 QString RecorderConfig::snapshotDirectory() const
 {
-    // On Android, there's no user-visible directory we can write to, so we
-    // default to nothing here.
 #ifdef Q_OS_ANDROID
     const QString defaultValue;
 #else
@@ -54,7 +51,6 @@ void RecorderConfig::setSnapshotDirectory(const QString &value)
     config->writeEntry(keySnapshotDirectory, value);
 }
 
-
 double RecorderConfig::captureInterval() const
 {
     return config->readEntry(keyCaptureInterval, 1.);
@@ -64,7 +60,6 @@ void RecorderConfig::setCaptureInterval(double value)
 {
     config->writeEntry(keyCaptureInterval, value);
 }
-
 
 RecorderFormat RecorderConfig::format() const
 {
@@ -76,7 +71,6 @@ void RecorderConfig::setFormat(RecorderFormat value)
     return config->writeEntry(keyFormat, static_cast<int>(value));
 }
 
-
 int RecorderConfig::quality() const
 {
     return config->readEntry(keyQuality, 80);
@@ -87,7 +81,6 @@ void RecorderConfig::setQuality(int value)
     config->writeEntry(keyQuality, value);
 }
 
-
 int RecorderConfig::compression() const
 {
     return config->readEntry(keyCompression, 1);
@@ -97,7 +90,6 @@ void RecorderConfig::setCompression(int value)
 {
     config->writeEntry(keyCompression, value);
 }
-
 
 int RecorderConfig::resolution() const
 {

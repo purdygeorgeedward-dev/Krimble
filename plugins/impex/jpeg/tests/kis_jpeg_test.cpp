@@ -27,13 +27,9 @@ const QString JpegMimetype = "image/jpeg";
 void KisJpegTest::testFiles()
 {
     KisMetadataBackendRegistry::instance();
-    /**
-     * Different versions of JPEG library may produce a bit different
-     * result, so just compare in a weak way, i.e, only the size for real
-     */
     const int fuzziness = 1;
-    const int maxNumFailingPixels = 2592 * 1952; // All pixels can be different...
-    const bool showDebug = false; // No need to write down all pixels that are different since all of them can be.
+    const int maxNumFailingPixels = 2592 * 1952;
+    const bool showDebug = false;
 
     if (JPEG_LIB_VERSION == 80){
         TestUtil::testFiles(QString(FILES_DATA_DIR) + "/sources", QStringList(), "_80", fuzziness, maxNumFailingPixels, showDebug);
@@ -47,12 +43,10 @@ void KisJpegTest::testImportFromWriteonly()
     TestUtil::testImportFromWriteonly(JpegMimetype);
 }
 
-
 void KisJpegTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(JpegMimetype);
 }
-
 
 void KisJpegTest::testImportIncorrectFormat()
 {

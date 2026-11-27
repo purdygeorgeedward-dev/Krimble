@@ -29,7 +29,7 @@ void TestKoDrag::test()
 
     KoDocumentResourceManager resourceManager;
     SvgParser parser(&resourceManager);
-    parser.setResolution(QRectF(0, 0, 30, 30) /* px */, 72 /* ppi */);
+    parser.setResolution(QRectF(0, 0, 30, 30) , 72 );
 
     QSizeF fragmentSize;
     QList<KoShape*> shapes = parser.parseSvg(doc.documentElement(), &fragmentSize);
@@ -52,7 +52,7 @@ void TestKoDrag::test()
     KoSvgPaste paste;
     QVERIFY(paste.hasShapes());
 
-    QList<KoShape*> newShapes = paste.fetchShapes(QRectF(0,0,15,15) /* px */, 144 /* ppi */, &fragmentSize);
+    QList<KoShape*> newShapes = paste.fetchShapes(QRectF(0,0,15,15) , 144 , &fragmentSize);
 
     {
         QCOMPARE(newShapes.size(), 1);
@@ -65,10 +65,8 @@ void TestKoDrag::test()
         QCOMPARE(KoShape::absoluteOutlineRect(newShapes).toAlignedRect(), QRect(6,6,19,18));
     }
 
-
     qDeleteAll(shapes);
     qDeleteAll(newShapes);
 }
-
 
 SIMPLE_TEST_MAIN(TestKoDrag)

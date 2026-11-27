@@ -49,9 +49,6 @@ void KisNodeOpacityCommand::redo()
     m_node->setOpacity(m_newOpacity);
     m_node->setDirty();
 
-    // BUG:499389 workaround.
-    // Unlike drawing, non-animated opacity changes need to be recached across all raster frames.
-    // It's probably better to change KisNode::setDirty, KisImage::requestProjectionUpdate, and/or KisProjectionUpdateFlags.
     m_node->invalidateFrames(KisTimeSpan::infinite(0), QRect());
 }
 
@@ -78,7 +75,6 @@ bool KisNodeOpacityCommand::mergeWith(const KUndo2Command *command)
         dynamic_cast<const KisNodeOpacityCommand*>(command);
 
     if (other && other->m_node == m_node) {
-        // verify both commands have been executed and they are consecutive
         KIS_SAFE_ASSERT_RECOVER_NOOP(m_oldOpacity);
         KIS_SAFE_ASSERT_RECOVER_NOOP(other->m_oldOpacity);
         KIS_SAFE_ASSERT_RECOVER_NOOP(other->m_oldOpacity && m_newOpacity == *other->m_oldOpacity);
@@ -95,7 +91,6 @@ bool KisNodeOpacityCommand::canMergeWith(const KUndo2Command *command) const
     const KisNodeOpacityCommand *other =
         dynamic_cast<const KisNodeOpacityCommand*>(command);
     if (!other) return false;
-
 
     bool otherCreatedKeyframe = bool(other->m_autokey);
     bool weCreatedKeyframe = bool(m_autokey);

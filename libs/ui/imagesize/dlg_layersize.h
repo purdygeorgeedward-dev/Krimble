@@ -73,4 +73,4 @@ private:
     KisDocumentAwareSpinBoxUnitManager* _heightUnitManager;
 };
 
-#endif // DLG_IMAGESIZE
+#endif

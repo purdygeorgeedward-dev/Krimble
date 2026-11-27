@@ -7,7 +7,6 @@
 #ifndef __TIMELINE_FRAMES_MODEL_H
 #define __TIMELINE_FRAMES_MODEL_H
 
-
 #include <QScopedPointer>
 #include <QFileInfo>
 
@@ -21,8 +20,6 @@ class KisNodeDummy;
 class KisDummiesFacadeBase;
 class KisCanvasAnimationState;
 class KisNodeDisplayModeAdapter;
-
-
 
 struct TimelineSelectionEntry {
     KisRasterKeyframeChannel* channel;
@@ -38,9 +35,6 @@ inline uint qHash(const TimelineSelectionEntry &key)
 {
     return reinterpret_cast<quint64>(key.channel) * reinterpret_cast<quint64>(key.keyframe.data()) * key.time;
 }
-
-
-
 
 class KRITAANIMATIONDOCKER_EXPORT KisAnimTimelineFramesModel : public TimelineNodeListKeeper::ModelWithExternalNotifications
 {
@@ -120,7 +114,6 @@ public:
         FrameColorLabelIndexRole
     };
 
-    // metatype is added by the original implementation
     typedef KisBaseNode::Property Property;
     typedef KisBaseNode::PropertyList PropertyList;
 
@@ -134,10 +127,6 @@ public:
         virtual bool setNodeProperties(KisNodeSP node, KisImageSP image, KisBaseNode::PropertyList properties) const = 0;
     };
 
-    /**
-     * NOTE: the model has an ownership over the interface, that is it'll
-     *       be deleted automatically later
-     */
     void setNodeManipulationInterface(NodeManipulationInterface *iface);
     KisNodeSP nodeAt(QModelIndex index) const override;
 
@@ -167,4 +156,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __TIMELINE_FRAMES_MODEL_H */
+#endif

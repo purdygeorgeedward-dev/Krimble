@@ -120,14 +120,12 @@ void WGShadeSelector::slotSliderInteraction(bool active)
         }
         Q_EMIT sigColorInteraction(active);
         if (activeLine) {
-            // the line may have different channel values at any position than the last used one
             m_allowUpdates = false;
             Q_EMIT sigChannelValuesChanged(activeLine->channelValues());
             m_allowUpdates = true;
         }
     }
     else {
-        // reset slider base values if configured for automatic reset
         if (m_resetOnInteractions) {
             for (WGShadeSlider* slider : std::as_const(m_sliders)) {
                 slider->slotSetChannelValues(m_model->channelValues());

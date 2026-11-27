@@ -10,12 +10,6 @@
 #include "kis_abstract_input_action.h"
 #include "kis_tool.h"
 
-/**
- * \brief Change Primary Setting implementation of KisAbstractInputAction.
- *
- * The Change Primary Setting action changes a tool's "Primary Setting",
- * for example the brush size for the brush tool.
- */
 class KisChangePrimarySettingAction : public KisAbstractInputAction
 {
 public:
@@ -23,8 +17,8 @@ public:
     ~KisChangePrimarySettingAction() override;
 
     enum Shortcut {
-        PrimaryAlternateChangeSizeShortcut, ///< Default Mapping: Shift+Left Mouse
-        SecondaryAlternateChangeSizeShortcut, ///< Secondary Mode (snap to closest pixel value): Shift+Z+Left Mouse
+        PrimaryAlternateChangeSizeShortcut,
+        SecondaryAlternateChangeSizeShortcut,
     };
 
     void activate(int shortcut) override;
@@ -41,4 +35,4 @@ private:
     KisTool::ToolAction savedAction {KisTool::Alternate_NONE};
 };
 
-#endif // KISCHANGEPRIMARYSETTINGACTION_H
+#endif

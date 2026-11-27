@@ -30,4 +30,4 @@ public:
     KisAbrBrushCollectionSP m_brushCollection;
 };
 
-#endif // KISABRSTORAGE_H
+#endif

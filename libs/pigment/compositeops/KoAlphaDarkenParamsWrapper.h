@@ -39,7 +39,6 @@ struct KoAlphaDarkenParamsWrapperHard {
     }
 };
 
-
 struct KoAlphaDarkenParamsWrapperCreamy {
     KoAlphaDarkenParamsWrapperCreamy(const KoCompositeOp::ParameterInfo& params)
         : opacity(params.opacity),
@@ -73,4 +72,4 @@ struct KoAlphaDarkenParamsWrapperCreamy {
     }
 };
 
-#endif // KOALPHADARKENPARAMSWRAPPER_H
+#endif

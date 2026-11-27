@@ -35,7 +35,6 @@ struct KisBrushOpResources::Private
     KisDarkenOption darkenOption;
 };
 
-
 KisBrushOpResources::KisBrushOpResources(const KisPaintOpSettingsSP settings, KisPainter *painter)
     : m_d(new Private(settings.data()))
 {
@@ -60,7 +59,6 @@ KisBrushOpResources::KisBrushOpResources(const KisPaintOpSettingsSP settings, Ki
         }
     }
 
-    // the brush should be initialized explicitly by the caller later
     KIS_SAFE_ASSERT_RECOVER_NOOP(!brush);
 }
 

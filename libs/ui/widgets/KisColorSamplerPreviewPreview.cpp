@@ -17,7 +17,6 @@
 
 #include <QDebug>
 
-
 KisColorSamplerPreviewPreview::KisColorSamplerPreviewPreview(QWidget *parent)
     : QLabel(parent)
 {
@@ -45,23 +44,19 @@ void KisColorSamplerPreviewPreview::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e);
 
-
     QPainter painter(this);
     painter.save();
 
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::transparent);
 
-
     QPainterPath edge;
 
     QRect viewRect = rect();
     viewRect.adjust(m_horizontalWidgetMargins, 0, -m_horizontalWidgetMargins, 0);
 
-
     QRect edgeRect = viewRect;
     QRect edgeRectSmaller = kisGrowRect(viewRect, -1);
-
 
     edge.addRoundedRect(edgeRect, m_roundingMargin, m_roundingMargin);
 
@@ -70,15 +65,12 @@ void KisColorSamplerPreviewPreview::paintEvent(QPaintEvent *e)
 
     painter.fillPath(edge, outsideColor);
 
-
     int maxWidth = viewRect.width();
     int thicknessPixels = m_thickness*m_diameter;
     int innerWidth = m_diameter - 2*thicknessPixels;
 
     int outsideWidths = maxWidth - innerWidth - 2*thicknessPixels;
     int outsideWidth = outsideWidths/2;
-
-    // if there are any inaccuracies, no worries, it doesn't have to be exact
 
     QRect leftSide = QRect(QPoint(), QPoint(thicknessPixels, viewRect.height()));
     leftSide.translate(viewRect.topLeft());
@@ -116,7 +108,6 @@ void KisColorSamplerPreviewPreview::paintEvent(QPaintEvent *e)
 
     painter.drawLine(center - QPointF(0, m_crossLength), center - QPointF(0, m_crossSpace));
     painter.drawLine(center + QPointF(0, m_crossLength), center + QPointF(0, m_crossSpace));
-
 
     edge.clear();
     QColor darkTransparent = palette().dark().color();

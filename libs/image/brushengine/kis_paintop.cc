@@ -30,7 +30,6 @@
 #include "kis_fixed_paint_device.h"
 #include "kis_paintop_utils.h"
 
-
 #define BEZIER_FLATNESS_THRESHOLD 0.5
 #include <kis_distance_information.h>
 
@@ -48,7 +47,6 @@ struct Q_DECL_HIDDEN KisPaintOp::Private {
     bool fanCornersEnabled {false};
     qreal fanCornersStep {1.0};
 };
-
 
 KisPaintOp::KisPaintOp(KisPainter * painter) : d(new Private(this))
 {
@@ -111,7 +109,6 @@ static void paintBezierCurve(KisPaintOp *paintOp,
             || qIsNaN(d1) || qIsNaN(d2)) {
         paintOp->paintLine(pi1, pi2, currentDistance);
     } else {
-        // Midpoint subdivision. See Foley & Van Dam Computer Graphics P.508
         KisVector2D l2 = (toKisVector2D(pi1.pos()) + control1) / 2;
         KisVector2D h = (control1 + control2) / 2;
         KisVector2D l3 = (l2 + h) / 2;
@@ -134,7 +131,6 @@ void KisPaintOp::paintBezierCurve(const KisPaintInformation &pi1,
 {
     return ::paintBezierCurve(this, pi1, toKisVector2D(control1), toKisVector2D(control2), pi2, currentDistance);
 }
-
 
 void KisPaintOp::paintLine(const KisPaintInformation &pi1,
                            const KisPaintInformation &pi2,

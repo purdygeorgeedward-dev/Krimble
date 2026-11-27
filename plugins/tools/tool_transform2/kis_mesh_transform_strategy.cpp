@@ -20,7 +20,6 @@
 #include "kis_transform_utils.h"
 #include "kis_signal_compressor.h"
 
-
 uint qHash(const QPoint &value) {
     return uint((0xffffffffffffffff - quint64(value.y())) ^ quint64(value.x()));
 }
@@ -91,7 +90,6 @@ struct KisMeshTransformStrategy::Private
     QTransform imageToThumb(bool useFlakeOptimization);
 };
 
-
 KisMeshTransformStrategy::KisMeshTransformStrategy(const KisCoordinatesConverter *converter,
                                                    KoSnapGuide *snapGuide,
                                                    ToolTransformArgs &currentArgs,
@@ -161,12 +159,9 @@ void KisMeshTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
         }
     }
 
-
-    // verify that we have only one active selection at a time
     KIS_SAFE_ASSERT_RECOVER_RETURN(bool(hoveredControl) +
                                    bool(hoveredSegment) +
                                    bool(hoveredPatch)<= 1);
-
 
     KisBezierTransformMesh::control_point_iterator controlIt =
         m_d->currentArgs.meshTransform()->endControlPoints();
@@ -304,7 +299,6 @@ void KisMeshTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             continue;
         }
 
-
         if (m_d->hoveredControl && *m_d->hoveredControl == it.controlIndex()) {
 
             handlePainter.setHandleStyle(KisHandleStyle::highlightedPrimaryHandles(palette));
@@ -426,7 +420,6 @@ bool KisMeshTransformStrategy::splitHoveredSegment(const QPointF &pt)
             }
         };
 
-
         if (it.isTopBorder() || it.isBottomBorder()) {
             estimateSegment(it.leftSegment(), QPoint(2, 0), pt, *m_d->currentArgs.meshTransform());
             estimateSegment(it.rightSegment(), QPoint(0, 0), pt, *m_d->currentArgs.meshTransform());
@@ -479,7 +472,6 @@ bool KisMeshTransformStrategy::shouldDeleteNode(qreal distance, qreal param)
 
 bool KisMeshTransformStrategy::beginPrimaryAction(const QPointF &pt)
 {
-    // retval shows if the stroke may have a continuation
     bool retval = false;
 
     m_d->mouseClickPos = pt;
@@ -603,10 +595,6 @@ void KisMeshTransformStrategy::continuePrimaryAction(const QPointF &pt, bool shi
 
         auto it = m_d->currentArgs.meshTransform()->find(*m_d->hoveredSegment);
 
-        // TODO: recover special case for degree-2 curves. There is a special
-        //       function for that in KisBezierUtils::interpolateQuadric(), but
-        //       it seems like not working properly.
-
         const QPointF offset = pt - m_d->lastMousePos;
 
         QPointF offsetP1;
@@ -614,7 +602,6 @@ void KisMeshTransformStrategy::continuePrimaryAction(const QPointF &pt, bool shi
 
         std::tie(offsetP1, offsetP2) =
             KisBezierUtils::offsetSegment(m_d->localSegmentPosition, offset);
-
 
         KisSmartMoveMeshControlMode mode =
             m_d->mode == Private::OVER_SEGMENT_SYMMETRIC ?
@@ -647,11 +634,9 @@ void KisMeshTransformStrategy::continuePrimaryAction(const QPointF &pt, bool shi
             std::tie(offsetP1, offsetP2) =
                 KisBezierUtils::offsetSegment(t, offset);
 
-
             smartMoveControl(*m_d->currentArgs.meshTransform(), it.itP1().controlIndex(), offsetP1, KisSmartMoveMeshControlMode::MoveSymmetricLock, m_d->currentArgs.meshScaleHandles());
             smartMoveControl(*m_d->currentArgs.meshTransform(), it.itP2().controlIndex(), offsetP2, KisSmartMoveMeshControlMode::MoveSymmetricLock, m_d->currentArgs.meshScaleHandles());
         };
-
 
         const QPointF center = patchIt->localToGlobal(QPointF(0.5, 0.5));
         const qreal centerDistance = kisDistance(m_d->mouseClickPos, center);
@@ -755,7 +740,6 @@ void KisMeshTransformStrategy::continuePrimaryAction(const QPointF &pt, bool shi
         }
     } else if (m_d->mode == Private::SCALE_MODE) {
         const qreal scale = 1.0 - (pt - m_d->lastMousePos).y() / m_d->initialSelectionMaxDimension;
-
 
         const QTransform t =
             QTransform::fromTranslate(-m_d->initialRotationCenter.x(), -m_d->initialRotationCenter.y()) *

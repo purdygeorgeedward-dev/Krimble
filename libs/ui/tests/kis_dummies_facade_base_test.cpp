@@ -96,8 +96,6 @@ void KisDummiesFacadeBaseTest::testSetImage()
 
     m_dummiesFacade->setImage(m_image, activeNode);
 
-    // set image is asynchronous, so we should wait for
-    // the changes to propagate
     QVERIFY(!m_dummiesFacade->rootDummy());
     QTest::qWait(200);
 
@@ -111,8 +109,6 @@ void KisDummiesFacadeBaseTest::testSetImage()
 
     m_dummiesFacade->setImage(0);
 
-    // set image is asynchronous, so we should wait for
-    // the changes to propagate
     QTest::qWait(200);
 
     QVERIFY(!m_dummiesFacade->rootDummy());
@@ -196,7 +192,6 @@ void KisDummiesFacadeBaseTest::testRemoveNode()
     m_dummiesFacade->setImage(0);
     QTest::qWait(200);
 
-    // we are not expected to handle nodes removal, it is done by Qt
     verifyActivatedNodes("layer1 __null");
 
     verifyMovedDummies("A_root A_layer1 A_layer2 A_layer3 A_mask1 A_layer4 "
@@ -231,7 +226,6 @@ void KisDummiesFacadeBaseTest::testMoveNodeSameParent()
     m_dummiesFacade->setImage(0);
     QTest::qWait(200);
 
-    // layer is first removed then added again
     verifyActivatedNodes("layer1 layer2 __null");
 
     verifyMovedDummies("A_root A_layer1 A_layer2 A_layer3 A_mask1 A_layer4 "
@@ -276,7 +270,6 @@ void KisDummiesFacadeBaseTest::testMoveNodeDifferentParent()
     m_dummiesFacade->setImage(0);
     QTest::qWait(200);
 
-    // layer is first removed then added again
     verifyActivatedNodes("layer1 layer2 layer3 __null");
 
     verifyMovedDummies("A_root A_layer1 A_layer2 A_layer3 A_mask1 A_layer4 "
@@ -305,7 +298,7 @@ void KisDummiesFacadeBaseTest::testSubstituteRootNode()
     QTest::qWait(50);
 
     actualGraph = collectGraphPatternFull(m_dummiesFacade->rootDummy());
-    expectedGraph = "root root Merged"; // "root Merged" is the name of the layer :)
+    expectedGraph = "root root Merged";
 
     QCOMPARE(actualGraph, expectedGraph);
     QCOMPARE(m_dummiesFacade->dummiesCount(), 2);

@@ -154,7 +154,7 @@ bool KisSaveXmlVisitor::visit(KisGroupLayer *layer)
 {
     QDomElement layerElement;
 
-    if (m_root) // if this is the root we fake so not to save it
+    if (m_root)
         layerElement = m_elem;
     else {
         layerElement = m_doc.createElement(LAYER);
@@ -293,13 +293,11 @@ bool KisSaveXmlVisitor::visit(KisSelectionMask *mask)
     return true;
 }
 
-
 void KisSaveXmlVisitor::loadLayerAttributes(const QDomElement &el, KisLayer *layer)
 {
     if (el.hasAttribute(NAME)) {
         QString layerName = el.attribute(NAME);
         if (layerName != layer->name()) {
-            // Make the EXR layername leading in case of conflicts
             layer->setName(layerName);
         }
     }
@@ -516,5 +514,4 @@ bool KisSaveXmlVisitor::saveReferenceImagesLayer(KisExternalLayer *layer)
     m_count++;
     return true;
 }
-
 

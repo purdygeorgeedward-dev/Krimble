@@ -31,7 +31,6 @@ class KisAcyclicSignalConnector;
 class KisMouseClickEater;
 class KisCoordinatesConverter;
 
-
 struct CachedPresetLayout {
     int ringCount{1};
     qreal firstRowRadius{0};
@@ -57,16 +56,14 @@ public:
     ~KisPopupPalette() override;
     QSize sizeHint() const override;
 
-    //functions to set up selectedColor
     void setSelectedColor(int x);
     int selectedColor() const;
     void setParent(QWidget *parent);
 
-
     void popup(const QPoint& position) override;
     void dismiss() override;
     bool onScreen() override;
-    
+
     void ensureWithinParent(const QPoint& globalPos, bool useUpperLeft);
 
 protected:
@@ -79,22 +76,11 @@ protected:
     void mousePressEvent(QMouseEvent*) override;
     bool eventFilter(QObject *, QEvent *) override;
 
-    /**
-     * @brief Calculate index of recent color in array
-     * @param numColors the total number of recent colors
-     * @return -1 if numColors < 1
-     */
     int calculateColorIndex(QPointF position, int numColors) const;
-    /**
-     * @brief/ find the index of the brush preset slot containing @position.
-     * @return -1 if none is found
-     */
     int findPresetSlot(QPointF position) const;
 
-    //functions to set up hoveredBrush
     void setHoveredPreset(int x);
     int hoveredPreset() const;
-    //functions to set up hoveredColor
     void setHoveredColor(int x);
     int hoveredColor() const;
 
@@ -108,11 +94,6 @@ private:
     bool isPointInPixmap(QPointF&, int pos);
 
     QPointF drawPointOnAngle(qreal angle, qreal radius) const;
-    /**
-     * @brief Determine the number of rings to distribute the presets
-     * and calculate the radius of the brush preset slots
-     * and saves the "layout" to m_cachedPresetLayout.
-    */
     void calculatePresetLayout();
     QPainterPath createPathFromPresetIndex(int index) const;
 
@@ -176,7 +157,6 @@ private:
 
     CachedPresetLayout m_cachedPresetLayout;
 
-    // updates the transparency and effects of the whole widget
     QGraphicsOpacityEffect *opacityChange {0};
     KisMouseClickEater *m_clicksEater;
 
@@ -186,7 +166,7 @@ Q_SIGNALS:
     void sigChangefGColor(const KoColor&);
     void sigUpdateCanvas();
     void zoomLevelChanged(int);
-    void finished() override; // KisPopupWidgetInterface.
+    void finished() override;
 
 public Q_SLOTS:
     void slotUpdateIcons();
@@ -211,4 +191,4 @@ private Q_SLOTS:
     void slotZoomSliderReleased();
 };
 
-#endif // KIS_POPUP_PALETTE_H
+#endif

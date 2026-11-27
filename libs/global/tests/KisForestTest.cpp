@@ -38,8 +38,6 @@ bool testForestIteration(Iterator begin, Iterator end,
         }
         values.push_back(value);
 
-        // emergency exit in case of infinite loop :)
-        // "40 forest items must be enough for everyone!" (c)
         if (index > 40) {
             result = false;
             break;
@@ -128,17 +126,6 @@ void KisForestTest::testDFSIteration()
 {
     KisForest<int> forest;
 
-    /**
-     * 0 1
-     *   2
-     *   3 5 6
-     *       7
-     *   4
-     * 8 9
-     *   10
-     **/
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -175,17 +162,6 @@ void KisForestTest::testDFSIteration()
 void KisForestTest::testHierarchyIteration()
 {
     KisForest<int> forest;
-
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
 
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
@@ -230,17 +206,6 @@ void KisForestTest::testSiblingIteration()
 {
     KisForest<int> forest;
 
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -265,34 +230,17 @@ void KisForestTest::testSiblingIteration()
     Q_UNUSED(it9);
     Q_UNUSED(it10);
 
-    /**
-     * Test if all types of iterators are convertible into a child iterator
-     */
     QVERIFY(testForestIteration(siblingCurrent(it2), siblingEnd(it2), {2,3,4}));
     QVERIFY(testForestIteration(siblingCurrent(hierarchyBegin(it2)), siblingEnd(hierarchyBegin(it2)), {2,3,4}));
     QVERIFY(testForestIteration(siblingCurrent(subtreeBegin(it2)), siblingEnd(subtreeBegin(it2)), {2,3,4}));
     QVERIFY(testForestIteration(siblingCurrent(tailSubtreeBegin(it2)), siblingEnd(tailSubtreeBegin(it2)), {2,3,4}));
     QVERIFY(testForestIteration(siblingCurrent(compositionBegin(it2)), siblingEnd(compositionBegin(it2)), {2,3,4}));
 
-    // we cannot create a child iterator from an non-child end-iterator
-    //    QVERIFY(testForestIteration(siblingCurrent(compositionBegin(childEnd(it0))),
-    //                                siblingEnd(compositionBegin(childEnd(it0))), {}));
 }
 
 void KisForestTest::testCompositionIteration()
 {
     KisForest<int> forest;
-
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
 
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
@@ -335,17 +283,6 @@ struct CompositionIteratorPairedValue
 void KisForestTest::testCompositionIterationSubtree()
 {
     KisForest<int> forest;
-
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
 
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
@@ -407,17 +344,6 @@ void KisForestTest::testSubtreeIteration()
 {
     KisForest<int> forest;
 
-    /**
-     * 0 1
-     *   2
-     *   3 5 6
-     *       7
-     *   4
-     * 8 9
-     *   10
-     **/
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -441,7 +367,6 @@ void KisForestTest::testSubtreeIteration()
     Q_UNUSED(it4);
     Q_UNUSED(it9);
     Q_UNUSED(it10);
-
 
     QVERIFY(testForestIteration(subtreeBegin(it3), subtreeEnd(it3), {3,5,6,7}));
     QVERIFY(testForestIteration(subtreeBegin(it0), subtreeEnd(it0), {0,1,2,3,5,6,7,4}));
@@ -452,17 +377,6 @@ void KisForestTest::testSubtreeTailIteration()
 {
     KisForest<int> forest;
 
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -486,7 +400,6 @@ void KisForestTest::testSubtreeTailIteration()
     Q_UNUSED(it4);
     Q_UNUSED(it9);
     Q_UNUSED(it10);
-
 
     QVERIFY(testForestIteration(tailSubtreeBegin(it3), tailSubtreeEnd(it3), {6,7,5,3}));
     QVERIFY(testForestIteration(tailSubtreeBegin(it0), tailSubtreeEnd(it0), {1,2,6,7,5,3,4,0}));
@@ -499,17 +412,6 @@ void KisForestTest::testEraseNode()
 {
     KisForest<int> forest;
 
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -533,7 +435,6 @@ void KisForestTest::testEraseNode()
     Q_UNUSED(it4);
     Q_UNUSED(it9);
     Q_UNUSED(it10);
-
 
     QCOMPARE(forest.erase(it6), it7);
     QVERIFY(testForestIteration(begin(forest), end(forest), {0,1,2,3,5,7,4,8,9,10}));
@@ -555,17 +456,6 @@ void KisForestTest::testEraseSubtree()
 {
     KisForest<int> forest;
 
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -589,7 +479,6 @@ void KisForestTest::testEraseSubtree()
     Q_UNUSED(it4);
     Q_UNUSED(it9);
     Q_UNUSED(it10);
-
 
     QCOMPARE(forest.erase(it3), it4);
     QVERIFY(testForestIteration(begin(forest), end(forest), {0,1,2,4,8,9,10}));
@@ -605,17 +494,6 @@ void KisForestTest::testEraseRange()
 {
     KisForest<int> forest;
 
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         */
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -639,7 +517,6 @@ void KisForestTest::testEraseRange()
     Q_UNUSED(it4);
     Q_UNUSED(it9);
     Q_UNUSED(it10);
-
 
     QCOMPARE(forest.erase(it1, it4), it4);
     QVERIFY(testForestIteration(begin(forest), end(forest), {0,4,8,9,10}));
@@ -652,17 +529,6 @@ void KisForestTest::testMoveSubtree()
 {
     KisForest<int> forest;
 
-    /**
-     * 0 1
-     *   2
-     *   3 5 6
-     *       7
-     *   4
-     * 8 9
-     *   10
-     */
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -686,7 +552,6 @@ void KisForestTest::testMoveSubtree()
     Q_UNUSED(it4);
     Q_UNUSED(it9);
     Q_UNUSED(it10);
-
 
     auto newPos = forest.move(it3, it9);
     QCOMPARE(newPos, childBegin(it8));
@@ -702,17 +567,6 @@ void KisForestTest::testMoveSubtree()
 void KisForestTest::testReversedChildIteration()
 {
     KisForest<int> forest;
-
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
 
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
@@ -752,17 +606,6 @@ void KisForestTest::testConversionsFromEnd()
 {
     KisForest<int> forest;
 
-    /**
-         * 0 1
-         *   2
-         *   3 5 6
-         *       7
-         *   4
-         * 8 9
-         *   10
-         **/
-
-
     auto it0 = forest.insert(childBegin(forest), 0);
     auto it8 = forest.insert(childEnd(forest), 8);
 
@@ -786,15 +629,6 @@ void KisForestTest::testConversionsFromEnd()
     Q_UNUSED(it4);
     Q_UNUSED(it9);
     Q_UNUSED(it10);
-
-    /**
-     * Currently, all operations on end-iterators are declared as "undefined behavior",
-     * but, ideally, we should care about them. Like, it should be possible to get children
-     * of the forest by calling childBegin/End(hierarchyEnd(it0)). I (DK) am not sure if
-     * it is possible to implement without overhead. So I just added this test to document
-     * "desired" behavior. But for now, no one should rely on this behavior, just consider
-     * all operations with end-iterators as UB.
-     */
 
 #define HIDE_UB_NOISE
 
@@ -837,19 +671,8 @@ void KisForestTest::testConversionsFromEnd()
                               siblingEnd(childEnd(it0)), {1,2,3,4}));
 #endif
 
-    // TODO: we currently don't allow creation of child-iterators from end-non-child-iterators
-//    QVERIFY(testForestIteration(siblingBegin(hierarchyEnd(it0)),
-//                                siblingEnd(hierarchyEnd(it0)), {}));
-//    QVERIFY(testForestIteration(siblingBegin(compositionEnd(it0)),
-//                                siblingEnd(compositionEnd(it0)), {0,8}));
-
-
-
     QVERIFY(testForestIteration(childBegin(childEnd(forest)),
                               childEnd(childEnd(forest)), {}));
-    // TODO: we currently don't allow creation of child-iterators from end-non-child-iterators
-//    QVERIFY(testForestIteration(childBegin(compositionEnd(forest)),
-//                                childEnd(compositionEnd(forest)), {}));
 
     QVERIFY(testForestIteration(hierarchyBegin(childEnd(forest)),
                               hierarchyEnd(childEnd(forest)), {}));
@@ -876,17 +699,6 @@ void KisForestTest::testConversionsFromEnd()
 void KisForestTest::testCopyForest()
 {
     KisForest<int> forest;
-
-    /**
-     * 0 1
-     *   2
-     *   3 5 6
-     *       7
-     *   4
-     *   8 9
-     *     10
-     **/
-
 
     auto it0 = forest.insert(childBegin(forest), 0);
 
@@ -916,7 +728,6 @@ void KisForestTest::testCopyForest()
                                 end(forest),
                                 {0, 1, 2, 3, 5, 6, 7, 4, 8, 9, 10}));
 
-
     {
         KisForest<int> clonedForest = forest;
 
@@ -938,11 +749,6 @@ void KisForestTest::testCopyForest()
 
 void KisForestTest::testSwapForest()
 {
-    /**
-     * 0 1
-     *   2
-     *   3
-     **/
 
     KisForest<int> forest1;
 
@@ -962,7 +768,6 @@ void KisForestTest::testSwapForest()
                                 end(forest2),
                                 {}));
 
-
     forest1.swap(forest2);
 
     QVERIFY(testForestIteration(begin(forest1),
@@ -973,10 +778,6 @@ void KisForestTest::testSwapForest()
                                 end(forest2),
                                 {0, 1, 2, 3}));
 
-    /**
-     * After swapping the containers the iterators are guaranteed to be valid still,
-     * as per normal C++ convention.
-     */
     QCOMPARE(childBegin(forest2), it0);
     QCOMPARE(childBegin(it0), it1);
     QCOMPARE(std::next(childBegin(it0)), it2);
@@ -986,13 +787,6 @@ void KisForestTest::testSwapForest()
 void KisForestTest::testForestEmpty()
 {
     KisForest<int> forest;
-
-    /**
-     * 0 1
-     *   2
-     *   3
-     **/
-
 
     QVERIFY(forest.empty());
 
@@ -1019,7 +813,6 @@ void KisForestTest::testSiblingsOnEndIterator()
 
     QVERIFY(childBegin(forest) == childEnd(forest));
 
-    // toplevel **end** iterator on an empty forest
     {
         auto toplevelEndIt = childEnd(forest);
 
@@ -1028,17 +821,14 @@ void KisForestTest::testSiblingsOnEndIterator()
         QVERIFY(toplevelEndIt == siblingEnd(toplevelEndIt));
     }
 
-
     auto it0 = forest.insert(childEnd(forest), 0);
 
-    // toplevel iterators on a non-empty forest
     {
         QVERIFY(it0 == siblingBegin(it0));
         QVERIFY(it0 == siblingCurrent(it0));
         QVERIFY(childEnd(forest) == siblingEnd(it0));
     }
 
-    // toplevel **end** iterator on a non-empty forest
     {
         QVERIFY(it0 == siblingBegin(childEnd(forest)));
         QVERIFY(childEnd(forest) == siblingCurrent(childEnd(forest)));
@@ -1047,7 +837,6 @@ void KisForestTest::testSiblingsOnEndIterator()
 
     auto subordinateEnd = childEnd(it0);
 
-    // subordinate **end** iterators on an empty subtree
     {
         QVERIFY(subordinateEnd == siblingBegin(subordinateEnd));
         QVERIFY(subordinateEnd == siblingCurrent(subordinateEnd));
@@ -1056,7 +845,6 @@ void KisForestTest::testSiblingsOnEndIterator()
 
     auto parentEnd = forest.parentEnd();
 
-    // iterators on the parentEnd iterator
     {
         QVERIFY(parentEnd == siblingBegin(parentEnd));
         QVERIFY(parentEnd == siblingCurrent(parentEnd));
@@ -1072,7 +860,6 @@ void KisForestTest::testParentIterator()
     QVERIFY(childBegin(nonExistentEnd) == childEnd(nonExistentEnd));
     QVERIFY(forest.parentEnd() == KisForestDetail::parent(nonExistentEnd));
 
-    // dig into hierarchy of non-existent nodes
     {
         auto childOfNonExistentEnd = childEnd(nonExistentEnd);
 
@@ -1094,7 +881,6 @@ void KisForestTest::testParentIterator()
 
     auto it0 = forest.insert(childEnd(forest), 0);
 
-    // dig into hierarchy of an existent node
     {
         QVERIFY(forest.parentEnd() == KisForestDetail::parent(it0));
 
@@ -1113,7 +899,6 @@ void KisForestTest::testParentIterator()
 void KisForestTest::testConstChildIterators()
 {
     KisForest<int> forest;
-
 
     const KisForest<int> &constForest = forest;
 
@@ -1151,7 +936,6 @@ void KisForestTest::testConstHierarchyIterators()
 {
     KisForest<int> forest;
 
-    // test on end-iterator
     {
         auto constIt = forest.constChildBegin();
         auto it = forest.childBegin();
@@ -1171,7 +955,6 @@ void KisForestTest::testConstHierarchyIterators()
         static_assert(std::is_same_v<decltype(*hConstEnd), const int&>);
     }
 
-    // test on a real element
     {
         forest.insert(forest.childEnd(), 10);
 
@@ -1189,7 +972,6 @@ void KisForestTest::testConstSubtreeIterators()
 {
     KisForest<int> forest;
 
-           // test on end-iterator
     {
         auto constIt = forest.constBegin();
         auto it = forest.begin();
@@ -1200,7 +982,6 @@ void KisForestTest::testConstSubtreeIterators()
         static_assert(std::is_same_v<decltype(*constIt), const int&>);
     }
 
-           // test on a real element
     {
         forest.insert(forest.childEnd(), 10);
 
@@ -1215,7 +996,6 @@ void KisForestTest::testConstTailSubtreeIterators()
 {
     KisForest<int> forest;
 
-           // test on end-iterator
     {
         auto constIt = forest.constDepthFirstTailBegin();
         auto it = forest.depthFirstTailBegin();
@@ -1226,7 +1006,6 @@ void KisForestTest::testConstTailSubtreeIterators()
         static_assert(std::is_same_v<decltype(*constIt), const int&>);
     }
 
-           // test on a real element
     {
         forest.insert(forest.childEnd(), 10);
 
@@ -1236,7 +1015,6 @@ void KisForestTest::testConstTailSubtreeIterators()
         QVERIFY(*forest.depthFirstTailBegin() == *forest.constDepthFirstTailBegin());
     }
 }
-
 
 void KisForestTest::testConstTailFreeStandingForestFunctions()
 {
@@ -1262,7 +1040,6 @@ void KisForestTest::testConstTailFreeStandingForestFunctions()
         QVERIFY(beginIt != endIt);
         QCOMPARE(*beginIt, 10);
     };
-
 
     comparePair(childBegin(forest), childEnd(forest));
     compareConstPair(childBegin(constForest), childEnd(constForest));

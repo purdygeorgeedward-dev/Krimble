@@ -12,7 +12,6 @@
 #include <QDomDocument>
 #include <QDomElement>
 
-
 void KisGridConfigTest::testGridConfig()
 {
     KisGridConfig config;
@@ -30,7 +29,6 @@ void KisGridConfigTest::testGridConfig()
     root.appendChild(el);
 
     QByteArray b = doc.toByteArray(4);
-    //printf(b.data());
 
     KisGridConfig config2;
     QVERIFY(config2.isDefault());
@@ -62,7 +60,6 @@ void KisGridConfigTest::testGuidesConfig()
     root.appendChild(el);
 
     QByteArray b = doc.toByteArray(4);
-    //printf(b.data());
 
     KisGuidesConfig config2;
     QVERIFY(!config2.hasGuides());

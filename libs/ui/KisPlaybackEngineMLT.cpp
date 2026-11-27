@@ -40,9 +40,6 @@
 
 #include "KisMLTProducerKrita.h"
 
-
-//#define MLT_LOG_REDIRECTION
-
 #ifdef MLT_LOG_REDIRECTION
 void qt_redirection_callback(void *ptr, int level, const char *fmt, va_list vl)
 {
@@ -76,7 +73,6 @@ void qt_redirection_callback(void *ptr, int level, const char *fmt, va_list vl)
 }
 #endif
 
-
 const float SCRUB_AUDIO_SECONDS = 0.128f;
 
 struct KisPlaybackEngineMLT::FrameWaitingInterface {
@@ -105,11 +101,6 @@ struct FrameRenderingStats
 };
 
 }
-/**
- *  This static function responds to MLT consumer requests for frames. This may
- *  continue to be called even when playback is stopped due to it running
- *  simultaneously in a separate thread.
- */
 static void mltOnConsumerFrameShow(mlt_consumer c, void* p_self, mlt_frame p_frame) {
     KisPlaybackEngineMLT* self = static_cast<KisPlaybackEngineMLT*>(p_self);
     Mlt::Frame frame(p_frame);
@@ -118,17 +109,6 @@ static void mltOnConsumerFrameShow(mlt_consumer c, void* p_self, mlt_frame p_fra
 
     KisPlaybackEngineMLT::FrameWaitingInterface *iface = self->frameWaitingInterface();
 
-    /**
-     * This function is called from the non-gui thread owned by MLT,
-     * so we should wait until the frame would be really rendered.
-     * This way MLT will have information about frame rendering speed
-     * and will be able to drop frames accordingly.
-     *
-     * NOTE: we cannot use BlockingQueuedConnection here because it
-     * would deadlock on any stream property change, when the the GUI
-     * thread would call consumer->stop().
-     *
-     */
     QMutexLocker l(&iface->renderingControlMutex);
 
     if (!iface->renderingAllowed) return;
@@ -143,8 +123,6 @@ static void mltOnConsumerFrameShow(mlt_consumer c, void* p_self, mlt_frame p_fra
     }
 }
 
-//=====
-
 struct KisPlaybackEngineMLT::Private {
 
     Private(KisPlaybackEngineMLT* p_self)
@@ -154,15 +132,13 @@ struct KisPlaybackEngineMLT::Private {
     {
         qDebug() << "Initializing MLT Animation Playback Engine. MLT ver: " << QString(mlt_version_get_string());
 
-        // Initialize MLT...
         repository.reset(Mlt::Factory::init());
 
 #ifdef MLT_LOG_REDIRECTION
         mlt_log_set_level(MLT_LOG_VERBOSE);
         mlt_log_set_callback(&qt_redirection_callback);
-#endif /* MLT_LOG_REDIRECTION */
+#endif
 
-        // Register our backend plugin
         registerKritaMLTProducer(repository.data());
 
         profile.reset(new Mlt::Profile());
@@ -207,9 +183,6 @@ struct KisPlaybackEngineMLT::Private {
                 delete f;
             }
 
-            // It turns out that get_frame actually seeks to the frame too,
-            // Not having this last seek will cause unexpected "jumps" at
-            // the beginning of playback...
             activeProducer->seek(frame);
         }
     }
@@ -261,14 +234,11 @@ public:
     QScopedPointer<Mlt::Repository> repository;
     QScopedPointer<Mlt::Profile> profile;
 
-    //MLT PUSH CONSUMER
     QScopedPointer<Mlt::Consumer> pullConsumer;
     QScopedPointer<Mlt::Event> pullConsumerConnection;
 
-    //MLT PULL CONSUMER
     QScopedPointer<Mlt::PushConsumer> pushConsumer;
 
-    // Map of handles to Mlt producers..
     QMap<KisCanvas2*, QSharedPointer<Mlt::Producer>> canvasProducers;
 
     QScopedPointer<KisSignalCompressorWithParam<int>> sigPushAudioCompressor;
@@ -281,20 +251,12 @@ public:
     FrameRenderingStats frameStats;
 };
 
-//=====
-
-/**
- * @brief The StopAndResumeConsumer struct is used to encapsulate optional
- * stop-and-then-resume behavior of a consumer. Using RAII, we can stop
- * a consumer at construction and simply resume it when it exits scope.
- */
 struct KisPlaybackEngineMLT::StopAndResume {
 public:
     explicit StopAndResume(KisPlaybackEngineMLT::Private* p_d, bool requireFullRestart = false)
         : m_d(p_d)
     {
         KIS_ASSERT(p_d);
-
 
         {
             QMutexLocker l(&m_d->frameWaitingInterface.renderingControlMutex);
@@ -334,11 +296,6 @@ public:
             m_d->frameStats.reset();
 
             {
-                /**
-                 * Make sure that **all** producer properties are initialized **before**
-                 * the consumers start pulling stuff from the producer. Otherwise we
-                 * can get a race condition with the consumer's read-ahead thread.
-                 */
 
                 KisImageAnimationInterface* animInterface = m_d->activeCanvas()->image()->animationInterface();
                 m_d->activeProducer()->set("start_frame", animInterface->activePlaybackRange().start());
@@ -363,8 +320,6 @@ public:
 private:
     Private* m_d;
 };
-
-//=====
 
 KisPlaybackEngineMLT::KisPlaybackEngineMLT(QObject *parent)
     : KisPlaybackEngine(parent)
@@ -400,10 +355,8 @@ void KisPlaybackEngineMLT::setupProducer(boost::optional<QFileInfo> file)
         connect(activeCanvas(), SIGNAL(destroyed(QObject*)), this, SLOT(canvasDestroyed(QObject*)));
     }
 
-    //First, assign to "count" producer.
     m_d->canvasProducers[activeCanvas()] = QSharedPointer<Mlt::Producer>(new Mlt::Producer(*m_d->profile, "krita_play_chunk", "count"));
 
-    //If we have a file and the file has a valid producer, use that. Otherwise, stick to our "default" producer.
     if (file.has_value()) {
         QSharedPointer<Mlt::Producer> producer(
 
@@ -417,8 +370,6 @@ void KisPlaybackEngineMLT::setupProducer(boost::optional<QFileInfo> file)
         if (producer->is_valid()) {
             m_d->canvasProducers[activeCanvas()] = producer;
         } else {
-            // SANITY CHECK: Check that the MLT plugins and resources are where the program expects them to be.
-            // HINT -- Check krita/main.cc's mlt environment variable setup for appimage.
             KIS_SAFE_ASSERT_RECOVER_NOOP(qEnvironmentVariableIsSet("MLT_REPOSITORY"));
             KIS_SAFE_ASSERT_RECOVER_NOOP(qEnvironmentVariableIsSet("MLT_PROFILES_PATH"));
             KIS_SAFE_ASSERT_RECOVER_NOOP(qEnvironmentVariableIsSet("MLT_PRESETS_PATH"));
@@ -448,13 +399,11 @@ void KisPlaybackEngineMLT::setCanvas(KoCanvasBase *p_canvas)
     if (activeCanvas()) {
         KisCanvasAnimationState* animationState = activeCanvas()->animationState();
 
-        // Disconnect old canvas, prepare for new one..
         if (animationState) {
             this->disconnect(animationState);
             animationState->disconnect(this);
         }
 
-        // Disconnect old image, prepare for new one..
         auto image = activeCanvas()->image();
         if (image && image->animationInterface()) {
             this->disconnect(image->animationInterface());
@@ -466,13 +415,12 @@ void KisPlaybackEngineMLT::setCanvas(KoCanvasBase *p_canvas)
 
     KisPlaybackEngine::setCanvas(p_canvas);
 
-    // Connect new canvas..
     if (activeCanvas()) {
         KisCanvasAnimationState* animationState = activeCanvas()->animationState();
         KIS_SAFE_ASSERT_RECOVER_RETURN(animationState);
 
         connect(animationState, &KisCanvasAnimationState::sigPlaybackStateChanged, this, [this](PlaybackState state){
-            Q_UNUSED(state); // We don't need the state yet -- we just want to stop and resume playback according to new state info.
+            Q_UNUSED(state);
             StopAndResume callbackStopResume(m_d.data());
         });
 
@@ -493,26 +441,16 @@ void KisPlaybackEngineMLT::setCanvas(KoCanvasBase *p_canvas)
         auto image = activeCanvas()->image();
         KIS_SAFE_ASSERT_RECOVER_RETURN(image);
 
-        // Connect new image..
         connect(image->animationInterface(), &KisImageAnimationInterface::sigFramerateChanged, this, [this](){
             StopAndResume callbackStopResume(m_d.data());
             m_d->profile->set_frame_rate(activeCanvas()->image()->animationInterface()->framerate(), 1);
 
-            /**
-             * Both, producer and consumers store frame rate in their private properties
-             * and do **not** track updates in the profile, so we should recreate all the
-             * three to actually make the changes to take effect.
-             *
-             * Theoretically, we could just call set_profile on all the three, but the fact
-             * that we embed one more producer into our own one, prevents it from working.
-             */
             KisCanvasAnimationState* animationState = activeCanvas()->animationState();
             if (animationState) {
                 setupProducer(animationState->mediaInfo());
             }
         });
 
-        // cold init the framerate
         m_d->profile->set_frame_rate(activeCanvas()->image()->animationInterface()->framerate(), 1);
 
         connect(image->animationInterface(), &KisImageAnimationInterface::sigPlaybackRangeChanged, this, [this](){
@@ -536,10 +474,6 @@ void KisPlaybackEngineMLT::canvasDestroyed(QObject *canvas)
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->activeCanvas() != canvas);
 
-    /**
-     * We cannot use QMap::remove here, because the `canvas` is already
-     * half-destroyed and we cannot up-cast to KisCanvas2 anymore
-     */
     for (auto it = m_d->canvasProducers.begin(); it != m_d->canvasProducers.end(); ++it) {
         if (it.key() == canvas) {
             m_d->canvasProducers.erase(it);
@@ -596,7 +530,6 @@ KisPlaybackEngineMLT::FrameWaitingInterface *KisPlaybackEngineMLT::frameWaitingI
 
 void KisPlaybackEngineMLT::setDropFramesMode(bool value)
 {
-    // restart playback if it was active
     StopAndResume r(m_d.data(), false);
 
     KisPlaybackEngine::setDropFramesMode(value);
@@ -639,6 +572,4 @@ KisPlaybackEngine::PlaybackStats KisPlaybackEngineMLT::playbackStatistics() cons
 
     return stats;
 }
-
-
 

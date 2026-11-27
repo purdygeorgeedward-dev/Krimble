@@ -25,22 +25,12 @@
 #include <klocalizedstring.h>
 #include <kmessagebox.h>
 
-// On Android, KF5I18n's loadMessageCatalog function is unbelievably,
-// unusably slow when setting a fallback language, causing Krita's startup
-// time to balloon several minutes long. Creating dialogs or other widgets
-// also ends up taking forever. Since it's non-functional anyway, we'll
-// disable the ability to set a fallback language. Other operating systems
-// don't seem to have this problem. If/when removing this, also remove the
-// matching check in main.cc!
 #ifdef Q_OS_ANDROID
 static constexpr bool ALLOW_FALLBACK_LANGUAGES = false;
 #else
 static constexpr bool ALLOW_FALLBACK_LANGUAGES = true;
 #endif
 
-// Believe it or not we can't use KConfig from here
-// (we need KConfig during QCoreApplication ctor which is too early for it)
-// So we cooked a QSettings based solution
 typedef QSharedPointer<QSettings> QSettingsPtr;
 
 static QSettingsPtr localeOverridesSettings()
@@ -57,7 +47,6 @@ static QByteArray getApplicationSpecificLanguage(const QByteArray &defaultCode =
 {
     QSettingsPtr settings = localeOverridesSettings();
     settings->beginGroup(QStringLiteral("Language"));
-    //qDebug() << "our language" << settings->value(qAppName(), defaultCode).toByteArray();
     return settings->value(qAppName(), defaultCode).toByteArray();
 }
 
@@ -88,8 +77,6 @@ static void initializeLanguages()
             qputenv("LANGUAGE", ba);
         }
     }
-    //qDebug() << ">>>>>>>>>>>>>> LANGUAGE" << qgetenv("LANGUAGE");
-    //qDebug() << ">>>>>>>>>>>>>> DATADIRS" << qgetenv("XDG_DATA_DIRS");
 }
 
 Q_COREAPP_STARTUP_FUNCTION(initializeLanguages)
@@ -121,29 +108,18 @@ class KisKSwitchLanguageDialogPrivate
 public:
     KisKSwitchLanguageDialogPrivate(KisKSwitchLanguageDialog *parent);
 
-    KisKSwitchLanguageDialog *p {nullptr}; //parent class
+    KisKSwitchLanguageDialog *p {nullptr};
 
-    /**
-        Fills language button with names of languages for which given application has translation.
-    */
     void fillApplicationLanguages(KLanguageButton *button);
 
-    /**
-        Adds one button with language to widget.
-    */
     void addLanguageButton(const QString &languageCode, bool primaryLanguage);
 
-    /**
-        Returns list of languages chosen for application or default languages is they are not set.
-    */
     QStringList applicationLanguageList();
 
     QMap<QPushButton *, LanguageRowData> languageRows;
     QList<KLanguageButton *> languageButtons;
     QGridLayout *languagesLayout {nullptr};
 };
-
-/*************************** KisKSwitchLanguageDialog **************************/
 
 KisKSwitchLanguageDialog::KisKSwitchLanguageDialog(QWidget *parent)
     : QDialog(parent),
@@ -218,7 +194,6 @@ KisKSwitchLanguageDialog::~KisKSwitchLanguageDialog()
 
 void KisKSwitchLanguageDialog::slotAddLanguageButton()
 {
-    //adding new button with en_US as it should always be present
     d->addLanguageButton(QStringLiteral("en_US"), d->languageButtons.isEmpty());
 }
 
@@ -259,8 +234,6 @@ void KisKSwitchLanguageDialog::languageOnButtonChanged(const QString &languageCo
     for (int i = 0, count = d->languageButtons.count(); i < count; ++i) {
         KLanguageButton *languageButton = d->languageButtons[i];
         if (languageButton->current() == languageCode) {
-            //update all buttons which have matching id
-            //might update buttons which were not changed, but well...
             languageButton->setText(KLocale::global()->languageCodeToName(languageCode));
         }
     }
@@ -278,11 +251,10 @@ void KisKSwitchLanguageDialog::slotOk()
 
     if (d->applicationLanguageList() != languages) {
         QString languageString = languages.join(QLatin1Char(':'));
-        //list is different from defaults or saved languages list
         setApplicationSpecificLanguage(languageString.toLatin1());
 
         QMessageBox::information(this,
-                                 i18nc("@title:window:", "Application Language Changed"), //caption
+                                 i18nc("@title:window:", "Application Language Changed"),
                                  i18n("The language for this application has been changed. The change will take effect the next time the application is started."));
     }
 
@@ -295,13 +267,10 @@ void KisKSwitchLanguageDialog::slotDefault()
     accept();
 }
 
-/************************ KisKSwitchLanguageDialogPrivate ***********************/
-
 KisKSwitchLanguageDialogPrivate::KisKSwitchLanguageDialogPrivate(
     KisKSwitchLanguageDialog *parent)
     : p(parent)
 {
-    //NOTE: do NOT use "p" in constructor, it is not fully constructed
 }
 
 static bool stripCountryCode(QString *languageCode)
@@ -326,33 +295,21 @@ void KisKSwitchLanguageDialogPrivate::fillApplicationLanguages(KLanguageButton *
         QString languageCode = l.name();
         if (l != cLocale) {
             const QString nativeName = l.nativeLanguageName();
-            // For some languages the native name might be empty.
-            // In this case use the non native language name as fallback.
-            // See: QTBUG-51323
             const QString languageName = nativeName.isEmpty() ? QLocale::languageToString(l.language()) : nativeName;
             if (!insertedLanguages.contains(languageCode) && KLocalizedString::isApplicationTranslatedInto(languageCode)) {
                 QString displayName;
-                // Check if languageCode contains a territory name.
-                // For en and en_GB their native names already contain "American"
-                // and "British", so no need to append the territory name.
-                // Same applies for zh_CN and zh_TW, however we will need to
-                // disambiguate between zh_TW and zh_HK if it is eventually
-                // added.
 #if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
                 if (l.language() != QLocale::English && l.language() != QLocale::Chinese && languageCode.contains('_')) {
                     QString territoryName = l.nativeCountryName();
-                    // Fallback just in case.
                     if (territoryName.isEmpty()) {
                         territoryName = QLocale::countryToString(l.country());
 #else
                 if (l.language() != QLocale::English && l.language() != QLocale::Chinese && languageCode.contains('_')) {
                     QString territoryName = l.nativeTerritoryName();
-                    // Fallback just in case.
                     if (territoryName.isEmpty()) {
                         territoryName = QLocale::territoryToString(l.territory());
 #endif
                     }
-                    // Append the territory name for disambiguation.
                     displayName = languageName % " (" % territoryName % ")";
                 } else {
                     displayName = languageName;
@@ -383,7 +340,6 @@ QStringList KisKSwitchLanguageDialogPrivate::applicationLanguageList()
         QLocale l;
         languagesList = l.uiLanguages();
 
-        // We get en-US here but we use en_US
         for (int i = 0; i < languagesList.count(); ++i) {
             languagesList[i].replace(QLatin1String("-"), QLatin1String("_"));
         }

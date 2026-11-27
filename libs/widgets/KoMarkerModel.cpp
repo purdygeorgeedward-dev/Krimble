@@ -6,11 +6,8 @@
 
 #include "KoMarkerModel.h"
 
-// Calligra
 #include <KoMarker.h>
-// Qt
 #include <QSize>
-
 
 KoMarkerModel::KoMarkerModel(const QList<KoMarker*> markers, KoFlake::MarkerPosition position, QObject *parent)
     : QAbstractListModel(parent)

@@ -12,18 +12,6 @@
 
 #include "kis_signal_compressor.h"
 
-/**
- * A special class which works exactly like KisSignalCompressor, but
- * supports calling \p start() method from within the context of
- * another thread. If it happens, it posts a message to Qt's event
- * loop and the \p start() signal is delivered when event loop gets
- * executes again.
- *
- * WARNING: After creation this object moves itself into the main
- *          thread, so one must *not* delete it explicitly. Use
- *          deleteLater() instead. Moving into another thread is
- *          another reason why it cannot have parent QObject.
- */
 class KRITAGLOBAL_EXPORT KisThreadSafeSignalCompressor : public QObject
 {
     Q_OBJECT
@@ -47,4 +35,4 @@ private:
     KisSignalCompressor *m_compressor;
 };
 
-#endif /* __KIS_THREAD_SAFE_SIGNAL_COMPRESSOR_H */
+#endif

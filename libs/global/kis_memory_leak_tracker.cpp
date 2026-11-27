@@ -12,13 +12,11 @@
 
 #include "kis_debug.h"
 
-// Those defines are used to ignore classes that are often leaked due to a KisPaintDevice leak
 #define IGNORE_MEMENTO_ITEM
 #define IGNORE_TILE
 
 Q_GLOBAL_STATIC(KisMemoryLeakTracker, s_instance)
 
-// Common function
 KisMemoryLeakTracker* KisMemoryLeakTracker::instance()
 {
     return s_instance;

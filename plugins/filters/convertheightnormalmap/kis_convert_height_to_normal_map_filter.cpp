@@ -13,7 +13,6 @@
 #include "kis_lod_transform.h"
 #include <kis_edge_detection_kernel.h>
 
-
 K_PLUGIN_FACTORY_WITH_JSON(KritaConvertHeightToNormalMapFilterFactory, "kritaconvertheighttonormalmap.json", registerPlugin<KritaConvertHeightToNormalMapFilter>();)
 
 KritaConvertHeightToNormalMapFilter::KritaConvertHeightToNormalMapFilter(QObject *parent, const QVariantList &)
@@ -76,7 +75,6 @@ void KisConvertHeightToNormalMapFilter::processImpl(KisPaintDeviceSP device, con
     QVector<int> channelOrder(device->colorSpace()->channelCount());
     QVector<bool> channelFlip(device->colorSpace()->channelCount());
     channelFlip.fill(false);
-
 
     int i = config->getInt("redSwizzle", 0);
     if (i % 2 == 1 || i == 2) {
@@ -150,10 +148,6 @@ QRect KisConvertHeightToNormalMapFilter::neededRect(const QRect &rect, const Kis
     KisLodTransformScalar t(lod);
 
     QVariant value;
-    /**
-     * NOTE: integer division by two is done on purpose,
-     *       because the kernel size is always odd
-     */
     const int halfWidth = _config->getProperty("horizRadius", value) ? KisEdgeDetectionKernel::kernelSizeFromRadius(t.scale(value.toFloat())) / 2 : 5;
     const int halfHeight = _config->getProperty("vertRadius", value) ? KisEdgeDetectionKernel::kernelSizeFromRadius(t.scale(value.toFloat())) / 2 : 5;
 

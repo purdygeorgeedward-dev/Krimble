@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #ifndef HISTOGRAMDOCKERWIDGET_H
 #define HISTOGRAMDOCKERWIDGET_H
 
@@ -43,4 +42,4 @@ private:
     float m_maximumValue {1.0};
 };
 
-#endif // HISTOGRAMDOCKERWIDGET_H
+#endif

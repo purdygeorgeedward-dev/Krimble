@@ -15,9 +15,6 @@
 class KisKActionCollection;
 class KisKShortcutWidgetPrivate;
 
-/**
- * \image html kshortcutwidget.png "KDE Shortcut Widget"
- */
 class KRITAWIDGETUTILS_EXPORT KisKShortcutWidget : public QWidget
 {
     Q_OBJECT
@@ -33,19 +30,6 @@ public:
 
     QList<QKeySequence> shortcut() const;
 
-    /**
-     * Set a list of action collections to check against for conflicting shortcut.
-     *
-     * If there is a conflicting shortcut with a KAction, and that his shortcut can be configured
-     * (KAction::isShortcutConfigurable() returns true) the user will be prompted for eventually steal
-     * the shortcut from this action
-     *
-     * Global shortcuts are automatically checked for conflicts
-     *
-     * Don't forget to call applyStealShortcut to actually steal the shortcut.
-     *
-     * @since 4.1
-     */
     void setCheckActionCollections(const QList<KisKActionCollection *> &actionCollections);
 
 Q_SIGNALS:
@@ -55,13 +39,6 @@ public Q_SLOTS:
     void setShortcut(const QList<QKeySequence> &cut);
     void clearShortcut();
 
-    /**
-     * Actually remove the shortcut that the user wanted to steal, from the
-     * action that was using it.
-     *
-     * To be called before you apply your changes.
-     * No shortcuts are stolen until this function is called.
-     */
     void applyStealShortcut();
 
 private:
@@ -73,4 +50,4 @@ private:
     KisKShortcutWidgetPrivate *const d;
 };
 
-#endif //KSHORTCUTWIDGET_H
+#endif

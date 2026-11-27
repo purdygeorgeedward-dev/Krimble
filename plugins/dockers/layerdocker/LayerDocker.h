@@ -10,10 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-
-/**
- * Template of view plugin
- */
 class KritaLayerDockerPlugin : public QObject
 {
     Q_OBJECT

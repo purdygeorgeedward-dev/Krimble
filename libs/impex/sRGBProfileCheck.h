@@ -14,9 +14,6 @@
 #include <KoColorSpace.h>
 #include <KoColorProfile.h>
 
-/**
- * Check whether the image is sRGB, so the loss of the profile is not a problem
- */
 class sRGBProfileCheck : public KisExportCheckBase
 {
 public:
@@ -33,13 +30,12 @@ public:
     {
         bool sRGB = image->colorSpace()->profile()->name().contains(QLatin1String("srgb"), Qt::CaseInsensitive);
 
-        // XXX: add an isLinear function to KoColorProfile that uses the information already available through lcms
         bool linear = image->colorSpace()->profile()->name().contains(QLatin1String("g10"), Qt::CaseInsensitive);
 
         return (!sRGB || linear);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -66,4 +62,4 @@ public:
     }
 };
 
-#endif // sRGBProfileCheck_H
+#endif

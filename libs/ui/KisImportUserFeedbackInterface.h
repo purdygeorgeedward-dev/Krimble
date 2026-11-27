@@ -11,10 +11,6 @@
 
 class QWidget;
 
-/**
- * Sometimes the importing filter may face some werd issue that needs
- * user's input/decision.
- */
 class KisImportUserFeedbackInterface
 {
 public:
@@ -29,15 +25,8 @@ public:
 public:
     KisImportUserFeedbackInterface() = default;
 
-
     virtual ~KisImportUserFeedbackInterface();
 
-    /**
-     * @brief ask the user a question about the loading process
-     *
-     * @param callback a functor that actually asks the user
-     * @return the result of the operation
-     */
     virtual Result askUser(AskCallback callback) = 0;
 
 private:
@@ -49,4 +38,4 @@ private:
 #endif
 };
 
-#endif // KISIMPORTUSERFEEDBACKINTERFACE_H
+#endif

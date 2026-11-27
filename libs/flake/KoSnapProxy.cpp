@@ -42,7 +42,6 @@ QList<KoShape*> KoSnapProxy::shapesInRect(const QRectF &rect, bool omitEditedSha
         }
     }
 
-
     if (omitEditedShape) {
         Q_FOREACH (KoPathPoint *point, m_snapGuide->ignoredPathPoints()) {
             const int index = shapes.indexOf(point->parent());
@@ -63,11 +62,9 @@ QList<KoShape*> KoSnapProxy::shapesInRect(const QRectF &rect, bool omitEditedSha
 QList<QPointF> KoSnapProxy::pointsFromShape(KoShape * shape)
 {
     QList<QPointF> snapPoints;
-    // no snapping to hidden shapes
     if (! shape->isVisible())
         return snapPoints;
 
-    // return the special snap points of the shape
     snapPoints += shape->snapData().snapPoints();
 
     KoPathShape * path = dynamic_cast<KoPathShape*>(shape);
@@ -90,7 +87,6 @@ QList<QPointF> KoSnapProxy::pointsFromShape(KoShape * shape)
     }
     else
     {
-        // add the bounding box corners as default snap points
         QRectF bbox = shape->boundingRect();
         snapPoints.append(bbox.topLeft());
         snapPoints.append(bbox.topRight());
@@ -103,7 +99,7 @@ QList<QPointF> KoSnapProxy::pointsFromShape(KoShape * shape)
 
 QList<KoPathSegment> KoSnapProxy::segmentsInRect(const QRectF &rect, bool omitEditedShape)
 {
-    
+
     QList<KoShape*> shapes = shapesInRect(rect, omitEditedShape);
     QList<KoPathPoint*> ignoredPoints = m_snapGuide->ignoredPathPoints();
 
@@ -127,7 +123,6 @@ QList<KoPathSegment> KoSnapProxy::segmentsInRect(const QRectF &rect, bool omitEd
         }
 
         QTransform m = shape->absoluteTransformation();
-        // transform segments to document coordinates
         Q_FOREACH (const KoPathSegment & s, shapeSegments) {
             if (ignoredPoints.contains(s.first()) || ignoredPoints.contains(s.second()))
                 continue;
@@ -143,7 +138,6 @@ QList<KoShape*> KoSnapProxy::shapes(bool omitEditedShape)
     QList<KoShape*> filteredShapes;
     QList<KoShape*> ignoredShapes = m_snapGuide->ignoredShapes();
 
-    // filter all hidden and ignored shapes
     Q_FOREACH (KoShape * shape, allShapes) {
         if (shape->isVisible() &&
             !ignoredShapes.contains(shape) &&

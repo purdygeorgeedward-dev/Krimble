@@ -10,7 +10,6 @@
 #include "KisColorSmudgeStrategyBase.h"
 #include "kis_painter.h"
 
-
 class KisColorSmudgeStrategyWithOverlay : public KisColorSmudgeStrategyBase
 {
 public:
@@ -44,5 +43,4 @@ private:
     KisPainter *m_initializationPainter = 0;
 };
 
-
-#endif //KRITA_KISCOLORSMUDGESTRATEGYWITHOVERLAY_H
+#endif

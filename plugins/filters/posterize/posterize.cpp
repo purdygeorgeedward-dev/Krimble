@@ -1,6 +1,6 @@
 /*
  *  SPDX-FileCopyrightText: 2014 Manuel Riecke <spell1337@gmail.com>
- * 
+ *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 

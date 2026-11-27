@@ -9,7 +9,6 @@
 #include "kis_saved_commands.h"
 #include "kis_global.h"
 
-
 struct KisMacroBasedUndoStore::Private
 {
     Private(KisSavedMacroCommand *_command) : command(_command) {}
@@ -38,10 +37,6 @@ void KisMacroBasedUndoStore::undoLastCommand()
 
 void KisMacroBasedUndoStore::addCommand(KUndo2Command *cmd)
 {
-    /**
-     * This store if stacked with a post-execution undo adapter,
-     * so we should call redo() explicitly when adding a command.
-     */
     cmd->redo();
     m_d->command->addCommand(toQShared(cmd));
 

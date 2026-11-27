@@ -38,7 +38,6 @@ __KisToolSelectPolygonalLocal::__KisToolSelectPolygonalLocal(KoCanvasBase *canva
     setObjectName("tool_select_polygonal");
 }
 
-
 KisToolSelectPolygonal::KisToolSelectPolygonal(KoCanvasBase *canvas):
     KisToolSelectBase<__KisToolSelectPolygonalLocal>(canvas, i18n("Polygonal Selection"))
 {
@@ -112,8 +111,6 @@ void KisToolSelectPolygonal::finishPolyline(const QVector<QPointF> &points)
             -> KUndo2Command * {
                 KisPainter painter(tmpSel);
                 painter.setPaintColor(KoColor(Qt::black, tmpSel->colorSpace()));
-                // Since the feathering already smooths the selection, the
-                // antiAlias is not applied if we must feather
                 painter.setAntiAliasPolygonFill(antiAlias && feather == 0);
                 painter.setFillStyle(KisPainter::FillStyleForegroundColor);
                 painter.setStrokeStyle(KisPainter::StrokeStyleNone);

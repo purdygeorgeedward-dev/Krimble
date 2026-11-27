@@ -14,7 +14,6 @@
 
 #include <kritaanimationdocker_export.h>
 
-
 namespace KisAnimUtils
 {
     KUndo2Command* createKeyframeCommand(KisImageSP image, KisNodeSP node, const QString &channelId, int time, bool copy, KUndo2Command *parentCommand = 0);
@@ -41,11 +40,9 @@ namespace KisAnimUtils
         return ::qHash(item.node.data()) + ::qHash(item.channel) + ::qHash(item.time);
     }
 
-
     typedef QVector<FrameItem> FrameItemList;
     typedef std::pair<FrameItem, FrameItem> FrameMovePair;
     typedef QVector<FrameMovePair> FrameMovePairList;
-
 
     void removeKeyframes(KisImageSP image, const FrameItemList &frames);
     void removeKeyframe(KisImageSP image, KisNodeSP node, const QString &channel, int time);
@@ -57,15 +54,6 @@ namespace KisAnimUtils
     KUndo2Command* createMoveKeyframesCommand(const FrameItemList &srcFrames, const FrameItemList &dstFrames,
                                               bool copy, bool moveEmpty, KUndo2Command *parentCommand = 0);
 
-
-    /**
-     * @brief implements safe moves of the frames (even if there are cycling move dependencies)
-     * @param movePairs the jobs for the moves
-     * @param copy shows if the frames should be copied or not
-     * @param moveEmpty allows an empty frame to replace a populated one
-     * @param parentCommand the command that should be a parent of the created command
-     * @return a created undo command
-     */
     KRITAANIMATIONDOCKER_EXPORT
     KUndo2Command* createMoveKeyframesCommand(const FrameMovePairList &movePairs,
                                               bool copy, bool moveEmptyFrames, KUndo2Command *parentCommand = 0);
@@ -90,5 +78,4 @@ namespace KisAnimUtils
     extern const QString removeTransformKeyframeActionName;
 };
 
-
-#endif /* __KIS_ANIMATION_UTILS_H */
+#endif

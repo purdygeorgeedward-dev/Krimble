@@ -19,7 +19,6 @@ Preset::~Preset()
     delete d;
 }
 
-
 QString Preset::toXML() const
 {
     QDomDocument xmlDoc;

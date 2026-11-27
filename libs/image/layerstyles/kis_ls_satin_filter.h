@@ -7,11 +7,8 @@
 #ifndef KIS_LS_SATIN_FILTER_H
 #define KIS_LS_SATIN_FILTER_H
 
-
 #include "kis_layer_style_filter.h"
 #include <kritaimage_export.h>
-
-
 
 class KRITAIMAGE_EXPORT KisLsSatinFilter : public KisLayerStyleFilter
 {
@@ -32,7 +29,6 @@ public:
 
 private:
     KisLsSatinFilter(const KisLsSatinFilter &rhs);
-
 
     void applySatin(KisPaintDeviceSP srcDevice,
                     KisMultipleProjection *dst,

@@ -20,33 +20,12 @@
 
 #undef _T
 
-/**
- * This is an empty mainWindow that needs to be "specialized" for each possible
- * numerical type (quint8, quint16...).
- *
- * It needs to defines some static constant fields :
- * - zeroValue : the zero for this numerical type
- * - unitValue : the maximum value of the normal dynamic range
- * - max : the maximum value
- * - min : the minimum value
- * - epsilon : a value close to zero but different of zero
- * - bits : the bit depth
- *
- * And some types :
- * - compositetype the type used for composite operations (usually one with
- *   a higher bit depth)
- *
- * This class is specialized to handle the floating point bounds of the CMYK color space.
- */
 template<typename _T>
 class KoCmykColorSpaceMathsTraits
 {
 public:
 };
 
-/**
- * No changes for integer color spaces.
- */
 template<>
 class KRITAPIGMENT_EXPORT KoCmykColorSpaceMathsTraits<quint8> : public KoColorSpaceMathsTraits<quint8>
 {

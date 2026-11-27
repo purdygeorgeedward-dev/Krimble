@@ -40,7 +40,6 @@ struct KisBrushExportOptions {
     QString name;
 };
 
-
 K_PLUGIN_FACTORY_WITH_JSON(KisBrushExportFactory, "krita_brush_export.json", registerPlugin<KisBrushExport>();)
 
 KisBrushExport::KisBrushExport(QObject *parent, const QVariantList &) : KisImportExportFilter(parent)
@@ -53,16 +52,6 @@ KisBrushExport::~KisBrushExport()
 
 KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP configuration)
 {
-
-// XXX: Loading the parasite itself was commented out -- needs investigation
-//    KisAnnotationSP annotation = document->savingImage()->annotation("ImagePipe Parasite");
-//    KisPipeBrushParasite parasite;
-//    if (annotation) {
-//        QBuffer buf(const_cast<QByteArray*>(&annotation->annotation()));
-//        buf.open(QBuffer::ReadOnly);
-//        parasite.loadFromDevice(&buf);
-//        buf.close();
-//    }
 
     KisBrushExportOptions exportOptions;
 
@@ -99,7 +88,7 @@ KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevic
         return ImportExportCodes::FileFormatIncorrect;
     }
 
-    qApp->processEvents(); // For vector layers to be updated
+    qApp->processEvents();
 
     QRect rc = document->savingImage()->bounds();
 
@@ -107,7 +96,6 @@ KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevic
 
     KisImagePipeBrush *pipeBrush = dynamic_cast<KisImagePipeBrush*>(brush);
     if (pipeBrush) {
-        // Create parasite. XXX: share with KisCustomBrushWidget
         QVector< QVector<KisPaintDevice*> > devices;
         devices.push_back(QVector<KisPaintDevice*>());
 
@@ -116,7 +104,6 @@ KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevic
         QList<KisNodeSP> layers = document->savingImage()->root()->childNodes(QStringList("KisLayer"), properties);
 
         Q_FOREACH (KisNodeSP node, layers) {
-            // push_front to behave exactly as gimp for gih creation
             devices[0].push_front(node->projection().data());
         }
 
@@ -141,7 +128,6 @@ KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevic
 
         int maxRanks = 0;
         for (int i = 0; i < KisPipeBrushParasite::MaxDim; ++i) {
-            // ### This can mask some bugs, be careful here in the future
             parasite.rank[i] = exportOptions.ranks[i];
             parasite.selection[i] = modes.at(i);
             maxRanks += exportOptions.ranks[i];
@@ -150,7 +136,6 @@ KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevic
         if (maxRanks > layers.count()) {
             return ImportExportCodes::FileFormatIncorrect;
         }
-        // XXX needs movement!
         parasite.setBrushesCount();
         pipeBrush->setParasite(parasite);
         pipeBrush->setDevices(devices, rc.width(), rc.height());
@@ -166,7 +151,6 @@ KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevic
     }
 
     brush->setName(exportOptions.name);
-    // brushes are created after devices are loaded, call mask mode after that
     brush->setBrushApplication(exportOptions.mask ? ALPHAMASK : IMAGESTAMP);
     brush->setWidth(rc.width());
     brush->setHeight(rc.height());
@@ -179,7 +163,7 @@ KisImportExportErrorCode KisBrushExport::convert(KisDocument *document, QIODevic
     }
 }
 
-KisPropertiesConfigurationSP KisBrushExport::defaultConfiguration(const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisPropertiesConfigurationSP KisBrushExport::defaultConfiguration(const QByteArray & , const QByteArray & ) const
 {
     KisPropertiesConfigurationSP cfg = new KisPropertiesConfiguration();
     cfg->setProperty("spacing", 1.0);
@@ -195,7 +179,7 @@ KisPropertiesConfigurationSP KisBrushExport::defaultConfiguration(const QByteArr
     return cfg;
 }
 
-KisConfigWidget *KisBrushExport::createConfigurationWidget(QWidget *parent, const QByteArray &/*from*/, const QByteArray &to) const
+KisConfigWidget *KisBrushExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray &to) const
 {
     KisWdgOptionsBrush *wdg = new KisWdgOptionsBrush(parent);
     if (to == "image/x-gimp-brush") {
@@ -207,7 +191,6 @@ KisConfigWidget *KisBrushExport::createConfigurationWidget(QWidget *parent, cons
         wdg->animStyleGroup->setVisible(true);
     }
 
-    // preload gih name with chosen filename
     QFileInfo fileLocation(filename());
     wdg->nameLineEdit->setText(fileLocation.completeBaseName());
     return wdg;
@@ -225,7 +208,6 @@ void KisBrushExport::initializeCapabilities()
         addCapability(KisExportCheckRegistry::instance()->get("LayerOpacityCheck")->create(KisExportCheckBase::SUPPORTED));
     }
 }
-
 
 #include "kis_brush_export.moc"
 

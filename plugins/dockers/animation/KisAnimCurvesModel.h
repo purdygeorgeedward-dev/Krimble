@@ -49,10 +49,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role) override;
 
-    /**
-     * Begins a block of commands. The following calls to setData will be grouped to a single undo step.
-     * Note: MUST be followed by a call to endCommand().
-     */
     void beginCommand(const KUndo2MagicString &text);
     void endCommand();
 
@@ -90,7 +86,6 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-// Used to return a range as a QVariant (see KisAnimationCurvesModel::data)
 typedef QPair<qreal,qreal> ChannelLimitsMetatype;
 Q_DECLARE_METATYPE(ChannelLimitsMetatype);
 

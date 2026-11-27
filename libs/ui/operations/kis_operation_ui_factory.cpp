@@ -28,4 +28,3 @@ QString KisOperationUIFactory::id() const
     return d->id;
 }
 
-

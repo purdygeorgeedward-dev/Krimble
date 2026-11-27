@@ -13,10 +13,6 @@
 
 namespace {
 
-/*****************************************************************/
-/*         DefaultMemoryAllocator                                */
-/*****************************************************************/
-
 struct DefaultMemoryAllocator : KisOptimizedByteArray::MemoryAllocator
 {
     KisOptimizedByteArray::MemoryChunk alloc(int size) override {
@@ -24,15 +20,9 @@ struct DefaultMemoryAllocator : KisOptimizedByteArray::MemoryAllocator
     }
 
     void free(KisOptimizedByteArray::MemoryChunk chunk) override {
-        // chunk.first might be null
         delete[] chunk.first;
     }
 };
-
-
-/*****************************************************************/
-/*         DefaultMemoryAllocatorStore                           */
-/*****************************************************************/
 
 struct DefaultMemoryAllocatorStore {
     static DefaultMemoryAllocatorStore* instance();
@@ -57,12 +47,7 @@ DefaultMemoryAllocatorStore *DefaultMemoryAllocatorStore::instance()
     return s_instance;
 }
 
-} // namespace
-
-
-/*****************************************************************/
-/*         KisOptimizedByteArray::PooledMemoryAllocator          */
-/*****************************************************************/
+}
 
 KisOptimizedByteArray::PooledMemoryAllocator::PooledMemoryAllocator()
     : m_meanSize(500)
@@ -93,8 +78,6 @@ KisOptimizedByteArray::PooledMemoryAllocator::alloc(int size)
     if (chunk.second < size) {
         delete[] chunk.first;
 
-        // we alloc a bit more memory for the dabs to let the chunks
-        // be more reusable
         const int allocSize = 1.2 * size;
         chunk = KisOptimizedByteArray::MemoryChunk(new quint8[allocSize], allocSize);
     }
@@ -107,8 +90,6 @@ void KisOptimizedByteArray::PooledMemoryAllocator::free(KisOptimizedByteArray::M
     if (chunk.first) {
         QMutexLocker l(&m_mutex);
 
-        // keep bigger chunks for ourselves and return the
-        // smaller ones to the system
         if (chunk.second > 0.8 * m_meanSize.rollingMean()) {
             m_chunks.append(chunk);
         } else {
@@ -116,11 +97,6 @@ void KisOptimizedByteArray::PooledMemoryAllocator::free(KisOptimizedByteArray::M
         }
     }
 }
-
-
-/*****************************************************************/
-/*         KisOptimizedByteArray::Private                        */
-/*****************************************************************/
 
 struct KisOptimizedByteArray::Private : public QSharedData
 {
@@ -150,19 +126,11 @@ struct KisOptimizedByteArray::Private : public QSharedData
 
     MemoryAllocator *allocator;
 
-    // stored allocator shared pointer is used only for keeping
-    // the lifetime of the allocator until the detach of the last
-    // allocated chunk
     MemoryAllocatorSP storedAllocator;
 
     MemoryChunk data;
     int dataSize = 0;
 };
-
-
-/*****************************************************************/
-/*         KisOptimizedByteArray                                 */
-/*****************************************************************/
 
 KisOptimizedByteArray::KisOptimizedByteArray(MemoryAllocatorSP allocator)
     : m_d(new Private(allocator))

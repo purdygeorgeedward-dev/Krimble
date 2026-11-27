@@ -17,7 +17,6 @@
 class KisStrokeStrategy;
 class KUndo2MagicString;
 
-
 class KRITAIMAGE_EXPORT KisStroke
 {
 public:
@@ -76,7 +75,6 @@ private:
     void enqueue(KisStrokeJobStrategy *strategy,
                  KisStrokeJobData *data);
 
-    // for suspend/resume jobs
     void prepend(KisStrokeJobStrategy *strategy,
                  KisStrokeJobData *data,
                  int levelOfDetail,
@@ -88,7 +86,6 @@ private:
     bool sanityCheckAllJobsAreCancellable() const;
 
 private:
-    // for testing use only, do not use in real code
     friend class KisStrokeTest;
     friend class KisStrokeStrategyUndoCommandBasedTest;
     QQueue<KisStrokeJob*>& testingGetQueue() {
@@ -96,7 +93,6 @@ private:
     }
 
 private:
-    // the strategies are owned by the stroke
     QScopedPointer<KisStrokeStrategy> m_strokeStrategy;
     QScopedPointer<KisStrokeJobStrategy> m_initStrategy;
     QScopedPointer<KisStrokeJobStrategy> m_dabStrategy;
@@ -109,11 +105,11 @@ private:
     bool m_strokeInitialized;
     bool m_strokeEnded;
     bool m_strokeSuspended;
-    bool m_isCancelled; // cancelled strokes are always 'ended' as well
+    bool m_isCancelled;
 
     int m_worksOnLevelOfDetail;
     Type m_type;
     KisStrokeSP m_lodBuddy;
 };
 
-#endif /* __KIS_STROKE_H */
+#endif

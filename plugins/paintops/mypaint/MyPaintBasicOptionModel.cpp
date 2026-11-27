@@ -5,7 +5,6 @@
  */
 #include "MyPaintBasicOptionModel.h"
 
-
 MyPaintBasicOptionModel::MyPaintBasicOptionModel(lager::cursor<MyPaintBasicOptionData> _optionData,
                                                  lager::cursor<qreal> radiusCursor,
                                                  lager::cursor<qreal> hardnessCursor,

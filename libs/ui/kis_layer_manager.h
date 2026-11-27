@@ -23,11 +23,6 @@ class KisAction;
 class KisActionManager;
 class KisProcessingApplicator;
 
-/**
- * KisLayerManager takes care of the gui around working with layers:
- * adding, removing, editing. It also keeps track of the active layer
- * for this view.
- */
 class KisLayerManager : public QObject
 {
 
@@ -45,14 +40,10 @@ private:
 
     friend class KisNodeManager;
 
-    /**
-     * Activate the specified layer. The layer may be 0.
-     */
     void activateLayer(KisLayerSP layer);
 
     KisLayerSP activeLayer();
     KisPaintDeviceSP activeDevice();
-
 
     void setup(KisActionManager *actionManager);
 
@@ -62,13 +53,6 @@ private Q_SLOTS:
 
     void mergeLayer();
 
-    /**
-     * Krimble addition: the industry standard-parity "Merge Visible" (Ctrl+Shift+E).
-     * Not a separate merge implementation -- just triggers the same two
-     * steps described in the Krita manual: select all visible layers,
-     * then merge with layer below (mergeLayer() already handles merging
-     * a multi-selection via KisImage::mergeMultipleLayers()).
-     */
     void mergeVisibleLayers();
 
     void imageResizeToActiveLayer();

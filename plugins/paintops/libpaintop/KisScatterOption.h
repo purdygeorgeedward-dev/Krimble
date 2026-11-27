@@ -25,4 +25,4 @@ private:
     bool m_axisY;
 };
 
-#endif // KISSCATTEROPTION_H
+#endif

@@ -26,4 +26,4 @@ private Q_SLOTS:
     void selectSimilar();
 };
 
-#endif // COLORRANGE_H
+#endif

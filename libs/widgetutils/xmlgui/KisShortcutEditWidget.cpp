@@ -19,7 +19,6 @@
 #include <QApplication>
 
 #include <klocalizedstring.h>
-//#include <kglobalaccel.h>
 
 #include "kkeysequencewidget.h"
 
@@ -80,7 +79,6 @@ KisKKeySequenceWidget::ShortcutTypes ShortcutEditWidget::checkForConflictsAgains
     return m_customEditor->checkForConflictsAgainst();
 }
 
-//slot
 void ShortcutEditWidget::defaultToggled(bool checked)
 {
     if (m_isUpdating) {
@@ -89,19 +87,13 @@ void ShortcutEditWidget::defaultToggled(bool checked)
 
     m_isUpdating = true;
     if (checked) {
-        // The default key sequence should be activated. We check first if this
-        // is possible.
         if (m_customEditor->isKeySequenceAvailable(m_defaultKeySequence)) {
-            // Clear the customs widget
             m_customEditor->clearKeySequence();
             Q_EMIT keySequenceChanged(m_defaultKeySequence);
         } else {
-            // We tried to switch to the default key sequence and failed.
-            // Go back.
             m_customRadio->setChecked(true);
         }
     } else {
-        // The empty key sequence is always valid
         Q_EMIT keySequenceChanged(QKeySequence());
     }
     m_isUpdating = false;
@@ -110,7 +102,6 @@ void ShortcutEditWidget::defaultToggled(bool checked)
 void ShortcutEditWidget::setCheckActionCollections(
     const QList<KisKActionCollection *> checkActionCollections)
 {
-    // We just forward them to out KisKKeySequenceWidget.
     m_customEditor->setCheckActionCollections(checkActionCollections);
 }
 
@@ -126,7 +117,6 @@ void ShortcutEditWidget::setComponentName(const QString componentName)
 
 void ShortcutEditWidget::setMultiKeyShortcutsAllowed(bool allowed)
 {
-    // We just forward them to out KisKKeySequenceWidget.
     m_customEditor->setMultiKeyShortcutsAllowed(allowed);
 }
 
@@ -140,22 +130,16 @@ void ShortcutEditWidget::setAction(QObject *action)
     m_action = action;
 }
 
-//slot
 void ShortcutEditWidget::setCustom(const QKeySequence &seq)
 {
     if (m_isUpdating) {
         return;
     }
 
-    // seq is a const reference to a private variable of KisKKeySequenceWidget.
-    // Somewhere below we possible change that one. But we want to Q_EMIT seq
-    // whatever happens. So we make a copy.
     QKeySequence original = seq;
 
     m_isUpdating = true;
 
-    // Check if the user typed in the default sequence into the custom field.
-    // We do this by calling setKeySequence which will do the right thing.
     setKeySequence(original);
 
     Q_EMIT keySequenceChanged(original);
@@ -169,8 +153,6 @@ void ShortcutEditWidget::setKeySequence(const QKeySequence &activeSeq)
         m_customEditor->clearKeySequence();
     } else {
         m_customRadio->setChecked(true);
-        // m_customEditor->setKeySequence does some stuff we only want to
-        // execute when the sequence really changes.
         if (activeSeq != m_customEditor->keySequence()) {
             m_customEditor->setKeySequence(activeSeq);
         }

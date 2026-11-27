@@ -51,7 +51,6 @@ KisDuplicateOptionWidget::KisDuplicateOptionWidget(lager::cursor<KisDuplicateOpt
         connectControl(page->chkCloneProjection, &m_d->model, "cloneFromProjection");
     }
 
-    // This pushes our model into the setting.
     m_d->model.optionData.bind(std::bind(&KisDuplicateOptionWidget::emitSettingChanged, this));
 
     setConfigurationPage(page);

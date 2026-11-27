@@ -9,13 +9,6 @@
 
 #include <QAtomicInt>
 
-/**
- * This class implements a state variable for a lockfree cache object.
- * The implementation is actually a variation of a 'seqlock', but with
- * a simple modification: the values of "cache validity", "number of
- * writers" and "sequence number" are multiplexed in a single int
- * value.
- */
 class KisCacheStateValue
 {
     static const int WritersCountMask = 0x00FF;
@@ -46,7 +39,6 @@ public:
         bool result = seq == m_value;
         return result;
     }
-
 
     inline bool startWrite(int *seq) {
         int oldValue;
@@ -81,7 +73,6 @@ public:
 
 private:
     int incrementSeqNo(int value) {
-        // handle overflow properly
         if ((value & SeqNoMask) == SeqNoMask) {
             value = value & ~SeqNoMask;
         } else {
@@ -100,16 +91,10 @@ class KisLockFreeCache
 public:
     virtual ~KisLockFreeCache() {}
 
-    /**
-     * Notify the cache that the value has changed
-     */
     void invalidate() {
         m_state.invalidate();
     }
 
-    /**
-     * Calculate the value or fetch it from the cache
-     */
     T getValue() const {
         KisCacheStateValue::SeqValue seqValue;
         bool isValid = false;
@@ -150,10 +135,6 @@ public:
     }
 
 protected:
-    /**
-     * Calculate the value. Used by the cache
-     * internally. Reimplemented by the user.
-     */
     virtual T calculateNewValue() const = 0;
 
 private:
@@ -169,16 +150,10 @@ public:
     {
     }
 
-    /**
-     * Notify the cache that the value has changed
-     */
     void invalidate() {
         m_state.invalidate();
     }
 
-    /**
-     * Calculate the value or fetch it from the cache
-     */
     T getValue(Mode mode) const {
         KisCacheStateValue::SeqValue seqValue;
         bool isValid = false;
@@ -226,10 +201,6 @@ public:
     }
 
 protected:
-    /**
-     * Calculate the value. Used by the cache
-     * internally. Reimplemented by the user.
-     */
     virtual T calculateNewValue() const = 0;
 
 private:
@@ -238,6 +209,4 @@ private:
     mutable Mode m_mode;
 };
 
-
-
-#endif /* __KIS_CACHE_STATE_VALUE_H */
+#endif

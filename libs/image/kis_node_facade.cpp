@@ -88,7 +88,6 @@ bool KisNodeFacade::moveNode(KisNodeSP node, KisNodeSP parent, quint32 newIndex)
     return success;
 }
 
-
 bool KisNodeFacade::addNode(KisNodeSP node, KisNodeSP parent, KisNodeAdditionFlags flags)
 {
     dbgImage << "Add node " << node << " to " << parent;

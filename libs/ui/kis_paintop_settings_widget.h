@@ -18,11 +18,6 @@ class KisPropertiesConfiguration;
 class KisPaintOpConfigWidget;
 class KisPaintopLodLimitations;
 
-/**
- * A common widget for enabling/disabling and determining
- * the effect of tablet pressure, tilt and rotation and
- * other paintop settings.
- */
 class KRITAUI_EXPORT KisPaintOpSettingsWidget : public KisPaintOpConfigWidget
 {
     Q_OBJECT
@@ -35,20 +30,16 @@ public:
     void addPaintOpOption(KisPaintOpOption *option);
     void addPaintOpOption(KisPaintOpOption *option, KisPaintOpOption::PaintopCategory category);
 
-    /// Reimplemented
     void setConfiguration(const KisPropertiesConfigurationSP  config) override;
 
-    /// Reimplemented
     void writeConfiguration(KisPropertiesConfigurationSP config) const override;
 
     KisPaintopLodLimitations lodLimitations() const override;
     lager::reader<KisPaintopLodLimitations> lodLimitationsReader() const override;
     lager::reader<qreal> effectiveBrushSize() const override;
 
-    ///Reimplemented, sets image on option widgets
     void setImage(KisImageWSP image) override;
 
-    ///Reimplemented, sets node on option widgets
     void setNode(KisNodeWSP node) override;
 
     void setResourcesInterface(KisResourcesInterfaceSP resourcesInterface) override;
@@ -68,7 +59,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    
+
     struct Private;
     Private* const m_d;
     bool m_saveLockedOption;

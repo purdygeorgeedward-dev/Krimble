@@ -17,4 +17,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif // TESTKODRAG_H
+#endif

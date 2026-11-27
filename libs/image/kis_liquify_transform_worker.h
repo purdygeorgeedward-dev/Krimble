@@ -19,7 +19,6 @@ class QSize;
 class QTransform;
 class QDomElement;
 
-
 class KRITAIMAGE_EXPORT KisLiquifyTransformWorker : boost::equality_comparable<KisLiquifyTransformWorker>
 {
 public:
@@ -33,7 +32,6 @@ public:
 
     bool operator==(const KisLiquifyTransformWorker &other) const;
     bool isIdentity() const;
-
 
     int pointToIndex(const QPoint &cellPt);
     QSize gridSize() const;
@@ -86,4 +84,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_LIQUIFY_TRANSFORM_WORKER_H */
+#endif

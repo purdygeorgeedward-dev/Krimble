@@ -44,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 GridDockerPlugin::GridDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

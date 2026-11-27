@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISMIRRORAXISCONFIG_H
 #define KISMIRRORAXISCONFIG_H
 
@@ -15,11 +14,6 @@
 
 class QDomElement;
 class QDomDocument;
-
-/**
- * @brief The KisMirrorAxisConfig class stores configuration for the KisMirrorAxis
- * canvas decoration. Contents are saved to/loaded from KRA documents.
- */
 
 class KRITAUI_EXPORT KisMirrorAxisConfig : public QObject, boost::equality_comparable<KisMirrorAxisConfig>
 {
@@ -63,25 +57,10 @@ public:
     QPointF axisPosition() const;
     void setAxisPosition(QPointF position);
 
-    /**
-     * @brief saveToXml() function for KisKraSaver
-     * @param doc
-     * @param tag
-     * @return
-     */
     QDomElement saveToXml(QDomDocument& doc, const QString &tag) const;
 
-    /**
-     * @brief loadFromXml() function for KisKraLoader
-     * @param parent element
-     * @return
-     */
     bool loadFromXml(const QDomElement &parent);
 
-    /**
-     * @brief Check whether the config object was changed, or is the class default.
-     * @return true, if the object is default; false, if the config was changed
-     */
     bool isDefault() const;
 
 private:
@@ -89,4 +68,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // KISMIRRORAXISCONFIG_H
+#endif

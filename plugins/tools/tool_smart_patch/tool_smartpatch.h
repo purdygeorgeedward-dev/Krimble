@@ -18,4 +18,4 @@ public:
     ~ToolSmartPatch() override;
 };
 
-#endif // TOOL_SMARTPATCH_H_
+#endif

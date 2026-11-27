@@ -11,7 +11,6 @@
 
 #include "kis_pixelize_filter.h"
 
-
 #include <stdlib.h>
 #include <vector>
 
@@ -40,7 +39,6 @@
 #include <KisSequentialIteratorProgress.h>
 #include "kis_algebra_2d.h"
 #include "kis_lod_transform.h"
-
 
 KisPixelizeFilter::KisPixelizeFilter() : KisFilter(id(), FiltersCategoryPixelateId, i18n("&Pixelize..."))
 {
@@ -89,8 +87,6 @@ void KisPixelizeFilter::processImpl(KisPaintDeviceSP device,
             const QRect pixelRect = maxPatchRect & deviceBounds;
             const int numColors = pixelRect.width() * pixelRect.height();
 
-
-            //read
             KisSequentialConstIterator srcIt(device, pixelRect);
 
             memset(buffer.data(), 0, bufferSize);
@@ -101,10 +97,8 @@ void KisPixelizeFilter::processImpl(KisPaintDeviceSP device,
                 bufferPtr += pixelSize;
             }
 
-            // mix all the colors
             mixOp->mixColors(buffer.data(), numColors, pixelColor.data());
 
-            // write only colors in applyRect
             const QRect writeRect = pixelRect & applyRect;
 
             KisSequentialIterator dstIt(device, writeRect);
@@ -123,7 +117,6 @@ QRect KisPixelizeFilter::neededRect(const QRect &rect, const KisFilterConfigurat
     const int pixelWidth = qCeil(t.scale(config ? qMax(1, config->getInt("pixelWidth", 10)) : 10));
     const int pixelHeight = qCeil(t.scale(config ? qMax(1, config->getInt("pixelHeight", 10)) : 10));
 
-    // TODO: make more precise calculation of the rect, including the alignment
     return rect.adjusted(-2*pixelWidth, -2*pixelHeight, 2*pixelWidth, 2*pixelHeight);
 }
 
@@ -135,7 +128,7 @@ QRect KisPixelizeFilter::changedRect(const QRect &rect, const KisFilterConfigura
 KisConfigWidget * KisPixelizeFilter::createConfigurationWidget(QWidget* parent, const KisPaintDeviceSP, bool) const
 {
     vKisIntegerWidgetParam param;
-    param.push_back(KisIntegerWidgetParam(2, 512, 10, i18n("Pixel width"), "pixelWidth" /*"keepAspect"*/));
+    param.push_back(KisIntegerWidgetParam(2, 512, 10, i18n("Pixel width"), "pixelWidth" ));
     param.push_back(KisIntegerWidgetParam(2, 512, 10, i18n("Pixel height"), "pixelHeight", "keepAspect"));
     return new KisMultiIntegerFilterWidget(id().id(),  parent,  id().id(),  param);
 }

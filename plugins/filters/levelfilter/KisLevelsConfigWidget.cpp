@@ -68,14 +68,9 @@ KisLevelsConfigWidget::KisLevelsConfigWidget(QWidget * parent, KisPaintDeviceSP 
     computeChannelsMinMaxRanges();
 
     m_page.setupUi(this);
-    // In some styles the combo box is higher than the tool buttons so
-    // hiding/unhiding it can make the layout jump in that area.
-    // We set the spacer item height to the same as the combo box
     m_page.spacer01->changeSize(0, m_page.comboBoxChannel->sizeHint().height(),
                                 QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    // Only enable the "all-channels auto levels" button if the color space
-    // is rgb
     m_page.buttonAutoLevelsAllChannels->setEnabled(m_colorSpace->colorModelId() == RGBAColorModelID);
 
     setButtonsIcons();
@@ -144,15 +139,8 @@ void KisLevelsConfigWidget::setConfiguration(const KisPropertiesConfigurationSP 
 
     {
         KisSignalsBlocker blocker(this, m_page.buttonLightnessMode, m_page.buttonAllChannelsMode);
-        
+
         if (filterConfig->levelsCurves().empty() || filterConfig->levelsCurves().size() > m_virtualChannels.size()) {
-            /**
-             * HACK ALERT: our configuration factory generates
-             * default configuration with nTransfers==0.
-             * Catching it here. Just set everything to defaults instead.
-             * Also reset to default if the mode is not "advanced" but the
-             * configuration was created for a different colorspace.
-             */
             KisPropertiesConfigurationSP defaultConfiguration =
                 new KisLevelsFilterConfiguration(m_virtualChannels.size(), KisGlobalResourcesInterface::instance());
             KisLevelsFilterConfiguration *defaultFilterConfig =
@@ -175,9 +163,6 @@ void KisLevelsConfigWidget::setConfiguration(const KisPropertiesConfigurationSP 
         }
 
         if (filterConfig->levelsCurves().size() < m_virtualChannels.size()) {
-            // The configuration does not cover all our channels.
-            // This happens when loading a document from an older version, which supported fewer channels.
-            // Reset to make sure the unspecified channels have their default values.
             resetAllChannels();
         }
 
@@ -186,7 +171,6 @@ void KisLevelsConfigWidget::setConfiguration(const KisPropertiesConfigurationSP 
         }
 
         m_lightnessLevelsCurve = filterConfig->lightnessLevelsCurve();
-
 
         if (filterConfig->showLogarithmicHistogram()) {
             m_page.buttonLogarithmicHistogram->setChecked(true);
@@ -253,7 +237,7 @@ void KisLevelsConfigWidget::computeChannelsMinMaxRanges()
     for (int i = 0; i < m_virtualChannels.size(); ++i) {
         const VirtualChannelInfo &channel = m_virtualChannels[i];
         const KoChannelInfo::enumChannelValueType valueType = channel.valueType();
-        
+
         switch (valueType) {
         case KoChannelInfo::UINT8:
             m_virtualChannelsMinMaxRanges.append({KoColorSpaceMathsTraits<quint8>::min, KoColorSpaceMathsTraits<quint8>::max});
@@ -262,17 +246,13 @@ void KisLevelsConfigWidget::computeChannelsMinMaxRanges()
             m_virtualChannelsMinMaxRanges.append({KoColorSpaceMathsTraits<quint16>::min, KoColorSpaceMathsTraits<quint16>::max});
             break;
         default:
-            //Hack Alert: should be changed to float
             int min, max;
             if (m_colorSpace->colorModelId() == LABAColorModelID || m_colorSpace->colorModelId() == CMYKAColorModelID) {
                 if (i < m_dev->colorSpace()->channels().length()) {
                     min = m_colorSpace->channels()[i]->getUIMin();
                     max = m_colorSpace->channels()[i]->getUIMax();
                 } else {
-                    // it must be "Hue", "Saturation" or other "channel" that isn't actually accessible in the color space
                     min = 0;
-                    // specific number apparently doesn't matter,
-                    // if there is 255, it will work just fine, too
                     max = 100;
                 }
             } else {
@@ -306,7 +286,7 @@ void KisLevelsConfigWidget::updateWidgets()
         const int index = m_page.comboBoxChannel->findData(m_activeChannel);
         m_page.comboBoxChannel->setCurrentIndex(index);
     }
-    
+
     m_page.sliderInputLevels->reset(m_activeLevelsCurve->inputBlackPoint(),
                                     m_activeLevelsCurve->inputWhitePoint(),
                                     m_activeLevelsCurve->inputGamma());
@@ -374,8 +354,6 @@ void KisLevelsConfigWidget::updateHistograms()
     QVector<const KoColorSpace*> colorSpaces;
     QVector<QVector<int>> channels;
 
-    // Init lightness histogram
-    // This is used in the simple mode and if the lightness virtual channel is selected
     if (!m_lightnessHistogram) {
         KoHistogramProducer *lightnessHistogramProducer = new KoGenericLabHistogramProducer();
         m_lightnessHistogram.reset(new KisHistogram(m_dev, m_dev->exactBounds(), lightnessHistogramProducer, LINEAR));
@@ -383,7 +361,6 @@ void KisLevelsConfigWidget::updateHistograms()
         colorSpaces.append(KoColorSpaceRegistry::instance()->lab16());
         channels.append(QVector<int>({0}));
     }
-    // Init channels histogram
     if (!m_channelsHistogram) {
         const KoColorSpace *colorSpace = m_colorSpace;
         QList<QString> keys = KoHistogramProducerFactoryRegistry::instance()->keysCompatibleWith(colorSpace);
@@ -582,13 +559,10 @@ void KisLevelsConfigWidget::slot_buttonAutoLevels_clicked()
     KoDialog *autolevelsDialog = new KoDialog(this);
 
     m_autoLevelsWidget = new KisAutoLevelsWidget(autolevelsDialog);
-    // Lock contrast method
     m_autoLevelsWidget->setShadowsAndHighlightsAdjustmentMethod(
         KisAutoLevels::ShadowsAndHighlightsAdjustmentMethod_MonochromaticContrast
     );
     m_autoLevelsWidget->lockShadowsAndHighlightsAdjustmentMethod();
-    // Set some default parameters based on the selected channel. These were
-    // selected empirically, there is no strong reason why they should be like this
     if (m_page.buttonLightnessMode->isChecked() ||
         m_virtualChannels[m_activeChannel].type() == VirtualChannelInfo::LIGHTNESS ||
         (m_colorSpace->colorModelId() == LABAColorModelID && m_virtualChannels[m_activeChannel].pixelIndex() == 0) ||
@@ -604,12 +578,10 @@ void KisLevelsConfigWidget::slot_buttonAutoLevels_clicked()
             m_autoLevelsWidget->setMaximumInputBlackAndWhiteOffset(25.0);
         }
     }
-    // Set the output colors
     const KoColorSpace *outputColorsColorSpace = KoColorSpaceRegistry::instance()->colorSpace(GrayAColorModelID.id(),
                                                                                               m_colorSpace->colorDepthId().id());
     m_autoLevelsWidget->setShadowsColor(KoColor(Qt::black, outputColorsColorSpace));
     m_autoLevelsWidget->setHighlightsColor(KoColor(Qt::white, outputColorsColorSpace));
-    // Ensure that the midtone color has 50% value
     QVector<float> normalizedMidtonesColor{0.5, 1.0};
     KoColor midtonesColor(outputColorsColorSpace);
     outputColorsColorSpace->fromNormalisedChannelsValue(midtonesColor.data(), normalizedMidtonesColor);
@@ -641,10 +613,6 @@ void KisLevelsConfigWidget::slot_buttonAutoLevels_clicked()
 
 void KisLevelsConfigWidget::slot_buttonAutoLevelsAllChannels_clicked()
 {
-    // We can not use the copy constructor here since it makes use of implicit
-    // sharing. We maintain a pointer to the active levels info in m_levelsCurves.
-    // So, if we change an element of m_levelsCurves that would create a new
-    // vector and the pointer will be invalidated
     QVector<KisLevelsCurve> previousLevelsCurves;
     for (const KisLevelsCurve &levelsCurve : m_levelsCurves) {
         previousLevelsCurves.append(levelsCurve);
@@ -660,7 +628,6 @@ void KisLevelsConfigWidget::slot_buttonAutoLevelsAllChannels_clicked()
     m_autoLevelsWidget->setShadowsColor(KoColor(Qt::black, m_colorSpace));
     m_autoLevelsWidget->setHighlightsColor(KoColor(Qt::white, m_colorSpace));
     m_autoLevelsWidget->setMidtonesColor(KoColor(Qt::gray, m_colorSpace));
-    // Ensure that the midtone color has 50% value
     QVector<float> normalizedMidtonesColor{0.5, 0.5, 0.5, 1.0};
     KoColor midtonesColor(m_colorSpace);
     m_colorSpace->fromNormalisedChannelsValue(midtonesColor.data(), normalizedMidtonesColor);
@@ -675,9 +642,6 @@ void KisLevelsConfigWidget::slot_buttonAutoLevelsAllChannels_clicked()
     connect(autolevelsDialog, &QDialog::rejected,
         [this, previousLevelsCurves]()
         {
-            // We maintain a pointer to the active levels info in m_levelsCurves
-            // so we use this loop instead of the assignment operator to avoid
-            // invalidation of the pointer
             for (int i = 0; i < m_levelsCurves.size(); ++i) {
                 m_levelsCurves[i] = previousLevelsCurves[i];
             }
@@ -720,7 +684,6 @@ void KisLevelsConfigWidget::slot_autoLevelsWidget_parametersChanged()
         isCMYK = m_colorSpace->colorModelId() == CMYKAColorModelID;
     }
 
-    // Output colors
     const KoColorSpace *outputColorsColorSpace = KoColorSpaceRegistry::instance()->colorSpace(GrayAColorModelID.id(),
                                                                                               m_colorSpace->colorDepthId().id());
     const KoColor shadowsColor = m_autoLevelsWidget->outputShadowsColor().convertedTo(outputColorsColorSpace);
@@ -751,14 +714,13 @@ void KisLevelsConfigWidget::slot_autoLevelsWidget_parametersChanged()
             {highlightsOutput},
             {midtonesOutput}
         )[0];
-        
+
     updateWidgets();
     Q_EMIT sigConfigurationItemChanged();
 }
 
 void KisLevelsConfigWidget::slot_autoLevelsWidgetAllChannels_parametersChanged()
 {
-    // histograms
     QVector<KisAutoLevels::ChannelHistogram> channelsHistograms;
     for (const VirtualChannelInfo &virtualChannelInfo : m_virtualChannels) {
         if (virtualChannelInfo.type() == VirtualChannelInfo::REAL && !virtualChannelInfo.isAlpha()) {
@@ -766,7 +728,6 @@ void KisLevelsConfigWidget::slot_autoLevelsWidgetAllChannels_parametersChanged()
         }
     }
 
-    // Output colors
     QVector<qreal> shadowsOutput, highlightsOutput, midtonesOutput;
     const KoColor shadowsColor = m_autoLevelsWidget->outputShadowsColor().convertedTo(m_colorSpace);
     const KoColor highlightsColor = m_autoLevelsWidget->outputHighlightsColor().convertedTo(m_colorSpace);
@@ -783,7 +744,6 @@ void KisLevelsConfigWidget::slot_autoLevelsWidgetAllChannels_parametersChanged()
         midtonesOutput.append(midtonesNormalizedColor[channelHistogram.channel]);
     }
 
-    // get levels parameters
     QVector<KisLevelsCurve> levelsCurves;
     if (m_autoLevelsWidget->shadowsAndHighlightsAdjustmentMethod() == KisAutoLevels::ShadowsAndHighlightsAdjustmentMethod_MonochromaticContrast) {
         levelsCurves =
@@ -798,7 +758,6 @@ void KisLevelsConfigWidget::slot_autoLevelsWidgetAllChannels_parametersChanged()
                 highlightsOutput,
                 midtonesOutput
             );
-        // get min black point and max white point
         qreal minBlackPoint = 1.0;
         qreal maxWhitePoint = 0.0;
         for (const KisLevelsCurve &levelsCurve : levelsCurves) {
@@ -824,7 +783,6 @@ void KisLevelsConfigWidget::slot_autoLevelsWidgetAllChannels_parametersChanged()
             );
     }
 
-    // Set parameters
     for (int i = 0, j = 0; i < m_virtualChannels.size(); ++i) {
         if (m_virtualChannels[i].type() == VirtualChannelInfo::REAL && !m_virtualChannels[i].isAlpha()) {
             m_levelsCurves[i] = levelsCurves[j];

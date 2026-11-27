@@ -43,10 +43,6 @@ struct Q_DECL_HIDDEN KisCageTransformWorker::Private
     QVector<int> allToValidPointsMap;
     QVector<QPointF> validPoints;
 
-    /**
-     * Contains all points of the grid including non-defined
-     * points (the ones which are placed outside the cage).
-     */
     QVector<QPointF> allSrcPoints;
 
     KisGreenCoordinatesMath cage;
@@ -56,7 +52,6 @@ struct Q_DECL_HIDDEN KisCageTransformWorker::Private
     bool isGridEmpty() const {
         return allSrcPoints.isEmpty();
     }
-
 
     QVector<QPointF> calculateTransformedPoints();
 
@@ -149,7 +144,6 @@ void KisCageTransformWorker::prepareTransform()
     QRect srcBounds = m_d->srcBounds;
     srcBounds &= srcPolygon.boundingRect().toAlignedRect();
 
-    // no need to process empty devices
     if (srcBounds.isEmpty()) return;
     m_d->gridSize =
         GridIterationTools::calcGridSize(srcBounds, m_d->pixelPrecision);
@@ -221,8 +215,6 @@ calculateMappedIndexes(int col, int row,
     return cellIndexes;
 }
 
-
-
 int KisCageTransformWorker::Private::
 tryGetValidIndex(const QPoint &cellPt)
 {
@@ -237,7 +229,6 @@ tryGetValidIndex(const QPoint &cellPt)
 
     return index;
 }
-
 
 struct KisCageTransformWorker::Private::MapIndexesOp {
 
@@ -396,14 +387,12 @@ QImage KisCageTransformWorker::runOnQImage(QPointF *newOffset)
 
     QRect dstBoundsI = dstBounds.toAlignedRect();
 
-
     QImage dstImage(dstBoundsI.size(), m_d->srcImage.format());
     dstImage.fill(0);
 
     QImage tempImage(dstImage);
 
     {
-        // we shouldn't create too many painters
         QPainter gc(&dstImage);
         gc.drawImage(-dstQImageOffset + m_d->srcImageOffset, m_d->srcImage);
         gc.setBrush(Qt::black);

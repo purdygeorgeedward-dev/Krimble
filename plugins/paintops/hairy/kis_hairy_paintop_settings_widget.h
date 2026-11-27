@@ -10,7 +10,6 @@
 
 #include <kis_brush_based_paintop_options_widget.h>
 
-
 class KisHairyPaintOpSettingsWidget : public KisBrushBasedPaintopOptionWidget
 {
     Q_OBJECT
@@ -23,8 +22,4 @@ public:
 };
 
 #endif
-
-
-
-
 

@@ -21,11 +21,6 @@
 #include <QGlobalStatic>
 #include <QMutexLocker>
 
-/**********************************************************************/
-/*       KisTextureMaskInfo                                           */
-/**********************************************************************/
-
-
 KisTextureMaskInfo::KisTextureMaskInfo(int levelOfDetail, bool preserveAlpha)
     : m_levelOfDetail(levelOfDetail)
     , m_preserveAlpha(preserveAlpha)
@@ -167,7 +162,6 @@ void KisTextureMaskInfo::recalculateMask()
         QRect rc = KisAlgebra2D::ensureRectNotSmaller(tf.mapRect(mask.rect()), QSize(2,2));
         mask = mask.scaled(rc.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     } else {
-        // detach the mask from the file loaded from the storage
         mask = QImage(mask);
     }
 
@@ -204,8 +198,6 @@ void KisTextureMaskInfo::recalculateMask()
 
             float neutralAdjustedValue;
 
-            //Adjust neutral point in linear fashion.  Uses separate linear equations from 0 to neutralPoint, and neutralPoint to 1,
-            //to prevent loss of detail (clipping).
             if (m_neutralPoint == 1 || (m_neutralPoint != 0 && maskValue <= m_neutralPoint)) {
                 neutralAdjustedValue = maskValue / (2 * m_neutralPoint);
             } else {
@@ -213,7 +205,6 @@ void KisTextureMaskInfo::recalculateMask()
             }
 
             if (m_cutoffPolicy == 1 && (neutralAdjustedValue < (m_cutoffLeft / 255.0) || neutralAdjustedValue >(m_cutoffRight / 255.0))) {
-                // mask out the dab if it's outside the pattern's cutoff points
                 alpha = OPACITY_TRANSPARENT_F;
                 if (!useAlpha) {
                     neutralAdjustedValue = alpha;
@@ -246,10 +237,6 @@ void KisTextureMaskInfo::recalculateMask()
 bool KisTextureMaskInfo::hasAlpha() {
     return m_pattern->hasAlpha();
 }
-
-/**********************************************************************/
-/*       KisTextureMaskInfoCache                                      */
-/**********************************************************************/
 
 Q_GLOBAL_STATIC(KisTextureMaskInfoCache, s_instance)
 

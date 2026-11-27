@@ -21,7 +21,7 @@ public:
         tool->setStatusText(QString());
     }
 
-    KoToolBase *tool; ///< the KoToolBase instance that controls this strategy.
+    KoToolBase *tool;
 };
 
 #endif

@@ -9,7 +9,6 @@
 #include <KisCurveOptionWidget.h>
 #include <KisMirrorOptionData.h>
 
-
 class PAINTOP_EXPORT KisMirrorOptionWidget : public KisCurveOptionWidget
 {
     Q_OBJECT
@@ -28,4 +27,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISMIRROROPTIONWIDGET_H
+#endif

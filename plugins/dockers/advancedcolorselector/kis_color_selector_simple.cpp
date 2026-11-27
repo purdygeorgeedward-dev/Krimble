@@ -15,7 +15,6 @@
 #include "kis_display_color_converter.h"
 #include "kis_acs_pixel_cache_renderer.h"
 
-
 KisColorSelectorSimple::KisColorSelectorSimple(KisColorSelector *parent) :
     KisColorSelectorComponent(parent),
     m_lastClickPos(-1,-1)
@@ -122,7 +121,6 @@ void KisColorSelectorSimple::setColor(const KoColor &color)
     Gamma = cfg.readEntry("gamma", 2.2);
     m_parent->converter()->getHsvF(color, &hsvH, &hsvS, &hsvV);
     m_parent->converter()->getHslF(color, &hslH, &hslS, &hslL);
-    //here we add our converter options
     m_parent->converter()->getHsiF(color, &hsiH, &hsiS, &hsiI);
     m_parent->converter()->getHsyF(color, &hsyH, &hsyS, &hsyY, R, G, B, Gamma);
 
@@ -246,7 +244,6 @@ void KisColorSelectorSimple::setColor(const KoColor &color)
         break;
     }
     Q_EMIT update();
-    //Workaround for bug 317648
     setLastMousePosition((m_lastClickPos.x()*width()), (m_lastClickPos.y()*height()));
     KisColorSelectorComponent::setColor(color);
 }
@@ -264,14 +261,10 @@ void KisColorSelectorSimple::paint(QPainter* painter)
                                         pixelCacheOffset,
                                         painter->device()->devicePixelRatioF());
 
-//        if (!pixelCacheOffset.isNull()) {
-//            warnKrita << "WARNING: offset of the rectangle selector is not null!";
-//        }
     }
 
     painter->drawImage(0,0, m_pixelCache);
 
-    // draw blip
     if(m_lastClickPos!=QPointF(-1,-1) && m_parent->displayBlip()) {
         switch (m_parameter) {
         case KisColorSelectorConfiguration::H:

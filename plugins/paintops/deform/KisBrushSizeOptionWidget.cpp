@@ -13,7 +13,6 @@
 
 namespace {
 
-
 class KisBrushSizeOptionsWidget: public QWidget, public Ui::WdgBrushSizeOptions
 {
 public:
@@ -29,16 +28,13 @@ public:
         aspectBox->setSingleStep(0.01);
         aspectBox->setExponentRatio(1.0);
 
-
         scale->setRange(0.01, 10.0, 2);
         scale->setSingleStep(0.01);
 
         spacing->setRange(0.01, 5.0, 2);
         spacing->setSingleStep(0.01);
 
-
         rotationBox->setDecimals(0);
-
 
         densityBox->setRange(0.0, 100.0, 0);
         KisSpinBoxI18nHelper::setText(densityBox, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
@@ -48,9 +44,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisBrushSizeOptionWidget::Private
 {
@@ -61,7 +55,6 @@ struct KisBrushSizeOptionWidget::Private
 
     KisBrushSizeOptionModel model;
 };
-
 
 KisBrushSizeOptionWidget::KisBrushSizeOptionWidget(lager::cursor<KisBrushSizeOptionData> optionData)
     : KisPaintOpOption(i18n("Brush size"), KisPaintOpOption::GENERAL, true)

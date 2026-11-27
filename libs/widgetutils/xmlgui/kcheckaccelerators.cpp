@@ -67,8 +67,6 @@ public Q_SLOTS:
 
 static void startupFunc()
 {
-    // Call initiateIfNeeded once we're in the event loop
-    // This is to prevent using KSharedConfig before main() can set the app name
     QCoreApplication *app = QCoreApplication::instance();
     KisKCheckAcceleratorsInitializer *initializer = new KisKCheckAcceleratorsInitializer(app);
     QMetaObject::invokeMethod(initializer, "initiateIfNeeded", Qt::QueuedConnection);
@@ -99,7 +97,7 @@ bool KisKCheckAccelerators::eventFilter(QObject *obj, QEvent *e)
         return false;
     }
 
-    switch (e->type()) {   // just simplify debugging
+    switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (key && (static_cast<QKeyEvent *>(e)->key() == key)) {
             block = true;
@@ -111,7 +109,6 @@ bool KisKCheckAccelerators::eventFilter(QObject *obj, QEvent *e)
         break;
     case QEvent::ChildAdded:
     case QEvent::ChildRemoved:
-        // Only care about widgets; this also avoids starting the timer in other threads
         if (!static_cast<QChildEvent *>(e)->child()->isWidgetType()) {
             break;
         }
@@ -122,13 +119,11 @@ bool KisKCheckAccelerators::eventFilter(QObject *obj, QEvent *e)
     case QEvent::WindowDeactivate:
         if (autoCheck) {
             autoCheckTimer.setSingleShot(true);
-            autoCheckTimer.start(20);   // 20 ms
+            autoCheckTimer.start(20);
         }
         break;
-    //case QEvent::MouseButtonDblClick:
     case QEvent::MouseButtonPress:
         if (copyWidgetText && static_cast<QMouseEvent *>(e)->button() == Qt::MiddleButton) {
-            //kWarning()<<"obj"<<obj;
             QWidget *w = static_cast<QWidget *>(obj)->childAt(static_cast<QMouseEvent *>(e)->pos());
             if (!w) {
                 w = static_cast<QWidget *>(obj);
@@ -136,7 +131,6 @@ bool KisKCheckAccelerators::eventFilter(QObject *obj, QEvent *e)
             if (!w) {
                 return false;
             }
-            //kWarning()<<"MouseButtonDblClick"<<w;
             QString text;
             if (qobject_cast<QLabel *>(w)) {
                 text = static_cast<QLabel *>(w)->text();
@@ -166,7 +160,6 @@ bool KisKCheckAccelerators::eventFilter(QObject *obj, QEvent *e)
                 text.remove(QChar::fromLatin1('&'));
             }
 
-            //kWarning()<<KGlobal::activeComponent().catalogName()<<text;
             if (copyWidgetTextCommand.isEmpty()) {
                 QClipboard *clipboard = QApplication::clipboard();
                 clipboard->setText(text);
@@ -178,7 +171,6 @@ bool KisKCheckAccelerators::eventFilter(QObject *obj, QEvent *e)
             e->accept();
             return true;
 
-            //kWarning()<<"MouseButtonDblClick"<<static_cast<QWidget*>(obj)->childAt(static_cast<QMouseEvent*>(e)->globalPos());
         }
         return false;
     case QEvent::Timer:
@@ -186,7 +178,6 @@ bool KisKCheckAccelerators::eventFilter(QObject *obj, QEvent *e)
     case QEvent::Paint:
         return false;
     default:
-        // qDebug() << "KisKCheckAccelerators::eventFilter " << e->type() << " " << autoCheck;
         break;
     }
     return false;
@@ -253,7 +244,7 @@ void KisKCheckAccelerators::checkAccelerators(bool automatic)
     QString a, c, r;
     KAcceleratorManager::last_manage(a, c,  r);
 
-    if (automatic) { // for now we only show dialogs on F12 checks
+    if (automatic) {
         return;
     }
 
@@ -297,7 +288,6 @@ void KisKCheckAccelerators::checkAccelerators(bool automatic)
     drklash->show();
     drklash->raise();
 
-    // dlg will be destroyed before returning
 }
 
 #include "kcheckaccelerators.moc"

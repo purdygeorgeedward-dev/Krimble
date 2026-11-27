@@ -10,7 +10,6 @@
 #include "MyPaintBasicOptionModel.h"
 #include "ui_wdgmypaintoptions.h"
 
-
 struct MyPaintBasicOptionWidget::Private
 {
     Private(lager::cursor<MyPaintBasicOptionData> optionData,

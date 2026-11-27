@@ -12,7 +12,6 @@
 class BRUSH_EXPORT  KisPngBrush : public KisColorfulBrush
 {
 public:
-    /// Construct brush to load filename later as brush
     KisPngBrush(const QString& filename);
     KisPngBrush(const KisPngBrush &rhs);
     KoResourceSP clone() const override;

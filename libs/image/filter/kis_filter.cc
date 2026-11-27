@@ -69,8 +69,6 @@ void KisFilter::process(const KisPaintDeviceSP src,
         QScopedPointer<KoDummyUpdaterHolder> updaterHolder;
 
         if (!progressUpdater) {
-            // TODO: remove dependency on KoUpdater, depend on KoProgressProxy,
-            //       it is more lightweight
             updaterHolder.reset(new KoDummyUpdaterHolder());
             progressUpdater = updaterHolder->updater();
         }
@@ -80,7 +78,6 @@ void KisFilter::process(const KisPaintDeviceSP src,
     catch (const std::bad_alloc&) {
         warnKrita << "Filter" << name() << "failed to allocate enough memory to run.";
     }
-
 
     if(transaction) {
         delete transaction;

@@ -16,7 +16,6 @@
 #include "kis_image_layer_remove_command.h"
 #include "KisNotifySelectionChangedCommand.h"
 
-
 KisDeselectGlobalSelectionCommand::KisDeselectGlobalSelectionCommand(KisImageWSP image, KUndo2Command * parent)
     : KisCommandUtils::AggregateCommand(kundo2_i18n("Deselect"), parent)
     , m_image(image)

@@ -33,7 +33,6 @@ private:
     KoCanvasResourceProvider *m_provider = 0;
 };
 
-
 class Q_DECL_HIDDEN KoCanvasResourceProvider::Private
 {
 public:
@@ -133,7 +132,6 @@ KoUnit KoCanvasResourceProvider::unitResource(int key) const
 
 void KoCanvasResourceProvider::setHandleRadius(int handleSize)
 {
-    // do not allow arbitrary small handles
     if (handleSize < 5)
         handleSize = 5;
     setResource(KoCanvasResource::HandleRadius, QVariant(handleSize));
@@ -143,7 +141,7 @@ int KoCanvasResourceProvider::handleRadius() const
 {
     if (hasResource(KoCanvasResource::HandleRadius))
         return intResource(KoCanvasResource::HandleRadius);
-    return 5; // default value (and is used just about everywhere)
+    return 5;
 }
 
 void KoCanvasResourceProvider::setDecorationThickness(int decorationThickness)

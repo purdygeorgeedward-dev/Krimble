@@ -33,7 +33,6 @@ public:
         img.fill(Qt::blue);
         setImage(img);
 
-        // add some random metadata to the resource
         addMetaData("test_metadata", expectedMetaData());
 
         setValid(true);
@@ -82,7 +81,7 @@ public:
         return m_something;
     }
 
-    QString expectedMetaData() const 
+    QString expectedMetaData() const
     {
         return m_something.left(8);
     }
@@ -97,4 +96,4 @@ private:
     QString m_resourceType;
 };
 
-#endif // DUMMYRESOURCE_H
+#endif

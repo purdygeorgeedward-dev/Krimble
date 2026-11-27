@@ -7,17 +7,16 @@
 
 #include "kis_debug.h"
 
-
 const QList<QString> FlipOptionsMode = {
-    "NoFlipOptions",    // 0 = KisAngleSelector::FlipOptionsMode_NoFlipOptions
-    "MenuButton",       //     KisAngleSelector::FlipOptionsMode_MenuButton
-    "Buttons",          //     KisAngleSelector::FlipOptionsMode_Buttons
-    "ContextMenu"       //     KisAngleSelector::FlipOptionsMode_ContextMenu
+    "NoFlipOptions",
+    "MenuButton",
+    "Buttons",
+    "ContextMenu"
 };
 
 const QList<QString> IncreasingDirection = {
-    "CounterClockwise", // 0 = KisAngleGauge::IncreasingDirection_CounterClockwise
-    "Clockwise"         //     KisAngleGauge::IncreasingDirection_Clockwise
+    "CounterClockwise",
+    "Clockwise"
 };
 
 struct AngleSelector::Private {
@@ -32,7 +31,6 @@ AngleSelector::AngleSelector()
 {
     d->widget = new KisAngleSelector();
 
-    // Forward KisAngleSelector::angleChanged to AngleSelector::angleChanged
     connect(d->widget, SIGNAL(angleChanged(qreal)), this, SIGNAL(angleChanged(qreal)));
 }
 

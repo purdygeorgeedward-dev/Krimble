@@ -28,10 +28,6 @@
 #include "kis_wdg_seexpr.h"
 #include "ui_wdgseexpr.h"
 
-/****************************************************************************/
-/*              KisSeExprGeneratorConfiguration                             */
-/****************************************************************************/
-
 class KisSeExprGeneratorConfiguration : public KisFilterConfiguration
 {
 public:
@@ -122,7 +118,6 @@ void KisSeExprGenerator::generate(KisProcessingInformation dstInfo, const QSize 
             double &u = expression.m_vars["u"]->m_value;
             double &v = expression.m_vars["v"]->m_value;
 
-            // SeExpr already outputs floating-point RGB
             const KoColorSpace *dst = device->colorSpace();
             const KoColorSpace *src = KoColorSpaceRegistry::instance()->colorSpace(RGBAColorModelID.id(), Float32BitsColorDepthID.id(), KoColorSpaceRegistry::instance()->p709SRGBProfile());
             auto conv = KoColorSpaceRegistry::instance()->createColorConverter(src, dst, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags());

@@ -13,13 +13,6 @@ class QVariant;
 
 #include <kritaresources_export.h>
 
-/**
- * @brief An abstract class for providing access to canvas resources
- * like current gradient and Fg/Bg colors.
- *
- * Specific implementations may forward the requests either to
- * KoCanvasResourceProvider or to a local storage.
- */
 class KRITARESOURCES_EXPORT KoCanvasResourcesInterface
 {
 public:
@@ -30,4 +23,4 @@ public:
 
 using KoCanvasResourcesInterfaceSP = QSharedPointer<KoCanvasResourcesInterface>;
 
-#endif // KOCANVASRESOURCESINTERFACE_H
+#endif

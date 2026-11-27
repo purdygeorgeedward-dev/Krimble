@@ -61,7 +61,6 @@ KoShapeSavingContextPrivate::~KoShapeSavingContextPrivate()
 KoShapeSavingContext::KoShapeSavingContext(KoXmlWriter &xmlWriter)
     : d(new KoShapeSavingContextPrivate(xmlWriter))
 {
-    // by default allow saving of draw:id + xml:id
     addOption(KoShapeSavingContext::DrawId);
 }
 
@@ -103,7 +102,7 @@ void KoShapeSavingContext::addOption(ShapeSavingOption option)
 void KoShapeSavingContext::removeOption(ShapeSavingOption option)
 {
     if (isSet(option))
-        d->savingOptions = d->savingOptions ^ option; // xor to remove it.
+        d->savingOptions = d->savingOptions ^ option;
 }
 
 void KoShapeSavingContext::addLayerForSaving(const KoShapeLayer *layer)
@@ -122,9 +121,9 @@ void KoShapeSavingContext::saveLayerSet(KoXmlWriter &xmlWriter) const
             xmlWriter.addAttribute("draw:protected", "true");
         if (! layer->isVisible(false))
             xmlWriter.addAttribute("draw:display", "none");
-        xmlWriter.endElement();  // draw:layer
+        xmlWriter.endElement();
     }
-    xmlWriter.endElement();  // draw:layer-set
+    xmlWriter.endElement();
 }
 
 void KoShapeSavingContext::clearLayers()
@@ -137,7 +136,7 @@ QMap<qint64, QString> KoShapeSavingContext::imagesToSave()
     return d->imageNames;
 }
 
-QString KoShapeSavingContext::markerRef(const KoMarker */*marker*/)
+QString KoShapeSavingContext::markerRef(const KoMarker * )
 {
     return QString();
 }
@@ -145,7 +144,6 @@ QString KoShapeSavingContext::markerRef(const KoMarker */*marker*/)
 void KoShapeSavingContext::addSharedData(const QString &id, KoSharedSavingData * data)
 {
     QMap<QString, KoSharedSavingData*>::iterator it(d->sharedData.find(id));
-    // data will not be overwritten
     if (it == d->sharedData.end()) {
         d->sharedData.insert(id, data);
     } else {

@@ -58,7 +58,6 @@ private:
     KisStrokesQueue *q;
 };
 
-
 struct Q_DECL_HIDDEN KisStrokesQueue::Private {
     Private(KisStrokesQueue *_q)
         : q(_q),
@@ -97,7 +96,6 @@ struct Q_DECL_HIDDEN KisStrokesQueue::Private {
     void cancelForgettableStrokes();
     void startLod0ToNStroke(int levelOfDetail, bool forgettable);
 
-
     std::pair<StrokesQueueIterator, StrokesQueueIterator> currentLodRange();
     StrokesQueueIterator findNewLod0Pos();
     StrokesQueueIterator findNewLodNPos(KisStrokeSP lodN);
@@ -109,7 +107,6 @@ struct Q_DECL_HIDDEN KisStrokesQueue::Private {
     void forceResetLodAndCloseCurrentLodRange();
     void loadStroke(KisStrokeSP stroke);
 };
-
 
 KisStrokesQueue::KisStrokesQueue()
   : m_d(new Private(this))
@@ -144,12 +141,9 @@ executeStrokePair(const StrokePair &pair, StrokesQueue &queue, typename StrokesQ
 
 void KisStrokesQueue::Private::startLod0ToNStroke(int levelOfDetail, bool forgettable)
 {
-    // precondition: lock held!
-    // precondition: lod > 0
     KIS_ASSERT_RECOVER_RETURN(levelOfDetail);
 
     {
-        // sanity check: there should be no open LoD range now!
         StrokesQueueIterator it;
         StrokesQueueIterator end;
         std::tie(it, end) = currentLodRange();
@@ -179,17 +173,12 @@ void KisStrokesQueue::Private::cancelForgettableStrokes()
 
 std::pair<StrokesQueueIterator, StrokesQueueIterator> KisStrokesQueue::Private::currentLodRange()
 {
-    /**
-     * LoD-capable strokes should live in the range after the last
-     * legacy stroke of the queue
-     */
 
     for (auto it = std::make_reverse_iterator(strokesQueue.end());
          it != std::make_reverse_iterator(strokesQueue.begin());
          ++it) {
 
         if ((*it)->type() == KisStroke::LEGACY) {
-            // it.base() returns the next element after the one we found
             return std::make_pair(it.base(), strokesQueue.end());
         }
     }
@@ -285,7 +274,6 @@ KisStrokeId KisStrokesQueue::startStroke(KisStrokeStrategy *strokeStrategy)
     KisStrokeSP stroke;
     KisStrokeStrategy* lodBuddyStrategy;
 
-    // we should let forgettable strokes to queue up
     if (!strokeStrategy->canForgetAboutMe()) {
         m_d->cancelForgettableStrokes();
     }
@@ -417,22 +405,9 @@ bool KisStrokesQueue::tryCancelCurrentStrokeAsync()
 
     QMutexLocker locker(&m_d->mutex);
 
-    /**
-     * We cancel only ended strokes. This is done to avoid
-     * handling dangling pointers problem (KisStrokeId). The owner
-     * of a stroke will cancel the stroke itself if needed.
-     */
     if (!m_d->strokesQueue.isEmpty() &&
         !m_d->hasUnfinishedStrokes()) {
 
-        /**
-         * 1) We can cancel only cancellable strokes
-         * 2) We can only cancel a continuous set of strokes
-         *
-         * Basically, a non-cancellable stroke adds a barrier
-         * wall into the strokes queue, preventing cancellation
-         * of any strokes that we added into the queue earlier.
-         */
         const auto lastNonCancellableStrokeIt =
             std::find_if_not(std::make_reverse_iterator(m_d->strokesQueue.end()),
                              std::make_reverse_iterator(m_d->strokesQueue.begin()),
@@ -448,13 +423,7 @@ bool KisStrokesQueue::tryCancelCurrentStrokeAsync()
             currentStroke->cancelStroke();
             anythingCanceled = true;
 
-            // we shouldn't cancel buddies...
             if (currentStroke->type() == KisStroke::LOD0) {
-                /**
-                 * If the buddy has already finished, we cannot undo it because
-                 * it doesn't store any undo data. Therefore we just regenerate
-                 * the LOD caches.
-                 */
                 needsLodNSynchronization = true;
             }
 
@@ -464,11 +433,6 @@ bool KisStrokesQueue::tryCancelCurrentStrokeAsync()
             m_d->forceResetLodAndCloseCurrentLodRange();
         }
     }
-
-    /**
-     * NOTE: We do not touch the openedStrokesCounter here since
-     *       we work with closed id's only here
-     */
 
     return anythingCanceled;
 }
@@ -535,7 +499,6 @@ UndoResult KisStrokesQueue::tryUndoLastStrokeAsync()
     if (buddyFound && lastBuddy->canCancel()) {
         lastBuddy->cancelStroke();
     } else {
-        // TODO: assert that checks that there is no other lodn strokes
         locker.unlock();
         m_d->lodNUndoStore.undo();
         m_d->lodNUndoStore.purgeRedoState();
@@ -619,10 +582,6 @@ KisLodPreferences KisStrokesQueue::lodPreferences() const
 {
     QMutexLocker locker(&m_d->mutex);
 
-    /**
-     * The desired level of detail might have not been activated due to
-     * multi-stage activation process
-     */
     return KisLodPreferences(m_d->lodPreferences.flags(), m_d->desiredLevelOfDetail);
 }
 
@@ -658,7 +617,6 @@ qint32 KisStrokesQueue::sizeMetric() const
     QMutexLocker locker(&m_d->mutex);
     if(m_d->strokesQueue.isEmpty()) return 0;
 
-    // just a rough approximation
     return qMax(1, m_d->strokesQueue.head()->numJobs()) * m_d->strokesQueue.size();
 }
 
@@ -779,12 +737,6 @@ void KisStrokesQueue::Private::loadStroke(KisStrokeSP stroke)
     balancingRatioOverride = stroke->balancingRatioOverride();
     currentStrokeLoaded = true;
 
-    /**
-     * Some of the strokes can cancel their work with undoing all the
-     * changes they did to the paint devices. The problem is that undo
-     * stack will know nothing about it. Therefore, just notify it
-     * explicitly
-     */
     if (purgeRedoStateCallback &&
         stroke->clearsRedoOnStart()) {
 
@@ -798,28 +750,10 @@ bool KisStrokesQueue::checkStrokeState(bool hasStrokeJobsRunning,
     KisStrokeSP stroke = m_d->strokesQueue.head();
     bool result = false;
 
-    /**
-     * We cannot start/continue a stroke if its LOD differs from
-     * the one that is running on CPU
-     */
     bool hasLodCompatibility = checkLevelOfDetailProperty(runningLevelOfDetail);
     bool hasJobs = stroke->hasJobs();
 
-    /**
-     * The stroke may be cancelled very fast. In this case it will
-     * end up in the state:
-     *
-     * !stroke->isInitialized() && stroke->isEnded() && !stroke->hasJobs()
-     *
-     * This means that !isInitialised() doesn't imply there are any
-     * jobs present.
-     */
     if(!stroke->isInitialized() && hasJobs && hasLodCompatibility) {
-        /**
-         * It might happen that the stroke got initialized, but its job was not
-         * started due to some other reasons like exclusivity. Therefore the
-         * stroke might end up in loaded, but uninitialized state.
-         */
         if (!m_d->currentStrokeLoaded) {
             m_d->loadStroke(stroke);
         }
@@ -827,10 +761,6 @@ bool KisStrokesQueue::checkStrokeState(bool hasStrokeJobsRunning,
         result = true;
     }
     else if(hasJobs && hasLodCompatibility) {
-        /**
-         * If the stroke has no initialization phase, then it can
-         * arrive here unloaded.
-         */
         if (!m_d->currentStrokeLoaded) {
             m_d->loadStroke(stroke);
         }
@@ -844,18 +774,12 @@ bool KisStrokesQueue::checkStrokeState(bool hasStrokeJobsRunning,
                 stroke->type() == KisStroke::LOD0 &&
                 stroke->isCancelled();
 
-        /**
-         * If the Lod0 stroke has been cancelled without even being
-         * started, it means that the GUI still has LodN tiles active,
-         * so we should reread the data from the image to switch GUI
-         * tiles into Lod0 mode.
-         */
         if (needsSyncLod0PlaneToGUI &&
             m_d->postSyncLod0GUIPlaneRequestForResume) {
             m_d->postSyncLod0GUIPlaneRequestForResume();
         }
 
-        m_d->strokesQueue.dequeue(); // deleted by shared pointer
+        m_d->strokesQueue.dequeue();
         m_d->needsExclusiveAccess = false;
         m_d->wrapAroundModeSupported = false;
         m_d->balancingRatioOverride = -1.0;

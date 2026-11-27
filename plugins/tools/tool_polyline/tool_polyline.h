@@ -10,9 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-/**
- * A module that provides a polyline tool.
- */
 class ToolPolyline : public QObject
 {
     Q_OBJECT
@@ -21,4 +18,4 @@ public:
     ~ToolPolyline() override;
 };
 
-#endif // TOOL_POLYLINE_H_
+#endif

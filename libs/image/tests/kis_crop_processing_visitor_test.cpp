@@ -90,7 +90,6 @@ void KisCropProcessingVisitorTest::testWrappedInCommand()
     painter.fillRect(fillRect, KoColor(Qt::white, cs));
     QImage image1 = device->convertToQImage(0, 0, 0, 300, 300);
 
-
     KisProcessingVisitorSP visitor = new KisCropProcessingVisitor(cropRect, true, true);
 
     KisProcessingCommand command(visitor, layer);

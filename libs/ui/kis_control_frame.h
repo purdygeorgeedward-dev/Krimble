@@ -32,10 +32,6 @@ class KoBackgroundColour;
 class KoSwapBgFgColours;
 class KoResetBgFgColours;
 
-/**
- *   Control Frame - status display with access to
- *   color selector, gradient, patterns, and paintop presets
- */
 class KisControlFrame : public QObject
 {
     Q_OBJECT

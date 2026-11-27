@@ -30,4 +30,4 @@ private Q_SLOTS:
     void benchmarkFilter();
 };
 
-#endif // KIS_LEVEL_FILTER_BENCHMARK_H
+#endif

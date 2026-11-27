@@ -17,9 +17,6 @@ private Q_SLOTS:
     void testCreation();
     void testFullImage();
 
-
 };
-
-
 
 #endif

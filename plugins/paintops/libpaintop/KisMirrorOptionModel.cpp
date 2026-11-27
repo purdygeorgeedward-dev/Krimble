@@ -5,7 +5,6 @@
  */
 #include "KisMirrorOptionModel.h"
 
-
 KisMirrorOptionModel::KisMirrorOptionModel(lager::cursor<KisMirrorOptionMixIn> optionData)
     : mirrorOptionData(optionData)
     , LAGER_QT(enableVerticalMirror) {mirrorOptionData[&KisMirrorOptionMixIn::enableVerticalMirror]}

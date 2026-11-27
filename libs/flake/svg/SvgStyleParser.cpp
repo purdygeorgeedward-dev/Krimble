@@ -34,7 +34,6 @@ public:
         textAttributes << KoSvgTextProperties::supportedXmlAttributes();
         textAttributes.removeAll("xml:space");
 
-        // the order of the font attributes is important, don't change without reason !!!
         fontAttributes << "font-family"
                        << "font-size"
                        << "font-weight"
@@ -49,7 +48,7 @@ public:
                        << "font-feature-settings"
                        << "font-stretch"
                        << "font-size-adjust"
-                       << "font" // why are we doing this after the rest?
+                       << "font"
                        << "font-optical-sizing"
                        << "font-variation-settings"
                        << "font-synthesis-weight"
@@ -85,7 +84,6 @@ public:
                        << "overflow-wrap"
                        << "word-wrap"
                        << "text-orientation";
-        // the order of the style attributes is important, don't change without reason !!!
         styleAttributes << "color" << "display" << "visibility";
         styleAttributes << "fill" << "fill-rule" << "fill-opacity";
         styleAttributes << "stroke" << "stroke-width" << "stroke-linejoin" << "stroke-linecap";
@@ -96,9 +94,9 @@ public:
     }
 
     SvgLoadingContext &context;
-    QStringList textAttributes; ///< text related attributes
-    QStringList fontAttributes; ///< font related attributes
-    QStringList styleAttributes; ///< style related attributes
+    QStringList textAttributes;
+    QStringList fontAttributes;
+    QStringList styleAttributes;
 };
 
 SvgStyleParser::SvgStyleParser(SvgLoadingContext &context)
@@ -122,7 +120,6 @@ void SvgStyleParser::parseStyle(const SvgStyles &styles, const bool inheritByDef
         gc->strokeType = SvgGraphicsContext::Inherit;
     }
 
-    // make sure we parse the style attributes in the right order
     Q_FOREACH (const QString & command, d->styleAttributes) {
         const QString &params = styles.value(command);
         if (params.isEmpty())
@@ -137,7 +134,6 @@ void SvgStyleParser::parseFont(const SvgStyles &styles)
     if (!gc)
         return;
 
-    // make sure to only parse font attributes here
     Q_FOREACH (const QString & command, d->fontAttributes) {
         const QString &params = styles.value(command);
         if (params.isEmpty())
@@ -169,10 +165,8 @@ void SvgStyleParser::parsePA(SvgGraphicsContext *gc, const QString &command, con
             unsigned int end = params.indexOf(')', start);
             gc->fillId = params.mid(start, end - start);
             gc->fillType = SvgGraphicsContext::Complex;
-            // check if there is a fallback color
             parseColor(fillcolor, params.mid(end + 1).trimmed());
         } else {
-            // great we have a solid fill
             gc->fillType = SvgGraphicsContext::Solid;
             parseColor(fillcolor,  params);
         }
@@ -189,10 +183,8 @@ void SvgStyleParser::parsePA(SvgGraphicsContext *gc, const QString &command, con
             unsigned int end = params.indexOf(')', start);
             gc->strokeId = params.mid(start, end - start);
             gc->strokeType = SvgGraphicsContext::Complex;
-            // check if there is a fallback color
             parseColor(strokecolor, params.mid(end + 1).trimmed());
         } else {
-            // great we have a solid stroke
             gc->strokeType = SvgGraphicsContext::Solid;
             parseColor(strokecolor, params);
         }
@@ -223,7 +215,6 @@ void SvgStyleParser::parsePA(SvgGraphicsContext *gc, const QString &command, con
                 array.append(SvgUtil::parseUnitXY(gc, d->context.resolvedProperties(), *it));
             }
 
-            // if the array is odd repeat it according to the standard
             if (array.size() & 1) {
                 array << array;
             }
@@ -232,7 +223,6 @@ void SvgStyleParser::parsePA(SvgGraphicsContext *gc, const QString &command, con
     } else if (command == "stroke-dashoffset") {
         gc->stroke->setDashOffset(params.toFloat());
     }
-    // handle opacity
     else if (command == "stroke-opacity")
         strokecolor.setAlphaF(SvgUtil::fromPercentage(params));
     else if (command == "fill-opacity") {
@@ -287,7 +277,6 @@ void SvgStyleParser::parsePA(SvgGraphicsContext *gc, const QString &command, con
         if (params == "none")
             gc->display = false;
     } else if (command == "visibility") {
-        // visible is inherited!
         gc->visible = params == "visible";
     } else if (command == "filter") {
         if (params != "none" && params.startsWith("url(")) {
@@ -384,10 +373,8 @@ QPair<qreal, QColor> SvgStyleParser::parseColorStop(const QDomElement& stop,
         offset = offsetStr.toFloat();
     }
 
-    // according to SVG the value must be within [0; 1] interval
     offset = qBound(0.0, offset, 1.0);
 
-    // according to SVG the stops' offset must be non-decreasing
     offset = qMax(offset, previousOffset);
     previousOffset = offset;
 
@@ -399,7 +386,6 @@ QPair<qreal, QColor> SvgStyleParser::parseColorStop(const QDomElement& stop,
     const QStringList attributes({"stop-color", "stop-opacity"});
     SvgStyles styles = parseOneCssStyle(stop.attribute("style"), attributes);
 
-    // SVG: CSS values have precedence over presentation attributes!
     if (styles.contains("stop-color")) {
         stopColorStr = styles.value("stop-color");
     }
@@ -474,9 +460,6 @@ SvgStyles SvgStyleParser::collectStyles(const QDomElement &e)
 {
     SvgStyles styleMap;
 
-    // collect individual presentation style attributes which have the priority 0
-    // according to SVG standard
-    // NOTE: font attributes should be parsed the first, because they defines 'em' and 'ex'
     Q_FOREACH (const QString & command, d->fontAttributes) {
         const QString attribute = e.attribute(command);
         if (!attribute.isEmpty())
@@ -493,10 +476,8 @@ SvgStyles SvgStyleParser::collectStyles(const QDomElement &e)
             styleMap[command] = attribute;
     }
 
-    // match css style rules to element
     QStringList cssStyles = d->context.matchingCssStyles(e);
 
-    // collect all css style attributes
     Q_FOREACH (const QString &style, cssStyles) {
         QStringList substyles = style.split(';', Qt::SkipEmptyParts);
         if (!substyles.count())
@@ -508,10 +489,8 @@ SvgStyles SvgStyleParser::collectStyles(const QDomElement &e)
             QString command = substyle[0].trimmed();
             QString params  = substyle[1].trimmed();
 
-            // toggle the namespace selector into the xml-like one
             command.replace("|", ":");
 
-            // only use style and font attributes
             if (d->styleAttributes.contains(command) ||
                 d->fontAttributes.contains(command) ||
                 d->textAttributes.contains(command)) {
@@ -521,9 +500,6 @@ SvgStyles SvgStyleParser::collectStyles(const QDomElement &e)
         }
     }
 
-    // FIXME: if 'inherit' we should just remove the property and use the one from the context!
-
-    // replace keyword "inherit" for style values
     QMutableMapIterator<QString, QString> it(styleMap);
     while (it.hasNext()) {
         it.next();
@@ -537,9 +513,7 @@ SvgStyles SvgStyleParser::collectStyles(const QDomElement &e)
 
 SvgStyles SvgStyleParser::mergeStyles(const SvgStyles &referencedBy, const SvgStyles &referencedStyles)
 {
-    // 1. use all styles of the referencing styles
     SvgStyles mergedStyles = referencedBy;
-    // 2. use all styles of the referenced style which are not in the referencing styles
     SvgStyles::const_iterator it = referencedStyles.constBegin();
     for (; it != referencedStyles.constEnd(); ++it) {
         if (!referencedBy.contains(it.key())) {

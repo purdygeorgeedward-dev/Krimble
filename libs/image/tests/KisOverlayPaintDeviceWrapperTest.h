@@ -19,4 +19,4 @@ private Q_SLOTS:
     void benchmark();
 };
 
-#endif // KISOVERLAYPAINTDEVICEWRAPPERTEST_H
+#endif

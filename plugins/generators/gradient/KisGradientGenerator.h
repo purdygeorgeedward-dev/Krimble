@@ -28,7 +28,7 @@ public:
                           const QSize& size,
                           const KisFilterConfigurationSP config,
                           KoUpdater* progressUpdater) const override;
-    
+
     static inline KoID id() {
         return KoID(KisGradientGeneratorConfiguration::defaultName(), i18n("Gradient"));
     }

@@ -32,8 +32,7 @@ IndexColors::~IndexColors()
 
 KisFilterIndexColors::KisFilterIndexColors() : KisColorTransformationFilter(id(), FiltersCategoryAdjustId, i18n("&Index Colors..."))
 {
-    setColorSpaceIndependence(FULLY_INDEPENDENT); // Technically it is TO_LAB16 but that would only display a warning we don't want
-    // This filter will always degrade the color space, that is it's purpose
+    setColorSpaceIndependence(FULLY_INDEPENDENT);
     setSupportsPainting(true);
     setShowConfigurationWidget(true);
 }
@@ -73,7 +72,7 @@ KisFilterConfigurationSP KisFilterIndexColors::defaultConfiguration(KisResources
 {
     KisFilterConfigurationSP config = factoryConfiguration(resourcesInterface);
 
-    PaletteGeneratorConfig palCfg; // Default constructor is factory config
+    PaletteGeneratorConfig palCfg;
     config->setProperty("paletteGen",     palCfg.toByteArray());
 
     config->setProperty("LFactor",    1.f);

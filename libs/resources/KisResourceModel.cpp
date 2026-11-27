@@ -35,9 +35,6 @@ KisAllResourcesModel::KisAllResourcesModel(const QString &resourceType, QObject 
     , d(new Private)
 {
 
-    /// we don't handle KisResourceLocator::storage{Added,Removed} signals
-    /// here, we use per-resource notifications from KisResourceLocator instead
-
     connect(KisStorageModel::instance(), &KisStorageModel::storageEnabled, this, &KisAllResourcesModel::storageActiveStateChanged);
     connect(KisStorageModel::instance(), &KisStorageModel::storageDisabled, this, &KisAllResourcesModel::storageActiveStateChanged);
     connect(KisStorageModel::instance(), &KisStorageModel::storageResynchronized, this, &KisAllResourcesModel::storageResynchronized);
@@ -163,7 +160,6 @@ QHash<int, QByteArray> KisAllResourcesModel::roleNames() const
     roles[Qt::UserRole + StorageId] = "storageId";
     roles[Qt::UserRole + Name] = "name";
     roles[Qt::UserRole + Filename] = "filename";
-    //roles[Qt::UserRole + Tooltip] = "tooltip";
     roles[Qt::UserRole + Thumbnail] = "thumbnail";
     roles[Qt::UserRole + Status] = "status";
     roles[Qt::UserRole + Location] = "location";
@@ -206,8 +202,6 @@ bool KisAllResourcesModel::resourceExists(const QString &md5, const QString &fil
 {
     QSqlQuery q;
 
-    // md5
-
     if (!md5.isEmpty()) {
 
         bool r = q.prepare("SELECT resources.id AS id\n"
@@ -229,8 +223,6 @@ bool KisAllResourcesModel::resourceExists(const QString &md5, const QString &fil
             return true;
         }
     }
-
-    // filename
 
     if (!filename.isEmpty()) {
 
@@ -254,8 +246,6 @@ bool KisAllResourcesModel::resourceExists(const QString &md5, const QString &fil
         }
     }
 
-    // name
-
     if (!name.isEmpty()) {
 
         bool r = q.prepare("SELECT resources.id AS id\n"
@@ -276,8 +266,6 @@ bool KisAllResourcesModel::resourceExists(const QString &md5, const QString &fil
             return true;
         }
     }
-
-    // failure
 
     return false;
 }
@@ -356,7 +344,6 @@ QVector<KoResourceSP> KisAllResourcesModel::resourcesForName(const QString &name
     return resources;
 }
 
-
 QVector<KoResourceSP> KisAllResourcesModel::resourcesForMD5(const QString &md5sum) const
 {
     QVector<KoResourceSP> resources;
@@ -393,7 +380,6 @@ QModelIndex KisAllResourcesModel::indexForResource(KoResourceSP resource) const
 {
     if (!resource || !resource->valid() || resource->resourceId() < 0) return QModelIndex();
 
-    // For now a linear seek to find the first resource with the right id
     return indexForResourceId(resource->resourceId());
 }
 
@@ -425,7 +411,6 @@ bool KisAllResourcesModel::setResourceActive(const QModelIndex &index, bool valu
 
     return true;
 }
-//static int s_i6 {0};
 
 KoResourceSP KisAllResourcesModel::importResourceFile(const QString &filename, const bool allowOverwrite, const QString &storageId)
 {
@@ -532,11 +517,6 @@ bool KisAllResourcesModel::reloadResource(KoResourceSP resource)
         return false;
     }
 
-    /**
-     * We don't have to call reset query here, because reloading a resource
-     * doesn't change any database content.
-     */
-
     QModelIndex index = indexForResource(resource);
     Q_EMIT dataChanged(index, index);
     return true;
@@ -558,8 +538,6 @@ bool KisAllResourcesModel::renameResource(KoResourceSP resource, const QString &
     Q_EMIT dataChanged(index, index);
     return r;
 }
-
-//static int s_i9 {0};
 
 bool KisAllResourcesModel::setResourceMetaData(KoResourceSP resource, QMap<QString, QVariant> metadata)
 {
@@ -608,10 +586,6 @@ void KisAllResourcesModel::closeQuery()
 
 bool KisAllResourcesModel::resetQuery()
 {
-    /**
-     * In case the query has been previously closed, try to restart it
-     * (used in unittests mostly)
-     */
     if (!d->resourcesQuery.isValid()) {
         d->resourcesQuery.clear();
         prepareQuery();
@@ -636,11 +610,11 @@ QVector<KisTagSP> KisAllResourcesModel::tagsForResource(int resourceId) const
                   "FROM   tags\n"
                   ",      resource_tags\n"
                   ",      resource_types\n"
-                  "WHERE  tags.active > 0\n"                               // make sure the tag is active
-                  "AND    tags.id = resource_tags.tag_id\n"                // join tags + resource_tags by tag_id
+                  "WHERE  tags.active > 0\n"
+                  "AND    tags.id = resource_tags.tag_id\n"
                   "AND    resource_tags.resource_id = :resource_id\n"
-                  "AND    resource_types.id = tags.resource_type_id\n"     // make sure we're looking for tags for a specific resource
-                  "AND    resource_tags.active = 1\n");                    // and the tag must be active
+                  "AND    resource_types.id = tags.resource_type_id\n"
+                  "AND    resource_tags.active = 1\n");
     if (!r)  {
         qWarning() << "Could not prepare TagsForResource query" << q.lastError();
     }
@@ -661,7 +635,6 @@ QVector<KisTagSP> KisAllResourcesModel::tagsForResource(int resourceId) const
     return tags;
 }
 
-
 int KisAllResourcesModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
@@ -669,12 +642,6 @@ int KisAllResourcesModel::rowCount(const QModelIndex &parent) const
     }
 
     if (d->cachedRowCount < 0) {
-        /**
-         * SQLite doesn't support COUNT(DISTINCT ...) over multiple columns, so
-         * we need to concatenate them manually on the fly. But SQLite doesn't
-         * support CONCAT function either, therefore we should use
-         * concatenation operator it provides.
-         */
 
         QSqlQuery q;
         bool r = q.prepare("SELECT COUNT(DISTINCT resources.name || resources.filename || resources.md5sum)\n"
@@ -720,11 +687,8 @@ void KisAllResourcesModel::storageResynchronized(const QString &storage, bool is
 {
     Q_UNUSED(storage);
 
-    // we handle bulk-synchronization separately in slotStoragesBulkSynchronizationFinished()
     if (isBulkResynchronization) return;
 
-    // TODO: ideally, we should use more fine-grained updates for
-    //       updating the storages, but let's keep it this
     beginResetModel();
     resetQuery();
     endResetModel();
@@ -762,7 +726,6 @@ void KisAllResourcesModel::beginExternalResourceRemove(const QString &resourceTy
             beginRemoveRows(QModelIndex(), index.row(), index.row());
             d->externalResourcesRemovedCount++;
         } else {
-            // it's fine if the index is invalid; it probably means it's one of the duplicates (another resource with the same type and content was already in the database)
             dbgResources << "KisAllResourcesModel::beginExternalResourceRemove got invalid index" << index << "for resourceId" << resourceId
                          << "of type" << resourceType << "(possibly the resource was deduplicated via sql query and that's why it doesn't appear in the model)";
         }
@@ -918,8 +881,6 @@ bool KisResourceModel::addResource(KoResourceSP resource, const QString &storage
     bool updateInsteadOfAdd = false;
     bool result = false;
 
-    // Check whether the resource already existed, in that case, we will update
-    // and possibly reactivate the resource
     QSqlQuery q;
 
     if (!q.prepare("SELECT resources.id\n"
@@ -947,7 +908,6 @@ bool KisResourceModel::addResource(KoResourceSP resource, const QString &storage
         QString md5sum = q.value(1).toString();
         QString storageLocation = q.value(2).toString();
         QString resourceType = q.value(3).toString();
-
 
         QSqlQuery q2;
 
@@ -1051,7 +1011,7 @@ QHash<int, QByteArray> KisResourceModel::roleNames() const
     return QAbstractItemModel::roleNames();
 }
 
-bool KisResourceModel::filterAcceptsColumn(int /*source_column*/, const QModelIndex &/*source_parent*/) const
+bool KisResourceModel::filterAcceptsColumn(int , const QModelIndex & ) const
 {
     return true;
 }
@@ -1156,7 +1116,6 @@ bool KisResourceModel::filterResource(const QModelIndex &idx) const
 
     return false;
 }
-
 
 KoResourceSP KisResourceModel::resourceForId(int id) const
 {

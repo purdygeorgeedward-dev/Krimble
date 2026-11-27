@@ -11,8 +11,6 @@
 #include <QTemporaryFile>
 #include <QtAndroid>
 
-// See DonationHelper.java for notes!
-
 namespace
 {
 void cleanupProductIconData(void *info)
@@ -67,7 +65,7 @@ QPixmap getProductIcon(const QAndroidJniObject &javaProduct)
 
     return pixmap;
 }
-} // namespace
+}
 
 KisAndroidDonations *KisAndroidDonations::instance()
 {
@@ -213,7 +211,6 @@ void KisAndroidDonations::slotUpdateState(int state, long long ownedProductFlags
 KisAndroidDonations::KisAndroidDonations(QObject *parent)
     : QObject(parent)
 {
-    // The state update can come from a different thread, so we'll use a queued connection.
     connect(this,
             &KisAndroidDonations::sigStateUpdateReceived,
             this,
@@ -234,8 +231,8 @@ void KisAndroidDonations::syncState()
     QAndroidJniObject::callStaticMethod<void>("org/krimble/android/DonationHelper", "syncState", "()V");
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_donationStateUpdated(JNIEnv * /*env*/,
-                                                                                          jobject /*obj*/,
+extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_donationStateUpdated(JNIEnv * ,
+                                                                                          jobject ,
                                                                                           jint state,
                                                                                           jlong ownedProductFlags)
 {
@@ -248,8 +245,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_donationS
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_showDonationManagementDialog(JNIEnv * /*env*/,
-                                                                                                  jobject /*obj*/)
+extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_showDonationManagementDialog(JNIEnv * ,
+                                                                                                  jobject )
 {
     KisApplication *app = qobject_cast<KisApplication *>(KisApplication::instance());
     if (app) {
@@ -260,8 +257,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_showDonat
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_onSplashDialogDismissed(JNIEnv * /*env*/,
-                                                                                             jobject /*obj*/)
+extern "C" JNIEXPORT void JNICALL Java_org_krimble_android_JNIWrappers_onSplashDialogDismissed(JNIEnv * ,
+                                                                                             jobject )
 {
     KisApplication *app = qobject_cast<KisApplication *>(KisApplication::instance());
     if (app) {

@@ -21,7 +21,6 @@
 #include <klocalizedstring.h>
 #include "krimble_fill.h"
 
-
 struct KisToolSmartPatchOptionsWidget::Private {
     Private()
     {
@@ -39,7 +38,7 @@ struct KisToolSmartPatchOptionsWidget::Private {
     }
 };
 
-KisToolSmartPatchOptionsWidget::KisToolSmartPatchOptionsWidget(KisCanvasResourceProvider */*provider*/, QWidget *parent)
+KisToolSmartPatchOptionsWidget::KisToolSmartPatchOptionsWidget(KisCanvasResourceProvider * , QWidget *parent)
     : QWidget(parent),
       m_d(new Private)
 {

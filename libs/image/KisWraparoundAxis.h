@@ -13,4 +13,4 @@ enum WrapAroundAxis {
     WRAPAROUND_VERTICAL
 };
 
-#endif /* KISWRAPAROUNDAXIS_H */
+#endif

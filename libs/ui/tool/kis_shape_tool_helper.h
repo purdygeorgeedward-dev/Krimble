@@ -12,9 +12,6 @@
 
 class KoShape;
 
-/**
- * KisShapeToolHelper provides shapes and fallback shapes for shape based tools
- */
 class KRITAUI_EXPORT KisShapeToolHelper
 {
 public:
@@ -22,8 +19,6 @@ public:
 
     static KoShape* createEllipseShape(const QRectF& rect);
 
-
 };
-
 
 #endif

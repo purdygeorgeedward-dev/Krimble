@@ -16,8 +16,6 @@
 #error "Enable ARC to compile this file"
 #endif
 
-//Q_GLOBAL_STATIC(KisMacosEntitlements, s_instance)
-
 class KisMacosEntitlements::Private
 {
 public:
@@ -33,12 +31,6 @@ public:
     QHash<Entitlements, QVariant> entitlements;
 };
 
-//KisMacosEntitlements* KisMacosEntitlements::instance()
-//{
-//    return s_instance;
-//}
-
-
 KisMacosEntitlements::KisMacosEntitlements()
     : m_d(new Private())
 {
@@ -49,7 +41,6 @@ KisMacosEntitlements::~KisMacosEntitlements()
 {
 }
 
-
 void KisMacosEntitlements::loadAvailableEntitlements(void)
 {
     OSStatus status;
@@ -57,10 +48,8 @@ void KisMacosEntitlements::loadAvailableEntitlements(void)
     CFDictionaryRef dynamicInfo = NULL;
 
     status = SecCodeCopySelf(kSecCSDefaultFlags, &kritaRef);
-//    KIS_ASSERT_RECOVER_RETURN_VALUE(status == errSecSuccess, isSandboxed);
 
     SecCodeCopySigningInformation(kritaRef, (SecCSFlags) kSecCSDynamicInformation, &dynamicInfo);
-//    KIS_ASSERT_RECOVER_RETURN_VALUE(status == errSecSuccess, isSandboxed);
 
     CFDictionaryRef rawEntitlements = (CFDictionaryRef)CFDictionaryGetValue(dynamicInfo, kSecCodeInfoEntitlementsDict);
 
@@ -93,7 +82,6 @@ void KisMacosEntitlements::loadAvailableEntitlements(void)
 
 bool KisMacosEntitlements::hasEntitlement(Entitlements key)
 {
-    // we assume if given entitlement exists then its true, but this is not always the case
     return m_d->entitlements.contains(key);
 }
 

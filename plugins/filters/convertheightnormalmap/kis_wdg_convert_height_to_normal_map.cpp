@@ -21,7 +21,6 @@ KisWdgConvertHeightToNormalMap::KisWdgConvertHeightToNormalMap(QWidget *parent, 
         return;
     }
 
-
     ui->setupUi(this);
     m_types << "prewitt"<< "sobol"<< "simple";
     m_types_translatable << i18n("Prewitt") << i18n("Sobel") << i18n("Simple");

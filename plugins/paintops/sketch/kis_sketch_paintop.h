@@ -23,7 +23,6 @@
 
 class KisDabCache;
 
-
 class KisSketchPaintOp : public KisPaintOp
 {
 
@@ -44,15 +43,12 @@ protected:
     KisTimingInformation updateTimingImpl(const KisPaintInformation &info) const override;
 
 private:
-    // pixel buffer
     KisPaintDeviceSP m_dab;
 
-    // mask detection area
     KisFixedPaintDeviceSP m_maskDab;
     QRectF m_brushBoundingBox;
     QPointF m_hotSpot;
 
-    // simple mode
     qreal m_radius {1.0};
 
     KisOpacityOption m_opacityOption;
@@ -79,4 +75,4 @@ private:
     void doPaintLine(const KisPaintInformation &pi1, const KisPaintInformation &pi2);
 };
 
-#endif // KIS_SKETCH_PAINTOP_H_
+#endif

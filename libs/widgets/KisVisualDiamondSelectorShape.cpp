@@ -26,9 +26,8 @@ KisVisualDiamondSelectorShape::~KisVisualDiamondSelectorShape()
 {
 }
 
-void KisVisualDiamondSelectorShape::setBorderWidth(int /*width*/)
+void KisVisualDiamondSelectorShape::setBorderWidth(int )
 {
-    // Diamond doesn't have a 1-dimensional mode
 }
 
 QRect KisVisualDiamondSelectorShape::getSpaceForSquare(QRect geom)
@@ -48,7 +47,6 @@ QRect KisVisualDiamondSelectorShape::getSpaceForTriangle(QRect geom)
 
 QPointF KisVisualDiamondSelectorShape::convertShapeCoordinateToWidgetCoordinate(QPointF coordinate) const
 {
-    // margin serves to render the cursor, and triangle is rendered 1px larger than its active area
     qreal offset = m_margin + 1.0;
 
     qreal y = ((1.0 - coordinate.y()) * (height() - 1 - 2 * offset)) + offset;
@@ -69,7 +67,6 @@ QPointF KisVisualDiamondSelectorShape::convertShapeCoordinateToWidgetCoordinate(
 
 QPointF KisVisualDiamondSelectorShape::convertWidgetCoordinateToShapeCoordinate(QPointF coordinate) const
 {
-    // margin serves to render the cursor, and triangle is rendered 1px larger than its active area
     qreal offset = m_margin + 1.0;
 
     qreal x = 0.5;
@@ -110,8 +107,6 @@ QRegion KisVisualDiamondSelectorShape::getMaskMap()
 
 QImage KisVisualDiamondSelectorShape::renderAlphaMask() const
 {
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     const int deviceWidth = qCeil(width() * devicePixelRatioF());
     const int deviceHeight = qCeil(height() * devicePixelRatioF());
 

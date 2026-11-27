@@ -15,9 +15,6 @@ namespace Ui
 class KisKeyInputEditor;
 }
 
-/**
- * \brief An editor widget for a list of keys.
- */
 class KisKeyInputEditor : public QPushButton
 {
     Q_OBJECT
@@ -39,4 +36,4 @@ private:
     Private *const d {nullptr};
 };
 
-#endif // KISKEYINPUTEDITOR_H
+#endif

@@ -15,7 +15,6 @@
 
 #include <kritaimage_export.h>
 
-
 class KRITAIMAGE_EXPORT KisLayerStyleProjectionPlane : public KisAbstractProjectionPlane
 {
 public:
@@ -36,8 +35,6 @@ public:
 
     KisPaintDeviceList getLodCapableDevices() const override;
 
-
-    // a method for registering on KisLayerStyleProjectionPlaneFactory
     static KisAbstractProjectionPlaneSP factoryObject(KisLayer *sourceLayer);
 
 private:
@@ -56,4 +53,4 @@ private:
 typedef QSharedPointer<KisLayerStyleProjectionPlane> KisLayerStyleProjectionPlaneSP;
 typedef QWeakPointer<KisLayerStyleProjectionPlane> KisLayerStyleProjectionPlaneWSP;
 
-#endif /* __KIS_LAYER_STYLE_PROJECTION_PLANE_H */
+#endif

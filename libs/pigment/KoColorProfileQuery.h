@@ -10,12 +10,6 @@
 #include <KoColorProfileConstants.h>
 #include <QDebug>
 
-/**
- * @brief The KoColorProfileQuery struct
- *
- * This is a struct that represents the characteristics of
- * a KoColorProfile for either search or generation.
- */
 struct KoColorProfileQuery {
     KoColorProfileQuery(ColorPrimaries primaries = PRIMARIES_UNSPECIFIED,
                         TransferCharacteristics transfer = TRC_UNSPECIFIED,
@@ -31,13 +25,13 @@ struct KoColorProfileQuery {
     KoColorProfileQuery& operator=(const KoColorProfileQuery&rhs) = default;
     KoColorProfileQuery& operator=(KoColorProfileQuery &&rhs) = default;
 
-    KoColorimetryUtils::xy whitePoint {0.0, 0.0}; /// The desired white point of the profile.
-    QList<KoColorimetryUtils::xy> rgbColorants; /// Rgb Primaries of the profile. When empty, this is a query for a greyscale profile.
+    KoColorimetryUtils::xy whitePoint {0.0, 0.0};
+    QList<KoColorimetryUtils::xy> rgbColorants;
 
-    ColorPrimaries primaries; /// CICP-compatible enum value representing the white point and primaries.
-    TransferCharacteristics transfer; /// CICP-compatible enum value representing the transfer function.
+    ColorPrimaries primaries;
+    TransferCharacteristics transfer;
 
-    std::optional<double> hdrReferenceWhite; /// Used for PQ profiles.
+    std::optional<double> hdrReferenceWhite;
 
     inline bool isValid() const {
         return isGrayscale() || isRgb();
@@ -84,4 +78,4 @@ inline QDebug operator<<(QDebug debug, const KoColorProfileQuery &value) {
     return debug;
 }
 
-#endif // KOCOLORPROFILEQUERY_H
+#endif

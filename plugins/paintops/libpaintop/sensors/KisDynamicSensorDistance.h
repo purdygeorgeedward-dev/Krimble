@@ -22,4 +22,4 @@ private:
     int m_length;
 };
 
-#endif // KISDYNAMICSENSORDISTANCE_H
+#endif

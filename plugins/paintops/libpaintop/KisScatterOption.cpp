@@ -16,7 +16,6 @@
 #include <KisPaintOpOptionUtils.h>
 namespace kpou = KisPaintOpOptionUtils;
 
-
 KisScatterOption::KisScatterOption(const KisPropertiesConfiguration *setting)
     : KisScatterOption(kpou::loadOptionData<KisScatterOptionData>(setting))
 {
@@ -35,7 +34,6 @@ QPointF KisScatterOption::apply(const KisPaintInformation& info, qreal width, qr
         return info.pos();
     }
 
-    // just use the most significant dimension for calculations
     qreal diameter = qMax(width, height);
     qreal sensorValue = computeSizeLikeValue(info);
 

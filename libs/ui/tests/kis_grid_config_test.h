@@ -17,4 +17,4 @@ private Q_SLOTS:
     void testGuidesConfig();
 };
 
-#endif /* __KIS_GRID_CONFIG_TEST_H */
+#endif

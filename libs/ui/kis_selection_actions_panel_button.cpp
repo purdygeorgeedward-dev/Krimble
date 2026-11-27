@@ -36,8 +36,6 @@ KisSelectionActionsPanelButton::~KisSelectionActionsPanelButton()
 void KisSelectionActionsPanelButton::draw(QPainter &painter, const KoColorDisplayRendererInterface *displayRendererInterface)
 {
     QRect rect = geometry();
-    //Draw an outline when the button is pressed
-
 
     QPainterPath rectAroundButton;
     rectAroundButton.addRoundedRect(rect, 3, 3);
@@ -75,15 +73,11 @@ void KisSelectionActionsPanelButton::draw(QPainter &painter, const KoColorDispla
 
 }
 
-
-//Dummy paint event, so that this class isn't treated like an abstract class
 void KisSelectionActionsPanelButton::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e);
 }
 
-// For whatever reason the children of the canvas don't interpret tabletPress/Release events as mouse press/release events
-// So we have to do this manually
 void KisSelectionActionsPanelButton::tabletEvent(QTabletEvent *e)
 {
     if (e->type() == QEvent::TabletPress) {
@@ -109,7 +103,6 @@ void KisSelectionActionsPanelButton::tabletEvent(QTabletEvent *e)
 
 bool KisSelectionActionsPanelButton::event(QEvent *e)
 {
-    //Manually handle the button being pressed on touch
     if (e->type() == QEvent::TouchBegin) {
         QTouchEvent *touchEvent = static_cast<QTouchEvent *>(e);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -134,7 +127,6 @@ void KisSelectionActionsPanelButton::contextMenuEvent(QContextMenuEvent *event)
 
 void KisSelectionActionsPanelButton::mousePressEvent(QMouseEvent *event)
 {
-    //Do not propagate the rmb event, to prevent other tool context menus from appearing
     if (event->button() == Qt::RightButton) {
         event->accept();
     } else {

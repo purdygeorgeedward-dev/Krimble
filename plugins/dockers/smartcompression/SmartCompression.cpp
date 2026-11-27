@@ -31,7 +31,6 @@ public:
     }
 
     DockPosition defaultDockPosition() const override {
-        // like the other panels of this build: not docked at the start (they crammed the column); Window > Panels shows it
         return DockMinimized;
     }
 };

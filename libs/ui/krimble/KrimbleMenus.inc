@@ -23,8 +23,7 @@ public:
         if (watched == m_menu && event->type() == QEvent::Show && m_bar && m_menu->isWindow()) {
             const qreal dpr = qMax<qreal>(1.0, m_menu->devicePixelRatioF());
             const QRect nameRect = m_bar->actionGeometry(m_action);
-            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), qMin(m_bar->height(), nameRect.bottom() + 1)));
-            Q_UNUSED(dpr);
+            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), qMin(m_bar->height(), nameRect.bottom() + 1) - qRound(6.0 / dpr)));
             QScreen *screen = QGuiApplication::screenAt(wanted);
             if (!screen) screen = QGuiApplication::primaryScreen();
             const QRect avail = screen->availableGeometry();
@@ -48,6 +47,24 @@ private:
     QPointer<QAction> m_action;
 };
 
+static void krimbleMatchSubmenu(QMenu *parent, QMenu *sub)
+{
+    if (!parent || !sub) return;
+    QAction *sample = nullptr;
+    Q_FOREACH (QAction *a, parent->actions()) {
+        if (a->isVisible() && !a->isSeparator() && !a->menu()) { sample = a; break; }
+    }
+    if (!sample) return;
+    const int rowH = parent->actionGeometry(sample).height();
+    if (rowH <= 0) return;
+    const int textH = sub->fontMetrics().height();
+    const int vertical = qMax(0, (rowH - textH) / 2);
+    const int left = qRound(rowH * 0.68);
+    const QString sheet = QStringLiteral("QMenu::item { padding: %1px %2px %3px %4px; } QMenu::item:selected { color: #ffffff; background: #0b87dd; }")
+                              .arg(vertical).arg(left).arg(rowH - textH - vertical).arg(left);
+    if (sub->styleSheet() != sheet) sub->setStyleSheet(sheet);
+}
+
 static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
 {
     Q_FOREACH (QAction *top, win->menuBar()->actions()) {
@@ -55,6 +72,16 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
         if (!menu || menu->property("krimbleShortcutsStripped").toBool()) continue;
         menu->setProperty("krimbleShortcutsStripped", true);
         new KrimbleMenuPlacer(menu, win->menuBar(), top);
+        QObject::connect(menu, &QMenu::aboutToShow, menu, [menu]() {
+            Q_FOREACH (QAction *a, menu->actions()) {
+                if (QMenu *sub = a->menu()) {
+                    if (sub->property("krimbleSubmenuMatched").toBool()) continue;
+                    sub->setProperty("krimbleSubmenuMatched", true);
+                    QPointer<QMenu> parentMenu = menu;
+                    QObject::connect(sub, &QMenu::aboutToShow, sub, [parentMenu, sub]() { krimbleMatchSubmenu(parentMenu, sub); });
+                }
+            }
+        });
         QSharedPointer<KrimbleSavedShortcuts> saved(new KrimbleSavedShortcuts());
         QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, saved]() {
             krimbleStripShortcuts(menu, saved.data(), 0);
@@ -70,7 +97,6 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
         menuTitle.remove(QLatin1Char('&'));
         QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, menuTitle]() {
             if (menu->findChild<QWidgetAction*>(QStringLiteral("krimbleMenuHeading"))) {
-                // still there from the last time: make sure it is the first one
                 QAction *headingAction = menu->findChild<QWidgetAction*>(QStringLiteral("krimbleMenuHeading"));
                 if (menu->actions().value(0) == headingAction) return;
             }
@@ -106,8 +132,6 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
 static void krimbleRemoveMinimumWidths(QMainWindow *win)
 {
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
-        // George: "Minimum width for the toolbox should be one column." The toolbox is left out: its smallest width stays what its layout
-        // gives (one column of icons).
         if (dock->objectName() == QLatin1String("ToolBox")) continue;
         if (QWidget *content = dock->widget()) {
             if (content->minimumWidth() != 1) content->setMinimumWidth(1);

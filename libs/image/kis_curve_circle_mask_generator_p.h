@@ -42,4 +42,4 @@ struct Q_DECL_HIDDEN KisCurveCircleMaskGenerator::Private
     inline quint8 value(qreal dist) const;
 };
 
-#endif // KIS_CURVE_CIRCLE_MASK_GENERATOR_P_H
+#endif

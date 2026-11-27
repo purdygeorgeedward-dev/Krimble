@@ -7,7 +7,6 @@
 #include <KoSvgTextShape.h>
 #include <KoShapeBulkActionLock.h>
 
-
 struct KoSvgTextReorderShapeInsideCommand::Private {
     Private(KoSvgTextShape *_text, QList<KoShape *> _shapes, KoSvgTextReorderShapeInsideCommand::MoveShapeType _type)
         : textShape(_text)

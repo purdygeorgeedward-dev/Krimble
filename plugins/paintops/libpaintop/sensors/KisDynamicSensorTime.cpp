@@ -10,7 +10,6 @@
 #include <kis_paint_information.h>
 #include <KisCurveOptionData.h>
 
-
 KisDynamicSensorTime::KisDynamicSensorTime(const KisSensorWithLengthData &data, std::optional<KisCubicCurve> curveOverride)
     : KisDynamicSensor(TimeId, data, curveOverride)
     , m_periodic(data.isPeriodic)

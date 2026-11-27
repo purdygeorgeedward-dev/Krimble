@@ -19,4 +19,4 @@ KoOptimizedPixelDataScalerU8ToU16FactoryImpl::create<xsimd::current_arch>(
         channelsPerPixel);
 }
 
-#endif // XSIMD_UNIVERSAL_BUILD_PASS
+#endif

@@ -15,7 +15,6 @@
 
 namespace {
 
-
 class KisBristleOptionsWidget: public QWidget, public Ui::WdgBristleOptions
 {
 public:
@@ -37,9 +36,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisHairyBristleOptionWidget::Private
 {
@@ -50,7 +47,6 @@ struct KisHairyBristleOptionWidget::Private
 
     KisHairyBristleOptionModel model;
 };
-
 
 KisHairyBristleOptionWidget::KisHairyBristleOptionWidget(lager::cursor<KisHairyBristleOptionData> optionData)
     : KisPaintOpOption(i18n("Bristle options"), KisPaintOpOption::GENERAL, true)

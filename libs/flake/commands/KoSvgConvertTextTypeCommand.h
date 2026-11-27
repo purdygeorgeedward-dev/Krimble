@@ -10,15 +10,6 @@
 #include "kritaflake_export.h"
 #include <KoSvgTextShape.h>
 
-/**
- * @brief The SvgConvertTextTypeCommand class
- * This command allows textshapes to be converted between
- * preformatted and inline size types.
- *
- * Internally, this applies white space, inserts new lines
- * for each new text chunk, and finally, assigns an inline-size if
- * necessary.
- */
 class KRITAFLAKE_EXPORT KoSvgConvertTextTypeCommand : public KUndo2Command
 {
 public:
@@ -30,9 +21,6 @@ public:
 
     void undo() override;
 
-    //int id() const override;
-    //bool mergeWith(const KUndo2Command *other) override;
-
 private:
     KoSvgTextShape *m_shape;
     KoSvgTextShapeMementoSP m_textData;
@@ -41,4 +29,4 @@ private:
     int m_pos;
 };
 
-#endif // SVGCONVERTTEXTTYPECOMMAND_H
+#endif

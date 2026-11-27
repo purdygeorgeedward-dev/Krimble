@@ -17,4 +17,4 @@ private Q_SLOTS:
     void testDeduplicateFileName();
 };
 
-#endif // KISGLOBALTEST_H
+#endif

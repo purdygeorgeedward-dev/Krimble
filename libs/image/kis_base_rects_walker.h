@@ -14,7 +14,6 @@
 #include "kis_abstract_projection_plane.h"
 #include "kis_projection_leaf.h"
 
-
 class KisBaseRectsWalker;
 typedef KisSharedPtr<KisBaseRectsWalker> KisBaseRectsWalkerSP;
 
@@ -29,14 +28,8 @@ public:
         UNSUPPORTED
     };
 
-
     typedef qint32 NodePosition;
     enum NodePositionValues {
-        /**
-         * There are two different sets of values.
-         * The first describes the position of the node to the graph,
-         * the second shows the position to the filthy node
-         */
 
         N_NORMAL     = 0x00,
         N_TOPMOST    = 0x01,
@@ -44,7 +37,7 @@ public:
         N_EXTRA      = 0x04,
 
         N_ABOVE_FILTHY = 0x08,
-        N_FILTHY_ORIGINAL   = 0x10, // not used actually
+        N_FILTHY_ORIGINAL   = 0x10,
         N_FILTHY_PROJECTION = 0x20,
         N_FILTHY = 0x40,
         N_BELOW_FILTHY = 0x80
@@ -60,7 +53,6 @@ public:
             N_BELOW_FILTHY;
 
         qint32 positionToFilthy = position & N_EXTRA ? N_FILTHY : position & positionToFilthyMask;
-        // We do not use N_FILTHY_ORIGINAL yet, so...
         Q_ASSERT(positionToFilthy);
 
         return static_cast<KisNode::PositionToFilthy>(positionToFilthy);
@@ -75,7 +67,7 @@ public:
             m_dontInvalidateFrames(dontInvalidateFrames) {}
 
         void notify() {
-            Q_ASSERT(m_layer); // clones are possible for layers only
+            Q_ASSERT(m_layer);
             m_layer->updateClones(m_dirtyRect, m_dontInvalidateFrames);
         }
 
@@ -93,12 +85,6 @@ public:
         KisProjectionLeafSP m_leaf;
         NodePosition m_position;
 
-        /**
-         * The rect that should be prepared on this node.
-         * E.g. area where the filter applies on filter layer
-         * or an area of a paint layer that will be copied to
-         * the projection.
-         */
         QRect m_applyRect;
 
         KisRenderPassFlags m_renderFlags = KisRenderPassFlag::None;
@@ -192,21 +178,14 @@ public:
         return m_cropRect;
     }
 
-    // return a reference for efficiency reasons
     inline LeafStack& leafStack() {
         return m_mergeTask;
     }
 
-    /**
-     * Returns `false` if the walker will not perform any useful work,
-     * which may happen, when, for example, the crop rect fully cropped
-     * the requested rect
-     */
     inline bool isEmpty() const {
         return m_mergeTask.isEmpty() && m_cloneNotifications.isEmpty();
     }
 
-    // return a reference for efficiency reasons
     inline CloneNotificationsVector& cloneNotifications() {
         return m_cloneNotifications;
     }
@@ -247,10 +226,6 @@ public:
 
 protected:
 
-    /**
-     * Initiates collecting of rects.
-     * Should be implemented in derived classes
-     */
     virtual void startTrip(KisProjectionLeafSP startWith) = 0;
 
 protected:
@@ -281,16 +256,13 @@ protected:
     }
 
     inline void clear() {
-        m_resultAccessRect = m_resultNeedRect = /*m_resultChangeRect =*/
+        m_resultAccessRect = m_resultNeedRect =
             m_childNeedRect = m_lastNeedRect = QRect();
 
         m_needRectVaries = m_changeRectVaries = false;
         m_mergeTask.clear();
         m_cloneNotifications.clear();
 
-        // Not needed really. Think over removing.
-        //m_startNode = 0;
-        //m_requestedRect = QRect();
     }
 
     inline void pushJob(KisProjectionLeafSP leaf, NodePosition position, QRect applyRect, KisRenderPassFlags flags) {
@@ -302,20 +274,13 @@ protected:
         return cropRect.isValid() ? rect & cropRect : rect;
     }
 
-    /**
-     * Used by KisFullRefreshWalker as it has a special changeRect strategy
-     */
     inline void setExplicitChangeRect(const QRect &changeRect, bool changeRectVaries) {
         m_resultChangeRect = cropThisRect(changeRect, cropRect());
         m_resultUncroppedChangeRect = changeRect;
         m_changeRectVaries = changeRectVaries;
     }
 
-    /**
-     * Called for every node we meet on a forward way of the trip.
-     */
     virtual void registerChangeRect(KisProjectionLeafSP leaf, NodePosition position) {
-        // We do not work with masks here. It is KisLayer's job.
         if(!leaf->isLayer()) return;
         if(!(position & N_FILTHY) && !leaf->visible()) return;
 
@@ -334,13 +299,6 @@ protected:
     }
 
     void registerCloneNotification(KisNodeSP node, NodePosition position) {
-        /**
-         * Note, we do not check for (N_ABOVE_FILTHY &&
-         * dependOnLowerNodes(node)) because it may lead to an
-         * infinite loop with filter layer. Activate it when it is
-         * guaranteed that it is not possible to create a filter layer
-         * above its own clone
-         */
 
         if(hasClones(node) && position & (N_FILTHY | N_FILTHY_PROJECTION | N_EXTRA)) {
             m_cloneNotifications.append(
@@ -352,12 +310,8 @@ protected:
         registerNeedRect(leaf, position, flags, m_cropRect);
     }
 
-    /**
-     * Called for every node we meet on a backward way of the trip.
-     */
     virtual void registerNeedRect(KisProjectionLeafSP leaf, NodePosition position,
                                   KisRenderPassFlags flags, const QRect &cropRect) {
-        // We do not work with masks here. It is KisLayer's job.
         if(!leaf->isLayer()) return;
 
         if(m_mergeTask.isEmpty())
@@ -380,27 +334,20 @@ protected:
                 }
             }
 
-            // TODO: check if we can put this requirement
-            // KIS_SAFE_ASSERT_RECOVER_NOOP(parentNeedRectFound);
-
             if (parentNeedRectFound) {
                 m_lastNeedRect = parentNeedRect;
             } else {
-                // legacy way of fetching parent need rect, just
-                // takes need rect of the last visited filthy node
                 m_lastNeedRect = m_childNeedRect;
             }
         }
 
         if (!leaf->shouldBeRendered()) {
             if (!m_lastNeedRect.isEmpty()) {
-                // push a dumb job to fit state machine requirements
                 pushJob(leaf, position, m_lastNeedRect, flags);
             }
         } else if(position & (N_FILTHY | N_ABOVE_FILTHY | N_EXTRA)) {
             if(!m_lastNeedRect.isEmpty())
                 pushJob(leaf, position, m_lastNeedRect, flags);
-            //else /* Why push empty rect? */;
 
             m_resultAccessRect |= leaf->projectionPlane()->accessRect(m_lastNeedRect,
                                                                       convertPositionToFilthy(position));
@@ -423,7 +370,6 @@ protected:
             }
         }
         else {
-            // N_FILTHY_ORIGINAL is not used so it goes there
             qFatal("KisBaseRectsWalker: node position(%d) is out of range", position);
         }
 
@@ -436,9 +382,6 @@ protected:
         KisProjectionLeafSP currentLeaf = firstMask;
 
         while (currentLeaf) {
-            /**
-             * ATTENTION: we miss the first mask
-             */
 
             do {
                 currentLeaf = currentLeaf->nextSibling();
@@ -472,8 +415,6 @@ protected:
         tempRect.getRect(&x, &y, &w, &h);
         checksum += -x - y + w + h;
 
-//        errKrita << leaf << requestedRect << "-->" << checksum;
-
         return checksum;
     }
 
@@ -487,10 +428,6 @@ private:
         }
 
         if (!leaf || !leaf->projection()) {
-            /**
-             * Such errors may happen during undo or too quick node removal,
-             * they shouldn't cause any real problems in Krita work.
-             */
             qWarning() << "WARNING: KisBaseRectsWalker::getNodeLevelOfDetail() "
                           "failed to fetch currentLevelOfDetail() from the node. "
                           "Perhaps the node was removed from the image in the meantime.";
@@ -501,11 +438,6 @@ private:
     }
 
 private:
-    /**
-     * The result variables.
-     * By the end of a recursion they will store a complete
-     * data for a successful merge operation.
-     */
     QRect m_resultAccessRect;
     QRect m_resultNeedRect;
     QRect m_resultChangeRect;
@@ -515,29 +447,13 @@ private:
     LeafStack m_mergeTask;
     CloneNotificationsVector m_cloneNotifications;
 
-    /**
-     * Used by update optimization framework
-     */
     KisNodeSP m_startNode;
     QRect m_requestedRect;
 
-    /**
-     * Used for getting know whether the start node
-     * properties have changed since the walker was
-     * calculated
-     */
     qint32 m_nodeChecksum {0};
 
-    /**
-     * Used for getting know whether the structure of
-     * the graph has changed since the walker was
-     * calculated
-     */
     qint32 m_graphChecksum {0};
 
-    /**
-     * Temporary variables
-     */
     QRect m_cropRect;
 
     QRect m_childNeedRect;
@@ -550,5 +466,5 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisBaseRectsWalker::SubtreeVisitFlags);
 
-#endif /* __KIS_BASE_RECTS_WALKER_H */
+#endif
 

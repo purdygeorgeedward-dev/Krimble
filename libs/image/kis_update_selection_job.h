@@ -25,4 +25,4 @@ private:
     QRect m_updateRect;
 };
 
-#endif /* __KIS_UPDATE_SELECTION_JOB_H */
+#endif

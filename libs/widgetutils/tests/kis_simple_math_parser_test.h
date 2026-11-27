@@ -22,4 +22,4 @@ private Q_SLOTS:
     void testIntFlooring();
 };
 
-#endif // KISSIMPLEMATHPARSERTEST_H
+#endif

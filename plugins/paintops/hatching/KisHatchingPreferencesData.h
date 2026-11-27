@@ -7,7 +7,6 @@
 #ifndef KIS_HATCHING_PREFERENCES_DATA_H
 #define KIS_HATCHING_PREFERENCES_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -29,4 +28,4 @@ struct KisHatchingPreferencesData : boost::equality_comparable<KisHatchingPrefer
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_HATCHING_PREFERENCES_DATA_H
+#endif

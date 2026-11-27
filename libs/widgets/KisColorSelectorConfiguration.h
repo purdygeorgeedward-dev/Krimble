@@ -52,7 +52,6 @@ public:
         int imtp=strili.at(2).toInt();
         int istp=strili.at(3).toInt();
 
-        // Makes sure that Type and Parameters are within bounds.
         if(imt>Slider || ist>Slider || imtp>Hluma || istp>Hluma)
             return;
 

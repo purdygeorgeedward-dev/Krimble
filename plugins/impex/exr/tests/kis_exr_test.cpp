@@ -82,7 +82,7 @@ void KisExrTest::testRoundTrip()
         QVERIFY(TestUtil::comparePaintDevicesClever<half>(
                     doc1->image()->root()->firstChild()->paintDevice(),
                     doc2->image()->root()->firstChild()->paintDevice(),
-                    0.01 /* meaningless alpha */));
+                    0.01 ));
 
         delete doc2;
     }
@@ -94,5 +94,4 @@ void KisExrTest::testRoundTrip()
 }
 
 KISTEST_MAIN(KisExrTest)
-
 

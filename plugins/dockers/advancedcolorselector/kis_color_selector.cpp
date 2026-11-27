@@ -34,7 +34,6 @@
 #include "kis_signal_compressor.h"
 #include "KisViewManager.h"
 
-
 KisColorSelector::KisColorSelector(KisColorSelectorConfiguration conf, QWidget* parent)
     : KisColorSelectorBase(parent),
       m_ring(0),
@@ -124,7 +123,6 @@ void KisColorSelector::setConfiguration(KisColorSelectorConfiguration conf)
 
     m_mainComponent->setConfiguration(m_configuration.mainTypeParameter, m_configuration.mainType);
 
-    // Use Hluma as subType when the main type uses hsy'.
     KisColorSelectorConfiguration::Parameters subTypeParameter = m_configuration.mainTypeParameter == KisColorSelectorConfiguration::SY ?
             KisColorSelectorConfiguration::Hluma : m_configuration.subTypeParameter;
 
@@ -222,7 +220,6 @@ void KisColorSelector::paintEvent(QPaintEvent* e)
     QPainter p(this);
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("advancedColorSelector");
 
-    // If checked, use theme colors for background of selector
     if (cfg.readEntry("useCustomColorForBackground", false)) {
         p.fillRect(0,0,width(), height(), cfg.readEntry("customSelectorBackgroundColor", QColor(Qt::gray)));
     } else {
@@ -231,7 +228,6 @@ void KisColorSelector::paintEvent(QPaintEvent* e)
 
     p.setRenderHint(QPainter::Antialiasing);
 
-    // this variable name isn't entirely accurate to what always happens. see definition in header file to understand it better
     if (!m_hasAtLeastOneDocumentOpen) {
         p.setOpacity(0.2);
     }
@@ -280,7 +276,6 @@ void KisColorSelector::resizeEvent(QResizeEvent* e) {
         }
     }
     else {
-        // type wheel and square
         if (m_configuration.mainType == KisColorSelectorConfiguration::Wheel) {
             if(displaySettingsButton()) {
                 int size = iconSize(width(), height()*0.9);
@@ -309,7 +304,6 @@ void KisColorSelector::resizeEvent(QResizeEvent* e) {
         }
     }
 
-    // reset the correct color after resizing the widget
     setColor(m_lastRealColor);
 
     KisColorSelectorBase::resizeEvent(e);
@@ -405,8 +399,6 @@ void KisColorSelector::init()
         connect(m_button, SIGNAL(clicked()), SIGNAL(settingsButtonClicked()));
     }
 
-    // a tablet can send many more signals, than a mouse
-    // this causes many repaints, if updating after every signal.
     m_signalCompressor = new KisSignalCompressor(25, KisSignalCompressor::FIRST_INACTIVE, this);
     connect(m_signalCompressor, SIGNAL(timeout()), SLOT(update()));
 

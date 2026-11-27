@@ -26,8 +26,7 @@
 #include <kis_generator_stroke_strategy.h>
 #include <KisRunnableStrokeJobData.h>
 
-
-#define UPDATE_DELAY 100 /*ms */
+#define UPDATE_DELAY 100
 
 struct Q_DECL_HIDDEN KisGeneratorLayer::Private
 {
@@ -43,7 +42,6 @@ struct Q_DECL_HIDDEN KisGeneratorLayer::Private
     QWeakPointer<boost::none_t> updateCookie;
     QMutex mutex;
 };
-
 
 KisGeneratorLayer::KisGeneratorLayer(KisImageWSP image,
                                      const QString &name,
@@ -85,20 +83,10 @@ void KisGeneratorLayer::setFilterWithoutUpdate(KisFilterConfigurationSP filterCo
 
 void KisGeneratorLayer::slotDelayedStaticUpdate()
 {
-    /**
-     * Don't try to start a regeneration stroke while image
-     * is locked. It may happen on loading, when all necessary
-     * conversions are not yet finished.
-     */
     if (KisImageSP image = this->image(); image && image->locked()) {
         m_d->updateSignalCompressor.start();
         return;
     }
-
-    /**
-     * The mask might have been deleted from the layers stack in the
-     * meanwhile. Just ignore the updates in the case.
-     */
 
     KisLayerSP parentLayer(qobject_cast<KisLayer*>(parent().data()));
     if (!parentLayer) return;
@@ -117,7 +105,7 @@ void KisGeneratorLayer::slotDelayedStaticUpdate()
 void KisGeneratorLayer::requestUpdateJobsWithStroke(KisStrokeId strokeId, KisFilterConfigurationSP filterConfig)
 {
     QMutexLocker locker(&m_d->mutex);
-    
+
     KisImageSP image = this->image().toStrongRef();
     const QRect updateRect = extent() | image->bounds();
 

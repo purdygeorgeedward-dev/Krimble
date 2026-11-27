@@ -11,7 +11,6 @@
 #include "kis_types.h"
 #include "kis_image_command.h"
 
-
 class KRITAIMAGE_EXPORT KisImageLayerRemoveCommand : public KisImageCommand
 {
 public:
@@ -33,4 +32,4 @@ private:
     bool m_doUndoUpdates;
 };
 
-#endif /* __KIS_IMAGE_LAYER_REMOVE_COMMAND_H */
+#endif

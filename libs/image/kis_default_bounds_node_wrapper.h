@@ -35,4 +35,4 @@ private:
     Private* m_d;
 };
 
-#endif // KIS_DEFAULT_BOUNDS_NODE_WRAPPER_H
+#endif

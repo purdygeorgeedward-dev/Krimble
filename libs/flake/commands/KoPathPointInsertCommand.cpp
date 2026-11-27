@@ -35,15 +35,12 @@ KoPathPointInsertCommand::KoPathPointInsertCommand(const QList<KoPathPointData> 
     if (insertPosition > 1)
         insertPosition = 1;
 
-    //TODO the list needs to be sorted
-
     QList<KoPathPointData>::const_iterator it(pointDataList.begin());
     for (; it != pointDataList.end(); ++it) {
         KoPathShape * pathShape = it->pathShape;
 
         KoPathSegment segment = pathShape->segmentByIndex(it->pointIndex);
 
-        // should not happen but to be sure
         if (! segment.isValid())
             continue;
 

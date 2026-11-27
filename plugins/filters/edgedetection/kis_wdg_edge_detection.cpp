@@ -39,7 +39,6 @@ KisWdgEdgeDetection::KisWdgEdgeDetection(QWidget *parent) :
     ui->sldVerticalRadius->setPrefix(i18n("Vertical Radius:"));
     connect(ui->sldVerticalRadius, SIGNAL(valueChanged(qreal)), this, SLOT(verticalRadiusChanged(qreal)));
 
-
     connect(ui->btnAspect, SIGNAL(keepAspectRatioChanged(bool)), this, SLOT(aspectLockChanged(bool)));
     connect(ui->cmbType, SIGNAL(currentIndexChanged(int)), this, SIGNAL(sigConfigurationItemChanged()));
     connect(ui->cmbOutput, SIGNAL(currentIndexChanged(int)), this, SIGNAL(sigConfigurationItemChanged()));

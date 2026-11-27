@@ -55,7 +55,6 @@ void TestMemoryStorage ::testStorageRetrieval()
     QCOMPARE(resource->filename(), "test1.0000.gbr");
 }
 
-
 void TestMemoryStorage::testAddResource()
 {
     KisMemoryStorage memoryStorage;
@@ -71,9 +70,6 @@ void TestMemoryStorage::testVersionSaveWithASubfolder()
     KisMemoryStorage memoryStorage;
     KoResourceSP res1(new DummyResource("subfolder/test1.gbr", ResourceType::Brushes));
     memoryStorage.saveAsNewVersion(ResourceType::Brushes, res1);
-
-    // saving a version of a resource is expected to strip all the subfolders
-    // from the resource file path
 
     QString url = QString("brushes/test1.0000.gbr");
     KoResourceSP resource = memoryStorage.resource(url);

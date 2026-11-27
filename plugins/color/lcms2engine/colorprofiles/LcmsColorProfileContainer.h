@@ -18,50 +18,24 @@
 #include <QByteArray>
 #include <QString>
 
-/**
- * This class contains an LCMS color profile. Don't use it outside LcmsColorSpace.
- */
 class KRITALCMSENGINE_EXPORT LcmsColorProfileContainer : public IccColorProfile::Container
 {
     friend class IccColorProfile;
 protected:
     LcmsColorProfileContainer(IccColorProfile::Data *);
 private:
-    /**
-     * Create a byte array from a lcms profile.
-     */
     static QByteArray lcmsProfileToByteArray(const cmsHPROFILE profile);
 
 public:
-    /**
-     * @param profile lcms memory structure with the profile, it is freed after the call
-     *                to this function
-     * @return an ICC profile created from an LCMS profile
-     */
     static IccColorProfile *createFromLcmsProfile(const cmsHPROFILE profile);
 public:
 
     ~LcmsColorProfileContainer() override;
 
-    /**
-     * @return the ICC color space signature
-     */
     cmsColorSpaceSignature colorSpaceSignature() const;
-    /**
-     * @return the class of the color space signature
-     */
     cmsProfileClassSignature deviceClass() const;
-    /**
-     * @return the name of the manufacturer
-     */
     QString manufacturer() const override;
-    /**
-     * @return the embedded copyright
-     */
     QString copyright() const override;
-    /**
-     * @return the structure to use with LCMS functions
-     */
     cmsHPROFILE lcmsProfile() const;
 
     bool valid() const override;
@@ -115,5 +89,5 @@ private:
     Private *const d;
 };
 
-#endif // _KO_LCMS_COLORPROFILE_H
+#endif
 

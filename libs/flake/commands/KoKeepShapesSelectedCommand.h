@@ -32,4 +32,4 @@ private:
     KoSelectedShapesProxy *m_selectionProxy;
 };
 
-#endif // KOKEEPSHAPESSELECTEDCOMMAND_H
+#endif

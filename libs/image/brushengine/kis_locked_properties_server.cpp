@@ -11,8 +11,6 @@
 
 Q_GLOBAL_STATIC(KisLockedPropertiesServer, s_instance)
 
-
-
 KisLockedPropertiesServer::KisLockedPropertiesServer()
 {
     m_lockedProperties = new KisLockedProperties();
@@ -70,6 +68,4 @@ bool KisLockedPropertiesServer::hasProperty(const QString &p)
 {
     return m_lockedProperties->hasProperty(p);
 }
-
-
 

@@ -23,7 +23,6 @@ public:
     QSet<KoPathShape*> paths;
 };
 
-
 KoPathPointMoveCommand::KoPathPointMoveCommand(const QList<KoPathPointData> &pointData, const QPointF &offset, KUndo2Command *parent)
     : KUndo2Command(parent),
     d(new KoPathPointMoveCommandPrivate())
@@ -108,7 +107,6 @@ void KoPathPointMoveCommandPrivate::applyOffset(qreal factor)
     QMap<KoPathPointData, QPointF>::iterator it(points.begin());
     for (; it != points.end(); ++it) {
         KoPathShape *path = it.key().pathShape;
-        // transform offset from document to shape coordinate system
         QPointF shapeOffset = path->documentToShape(factor*it.value()) - path->documentToShape(QPointF());
         QTransform matrix;
         matrix.translate(shapeOffset.x(), shapeOffset.y());

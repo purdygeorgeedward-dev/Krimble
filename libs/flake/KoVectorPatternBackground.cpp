@@ -123,9 +123,6 @@ void KoVectorPatternBackground::paint(QPainter &painter, const QPainterPath &fil
     p.setShapes(d->shapes);
     p.paint(*patchPainter);
 
-    // uncomment for debug
-    // renderer.patchImage().save("dd_patch_image.png");
-
     painter.setPen(Qt::NoPen);
     renderer.renderShape(painter);
 }

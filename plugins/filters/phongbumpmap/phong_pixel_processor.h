@@ -41,25 +41,18 @@ public:
 
     QVector<double> realheightmap;
 
-    ///Ambient light coefficient
     qreal Ka;
 
-    ///Diffuse light coefficient
     qreal Kd;
 
-    ///Specular light coefficient
     qreal Ks;
 
-    ///Shinyness exponent
     qreal shiny_exp;
 
-    ///Total ambient light
     qreal Ia;
 
-    ///Total diffuse light
     qreal Id;
 
-    ///Total specular light
     qreal Is;
 
     QVector<quint16> IlluminatePixelFromHeightmap(quint32 posup, quint32 posdown, quint32 posleft, quint32 posright);
@@ -68,10 +61,8 @@ public:
 
     void setLightVector(QVector3D light_vector);
 
-    ///Light sources to use (those disabled in the GUI are not present here)
     QList<Illuminant> lightSources;
 
-    ///Size of this stuff
     quint8 size;
 
     Illuminant fastLight;
@@ -83,6 +74,5 @@ public:
 private:
     quint32 m_pixelArea;
 };
-
 
 #endif

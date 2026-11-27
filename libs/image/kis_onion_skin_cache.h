@@ -10,7 +10,6 @@
 #include <QScopedPointer>
 #include "kis_types.h"
 
-
 class KisOnionSkinCache
 {
 public:
@@ -27,4 +26,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_ONION_SKIN_CACHE_H */
+#endif

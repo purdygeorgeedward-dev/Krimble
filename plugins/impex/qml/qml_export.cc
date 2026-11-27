@@ -29,7 +29,7 @@ QMLExport::~QMLExport()
 {
 }
 
-KisImportExportErrorCode QMLExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode QMLExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     KisImageSP image = document->savingImage();
     Q_CHECK_PTR(image);
@@ -49,8 +49,6 @@ void QMLExport::initializeCapabilities()
             << QPair<KoID, KoID>(GrayAColorModelID, Integer8BitsColorDepthID);
     addSupportedColorModels(supportedColorModels, "QML");
     }
-
-
 
 #include <qml_export.moc>
 

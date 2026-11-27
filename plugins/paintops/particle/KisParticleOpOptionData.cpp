@@ -8,14 +8,12 @@
 #include "kis_properties_configuration.h"
 #include <kis_paintop_lod_limitations.h>
 
-
 const QString PARTICLE_COUNT = "Particle/count";
 const QString PARTICLE_GRAVITY = "Particle/gravity";
 const QString PARTICLE_WEIGHT = "Particle/weight";
 const QString PARTICLE_ITERATIONS = "Particle/iterations";
 const QString PARTICLE_SCALE_X = "Particle/scaleX";
 const QString PARTICLE_SCALE_Y = "Particle/scaleY";
-
 
 bool KisParticleOpOptionData::read(const KisPropertiesConfiguration *setting)
 {

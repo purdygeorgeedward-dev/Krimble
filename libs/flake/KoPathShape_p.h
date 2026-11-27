@@ -21,18 +21,9 @@ public:
 
     void map(const QTransform &matrix);
 
-    /**
-     * @brief Returns subpath at given index
-     * @param subpathIndex the index of the subpath to return
-     * @return subPath on success, or 0 when subpathIndex is out of bounds
-     */
     KoSubpath *subPath(int subpathIndex) const;
 #ifndef NDEBUG
-    /// \internal
     void paintDebug(QPainter &painter);
-    /**
-     * @brief print debug information about a the points of the path
-     */
     void debugPath() const;
 #endif
 

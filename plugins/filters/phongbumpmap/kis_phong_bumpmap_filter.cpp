@@ -71,15 +71,11 @@ void KisFilterPhongBumpmap::processImpl(KisPaintDeviceSP device,
     quint32 posdown;
     quint32 posleft;
     quint32 posright;
-    //QColor I; //Reflected light
 
     if (progressUpdater) progressUpdater->setProgress(1);
 
-    //======Preparation paraphernalia=======
-
-    //Hardcoded facts about Phong Bumpmap: it _will_ generate an RGBA16 bumpmap
-    const quint8    BYTE_DEPTH_OF_BUMPMAP    = 2;      // 16 bits per channel
-    const quint8    CHANNEL_COUNT_OF_BUMPMAP = 4;      // RGBA
+    const quint8    BYTE_DEPTH_OF_BUMPMAP    = 2;
+    const quint8    CHANNEL_COUNT_OF_BUMPMAP = 4;
     const quint32   pixelsOfInputArea        = abs(inputArea.width() * inputArea.height());
     const quint32   pixelsOfOutputArea       = abs(outputArea.width() * outputArea.height());
     const quint8    pixelSize                = BYTE_DEPTH_OF_BUMPMAP * CHANNEL_COUNT_OF_BUMPMAP;
@@ -89,10 +85,7 @@ void KisFilterPhongBumpmap::processImpl(KisPaintDeviceSP device,
     quint32         ki                       = KoChannelInfo::displayPositionToChannelIndex(m_heightChannel->displayPosition(), channels);
     PhongPixelProcessor tileRenderer(pixelsOfInputArea, config);
 
-
     if (progressUpdater) progressUpdater->setProgress(2);
-
-    //===============RENDER=================
 
     QVector<PtrToDouble> toDoubleFuncPtr(channels.count());
     KisMathToolbox mathToolbox;
@@ -122,14 +115,12 @@ void KisFilterPhongBumpmap::processImpl(KisPaintDeviceSP device,
         const int tileHeightMinus1 = inputArea.height() - 1;
         const int tileWidthMinus1 = inputArea.width() - 1;
 
-        // Foreach INNER pixel in tile
         for (int y = 1; y < tileHeightMinus1; ++y) {
             for (int x = 1; x < tileWidthMinus1; ++x) {
                 posup   = (y + 1) * inputArea.width() + x;
                 posdown = (y - 1) * inputArea.width() + x;
                 posleft  = y * inputArea.width() + x - 1;
                 posright = y * inputArea.width() + x + 1;
-
 
                memcpy(bumpmapDataPointer,
                       tileRenderer.IlluminatePixelFromHeightmap(posup, posdown, posleft, posright).data(),
@@ -146,16 +137,12 @@ void KisFilterPhongBumpmap::processImpl(KisPaintDeviceSP device,
                 QVector <float> current_pixel_values(4);
                 device->colorSpace()->normalisedChannelsValue(data, current_pixel_values );
 
-                //dbgKrita<< "Vector:" << current_pixel_values[2] << "," << current_pixel_values[1] << "," << current_pixel_values[0];
                 memcpy(bumpmapDataPointer,
                       tileRenderer.IlluminatePixelFromNormalmap(current_pixel_values[2], current_pixel_values[1], current_pixel_values[0]).data(),
                       pixelSize);
 
                 curPixel++;
-                //pointer that crashes here, but not in the other if statement.
                 bumpmapDataPointer += pixelSize;
-
-
 
             }
             while (iterator->nextPixel());
@@ -171,8 +158,6 @@ void KisFilterPhongBumpmap::processImpl(KisPaintDeviceSP device,
     KisPainter copier(device);
     copier.bitBlt(outputArea.x(), outputArea.y(), bumpmapPaintDevice,
                   outputArea.x(), outputArea.y(), outputArea.width(), outputArea.height());
-    //device->prepareClone(bumpmapPaintDevice);
-    //device->makeCloneFrom(bumpmapPaintDevice, bumpmapPaintDevice->extent());  // THIS COULD BE BUG GY
 
     if (progressUpdater) progressUpdater->setProgress(100);
 }
@@ -187,7 +172,6 @@ KisFilterConfigurationSP KisFilterPhongBumpmap::defaultConfiguration(KisResource
     config->setProperty(USE_NORMALMAP_IS_ENABLED, false);
     config->setProperty(PHONG_DIFFUSE_REFLECTIVITY_IS_ENABLED, true);
     config->setProperty(PHONG_SPECULAR_REFLECTIVITY_IS_ENABLED, true);
-    // Indexes are off by 1 simply because arrays start at 0 and the GUI naming scheme started at 1
     config->setProperty(PHONG_ILLUMINANT_IS_ENABLED[0], true);
     config->setProperty(PHONG_ILLUMINANT_IS_ENABLED[1], true);
     config->setProperty(PHONG_ILLUMINANT_IS_ENABLED[2], false);
@@ -207,12 +191,12 @@ KisFilterConfigurationSP KisFilterPhongBumpmap::defaultConfiguration(KisResource
     return config;
 }
 
-QRect KisFilterPhongBumpmap::neededRect(const QRect &rect, const KisFilterConfigurationSP /*config*/, int /*lod*/) const
+QRect KisFilterPhongBumpmap::neededRect(const QRect &rect, const KisFilterConfigurationSP , int ) const
 {
     return rect.adjusted(-1, -1, 1, 1);
 }
 
-QRect KisFilterPhongBumpmap::changedRect(const QRect &rect, const KisFilterConfigurationSP /*config*/, int /*lod*/) const
+QRect KisFilterPhongBumpmap::changedRect(const QRect &rect, const KisFilterConfigurationSP , int ) const
 {
     return rect;
 }

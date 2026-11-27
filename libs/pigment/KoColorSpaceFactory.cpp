@@ -33,7 +33,6 @@ KoColorSpaceFactory::KoColorSpaceFactory() : d(new Private)
 KoColorSpaceFactory::~KoColorSpaceFactory()
 {
 #ifndef NDEBUG
-    // Check that all color spaces have been released
     int count = 0;
     count += d->availableColorspaces.size();
 

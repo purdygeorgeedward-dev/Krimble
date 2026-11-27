@@ -32,9 +32,7 @@
 #include <KisWrappableHBoxLayout.h>
 #include <kis_signals_blocker.h>
 
-
 #include "kis_icon.h"
-
 
 WdgCloseableLabel::WdgCloseableLabel(KoID tag, bool editable, bool semiSelected, QWidget *parent)
     : QWidget(parent)
@@ -65,7 +63,6 @@ WdgCloseableLabel::WdgCloseableLabel(KoID tag, bool editable, bool semiSelected,
         layout->addWidget(m_closeIconLabel);
     }
     else {
-        //Add a margin to the right when there's no delete button
         layout->setContentsMargins(4, 2, 4, 2);
     }
     setLayout(layout);
@@ -88,7 +85,6 @@ void WdgCloseableLabel::paintEvent(QPaintEvent *event)
                                           256*(r1*backGroundColor.greenF() + r2*foregroundColor.greenF()),
                                           256*(r1*backGroundColor.blueF() + r2*foregroundColor.blueF()));
 
-
     QBrush windowB = qApp->palette().window();
     QBrush windowTextB = qApp->palette().windowText();
 
@@ -97,7 +93,6 @@ void WdgCloseableLabel::paintEvent(QPaintEvent *event)
     QPainterPath path;
     path.addRoundedRect(this->rect(), 6, 6);
 
-    // good color:
     painter.fillPath(path, qApp->palette().light());
 
     if (m_semiSelected) {
@@ -160,7 +155,7 @@ void WdgAddTagButton::setAvailableTagsList(QList<KoID> &notSelected)
         action->setData(QVariant::fromValue<KoID>(tag));
         addAction(action);
     }
-    
+
     QAction *separator = new QAction(this);
     separator->setSeparator(true);
     addAction(separator);
@@ -198,7 +193,6 @@ void WdgAddTagButton::slotAddNewTag(QAction *action)
         slotFinishLastAction();
     }
 
-
     if (this->menu()) {
         this->menu()->close();
     }
@@ -211,7 +205,6 @@ void WdgAddTagButton::slotCreateNewTag(QString tagName)
     slotFinishLastAction();
     KisSignalsBlocker b(m_createNewTagAction);
     m_createNewTagAction->setText("");
-
 
     if (this->menu()) {
         this->menu()->close();
@@ -228,14 +221,13 @@ void WdgAddTagButton::paintEvent(QPaintEvent *event)
     path.addRoundedRect(this->rect(), 6, 6);
     painter.fillPath(path, qApp->palette().light());
 
-    //Draw icon
     painter.setPen(QPen(qApp->palette().windowText(), painter.pen().widthF()));
     QIcon icon = this->icon();
     QSize size = this->rect().size()*0.65;
 
     QSize iconSize = icon.actualSize(size);
     QPixmap pix = icon.pixmap(iconSize);
-    QSize realSize = iconSize.scaled(iconSize, Qt::KeepAspectRatio);//pix.rect().size();
+    QSize realSize = iconSize.scaled(iconSize, Qt::KeepAspectRatio);
     QPointF p = this->rect().topLeft() + QPointF(this->rect().width() - realSize.width(), this->rect().height() - realSize.height()) / 2;
 
     painter.setOpacity(!isEnabled() ? 0.3 : 1.0);
@@ -285,7 +277,6 @@ void KisTagSelectionWidget::setTagList(bool editable, QList<KoID> &selected, QLi
         delete item;
     }
 
-
     WdgAddTagButton* addTagButton = dynamic_cast<WdgAddTagButton*>(m_addTagButton);
     KIS_SAFE_ASSERT_RECOVER_RETURN(addTagButton);
     addTagButton->setAvailableTagsList(notSelected);
@@ -304,7 +295,6 @@ void KisTagSelectionWidget::setTagList(bool editable, QList<KoID> &selected, QLi
 
     m_layout->addWidget(m_addTagButton);
     m_addTagButton->setVisible(m_editable);
-
 
     connect(m_addTagButton, SIGNAL(sigCreateNewTag(QString)), this, SIGNAL(sigCreateNewTag(QString)), Qt::UniqueConnection);
     connect(m_addTagButton, SIGNAL(sigAddNewTag(KoID)), this, SIGNAL(sigAddTagToSelection(KoID)), Qt::UniqueConnection);

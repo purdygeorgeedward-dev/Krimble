@@ -88,12 +88,10 @@ bool SvgWriter::save(QIODevice &outputDevice, const QSizeF &pageSize)
     QTextStream svgStream(&outputDevice);
     KisPortingUtils::setUtf8OnStream(svgStream);
 
-    // standard header:
     svgStream << "<?xml version=\"1.0\" standalone=\"no\"?>" << Qt::endl;
     svgStream << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" ";
     svgStream << "\"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\">" << Qt::endl;
 
-    // add some PR.  one line is more than enough.
     svgStream << "<!-- Created using Krimble: https://krimble.org -->" << Qt::endl;
 
     svgStream << "<svg xmlns=\"http://www.w3.org/2000/svg\" \n";
@@ -120,7 +118,6 @@ bool SvgWriter::save(QIODevice &outputDevice, const QSizeF &pageSize)
         saveShapes(m_toplevelShapes, savingContext);
     }
 
-    // end tag:
     svgStream << Qt::endl << "</svg>" << Qt::endl;
 
     return true;
@@ -149,7 +146,6 @@ bool SvgWriter::saveDetached(SvgSavingContext &savingContext)
 
 void SvgWriter::saveShapes(const QList<KoShape *> shapes, SvgSavingContext &savingContext)
 {
-    // top level shapes
     Q_FOREACH (KoShape *shape, shapes) {
         KoShapeLayer *layer = dynamic_cast<KoShapeLayer*>(shape);
         if(layer) {
@@ -190,7 +186,6 @@ void SvgWriter::saveGroup(KoShapeGroup * group, SvgSavingContext &context)
 
     SvgUtil::writeTransformAttributeLazy("transform", group->transformation(), context.shapeWriter());
 
-
     SvgStyleWriter::saveMetadata(group, context);
 
     SvgStyleWriter::saveSvgStyle(group, context);
@@ -219,7 +214,6 @@ void SvgWriter::saveShape(KoShape *shape, SvgSavingContext &context)
     if (path) {
         savePath(path, context);
     } else {
-        // generic saving of shape via a switch element
         saveGeneric(shape, context);
     }
 }
@@ -244,24 +238,13 @@ void SvgWriter::saveGeneric(KoShape *shape, SvgSavingContext &context)
 
     const QRectF bbox = shape->boundingRect();
 
-    // paint shape to the image
     KoShapePainter painter;
     painter.setShapes(QList<KoShape*>()<< shape);
 
-    // generate svg from shape
     QBuffer svgBuffer;
     QSvgGenerator svgGenerator;
     svgGenerator.setOutputDevice(&svgBuffer);
 
-    /**
-     * HACK ALERT: Qt (and Krita 3.x) has a weird bug, it assumes that all font sizes are
-     *             defined in 96 ppi resolution, even though your the resolution in QSvgGenerator
-     *             is manually set to 72 ppi. So here we do a tricky thing: we set a fake resolution
-     *             to (72 * 72 / 96) = 54 ppi, which guarantees that the text, when painted in 96 ppi,
-     *             will be actually painted in 72 ppi.
-     *
-     * BUG: 389802
-     */
     if (shape->shapeId() == "TextShapeID") {
         svgGenerator.setResolution(54);
     }
@@ -271,15 +254,12 @@ void SvgWriter::saveGeneric(KoShape *shape, SvgSavingContext &context)
     painter.paint(svgPainter, SvgUtil::toUserSpace(bbox).toRect(), bbox);
     svgPainter.end();
 
-    // remove anything before the start of the svg element from the buffer
     int startOfContent = svgBuffer.buffer().indexOf("<svg");
     if(startOfContent>0) {
         svgBuffer.buffer().remove(0, startOfContent);
     }
 
-    // check if painting to svg produced any output
     if (svgBuffer.buffer().isEmpty()) {
-        // prepare a transparent image, make it twice as big as the original size
         QImage image(2*bbox.size().toSize(), QImage::Format_ARGB32);
         image.fill(0);
         painter.paint(image);
@@ -291,14 +271,12 @@ void SvgWriter::saveGeneric(KoShape *shape, SvgSavingContext &context)
         context.shapeWriter().addAttribute("width", bbox.width());
         context.shapeWriter().addAttribute("height", bbox.height());
         context.shapeWriter().addAttribute("xlink:href", context.saveImage(image));
-        context.shapeWriter().endElement(); // image
+        context.shapeWriter().endElement();
 
     } else {
         context.shapeWriter().addCompleteElement(&svgBuffer);
     }
 
-    // TODO: once we support saving single (flat) odf files
-    // we can embed these here to have full support for generic shapes
 }
 
 void SvgWriter::setDocumentTitle(QString title)

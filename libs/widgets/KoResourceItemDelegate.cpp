@@ -68,7 +68,7 @@ void KoResourceItemDelegate::paint( QPainter * painter, const QStyleOptionViewIt
         }
         painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
         if (thumbnail.hasAlphaChannel()) {
-            painter->fillRect(innerRect, Qt::white); // no checkers, they are confusing with patterns.
+            painter->fillRect(innerRect, Qt::white);
         }
         painter->fillRect( innerRect, QBrush(thumbnail) );
     }

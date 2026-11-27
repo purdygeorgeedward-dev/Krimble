@@ -18,8 +18,6 @@
 #include <KoSelection.h>
 #include <KoCanvasBase.h>
 
-
-
 struct KoShapeFillResourceConnector::Private
 {
     KoCanvasBase *canvas;
@@ -71,7 +69,6 @@ void KoShapeFillResourceConnector::slotCanvasResourceChanged(int key, const QVar
     }
 }
 
-
 void KoShapeFillResourceConnector::Private::applyShapeColoring(KoFlake::FillVariant fillVariant, const KoColor &color)
 {
     QList<KoShape *> selectedEditableShapes = canvas->selectedShapesProxy()->selection()->selectedEditableShapes();
@@ -81,7 +78,7 @@ void KoShapeFillResourceConnector::Private::applyShapeColoring(KoFlake::FillVari
     }
 
     KoShapeFillWrapper wrapper(selectedEditableShapes, fillVariant);
-    KUndo2Command *command = wrapper.setColor(color.toQColor()); // TODO: do the conversion in a better way!
+    KUndo2Command *command = wrapper.setColor(color.toQColor());
 
     if (command) {
         canvas->addCommand(command);

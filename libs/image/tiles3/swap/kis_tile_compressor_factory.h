@@ -31,5 +31,5 @@ private:
     KisTileCompressorFactory();
 };
 
-#endif /* __KIS_TILE_COMPRESSOR_FACTORY_H */
+#endif
 

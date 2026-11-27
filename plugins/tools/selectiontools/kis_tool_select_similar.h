@@ -14,9 +14,6 @@
 #include <kconfiggroup.h>
 #include <commands_new/KisMergeLabeledLayersCommand.h>
 
-/*
- * Tool to select colors by pointing at a color on the image.
- */
 class KisToolSelectSimilar: public KisToolSelect
 {
     Q_OBJECT
@@ -49,7 +46,6 @@ private:
     int m_previousTime;
 };
 
-
 class KisToolSelectSimilarFactory : public KisSelectionToolFactoryBase
 {
 public:
@@ -69,6 +65,5 @@ public:
     }
 };
 
-
-#endif // KIS_TOOL_SELECT_SIMILAR_H_
+#endif
 

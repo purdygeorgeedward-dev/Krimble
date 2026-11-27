@@ -4,13 +4,11 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisSelectionUpdateCompressor.h"
 #include "kis_image.h"
 #include "kis_selection.h"
 #include "kis_layer_utils.h"
 #include "kis_update_selection_job.h"
-
 
 KisSelectionUpdateCompressor::KisSelectionUpdateCompressor(KisSelection *selection)
     : m_parentSelection(selection)
@@ -48,8 +46,6 @@ void KisSelectionUpdateCompressor::startUpdateJob()
         return;
     }
 
-    // FIXME: we cannot use parentNode->image() here because masks don't
-    //        have the pointer initialized for some reason.
     KisImageSP image = KisLayerUtils::findImageByHierarchy(parentNode);
     if (!image) {
         m_hasStalledUpdate = true;

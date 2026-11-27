@@ -25,8 +25,6 @@
 
 #include "rwidgetutils.h"
 
-// Qt includes
-
 #include <QWidget>
 #include <QByteArray>
 #include <QBuffer>
@@ -43,11 +41,7 @@
 #include <QStyleOptionButton>
 #include <qdrawutil.h>
 
-// KDE includes
-
 #include <klocalizedstring.h>
-
-// Local includes
 
 #include "libkdcraw_debug.h"
 
@@ -84,8 +78,6 @@ void RActiveLabel::updateData(const QUrl& url, const QImage& img)
             .arg(QString::fromLatin1(byteArray.toBase64().data()))));
 }
 
-// ------------------------------------------------------------------------------------
-
 RLineWidget::RLineWidget(Qt::Orientation orientation, QWidget* const parent)
     : QFrame(parent)
 {
@@ -112,8 +104,6 @@ RLineWidget::~RLineWidget()
 {
 }
 
-// ------------------------------------------------------------------------------------
-
 RHBox::RHBox(QWidget* const parent)
     : QFrame(parent)
 {
@@ -122,7 +112,7 @@ RHBox::RHBox(QWidget* const parent)
     layout->setContentsMargins(0, 0, 0, 0);
 }
 
-RHBox::RHBox(bool /*vertical*/, QWidget* const parent)
+RHBox::RHBox(bool , QWidget* const parent)
     : QFrame(parent)
 {
     QVBoxLayout* const layout = new QVBoxLayout(this);
@@ -202,8 +192,6 @@ void RHBox::setStretchFactor(QWidget* const widget, int stretch)
     static_cast<QBoxLayout*>(layout())->setStretchFactor(widget, stretch);
 }
 
-// ------------------------------------------------------------------------------------
-
 RVBox::RVBox(QWidget* const parent)
   : RHBox(true, parent)
 {
@@ -212,8 +200,6 @@ RVBox::RVBox(QWidget* const parent)
 RVBox::~RVBox()
 {
 }
-
-// ------------------------------------------------------------------------------------
 
 class Q_DECL_HIDDEN RAdjustableLabel::Private
 {
@@ -331,8 +317,6 @@ void RAdjustableLabel::adjustTextToLabel()
     }
 }
 
-// ------------------------------------------------------------------------------------
-
 class Q_DECL_HIDDEN RFileSelector::Private
 {
 public:
@@ -433,8 +417,6 @@ void RFileSelector::slotBtnClicked()
     delete fileDlg;
 }
 
-// ---------------------------------------------------------------------------------------
-
 WorkingPixmap::WorkingPixmap()
 {
     QPixmap pix(QStandardPaths::locate(QStandardPaths::AppDataLocation, QLatin1String("libkdcraw/pics/process-working.png")));
@@ -508,8 +490,6 @@ QPixmap WorkingPixmap::frameAt(int index) const
 
     return m_frames.at(index);
 }
-
-// ------------------------------------------------------------------------------------
 
 class Q_DECL_HIDDEN RColorSelector::Private
 {
@@ -620,4 +600,4 @@ void RColorSelector::paintEvent(QPaintEvent*)
     }
 }
 
-} // namespace KDcrawIface
+}

@@ -1,0 +1,12 @@
+#pragma once
+#include "QAndroidJniObject"
+#include <QHash>
+#include <QStringList>
+#include <functional>
+class QAndroidActivityResultReceiver { public: virtual ~QAndroidActivityResultReceiver(){} virtual void handleActivityResult(int,int,const QAndroidJniObject&)=0; };
+class QAndroidIntent { public: template<class...A> QAndroidIntent(A...){} QAndroidJniObject handle() const { return QAndroidJniObject(); } };
+namespace QtAndroid { inline QAndroidJniObject androidActivity(){return QAndroidJniObject();} inline QAndroidJniObject androidContext(){return QAndroidJniObject();} inline int androidSdkVersion(){return 30;}
+ inline void runOnAndroidThread(const std::function<void()>&){} inline void runOnAndroidThreadSync(const std::function<void()>&, int=0){}
+ enum class PermissionResult { Denied, Granted }; typedef QHash<QString,PermissionResult> PermissionResultMap;
+ inline PermissionResult checkPermission(const QString&){return PermissionResult::Granted;} inline PermissionResultMap requestPermissionsSync(const QStringList&, int=0){return PermissionResultMap();}
+ template<class...A> void requestPermissions(A...){} template<class...A> void startActivity(A...){} inline void hideSplashScreen(int=0){} }

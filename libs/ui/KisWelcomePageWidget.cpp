@@ -33,6 +33,7 @@
 #include <QListWidgetItem>
 #include <QMenu>
 #include <QScrollBar>
+#include <QtMath>
 #include <QLayout>
 #include <QSpacerItem>
 #include <QStackedWidget>
@@ -94,15 +95,12 @@
 #include <QRandomGenerator>
 #endif
 
-// Used for triggering a QAction::setChecked signal from a QLabel::linkActivated signal
 void ShowNewsAction::enableFromLink(QString unused_url)
 {
     Q_UNUSED(unused_url);
     Q_EMIT setChecked(true);
 }
 
-
-// class to override item height for Breeze since qss seems to not work
 class RecentItemDelegate : public QStyledItemDelegate
 {
     int itemHeight = 0;
@@ -117,19 +115,17 @@ public:
         this->itemHeight = itemHeight;
     }
 
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &/*index*/) const override
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex & ) const override
     {
         return QSize(option.rect.width(), itemHeight);
     }
 };
-
 
 KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
     : QWidget(parent)
 {
     setupUi(this);
 
-    // URLs that go to web browser...
     devBuildIcon->setIcon(KisIconUtils::loadIcon("warning"));
     devBuildLabel->setVisible(false);
     updaterFrame->setVisible(false);
@@ -137,7 +133,6 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
     bnVersionUpdate->setVisible(false);
     bnErrorDetails->setVisible(false);
 
-    // Recent docs...
     recentDocumentsListView->setDragEnabled(false);
     recentDocumentsListView->viewport()->setAutoFillBackground(false);
     recentDocumentsListView->setSpacing(2);
@@ -145,9 +140,6 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
     recentDocumentsListView->setViewMode(QListView::IconMode);
     recentDocumentsListView->setSelectionMode(QAbstractItemView::NoSelection);
 
-//    m_recentItemDelegate.reset(new RecentItemDelegate(this));
-//    m_recentItemDelegate->setItemHeight(KisRecentDocumentsModelWrapper::ICON_SIZE_LENGTH);
-//    recentDocumentsListView->setItemDelegate(m_recentItemDelegate.data());
     recentDocumentsListView->setIconSize(QSize(KisRecentDocumentsModelWrapper::ICON_SIZE_LENGTH, KisRecentDocumentsModelWrapper::ICON_SIZE_LENGTH));
     recentDocumentsListView->setVerticalScrollMode(QListView::ScrollPerPixel);
     recentDocumentsListView->verticalScrollBar()->setSingleStep(50);
@@ -160,7 +152,6 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
     recentDocumentsListView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(recentDocumentsListView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(slotRecentDocContextMenuRequest(QPoint)));
 
-    // News widget...
     QMenu *newsOptionsMenu = new QMenu(this);
     newsOptionsMenu->setToolTipsVisible(true);
     ShowNewsAction *showNewsAction = new ShowNewsAction(i18n("Enable news and check for new releases"), newsOptionsMenu);
@@ -194,15 +185,13 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
     setAttribute(Qt::WA_StyledBackground, true);
 #endif
 
-    // configure the News area
     KisConfig cfg(true);
     m_networkIsAllowed = cfg.readEntry<bool>("FetchNews", false);
-
 
 #ifdef ENABLE_UPDATERS
 #ifndef Q_OS_ANDROID
 #if defined Q_OS_LINUX
-    if (!qEnvironmentVariableIsSet("SteamAppId")) { // do not create updater for linux/steam
+    if (!qEnvironmentVariableIsSet("SteamAppId")) {
         if (qEnvironmentVariableIsSet("APPIMAGE")) {
             m_versionUpdater.reset(new KisAppimageUpdater());
         } else {
@@ -217,28 +206,25 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
         KisUsageLogger::log("detected appx or steam package - not creating the updater");
     }
 #else
-	// always create updater for MacOS
     m_versionUpdater.reset(new KisManualUpdater());
-#endif // Q_OS_*
+#endif
 	if (!m_versionUpdater.isNull()) {
 		connect(bnVersionUpdate, SIGNAL(clicked()), this, SLOT(slotRunVersionUpdate()));
 		connect(bnErrorDetails, SIGNAL(clicked()), this, SLOT(slotShowUpdaterErrorDetails()));
 		connect(m_versionUpdater.data(), SIGNAL(sigUpdateCheckStateChange(KisUpdaterStatus)),
 				this, SLOT(slotSetUpdateStatus(const KisUpdaterStatus&)));
 
-        if (m_networkIsAllowed) { // only if the user wants them
+        if (m_networkIsAllowed) {
 			m_versionUpdater->checkForUpdate();
 		}
 	}
-#endif // ifndef Q_OS_ANDROID
-#endif // ENABLE_UPDATERS
-
+#endif
+#endif
 
     showNewsAction->setChecked(m_networkIsAllowed);
     newsWidget->setVisible(m_networkIsAllowed);
     versionNotificationLabel->setEnabled(m_networkIsAllowed);
 
-    // Drop area..
     setAcceptDrops(true);
 }
 
@@ -251,13 +237,10 @@ void KisWelcomePageWidget::setMainWindow(KisMainWindow* mainWin)
     if (mainWin) {
         m_mainWindow = mainWin;
 
-        // set the shortcut links from actions (only if a shortcut exists)
         KisActionManager *actionManager = mainWin->viewManager()->actionManager();
         updateShortcutLink(newFileLink, newFileLinkShortcut, actionManager->actionByName(QStringLiteral("file_new")));
         updateShortcutLink(openFileLink, openFileShortcut, actionManager->actionByName(QStringLiteral("file_open")));
         connect(recentDocumentsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(recentDocumentClicked(QModelIndex)));
-        // we need the view manager to actually call actions, so don't create the connections
-        // until after the view manager is set
         connect(newFileLink, SIGNAL(clicked(bool)), this, SLOT(slotNewFileClicked()));
         connect(openFileLink, SIGNAL(clicked(bool)), this, SLOT(slotOpenFileClicked()));
         connect(clearRecentFilesLink, SIGNAL(clicked(bool)), mainWin, SLOT(clearRecentFiles()));
@@ -267,7 +250,6 @@ void KisWelcomePageWidget::setMainWindow(KisMainWindow* mainWin)
 
         slotUpdateThemeColors();
 
-        // allows RSS news items to apply analytics tracking.
         newsWidget->setAnalyticsTracking("?" + analyticsString);
 
         KisRecentDocumentsModelWrapper *recentFilesModel = KisRecentDocumentsModelWrapper::instance();
@@ -276,7 +258,6 @@ void KisWelcomePageWidget::setMainWindow(KisMainWindow* mainWin)
         slotRecentFilesModelIsUpToDate();
     }
 }
-
 
 void KisWelcomePageWidget::showDropAreaIndicator(bool show)
 {
@@ -288,7 +269,6 @@ void KisWelcomePageWidget::showDropAreaIndicator(bool show)
         QColor backgroundColor = qApp->palette().color(QPalette::Window);
         QColor blendedColor = KisPaintingTweaks::blendColors(textColor, backgroundColor, 0.8);
 
-        // QColor.name() turns it into a hex/web format
         QString dropFrameStyle = QString("QFrame#dropAreaIndicator { border: 2px dotted ").append(blendedColor.name()).append(" }") ;
         dropFrameBorder->setStyleSheet(dropFrameStyle);
     }
@@ -299,12 +279,9 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     textColor = qApp->palette().color(QPalette::Text);
     backgroundColor = qApp->palette().color(QPalette::Window);
 
-    // make the welcome screen labels a subtle color so it doesn't clash with the main UI elements
     blendedColor = KisPaintingTweaks::blendColors(textColor, backgroundColor, 0.8);
-    // only apply color to the widget itself, not to the tooltip or something
     blendedStyle = "QWidget{color: " + blendedColor.name() + "}";
 
-    // what labels to change the color...
     startTitleLabel->setStyleSheet(blendedStyle);
     recentDocumentsLabel->setStyleSheet(blendedStyle);
     helpTitleLabel->setStyleSheet(blendedStyle);
@@ -322,15 +299,12 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     newFileLink->setStyleSheet(blendedStyle);
     openFileLink->setStyleSheet(blendedStyle);
 
-    // make drop area QFrame have a dotted line
     dropFrameBorder->setObjectName("dropAreaIndicator");
     QString dropFrameStyle = QString("QFrame#dropAreaIndicator { border: 4px dotted ").append(blendedColor.name()).append("}");
     dropFrameBorder->setStyleSheet(dropFrameStyle);
 
-    // only show drop area when we have a document over the empty area
     showDropAreaIndicator(false);
 
-    // add icons for new and open settings to make them stand out a bit more
     openFileLink->setIconSize(QSize(48, 48));
     newFileLink->setIconSize(QSize(48, 48));
 
@@ -348,7 +322,6 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     sourceCodeIcon->setIcon(KisIconUtils::loadIcon(QStringLiteral("code")));
     kdeIcon->setIcon(KisIconUtils::loadIcon(QStringLiteral("kde")));
 
-    // HTML links seem to be a bit more stubborn with theme changes... setting inline styles to help with color change
     userCommunityLink->setText(QString("<a style=\"color: " + blendedColor.name() + " \" href=\"https://krimble.org\">")
                                .append(i18n("User Community")).append("</a>"));
 
@@ -383,15 +356,13 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     recentDocsStackedWidget->setStyleSheet("QStackedWidget#recentDocsStackedWidget" + frameQss);
     newsFrame->setStyleSheet("QFrame#newsFrame" + frameQss);
 
-    // show the dev version labels, if dev version is detected
     showDevVersionHighlight();
 
 #ifdef ENABLE_UPDATERS
-    updateVersionUpdaterFrame(); // updater frame
+    updateVersionUpdaterFrame();
 #endif
 
 #ifdef Q_OS_MACOS
-    // macOS store version should not contain external links containing donation buttons or forms
     if (KisMacosEntitlements().sandbox()) {
         supportKritaLink->hide();
         supportKritaIcon->hide();
@@ -419,7 +390,13 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     widgetCenter->hide();
     widgetRight->hide();
 
-    recentDocumentsListView->setIconSize(QSize(88, 88));
+    recentDocumentsListView->setIconSize(QSize(140, 140));
+    {
+        const qreal dpr = qMax<qreal>(1.0, devicePixelRatioF());
+        const int bar = qCeil(48.0 / dpr);
+        recentDocumentsListView->setStyleSheet(blendedStyle + QStringLiteral("\nQScrollBar:vertical { width: %1px; } QScrollBar:horizontal { height: %1px; }").arg(bar));
+        recentDocumentsListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    }
     recentDocumentsListView->setResizeMode(QListView::Adjust);
     recentDocumentsListView->setWrapping(true);
     recentDocumentsListView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -497,7 +474,7 @@ void KisWelcomePageWidget::dragMoveEvent(QDragMoveEvent *event)
     return event->ignore();
 }
 
-void KisWelcomePageWidget::dragLeaveEvent(QDragLeaveEvent */*event*/)
+void KisWelcomePageWidget::dragLeaveEvent(QDragLeaveEvent * )
 {
     showDropAreaIndicator(false);
     m_mainWindow->dragLeave();
@@ -522,11 +499,9 @@ namespace {
 
 QString getAutoNewsLang()
 {
-    // Get current UI languages:
     const QStringList uiLangs = KLocalizedString::languages();
     QString autoNewsLang = uiLangs.first();
     if (autoNewsLang.isEmpty()) {
-        // If nothing else, use English.
         autoNewsLang = QString("en");
     } else if (autoNewsLang == "ja") {
         return QString("jp");
@@ -543,7 +518,7 @@ QString getAutoNewsLang()
     return autoNewsLang;
 }
 
-} /* namespace */
+}
 
 void KisWelcomePageWidget::setupNewsLangSelection(QMenu *newsOptionsMenu)
 {
@@ -580,13 +555,11 @@ void KisWelcomePageWidget::setupNewsLangSelection(QMenu *newsOptionsMenu)
 
     QSharedPointer<QSet<QString>> enabledNewsLangs = QSharedPointer<QSet<QString>>::create();
     {
-        // Initialize with the config.
         KisConfig cfg(true);
         auto languagesList = cfg.readList<QString>(newsLangConfigName);
         *enabledNewsLangs = QSet(languagesList.begin(), languagesList.end());
     }
 
-    // If no languages are selected in the config, use the automatic selection.
     if (enabledNewsLangs->isEmpty()) {
         enabledNewsLangs->insert(QString(getAutoNewsLang()));
     }
@@ -594,25 +567,17 @@ void KisWelcomePageWidget::setupNewsLangSelection(QMenu *newsOptionsMenu)
     for (const auto &lang : newsLangs) {
         QAction *langItem = newsOptionsMenu->addAction(lang.name);
         langItem->setCheckable(true);
-        // We can copy `code` into the lambda because its backing string is a
-        // static string literal.
         const QString code = lang.siteCode;
         connect(langItem, &QAction::toggled, newsWidget, [=](bool checked) {
             newsWidget->toggleNewsLanguage(code, checked);
         });
 
-        // Set the initial checked state.
         if (enabledNewsLangs->contains(code)) {
             langItem->setChecked(true);
         }
 
-        // Connect this lambda after setting the initial checked state because
-        // we don't want to overwrite the config when doing the initial setup.
         connect(langItem, &QAction::toggled, [=](bool checked) {
             KisConfig cfg(false);
-            // It is safe to modify `enabledNewsLangs` here, because the slots
-            // are called synchronously on the UI thread so there is no need
-            // for explicit synchronization.
             if (checked) {
                 enabledNewsLangs->insert(QString(code));
             } else {
@@ -699,7 +664,6 @@ void KisWelcomePageWidget::slotPaste()
     if (!this->isVisible())
         return;
 
-    // Don't do anything if there's no image in the clipboard
     if (!KisClipboard::instance()->hasImage())
         return;
 
@@ -783,7 +747,6 @@ void KisWelcomePageWidget::updateVersionUpdaterFrame()
         if (m_versionUpdater->hasUpdateCapability()) {
             bnVersionUpdate->setVisible(true);
         } else {
-            // build URL for label
             QString downloadLink = QString(" <a style=\"color: %1; text-decoration: underline\" href=\"%2?%3\">Download Krimble %4</a>")
                     .arg(blendedColor.name())
                     .arg(m_updaterStatus.downloadLink())
@@ -798,9 +761,6 @@ void KisWelcomePageWidget::updateVersionUpdaterFrame()
                || (m_updaterStatus.status() == UpdaterStatus::StatusID::CHECK_ERROR)
                || (m_updaterStatus.status() == UpdaterStatus::StatusID::IN_PROGRESS)
                ){
-        // no notifications, if uptodate
-        // also, stay silent on check error - we do not want to generate lots of user support issues
-        // because of failing wifis and proxies over the world
         updaterFrame->setVisible(false);
 
     } else if (m_updaterStatus.status() == UpdaterStatus::StatusID::UPDATE_ERROR) {
@@ -832,27 +792,24 @@ void KisWelcomePageWidget::initDonations()
         return;
     }
 
-    // Pick a random banner. Note that the second number is *exclusive*.
     int bannerIndex = QRandomGenerator::global()->bounded(1, 5);
 
-    // Banners have space where we can place text, but this varies by banner.
-    // These are the relative locations where that space is.
-    qreal ry = 0.02; // Vertical offset, always the same.
-    qreal rh = 1.0 - ry * 2.0; // Height, dito.
-    qreal rwpad = 0.02; // Horizontal padding.
-    qreal rx, rw; // Horizontal offset and width, vary by banner.
+    qreal ry = 0.02;
+    qreal rh = 1.0 - ry * 2.0;
+    qreal rwpad = 0.02;
+    qreal rx, rw;
     switch (bannerIndex) {
-    case 1: // Kiki winking on the left.
-    case 3: // Stargazers on the left.
+    case 1:
+    case 3:
         rx = 0.4;
         rw = 1.0 - rx - rwpad;
         break;
-    case 2: // Cat holding brush in its mouth on the right.
-    case 4: // Person holding digital palette on the right.
+    case 2:
+    case 4:
         rx = rwpad;
         rw = 0.6 - rx;
         break;
-    default: // Shouldn't happen, punt to using the entire width minus padding.
+    default:
         qWarning("Unhandled banner index %d", bannerIndex);
         rx = rwpad;
         rw = 1.0 - rwpad * 2.0;
@@ -879,12 +836,6 @@ void KisWelcomePageWidget::initDonations()
         QString headline = headlines[QRandomGenerator::global()->bounded(headlines.size())];
         QString subtitle = subtitles[QRandomGenerator::global()->bounded(subtitles.size())];
 
-        // We want some text on the banner, which unfortunately requires some
-        // manual layout. We're going to write a top line in a larger font and
-        // a bottom line in a smaller font. They're going to be separated by a
-        // few pixels, centered horizontally and fit into predefined bounds on
-        // the banner depending on which image we're using. The text will be
-        // white with a black outline, so we'll use QPainterPath. Math time.
         QPainter painter(&welcomeBannerPixmap);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setRenderHint(QPainter::TextAntialiasing);
@@ -894,7 +845,6 @@ void KisWelcomePageWidget::initDonations()
 
         qreal verticalSeparation = 40.0;
 
-        // Top line, the heading.
         QFont currentFont = font();
         currentFont.setPointSize(100);
         currentFont.setBold(false);
@@ -902,15 +852,12 @@ void KisWelcomePageWidget::initDonations()
         topPath.addText(0, 0, currentFont, headline);
         QRectF topBounds = topPath.boundingRect();
 
-        // Bottom line, smaller text for more words.
         currentFont.setPointSize(60);
         currentFont.setBold(true);
         QPainterPath bottomPath;
         bottomPath.addText(0, 0, currentFont, subtitle);
         QRectF bottomBounds = bottomPath.boundingRect();
 
-        // Stick those two lines into a combined path, horizontally centered,
-        // separated a bit so that the text doesn't get glued together.
         qreal maxWidth = qMax(topBounds.width(), bottomBounds.width());
         qreal topOffsetX = (maxWidth - topBounds.width()) / 2.0;
         qreal bottomOffsetX = (maxWidth - bottomBounds.width()) / 2.0;
@@ -930,9 +877,6 @@ void KisWelcomePageWidget::initDonations()
         combinedPath.addPath(topPath);
         combinedPath.addPath(bottomPath);
 
-        // Determine the rectangle on the banner that we want to fit the text
-        // into. Taking a detour through the paint device just in case high-DPI
-        // scaling messes with the dimensions somehow.
         qreal w = painter.device()->width();
         qreal h = painter.device()->height();
         QRect rect(w * rx, h * ry, w * rw, h * rh);
@@ -951,9 +895,6 @@ void KisWelcomePageWidget::initDonations()
         combinedPath = combinedTransform.map(combinedPath);
         combinedPath.setFillRule(Qt::WindingFill);
 
-        // And finally, draw the text onto the banner. First stroking the
-        // outside, then filling the inside, otherwise there's weird effects
-        // with strokes inside of letters overlapping with the fill.
         painter.setPen(pen);
         painter.setBrush(Qt::NoBrush);
         painter.drawPath(combinedPath);
@@ -1011,14 +952,9 @@ void KisWelcomePageWidget::slotUpdateDonationState()
         qWarning("KisWelcomePageWidget::slotUpdateDonationState: android donations is null");
     }
 
-    if(pageVisible) {
-        stkSupport->setCurrentWidget(pageVisible);
-        wdgAndroidSupportBanner->hide();
-        stkSupport->show();
-    } else {
-        stkSupport->hide();
-        wdgAndroidSupportBanner->show();
-    }
+    Q_UNUSED(pageVisible);
+    stkSupport->hide();
+    wdgAndroidSupportBanner->hide();
 
     supporterBadge->setVisible(badgeVisible);
 }
@@ -1027,7 +963,6 @@ void KisWelcomePageWidget::slotUpdateDonationState()
 QFont KisWelcomePageWidget::largerFont()
 {
     QFont larger = font();
-    // Font size may be in pixels (on Android) or points (everywhere else.)
     qreal ratio = 1.1;
     if (larger.pixelSize() == -1) {
         larger.setPointSizeF(larger.pointSizeF() * ratio);

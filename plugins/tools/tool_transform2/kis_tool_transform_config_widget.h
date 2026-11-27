@@ -14,7 +14,6 @@
 class KisCanvas2;
 class QToolButton;
 
-
 class KisToolTransformConfigWidget : public QWidget, private Ui::WdgToolTransform
 {
     Q_OBJECT
@@ -81,6 +80,8 @@ public Q_SLOTS:
 
     void slotSetFreeTransformModeButtonClicked(bool);
     void slotKrimbleRotateButtonClicked(bool);
+    void slotKrimbleStretchButtonClicked(bool);
+    void slotKrimbleShearButtonClicked(bool);
     void slotSetWarpModeButtonClicked(bool);
     void slotSetCageModeButtonClicked(bool);
     void slotCageOptionsChanged(int);
@@ -90,7 +91,6 @@ public Q_SLOTS:
     void slotButtonBoxClicked(QAbstractButton *button);
 
     void slotSetMeshModeButtonClicked(bool);
-
 
     void slotEditCagePoints(bool value);
 
@@ -135,6 +135,15 @@ private:
 
     void resetUIOptions();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+
+private:
+    void krimbleSetFreeKind(int kind);
+    void krimbleApplyModeRequest();
+    void krimblePublishMode(const ToolTransformArgs &config);
+
 private:
     static const int DEFAULT_POINTS_PER_LINE;
 
@@ -143,10 +152,12 @@ private:
     QPointF m_handleDir[9];
     QButtonGroup *m_rotationCenterButtons;
     QToolButton *m_krimbleRotateButton = nullptr;
+    QToolButton *m_krimbleStretchButton = nullptr;
+    QToolButton *m_krimbleShearButton = nullptr;
     int m_notificationsBlocked;
     int m_uiSlotsBlocked;
     double m_scaleRatio;
     bool m_configChanged;
 };
 
-#endif /* __KIS_TOOL_TRANSFORM_CONFIG_WIDGET_H */
+#endif

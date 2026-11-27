@@ -43,7 +43,6 @@ void KoRgbU8ColorSpaceTester::testMixColors()
     const KoColorSpace* cs = KoColorSpaceRegistry::instance()->rgb8();
     KoMixColorsOp * mixOp = cs->mixColorsOp();
 
-    // Test mixColors.
     quint8 pixel1[4];
     quint8 pixel2[4];
     quint8 outputPixel[4];
@@ -136,7 +135,6 @@ void KoRgbU8ColorSpaceTester::testMixColorsAverage()
     const KoColorSpace* cs = KoColorSpaceRegistry::instance()->rgb8();
     KoMixColorsOp * mixOp = cs->mixColorsOp();
 
-    // Test mixColors.
     quint8 pixel1[4];
     quint8 pixel2[4];
     quint8 outputPixel[4];
@@ -174,7 +172,6 @@ void KoRgbU8ColorSpaceTester::testMixColorsAverage()
 
 void KoRgbU8ColorSpaceTester::testCompositeOps()
 {
-    // Just COMPOSITE_COPY for now
 
     QList<KoID> depthIDs = KoColorSpaceRegistry::instance()->colorDepthList(RGBAColorModelID.id(),
                            KoColorSpaceRegistry::AllColorSpaces);
@@ -186,7 +183,7 @@ void KoRgbU8ColorSpaceTester::testCompositeOps()
         qDebug() << depthId.id();
         const KoColorSpace* cs = KoColorSpaceRegistry::instance()->colorSpace(
                                      RGBAColorModelID.id(), depthId.id(), "");
-        
+
         const KoCompositeOp* copyOp = cs->compositeOp(COMPOSITE_COPY);
         KoColor src(cs), dst(cs);
 
@@ -194,10 +191,9 @@ void KoRgbU8ColorSpaceTester::testCompositeOps()
         QColor blue(0, 0, 255);
         QColor transparentRed(255, 0, 0, 0);
 
-        // Copying a color over another color should replace the original color
         src.fromQColor(red);
         dst.fromQColor(blue);
-        
+
         qDebug() << src.toQColor() << dst.toQColor();
 
         QVERIFY(memcmp(dst.data(), src.data(), cs->pixelSize()) != 0);
@@ -208,7 +204,6 @@ void KoRgbU8ColorSpaceTester::testCompositeOps()
         src.fromQColor(red);
         QVERIFY(memcmp(dst.data(), src.data(), cs->pixelSize()) == 0);
 
-        // Copying something transparent over something non-transparent should, of course, make the dst transparent
         src.fromQColor(transparentRed);
         dst.fromQColor(blue);
 
@@ -220,7 +215,6 @@ void KoRgbU8ColorSpaceTester::testCompositeOps()
         src.fromQColor(transparentRed);
         QVERIFY(memcmp(dst.data(), src.data(), cs->pixelSize()) == 0);
 
-        // Copying something solid over something transparent
         src.fromQColor(blue);
         dst.fromQColor(transparentRed);
 
@@ -241,10 +235,6 @@ void KoRgbU8ColorSpaceTester::testCompositeOpsWithChannelFlags()
     QList<KoCompositeOp*> ops = cs->compositeOps();
 
     Q_FOREACH (const KoCompositeOp *op, ops) {
-        /**
-         * ALPHA_DARKEN composite op doesn't take channel
-         * flags into account, so just skip it
-         */
         if (op->id() == COMPOSITE_ALPHA_DARKEN) continue;
         if (op->id() == COMPOSITE_DISSOLVE) continue;
 
@@ -274,10 +264,6 @@ void KoRgbU8ColorSpaceTester::testCompositeOpsWithChannelFlags()
         params.dstRowStart   = badDst;
         op->composite(params);
 
-        /**
-         * The badDst has zero alpha, so the channels should be zeroed
-         * before increasing alpha of the pixel
-         */
         if (badDst[3] != 0 && badDst[2] != 0) {
             qDebug() << op->id()
                      << "easy case:" << goodDst[2]
@@ -293,7 +279,6 @@ void KoRgbU8ColorSpaceTester::testCompositeOpsWithChannelFlags()
     }
 }
 
-// for posix_memalign()
 #include <stdlib.h>
 
 #if defined Q_OS_WIN
@@ -309,7 +294,7 @@ void KoRgbU8ColorSpaceTester::testCompositeCopyDivisionByZero()
     const KoColorSpace* cs = KoColorSpaceRegistry::instance()->rgb8();
     const KoCompositeOp *op = cs->compositeOp(COMPOSITE_COPY);
 
-    const int pixelAlignment = sizeof(float) * 16; // 512-bit alignment should be enough for everyone! (c)
+    const int pixelAlignment = sizeof(float) * 16;
     const int numPixels = 256;
     void *src = 0;
     void *dst = 0;
@@ -322,11 +307,9 @@ void KoRgbU8ColorSpaceTester::testCompositeCopyDivisionByZero()
     result = MEMALIGN_ALLOC(&dst, pixelAlignment, cs->pixelSize() * numPixels);
     KIS_ASSERT(!result);
 
-    // generate buffers in misaligned manner
     int numTestablePixels = numPixels - 1;
     quint8 * srcPtr = reinterpret_cast<quint8*>(src) + cs->pixelSize();
     quint8 * dstPtr = reinterpret_cast<quint8*>(dst) + cs->pixelSize();
-
 
     auto testBadPixel = [cs, op, srcPtr, dstPtr, numTestablePixels] (int badPixelPos,
             const quint8 *goodSrc,
@@ -369,15 +352,6 @@ void KoRgbU8ColorSpaceTester::testCompositeCopyDivisionByZero()
         }
     };
 
-    /**
-     * This test is supposed to catch irregularities between vector and scalar versions
-     * of the composite op. In vector version we handle division be zero in a relaxed
-     * way, so it some cases the content of the color channels may be different from
-     * the one of the scalar versions of the algorithm. It is only allowed when the
-     * pixel's alpha is null. In such case Krita considers pixel state as "undefined",
-     * so any value is considered okay.
-     */
-
     {
         quint8 goodSrc[] = {128,128,128,129};
         quint8 goodDst[] = {10,10,10,11};
@@ -395,7 +369,6 @@ void KoRgbU8ColorSpaceTester::testCompositeCopyDivisionByZero()
         quint8 *expectedDst = badSrc;
         testBadPixel(10, goodSrc, goodDst, badSrc, badDst, 255, expectedDst);
     }
-
 
     {
         quint8 goodSrc[] = {128,128,128,129};
@@ -420,7 +393,7 @@ void KoRgbU8ColorSpaceTester::testCompositeCopyDivisionByZero()
         quint8 goodDst[] = {10,10,10,11};
         quint8 badSrc[] = {128,128,128,0};
         quint8 badDst[] = {12,12,12,0};
-        quint8 expectedDst[] = {0,0,0,0}; // NOTE: the pixel has been changed, even though visually it hasn't (due to zero alpha)
+        quint8 expectedDst[] = {0,0,0,0};
         testBadPixel(1, goodSrc, goodDst, badSrc, badDst, 128, expectedDst);
     }
 
@@ -429,7 +402,7 @@ void KoRgbU8ColorSpaceTester::testCompositeCopyDivisionByZero()
         quint8 goodDst[] = {10,10,10,11};
         quint8 badSrc[] = {128,128,128,0};
         quint8 badDst[] = {12,12,12,0};
-        quint8 expectedDst[] = {255,255,255,0}; // NOTE: the result is different from the scalar version, but we don't care, since alpha is still zero
+        quint8 expectedDst[] = {255,255,255,0};
         testBadPixel(10, goodSrc, goodDst, badSrc, badDst, 128, expectedDst);
     }
 

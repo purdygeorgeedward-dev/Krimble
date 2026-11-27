@@ -25,7 +25,7 @@ public:
 
     void writeOptionSetting(KisPropertiesConfigurationSP setting) const override;
     void readOptionSetting(const KisPropertiesConfigurationSP setting) override;
-    
+
     lager::cursor<qreal> scale() const;
     lager::cursor<int> diameter() const;
 
@@ -34,4 +34,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_SPRAY_OP_OPTION_WIDGET_H
+#endif

@@ -11,28 +11,13 @@
 
 class KoShape;
 
-/**
- * Reimplement this class when you depend on a shape during loading that is
- * not yet loaded.
- *
- * As soon as the shape you depend on is loaded the method update is called.
- * Then you can setup the data you need.
- *
- * @see KoConnectionShape
- * @see KoShapeLoadingContext::updateShape
- */
 class KRITAFLAKE_EXPORT KoLoadingShapeUpdater
 {
 public:
     KoLoadingShapeUpdater();
     virtual ~KoLoadingShapeUpdater();
 
-    /**
-     * This function is called as soon as shape is loaded.
-     *
-     * @param shape The shape that just got loaded.
-     */
     virtual void update(KoShape *shape) = 0;
 };
 
-#endif /* KOLOADINGSHAPEUPDATER_H */
+#endif

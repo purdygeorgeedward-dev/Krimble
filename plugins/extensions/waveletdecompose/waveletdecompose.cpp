@@ -38,8 +38,6 @@
 #include <KoUpdater.h>
 #include <KoProgressUpdater.h>
 
-
-
 K_PLUGIN_FACTORY_WITH_JSON(WaveletDecomposeFactory, "kritawaveletdecompose.json", registerPlugin<WaveletDecompose>();)
 
 WaveletDecompose::WaveletDecompose(QObject *parent, const QVariantList &)
@@ -56,7 +54,7 @@ WaveletDecompose::~WaveletDecompose()
 void WaveletDecompose::slotWaveletDecompose()
 {
     DlgWaveletDecompose dlg(viewManager()->mainWindowAsQWidget(), "WaveletDecompose");
-        
+
     if (dlg.exec() == QDialog::Accepted) {
 
         KisCursorOverrideLock cursorLock(Qt::WaitCursor);
@@ -72,54 +70,46 @@ void WaveletDecompose::slotWaveletDecompose()
 
         KisPaintDeviceSP projection = new KisPaintDevice(*(image->projection()));
         if (!projection) return;
-       
+
         const KoColorSpace *cs = projection->colorSpace();
 
         const KoCompositeOp* op = cs->compositeOp(COMPOSITE_GRAIN_EXTRACT);
-        
+
         int scales = dlg.scales();
-        
+
         QList<KisPaintDeviceSP> results;
         const QBitArray flags(0);
-        
+
         QRect rc = image->bounds();
-        
+
         KisPaintDeviceSP original = projection;
-        
-        //main loop
+
         for(int level = 0; level < scales; ++level){
-        
-            //copy original
+
             KisPaintDeviceSP blur = new KisPaintDevice(*original);
-           
-            //blur it
+
             KisWaveletKernel::applyWavelet(blur, rc, 1 << level, 1 << level, flags, 0);
-       
-            //do grain extract blur from original
+
             KisPainter painter(original);
             painter.setCompositeOpId(op);
             painter.bitBlt(0, 0, blur, 0, 0, rc.width(), rc.height());
             painter.end();
-        
-            //original is new scale and blur is new original
+
             results << original;
             original = blur;
             updater->setProgress((level * 100) / scales);
         }
-        //add new layers
         KisUndoAdapter *undo = image->undoAdapter();
         undo->beginMacro(kundo2_i18n("Wavelet decompose"));
-        
+
         KisNodeCommandsAdapter adapter(viewManager());
-        
+
         KisGroupLayerSP baseGroup = image->rootLayer();
 
-        //add layer group              
         KisGroupLayerSP grp = new KisGroupLayer(image, i18n("Wavelet decompose"), OPACITY_OPAQUE_U8);
         adapter.addNode(grp, baseGroup, baseGroup->lastChild());
         baseGroup = grp;
 
-        //add scales
         int i = 1;
         const KoCompositeOp* op2 = cs->compositeOp(COMPOSITE_GRAIN_MERGE);
         Q_FOREACH (const KisPaintDeviceSP &l, results) {
@@ -129,10 +119,9 @@ void WaveletDecompose::slotWaveletDecompose()
             ++i;
         }
 
-        //add residual
         KisPaintLayerSP paintLayer = new KisPaintLayer(image, "Residual", OPACITY_OPAQUE_U8, original);
         adapter.addNode(paintLayer, baseGroup, 0);
-        
+
         undo->endMacro();
         updater->setProgress(100);
         image->unlock();

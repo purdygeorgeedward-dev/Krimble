@@ -32,4 +32,4 @@ private:
     QPointF m_anchorOffset;
 };
 
-#endif /* SVG_MOVE_TEXT_STRATEGY_H */
+#endif

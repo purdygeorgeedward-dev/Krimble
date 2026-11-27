@@ -9,7 +9,6 @@
 
 #import "KisMacosSystemProber.h"
 
-
 bool iskritaRunningActivate()
 {
     NSRunningApplication *current = [NSRunningApplication currentApplication];
@@ -24,6 +23,5 @@ bool iskritaRunningActivate()
         }
     }
 
-    // At least one process exists (ourselves)
     return (krita > 1);
 }

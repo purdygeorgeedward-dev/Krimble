@@ -149,7 +149,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
         <text>Puppet Warp</text>
     </Action>
     <Action name="KisToolTransformFree">
-        <text>Free Transform</text>
+        <text>Transform Scale</text>
     </Action>
 
     <Menu name="EditTransform">
@@ -302,7 +302,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
                      <Separator/>
                      
     <Menu name="ImageRotation">
-        <text>Image &amp;Rotation</text>
+        <text>&amp;Rotate</text>
         
         <Action name="rotateimage">
             <text>Arbitrary...</text>
@@ -1320,6 +1320,9 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     </Menu>
 -->
 
+
+<!-- Krimble 2026-11-22: George: "Please move Panels menu to a top level menu before Window. I use it way too often to bury it in a submenu." (permission given for this file) -->
+<Action name="settings_dockers_menu"/>
 
 <Action name="window"/>
 

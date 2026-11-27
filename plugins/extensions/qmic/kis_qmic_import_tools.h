@@ -34,6 +34,6 @@ void gmicImageToPaintDevice(const KisQMicImage &srcGmicImage,
 
 KisNodeListSP
 inputNodes(KisImageSP image, InputLayerMode inputMode, KisNodeSP currentNode);
-} // namespace KisQmicImportTools
+}
 
-#endif // KIS_QMIC_IMPORT_TOOLS_H
+#endif

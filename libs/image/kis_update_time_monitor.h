@@ -10,11 +10,9 @@
 #include "kritaimage_export.h"
 #include "kis_types.h"
 
-
 #include <QVector>
 class QPointF;
 class QRect;
-
 
 class KRITAIMAGE_EXPORT KisUpdateTimeMonitor
 {
@@ -34,10 +32,9 @@ public:
     void reportJobFinished(void *key, const QVector<QRect> &rects);
     void reportUpdateFinished(const QRect &rect);
 
-
 private:
     struct Private;
     Private * const m_d;
 };
 
-#endif /* __KIS_UPDATE_TIME_MONITOR_H */
+#endif

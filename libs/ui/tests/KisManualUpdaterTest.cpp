@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisManualUpdaterTest.h"
 
 #include <QSignalSpy>
@@ -59,10 +58,6 @@ void KisManualUpdaterTest::testAvailableVersionIsHigher_data()
 
     QTest::addRow("available is git, current equal version release") << "4.3.0" << "4.3.0-d8ea4b" << false;
     QTest::addRow("available is beta, current equal version release") << "4.2.6" << "4.2.6-beta1" << false;
-
-// this is not solved in the function, as it is unlikely to have such versions in the RSS feed
-//    QTest::addRow("current is git, available equal version beta") << "4.3.0-d8ea4b" << "4.3.0-beta1" << true;
-    //    QTest::addRow("available is beta, current equal version git") << "4.2.6-beta1" << "4.2.6-d8ea4b" << false;
 
     QTest::addRow("current is empty") << QString() << "4.2.5" << false;
     QTest::addRow("available is empty") << "4.2.6" << QString() << false;
@@ -122,7 +117,6 @@ void KisManualUpdaterTest::testCheckForUpdate_data()
     item3.link = "https://krita.org/en/item/interview-with-the-artist/";
     item3.category = "Artist Interview";
     item3.pubDate = QDateTime::fromString(QString("Wed, 15 Sep 2019 09:42:15 +0000"), Qt::RFC2822Date);
-
 
     RssItemList feed = RssItemList() << item1 << item2 << item3;
 

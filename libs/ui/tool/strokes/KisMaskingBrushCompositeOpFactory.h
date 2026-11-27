@@ -34,4 +34,4 @@ public:
     static QStringList supportedCompositeOpIds();
 };
 
-#endif // KISMASKINGBRUSHCOMPOSITEOPFACTORY_H
+#endif

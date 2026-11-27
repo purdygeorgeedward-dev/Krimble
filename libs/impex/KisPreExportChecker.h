@@ -18,12 +18,6 @@ class KRITAIMPEX_EXPORT KisPreExportChecker
 public:
     KisPreExportChecker();
 
-    /**
-     * @brief check checks the image against the capabilities of the export filter
-     * @param image the current image
-     * @param filterChecks the list of capabilities the filter possesses
-     * @return true if no warnings and no conversions are needed
-     */
     bool check(KisImageSP image, QMap<QString, KisExportCheckBase *> filterChecks);
     QStringList warnings() const;
     QStringList errors() const;
@@ -34,4 +28,4 @@ private:
     QStringList m_warnings;
 };
 
-#endif // KISPREEXPORTCHECKER_H
+#endif

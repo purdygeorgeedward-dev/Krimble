@@ -20,15 +20,6 @@
 
 #include <KoUpdater.h>
 
-/**
- * Class to apply a transformation (affine, similitude, MLS) to a paintDevice
- * or a QImage according an original set of points p, a new set of points q,
- * and the constant alpha.
- * The algorithms are based a paper entitled "Image Deformation Using
- * Moving Least Squares", by Scott Schaefer (Texas A&M University), Travis
- * McPhail (Rice University) and Joe Warren (Rice University)
- */
-
 class KRITAIMAGE_EXPORT KisWarpTransformWorker : public QObject
 {
     Q_OBJECT
@@ -49,10 +40,8 @@ public:
                                   const QPointF &srcQImageOffset,
                                   QPointF *newOffset);
 
-    // Prepare the transformation on dev
     KisWarpTransformWorker(WarpType warpType, QVector<QPointF> origPoint, QVector<QPointF> transfPoint, qreal alpha, KoUpdater *progress);
     ~KisWarpTransformWorker() override;
-    // Perform the prepared transformation
     void run(KisPaintDeviceSP srcDev, KisPaintDeviceSP dstDev);
 
     QRect approxChangeRect(const QRect &rc);

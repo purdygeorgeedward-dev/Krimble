@@ -22,14 +22,6 @@
 
 #include <testutil.h>
 
-/*
-  +----------+
-  |root      |
-  | paint 2  |
-  | paint 1  |
-  +----------+
-*/
-
 KisImageSP createImage(KisUndoStore *undoStore,
                        KisPaintLayerSP &paintLayer1,
                        KisPaintLayerSP &paintLayer2)
@@ -86,7 +78,6 @@ bool checkLayers(KisImageWSP image,
 
     return valid;
 }
-
 
 void KisProcessingApplicatorTest::testNonRecursiveProcessing()
 {

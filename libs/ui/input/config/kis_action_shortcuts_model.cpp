@@ -165,7 +165,7 @@ int KisActionShortcutsModel::rowCount(const QModelIndex &parent) const
     return d->shortcuts.count() + 1;
 }
 
-int KisActionShortcutsModel::columnCount(const QModelIndex & /*parent*/) const
+int KisActionShortcutsModel::columnCount(const QModelIndex & ) const
 {
     return 3;
 }
@@ -257,7 +257,6 @@ bool KisActionShortcutsModel::setData(const QModelIndex &index, const QVariant &
                 KisInputProfileManager::instance()->getConflictingShortcuts(
                     KisInputProfileManager::instance()->currentProfile());
 
-            // check if this shortcut resulted in a conflict
             const bool isConflictingShortcut = std::find_if(conflictingShortcuts.begin(),
                                                             conflictingShortcuts.end(),
                                                             [&oldData](KisShortcutConfiguration *shortcut) {
@@ -270,7 +269,6 @@ bool KisActionShortcutsModel::setData(const QModelIndex &index, const QVariant &
                                      "Warning",
                                      i18n("A conflict exists between two or more shortcuts."));
             }
-            // change was done on the object
             Q_EMIT dataChanged(index, index);
             return true;
         }

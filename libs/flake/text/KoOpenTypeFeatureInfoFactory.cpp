@@ -19,7 +19,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
 {
     QVector<KoOpenTypeFeatureInfo> initialMap;
 
-    // General discretionary features
     initialMap.append(KoOpenTypeFeatureInfo(QByteArray("aalt"),
                       i18nc("@title", "Access All Alternates"),
                       i18nc("@tooltip", "Access any possible substitutions."),
@@ -94,7 +93,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                       i18nc("@tooltip", "Replaces glyphs with swashed alternates."),
                       {KoOpenTypeFeatureInfo::GSUB1, KoOpenTypeFeatureInfo::GSUB3}, true));
 
-    // General required features.
     initialMap.append(KoOpenTypeFeatureInfo(QByteArray("ccmp"),
                       i18nc("@title", "Glyph Composition/Decomposition"),
                       i18nc("@tooltip", "This composes or decomposes graphemes so that the resulting glyphs can later be recomposed. Commonly used to handle diacritics."),
@@ -132,7 +130,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                       i18nc("@tooltip", "This controls vertical kerning on the font."),
                       {KoOpenTypeFeatureInfo::GPOS2, KoOpenTypeFeatureInfo::GPOS8}));
 
-    // Number and math features.
     initialMap.append(KoOpenTypeFeatureInfo(QByteArray("afrc"),
                       i18nc("@title", "Alternative Fractions"),
                       i18nc("@tooltip", "Replaces figures separated by a slash with a nut fraction form."),
@@ -206,7 +203,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                       i18nc("@tooltip", "Replaces the number zero with one that has a slash in the middle, which can help prevent confusion with similar glyphs like the letter 'O'."),
                       {KoOpenTypeFeatureInfo::GSUB1}, true));
 
-    // LGC and other bicarmel features.
     initialMap.append(KoOpenTypeFeatureInfo(QByteArray("case"),
                       i18nc("@title", "Case-Sensitive Forms"),
                       i18nc("@tooltip", "Adjusts glyphs to work better with text that consists of only capitals or lining figures."),
@@ -240,7 +236,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                       i18nc("@tooltip", "Replaces both upper and lowercase glyphs with unicase glyphs."),
                       {KoOpenTypeFeatureInfo::GSUB1}, true));
 
-    // Indic and other brahmic-derived script features.
     initialMap.append(KoOpenTypeFeatureInfo(QByteArray("abvf"),
                       i18nc("@title", "Above-base Forms"),
                       i18nc("@tooltip", "Controls substitution for above base forms in Khmer and other Indic scripts"),
@@ -322,7 +317,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                       i18nc("@tooltip", "Replaces ligatures in Indic scripts with a base consonant and Vattu form."),
                       {KoOpenTypeFeatureInfo::GSUB4}));
 
-    // CJK features.
     initialMap.append(KoOpenTypeFeatureInfo(QByteArray("chws"),
                       i18nc("@title", "Contextual Half-width Spacing"),
                       i18nc("@tooltip", "Respaces full-width glyphs to be half-width depending on the context, common examples include CJK full-width brackets and other punctuation marks."),
@@ -468,7 +462,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                       i18nc("@tooltip", "Replaces all horizontal-script glyphs with rotated variants for vertical layout."),
                       {KoOpenTypeFeatureInfo::GSUB1}));
 
-    // Arabic and other RTL joined script features
     initialMap.append(KoOpenTypeFeatureInfo(QByteArray("curs"),
                       i18nc("@title", "Cursive Positioning"),
                       i18nc("@tooltip", "Adjusts the position of glyphs so they cursively connect."),
@@ -526,7 +519,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                       i18nc("@tooltip", "Replaces glyphs that need to stretch with stretchable glyphs."),
                       {KoOpenTypeFeatureInfo::GSUB2}));
 
-    //stylistic sets
     char tag[4] = {'s', 's', '0', '0'};
     for (int i = 1; i <= 20; i++) {
         tag[2] = (i/10) + '0';
@@ -538,8 +530,6 @@ KoOpenTypeFeatureInfoFactory::KoOpenTypeFeatureInfoFactory()
                           {KoOpenTypeFeatureInfo::GSUB1}, true));
     }
 
-    //character variants
-    // char *tag{new char[4]{'c', 'v', '0', '0'}};
     tag[0] = 'c';
     tag[1] = 'v';
     for (int i = 1; i <= 99; i++) {

@@ -10,7 +10,6 @@
 #include "KisAsyncAnimationRenderDialogBase.h"
 #include "kis_types.h"
 
-
 class KisAsyncAnimationCacheRenderDialog : public KisAsyncAnimationRenderDialogBase
 {
 public:
@@ -30,4 +29,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISASYNCANIMATIONCACHERENDERDIALOG_H
+#endif

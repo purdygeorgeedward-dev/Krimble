@@ -25,86 +25,52 @@ class KRITAFLAKE_EXPORT SvgUtil
 {
 public:
 
-    // remove later! pixels *are* user coordinates
     static double fromUserSpace(double value);
     static double toUserSpace(double value);
 
     static double ptToPx(SvgGraphicsContext *gc, double value);
 
-    /// Converts given point from points to userspace units.
     static QPointF toUserSpace(const QPointF &point);
 
-    /// Converts given rectangle from points to userspace units.
     static QRectF toUserSpace(const QRectF &rect);
 
-    /// Converts given rectangle from points to userspace units.
     static QSizeF toUserSpace(const QSizeF &size);
 
-    /**
-     * Parses the given float percentage.
-     * @param value the input number containing float percentage (0..1)
-     * @return the percentage string (0%..100%), not normalized
-     */
     static QString toPercentage(qreal value);
 
-    /**
-     * Parses the given string containing a percentage.
-     * @param s the input string containing the percentage, float (0..1) or integer (0%..100%)
-     * @param ok optional failure indicator
-     * @return the float percentage (0..1), not normalized
-     */
     static double fromPercentage(QString s, bool *ok=nullptr);
 
-    /**
-     * Converts position from objectBoundingBox units to userSpace units.
-     */
     static QPointF objectToUserSpace(const QPointF &position, const QRectF &objectBound);
 
-    /**
-     * Converts size from objectBoundingBox units to userSpace units.
-     */
     static QSizeF objectToUserSpace(const QSizeF &size, const QRectF &objectBound);
 
-    /**
-     * Converts position from userSpace units to objectBoundingBox units.
-     */
     static QPointF userSpaceToObject(const QPointF &position, const QRectF &objectBound);
 
-    /**
-     * Converts size from userSpace units to objectBoundingBox units.
-     */
     static QSizeF userSpaceToObject(const QSizeF &size, const QRectF &objectBound);
 
-    /// Converts specified transformation to a string
     static QString transformToString(const QTransform &transform);
 
-    /// Writes a \p transform as an attribute \p name iff the transform is not empty
     static void writeTransformAttributeLazy(const QString &name, const QTransform &transform, KoXmlWriter &shapeWriter);
 
-    /// Parses a viewbox attribute into an rectangle
     static bool parseViewBox(const QDomElement &e, const QRectF &elementBounds, QRectF *_viewRect, QTransform *_viewTransform);
 
     struct PreserveAspectRatioParser;
     static void parseAspectRatio(const PreserveAspectRatioParser &p, const QRectF &elementBounds, const QRectF &viewRect, QTransform *_viewTransform);
 
-    /// Parses a length attribute
     static qreal parseUnit(SvgGraphicsContext *gc,
                            const KoSvgTextProperties &resolved,
                            QStringView,
                            bool horiz = false,
                            bool vert = false,
                            const QRectF &bbox = QRectF());
-    /// Parse length attribute into a struct, always resolving the percentage to viewport
     static KoSvgText::CssLengthPercentage parseUnitStruct(SvgGraphicsContext *gc,
                            QStringView unit,
                            bool horiz = false,
                            bool vert = false,
                            const QRectF &bbox = QRectF());
 
-    /// Unit structs for text do not need the percentage to be resolved to viewport in most cases.
     static KoSvgText::CssLengthPercentage parseTextUnitStruct(SvgGraphicsContext *gc, QStringView unit);
 
-    /// Parse length attribute into struct.
     static KoSvgText::CssLengthPercentage parseUnitStructImpl(SvgGraphicsContext *gc,
                                                           QStringView,
                                                           bool horiz = false,
@@ -112,19 +78,14 @@ public:
                                                           const QRectF &bbox = QRectF(),
                                                           bool percentageViewBox = false);
 
-    /// parses a length attribute in x-direction
     static qreal parseUnitX(SvgGraphicsContext *gc, const KoSvgTextProperties &resolved, const QString &unit);
 
-    /// parses a length attribute in y-direction
     static qreal parseUnitY(SvgGraphicsContext *gc, const KoSvgTextProperties &resolved, const QString &unit);
 
-    /// parses a length attribute in xy-direction
     static qreal parseUnitXY(SvgGraphicsContext *gc, const KoSvgTextProperties &resolved, const QString &unit);
 
-    /// parses angle, result in *radians*!
     static qreal parseUnitAngular(SvgGraphicsContext *gc, const QString &unit);
 
-    /// parses the number into parameter number
     static const char * parseNumber(const char *ptr, qreal &number);
 
     static qreal parseNumber(const QString &string);
@@ -159,4 +120,4 @@ public:
     };
 };
 
-#endif // SVGUTIL_H
+#endif

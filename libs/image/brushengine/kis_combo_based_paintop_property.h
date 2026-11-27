@@ -15,14 +15,12 @@
 
 class QIcon;
 
-
 class KRITAIMAGE_EXPORT KisComboBasedPaintOpProperty : public KisUniformPaintOpProperty
 {
 public:
     KisComboBasedPaintOpProperty(const KoID &id, KisPaintOpSettingsRestrictedSP settings, QObject *parent);
     ~KisComboBasedPaintOpProperty() override;
 
-    // callback-compatible c-tor
     KisComboBasedPaintOpProperty(Type type, SubType subType, const KoID &id, KisPaintOpSettingsRestrictedSP settings, QObject *parent);
     KisComboBasedPaintOpProperty(Type type, const KoID &id, KisPaintOpSettingsRestrictedSP settings, QObject *parent);
 
@@ -42,4 +40,4 @@ extern template class KisCallbackBasedPaintopProperty<KisComboBasedPaintOpProper
 using KisComboBasedPaintOpPropertyCallback =
     KisCallbackBasedPaintopProperty<KisComboBasedPaintOpProperty>;
 
-#endif /* __KIS_COMBO_BASED_PAINTOP_PROPERTY_H */
+#endif

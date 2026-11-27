@@ -6,7 +6,6 @@
 
 #include "KisResourceSearchBoxFilter.h"
 
-
 #include <QRegularExpression>
 #include <QList>
 #include <QSet>
@@ -37,7 +36,6 @@ public:
 
     QString filter;
 };
-
 
 KisResourceSearchBoxFilter::KisResourceSearchBoxFilter()
     : m_d(new Private())
@@ -78,10 +76,8 @@ void KisResourceSearchBoxFilter::setFilter(const QString& filter)
     initializeFilterData();
 }
 
-
 bool KisResourceSearchBoxFilter::matchesResource(const QString &_resourceName, const QStringList &tagList) const
 {
-    // exact matches
     QString resourceName = _resourceName.toLower();
 
     if (m_d->resourceExactMatchesIncluded.count() > 0
@@ -92,7 +88,6 @@ bool KisResourceSearchBoxFilter::matchesResource(const QString &_resourceName, c
         return false;
     }
 
-    // partial name matches
     if (m_d->resourceNamesPartialIncluded.count() > 0) {
         Q_FOREACH(const QString& partialName, m_d->resourceNamesPartialIncluded) {
             if (!resourceName.contains(partialName) && tagList.filter(partialName, Qt::CaseInsensitive).isEmpty()) {
@@ -107,7 +102,6 @@ bool KisResourceSearchBoxFilter::matchesResource(const QString &_resourceName, c
         }
     }
 
-    // Tag partial matches
     if (m_d->tagsPartialIncluded.count() > 0 ) {
         Q_FOREACH(const QString& partialTag, m_d->tagsPartialIncluded) {
             if (tagList.filter(partialTag, Qt::CaseInsensitive).isEmpty()) {
@@ -124,7 +118,6 @@ bool KisResourceSearchBoxFilter::matchesResource(const QString &_resourceName, c
         }
     }
 
-    // Tag exact matches
     if (m_d->tagExactMatchesIncluded.count() > 0) {
         Q_FOREACH(const QString& tagName, m_d->tagExactMatchesIncluded) {
             if (!tagList.contains(tagName, Qt::CaseInsensitive)) {

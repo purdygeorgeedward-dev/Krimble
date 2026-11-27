@@ -10,7 +10,6 @@
 #include <QScopedPointer>
 #include <QAbstractButton>
 
-
 class KisEqualizerButton : public QAbstractButton
 {
 public:
@@ -35,4 +34,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_EQUALIZER_BUTTON_H */
+#endif

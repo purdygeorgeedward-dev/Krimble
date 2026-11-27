@@ -12,7 +12,6 @@
 
 #include "kis_paint_information.h"
 
-
 struct KisStabilizedEventsSampler::Private
 {
     Private(int _sampleTime) : sampleTime(_sampleTime), elapsedTimeOverride(0) {}
@@ -83,5 +82,4 @@ KisStabilizedEventsSampler::range() const
     return std::make_pair(iterator(this, 0, alpha),
                           iterator(this, elapsed, alpha));
 }
-
 

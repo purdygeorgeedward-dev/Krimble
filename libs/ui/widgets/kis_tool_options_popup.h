@@ -33,4 +33,4 @@ private:
     Private *const d;
 };
 
-#endif // KIS_TOOL_OPTIONS_POPUP_H
+#endif

@@ -13,7 +13,6 @@
 
 #include "kis_assert.h"
 
-
 struct Q_DECL_HIDDEN KoMultiPathPointMergeCommand::Private
 {
     Private(const KoPathPointData &_pointData1, const KoPathPointData &_pointData2, KoShapeControllerBase *_controller, KoSelection *_selection)
@@ -28,7 +27,6 @@ struct Q_DECL_HIDDEN KoMultiPathPointMergeCommand::Private
     KoPathPointData pointData2;
     KoShapeControllerBase *controller;
     KoSelection *selection;
-
 
     QScopedPointer<KoPathCombineCommand> combineCommand;
     QScopedPointer<KUndo2Command> mergeCommand;
@@ -51,7 +49,6 @@ KUndo2Command *KoMultiPathPointMergeCommand::createMergeCommand(const KoPathPoin
 
 void KoMultiPathPointMergeCommand::redo()
 {
-    // Create shapes during the first call only.
     if (!m_d->mergeCommand && !m_d->combineCommand)
     {
         if (m_d->pointData1.pathShape != m_d->pointData2.pathShape) {
@@ -59,7 +56,7 @@ void KoMultiPathPointMergeCommand::redo()
 
             QList<KoPathShape*> shapes = { m_d->pointData1.pathShape, m_d->pointData2.pathShape };
             m_d->combineCommand.reset(new KoPathCombineCommand(m_d->controller, shapes));
-            
+
             KoPathPointData newPD1 = m_d->combineCommand->originalToCombined(m_d->pointData1);
             KoPathPointData newPD2 = m_d->combineCommand->originalToCombined(m_d->pointData2);
 
@@ -82,7 +79,7 @@ void KoMultiPathPointMergeCommand::redo()
         m_d->combineCommand->redo();
         mergedShape = m_d->combineCommand->combinedPath();
     }
- 
+
     if (m_d->selection) {
         m_d->selection->select(mergedShape);
     }

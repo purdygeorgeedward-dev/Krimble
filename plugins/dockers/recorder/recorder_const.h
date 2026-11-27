@@ -28,4 +28,4 @@ const unsigned int MaxRecordThreadCount = qMax(static_cast<int>(MaxThreadCount) 
 const unsigned int IdealRecordThreadCount = qMax(static_cast<int>(MaxRecordThreadCount) - 2, 1);
 }
 
-#endif // RECORDER_CONST_H
+#endif

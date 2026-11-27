@@ -4,4 +4,4 @@
 #include "kis_global_pch.h"
 #include <QTest>
 
-#endif // KIS_GLOBAL_TEST_PCH_H
+#endif

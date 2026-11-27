@@ -7,7 +7,6 @@
 #ifndef KISUNIQUECOLORSET_H
 #define KISUNIQUECOLORSET_H
 
-
 #include "kritapigment_export.h"
 
 #include "KoColor.h"
@@ -44,4 +43,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KISUNIQUECOLORSET_H
+#endif

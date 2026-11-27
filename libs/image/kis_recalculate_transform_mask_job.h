@@ -12,7 +12,6 @@
 #include "kis_types.h"
 #include "kis_spontaneous_job.h"
 
-
 class KRITAIMAGE_EXPORT KisRecalculateTransformMaskJob : public KisSpontaneousJob
 {
 public:
@@ -29,4 +28,4 @@ private:
     QRect m_extraUpdateRect;
 };
 
-#endif /* __KIS_RECALCULATE_TRANSFORM_MASK_JOB_H */
+#endif

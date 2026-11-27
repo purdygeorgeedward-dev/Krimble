@@ -28,7 +28,6 @@ const qreal OPACITY_HALF = 0.5;
 const int TILES_IN_WIDTH = IMG_WIDTH / TILE_WIDTH;
 const int TILES_IN_HEIGHT = IMG_HEIGHT / TILE_HEIGHT;
 
-
 #define COMPOSITE_BENCHMARK \
         for (int y = 0; y < TILES_IN_HEIGHT; y++){                                              \
             for (int x = 0; x < TILES_IN_WIDTH; x++) {                                           \
@@ -51,7 +50,6 @@ void KoCompositeOpsBenchmark::initTestCase()
     m_mskBuffer = new quint8[bufLen];
 }
 
-// this is called before every benchmark
 void KoCompositeOpsBenchmark::init()
 {
     QRandomGenerator rng(42);
@@ -64,7 +62,6 @@ void KoCompositeOpsBenchmark::init()
         m_mskBuffer[i] = (randVal & 0xFF0000) >> 16;
     }
 }
-
 
 void KoCompositeOpsBenchmark::cleanupTestCase()
 {
@@ -89,7 +86,6 @@ void KoCompositeOpsBenchmark::benchmarkCompositeAlphaDarkenHard()
     }
 }
 
-
 void KoCompositeOpsBenchmark::benchmarkCompositeAlphaDarkenCreamy()
 {
     KoCompositeOp *compositeOp = KoOptimizedCompositeOpFactory::createAlphaDarkenOpCreamy32(KoColorSpaceRegistry::instance()->rgb8());
@@ -97,6 +93,5 @@ void KoCompositeOpsBenchmark::benchmarkCompositeAlphaDarkenCreamy()
         COMPOSITE_BENCHMARK
     }
 }
-
 
 QTEST_GUILESS_MAIN(KoCompositeOpsBenchmark)

@@ -19,13 +19,13 @@ enum {
     LineFeed = 0x0a,
     FormFeed = 0x0c,
     Return = 0x0d,
-    BeginArray = 0x5b, // [
-    BeginObject = 0x3c, // <
-    EndArray = 0x5d, // ]
-    EndObject = 0x3e, // >
-    BeginName = 0x2f, // /
-    BeginString = 0x28, // (
-    EndString = 0x29, // )
+    BeginArray = 0x5b,
+    BeginObject = 0x3c,
+    EndArray = 0x5d,
+    EndObject = 0x3e,
+    BeginName = 0x2f,
+    BeginString = 0x28,
+    EndString = 0x29,
     ByteOrderMark = 0xfe
 };
 
@@ -55,7 +55,7 @@ void eatSpace(QIODevice &dev) {
 bool parseName(QIODevice &dev, QVariant &val) {
     char c;
     dev.getChar(&c);
-    QString name = "/"; // prepending with / so that we know this is a name.
+    QString name = "/";
 
     while (c >= 0x21 && c<0x7e && !isWhiteSpace(c) && c != BeginName && !dev.atEnd()) {
         name.append(c);
@@ -73,11 +73,11 @@ const QMap<char, char> escaped = {
     {'n', LineFeed},
     {'r', Return},
     {'t', Tab},
-    {'b', 0x08}, // backspace
+    {'b', 0x08},
     {'f', FormFeed},
     {'(', BeginString},
     {')', EndString},
-    {'\\', 0x5c} // reverse solidus/backslash
+    {'\\', 0x5c}
 };
 
 bool parseString(QIODevice &dev, QVariant &val) {
@@ -88,7 +88,6 @@ bool parseString(QIODevice &dev, QVariant &val) {
     while(c != EndString && !dev.atEnd()) {
         if (c == '\\') {
 
-            // Try to parse PDF \ddd notation.
             char c2;
             dev.peek(&c2, 1);
 
@@ -109,7 +108,6 @@ bool parseString(QIODevice &dev, QVariant &val) {
                 int val = octal.toInt(&ok, 8);
                 if (ok) {
                     qWarning() << "escaped octal" << val;
-                    // don't know how to actually interpret this as a char...
                 } else {
                     text.append(c);
                     text.append(octal);
@@ -121,7 +119,6 @@ bool parseString(QIODevice &dev, QVariant &val) {
         }
         dev.getChar(&c);
     }
-
 
     if (text.startsWith(ByteOrderMark)) {
         QTextCodec *Utf16Codec = QTextCodec::codecForName("UTF-16BE");

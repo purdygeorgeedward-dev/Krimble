@@ -17,37 +17,8 @@
 #include <QPointer>
 class KisRootSurfaceInfoProxy;
 
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
-
-
-/**
- * On some systems the canvas may have a surface format different
- * from the rest of the GUI. This class help to manage the state
- * of both the surfaces, GUI and canvas ones in an atomic way using
- * value-based semantics.
- *
- * Every incoming event accept the current state and transitions
- * it forward into a new state that is returned from the function.
- * The calling code should only check for the changes and apply
- * the said changes to the actual consumers: KisDisplayColorConverter,
- * KisOpenGLCanvas2 and KisCanvasSurfaceColorSpaceManager.
- *
- * Handling the state in a value-based atomic way allows us to avoid
- * weird flow of updates between different consumers. Such flows are
- * almost impossible to manage externally because we have three different
- * canvas managemend modes:
- *
- * 1) Legacy HDR mode (the one used on Windows), where the whole main
- *    window's surface is switched into the HDR space and compositing
- *    happens inside Qt
- *
- * 2) Wayland-style HDR mode, where the canvas has its own surface, which
- *    color space is managed by OS
- *
- * 3) Unmanaged mode, where we assume OS just passes color data directly
- *    to the GPU, so we perform all the color management ourselves.
- */
 class KisMultiSurfaceStateManager
 {
 public:
@@ -59,7 +30,6 @@ public:
         KisMultiSurfaceDisplayConfig multiConfig;
 
         bool operator==(const State& other) const {
-            // TODO: check actual content of proofingConfig
             return isCanvasOpenGL == other.isCanvasOpenGL &&
                    proofingConfig == other.proofingConfig &&
                    surfaceMode == other.surfaceMode &&
@@ -78,7 +48,7 @@ public:
 
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
     void setRootSurfaceInfoProxy(KisRootSurfaceInfoProxy *proxy);
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
     State createInitializingConfig(bool isCanvasOpenGL, int screenId, KisProofingConfigurationSP proofingConfig) const;
 
@@ -103,8 +73,7 @@ private:
 private:
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
     QPointer<KisRootSurfaceInfoProxy> m_rootSurfaceInfoProxy;
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 };
 
-
-#endif /* KISMULTISURFACESTATEMANAGER_H */
+#endif

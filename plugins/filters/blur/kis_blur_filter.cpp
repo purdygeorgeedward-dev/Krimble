@@ -23,7 +23,6 @@
 #include "kis_mask_generator.h"
 #include "kis_lod_transform.h"
 
-
 KisBlurFilter::KisBlurFilter() : KisFilter(id(), FiltersCategoryBlurId, i18n("&Blur..."))
 {
     setSupportsPainting(true);

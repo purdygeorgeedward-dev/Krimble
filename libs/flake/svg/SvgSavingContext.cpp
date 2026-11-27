@@ -114,21 +114,14 @@ QString SvgSavingContext::createUID(const QString &base)
 QString SvgSavingContext::getID(const KoShape *obj)
 {
     QString id;
-    // do we have already an id for this object ?
     if (d->shapeIds.contains(obj)) {
-        // use existing id
         id = d->shapeIds[obj];
     } else {
-        // initialize from object name
         id = obj->name();
-        // if object name is not empty and was not used already
-        // we can use it as is
         if (!id.isEmpty() && !d->uniqueNames.contains(id)) {
-            // add to unique names so it does not get reused
             d->uniqueNames.insert(id, 1);
         } else {
             if (id.isEmpty()) {
-                // differentiate a little between shape types
                 if (dynamic_cast<const KoShapeGroup*>(obj))
                     id = "group";
                 else if (dynamic_cast<const KoShapeLayer*>(obj))
@@ -136,11 +129,8 @@ QString SvgSavingContext::getID(const KoShape *obj)
                 else
                     id = "shape";
             }
-            // create a completely new id based on object name
-            // or a generic name
             id = createUID(id);
         }
-        // record id for this shape
         d->shapeIds.insert(obj, id);
     }
     return id;
@@ -166,13 +156,10 @@ QString SvgSavingContext::createFileName(const QString &extension)
     QString path = fi.absolutePath();
     QString dstBaseFilename = fi.completeBaseName();
 
-    // create a filename for the image file at the destination directory
     QString fname = dstBaseFilename + '_' + createUID("file");
 
-    // check if file exists already
     int i = 0;
     QString counter;
-    // change filename as long as the filename already exists
     while (QFile(path + fname + counter + extension).exists()) {
         counter = QString("_%1").arg(++i);
     }
@@ -190,7 +177,6 @@ QString SvgSavingContext::saveImage(const QImage &image)
             return header + buffer.data().toBase64();
         }
     } else {
-        // write to a temp file first
         QTemporaryFile imgFile;
         if (image.save(&imgFile, "PNG")) {
             QString dstFilename = createFileName(".png");

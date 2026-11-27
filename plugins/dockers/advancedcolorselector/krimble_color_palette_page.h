@@ -1,8 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-08: the Palette page of the Color panel, from the Palette mockup (George: "make the new tabs work just like the mockups"), measured and scaled to the card's 1178
-// units (1098 tall). It works on the named palettes (krimble_color_palettes.h): choose a palette, make a New one, Open, Import, Export, Duplicate, Rename or Delete it; the info shows
-// its name, colors and format; the selected color can be changed (index, HEX, R G B); the swatch tools pick from the image, replace the swatch with the foreground color, reload the
-// palette from its file, or change the number of columns; the grid shows the swatches (tap one to use it, drag to scroll); the recent colors are below.
 #pragma once
 #include <functional>
 #include <QMenu>
@@ -16,15 +12,15 @@ class KrimblePalettePage : public KrimbleColorBase
 {
 public:
     KrimbleColorState *state = nullptr;
-    std::function<void(const QColor &)> onColor;      // a swatch chosen here becomes the foreground color
-    std::function<void()> onPaletteChanged;           // the active palette or its colors changed
-    std::function<void()> onPickFromImage;            // the eyedropper of the swatch tools
-    QVector<QColor> *recent = nullptr;                // the recent colors (the panel's list)
+    std::function<void(const QColor &)> onColor;
+    std::function<void()> onPaletteChanged;
+    std::function<void()> onPickFromImage;
+    QVector<QColor> *recent = nullptr;
     QLineEdit *hex = nullptr;
     QToolButton *copy = nullptr;
     QSpinBox *indexBox = nullptr;
     QSpinBox *rgbBox[3] = {nullptr, nullptr, nullptr};
-    QSpinBox *cmykBox[4] = {nullptr, nullptr, nullptr, nullptr};   // 2026-11-08: the four plates of a CMYK palette's selected swatch
+    QSpinBox *cmykBox[4] = {nullptr, nullptr, nullptr, nullptr};
 
     double designHeight() const override { return 1098.0; }
 
@@ -73,7 +69,6 @@ public:
         }
     }
 
-    // read the active palette from its file
     void reload()
     {
         KrimblePaletteStore::ensureDefaults();
@@ -91,7 +86,6 @@ public:
     const KrimblePalette &palette() const { return m_pal; }
     int selectedIndex() const { return m_selected; }
 
-    // choose a swatch (by index); set the foreground color when asked
     void selectIndex(int i, bool useColor)
     {
         if (i < 0 || i >= m_pal.colors.size()) return;
@@ -112,7 +106,7 @@ public:
             const QRect w = whole.toAlignedRect();
             box->setGeometry(w.left(), w.top(), w.width() - arrowW, w.height());
             box->setFont(f);
-            krimbleSetSheet(box, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
+            krimbleSetSheet(box, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }"
                                               "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
                                               "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(padUnits * s)));
             up->setGeometry(w.right() - arrowW + 1, w.top(), arrowW, w.height() / 2);
@@ -125,7 +119,7 @@ public:
         for (int i = 0; i < 4; ++i) place(cmykBox[i], m_cmykUp[i], m_cmykDown[i], r(45 + 80 * i, 839, 60, 34), 16, 4);
         hex->setGeometry(r(165, 751, 148, 39).toAlignedRect());
         hex->setFont(f);
-        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(12 * s)));
+        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }").arg(qRound(12 * s)));
         copy->setGeometry(r(313, 751, 41, 39).toAlignedRect());
     }
 
@@ -161,13 +155,12 @@ protected:
             p.drawLine(QPointF(30 * s, 1.6), QPointF(width() - 30 * s, 1.6));
         }
         QFont f = font();
-        f.setPixelSize(qMax(8, qRound(29 * s)));   // titles
+        f.setPixelSize(qMax(8, qRound(29 * s)));
         QFont body = font();
-        body.setPixelSize(qMax(8, qRound(23 * s)));   // the buttons, the info and the small labels
+        body.setPixelSize(qMax(8, qRound(23 * s)));
         p.setFont(body);
         const QColor label("#d9deee");
         const QColor selectedColor = (m_selected >= 0 && m_selected < m_pal.colors.size()) ? m_pal.colors[m_selected] : (state ? state->color : QColor("#459ad3"));
-        // ---- the left group
         paintGroup(p, r(13, 11, 358, 1065), 14 * s);
         p.setPen(label);
         p.setFont(f);
@@ -249,7 +242,6 @@ protected:
             paintButton(p, b, 11 * s);
             drawIcon(p, QString::fromLatin1(toolIcons[i]), b.center(), 0.9);
         }
-        // ---- the grid group
         paintGroup(p, r(376, 13, 802, 920), 14 * s);
         paintWell(p, r(432.5, 60.8, 738, 863), 10 * s);
         {
@@ -288,13 +280,12 @@ protected:
                 p.drawRoundedRect(cell, 3 * s, 3 * s);
                 if (i == m_selected) {
                     p.setBrush(Qt::NoBrush);
-                    p.setPen(QPen(QColor("#6fe3ff"), qMax<qreal>(2.0, 3.2 * s)));
+                    p.setPen(QPen(QColor(0x0b, 0x87, 0xdd), qMax<qreal>(2.0, 3.2 * s)));
                     p.drawRoundedRect(cell.adjusted(-1, -1, 1, 1), 4 * s, 4 * s);
                 }
             }
         }
         p.restore();
-        // ---- the recent colors
         paintGroup(p, r(376, 944, 802, 133), 14 * s);
         p.setPen(label);
         p.setFont(fittedFont(f, tr("Recent Colors"), 170 * s));
@@ -374,7 +365,6 @@ private:
         rgbBox[1]->setValue(c.green());
         rgbBox[2]->setValue(c.blue());
         hex->setText(c.name(QColor::HexRgb).toUpper());
-        // a CMYK palette's swatch is edited with its four plates, an RGB palette's with R, G, B
         const bool cmyk = m_pal.isCmyk();
         for (int i = 0; i < 3; ++i) { rgbBox[i]->setVisible(!cmyk); m_rgbUp[i]->setVisible(!cmyk); m_rgbDown[i]->setVisible(!cmyk); }
         for (int i = 0; i < 4; ++i) {
@@ -385,13 +375,12 @@ private:
         }
         m_syncing = false;
     }
-    // change the selected swatch's color and save the palette
     void editSelected(const QColor &c)
     {
         if (m_selected < 0 || m_selected >= m_pal.colors.size()) return;
         QColor opaque = c;
         opaque.setAlpha(255);
-        m_pal.replace(m_selected, opaque);   // 2026-11-08: through the palette: a CMYK palette keeps the plates (made from this color)
+        m_pal.replace(m_selected, opaque);
         KrimblePaletteStore::save(m_pal);
         m_signature = KrimblePaletteStore::signature();
         syncBoxes();
@@ -399,7 +388,6 @@ private:
         if (onPaletteChanged) onPaletteChanged();
         if (onColor) onColor(opaque);
     }
-    // 2026-11-08: the four plates (percent) of the selected swatch of a CMYK palette
     void editSelectedCmyk(const KrimbleCmyk &v)
     {
         if (m_selected < 0 || m_selected >= m_pal.colors.size() || !m_pal.isCmyk()) return;
@@ -421,7 +409,6 @@ private:
     }
     void click(const QPoint &pos)
     {
-        // the palette chooser
         if (r(29, 60, 325, 51).contains(pos)) {
             QMenu menu(this);
             for (const QString &name : KrimblePaletteStore::names()) {
@@ -433,7 +420,6 @@ private:
             if (chosen) { KrimblePaletteStore::setActive(chosen->text()); changed(); }
             return;
         }
-        // the seven commands
         for (int i = 0; i < 7; ++i)
             if (commandRect(i).contains(pos)) {
                 bool did = false;
@@ -449,7 +435,6 @@ private:
                 if (did) changed();
                 return;
             }
-        // the swatch tools: pick from the image, replace the swatch with the foreground color, reload from the file, the number of columns
         for (int i = 0; i < 4; ++i)
             if (toolRect(i).contains(pos)) {
                 if (i == 0) { if (onPickFromImage) onPickFromImage(); }
@@ -473,10 +458,8 @@ private:
                 }
                 return;
             }
-        // the recent colors
         for (int i = 0; recent && i < recent->size() && i < 10; ++i)
             if (recentRect(i).contains(pos)) { if (onColor) onColor((*recent)[i]); return; }
-        // the grid
         if (gridArea().contains(pos)) {
             const int cols = qMax(1, m_pal.columns);
             for (int row = 0; row < 17; ++row)

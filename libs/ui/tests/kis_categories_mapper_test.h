@@ -22,4 +22,4 @@ private Q_SLOTS:
     void testChangingItem();
 };
 
-#endif /* __KIS_CATEGORIES_MAPPER_TEST_H */
+#endif

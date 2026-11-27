@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: LGPL-2.1-only
  */
 
-
 #include "recorder_snapshots_manager.h"
 #include "ui_recorder_snapshots_manager.h"
 #include "recorder_directory_cleaner.h"

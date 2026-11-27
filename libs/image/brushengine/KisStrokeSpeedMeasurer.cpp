@@ -17,7 +17,7 @@ struct KisStrokeSpeedMeasurer::Private
         StrokeSample() {}
         StrokeSample(int _time, qreal _distance) : time(_time), distance(_distance) {}
 
-        int time = 0; /* ms */
+        int time = 0;
         qreal distance = 0;
     };
 

@@ -14,7 +14,6 @@
 
 #include "kis_assert.h"
 
-
 class KisRectsCollisionsTracker
 {
 public:
@@ -52,4 +51,4 @@ private:
     QMutex m_mutex;
 };
 
-#endif // KISRECTSCOLLISIONSTRACKER_H
+#endif

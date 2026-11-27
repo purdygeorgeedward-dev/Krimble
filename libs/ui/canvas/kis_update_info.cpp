@@ -6,11 +6,6 @@
 #include "kis_update_info.h"
 #include <KisStaticInitializer.h>
 
-/**
- * The connection in KisCanvas2 uses queued signals
- * with an argument of KisNodeSP type, so we should
- * register it beforehand
- */
 KIS_DECLARE_STATIC_INITIALIZER {
     qRegisterMetaType<KisUpdateInfoSP>("KisUpdateInfoSP");
 }
@@ -80,7 +75,6 @@ bool KisOpenGLUpdateInfo::tryMergeWith(const KisOpenGLUpdateInfo &rhs)
 {
     if (m_levelOfDetail != rhs.m_levelOfDetail) return false;
 
-    // TODO: that makes the algorithm of updates compressor incorrect!
     m_dirtyImageRect |= rhs.m_dirtyImageRect;
 
     tileList.append(rhs.tileList);
@@ -106,8 +100,6 @@ QRect KisMarkerUpdateInfo::dirtyImageRect() const
 
 int KisMarkerUpdateInfo::levelOfDetail() const
 {
-    // return invalid level of detail to avoid merging the update info
-    // with other updates
     return -1 - (int)m_type;
 }
 

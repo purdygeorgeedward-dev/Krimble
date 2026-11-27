@@ -98,11 +98,6 @@ public:
 
     void end() {
         KIS_ASSERT_X(m_transactionData, "KisTransaction::end()", "nothing to end!");
-        /**
-         * We will not call endTransaction for m_transactionData,
-         * we'll just kill it, and it'll report about it's death to
-         * the memento manager, so no commit will be made
-         */
         delete m_transactionData;
         m_transactionData = 0;
     }
@@ -114,9 +109,6 @@ public:
                      "after it has already been added to undo adapter");
 
         m_transactionData->endTransaction();
-        /**
-         * FIXME: Should we emulate first redo() here?
-         */
         m_transactionData->undo();
         delete m_transactionData;
         m_transactionData = 0;
@@ -153,5 +145,5 @@ public:
     }
 };
 
-#endif /* KIS_TRANSACTION_H_ */
+#endif
 

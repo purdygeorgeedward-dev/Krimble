@@ -19,4 +19,4 @@ using QStringList = QList<QString>;
 using QByteArrayList = QList<QByteArray>;
 #endif
 
-#endif // KISQSTRINGLISTFWD_H
+#endif

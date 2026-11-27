@@ -1,6 +1,3 @@
-/*
- * Krimble 2026-10-24: see KrimbleTextDialog.h.
- */
 #include "KrimbleTextDialog.h"
 
 #include <klocalizedstring.h>
@@ -40,7 +37,6 @@
 
 namespace {
 
-// four lines of text, left, centered, right or both edges
 QIcon alignIcon(int kind, const QColor &pen)
 {
     QPixmap pm(64, 64);
@@ -61,7 +57,6 @@ QIcon alignIcon(int kind, const QColor &pen)
     return QIcon(pm);
 }
 
-// an eyedropper, drawn
 QIcon dropperIcon(const QColor &pen)
 {
     QPixmap pm(64, 64);
@@ -91,7 +86,6 @@ QIcon swatchIcon(const QColor &color, const QSize &size)
     return QIcon(pm);
 }
 
-// the preview: a widget that paints itself, so that it always uses its present width
 class KrimblePreviewWidget : public QWidget
 {
 public:
@@ -99,7 +93,7 @@ public:
     {
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     }
-    std::function<void(QPainter &, int, int)> painter;   // painter, width, height
+    std::function<void(QPainter &, int, int)> painter;
 protected:
     void paintEvent(QPaintEvent *) override
     {
@@ -136,7 +130,7 @@ QStringList colorsFromSettings()
     return settings.value(QStringLiteral("recentColors")).toStringList();
 }
 
-} // namespace
+}
 
 KrimbleTextDialog::KrimbleTextDialog(QWidget *parent, const QString &text, const KrimbleTextStyle &style, bool editing, const QColor &foreground)
     : QDialog(parent)
@@ -155,16 +149,14 @@ KrimbleTextDialog::KrimbleTextDialog(QWidget *parent, const QString &text, const
 void KrimbleTextDialog::build(const QString &text, bool editing)
 {
     setWindowTitle(editing ? i18n("Edit Text") : i18n("Text Tool"));
-    // a phone held sideways is only about 340 px high: the Text tab is then in two columns (the words and the preview on the left, the controls on the right)
     bool landscape = false;
     if (QScreen *screen = QGuiApplication::primaryScreen()) landscape = screen->availableGeometry().width() > screen->availableGeometry().height();
-    if (qEnvironmentVariableIsSet("KRIMBLE_TEXTDLG_ORIENTATION")) landscape = qgetenv("KRIMBLE_TEXTDLG_ORIENTATION") == "landscape";   // for the bench
+    if (qEnvironmentVariableIsSet("KRIMBLE_TEXTDLG_ORIENTATION")) landscape = qgetenv("KRIMBLE_TEXTDLG_ORIENTATION") == "landscape";
     m_landscape = landscape;
     QVBoxLayout *root = new QVBoxLayout(this);
     root->setContentsMargins(6, 6, 6, 6);
     root->setSpacing(6);
 
-    // the title: a T badge, the name, a close button
     {
         QHBoxLayout *header = new QHBoxLayout();
         QLabel *badge = new QLabel(QStringLiteral("T"), this);
@@ -191,7 +183,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         header->addWidget(close);
         const bool showTitleRow = false;
         if (!showTitleRow) {
-            // sideways there is no room for the title row (the Cancel button closes the window)
             badge->hide();
             title->hide();
             close->hide();
@@ -202,7 +193,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
 
     m_tabs = new QTabWidget(this);
     root->addWidget(m_tabs, 1);
-    // every page of the tabs scrolls, so that the window also fits a phone held sideways (about 340 px high)
     auto addPage = [this](QWidget *page, const QString &title) {
         QScrollArea *area = new QScrollArea(m_tabs);
         area->setWidgetResizable(true);
@@ -212,7 +202,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         m_tabs->addTab(area, title);
     };
 
-    // ---- the Text tab: everything for ordinary use, on one page ----
     QWidget *textPage = new QWidget(m_tabs);
     QVBoxLayout *tp = new QVBoxLayout(textPage);
     tp->setContentsMargins(4, 6, 4, 4);
@@ -220,12 +209,7 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
 
     m_edit = new QPlainTextEdit(textPage);
     m_edit->setPlainText(text);
-    // (1.0.42: the typing box was given the color emoji fonts as extra families, and the space between words came out with the wide space of one of them: "Jezzy     english".
-    // The box now uses the font as it is; the system's own fallback draws an emoji.)
     m_edit->setMinimumHeight(m_edit->fontMetrics().height() * 4);
-    // tp->addWidget(m_edit);
-    // tp->addWidget(separator(textPage));
-    // (the words, the controls and the preview are put in the page after they are made, below)
     QWidget *controls = new QWidget(textPage);
     QVBoxLayout *cl = new QVBoxLayout(controls);
     cl->setContentsMargins(0, 0, 0, 0);
@@ -236,10 +220,8 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
     grid->setVerticalSpacing(6);
     int row = 0;
 
-    // Font + favorite star
     m_fontBox = new QComboBox(textPage);
     {
-        // every family except the phone's own script and system fonts (as before: Noto, SEC, New SEC, Samsung, AndroidClock); each drawn in its own font
         const QStringList hiddenPrefixes = {QStringLiteral("Noto"), QStringLiteral("SEC"), QStringLiteral("New SEC"), QStringLiteral("Samsung"), QStringLiteral("AndroidClock")};
         QStringList families = QFontDatabase().families();
         families.removeDuplicates();
@@ -256,7 +238,7 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
             m_fontBox->setItemData(m_fontBox->count() - 1, itemFont, Qt::FontRole);
         }
     }
-    m_fontBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);   // not as wide as the longest family name
+    m_fontBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_fontBox->setMinimumContentsLength(10);
     m_starButton = new QToolButton(textPage);
     m_starButton->setText(QStringLiteral("\u2605"));
@@ -268,7 +250,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
     grid->addWidget(m_starButton, row, 4);
     ++row;
 
-    // Size, Color (swatch, recent colors in its menu), eyedropper (the foreground color)
     m_sizeBox = new QDoubleSpinBox(textPage);
     m_sizeBox->setRange(4.0, 600.0);
     m_sizeBox->setDecimals(1);
@@ -285,12 +266,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
     m_dropperButton->setToolTip(i18n("Use the foreground color"));
     m_dropperButton->setEnabled(m_foreground.isValid());
     m_dropperButton->setMinimumHeight(int(m_dropperButton->fontMetrics().height() * 2.0));
-    // grid->addWidget(new QLabel(i18n("Size"), textPage), row, 0);
-    // grid->addWidget(m_sizeBox, row, 1);
-    // grid->addWidget(new QLabel(i18n("Color"), textPage), row, 2);
-    // grid->addWidget(m_colorButton, row, 3);
-    // grid->addWidget(m_dropperButton, row, 4);
-    // On the phone (about 340 px wide) Size and Color in one row made the window wider than the screen; they are two rows (George's picture has them in one).
     grid->addWidget(new QLabel(i18n("Size"), textPage), row, 0);
     grid->addWidget(m_sizeBox, row, 1, 1, 4);
     ++row;
@@ -300,7 +275,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
     ++row;
     cl->addLayout(grid);
 
-    // B I U S Aa
     {
         QHBoxLayout *styles = new QHBoxLayout();
         styles->setSpacing(6);
@@ -333,7 +307,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
     }
     cl->addWidget(separator(textPage));
 
-    // Alignment
     {
         QHBoxLayout *aligns = new QHBoxLayout();
         aligns->setSpacing(4);
@@ -356,7 +329,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
     }
     cl->addWidget(separator(textPage));
 
-    // Spacing: letters, lines; Kerning at the cursor
     {
         QGridLayout *spacing = new QGridLayout();
         spacing->setHorizontalSpacing(6);
@@ -394,7 +366,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         connect(looser, &QPushButton::clicked, this, [this]() { nudgeKern(1.0); m_edit->setFocus(); });
     }
 
-    // the preview
     m_preview = new KrimblePreviewWidget(textPage);
     m_preview->setFixedHeight(m_preview->fontMetrics().height() * 4);
 
@@ -419,11 +390,10 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         columns->addLayout(left, 1);
         columns->addWidget(controlsArea, 1);
         tp->addLayout(columns, 1);
-        m_tabs->addTab(textPage, i18n("Text"));   // not in a scroll area of its own: the right column scrolls
+        m_tabs->addTab(textPage, i18n("Text"));
     }
     m_textPage = textPage;
 
-    // ---- the Font tab: a long list of the fonts, searched, with the favorites ----
     {
         QWidget *page = new QWidget(m_tabs);
         QVBoxLayout *lay = new QVBoxLayout(page);
@@ -446,7 +416,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         });
     }
 
-    // ---- the Style tab: colors ----
     {
         QWidget *page = new QWidget(m_tabs);
         QVBoxLayout *lay = new QVBoxLayout(page);
@@ -463,8 +432,7 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
             swatch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             const QColor color = presets.at(i);
             connect(swatch, &QToolButton::clicked, this, [this, color]() { setColor(color); });
-            // swatches->addWidget(swatch, i / 6, i % 6);
-            swatches->addWidget(swatch, i / 4, i % 4);   // four a row: six made the window wider than a phone
+            swatches->addWidget(swatch, i / 4, i % 4);
         }
         lay->addLayout(swatches);
         QPushButton *more = new QPushButton(i18n("More colors..."), page);
@@ -481,7 +449,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         addPage(page, i18n("Style"));
     }
 
-    // ---- the Layout tab: the text box ----
     {
         QWidget *page = new QWidget(m_tabs);
         QVBoxLayout *lay = new QVBoxLayout(page);
@@ -500,7 +467,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         addPage(page, i18n("Layout"));
     }
 
-    // ---- the buttons at the bottom ----
     {
         QHBoxLayout *buttons = new QHBoxLayout();
         QPushButton *reset = new QPushButton(QStringLiteral("\u21BA  ") + i18n("Reset"), this);
@@ -530,9 +496,7 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         });
     }
 
-    // ---- the connections ----
     connect(m_edit->document(), &QTextDocument::contentsChange, this, [this](int position, int removed, int added) {
-        // the kerning follows the typing: characters typed or deleted move the kerning after them
         if (m_changingCase || position < 0) return;
         if (position > m_kern.size()) m_kern.resize(position);
         m_kern.remove(position, qMin(removed, m_kern.size() - position));
@@ -571,7 +535,6 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
     fillFontList();
 
     if (QScreen *screen = QGuiApplication::primaryScreen()) {
-        // the height the Text tab wants (the scroll area itself asks for less), but never more than the screen has
         const QSize areaHint = m_tabs->currentWidget()->sizeHint();
         const int wanted = sizeHint().height() - areaHint.height() + m_textPage->sizeHint().height() + 6;
         resize(int(screen->availableGeometry().width() * 0.96), m_landscape ? int(screen->availableGeometry().height() * 0.94)
@@ -714,13 +677,13 @@ void KrimbleTextDialog::updateKernDisplay()
     m_settingKern = true;
     m_kernBox->setValue(v);
     m_settingKern = false;
-    m_kernBox->setEnabled(at > 0 && at < m_edit->toPlainText().size());   // between two letters only
+    m_kernBox->setEnabled(at > 0 && at < m_edit->toPlainText().size());
 }
 
 void KrimbleTextDialog::nudgeKern(qreal direction)
 {
     const int at = m_edit->textCursor().position();
-    if (at <= 0 || at >= m_edit->toPlainText().size()) return;   // between two letters only
+    if (at <= 0 || at >= m_edit->toPlainText().size()) return;
     if (m_kern.size() <= at) m_kern.resize(at + 1);
     m_kern[at] += direction * m_sizeBox->value() * 0.02;
     updateKernDisplay();
@@ -737,8 +700,8 @@ void KrimbleTextDialog::applyCase(int mode)
     if (mode == 0) out = s.toUpper();
     else if (mode == 1) out = s.toLower();
     else {
-        bool startOfWord = true;       // Title Case
-        bool startOfSentence = true;   // Sentence case
+        bool startOfWord = true;
+        bool startOfSentence = true;
         Q_FOREACH (const QChar ch, s) {
             if (mode == 2) {
                 out += ch.isLetter() ? (startOfWord ? ch.toUpper() : ch.toLower()) : ch;
@@ -750,7 +713,7 @@ void KrimbleTextDialog::applyCase(int mode)
             }
         }
     }
-    m_changingCase = true;   // the same number of characters: the kerning stays where it is
+    m_changingCase = true;
     c.insertText(out);
     m_changingCase = false;
     m_edit->setTextCursor(c);
@@ -758,14 +721,10 @@ void KrimbleTextDialog::applyCase(int mode)
     updatePreview();
 }
 
-// the words in the font, size (at most 40 pt, so that it fits), bold, italic, underline, strike-out, alignment, line spacing and color that are chosen, changing as they are chosen, drawn by
-// hand so that the tracking and the kerning show: each line is drawn in pieces between kerned letters (the font's own kerning still applies inside a piece). On a dark background when
-// the color is light, so that it can be seen.
 void KrimbleTextDialog::updatePreview()
 {
     KrimblePreviewWidget *preview = static_cast<KrimblePreviewWidget*>(m_preview);
     if (!preview || !m_edit || !m_fontBox || m_fontBox->count() == 0) return;
-    // everything the picture needs is taken now (not at the time of painting)
     QFont previewFont(m_fontBox->currentText());
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     previewFont.setFamilies(QStringList() << previewFont.family() << QStringLiteral("Noto Color Emoji") << QStringLiteral("Samsung Color Emoji"));
@@ -796,7 +755,6 @@ void KrimbleTextDialog::updatePreview()
     preview->painter = [=](QPainter &p, int width, int height) {
         p.fillRect(0, 0, width, height, background);
         const qreal available = qMax(40, width - 8);
-        // one pass measures the widest line, the second draws; a line wider than the preview makes the whole picture smaller, so that nothing is cut off
         auto run = [&](qreal factor, bool draw) -> qreal {
             QFont font = drawFont;
             font.setPointSizeF(drawFont.pointSizeF() * factor);
@@ -811,7 +769,7 @@ void KrimbleTextDialog::updatePreview()
             int lineStart = 0;
             for (int li = 0; li < lines.size(); ++li) {
                 const QString &line = lines.at(li);
-                QList<QPair<QString, qreal>> pieces;   // text, gap before it (px)
+                QList<QPair<QString, qreal>> pieces;
                 int pieceStart = 0;
                 for (int ci = 1; ci <= line.size(); ++ci) {
                     const int pos = lineStart + ci;

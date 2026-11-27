@@ -14,12 +14,6 @@
 class QStyleOptionViewItem;
 class StoryboardModel;
 
-/**
- * This view draws the children of every index in the first column of 
- * the model inside the parent index
- *
- * */
-
 class KRITASTORYBOARDDOCKER_EXPORT StoryboardView : public QListView
 {
     Q_OBJECT
@@ -32,40 +26,17 @@ public:
     QModelIndex indexAt(const QPoint &point) const override;
     void setItemOrientation(Qt::Orientation orientation);
 
-    /**
-     * @brief whether Comments are below or on the right of Thumbnail
-     * @return The orientation of each Storyboard Item
-     */
     Qt::Orientation itemOrientation();
 
-    /**
-     * @return True if comments are visible, otherwise False.
-     */
     bool commentIsVisible() const;
 
-    /**
-     * @return True if thumbnails are visible, otherwise False.
-     */
     bool thumbnailIsVisible() const;
 
-    /**
-     * @brief Sets the visibility of comments
-     * @param value The new visibility value
-     */
     void setCommentVisibility(bool value);
 
-    /**
-     * @brief Sets the visibility of thumbnails
-     * @param value The new visibility value
-     */
     void setThumbnailVisibility(bool value);
 
-    /**
-     * @brief changes the @c currentIndex and @c selectedIndex to frame
-     * @param frame The new current frame
-     */
     void setCurrentItem(int frame);
-
 
     void mouseReleaseEvent(QMouseEvent *event) override;
 

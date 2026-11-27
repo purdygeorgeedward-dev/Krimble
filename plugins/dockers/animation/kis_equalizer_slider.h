@@ -12,7 +12,6 @@
 
 #include "kritaanimationdocker_export.h"
 
-
 class KRITAANIMATIONDOCKER_EXPORT KisEqualizerSlider : public QAbstractSlider
 {
 public:
@@ -35,4 +34,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_EQUALIZER_SLIDER_H */
+#endif

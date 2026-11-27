@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Krimble 2026-11-08: George: "palettes have names. You can save them." The palettes of the Color panel: each is a GPL file (the GIMP palette text format, which Krita, GIMP and many
-// other programs read and write) in the program's data folder, with a name, a number of columns and its colors. The Palette page and the palette row of the Picker, Sliders and
-// Values pages use them: the drop-down lists the names, the plus adds the foreground color to the active palette, and New, Open, Import, Export, Duplicate, Rename and Delete work on
-// the files. The Mixer panel's "add to palette" adds to the active palette too.
 #pragma once
 #include <array>
 #include <QColor>
@@ -16,7 +13,6 @@
 #include <QTextStream>
 #include <QVector>
 
-// the four plates of a CMYK color, in percent (0 to 100)
 typedef std::array<int, 4> KrimbleCmyk;
 inline KrimbleCmyk krimbleCmykOf(const QColor &color)
 {
@@ -31,12 +27,10 @@ inline QColor krimbleColorOfCmyk(const KrimbleCmyk &v)
 struct KrimblePalette
 {
     QString name;
-    QVector<QColor> colors;                // always filled: the RGB value of each swatch (for a CMYK palette: made from its plates)
+    QVector<QColor> colors;
     int columns = 16;
-    // 2026-11-08: George: "I want to be able to edit RGB and CMYK palettes too." and "palettes stored as CMYK color values (4 channels, commonly called plates in printing)". A palette is
-    // an RGB palette (each swatch is R, G, B) or a CMYK palette (each swatch is its four plates C, M, Y, K in percent, which is what is stored and edited; the RGB value is made from them).
     QString model = QStringLiteral("RGB");
-    QVector<KrimbleCmyk> cmyk;             // for a CMYK palette: the plates of each swatch (the same size as colors)
+    QVector<KrimbleCmyk> cmyk;
     bool isCmyk() const { return model == QLatin1String("CMYK"); }
     void append(const QColor &c)
     {
@@ -72,7 +66,6 @@ struct KrimblePalette
         colors.swapItemsAt(i, j);
         if (isCmyk() && i < cmyk.size() && j < cmyk.size()) cmyk.swapItemsAt(i, j);
     }
-    // a CMYK palette has its plates for every swatch (made from the RGB value where a file lacked them), and its RGB values come from the plates
     void normalize()
     {
         if (!isCmyk()) { cmyk.clear(); return; }
@@ -85,7 +78,6 @@ struct KrimblePalette
 class KrimblePaletteStore
 {
 public:
-    // the folder of the palette files (tests can set another)
     static QString &directoryOverride() { static QString d; return d; }
     static QString directory()
     {
@@ -145,7 +137,6 @@ public:
     static bool load(const QString &name, KrimblePalette &out)
     {
         if (readFile(fileFor(name), out)) { if (out.name.isEmpty()) out.name = name; return true; }
-        // the file name may differ from the name inside (a palette copied in): look through the files
         const QDir dir(directory());
         for (const QFileInfo &info : dir.entryInfoList(QStringList() << QStringLiteral("*.gpl"), QDir::Files)) {
             KrimblePalette pal;
@@ -159,7 +150,6 @@ public:
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) return false;
         QTextStream out(&file);
         out << "GIMP Palette\nName: " << palette.name << "\nColumns: " << palette.columns << "\n#\n";
-        // a CMYK palette is a GIMP palette too: every swatch has its RGB value (the line other programs read) and, as a comment, its four plates (which this program reads and edits)
         if (palette.isCmyk()) out << "#KrimbleModel: CMYK\n";
         for (int i = 0; i < palette.colors.size(); ++i) {
             const QColor &c = palette.colors[i];
@@ -216,11 +206,10 @@ public:
     }
     static QString active()
     {
-        const QString stored = QSettings().value(QStringLiteral("Krimble/ColorStudioActivePalette"), QStringLiteral("Krimble 256")).toString();   // 2026-11-08: was "My Palette"
+        const QString stored = QSettings().value(QStringLiteral("Krimble/ColorStudioActivePalette"), QStringLiteral("Krimble 256")).toString();
         return exists(stored) ? stored : (names().isEmpty() ? stored : names().first());
     }
     static void setActive(const QString &name) { QSettings().setValue(QStringLiteral("Krimble/ColorStudioActivePalette"), name); }
-    // add a color to the active palette (a color already in it is not added twice)
     static bool addColor(const QColor &c)
     {
         ensureDefaults();
@@ -232,7 +221,6 @@ public:
         if (!pal.colors.contains(shown)) pal.append(opaque);
         return save(pal);
     }
-    // a text that changes when the active palette's name or colors change (the panel reloads when it does)
     static QString signature()
     {
         KrimblePalette pal;
@@ -271,7 +259,6 @@ public:
             }
         }
         save(big);
-        // setActive(mine.name);
-        setActive(big.name);   // 2026-11-08: George: "palette should default to 256 colors." The active palette on the first run is the 256 color one.
+        setActive(big.name);
     }
 };

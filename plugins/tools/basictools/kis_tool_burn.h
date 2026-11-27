@@ -54,4 +54,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_BURN_H_
+#endif

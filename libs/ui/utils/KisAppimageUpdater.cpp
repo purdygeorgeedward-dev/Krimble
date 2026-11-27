@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisAppimageUpdater.h"
 
 #include <QProcess>
@@ -61,7 +60,6 @@ void KisAppimageUpdater::checkForUpdate()
         return;
     }
 
-    // reset output for subsequent checks, is this needed?
     m_checkOutput = QString();
     m_updateOutput = QString();
     m_updaterStatus.setUpdaterOutput(QString());
@@ -110,8 +108,6 @@ void KisAppimageUpdater::slotUpdateCheckFinished(int result, QProcess::ExitStatu
             updateStatus = UpdaterStatus::StatusID::CHECK_ERROR;
             break;
         default:
-            // some errors have exit code of 255 (modified by system, when AppImageUpdate returns -1)
-            // one source of 255 is when the AppImage does not contain update information
             updateStatus = UpdaterStatus::StatusID::CHECK_ERROR;
             break;
         }
@@ -171,7 +167,6 @@ void KisAppimageUpdater::slotUpdateFinished(int result, QProcess::ExitStatus exi
             statusDetails = i18n("New AppImage was downloaded to %1. To complete the update, close Krimble and run the new AppImage.", finfoAppImagePath.path());
             break;
         default:
-            // some errors have exit code of 255 (modified by system, when AppImageUpdate returns -1)
             updateStatus = UpdaterStatus::StatusID::UPDATE_ERROR;
             break;
         }
@@ -230,7 +225,6 @@ void KisAppimageUpdater::initialize(QString& updaterPath)
             this, SLOT(slotUpdateCheckFinished(int, QProcess::ExitStatus)));
     connect(m_checkProcess.data(), SIGNAL(readyReadStandardOutput()),
             this, SLOT(slotAppendCheckOutput()));
-
 
     connect(m_updateProcess.data(), SIGNAL(errorOccurred(QProcess::ProcessError)),
             this, SLOT(slotUpdateErrorOccurred(QProcess::ProcessError)));

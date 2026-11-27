@@ -11,8 +11,6 @@
 #include <VectorLayer.h>
 #include <kis_shape_layer.h>
 
-
-
 class TestVectorLayer : public QObject
 {
     Q_OBJECT

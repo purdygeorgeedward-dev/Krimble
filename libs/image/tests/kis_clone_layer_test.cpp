@@ -21,9 +21,7 @@
 #include "kistest.h"
 #include "testutil.h"
 
-// for updates on visibility change tests
 #include "kis_layer_properties_icons.h"
-
 
 void KisCloneLayerTest::testCreation()
 {
@@ -36,17 +34,6 @@ void KisCloneLayerTest::testCreation()
 
 KisImageSP createImage()
 {
-    /*
-      +-----------------+
-      |root             |
-      | group 1 <-----+ |
-      |  paint 3      | |
-      |  paint 1      | |
-      | group 2       | |
-      |  clone_of_g1 -+ |
-      |  paint 2        |
-      +-----------------+
-     */
 
     const KoColorSpace *colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, 128, 128, colorSpace, "clones test");
@@ -151,19 +138,10 @@ void KisCloneLayerTest::testRemoveSourceLayer()
 
     KisNodeSP group1 = groupLayer1(image);
 
-    /**
-     * We are checking that no one keeps a pointer to the
-     * source layer after it is deleted. Uncomment the first
-     * line to see how perfectly it crashed if removing the
-     * source directly through the node facade
-     */
-    //image->removeNode(group1);
-
     KUndo2Command *cmd = new KisImageLayerRemoveCommand(image, group1);
     cmd->redo();
     delete cmd;
 
-    // We are veeeery bad! Never do like this! >:)
     dbgKrita << "Ref. count:" << group1->refCount();
     KisNodeWSP group1_wsp = group1;
     KisNode *group1_ptr = group1.data();
@@ -174,7 +152,6 @@ void KisCloneLayerTest::testRemoveSourceLayer()
         delete group1_ptr;
     }
 
-    // Are we crashing?
     image->refreshGraphAsync();
     image->waitForDone();
 }
@@ -188,7 +165,6 @@ void KisCloneLayerTest::testRemoveSourceLayerParent()
     KisNodeSP group2 = TestUtil::findNode(root, "group2");
     KisNodeSP cloneLayer1 = TestUtil::findNode(root, "clone_of_g1");
 
-
     KisLayerSP paintLayer4 = new KisPaintLayer(image, "paint4", OPACITY_OPAQUE_U8);
     KisLayerSP cloneLayer4 = new KisCloneLayer(paintLayer4, image, "clone_of_p4", OPACITY_OPAQUE_U8);
 
@@ -200,12 +176,6 @@ void KisCloneLayerTest::testRemoveSourceLayerParent()
     Q_ASSERT(TestUtil::findNode(group2, "clone_of_g1") == KisNodeSP(cloneLayer1));
     Q_ASSERT(TestUtil::findNode(group2, "clone_of_p4") == KisNodeSP(cloneLayer4));
 
-    /**
-     * This test checks if the node reincarnates when the parent of
-     * the clone's source layer is removed.
-     *
-     * Here both group1 and paint4 are removed.
-     */
     KUndo2Command *cmd = new KisImageLayerRemoveCommand(image, group1);
     cmd->redo();
     delete cmd;
@@ -312,10 +282,6 @@ void KisCloneLayerTest::testDuplicateGroup()
 
     KisCloneLayerSP newClone = dynamic_cast<KisCloneLayer*>(copyCloneLayer4.data());
 
-    /**
-     * The newly created clone should now point to the *newly created*
-     * paint layer, not to the previous one.
-     */
     QCOMPARE(KisNodeSP(newClone->copyFrom()), copyPaintLayer4);
 }
 
@@ -352,10 +318,6 @@ inline void addIfNotAnyOf(KisNodeSP node, CyclingTester &t, KisNodeSP group1Chil
     }
 }
 
-/**
- * group1 <-- adding \p group1Child here
- * group2  -- has \p group2Child before addition
- */
 inline void testCyclingCase(CyclingTester &t, KisNodeSP group1Child, KisNodeSP group2Child, bool expected)
 {
     addIfNotAnyOf(t.groupLayer2, t, group1Child, group2Child);
@@ -392,7 +354,6 @@ void KisCloneLayerTest::testUpdatesWhileHidden_data()
     QTest::addColumn<bool>("makeG2Invisible");
     QTest::addColumn<bool>("makeG1Invisible");
 
-
     QTest::newRow("in-all-visible")       << true << false << false << false;
     QTest::newRow("in-dst-hidden")        << true << true  << false << false;
     QTest::newRow("in-dst-parent-hidden") << true << false << true  << false;
@@ -402,25 +363,12 @@ void KisCloneLayerTest::testUpdatesWhileHidden_data()
     QTest::newRow("out-all-visible")       << false << false << false << false;
     QTest::newRow("out-dst-hidden")        << false << true  << false << false;
     QTest::newRow("out-dst-parent-hidden") << false << false << true  << false;
-    // TODO: add a test for reversing the order of unhiding g2 and c1
     QTest::newRow("out-dst-both-hidden")   << false << true  << true  << false;
     QTest::newRow("out-src-hidden")        << false << false << false << true ;
 }
 
-
 void KisCloneLayerTest::testUpdatesWhileHidden()
 {
-    /*
-      +-----------------+
-      |root             |
-      | group 1 <-----+ |
-      |  paint 3      | |
-      |  paint 1      | |
-      | group 2       | |
-      |  clone_of_g1 -+ |
-      |  paint 2        |
-      +-----------------+
-     */
 
     KisImageSP image = createImage();
     KisNodeSP root = image->root();
@@ -462,9 +410,6 @@ void KisCloneLayerTest::testUpdatesWhileHidden()
         "clone_layer_test",
         testName,
         "00_initial"));
-
-
-    // TODO: verify no updates after the parent group or layer is hidden
 
     if (makeC1Invisible) {
         KisLayerPropertiesIcons::setNodePropertyAutoUndo(clone1, KisLayerPropertiesIcons::visible, false, image);
@@ -530,16 +475,6 @@ void KisCloneLayerTest::testUpdatesWhileHidden()
     }
 
     if (makeC1Invisible) {
-        /**
-         * TODO: We have some issues with updating a layer outside the image bounds
-         * when its clone is hidden. When the clone is made visible again, this hidden
-         * area is not visible. To fix this, we need to perform "change-rect-based"-
-         * update instead of "dirty-rect-based"-update. In the current terms, it means
-         * that we should do refreshGraphAsync() on any visibility change. But our system
-         * is not fully designed to incorporate that. We usually keep the content of the
-         * group layers updated, even when the group itself is hidden. So we need to
-         * do a significant design change for that.
-         */
 
         QEXPECT_FAIL("out-dst-both-hidden", "Will fix in the next release", Continue);
         QEXPECT_FAIL("out-dst-hidden", "Will fix in the next release", Continue);
@@ -566,15 +501,6 @@ void KisCloneLayerTest::initTestCase()
 
 void KisCloneLayerTest::testWithSourceUnderTransformMask()
 {
-    /*
-      +-----------------+
-      |root             |
-      |  clone_of_p1 -+ |
-      |  paint 2      | |
-      |  paint 1    <-+ |
-      |    transf1      |
-      +-----------------+
-     */
 
     const KoColorSpace *colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, 128, 128, colorSpace, "clones test");
@@ -664,16 +590,6 @@ void KisCloneLayerTest::testWithSourceUnderTransformMask()
 
 void KisCloneLayerTest::testWithSourceUnderTwoTransformMasks()
 {
-    /*
-      +--------------------+
-      |root                |
-      |  clone_of_p1 -+    |
-      |  paint 2      |    |
-      |  paint 1    <-+    |
-      |    transf2 (offset)|
-      |    transf1 (scale) |
-      +--------------------+
-     */
 
     const KoColorSpace *colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, 128, 128, colorSpace, "clones test");
@@ -690,13 +606,6 @@ void KisCloneLayerTest::testWithSourceUnderTwoTransformMasks()
     transf1->setTransformParams(KisTransformMaskParamsInterfaceSP(
         new KisDumbTransformMaskParams(transform1)));
     transf1->setTestingInterface(listener1);
-
-    /**
-     * An additional offset in `transf2` makes the "hidden area
-     * generation" on the clone to cause a dirty request inside
-     * the image bounds on the transform mask `transf1`, which
-     * causes an async update, and, hence infinite cycle.
-     */
 
     KisTransformMaskTestingListener *listener2 = new KisTransformMaskTestingListener();
     QTransform transform2 = QTransform::fromTranslate(-3, -3);
@@ -794,19 +703,6 @@ void KisCloneLayerTest::testCloneOfGroupWithClones()
 {
     QFETCH(bool, useBlurFilter);
 
-    /*
-      +-------------------+
-      |root               |
-      |  clone_of_g1 ---+ |
-      |    blur_1       | |
-      |                 | |
-      |  group_1    <---+ |
-      |                   |
-      |    clone_of_p1 -+ |
-      |    paint_1  <---+ |
-      +-------------------+
-     */
-
     const KoColorSpace *colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, 128, 128, colorSpace, "clones test");
 
@@ -829,9 +725,7 @@ void KisCloneLayerTest::testCloneOfGroupWithClones()
     cloneLayer2->setCompositeOpId(COMPOSITE_EXCLUSION);
     image->addNode(cloneLayer2, image->root());
 
-
     if (useBlurFilter) {
-        // add a filter mask to cause out-of-the-bounds updates
 
         KisFilterSP filter = KisFilterRegistry::instance()->value("blur");
         KIS_ASSERT(filter);
@@ -849,11 +743,6 @@ void KisCloneLayerTest::testCloneOfGroupWithClones()
     image->initialRefreshGraph();
     QTest::qWait(50);
     image->waitForDone();
-
-    /**
-     * If the image is successfully rendered and **not** stuck in the infinite
-     * loop in the clone layers triggering each other, then the test is passed.
-     */
 
     QVERIFY(TestUtil::checkQImage(
         image->projection()->convertToQImage(nullptr, image->bounds()),

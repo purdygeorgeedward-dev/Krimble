@@ -94,5 +94,5 @@ private:
     Q_DISABLE_COPY(KUndo2View)
 };
 
-#endif // QT_NO_UNDOVIEW
-#endif // KUNDO2VIEW_H
+#endif
+#endif

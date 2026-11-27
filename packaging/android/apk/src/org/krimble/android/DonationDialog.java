@@ -30,7 +30,6 @@ public class DonationDialog {
     private static final String PREF_LAST_SHOWN = "donationdialogautoshown";
 
     private static final long DAY_IN_SECONDS = 24L * 60L * 60L;
-    // How many days to wait between automatically showing the support options on the splash screen.
     private static final long AUTO_SHOW_DELAY = 5L * DAY_IN_SECONDS;
 
     private static final int PAGE_SPLASH = 0;
@@ -187,9 +186,6 @@ public class DonationDialog {
         mFirstStartup = lastAutoShowTimestamp == -1;
         long currentTimestamp = System.currentTimeMillis() / 1000L;
 
-        // Automatically show the supporter page on the splash screen if enough time has elapsed
-        // since the last time it has shown. However, we never automatically show it on first
-        // startup and also never show it two times in a row.
         mShouldAutoShow = !mFirstStartup && !lastShown && lastAutoShowTimestamp + AUTO_SHOW_DELAY <= currentTimestamp;
         mAutoShowSet = true;
 
@@ -217,8 +213,6 @@ public class DonationDialog {
             }
         }
 
-        // If no products are available (e.g. because the user doesn't have a phone with Google
-        // services on it or this is a Krita Next build), we show donation options instead.
         if (products.isEmpty()) {
             Log.d(TAG, "No products, adding fallback");
             products.addAll(DonationProductView.getFallbackProducts(mActivity));
@@ -265,13 +259,8 @@ public class DonationDialog {
     }
 
     private void updateState() {
-        // Adjust which elements are visible depending on whether this
-        // is the splash screen or summoned by the user. If this is
-        // the splash screen, it may show or hide some elements
-        // depending on if the application is still starting up or not.
         Button headerButton = getHeaderButton();
-        boolean showHeaderButton = mPage == PAGE_SPLASH && mProductDetails != null
-                && !mAnyProductsOwned && !mFirstStartup;
+        boolean showHeaderButton = false;
         headerButton.setEnabled(showHeaderButton);
         setViewGone(headerButton, !showHeaderButton);
 

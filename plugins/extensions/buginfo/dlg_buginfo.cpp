@@ -24,7 +24,6 @@
 #include <KoFileDialog.h>
 #include <QMessageBox>
 
-
 #include <KisPortingUtils.h>
 
 #ifdef Q_OS_ANDROID
@@ -48,7 +47,7 @@ DlgBugInfo::DlgBugInfo(QWidget *parent, KoDialog::ButtonCodes customButtons)
 
     connect(this, &KoDialog::user1Clicked, this, [this](){
         QGuiApplication::clipboard()->setText(m_page->txtBugInfo->toPlainText());
-        m_page->txtBugInfo->selectAll(); // feedback
+        m_page->txtBugInfo->selectAll();
     });
 
     connect(this, &KoDialog::user2Clicked, this, &DlgBugInfo::saveToFile);
@@ -107,7 +106,6 @@ QString DlgBugInfo::basicSystemInformationReplacementText()
 {
     QString info;
 
-    // Krita version info
     info.append("Krita");
     info.append("\n  Version: ").append(KritaVersionWrapper::versionString(true));
     info.append("\n\n");
@@ -117,7 +115,6 @@ QString DlgBugInfo::basicSystemInformationReplacementText()
     info.append("\n  Version (loaded): ").append(qVersion());
     info.append("\n\n");
 
-    // OS information
     info.append("OS Information");
     info.append("\n  Build ABI: ").append(QSysInfo::buildAbi());
     info.append("\n  Build CPU: ").append(QSysInfo::buildCpuArchitecture());
@@ -137,10 +134,8 @@ QString DlgBugInfo::basicSystemInformationReplacementText()
 #endif
     info.append("\n\n");
 
-    // OpenGL information
     info.append("\n").append(KisOpenGL::getDebugText());
     info.append("\n\n");
-    // Hardware information
     info.append("Hardware Information");
     info.append(QString("\n Memory: %1").arg(KisImageConfig(true).totalRAM() / 1024)).append(" Gb");
     info.append(QString("\n Cores: %1").arg(QThread::idealThreadCount()));
@@ -154,8 +149,6 @@ QString DlgBugInfo::infoText(QSettings& kritarc)
     QString info;
 
     if (!kritarc.value("LogUsage", true).toBool() || !QFileInfo(originalFileName()).exists()) {
-
-        // NOTE: This is intentionally not translated!
 
         info.append(replacementWarningText());
         info.append("File name and location: " + originalFileName());

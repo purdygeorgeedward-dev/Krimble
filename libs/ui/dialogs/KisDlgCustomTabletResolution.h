@@ -40,4 +40,4 @@ private:
     Ui::KisDlgCustomTabletResolution *ui;
 };
 
-#endif // KISDLGCUSTOMTABLETRESOLUTION_H
+#endif

@@ -43,8 +43,6 @@ namespace KisToolUtils {
     {
         KIS_ASSERT(dev);
 
-        // Bugfix hack forcing pure on first sample to avoid wrong
-        // format blendColor on newly initialized Krita.
         static bool firstTime = true;
         if (firstTime == true) {
             pure = true;
@@ -54,11 +52,9 @@ namespace KisToolUtils {
         const KoColorSpace *cs = dev->colorSpace();
         KoColor sampledColor = KoColor::createTransparent(cs);
 
-        // Wrap around color sampling is supported on any paint device
         bool oldSupportsWraparound = dev->supportsWraproundMode();
         dev->setSupportsWraparoundMode(true);
 
-        // Sampling radius.
         if (!pure && radius > 1) {
             QScopedPointer<KoMixColorsOp::Mixer> mixer(cs->mixColorsOp()->createMixer());
 
@@ -86,10 +82,8 @@ namespace KisToolUtils {
         }
 
         dev->setSupportsWraparoundMode(oldSupportsWraparound);
-        
-        // Color blending.
+
         if (!pure && blendColor && blend < 100) {
-            //Scale from 0..100% to 0..255 range for mixOp weights.
             quint8 blendScaled = static_cast<quint8>(blend * 2.55f);
 
             const quint8 *colors[2];
@@ -132,7 +126,6 @@ namespace KisToolUtils {
 
             if ((group && group->passThroughMode()) ||  color.opacityU8() != OPACITY_TRANSPARENT_U8) {
                 if (layer->inherits("KisGroupLayer") && (!editableOnly || layer->isEditable())) {
-                    // if this is a group and the pixel is transparent, don't even enter it
                     foundNode = findNode(node->lastChild(), point, wholeGroup, editableOnly);
                 }
                 else {
@@ -201,7 +194,6 @@ namespace KisToolUtils {
             }
         }
 
-        // To prevent deleting same layer multiple times
         KisLayerUtils::filterMergeableNodes(nodes);
         nodes.append(masks);
 
@@ -215,7 +207,6 @@ namespace KisToolUtils {
         Q_FOREACH (KisNodeSP node, nodes) {
             KisLayerUtils::recursiveApplyNodes(node, [&applicator, selection, masks] (KisNodeSP node) {
 
-                // applied on masks if selected explicitly
                 if (node->inherits("KisMask") && !masks.contains(node)) {
                     return;
                 }
@@ -307,7 +298,6 @@ namespace KisToolUtils {
 
     void KRITAUI_EXPORT setCursorPos(const QPoint &point)
     {
-        // https://bugreports.qt.io/browse/QTBUG-99009
         QScreen *screen = qApp->screenAt(point);
         if (!screen) {
             screen = qApp->primaryScreen();
@@ -326,8 +316,6 @@ namespace KisToolUtils {
                                                       Qt::AlignLeft | Qt::TextWordWrap | Qt::AlignVCenter);
     }
 
-    // get all shape layers with shapes at point. This is a bit coarser than 'FindNodes',
-    // note that point is in Document coordinates instead of image coordinates.
     QList<KisShapeLayerSP> findShapeLayers(KisNodeSP root, const QPointF &point, bool editableOnly) {
         QList<KisShapeLayerSP> foundNodes;
         KisLayerUtils::recursiveApplyNodes(root, [&] (KisNodeSP node) {
@@ -410,7 +398,6 @@ namespace KisToolUtils {
         return true;
     }
 
-
     QString nodeEditableMessage(KisNodeSP node, bool blockedNoIndirectPainting)
     {
         QString message;
@@ -429,7 +416,6 @@ namespace KisToolUtils {
         }
         return message;
     }
-
 
     StandardBrushSizes::StandardBrushSizes(int minSize, int maxSize)
     {
@@ -454,6 +440,5 @@ namespace KisToolUtils {
             std::upper_bound(m_sizes.rbegin(), m_sizes.rend(), qRound(size), std::greater<int>());
         return result != m_sizes.rend() ? *result : m_sizes.front();
     }
-
 
 }

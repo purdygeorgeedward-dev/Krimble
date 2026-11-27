@@ -35,25 +35,17 @@
 class KisResourceTaggingManager::Private
 {
 public:
-    /// \brief tagChooser tag chooser widget (tags combobox + tag tool button with the popup)
     KisTagChooserWidget *tagChooser;
 
-    /// \brief tagFilter resources filter widget (resources filter box + "filter by tag" checkbox)
     KisTagFilterWidget *tagFilter;
 
-    /// \brief model main data model for resources in the item chooser that the Tagging Manager is taking care of
     QPointer<KisTagFilterResourceProxyModel> model;
 
-    /// \brief tagModel main tag model for tags in the tags combobox
     KisTagModel *tagModel;
 
     QString resourceType;
 
 };
-
-
-
-
 
 KisResourceTaggingManager::KisResourceTaggingManager(QString resourceType, KisTagFilterResourceProxyModel *model, QWidget *parent)
 
@@ -109,8 +101,6 @@ void KisResourceTaggingManager::slotFilterByTagChanged(const bool filterByTag)
 
 void KisResourceTaggingManager::contextMenuRequested(KoResourceSP resource, QPoint pos)
 {
-    // No visible tag chooser usually means no intended tag interaction,
-    // context menu makes no sense then either
     if (!resource || !d->tagChooser->isVisible())
         return;
 

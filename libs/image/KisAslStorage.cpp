@@ -12,7 +12,6 @@
 #include <KisStaticInitializer.h>
 #include <KisGlobalResourcesInterface.h>
 
-
 KIS_DECLARE_STATIC_INITIALIZER {
     KisStoragePluginRegistry::instance()->addStoragePluginFactory(KisResourceStorage::StorageType::AdobeStyleLibrary, new KisStoragePluginFactory<KisAslStorage>());
 }
@@ -130,8 +129,6 @@ public:
         return fi.lastModified();
     }
 
-
-    /// This only loads the resource when called (but not in case of asl...)
     KoResourceSP resourceImpl() const override
     {
         return m_currentResource;
@@ -167,11 +164,9 @@ KoResourceSP KisAslStorage::resource(const QString &url)
     int indexOfUnderscore = url.lastIndexOf("_");
     QString realUuid = url;
     if (indexOfUnderscore >= 0) {
-        realUuid.remove(indexOfUnderscore, url.length() - indexOfUnderscore); // remove _pattern or _style added in iterator
+        realUuid.remove(indexOfUnderscore, url.length() - indexOfUnderscore);
     }
-    // TODO: RESOURCES: Since we do get a resource type at the beginning of the path now
-    //  maybe we could skip adding the _[resourcetype] at the end of the path as well?
-    realUuid = QFileInfo(realUuid).baseName(); // remove patterns/ at the beginning, if there are any
+    realUuid = QFileInfo(realUuid).baseName();
 
     if (url.contains("pattern") || url.contains(".pat")) {
         QHash<QString, KoPatternSP> patterns = m_aslSerializer->patterns();
@@ -187,7 +182,6 @@ KoResourceSP KisAslStorage::resource(const QString &url)
         if (styles.contains(realUuid)) {
             resultingStyle = styles[realUuid];
         } else {
-            // can be {realUuid} or {realUuid}
             if (realUuid.startsWith("{")) {
                 realUuid = realUuid.right(realUuid.length() - 1);
             }
@@ -203,9 +197,6 @@ KoResourceSP KisAslStorage::resource(const QString &url)
         if (resultingStyle) {
             KisPSDLayerStyleSP newStyle = resultingStyle->clone().dynamicCast<KisPSDLayerStyle>();
 
-            // newStyle->resourcesInterface() is guaranteed to point to a local copy of the resouces
-            // stored inside the serializer, so we need to side-load them and then reset the resources
-            // interface to the global one
             KisAslLayerStyleSerializer::sideLoadLinkedResources(newStyle.data(), newStyle->resourcesInterface());
             newStyle->setResourcesInterface(KisGlobalResourcesInterface::instance());
 
@@ -215,7 +206,7 @@ KoResourceSP KisAslStorage::resource(const QString &url)
     return 0;
 }
 
-bool KisAslStorage::loadVersionedResource(KoResourceSP /*resource*/)
+bool KisAslStorage::loadVersionedResource(KoResourceSP )
 {
     return false;
 }
@@ -235,14 +226,13 @@ QSharedPointer<KisResourceStorage::TagIterator> KisAslStorage::tags(const QStrin
     return QSharedPointer<KisResourceStorage::TagIterator>(new AslTagIterator(location(), resourceType));
 }
 
-bool KisAslStorage::saveAsNewVersion(const QString &/*resourceType*/, KoResourceSP /*resource*/)
+bool KisAslStorage::saveAsNewVersion(const QString & , KoResourceSP )
 {
-    // not implemented yet
     warnKrita << "KisAslStorage::saveAsNewVersion is not implemented yet";
     return false;
 }
 
-bool KisAslStorage::addResource(const QString &/*resourceType*/, KoResourceSP resource)
+bool KisAslStorage::addResource(const QString & , KoResourceSP resource)
 {
     if (!resource) {
         warnKrita << "Trying to add a null resource to KisAslStorage";

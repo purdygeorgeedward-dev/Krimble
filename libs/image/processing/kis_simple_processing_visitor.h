@@ -9,7 +9,6 @@
 
 #include "kis_processing_visitor.h"
 
-
 class KRITAIMAGE_EXPORT KisSimpleProcessingVisitor : public KisProcessingVisitor
 {
 public:
@@ -34,4 +33,4 @@ protected:
     virtual void visitColorizeMask(KisColorizeMask *mask, KisUndoAdapter *undoAdapter) = 0;
 };
 
-#endif /* __KIS_SIMPLE_PROCESSING_VISITOR_H */
+#endif

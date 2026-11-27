@@ -16,7 +16,6 @@
 Q_DECLARE_METATYPE(KisAlgebra2D::VectorPath::VectorPathPoint);
 Q_DECLARE_METATYPE(QPainterPath);
 
-
 namespace KisAlgebra2D {
 
 }
@@ -143,7 +142,6 @@ void KisAlgebra2DTest::testWeirdIntersections()
     points = KisAlgebra2D::intersectTwoCircles(c1, r1, c2, r2);
 
     QCOMPARE(points.size(), 2);
-    //QCOMPARE(points[0], QPointF(15, 10));
 }
 
 void KisAlgebra2DTest::testMatrixDecomposition1()
@@ -183,7 +181,6 @@ void KisAlgebra2DTest::testMatrixDecomposition2()
 
 void KisAlgebra2DTest::testMatrixDecomposition3()
 {
-    //QTransform t0 = QTransform(177.097, 28.4105, -0.344587, -231.26, -33.6893, -0.338797, 95.3185, -54.9594, 0.658308);
     QTransform t0 = QTransform(266.715, 65.9483, 0.153259, 331.445, 81.615, 0.922963, 500.68, 363.222, 1.53811);
     ENTER_FUNCTION() << ppVar(t0.m33()) << ppVar(t0.determinant());
     KisAlgebra2D::DecomposedMatrix matrix(t0);
@@ -192,14 +189,7 @@ void KisAlgebra2DTest::testMatrixDecomposition3()
     QVERIFY(KisAlgebra2D::fuzzyMatrixCompare(matrix.transform(), t0, 1e-4));
     ENTER_FUNCTION() << matrix.transform();
 
-    // test 4
-
-
-
-
 }
-
-
 
 void KisAlgebra2DTest::testDivisionWithFloor()
 {
@@ -283,9 +273,6 @@ void KisAlgebra2DTest::testNullRectProcessing()
     const QRectF lineRect(line.boundingRect());
     qDebug() << ppVar(lineRect) << ppVar(lineRect.isValid()) << ppVar(lineRect.isNull());
 
-
-
-    // test relative operations
     const QPointF relPoint = KisAlgebra2D::absoluteToRelative(QPointF(30, 10), lineRect);
     QCOMPARE(relPoint, QPointF(0.2, 0.0));
 
@@ -295,36 +282,26 @@ void KisAlgebra2DTest::testNullRectProcessing()
     const QTransform relTransform = KisAlgebra2D::mapToRect(lineRect);
     QCOMPARE(relTransform.map(relPoint), absPoint);
 
-    // test relative isotropic operations
     QCOMPARE(KisAlgebra2D::absoluteToRelative(
                  KisAlgebra2D::relativeToAbsolute(0.2, lineRect),
                  lineRect),
              0.2);
 
-    /// test transformations
-
-    // translate
     QCOMPARE(QTransform::fromTranslate(10, 20).mapRect(lineRect), QRect(20, 30, 100, 0));
 
-    // scale
     QCOMPARE(QTransform::fromScale(2.0, 2.0).mapRect(lineRect), QRect(20, 20, 200, 0));
 
-    // rotate
     QTransform rot;
     rot.rotate(90);
     QCOMPARE(rot.mapRect(lineRect), QRectF(-10, 10, 0, 100));
 
-    // shear-x
     QTransform shearX;
     shearX.shear(2.0, 0.0);
     QCOMPARE(shearX.mapRect(lineRect), QRectF(30, 10, 100, 0));
 
-    // shear-y
     QTransform shearY;
     shearY.shear(0.0, 2.0);
     QCOMPARE(shearY.mapRect(lineRect), QRectF(10, 30, 100, 200));
-
-    /// binary operations
 
     QCOMPARE(QRectF() | lineRect, lineRect);
     QCOMPARE(QRectF(10, 10, 40, 40) | lineRect, QRectF(10, 10, 100, 40));
@@ -333,8 +310,6 @@ void KisAlgebra2DTest::testNullRectProcessing()
 
     QEXPECT_FAIL("", "Qt's rectangle intersection operator doesn't work with line-rects", Continue);
     QCOMPARE(QRectF(10, 10, 40, 40) & lineRect, QRectF(10, 10, 40, 0));
-
-    /// QPolygon's bounding rect
 
     QCOMPARE(QPolygonF(lineRect).boundingRect(), lineRect);
 }
@@ -381,7 +356,6 @@ void KisAlgebra2DTest::testLineIntersections()
     }
 
     {
-        // first bounded, then unbounded
         boost::optional<QPointF> p =
                 intersectLines(QLineF(QPointF(4,5),QPointF(-1,5)),
                                QLineF(QPointF(-1,0),QPointF(-1,3)));
@@ -397,7 +371,7 @@ void testLineRectIntersection(QRect rect, QLineF line, QLineF expected, bool ext
     QLineF result = line;
     bool intersects = KisAlgebra2D::intersectLineRect(result, rect, extendFirst, extendSecond);
 
-    float epsilon = 1e-4; // good enough for most usecases // I don't use qFuzzyCompare because it has too small epsilon
+    float epsilon = 1e-4;
 
     auto fuzzyCompare = [epsilon] (float a, float b) -> bool {
             return (qAbs(a - b) < epsilon); };
@@ -425,19 +399,16 @@ void testLineRectIntersection(QRect rect, QLineF line, QLineF expected, bool ext
 
 }
 
-
 void KisAlgebra2DTest::testLineRectIntersectionsManual()
 {
-    int x1 = 100, x2 = 400; // for x values
-    int y1 = 130, y2 = 430; // for y values
-
+    int x1 = 100, x2 = 400;
+    int y1 = 130, y2 = 430;
 
     QRect rect1(x1, y1, x2 - x1, y2 - y1);
     QLineF line1original(x1, y1, x2, y2);
     QLineF line1expected = line1original;
 
     testLineRectIntersection(rect1, line1original, line1expected, false, false, true);
-
 
     QRect rect2(x1, y1, x2, y2);
     QLineF line2original(x1, y1, x2, y2);
@@ -454,7 +425,6 @@ void KisAlgebra2DTest::testLineRectIntersectionsManual()
     QRect rect4 = rect1;
     QLineF line4 = QLineF(x2, y1, x1, y2);
     testLineRectIntersection(rect4, line4, line4, false, false, true);
-
 
     QRect rect5 = rect1;
     QLineF line5 = QLineF(x2, y2, x1, y1);
@@ -473,64 +443,45 @@ void KisAlgebra2DTest::testLineRectIntersectionsManual()
     QLineF line8expected = QLineF(QPointF(0,618.966),QPointF(102.104,618.966));
     testLineRectIntersection(rect8, line8, line8expected, false, false, true);
 
-
-    // vertical
-    //   inside the line
     testLineRectIntersection(QRect(0, 0, 20, 20), QLineF(0, 5, 0, 15), QLineF(0, 5, 0, 15), false, false, true);
-    //   exactly the line
     testLineRectIntersection(QRect(0, 0, 20, 20), QLineF(0, 0, 0, 20), QLineF(0, 0, 0, 20), false, false, true);
-    //   extending the line
     testLineRectIntersection(QRect(0, 0, 20, 20), QLineF(0, -5, 0, 25), QLineF(0, 0, 0, 20), false, false, true);
 
-    // diagonal
-    //   exactly
     testLineRectIntersection(QRect(0, 0, 20, 20), QLineF(0, 0, 20, 20), QLineF(0, 0, 20, 20), false, false, true);
-    //   inside
     testLineRectIntersection(QRect(0, 0, 20, 20), QLineF(5, 5, 15, 15), QLineF(5, 5, 15, 15), false, false, true);
-    //   extending
     testLineRectIntersection(QRect(0, 0, 20, 20), QLineF(-5, -5, 30, 30), QLineF(0, 0, 20, 20), false, false, true);
-
 
     testLineRectIntersection(QRect(0, 0, 20, 20), QLineF(-5, -100, -5, 100), QLineF(-5, -100, -5, 100), false, false, false);
 
-    // start: (-1, -2)
-    // end: (4, 5);
-    // width, height: 5, 7
     QRect testRect = QRect(-1, -2, 5, 7);
 
-    // first item: line, second item: result after cropping
     QList<QLineF> linesListIntersecting = QList<QLineF>({
-                                                            // horizontal
-                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2), // on the edge, exact
-                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0), // below the edge, exact
-                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2), // on the edge, longer
-                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0), // below the edge, longer
-                                                            QLineF(0, -2, 3, -2), QLineF(0, -2, 3, -2), // on the edge, shorter
-                                                            QLineF(0, 0, 3, -2), QLineF(0, 0, 3, -2), // below the edge, shorter
+                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(0, -2, 3, -2), QLineF(0, -2, 3, -2),
+                                                            QLineF(0, 0, 3, -2), QLineF(0, 0, 3, -2),
 
-                                                            // vertical
-                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5), // on the edge, exact
-                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5), // below the edge, exact
-                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5), // on the edge, longer
-                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5), // below the edge, longer
-                                                            QLineF(-1, 0, -1, 3), QLineF(-1, 0, -1, 3), // on the edge, shorter
-                                                            QLineF(0, 0, 0, 3), QLineF(0, 0, 0, 3), // below the edge, shorter
+                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, 0, -1, 3), QLineF(-1, 0, -1, 3),
+                                                            QLineF(0, 0, 0, 3), QLineF(0, 0, 0, 3),
 
+                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2),
 
-                                                            // skewed
-                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2), // very horizontal-like
-                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, exact
-                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, half-exact
+                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5),
 
-                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal
-                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5), // perfectly diagonal, exact
-                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal, half-exact
+                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2),
 
-                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2), // perfectly diagonal, p1 and p2 reversed
-
-                                                            QLineF(1, 3, 3, 4), QLineF(1, 3, 3, 4), // skewed, fully inside
-                                                            QLineF(2, 2, 6, 4), QLineF(2, 2, 4, 3), // skewed, partially inside
-
+                                                            QLineF(1, 3, 3, 4), QLineF(1, 3, 3, 4),
+                                                            QLineF(2, 2, 6, 4), QLineF(2, 2, 4, 3),
 
                                                         });
 
@@ -539,40 +490,33 @@ void KisAlgebra2DTest::testLineRectIntersectionsManual()
         testLineRectIntersection(testRect, linesListIntersecting[2*i], linesListIntersecting[2*i + 1], false, false, true);
     }
 
-    // now with extend = true
-
-    // first item: line, second item: result after cropping
     QList<QLineF> linesListIntersectingExtend = QList<QLineF>({
-                                                            // horizontal
-                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2), // on the edge, exact
-                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0), // below the edge, exact
-                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2), // on the edge, longer
-                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0), // below the edge, longer
-                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 4, -2), // on the edge, shorter
-                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 4, 0), // below the edge, shorter
+                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 4, 0),
 
-                                                            // vertical
-                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5), // on the edge, exact
-                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5), // below the edge, exact
-                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5), // on the edge, longer
-                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5), // below the edge, longer
-                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 5), // on the edge, shorter
-                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 5), // below the edge, shorter
+                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 5),
 
+                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2),
 
-                                                            // skewed
-                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2), // very horizontal-like
-                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, exact
-                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, half-exact
+                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5),
 
-                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal
-                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5), // perfectly diagonal, exact
-                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal, half-exact
+                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2),
 
-                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2), // perfectly diagonal, p1 and p2 reversed
-
-                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 4, 4.5), // skewed, fully inside
-                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3), // skewed, partially inside
+                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 4, 4.5),
+                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3),
 
                                                         });
 
@@ -582,60 +526,49 @@ void KisAlgebra2DTest::testLineRectIntersectionsManual()
     }
 
     QList<QLineF> linesListIntersectingExtendOneSide = QList<QLineF>({
-                                                            // horizontal
 
-                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2), // on the edge, exact
-                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0), // below the edge, exact
-                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2), // on the edge, longer
-                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0), // below the edge, longer
-                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 3, -2), // on the edge, shorter
-                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 3, 0), // below the edge, shorter
+                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 3, -2),
+                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 3, 0),
 
-                                                            // vertical
-                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5), // on the edge, exact
-                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5), // below the edge, exact
-                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5), // on the edge, longer
-                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5), // below the edge, longer
-                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 3), // on the edge, shorter
-                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 3), // below the edge, shorter
+                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 3),
+                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 3),
 
+                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2),
 
-                                                            // skewed
-                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2), // very horizontal-like
-                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, exact
-                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, half-exact
+                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5),
 
-                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal
-                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5), // perfectly diagonal, exact
-                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal, half-exact
+                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2),
 
-                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2), // perfectly diagonal, p1 and p2 reversed
-
-                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 3, 4), // skewed, fully inside
-                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3), // skewed, partially inside
-
+                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 3, 4),
+                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3),
 
                                                         });
 
     for (int i = 0; i < linesListIntersectingExtend.size()/2; i++)
     {
-        // first from one side
         testLineRectIntersection(testRect, linesListIntersectingExtendOneSide[2*i], linesListIntersectingExtendOneSide[2*i + 1], true, false, true);
 
-        // and then reversed
         QLineF l = QLineF(linesListIntersectingExtendOneSide[2*i].p2(), linesListIntersectingExtendOneSide[2*i].p1());
         QLineF lexp = QLineF(linesListIntersectingExtendOneSide[2*i + 1].p2(), linesListIntersectingExtendOneSide[2*i + 1].p1());
         testLineRectIntersection(testRect, l, lexp, false, true, true);
     }
 
-
 }
 
 void KisAlgebra2DTest::testLineRectIntersectionsRandom()
 {
-    // start: (-1, -2)
-    // end: (4, 5);
-    // width, height: 5, 7
     QRect testRect = QRect(-1, -2, 5, 7);
 
     int numberOfTests = 100;
@@ -646,7 +579,6 @@ void KisAlgebra2DTest::testLineRectIntersectionsRandom()
         QList<QPointF> points;
         for (int j = 0; j < 2; j++)
         {
-            // find two random points on the edges of the rectangle
             int direction = random.generate()%2;
             int boundary = random.generate()%2;
             points.append(QPointF());
@@ -662,12 +594,10 @@ void KisAlgebra2DTest::testLineRectIntersectionsRandom()
         bool onEdge = false;
         if (points[0].x() == points[1].x() || points[0].y() == points[1].y()) {
             onEdge = true;
-            // 25% chance that it happens
         }
 
-        // line equation: x = x1 + t*(x2 - x1)
-        float t1 = random.generateDouble()*3 - 1; // range: [-2, 3] - which means 2x higher chance it would end up outside of the rectangle than inside
-        float t2 = random.generateDouble()*3 - 1; // range: [-2, 3] - which means 2x higher chance it would end up outside of the rectangle than inside
+        float t1 = random.generateDouble()*3 - 1;
+        float t2 = random.generateDouble()*3 - 1;
 
         if (t1 > t2) {
             float tmp = t1;
@@ -680,7 +610,7 @@ void KisAlgebra2DTest::testLineRectIntersectionsRandom()
         QLineF expectedLine = testLine;
         bool expectedResult = true;
         if (onEdge) {
-            if (points[0].x() == points[1].x()) /*vertical*/ {
+            if (points[0].x() == points[1].x()) {
                 if (points[0].y() < points[1].y()) {
                     if (points[1].y() < testRect.y() || points[0].y() > testRect.y() + testRect.height()) {
                         expectedResult = false;
@@ -696,7 +626,7 @@ void KisAlgebra2DTest::testLineRectIntersectionsRandom()
                         expectedLine.setP1(QPointF(points[1].x(), qMin(testLine.p1().y(), (double)testRect.y() + testRect.height())));
                     }
                 }
-            } else /* horizontal */ {
+            } else {
                 if (points[0].x() < points[1].x()) {
                     if (points[1].x() < testRect.x() || points[0].x() > testRect.x() + testRect.width()) {
                         expectedResult = false;
@@ -738,13 +668,12 @@ void KisAlgebra2DTest::testLineRectIntersectionsRandom()
 
 }
 
-
 void testLinePolygonIntersectionImpl(QPolygonF poly, QLineF line, QLineF expected, bool extendFirst, bool extendSecond, bool intersectsExpected)
 {
     QLineF result = line;
     bool intersects = KisAlgebra2D::intersectLineConvexPolygon(result, poly, extendFirst, extendSecond);
 
-    float epsilon = 1e-4; // good enough for most usecases // I don't use qFuzzyCompare because it has too small epsilon
+    float epsilon = 1e-4;
 
     auto fuzzyCompare = [epsilon] (float a, float b) -> bool {
             return (qAbs(a - b) < epsilon); };
@@ -752,7 +681,6 @@ void testLinePolygonIntersectionImpl(QPolygonF poly, QLineF line, QLineF expecte
             return fuzzyCompare(a.x(), b.x()) && fuzzyCompare(a.y(), b.y()); };
     auto fuzzyCompareLine = [&] (QLineF a, QLineF b) -> bool {
             return fuzzyComparePoint(a.p1(), b.p1()) && fuzzyComparePoint(a.p2(), b.p2()); };
-
 
     bool success;
     if (!intersectsExpected) {
@@ -763,7 +691,6 @@ void testLinePolygonIntersectionImpl(QPolygonF poly, QLineF line, QLineF expecte
         success = fuzzyCompareLine(result, expected) && intersectsExpected == intersects;
     }
 
-
     if (!success) {
         qCritical() << "FAILURE";
         qCritical() << "intersects: " << intersects;
@@ -772,7 +699,6 @@ void testLinePolygonIntersectionImpl(QPolygonF poly, QLineF line, QLineF expecte
         qCritical();
 
         qCritical() << "original: " << line;
-        //qCritical() << "rectangle was: " << ;
         qCritical() << "expected: " << expected;
         qCritical() << "result: " << result;
     }
@@ -789,17 +715,14 @@ void testLinePolygonIntersection(QRect poly, QLineF line, QLineF expected, bool 
 
 void KisAlgebra2DTest::testLinePolygonIntersectionsManual()
 {
-    int x1 = 100, x2 = 400; // for x values
-    int y1 = 130, y2 = 430; // for y values
-
+    int x1 = 100, x2 = 400;
+    int y1 = 130, y2 = 430;
 
     QRect rect1(x1, y1, x2 - x1, y2 - y1);
     QLineF line1original(x1, y1, x2, y2);
     QLineF line1expected = line1original;
 
     testLinePolygonIntersection(rect1, line1original, line1expected, false, false, true);
-
-    //return;
 
     QRect rect2(x1, y1, x2, y2);
     QLineF line2original(x1, y1, x2, y2);
@@ -816,7 +739,6 @@ void KisAlgebra2DTest::testLinePolygonIntersectionsManual()
     QRect rect4 = rect1;
     QLineF line4 = QLineF(x2, y1, x1, y2);
     testLinePolygonIntersection(rect4, line4, line4, false, false, true);
-
 
     QRect rect5 = rect1;
     QLineF line5 = QLineF(x2, y2, x1, y1);
@@ -835,70 +757,47 @@ void KisAlgebra2DTest::testLinePolygonIntersectionsManual()
     QLineF line8expected = QLineF(QPointF(0,618.966),QPointF(102.104,618.966));
     testLinePolygonIntersection(rect8, line8, line8expected, false, false, true);
 
-
-
-    // vertical
-    //   inside the line
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(0, 5, 0, 15), QLineF(0, 5, 0, 15), false, false, true);
-    //   exactly the line
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(0, 0, 0, 20), QLineF(0, 0, 0, 20), false, false, true);
-    //   extending the line
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(0, -5, 0, 25), QLineF(0, 0, 0, 20), false, false, true);
 
-    // diagonal
-    //   exactly
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(0, 0, 20, 20), QLineF(0, 0, 20, 20), false, false, true);
-    //   inside
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(5, 5, 15, 15), QLineF(5, 5, 15, 15), false, false, true);
-    //   extending
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(-5, -5, 30, 30), QLineF(0, 0, 20, 20), false, false, true);
-
-
 
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(-5, -100, -5, 100), QLineF(), false, false, false);
 
     testLinePolygonIntersection(QRect(0, 0, 20, 20), QLineF(-5, -100, -3, 100), QLineF(), false, false, false);
 
-
-
-    // start: (-1, -2)
-    // end: (4, 5);
-    // width, height: 5, 7
     QRect testRect = QRect(-1, -2, 5, 7);
 
-    // first item: line, second item: result after cropping
     QList<QLineF> linesListIntersecting = QList<QLineF>({
-                                                            // horizontal
-                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2), // on the edge, exact
-                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0), // below the edge, exact
-                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2), // on the edge, longer
-                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0), // below the edge, longer
-                                                            QLineF(0, -2, 3, -2), QLineF(0, -2, 3, -2), // on the edge, shorter
-                                                            QLineF(0, 0, 3, -2), QLineF(0, 0, 3, -2), // below the edge, shorter
+                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(0, -2, 3, -2), QLineF(0, -2, 3, -2),
+                                                            QLineF(0, 0, 3, -2), QLineF(0, 0, 3, -2),
 
-                                                            // vertical
-                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5), // on the edge, exact
-                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5), // below the edge, exact
-                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5), // on the edge, longer
-                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5), // below the edge, longer
-                                                            QLineF(-1, 0, -1, 3), QLineF(-1, 0, -1, 3), // on the edge, shorter
-                                                            QLineF(0, 0, 0, 3), QLineF(0, 0, 0, 3), // below the edge, shorter
+                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, 0, -1, 3), QLineF(-1, 0, -1, 3),
+                                                            QLineF(0, 0, 0, 3), QLineF(0, 0, 0, 3),
 
+                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2),
 
-                                                            // skewed
-                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2), // very horizontal-like
-                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, exact
-                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, half-exact
+                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5),
 
-                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal
-                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5), // perfectly diagonal, exact
-                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal, half-exact
+                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2),
 
-                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2), // perfectly diagonal, p1 and p2 reversed
-
-                                                            QLineF(1, 3, 3, 4), QLineF(1, 3, 3, 4), // skewed, fully inside
-                                                            QLineF(2, 2, 6, 4), QLineF(2, 2, 4, 3), // skewed, partially inside
-
+                                                            QLineF(1, 3, 3, 4), QLineF(1, 3, 3, 4),
+                                                            QLineF(2, 2, 6, 4), QLineF(2, 2, 4, 3),
 
                                                         });
 
@@ -907,40 +806,33 @@ void KisAlgebra2DTest::testLinePolygonIntersectionsManual()
         testLinePolygonIntersection(testRect, linesListIntersecting[2*i], linesListIntersecting[2*i + 1], false, false, true);
     }
 
-    // now with extend = true
-
-    // first item: line, second item: result after cropping
     QList<QLineF> linesListIntersectingExtend = QList<QLineF>({
-                                                            // horizontal
-                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2), // on the edge, exact
-                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0), // below the edge, exact
-                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2), // on the edge, longer
-                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0), // below the edge, longer
-                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 4, -2), // on the edge, shorter
-                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 4, 0), // below the edge, shorter
+                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 4, 0),
 
-                                                            // vertical
-                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5), // on the edge, exact
-                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5), // below the edge, exact
-                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5), // on the edge, longer
-                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5), // below the edge, longer
-                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 5), // on the edge, shorter
-                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 5), // below the edge, shorter
+                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 5),
 
+                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2),
 
-                                                            // skewed
-                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2), // very horizontal-like
-                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, exact
-                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, half-exact
+                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5),
 
-                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal
-                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5), // perfectly diagonal, exact
-                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal, half-exact
+                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2),
 
-                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2), // perfectly diagonal, p1 and p2 reversed
-
-                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 4, 4.5), // skewed, fully inside
-                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3), // skewed, partially inside
+                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 4, 4.5),
+                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3),
 
                                                         });
 
@@ -950,47 +842,40 @@ void KisAlgebra2DTest::testLinePolygonIntersectionsManual()
     }
 
     QList<QLineF> linesListIntersectingExtendOneSide = QList<QLineF>({
-                                                            // horizontal
 
-                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2), // on the edge, exact
-                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0), // below the edge, exact
-                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2), // on the edge, longer
-                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0), // below the edge, longer
-                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 3, -2), // on the edge, shorter
-                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 3, 0), // below the edge, shorter
+                                                            QLineF(-1, -2, 4, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-1, 0, 4, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(-10, -2, 10, -2), QLineF(-1, -2, 4, -2),
+                                                            QLineF(-10, 0, 10, 0), QLineF(-1, 0, 4, 0),
+                                                            QLineF(0, -2, 3, -2), QLineF(-1, -2, 3, -2),
+                                                            QLineF(0, 0, 3, 0), QLineF(-1, 0, 3, 0),
 
-                                                            // vertical
-                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5), // on the edge, exact
-                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5), // below the edge, exact
-                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5), // on the edge, longer
-                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5), // below the edge, longer
-                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 3), // on the edge, shorter
-                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 3), // below the edge, shorter
+                                                            QLineF(-1, -2, -1, 5), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -2, 0, 5), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, -10, -1, 10), QLineF(-1, -2, -1, 5),
+                                                            QLineF(0, -10, 0, 10), QLineF(0, -2, 0, 5),
+                                                            QLineF(-1, 0, -1, 3), QLineF(-1, -2, -1, 3),
+                                                            QLineF(0, 0, 0, 3), QLineF(0, -2, 0, 3),
 
+                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2),
+                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2),
 
-                                                            // skewed
-                                                            QLineF(-6, 0, 9, 3), QLineF(-1, 1, 4, 2), // very horizontal-like
-                                                            QLineF(-1, 1, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, exact
-                                                            QLineF(-6, 0, 4, 2), QLineF(-1, 1, 4, 2), // very horizontal-like, half-exact
+                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5),
+                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5),
 
-                                                            QLineF(-6, -9, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal
-                                                            QLineF(-1, -2, 4, 5), QLineF(-1, -2, 4, 5), // perfectly diagonal, exact
-                                                            QLineF(-1, -2, 9, 12), QLineF(-1, -2, 4, 5), // perfectly diagonal, half-exact
+                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2),
 
-                                                            QLineF(9, 12, -6, -9), QLineF(4, 5, -1, -2), // perfectly diagonal, p1 and p2 reversed
-
-                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 3, 4), // skewed, fully inside
-                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3), // skewed, partially inside
-
+                                                            QLineF(1, 3, 3, 4), QLineF(-1, 2, 3, 4),
+                                                            QLineF(2, 2, 6, 4), QLineF(-1, 0.5, 4, 3),
 
                                                         });
 
     for (int i = 0; i < linesListIntersectingExtend.size()/2; i++)
     {
-        // first from one side
         testLinePolygonIntersection(testRect, linesListIntersectingExtendOneSide[2*i], linesListIntersectingExtendOneSide[2*i + 1], true, false, true);
 
-        // and then reversed
         QLineF l = QLineF(linesListIntersectingExtendOneSide[2*i].p2(), linesListIntersectingExtendOneSide[2*i].p1());
         QLineF lexp = QLineF(linesListIntersectingExtendOneSide[2*i + 1].p2(), linesListIntersectingExtendOneSide[2*i + 1].p1());
         testLinePolygonIntersection(testRect, l, lexp, false, true, true);
@@ -1015,7 +900,6 @@ bool fuzzyComparePolygons(const QPolygonF &one, const QPolygonF &other, qreal ep
     for (int i = 0; i < one.count(); i++) {
         if (!compare(one[i], other[i])) {
             firstWay = false;
-            //qCritical() << "Mismatch on: " << one[i] << other[i] << "difference: " << one[i] - other[i];
             break;
         }
     }
@@ -1024,7 +908,6 @@ bool fuzzyComparePolygons(const QPolygonF &one, const QPolygonF &other, qreal ep
     }
     for (int i = 0; i < one.count(); i++) {
         if (!compare(one[one.count() - i - 1], other[i])) {
-            //qCritical() << "Mismatch on (second way): " << one[one.count() - i - 1] << other[i];
             return false;
         }
     }
@@ -1052,7 +935,6 @@ void KisAlgebra2DTest::testCalculateConvexHull()
     qCritical() << "while expected was: " << secondResultExpected;
     assert(fuzzyComparePolygons(secondResultExpected, secondResult));
 
-
 }
 
 void KisAlgebra2DTest::testGetPathsFromRectangleCutThrough()
@@ -1062,18 +944,12 @@ void KisAlgebra2DTest::testGetPathsFromRectangleCutThrough()
     QLineF right = QLineF(QPointF(0, 80), QPointF(80, 0));
 
     QList<QPointF> points = QPolygonF(rect).toList();
-    //QPainterPath path = KisAlgebra2D::getOnePathFromRectangleCutThrough(points, left, true);
-    //qCritical() << path;
-
-    //path = KisAlgebra2D::getOnePathFromRectangleCutThrough(points, right, false);
-    //qCritical() << path;
 
     QList<QPainterPath> paths = KisAlgebra2D::getPathsFromRectangleCutThrough(rect, left, right);
     qCritical() << paths;
     assert(paths.length() == 2 && "Must be two paths returned");
     assert(paths[0].elementCount() == 4 && "First path must have 4 elements (it's a closed triangle)");
     assert(paths[1].elementCount() == 6 && "First path must have 6 elements");
-
 
 }
 
@@ -1089,9 +965,6 @@ void KisAlgebra2DTest::testGetParallelLines()
 
     lines = KisAlgebra2D::getParallelLines(QLineF(QPointF(347.16,190.8),QPointF(366.72,190.8)), 50);
     qCritical() << lines;
-
-
-    // QLineF(QPointF(356.64,90.72),QPointF(356.64,104.64)
 
     lines = KisAlgebra2D::getParallelLines(QLineF(QPointF(356.64,90.72),QPointF(356.64,104.64)), 50);
     qCritical() << lines;
@@ -1115,7 +988,6 @@ void KisAlgebra2DTest::testGetParallelLines2()
 
     qCritical() << line1 << line2;
 
-
 }
 
 void KisAlgebra2DTest::testVectorPathReversed()
@@ -1138,7 +1010,6 @@ void KisAlgebra2DTest::testVectorPathReversed()
 
     qCritical() << result.asPainterPath();
 
-
 }
 
 void KisAlgebra2DTest::testVectorPathIndexes_data()
@@ -1155,7 +1026,6 @@ void KisAlgebra2DTest::testVectorPathIndexes_data()
     path << VPoint::bezierTo(QPointF(5, 20), QPointF(-5, 30), QPointF(5, 30));
     path << VPoint::lineTo(QPointF(0, 0));
 
-
     QTest::addRow("path1") << path;
 
     QList<VPoint> path2;
@@ -1168,8 +1038,6 @@ void KisAlgebra2DTest::testVectorPathIndexes_data()
 
 }
 
-
-
 void KisAlgebra2DTest::testVectorPathIndexes()
 {
     using VPoint = KisAlgebra2D::VectorPath::VectorPathPoint;
@@ -1179,15 +1047,12 @@ void KisAlgebra2DTest::testVectorPathIndexes()
     KisAlgebra2D::VectorPath vpath(path);
 
     QPainterPath ppath = vpath.asPainterPath();
-    //ENTER_FUNCTION() << ppath;
 
     for (int i = 0; i < ppath.elementCount(); i++) {
         int pathIndex = i;
         int segmentIndex = vpath.pathIndexToSegmentIndex(pathIndex);
         int pathIndexRev = vpath.segmentIndexToPathIndex(segmentIndex);
-        //ENTER_FUNCTION() << ppVar(pathIndex) << ppVar(segmentIndex) << ppVar(pathIndexRev) << ppVar(ppath.elementAt(i));
         if (ppath.elementAt(i).type != QPainterPath::CurveToDataElement) {
-            // if it is, then the reversed path index won't match, because it will point to the actual curve point
             QCOMPARE(pathIndex, pathIndexRev);
         }
     }
@@ -1196,7 +1061,6 @@ void KisAlgebra2DTest::testVectorPathIndexes()
         int segmentIndex = i;
         int pathIndex = vpath.segmentIndexToPathIndex(segmentIndex);
         int segmentIndexRev = vpath.pathIndexToSegmentIndex(pathIndex);
-        //ENTER_FUNCTION() << ppVar(segmentIndex) << ppVar(pathIndex) << ppVar(segmentIndexRev);
         QCOMPARE(segmentIndex, segmentIndexRev);
     }
 
@@ -1210,7 +1074,6 @@ void KisAlgebra2DTest::testIsInsideShape_data()
     QTest::addColumn<QPointF>("point");
     QTest::addColumn<bool>("result");
 
-
     qreal optimalDistanceMagicNumber = 4*(sqrt(2) - 1)/3;
 
     QList<VPoint> squareDiag = QList<VPoint> {
@@ -1220,7 +1083,6 @@ void KisAlgebra2DTest::testIsInsideShape_data()
             VPoint(VPoint::LineTo, QPointF(0, -1)),
             VPoint(VPoint::LineTo, QPointF(1, 0)),
     };
-
 
     QList<VPoint> circle = QList<VPoint> {
             VPoint(VPoint::MoveTo, QPointF(1, 0)),
@@ -1238,10 +1100,7 @@ void KisAlgebra2DTest::testIsInsideShape_data()
     QTest::addRow("square diag, not center") << squareDiag << QPointF(0.2, 0.2) << true;
     QTest::addRow("square diag, outside") << squareDiag << QPointF(1, 1) << false;
 
-
-
 }
-
 
 void KisAlgebra2DTest::testIsInsideShape()
 {
@@ -1254,14 +1113,11 @@ void KisAlgebra2DTest::testIsInsideShape()
     bool res = KisAlgebra2D::isInsideShape(path, point);
     QCOMPARE(res, result);
 
-
 }
-
 
 QPainterPath makeSpecialShape(bool left)
 {
-    // left has teeth on the left
-    int m = left ? 1 : -1; // multiplier
+    int m = left ? 1 : -1;
     QPainterPath path;
     path.moveTo(m*100, 100);
     path.lineTo(m*400, 100);
@@ -1273,7 +1129,6 @@ QPainterPath makeSpecialShape(bool left)
     path.lineTo(m*100, 150);
     path.lineTo(m*150, 125);
     path.lineTo(m*100, 100);
-
 
     if (!left) {
         path.translate(QPointF(1000, 0));
@@ -1332,18 +1187,15 @@ void testRemoveGutterOneCase(const QString testName, const QPainterPath& shape1,
     KisAlgebra2D::VectorPath expectedVector(expectedPath);
     KisAlgebra2D::VectorPath actualVector(result);
 
-//#define KNIFE_DEBUG
 #ifdef KNIFE_DEBUG
                 QRectF boundRect = actualVector.asPainterPath().boundingRect() | expectedVector.asPainterPath().boundingRect();
                 QImage img = QImage((int)(boundRect.right())+ 50, (int)(boundRect.bottom()) + 50, QImage::Format::Format_ARGB32);
                 img.fill(Qt::white);
                 QPainter painter = QPainter(&img);
                 painter.setPen(Qt::red);
-                //painter.drawPath(actualVector.asPainterPath());
                 QColor green = Qt::green;
                 green.setAlphaF(0.5);
                 painter.setPen(green);
-                //painter.drawPath(expectedVector.asPainterPath());
 
                 QColor blue = Qt::blue;
                 blue.setAlphaF(0.3);
@@ -1355,7 +1207,6 @@ void testRemoveGutterOneCase(const QString testName, const QPainterPath& shape1,
                 painter.drawPath(shape2);
                 img.save(testName + ".png");
 
-
                 qCritical() << "Expected:" << expectedVector;
                 qCritical() << "Actual:" << actualVector;
 #else
@@ -1365,17 +1216,14 @@ void testRemoveGutterOneCase(const QString testName, const QPainterPath& shape1,
     QCOMPARE(actualVector.segmentsCount(), expectedSize);
     QVERIFY(fuzzyComparePolygons(actualVector.asPainterPath().toFillPolygon(), expectedVector.asPainterPath().toFillPolygon(), eps));
 
-
 }
 
 void convertShapeToDebugArray(const QPainterPath& shape) {
-    // useful to use with Geogebra
     for (int i = 0; i < shape.elementCount(); i++) {
         QPainterPath::Element el = shape.elementAt(i);
         qCritical() << el.x << "\t" << el.y << "\t" << el.type;
     }
 }
-
 
 void KisAlgebra2DTest::testRemoveGutter_data()
 {
@@ -1387,8 +1235,6 @@ void KisAlgebra2DTest::testRemoveGutter_data()
     QTest::addColumn<int>("expectedSize");
     QTest::addColumn<QPainterPath>("expectedPath");
 
-
-    // simple shape: a rectangle with a middle very easy gutter
     QPolygonF poly;
     poly << QPointF(0, 0) << QPointF(100, 0) << QPointF(100, 100) << QPointF(0, 100);
     QPainterPath polyPath;
@@ -1404,8 +1250,6 @@ void KisAlgebra2DTest::testRemoveGutter_data()
 
     QLineF mouseLine = QLineF(QPointF(50, 50), QPointF(250, 50));
 
-    // Case1, Case2
-
     QTest::addRow("Case 1: simple case") << "Case1" << polyPath << polyPath2 << mouseLine << false << 4 << fromPolygon(QRectF(0, 0, 300, 100));
     QTest::addRow("Case 2: simple case reversed") << "Case2" << polyPath << polyPath2.toReversed() << mouseLine << false << 4 << fromPolygon(QRectF(0, 0, 300, 100));
 
@@ -1414,15 +1258,12 @@ void KisAlgebra2DTest::testRemoveGutter_data()
     QPainterPath specialResult = fromPolygon(QVector<QPointF>({QPointF(100, 100), QPointF(900, 100), QPointF(850, 125), QPointF(900, 150), QPointF(850, 175), QPointF(900, 200), QPointF(100, 200), QPointF(150, 175),
                                              QPointF(100, 150), QPointF(150, 125), QPointF(100, 100)}));
 
-    // Teeth cases
     QTest::addRow("Case 3: teeth shapes") << "Case3" << special1 << special2 << QLineF(QPointF(300, 150), QPointF(700, 150)) << false << 10 << specialResult;
 
     QTest::addRow("Case 3a: teeth shapes except without teeth") << "Case3a" << fromPolygon(QVector<QPointF>({QPointF(100, 100), QPointF(400, 100), QPointF(400, 200), QPointF(100, 200), QPointF(100, 100)}))
                                     << fromPolygon(QVector<QPointF>({QPointF(900, 100), QPointF(600, 100), QPointF(600, 200), QPointF(900, 200), QPointF(900, 100)}))
                                     << QLineF(QPointF(300, 150), QPointF(700, 150)) << false << 4
                                     << fromPolygon(QVector<QPointF>({QPointF(100, 100), QPointF(100, 200), QPointF(900, 200), QPointF(900, 100), QPointF(100, 100)}));
-
-
 
     QTest::addRow("Case 4: teeth shapes reversed") << "Case4" << special1 << special2.toReversed() << QLineF(QPointF(300, 150), QPointF(700, 150)) << false << 10 << specialResult;
 
@@ -1441,12 +1282,6 @@ void KisAlgebra2DTest::testRemoveGutter_data()
     QPainterPath otherPoly = fromPolygon(QVector<QPointF>({QPointF(1794.87,819.433), QPointF(2264.27,816.404), QPointF(2664.69,1583.79), QPointF(2126.14,1598.38),
                                          QPointF(1794.87,819.433)}));
 
-
-    //qCritical() << "First poly:";
-    //convertShapeToDebugArray(onePoly);
-    //qCritical() << "Second poly:";
-    //convertShapeToDebugArray(otherPoly);
-
     QTest::addRow("Case 8") << "Case8" << onePoly << otherPoly << QLineF(QPointF(2010,662),QPointF(2006,938)) << false << 8 <<
                                fromPolygon(QVector<QPointF>({QPointF(3270,757.3), QPointF(3270,210), QPointF(1127.23,210), QPointF(1133.64,771.092), QPointF(1772.56,766.968),
                                                              QPointF(2126.14,1598.38), QPointF(2664.69,1583.79), QPointF(2236.91,763.971), QPointF(3270,757.3)}));
@@ -1458,14 +1293,8 @@ void KisAlgebra2DTest::testRemoveGutter_data()
                                                     fromPolygon(QVector<QPointF>({QPointF(2302.64,816.154), QPointF(3270,809.908), QPointF(3270,1567.38), QPointF(3072.65,1572.73), QPointF(3077.96,2307),
                                                                                   QPointF(2427.5,2307), QPointF(2148.5,1650.95), QPointF(2730.01,1635.19), QPointF(2302.64,816.154)}));
 
-
-    //shape1.toFillPolygon() = QPolygonF(QPointF(3077.96,2307)QPointF(2427.5,2307)QPointF(2148.5,1650.95)QPointF(3073.03,1625.89)QPointF(3077.96,2307))
-    // shape2.toFillPolygon() = QPolygonF(QPointF(2302.64,816.154)QPointF(3270,809.908)QPointF(3270,1567.38)QPointF(2702.65,1582.76)QPointF(2302.64,816.154))
-    // gutterShape.toFillPolygon() = QPolygonF(QPointF(2148.5,1650.95)QPointF(2730.01,1635.19)QPointF(2702.65,1582.76)QPointF(3270,1567.38)QPointF(3072.64,1572.73)QPointF(3073.03,1625.89)QPointF(2148.5,1650.95))
-
     QPainterPath shape1 = fromPolygon(QPolygonF(QVector<QPointF>({QPointF(1794.87,819.433), QPointF(2264.27,816.404), QPointF(2664.69,1583.79), QPointF(2126.14,1598.38), QPointF(1794.87,819.433)})));
     QPainterPath shape2 = fromPolygon(QPolygonF(QVector<QPointF>({QPointF(2302.64,816.154), QPointF(3270,809.908), QPointF(3270,1567.38), QPointF(2702.65,1582.76), QPointF(2302.64,816.154)})));
-
 
     QTest::addRow("Case 10") << "Case10" << shape1 << shape2 << QLineF(QPointF(2606,1028),QPointF(2164,1134)) << false << 4
                              << fromPolygon(QPolygonF(QVector<QPointF>({QPointF(1794.87,819.433), QPointF(3270,809.908), QPointF(3270,1567.38), QPointF(2126.14,1598.38), QPointF(1794.87,819.433)})));
@@ -1491,10 +1320,7 @@ void KisAlgebra2DTest::testRemoveGutter_data()
                             << QLineF(QPointF(800, 1800), QPointF(800, 3000)) << false << 6
                             << fromPolygon({QPointF(164.458,155.319), QPointF(2324.45,155.319), QPointF(2324.45,2475.31), QPointF(1204.46,2475.31), QPointF(1204.46,3282.25), QPointF(164.458,3282.25), QPointF(164.458,155.319)});
 
-
 }
-
-
 
 void KisAlgebra2DTest::testRemoveGutter()
 {
@@ -1507,21 +1333,18 @@ void KisAlgebra2DTest::testRemoveGutter()
     QFETCH(int, expectedSize);
     QFETCH(QPainterPath, expectedPath);
 
-
     testRemoveGutterOneCase(testName, shape1, shape2, mouseLine, isSameShape, expectedSize, expectedPath);
 
 }
 
-
 void KisAlgebra2DTest::testMergingPainterPaths()
 {
-    QPainterPath first; // counter-clockwise
+    QPainterPath first;
     first.moveTo(0, 0);
     first.lineTo(100, 0);
     first.lineTo(100, 100);
     first.lineTo(0, 100);
     first.lineTo(0, 0);
-
 
     QPainterPath second;
     second.moveTo(100, 0);
@@ -1529,7 +1352,6 @@ void KisAlgebra2DTest::testMergingPainterPaths()
     second.lineTo(200, 100);
     second.lineTo(100, 100);
     second.lineTo(100, 0);
-
 
     qCritical() << ppVar(first | second);
     qCritical() << ppVar(first | second.toReversed());
@@ -1540,14 +1362,11 @@ void KisAlgebra2DTest::testMergingPainterPaths()
     first.setFillRule(Qt::OddEvenFill);
     second.setFillRule(Qt::OddEvenFill);
 
-
     qCritical() << ppVar(first | second);
     qCritical() << ppVar(first | second.toReversed());
 
     qCritical() << ppVar((first | second).simplified());
     qCritical() << ppVar((first | second.toReversed()).simplified());
-
-    // this is from the real life example, how to make it work?
 
     QPainterPath shape1;
     shape1.moveTo(QPointF(2302.6416666667, 816.1541666667));
@@ -1564,13 +1383,6 @@ void KisAlgebra2DTest::testMergingPainterPaths()
     shape2.lineTo(QPointF(3077.9625000000, 2307));
 
     QPainterPath gutter;
-    //gutter.moveTo(QPointF(3270, 1567.38));
-    //gutter.lineTo(QPointF(2702.65, 1582.76));
-    //gutter.lineTo(QPointF(2730.01, 1635.19));
-    //gutter.lineTo(QPointF(2148.5, 1650.95));
-    //gutter.lineTo(QPointF(3073.03, 1625.89));
-    //gutter.lineTo(QPointF(3072.64, 1572.73));
-    //gutter.lineTo(QPointF(3270, 1567.38));
 
     gutter.moveTo(QPointF(2148.4958333333, 1650.9500000000));
     gutter.lineTo(QPointF(3073.0250000000, 1625.8916666667));
@@ -1580,18 +1392,13 @@ void KisAlgebra2DTest::testMergingPainterPaths()
     gutter.lineTo(QPointF(2730.0121775463, 1635.1886471758));
     gutter.lineTo(QPointF(2148.4958333333, 1650.9500000000));
 
-
-
     qCritical() << Qt::fixed << qSetRealNumberPrecision(10) << ppVar(shape1 | shape2 | gutter);
 
-    // TODO: check if we could skip QVector entirely
     QPainterPath toUnite1 = fromPolygon(QPolygonF(QVector<QPointF>({QPointF(3077.96,2307), QPointF(2427.5,2307), QPointF(2148.5,1650.95), QPointF(3073.03,1625.89), QPointF(3077.96,2307)})));
     QPainterPath toUnite2 = fromPolygon(QPolygonF(QVector<QPointF>({QPointF(2302.64,816.154), QPointF(3270,809.908), QPointF(3270,1567.38), QPointF(2702.65,1582.76), QPointF(2302.64,816.154)})));
     QPainterPath toUniteGutter = fromPolygon(QPolygonF(QVector<QPointF>({QPointF(2148.5,1650.95), QPointF(2730.01,1635.19), QPointF(2702.65,1582.76), QPointF(3270,1567.38), QPointF(3072.64,1572.73), QPointF(3073.03,1625.89), QPointF(2148.5,1650.95)})));
 
     qCritical() << "Is it really so incorrect>? " << (toUnite1 | toUnite2 | toUniteGutter);
-
-
 
 }
 
@@ -1829,7 +1636,6 @@ void KisAlgebra2DTest::testMultiplyWrappedRect()
 #if 1
     QCOMPARE(result, expected);
 #else
-    /// use this code to dump reference values
     QString res;
     Q_FOREACH (const QRect &rc, result) {
         res += QString("QRect(%1, %2, %3, %4), ").arg(rc.x()).arg(rc.y()).arg(rc.width()).arg(rc.height());
@@ -1911,7 +1717,6 @@ void KisAlgebra2DTest::testMultiplyWrappedRectHorizontal()
 #if 1
     QCOMPARE(result, expected);
 #else
-    /// use this code to dump reference values
     QString res;
     Q_FOREACH (const QRect &rc, result) {
         res += QString("QRect(%1, %2, %3, %4), ").arg(rc.x()).arg(rc.y()).arg(rc.width()).arg(rc.height());
@@ -1993,7 +1798,6 @@ void KisAlgebra2DTest::testMultiplyWrappedRectVertical()
 #if 1
     QCOMPARE(result, expected);
 #else
-    /// use this code to dump reference values
     QString res;
     Q_FOREACH (const QRect &rc, result) {
         res += QString("QRect(%1, %2, %3, %4), ").arg(rc.x()).arg(rc.y()).arg(rc.width()).arg(rc.height());
@@ -2015,17 +1819,13 @@ void KisAlgebra2DTest::testIsPolygonTrulyConvex_data()
     QTest::addRow("untangled polygon") << QPolygonF(QVector<QPointF> {QPointF(9,3), QPointF(8, 6), QPointF(4, 8), QPointF(1,5), QPointF(2,2), QPointF(4,1), QPointF(6,1)}) << true;
     QTest::addRow("untangled polygon 2") << QPolygonF(QVector<QPointF> {QPointF(9,3), QPointF(8, 6), QPointF(4, 4), QPointF(6,1)}) << true;
 
-
-
     QTest::addRow("tangled polygon ccw") << QPolygonF(QVector<QPointF> {QPointF(6,1), QPointF(4,1), QPointF(2,2), QPointF(1,5), QPointF(4,8), QPointF(7,3), QPointF(4, 4), QPointF(8, 6), QPointF(9,3)}) << false;
     QTest::addRow("untangled polygon ccw") << QPolygonF(QVector<QPointF> {QPointF(6,1), QPointF(4,1), QPointF(2,2), QPointF(1,5), QPointF(4, 8), QPointF(8, 6), QPointF(9,3)}) << true;
     QTest::addRow("untangled polygon 2 ccw") << QPolygonF(QVector<QPointF> {QPointF(6,1), QPointF(4, 4), QPointF(8, 6), QPointF(9,3)}) << true;
 
-
     QTest::addRow("tangled polygon ccw, double start point") << QPolygonF(QVector<QPointF> {QPointF(6,1), QPointF(4,1), QPointF(2,2), QPointF(1,5), QPointF(4,8), QPointF(7,3), QPointF(4, 4), QPointF(8, 6), QPointF(9,3), QPointF(6,1)}) << false;
     QTest::addRow("untangled polygon ccw, double start point") << QPolygonF(QVector<QPointF> {QPointF(6,1), QPointF(4,1), QPointF(2,2), QPointF(1,5), QPointF(4, 8), QPointF(8, 6), QPointF(9,3), QPointF(6,1)}) << true;
 }
-
 
 void KisAlgebra2DTest::testIsPolygonTrulyConvex()
 {

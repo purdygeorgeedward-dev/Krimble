@@ -17,7 +17,6 @@ public:
     ~SvgTextToolFactory();
 
     KoToolBase *createTool(KoCanvasBase *canvas) override;
-    // KoToolFactoryBase interface
 protected:
     QList<QAction *> createActionsImpl() override;
 };

@@ -26,7 +26,6 @@
 #include "KisChangeDeselectedMaskCommand.h"
 #include "KisNotifySelectionChangedCommand.h"
 
-
 KisSetGlobalSelectionCommand::KisSetGlobalSelectionCommand(KisImageWSP image, KisSelectionSP selection)
     : m_image(image)
 {
@@ -54,8 +53,6 @@ void KisSetGlobalSelectionCommand::populateChildCommands()
         selectionMask = new KisSelectionMask(image, i18n("Selection Mask"));
         selectionMask->initSelection(image->rootLayer());
 
-        // If we do not set the selection now, the setActive call coming next
-        // can be very, very expensive, depending on the size of the image.
         selectionMask->setSelection(m_newSelection);
 
         addCommand(new KisImageLayerAddCommand(image, selectionMask,
@@ -64,7 +61,6 @@ void KisSetGlobalSelectionCommand::populateChildCommands()
         addCommand(new KisActivateSelectionMaskCommand(selectionMask, true));
 
     }
-
 
     addCommand(new KisChangeDeselectedMaskCommand(image));
     addCommand(new KisNotifySelectionChangedCommand(image, KisNotifySelectionChangedCommand::FINALIZING));

@@ -130,8 +130,6 @@ void KisToolFill::deactivate()
 
 void KisToolFill::beginPrimaryAction(KoPointerEvent *event)
 {
-    // cannot use fill tool on non-painting layers.
-    // this logic triggers with multiple layer types like vector layer, clone layer, file layer, group layer
     if (currentNode().isNull() || currentNode()->inherits("KisShapeLayer") || nodePaintAbility()!=NodePaintAbility::PAINT ) {
         KisCanvas2 * kiscanvas = static_cast<KisCanvas2*>(canvas());
         kiscanvas->viewManager()->
@@ -155,8 +153,7 @@ void KisToolFill::beginPrimaryAction(KoPointerEvent *event)
          !image()->bounds().contains(lastImagePosition))) {
         return;
     }
-    
-    // Switch the fill mode if shift or alt modifiers are pressed
+
     if (event->modifiers() == Qt::ShiftModifier) {
         if (m_fillMode == FillMode_FillSimilarRegions) {
             m_effectiveFillMode = FillMode_FillSelection;
@@ -186,7 +183,7 @@ void KisToolFill::continuePrimaryAction(KoPointerEvent *event)
         m_continuousFillMode == ContinuousFillMode_DoNotUse) {
         return;
     }
-    
+
     if (!m_isDragging) {
         const int dragDistanceSquared =
             pow2(event->pos().x() - m_fillStartWidgetPosition.x()) +
@@ -298,9 +295,6 @@ void KisToolFill::beginFilling(const QPoint &seedPoint)
 
         QSharedPointer<KoColor> referenceColor(new KoColor);
         if (m_reference == Reference_ColorLabeledLayers) {
-            // We need to obtain the reference color from the reference paint
-            // device, but it is produced in a stroke, so we must get the color
-            // after the device is ready. So we get it in the stroke
             image()->addJob(
                 m_fillStrokeId,
                 new KisStrokeStrategyUndoCommandBased::Data(
@@ -317,11 +311,7 @@ void KisToolFill::beginFilling(const QPoint &seedPoint)
                 )
             );
         } else {
-            // Here the reference device is already ready, so we obtain the
-            // reference color directly
             *referenceColor = referencePaintDevice->pixel(seedPoint);
-            // Reset this so that the device from color labeled layers gets
-            // regenerated when that mode is selected again
             m_referenceNodeList.reset();
         }
 
@@ -511,7 +501,6 @@ void KisToolFill::slotUpdateFill()
 
     if (m_effectiveFillMode == FillMode_FillContiguousRegion) {
         addFillingOperation(KritaUtils::rasterizePolylineDDA(m_seedPoints));
-        // clear to not re-add the segments, but retain the last point to maintain continuity
         m_seedPoints = {m_seedPoints.last()};
     } else {
         addFillingOperation(m_seedPoints.last());
@@ -523,7 +512,6 @@ QWidget* KisToolFill::createOptionWidget()
 {
     loadConfiguration();
 
-    // Create widgets
     KisOptionButtonStrip *optionButtonStripWhatToFill =
         new KisOptionButtonStrip;
     m_buttonWhatToFillSelection = optionButtonStripWhatToFill->addButton(
@@ -636,7 +624,6 @@ QWidget* KisToolFill::createOptionWidget()
 
     QPushButton *buttonReset = new QPushButton(i18nc("The 'reset' button in fill tool options", "Reset"));
 
-    // Set the tooltips
     m_buttonWhatToFillSelection->setToolTip(i18n("Fill the active selection, or the entire canvas"));
     m_buttonWhatToFillContiguous->setToolTip(i18n("Fill a contiguous region"));
     m_buttonWhatToFillSimilar->setToolTip(i18n("Fill all regions of a similar color"));
@@ -674,7 +661,6 @@ QWidget* KisToolFill::createOptionWidget()
 
     buttonReset->setToolTip(i18n("Reset the options to their default values"));
 
-    // Construct the option widget
     m_optionWidget = new KisOptionCollectionWidget;
     m_optionWidget->setContentsMargins(0, 10, 0, 10);
     m_optionWidget->setSeparatorsVisible(true);
@@ -745,7 +731,6 @@ QWidget* KisToolFill::createOptionWidget()
 
     m_optionWidget->appendWidget("buttonReset", buttonReset);
 
-    // Initialize widgets
     if (m_fillMode == FillMode_FillSelection) {
         m_buttonWhatToFillSelection->setChecked(true);
         m_optionWidget->setWidgetVisible("sectionRegionExtent", false);
@@ -806,7 +791,6 @@ QWidget* KisToolFill::createOptionWidget()
     m_widgetLabels->setSelection(m_selectedColorLabels);
     m_checkBoxUseActiveLayer->setChecked(m_useActiveLayer);
 
-    // Make connections
     connect(optionButtonStripWhatToFill,
             SIGNAL(buttonToggled(KoGroupButton *, bool)),
             SLOT(slot_optionButtonStripWhatToFill_buttonToggled(KoGroupButton *, bool)));
@@ -856,7 +840,7 @@ QWidget* KisToolFill::createOptionWidget()
         SIGNAL(buttonToggled(KoGroupButton *, bool)),
         SLOT(slot_optionButtonStripDragFill_buttonToggled(KoGroupButton *, bool)));
     connect(buttonReset, SIGNAL(clicked()), SLOT(slot_buttonReset_clicked()));
-    
+
     return m_optionWidget;
 }
 
@@ -1034,7 +1018,7 @@ void KisToolFill::slot_optionButtonStripFillWith_buttonToggled(
         m_optionWidget->widgetAs<KisOptionCollectionWidgetWithHeader*>("sectionFillWith");
     sectionFillWith->setWidgetVisible("sliderPatternScale", visible);
     sectionFillWith->setWidgetVisible("angleSelectorPatternRotation", visible);
-    
+
     m_fillType = button == m_buttonFillWithFG ? FillType_FillWithForegroundColor
                                               : (button == m_buttonFillWithBG
                                                  ? FillType_FillWithBackgroundColor
@@ -1212,7 +1196,7 @@ void KisToolFill::slot_optionButtonStripReference_buttonToggled(
     KisOptionCollectionWidgetWithHeader *sectionReference =
         m_optionWidget->widgetAs<KisOptionCollectionWidgetWithHeader*>("sectionReference");
     sectionReference->setWidgetVisible("widgetLabels", button == m_buttonReferenceLabeled);
-    
+
     m_reference = button == m_buttonReferenceCurrent ? Reference_CurrentLayer
                                                      : (button == m_buttonReferenceAll
                                                         ? Reference_AllLayers
@@ -1312,9 +1296,6 @@ void KisToolFill::slot_colorSpaceChanged(const KoColorSpace *colorSpace)
     }
     const KoColorSpace *compositionSpace = colorSpace;
     if (currentNode() && currentNode()->paintDevice()) {
-        // Currently, composition source is enough to determine the available blending mode,
-        // because either destination is the same (paint layers), or composition happens
-        // in source space (masks).
         compositionSpace = currentNode()->paintDevice()->compositionSourceColorSpace();
     }
     m_comboBoxCustomCompositeOp->validate(compositionSpace);

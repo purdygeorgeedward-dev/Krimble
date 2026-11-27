@@ -20,13 +20,6 @@ class QOpenGLShaderProgram;
 class QPainterPath;
 class KisOptimizedBrushOutline;
 
-/**
- * KisOpenGLCanvas is the widget that shows the actual image using OpenGL
- *
- * NOTE: if you change something in the event handling here, also change it
- * in the qpainter canvas.
- *
- */
 class KRITAUI_EXPORT KisOpenGLCanvas2
         : public QOpenGLWidget
         , public KisCanvasWidgetBase
@@ -44,7 +37,7 @@ public:
 
     ~KisOpenGLCanvas2() override;
 
-public: // QOpenGLWidget
+public:
 
     void resizeGL(int width, int height) override;
     void initializeGL() override;
@@ -56,15 +49,14 @@ public: // QOpenGLWidget
 
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
-    
+
     void hideEvent(QHideEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
 public:
     void paintToolOutline(const KisOptimizedBrushOutline &path, int thickness = 1);
 
-
-public: // Implement kis_abstract_canvas_widget interface
+public:
     void setDisplayFilter(QSharedPointer<KisDisplayFilter> displayFilter) override;
     void notifyImageColorSpaceChanged(const KoColorSpace *cs) override;
 
@@ -81,7 +73,6 @@ public: // Implement kis_abstract_canvas_widget interface
     QVector<QRect> updateCanvasProjection(const QVector<KisUpdateInfoSP> &infoObjects) override;
     void updateCanvasImage(const QRect &imageUpdateRect) override;
     void updateCanvasDecorations(const QRect &decoUpdateRect) override;
-
 
     QWidget *widget() override {
         return this;
@@ -103,7 +94,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     void slotShowFloatingMessage(const QString &message, int timeout, bool priority);
 
-protected: // KisCanvasWidgetBase
+protected:
     bool callFocusNextPrevChild(bool next) override;
 
 private:
@@ -113,4 +104,4 @@ private:
     class CanvasBridge;
 };
 
-#endif // KIS_OPENGL_CANVAS_2_H
+#endif

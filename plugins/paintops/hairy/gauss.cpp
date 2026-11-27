@@ -10,9 +10,6 @@
 #include <QtGlobal>
 
 #ifdef Q_OS_WIN
-// quoting DRAND48(3) man-page:
-// These functions are declared obsolete by  SVID  3,
-// which  states  that rand(3) should be used instead.
 #define srand48 srand
 #define drand48() (static_cast<double>(qrand()) / static_cast<double>(RAND_MAX))
 #endif
@@ -20,11 +17,9 @@
 double gauss::gaussian(double mean, double std, int seed)
 {
 
-#define itblmax 20 /* length - 1 of table describing F inverse */
-#define didu 40.0 /* delta table position / delta ind. variable */
-    /* itblmax / 0.5 */
+#define itblmax 20
+#define didu 40.0
 
-    /* interpolation table for F inverse */
     static double tbl[] = {0.00000E+00, 6.27500E-02, 1.25641E-01, 1.89000E-01,
                            2.53333E-01, 3.18684E-01, 3.85405E-01, 4.53889E-01,
                            5.24412E-01, 5.97647E-01, 6.74375E-01, 7.55333E-01,
@@ -44,10 +39,6 @@ double gauss::gaussian(double mean, double std, int seed)
         srand48(seed);
         first_time = 0;
     }
-    /*
-      compute uniform random number between 0.0 - 0.5, and a sign with
-      probability 1/2 of being either + or -
-    */
     u = drand48();
     if (u >= 0.5) {
         minus = 0;
@@ -56,7 +47,6 @@ double gauss::gaussian(double mean, double std, int seed)
     else {
         minus = 1;
     }
-    /* interpolate gaussian random number using table */
 
     index = (int)(di = (didu * u));
     if (index == itblmax) {

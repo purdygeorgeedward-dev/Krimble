@@ -22,7 +22,6 @@
 #include "KisAnimAutoKey.h"
 #include <commands_new/KisDisableDirtyRequestsCommand.h>
 
-
 struct KisFilterStrokeStrategy::Private {
     Private()
         : updatesFacade(0)
@@ -81,7 +80,6 @@ struct SubTaskSharedData {
 
     ~SubTaskSharedData(){}
 
-
     KisImageSP image() { return m_image; }
 
     KisNodeSP node() { return m_node; }
@@ -132,7 +130,6 @@ using namespace KritaUtils;
 KisFilterStrokeStrategy::KisFilterStrokeStrategy(KisFilterSP filter, KisFilterConfigurationSP filterConfig, KisResourcesSnapshotSP resources)
     : KisFilterStrokeStrategy(filter, filterConfig, resources, toQShared(new ExternalCancelUpdatesStorage()))
 {
-    // by default, cancellation updates are disabled, so we should enable them
     m_d->cancelledUpdates->shouldIssueCancellationUpdates.ref();
 }
 
@@ -191,13 +188,11 @@ void KisFilterStrokeStrategy::initStrokeCallback()
     }
 }
 
-
 void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
 {
     FilterJobData *filterFrameData = dynamic_cast<FilterJobData*>(data);
     KisRunnableStrokeJobData *jobData = dynamic_cast<KisRunnableStrokeJobData*>(data);
 
-    // Populate list of jobs for filter application...
     if (filterFrameData) {
 
         QVector<KisRunnableStrokeJobData*> jobs;
@@ -206,16 +201,13 @@ void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                                                                         m_d->activeSelection, m_d->filter, m_d->filterConfig, filterFrameData) );
         QSharedPointer<KisProcessingVisitor::ProgressHelper> progress( new KisProcessingVisitor::ProgressHelper(m_d->node) );
         addJobSequential(jobs, [this, shared, progress](){
-            // Switch time if necessary..
             if (shared->shouldSwitchTime()) {
                 runAndSaveCommand( toQShared( new KisLayerUtils::SwitchFrameCommand(shared->image(), shared->frameTime(), false, shared->storage()) )
                                    , KisStrokeJobData::BARRIER, KisStrokeJobData::NORMAL);
             }
 
-            // Copy snapshot of targetDevice for filter processing..
             shared->filterDevice = new KisPaintDevice(*shared->targetDevice());
 
-            // Update all necessary rect data based on contents of frame..
             shared->filterDeviceBounds = shared->filterDevice->exactBounds();
 
             if (shared->filter()->needsTransparentPixels(shared->filterConfig().data(), shared->targetDevice()->colorSpace())) {
@@ -225,8 +217,6 @@ void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
             shared->processRect = shared->filter()->changedRect(shared->filterDeviceBounds, shared->filterConfig(), shared->levelOfDetail());
             shared->processRect &= shared->targetDevice()->defaultBounds()->bounds();
 
-            //If we're dealing with some kind of transparency mask, we will create a compositionSourceDevice instead.
-            //  Carry over from commit ca810f85 ...
             if (shared->selection() ||
                     (shared->targetDevice()->colorSpace() != shared->targetDevice()->compositionSourceColorSpace() &&
                     *shared->targetDevice()->colorSpace() != *shared->targetDevice()->compositionSourceColorSpace())) {
@@ -238,16 +228,11 @@ void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                 }
             }
 
-            // Filter device needs a transaction to prevent grid-patch artifacts from multithreaded read/write.
             shared->filterDeviceTransaction.reset(new KisTransaction(shared->filterDevice));
-
-
-            // Actually process the device
 
             QVector<KisRunnableStrokeJobData*> processJobs;
 
             if (shared->filter()->supportsThreading()) {
-                // Split stroke into patches...
                 QSize size = KritaUtils::optimalPatchSize();
                 QVector<QRect> patches = KritaUtils::splitRectIntoPatches(shared->processRect, size);
 
@@ -275,7 +260,6 @@ void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
         });
 
         addJobSequential(jobs, [this, shared](){
-            // We will first apply the transaction to the temporary filterDevice
             runAndSaveCommand(toQShared(shared->filterDeviceTransaction->endAndTake()), KisStrokeJobData::BARRIER, KisStrokeJobData::NORMAL);
             shared->filterDeviceTransaction.reset();
 
@@ -284,8 +268,6 @@ void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
                 return;
             }
 
-            // Make a transaction, change the target device, and "end" transaction.
-            // Should be useful for undoing later.
             QScopedPointer<KisTransaction> workingTransaction( new KisTransaction(shared->targetDevice()) );
             KisPainter::copyAreaOptimized(shared->processRect.topLeft(), shared->filterDevice, shared->targetDevice(), shared->processRect, shared->selection());
             runAndSaveCommand( toQShared(workingTransaction->endAndTake()), KisStrokeJobData::BARRIER, KisStrokeJobData::EXCLUSIVE );
@@ -296,11 +278,6 @@ void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
 
                 shared->node()->setDirty(shared->processRect | extraUpdateRect);
 
-               /**
-                * Save the last update to be able to restore the
-                * original state on the cancellation (even when
-                * the cancellation step is explicitly prohibited)
-                */
                 m_d->nextExternalUpdateRect = shared->processRect;
             }
         });
@@ -316,7 +293,6 @@ void KisFilterStrokeStrategy::doStrokeCallback(KisStrokeJobData *data)
         runnableJobsInterface()->addRunnableJobs(jobs);
 
     } else if (dynamic_cast<IdleBarrierData*>(data)) {
-        /* noop, just delete that */
     } else if (jobData) {
         jobData->run();
     } else {

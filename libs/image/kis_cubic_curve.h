@@ -48,9 +48,6 @@ private:
 
 Q_DECLARE_METATYPE(KisCubicCurvePoint)
 
-/**
- * Hold the data for a cubic curve.
- */
 class KRITAIMAGE_EXPORT KisCubicCurve : public boost::equality_comparable<KisCubicCurve>
 {
 public:
@@ -66,9 +63,6 @@ public:
     bool operator==(const KisCubicCurve& curve) const;
 public:
     qreal value(qreal x) const;
-    /**
-     * Deprecated. Use curvePoints instead
-     */
     Q_DECL_DEPRECATED QList<QPointF> points() const;
     const QList<KisCubicCurvePoint>& curvePoints() const;
     void setPoints(const QList<QPointF>& points);
@@ -78,30 +72,15 @@ public:
     void setPoint(int idx, const QPointF& position);
     void setPointPosition(int idx, const QPointF& position);
     void setPointAsCorner(int idx, bool setAsCorner);
-    /**
-     * Add a point to the curve, the list of point is always sorted.
-     * @return the index of the inserted point
-     */
     int addPoint(const KisCubicCurvePoint& point);
     int addPoint(const QPointF& position, bool setAsCorner);
     int addPoint(const QPointF& position);
     void removePoint(int idx);
 
-    /*
-     * Check whether the curve maps all values to themselves.
-     */
     bool isIdentity() const;
 
-    /*
-     * Check whether the curve maps all values to given constant.
-     */
     bool isConstant(qreal c) const;
 
-    /**
-     * This allows us to carry around a display name for the curve internally. It is used
-     * currently in Sketch for perchannel, but would potentially be useful anywhere
-     * curves are used in the UI
-     */
     void setName(const QString& name);
     const QString& name() const;
 

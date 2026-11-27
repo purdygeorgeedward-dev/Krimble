@@ -11,8 +11,6 @@
 
 #include "kis_global.h"
 
-
-
 struct KisRoundHudButton::Private
 {
     Private() : isHighlighted(false) {}
@@ -39,7 +37,7 @@ void KisRoundHudButton::setOnOffIcons(const QIcon &on, const QIcon &off)
     m_d->offIcon = off;
 }
 
-void KisRoundHudButton::paintEvent(QPaintEvent */*event*/)
+void KisRoundHudButton::paintEvent(QPaintEvent * )
 {
     const int borderWidth = 3;
     const QPointF center = QRectF(rect()).center();
@@ -97,7 +95,7 @@ void KisRoundHudButton::mouseMoveEvent(QMouseEvent *event)
         m_d->isHighlighted = isOver;
         update();
     }
-    
+
     QAbstractButton::mouseMoveEvent(event);
 }
 

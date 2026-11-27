@@ -4,22 +4,10 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/**
- * Inpaint using the PatchMatch Algorithm
- *
- * | PatchMatch : A Randomized Correspondence Algorithm for Structural Image Editing
- * | by Connelly Barnes and Eli Shechtman and Adam Finkelstein and Dan B Goldman
- * | ACM Transactions on Graphics (Proc. SIGGRAPH), vol.28, aug-2009
- *
- * Original author Xavier Philippeau
- * Code adopted from: David Chatting https://github.com/davidchatting/PatchMatch
- */
-
 #include <boost/multi_array.hpp>
 #include <random>
 #include <iostream>
 #include <functional>
-
 
 #include "kis_paint_device.h"
 #include "kis_painter.h"
@@ -27,7 +15,6 @@
 
 #include "kis_debug.h"
 #include "kis_paint_device_debug_utils.h"
-//#include "kis_random_accessor_ng.h"
 
 #include <QtMath>
 #include <QList>
@@ -45,9 +32,8 @@ const int MAX_DIST = 65535;
 const quint8 MASK_SET = 255;
 const quint8 MASK_CLEAR = 0;
 
-class MaskedImage; //forward decl for the forward decl below
+class MaskedImage;
 template <typename T> float distance_impl(const MaskedImage& my, int x, int y, const MaskedImage& other, int xo, int yo);
-
 
 class ImageView
 {
@@ -73,7 +59,6 @@ public:
         m_imageHeight =  m_imageWidth = m_pixelSize = 0;
     }
 
-
     ImageView(quint8* _data, int _imageWidth, int _imageHeight, int _pixelSize)
     {
         Init(_data, _imageWidth, _imageHeight, _pixelSize);
@@ -91,7 +76,7 @@ public:
         if (this != &other) {
             if (other.num_bytes() != num_bytes()) {
                 delete[] m_data;
-                m_data = nullptr; //to preserve invariance if next line throws exception
+                m_data = nullptr;
                 m_data = new quint8[other.num_bytes()];
 
             }
@@ -103,7 +88,6 @@ public:
         return *this;
     }
 
-    //move assignment operator
     ImageView& operator=(ImageView&& other) noexcept
     {
         if (this != &other) {
@@ -115,7 +99,7 @@ public:
         return *this;
     }
 
-    virtual ~ImageView() {} //this class doesn't own m_data, so it ain't going to delete it either.
+    virtual ~ImageView() {}
 
     quint8* data(void) const
     {
@@ -189,12 +173,10 @@ public:
 
     ~ImageData() override
     {
-        delete[] m_data; //ImageData owns m_data, so it has to delete it
+        delete[] m_data;
     }
 
 };
-
-
 
 class MaskedImage : public KisShared
 {
@@ -211,7 +193,6 @@ private:
     ImageData maskData;
     ImageData imageData;
 
-
     void cacheImage(KisPaintDeviceSP imageDev, QRect rect)
     {
         cs = imageDev->colorSpace();
@@ -220,15 +201,12 @@ private:
         imageSize = rect;
     }
 
-
     void cacheMask(KisPaintDeviceSP maskDev, QRect rect)
     {
         Q_ASSERT(maskDev->colorSpace()->pixelSize() == 1);
         csMask = maskDev->colorSpace();
         maskData.Init(maskDev, rect);
 
-        //hard threshold for the initial mask
-        //may be optional. needs testing
         std::for_each(maskData.data(), maskData.data() + maskData.num_bytes(), [](quint8 & v) {
             v = (v > MASK_CLEAR) ? MASK_SET : MASK_CLEAR;
         });
@@ -269,11 +247,8 @@ public:
         cacheImage(_imageDev, _maskRect);
         cacheMask(_maskDev, _maskRect);
 
-        //distance function is the only that needs to know the type
-        //For performance reasons we can't use functions provided by color space
         KoID colorDepthId =  _imageDev->colorSpace()->colorDepthId();
 
-        //Use RGB traits to assign actual pixel data types.
         distance = &distance_impl<KoRgbU8Traits::channels_type>;
 
         if( colorDepthId == Integer16BitsColorDepthID )
@@ -348,11 +323,9 @@ public:
         for (int y = 0; y < newH; ++y) {
             for (int x = 0; x < newW; ++x) {
 
-                // original pixel
                 int xs = (x * W) / newW;
                 int ys = (y * H) / newH;
 
-                // copy to new image
                 if (!isMasked(xs, ys)) {
                     std::copy(imageData(xs, ys), imageData(xs, ys) + imageData.pixel_size(), newImage(x, y));
                     *newMask(x, y) = MASK_CLEAR;
@@ -399,7 +372,6 @@ public:
         return (*maskData(x, y) > MASK_CLEAR);
     }
 
-    //returns true if the patch contains a masked pixel
     bool containsMasked(int x, int y, int S)
     {
         for (int dy = -S; dy <= S; ++dy) {
@@ -454,7 +426,6 @@ public:
         float scale = 255 / (wsum + 0.001);
 
         for (auto& v : w) {
-            //compensated summation to increase accuracy
             float v1 = v * scale + dif;
             float v2 = std::round(v1);
             dif = v1 - v2;
@@ -475,9 +446,6 @@ public:
     }
 };
 
-
-//Generic version of the distance function. produces distance between colors in the range [0, MAX_DIST]. This
-//is a fast distance computation. More accurate, but very slow implementation is to use color space operations.
 template <typename T> float distance_impl(const MaskedImage& my, int x, int y, const MaskedImage& other, int xo, int yo)
 {
     float dsq = 0;
@@ -486,15 +454,12 @@ template <typename T> float distance_impl(const MaskedImage& my, int x, int y, c
     T *v2 = reinterpret_cast<T*>(other.imageData(xo, yo));
 
     for (quint32 chan = 0; chan < nchannels; chan++) {
-        //It's very important not to lose precision in the next line
         float v = ((float)(*(v1 + chan)) - (float)(*(v2 + chan)));
         dsq += v * v;
     }
 
-    // in HDR color spaces the value of the channel may become bigger than the unitValue
     return qMin((float)(nchannels * MAX_DIST), dsq / (pow2((float)KoColorSpaceMathsTraits<T>::unitValue) / MAX_DIST ));
 }
-
 
 typedef KisSharedPtr<MaskedImage> MaskedImageSP;
 
@@ -511,8 +476,6 @@ struct Vote_elem {
 };
 typedef boost::multi_array<Vote_elem, 2> Vote_type;
 
-
-
 class NearestNeighborField : public KisShared
 {
 
@@ -522,14 +485,12 @@ private:
         return rand() % range;
     }
 
-    //compute initial value of the distance term
     void initialize(void)
     {
         for (int y = 0; y < imSize.height(); y++) {
             for (int x = 0; x < imSize.width(); x++) {
                 field[x][y].distance = distance(x, y, field[x][y].x, field[x][y].y);
 
-                //if the distance is "infinity", try to find a better link
                 int iter = 0;
                 const int maxretry = 20;
                 while (field[x][y].distance == MAX_DIST && iter < maxretry) {
@@ -558,9 +519,8 @@ private:
         }
     }
 
-
 private:
-    int patchSize; //patch size
+    int patchSize;
 public:
     MaskedImageSP input;
     MaskedImageSP output;
@@ -577,7 +537,7 @@ public:
         field.resize(boost::extents[imSize.width()][imSize.height()]);
         init_similarity_curve();
 
-        nColors = input->channelCount(); //only color count, doesn't include alpha channels
+        nColors = input->channelCount();
     }
 
     void randomize(void)
@@ -592,7 +552,6 @@ public:
         initialize();
     }
 
-    //initialize field from an existing (possibly smaller) nearest neighbor field
     void initialize(const NearestNeighborField& nnf)
     {
         float xscale = qreal(imSize.width()) / nnf.imSize.width();
@@ -611,7 +570,6 @@ public:
         initialize();
     }
 
-    //multi-pass NN-field minimization (see "PatchMatch" paper referenced above - page 4)
     void minimize(int pass)
     {
         int min_x = 0;
@@ -620,13 +578,11 @@ public:
         int max_y = imSize.height() - 1;
 
         for (int i = 0; i < pass; i++) {
-            //scanline order
             for (int y = min_y; y < max_y; y++)
                 for (int x = min_x; x <= max_x; x++)
                     if (field[x][y].distance > 0)
                         minimizeLink(x, y, 1);
 
-            //reverse scanline order
             for (int y = max_y; y >= min_y; y--)
                 for (int x = max_x; x >= min_x; x--)
                     if (field[x][y].distance > 0)
@@ -638,7 +594,6 @@ public:
     {
         int xp, yp, dp;
 
-        //Propagation Left/Right
         if (x - dir > 0 && x - dir < imSize.width()) {
             xp = field[x - dir][y].x + dir;
             yp = field[x - dir][y].y;
@@ -650,7 +605,6 @@ public:
             }
         }
 
-        //Propagation Up/Down
         if (y - dir > 0 && y - dir < imSize.height()) {
             xp = field[x][y - dir].x;
             yp = field[x][y - dir].y + dir;
@@ -662,7 +616,6 @@ public:
             }
         }
 
-        //Random search
         int wi = std::max(output->size().width(), output->size().height());
         int xpi = field[x][y].x;
         int ypi = field[x][y].y;
@@ -682,14 +635,12 @@ public:
         }
     }
 
-    //compute distance between two patches
     int distance(int x, int y, int xp, int yp)
     {
         qint64 distance = 0;
         qint64 wsum = 0;
         const qint64 ssdmax = nColors * 255 * (qint64)255;
 
-        //for each pixel in the source patch
         for (int dy = -patchSize; dy <= patchSize; dy++) {
             for (int dx = -patchSize; dx <= patchSize; dx++) {
                 wsum += ssdmax;
@@ -706,13 +657,11 @@ public:
                     continue;
                 }
 
-                //cannot use masked pixels as a valid source of information
                 if (input->isMasked(xks, yks)) {
                     distance += ssdmax;
                     continue;
                 }
 
-                //corresponding pixel in target patch
                 int xkt = xp + dx;
                 int ykt = yp + dy;
                 if (xkt < 0 || xkt >= output->size().width()) {
@@ -724,13 +673,11 @@ public:
                     continue;
                 }
 
-                //cannot use masked pixels as a valid source of information
                 if (output->isMasked(xkt, ykt)) {
                     distance += ssdmax;
                     continue;
                 }
 
-                //SSD distance between pixels
                 float ssd = input->distance(*input, xks, yks, *output, xkt, ykt);
                 distance += qRound(ssd);
 
@@ -738,7 +685,7 @@ public:
         }
 
         if (wsum == 0) {
-            return 0; // sanity check, to avoid undefined behaviour in code below
+            return 0;
         }
         return qFloor(MAX_DIST * (qreal(distance) / wsum));
     }
@@ -751,7 +698,6 @@ public:
 };
 typedef KisSharedPtr<NearestNeighborField> NearestNeighborFieldSP;
 
-
 class Inpaint
 {
 private:
@@ -761,7 +707,6 @@ private:
     NearestNeighborFieldSP nnf_SourceToTarget;
     int radius;
     QList<MaskedImageSP> pyramid;
-
 
 public:
     Inpaint(KisPaintDeviceSP dev, KisPaintDeviceSP devMask, int _radius, QRect maskRect)
@@ -774,8 +719,6 @@ public:
     MaskedImageSP patch_simple(void);
 };
 
-
-
 MaskedImageSP Inpaint::patch()
 {
     MaskedImageSP source = initial->copy();
@@ -784,49 +727,34 @@ MaskedImageSP Inpaint::patch()
 
     QRect size = source->size();
 
-    //qDebug() << "countMasked: " <<  source->countMasked() << "\n";
     while ((size.width() > radius) && (size.height() > radius) && source->countMasked() > 0) {
         source->downsample2x();
-        //source->DebugDump("Pyramid");
-        //qDebug() << "countMasked1: " <<  source->countMasked() << "\n";
         pyramid.append(source->copy());
         size = source->size();
     }
     int maxlevel = pyramid.size();
-    //qDebug() << "MaxLevel: " <<  maxlevel << "\n";
 
-    // The initial target is the same as the smallest source.
-    // We consider that this target contains no masked pixels
     MaskedImageSP target = source->copy();
     target->clearMask();
 
-    //recursively building nearest neighbor field
     for (int level = maxlevel - 1; level > 0; level--) {
         source = pyramid.at(level);
 
         if (level == maxlevel - 1) {
-            //random initial guess
             nnf_TargetToSource = new NearestNeighborField(target, source, radius);
             nnf_TargetToSource->randomize();
         } else {
-            // then, we use the rebuilt (upscaled) target
-            // and reuse the previous NNF as initial guess
 
             NearestNeighborFieldSP new_nnf_rev = new NearestNeighborField(target, source, radius);
             new_nnf_rev->initialize(*nnf_TargetToSource);
             nnf_TargetToSource = new_nnf_rev;
         }
 
-        //Build an upscaled target by EM-like algorithm (see "PatchMatch" paper referenced above - page 6)
         target = NearestNeighborField::ExpectationMaximization(nnf_TargetToSource, level, radius, pyramid);
-        //target->DebugDump( "target" );
     }
     return target;
 }
 
-
-//EM-Like algorithm (see "PatchMatch" - page 6)
-//Returns a float sized target image
 MaskedImageSP NearestNeighborField::ExpectationMaximization(NearestNeighborFieldSP nnf_TargetToSource, int level, int radius, QList<MaskedImageSP>& pyramid)
 {
     int iterEM = std::min(2 * level, 4);
@@ -836,9 +764,7 @@ MaskedImageSP NearestNeighborField::ExpectationMaximization(NearestNeighborField
     MaskedImageSP target = nnf_TargetToSource->input;
     MaskedImageSP newtarget = nullptr;
 
-    //EM loop
     for (int emloop = 1; emloop <= iterEM; emloop++) {
-        //set the new target as current target
         if (!newtarget.isNull()) {
             nnf_TargetToSource->input = newtarget;
             target = newtarget;
@@ -855,15 +781,11 @@ MaskedImageSP NearestNeighborField::ExpectationMaximization(NearestNeighborField
             }
         }
 
-        //minimize the NNF
         nnf_TargetToSource->minimize(iterNNF);
 
-        //Now we rebuild the target using best patches from source
         MaskedImageSP newsource = nullptr;
         bool upscaled = false;
 
-        // Instead of upsizing the final target, we build the last target from the next level source image
-        // So the final target is less blurry (see "Space-Time Video Completion" - page 5)
         if (level >= 1 && (emloop == iterEM)) {
             newsource = pyramid.at(level - 1);
             QRect sz = newsource->size();
@@ -875,19 +797,15 @@ MaskedImageSP NearestNeighborField::ExpectationMaximization(NearestNeighborField
             newtarget = target->copy();
             upscaled = false;
         }
-        //EM Step
 
-        //EM_Step(newsource, newtarget, radius, upscaled);
         ExpectationStep(nnf_TargetToSource, newsource, newtarget, upscaled);
     }
 
     return newtarget;
 }
 
-
 void NearestNeighborField::ExpectationStep(NearestNeighborFieldSP nnf, MaskedImageSP source, MaskedImageSP target, bool upscale)
 {
-    //int*** field = nnf->field;
     int R = nnf->patchSize;
     if (upscale)
         R *= 2;
@@ -909,16 +827,13 @@ void NearestNeighborField::ExpectationStep(NearestNeighborFieldSP nnf, MaskedIma
             pixels.clear();
             weights.clear();
 
-
-            if (!source->containsMasked(x, y, R + 4) /*&& upscale*/) {
-                //speedup computation by copying parts that are not masked.
+            if (!source->containsMasked(x, y, R + 4) ) {
                 pixels.push_back(source->getImagePixel(x, y));
                 weights.push_back(1.f);
                 target->mixColors(pixels, weights, 1.f, target->getImagePixel(x, y));
             } else {
                 for (int dx = -R ; dx <= R; ++dx) {
                     for (int dy = -R ; dy <= R ; ++dy) {
-                        // xpt,ypt = center pixel of the target patch
                         int xpt = x + dx;
                         int ypt = y + dy;
 
@@ -932,7 +847,6 @@ void NearestNeighborField::ExpectationStep(NearestNeighborFieldSP nnf, MaskedIma
                             xst = nnf->field[xpt][ypt].x;
                             yst = nnf->field[xpt][ypt].y;
                             int dp = nnf->field[xpt][ypt].distance;
-                            // similarity measure between the two patches
                             w = nnf->similarity[dp];
 
                         } else {
@@ -941,7 +855,6 @@ void NearestNeighborField::ExpectationStep(NearestNeighborFieldSP nnf, MaskedIma
                             xst = 2 * nnf->field[xpt / 2][ypt / 2].x + (xpt % 2);
                             yst = 2 * nnf->field[xpt / 2][ypt / 2].y + (ypt % 2);
                             int dp = nnf->field[xpt / 2][ypt / 2].distance;
-                            // similarity measure between the two patches
                             w = nnf->similarity[dp];
                         }
 
@@ -975,13 +888,12 @@ QRect getMaskBoundingBox(KisPaintDeviceSP maskDev)
     return maskRect;
 }
 
-
 QRect patchImage(const KisPaintDeviceSP imageDev, const KisPaintDeviceSP maskDev, int patchRadius, int accuracy, KisSelectionSP selection)
 {
     QRect maskRect = getMaskBoundingBox(maskDev);
     QRect imageRect = imageDev->exactBounds();
 
-    float scale = 1.0 + (accuracy / 25.0); //higher accuracy means we include more surrounding area around the patch. Minimum 2x padding.
+    float scale = 1.0 + (accuracy / 25.0);
     int dx = maskRect.width() * scale;
     int dy = maskRect.height() * scale;
     maskRect.adjust(-dx, -dy, dx, dy);

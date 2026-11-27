@@ -25,7 +25,6 @@
 
 const int KisFavoriteResourceManager::MAX_RECENT_COLOR = 12;
 
-
 KisFavoriteResourceManager::KisFavoriteResourceManager(KisPaintopBox *paintopBox)
     : m_paintopBox(paintopBox)
     , m_colorHistoryList(new KisSortedHistoryList<KoColor>(MAX_RECENT_COLOR))
@@ -46,7 +45,6 @@ KisFavoriteResourceManager::~KisFavoriteResourceManager()
 
 void KisFavoriteResourceManager::unsetResourceServer()
 {
-    // ...
 }
 QVector<QString> KisFavoriteResourceManager::favoritePresetNamesList()
 {
@@ -59,7 +57,7 @@ QVector<QString> KisFavoriteResourceManager::favoritePresetNamesList()
             QString name = m_resourcesProxyModel->data(index, Qt::UserRole + KisAbstractResourceModel::Name).toString();
             names << name;
         }  else {
-            break; // no more valid indices
+            break;
         }
     }
 
@@ -77,7 +75,7 @@ QList<QImage> KisFavoriteResourceManager::favoritePresetImages()
             QImage image = tmp.value<QImage>();
             images << image;
         } else {
-            break; // no more valid indices
+            break;
         }
     }
     return images;
@@ -93,7 +91,6 @@ void KisFavoriteResourceManager::setCurrentTag(const KisTagSP tag)
 
 void KisFavoriteResourceManager::slotChangeActivePaintop(int pos)
 {
-    //ENTER_FUNCTION() << ppVar(pos) << ppVar(numFavoritePresets());
     if (pos < 0 || pos >= numFavoritePresets()) return;
 
     QModelIndex index = m_resourcesProxyModel->index(pos, 0);
@@ -110,7 +107,6 @@ int KisFavoriteResourceManager::numFavoritePresets()
     return favoritePresetNamesList().size();
 }
 
-//Recent Colors
 void KisFavoriteResourceManager::slotUpdateRecentColor(int pos)
 {
     Q_EMIT setSelectedColor(pos);
@@ -129,17 +125,17 @@ void KisFavoriteResourceManager::slotChangeFGColorSelector(KoColor c)
     Q_EMIT sigChangeFGColorSelector(c);
 }
 
-void KisFavoriteResourceManager::removingResource(QSharedPointer<KisPaintOpPreset> /*resource*/)
+void KisFavoriteResourceManager::removingResource(QSharedPointer<KisPaintOpPreset> )
 {
     updateFavoritePresets();
 }
 
-void KisFavoriteResourceManager::resourceAdded(QSharedPointer<KisPaintOpPreset>  /*resource*/)
+void KisFavoriteResourceManager::resourceAdded(QSharedPointer<KisPaintOpPreset>  )
 {
     updateFavoritePresets();
 }
 
-void KisFavoriteResourceManager::resourceChanged(QSharedPointer<KisPaintOpPreset>  /*resource*/)
+void KisFavoriteResourceManager::resourceChanged(QSharedPointer<KisPaintOpPreset>  )
 {
     updateFavoritePresets();
 }
@@ -218,7 +214,7 @@ void KisFavoriteResourceManager::init()
 
         connect(m_resourcesProxyModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(presetsChanged()));
         connect(m_resourcesProxyModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(presetsChanged()));
-        
+
         m_resourceModel = new KisResourceModel(ResourceType::PaintOpPresets, this);
 
         KisResourceServerProvider::instance()->paintOpPresetServer();
@@ -230,7 +226,6 @@ void KisFavoriteResourceManager::init()
             m_currentTag = currentTagSP;
         }
         if (m_currentTag.isNull() && tagModel.rowCount() > 0) {
-            // safety measure to have at least *some* tag chosen
             QModelIndex idx = tagModel.index(0, 0);
             currentTagSP = tagModel.tagForIndex(idx);
             if (currentTagSP && !m_currentTag) {
@@ -243,5 +238,4 @@ void KisFavoriteResourceManager::init()
         updateFavoritePresets();
     }
 }
-
 

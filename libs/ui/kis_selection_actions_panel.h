@@ -63,7 +63,6 @@ private Q_SLOTS:
 private:
     void recalculateDimensions();
 
-    /// Positioning ///
     QPoint getFixedPosition() const;
 
     QRectF getWidgetSelectionRect() const;
@@ -75,8 +74,6 @@ private:
     QPoint clipPositionToCanvasBoundaries(QPoint position, QWidget *canvasWidget) const;
 
     QPoint currentTopLeftPosition() const;
-    /// End of positioning ///
-
 
     void drawAnchorWhileMoving(QPainter &painter) const;
     void drawActionBarBackground(QPainter &gc, const KoColorDisplayRendererInterface *displayRendererInterface) const;
@@ -88,13 +85,10 @@ private:
     bool handleMove(QEvent *event, const QPoint &pos);
     bool handleRelease(QEvent *event);
 
-    ///Moves all the widgets that are a part of the panel
     void movePanelWidgets();
 
     QPoint mouseEventPos(const QMouseEvent *mouseEvent);
     QPoint tabletEventPos(const QTabletEvent *tabletEvent);
-    // Touch events can have zero touch points when pressing an entire palm on
-    // the screen on Android, so this returns false if this is a non-touch.
     bool touchEventPos(const QTouchEvent *touchEvent, QPoint &outPos);
 
     QPoint transformHandleCoords(QPoint pos);

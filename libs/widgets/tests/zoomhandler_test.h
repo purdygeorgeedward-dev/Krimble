@@ -15,7 +15,6 @@ class zoomhandler_test : public QObject
 
 private Q_SLOTS:
 
-    // tests
     void testConstruction();
     void testApi();
     void testViewToDocument();

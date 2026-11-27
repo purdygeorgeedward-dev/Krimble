@@ -24,7 +24,7 @@ struct KisDlgChangeCloneSource::Private
         , image(view->image())
         , applicator(new KisProcessingApplicator(image, 0,
                                                  KisProcessingApplicator::NONE,
-                                                 /* emitSignals = */ KisImageSignalVector(),
+                                                 KisImageSignalVector(),
                                                  kundo2_i18n("Change Clone Layers")))
         , modified(false) {}
 
@@ -65,13 +65,11 @@ void KisDlgChangeCloneSource::Private::addToTargetListRecursively(KisNodeSP node
 void KisDlgChangeCloneSource::Private::filterOutAncestorsAndClonesRecursively(KisLayerSP layer)
 {
     validTargets.removeOne(layer);
-    // remove `layer` and its ancestors
     KisLayerSP parent = qobject_cast<KisLayer *>(layer->parent().data());
     if (parent) {
         filterOutAncestorsAndClonesRecursively(parent);
     }
 
-    // remove all clones of `layer`, and their ancestors
     Q_FOREACH (KisCloneLayerSP clone, layer->registeredClones()) {
         filterOutAncestorsAndClonesRecursively(clone);
     }
@@ -141,17 +139,13 @@ void KisDlgChangeCloneSource::updateTargetLayerList()
     }
     KisNodeSP root = d->image->root();
     d->validTargets.clear();
-    d->addToTargetListRecursively(root, /* addSelf = */ false);
+    d->addToTargetListRecursively(root, false);
 
     KisLayerSP commonCopyFrom(d->cloneLayers.first()->copyFrom());
 
     Q_FOREACH (KisCloneLayerSP clone, d->cloneLayers) {
-        // filter out invalid targets:
-        // selected clone layers, their ancestors;
-        // the clone layers' registered clone, the clones' ancestors.
         d->filterOutAncestorsAndClonesRecursively(clone);
 
-        // assume that clone->copyFrom() != 0
         if (clone->copyFrom() != commonCopyFrom) {
             commonCopyFrom = 0;
         }

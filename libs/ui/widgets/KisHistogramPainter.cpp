@@ -89,8 +89,6 @@ KisHistogramPainter::Private::computeHistogramShape(KisHistogram *histogram,
     const qreal logHeightFactor = 1.0 / std::log(static_cast<qreal>(highest + 1));
     const qreal widthFactor = 1.0 / static_cast<qreal>(bins);
 
-    // Add extra points at the beginning and end so that the shape is a bit
-    // hidden on the bottom (hides the pen line on the bottom when painting)
     linearHistogramShape.append(QPointF(0.0, -0.1));
     linearHistogramShape.append(QPointF(0.0, 0.0));
     logarithmicHistogramShape.append(QPointF(0.0, -0.1));
@@ -301,7 +299,7 @@ void KisHistogramPainter::setup(KisHistogram *histogram, const KoColorSpace *col
     Q_ASSERT(colorSpace);
 
     const int nChannels = static_cast<int>(colorSpace->channelCount());
-    
+
     if (channels.size() == 0) {
         for (int i = 0; i < nChannels; ++i) {
             channels.append(i);

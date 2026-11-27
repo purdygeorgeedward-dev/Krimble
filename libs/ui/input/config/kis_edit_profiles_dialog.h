@@ -10,10 +10,6 @@
 
 #include <KoDialog.h>
 
-/**
- * \brief A dialog that provides facilities to edit all the available profiles.
- *
- */
 class KisEditProfilesDialog : public KoDialog
 {
     Q_OBJECT
@@ -32,4 +28,4 @@ private:
     Private *const d {nullptr};
 };
 
-#endif // KISEDITPROFILESDIALOG_H
+#endif

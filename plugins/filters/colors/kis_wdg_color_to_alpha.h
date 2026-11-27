@@ -14,7 +14,6 @@
 class KoColor;
 class Ui_WdgColorToAlphaBase;
 
-
 class KisWdgColorToAlpha : public KisConfigWidget
 {
     Q_OBJECT

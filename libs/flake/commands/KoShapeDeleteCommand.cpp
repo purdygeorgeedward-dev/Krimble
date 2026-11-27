@@ -27,10 +27,10 @@ public:
             delete shape;
     }
 
-    KoShapeControllerBase *controller; ///< the shape controller to use for removing/readding
-    QList<KoShape*> shapes; ///< the list of shapes to delete
-    QList<KoShapeContainer*> oldParents; ///< the old parents of the shapes
-    bool deleteShapes;  ///< shows if shapes should be deleted when deleting the command
+    KoShapeControllerBase *controller;
+    QList<KoShape*> shapes;
+    QList<KoShapeContainer*> oldParents;
+    bool deleteShapes;
 };
 
 KoShapeDeleteCommand::KoShapeDeleteCommand(KoShapeControllerBase *controller, KoShape *shape, KUndo2Command *parent)

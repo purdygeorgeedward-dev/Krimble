@@ -43,7 +43,6 @@ public:
 
     ScreenInfo infoForScreen(QScreen *screen) const;
 
-
 private:
     struct Private;
     const QScopedPointer<Private> m_d;
@@ -51,4 +50,4 @@ private:
 
 QDebug operator<<(QDebug, const KisScreenInformationAdapter::ScreenInfo &);
 
-#endif // KISSCREENINFORMATIONADAPTER_H
+#endif

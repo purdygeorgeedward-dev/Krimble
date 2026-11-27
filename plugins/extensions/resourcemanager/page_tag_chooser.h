@@ -13,7 +13,6 @@
 #include <KisTag.h>
 #include "KisBundleStorage.h"
 
-
 namespace Ui {
 class PageTagChooser;
 }
@@ -45,4 +44,4 @@ private:
     KisBundleStorage *m_bundleStorage;
 };
 
-#endif // PAGE_TAG_CHOOSER_H
+#endif

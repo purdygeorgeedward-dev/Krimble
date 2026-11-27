@@ -7,7 +7,6 @@
 #ifndef _KOCOMPOSITEOPALPHABASE_H_
 #define _KOCOMPOSITEOPALPHABASE_H_
 
-
 #include <KoColorSpaceMaths.h>
 #include <KoCompositeOp.h>
 #include <KoColorSpaceConstants.h>
@@ -18,14 +17,6 @@
 #define NATIVE_OPACITY_TRANSPARENT KoColorSpaceMathsTraits<channels_type>::zeroValue
 #define NATIVE_ZERO_VALUE KoColorSpaceMathsTraits<channels_type>::zeroValue
 
-
-/**
- * A template base class for all composite op that compose color
- * channels values for colorspaces that have an alpha channel.
- *
- * @param _compositeOp this class should define a function with the
- *        following signature: inline static void composeColorChannels
- */
 template<class _CSTraits, class _compositeOp, bool _alphaLocked>
 class KoCompositeOpAlphaBase : public KoCompositeOp
 {
@@ -62,7 +53,6 @@ public:
 
                 channels_type srcAlpha = _CSTraits::alpha_pos == -1 ? NATIVE_OPACITY_OPAQUE : _compositeOp::selectAlpha(srcN[_CSTraits::alpha_pos], dstN[_CSTraits::alpha_pos]);
 
-                // apply the alphamask
                 if (mask != 0) {
                     srcAlpha = KoColorSpaceMaths<quint8, channels_type>::multiply(*mask, srcAlpha, opacity);
                     mask++;
@@ -71,7 +61,6 @@ public:
                 }
 
                 if (srcAlpha != NATIVE_OPACITY_TRANSPARENT) {
-
 
                     channels_type dstAlpha = _CSTraits::alpha_pos == -1 ? NATIVE_OPACITY_OPAQUE : dstN[_CSTraits::alpha_pos];
 
@@ -98,10 +87,9 @@ public:
 
                     } else {
                         channels_type newAlpha = dstAlpha + KoColorSpaceMaths<channels_type>::multiply(NATIVE_OPACITY_OPAQUE - dstAlpha, srcAlpha);
-                        if (!alphaLocked && !_alphaLocked) { // No need to check for _CSTraits::alpha_pos == -1 since it is contained in alphaLocked
+                        if (!alphaLocked && !_alphaLocked) {
                             dstN[_CSTraits::alpha_pos] = newAlpha;
                         }
-                        // newAlpha cannot be zero, because srcAlpha!=zero and dstAlpha!=unit here
                         srcBlend = KoColorSpaceMaths<channels_type>::divide(srcAlpha, newAlpha);
                     }
                     _compositeOp::composeColorChannels(srcBlend, srcN, dstN, allChannelFlags, params.channelFlags);

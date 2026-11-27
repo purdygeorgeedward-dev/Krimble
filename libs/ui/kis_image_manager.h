@@ -24,7 +24,6 @@ class KRITAUI_EXPORT KisImageManager : public QObject
 
 public:
 
-
     KisImageManager(KisViewManager * view);
     ~KisImageManager() override {}
 
@@ -38,15 +37,6 @@ public Q_SLOTS:
     void slotImportLayerAsFilterMask();
     void slotImportLayerAsSelectionMask();
 
-    /**
-     * Import an image as a layer. If there is more than
-     * one layer in the image, import all of them as separate
-     * layers.
-     *
-     * @param url the url to the image file
-     * @param layerType the layer type
-     * @return the number of layers added
-     */
     qint32 importImage(const QUrl &url, const QString &layerType = "KisPaintLayer");
 
     void resizeCurrentImage(qint32 w, qint32 h, qint32 xOffset, qint32 yOffset);
@@ -62,4 +52,4 @@ private:
     KisViewManager * m_view;
 };
 
-#endif // KIS_IMAGE_MANAGER
+#endif

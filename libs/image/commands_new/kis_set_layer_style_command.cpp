@@ -10,7 +10,6 @@
 #include "kis_abstract_projection_plane.h"
 #include "kis_psd_layer_style.h"
 
-
 KisSetLayerStyleCommand::KisSetLayerStyleCommand(KisLayerSP layer, KisPSDLayerStyleSP oldStyle, KisPSDLayerStyleSP newStyle, KUndo2Command *parent)
     : KUndo2Command(kundo2_i18n("Change Layer Style"), parent),
       m_layer(layer),

@@ -20,7 +20,6 @@
 
 #include <random>
 
-
 KisColorSource::~KisColorSource() { }
 
 KisUniformColorSource::KisUniformColorSource()
@@ -36,7 +35,6 @@ void KisUniformColorSource::rotate(double)
 
 void KisUniformColorSource::resize(double , double)
 {
-    // Do nothing as plain color does not have size
 }
 
 void KisUniformColorSource::colorize(KisPaintDeviceSP dev, const QRect& size, const QPoint&) const
@@ -63,10 +61,6 @@ const KoColorSpace* KisUniformColorSource::colorSpace() const
     return m_color.colorSpace();
 }
 
-//-------------------------------------------------//
-//---------------- KisPlainColorSource ---------------//
-//-------------------------------------------------//
-
 KisPlainColorSource::KisPlainColorSource(const KoColor& backGroundColor, const KoColor& foreGroundColor)
     : m_backGroundColor(backGroundColor)
     , m_cachedBackGroundColor(backGroundColor)
@@ -92,17 +86,11 @@ void KisPlainColorSource::selectColor(double mix, const KisPaintInformation &pi)
     colors[0] = m_cachedBackGroundColor.data();
     colors[1] = m_foreGroundColor.data();
 
-    // equally distribute mix factor over [0..255]
-    // mix * 256 ensures that, with exception of mix==1.0, which gets special handling
     const int weight = (mix == 1.0) ? 255 : (int)(mix * 256);
     const qint16 weights[2] = { (qint16)(255 - weight), (qint16)weight };
 
     m_color.colorSpace()->mixColorsOp()->mixColors(colors, weights, 2, m_color.data());
 }
-
-//-------------------------------------------------//
-//--------------- KisGradientColorSource -------------//
-//-------------------------------------------------//
 
 KisGradientColorSource::KisGradientColorSource(const KoAbstractGradientSP gradient, const KoColorSpace* workingCS)
     : m_gradient(gradient)
@@ -124,10 +112,6 @@ void KisGradientColorSource::selectColor(double mix, const KisPaintInformation &
     }
 }
 
-//-------------------------------------------------//
-//--------------- KisGradientColorSource -------------//
-//-------------------------------------------------//
-
 KisUniformRandomColorSource::KisUniformRandomColorSource()
 {
 }
@@ -146,11 +130,6 @@ void KisUniformRandomColorSource::selectColor(double mix, const KisPaintInformat
                               (int)source->generate(0, 255),
                               (int)source->generate(0, 255)));
 }
-
-
-//------------------------------------------------------//
-//--------------- KisTotalRandomColorSource ---------------//
-//------------------------------------------------------//
 
 KisTotalRandomColorSource::KisTotalRandomColorSource() : m_colorSpace(KoColorSpaceRegistry::instance()->rgb8())
 {
@@ -199,8 +178,6 @@ void KisTotalRandomColorSource::colorize(KisPaintDeviceSP dev, const QRect& rect
 void KisTotalRandomColorSource::rotate(double) {}
 void KisTotalRandomColorSource::resize(double , double) {}
 
-
-
 KoPatternColorSource::KoPatternColorSource(KisPaintDeviceSP _pattern, int _width, int _height, bool _locked)
     : m_device(_pattern)
     , m_bounds(QRect(0, 0, _width, _height))
@@ -238,8 +215,6 @@ void KoPatternColorSource::colorize(KisPaintDeviceSP device, const QRect& rect, 
         int x = offset.x() % m_bounds.width();
         int y = offset.y() % m_bounds.height();
 
-        // Change the position, because the pattern is always applied starting
-        // from (0,0) in the paint device reference
         device->setX(x);
         device->setY(y);
         painter.fillRect(rect.x() + x, rect.y() + y, rect.width(), rect.height(), m_device, m_bounds);

@@ -58,7 +58,6 @@ void WGColorPreviewToolTip::updatePosition(const QWidget *focus)
 
 qreal WGColorPreviewToolTip::estimateBrightness(QColor col)
 {
-    // a cheap approximation of luma assuming sRGB with gamma = 2.0
     return std::sqrt(col.redF() * col.redF() * 0.21 +
                      col.greenF() * col.greenF() * 0.71 +
                      col.blueF() * col.blueF() * 0.08);

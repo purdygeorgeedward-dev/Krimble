@@ -5,4 +5,4 @@
 
 #include <stdint.h>
 
-#endif /* LOCAL_DEFINITIONS_H */
+#endif

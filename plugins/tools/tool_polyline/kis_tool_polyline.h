@@ -10,7 +10,6 @@
 #define KIS_TOOL_POLYLINE_H_
 
 #include "kis_tool_polyline_base.h"
-//#include "flake/kis_node_shape.h"
 #include <kis_icon.h>
 
 class KisToolPolyline : public KisToolPolylineBase
@@ -31,7 +30,6 @@ protected:
 protected Q_SLOTS:
     void resetCursorStyle() override;
 };
-
 
 #include "KoToolFactoryBase.h"
 
@@ -56,5 +54,4 @@ public:
 
 };
 
-
-#endif //__KIS_TOOL_POLYLINE_H__
+#endif

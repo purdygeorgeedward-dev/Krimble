@@ -13,7 +13,6 @@
 
 #include <kis_brush_based_paintop_options_widget.h>
 
-
 class KisBrushOpSettingsWidget : public KisBrushBasedPaintopOptionWidget
 {
 
@@ -29,5 +28,4 @@ public:
 
 };
 
-
-#endif // KIS_BRUSHOP_SETTINGS_WIDGET_H_
+#endif

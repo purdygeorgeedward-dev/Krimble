@@ -53,6 +53,38 @@ protected:
         const bool krimbleToolBoxTarget = m_target && m_target->objectName() == QLatin1String("ToolBox");
         const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
         const bool recessed = qobject_cast<QMenu*>(m_target.data()) != nullptr;
+        if (krimbleToolBoxTarget && !recessed) {
+            if (qApp->property("krimbleBlackWhiteTheme").toBool()) {
+                const qreal edge = 4.0 / qMax<qreal>(1.0, devicePixelRatioF());
+                p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
+                p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
+                p.fillRect(QRectF(0, 0, edge, height()), Qt::black);
+                p.fillRect(QRectF(width() - edge, 0, edge, height()), Qt::black);
+                return;
+            }
+            const qreal tb = qMin(7.0 / qMax<qreal>(1.0, devicePixelRatioF()), qMin<qreal>(width(), height()) / 2.0);
+            const qreal w = width();
+            const qreal h = height();
+            p.setPen(Qt::NoPen);
+            const qreal top = qMin(tb, 3.0 / qMax<qreal>(1.0, devicePixelRatioF()));
+            p.setBrush(QColor(255, 255, 255, 85));
+            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - tb, top) << QPointF(tb, top); p.drawPolygon(poly); }
+            p.setBrush(QColor(255, 255, 255, 40));
+            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(tb, top) << QPointF(tb, h - tb) << QPointF(0, h); p.drawPolygon(poly); }
+            p.setBrush(QColor(0, 0, 0, 55));
+            { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - tb, h - tb) << QPointF(w - tb, top); p.drawPolygon(poly); }
+            p.setBrush(QColor(0, 0, 0, 90));
+            { QPolygonF poly; poly << QPointF(0, h) << QPointF(tb, h - tb) << QPointF(w - tb, h - tb) << QPointF(w, h); p.drawPolygon(poly); }
+            return;
+        }
+        if (!recessed && !menuBarTarget && qApp->property("krimbleBlackWhiteTheme").toBool()) {
+            const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
+            p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, 0, edge, height()), Qt::black);
+            p.fillRect(QRectF(width() - edge, 0, edge, height()), Qt::black);
+            return;
+        }
         if (recessed) {
             const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
             p.setPen(Qt::NoPen);
@@ -60,9 +92,6 @@ protected:
             p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
             p.fillRect(QRectF(0, 0, edge, height()), Qt::black);
             p.fillRect(QRectF(width() - edge, 0, edge, height()), Qt::black);
-            // p.setPen(Qt::NoPen);
-            // p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
-            // p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
             return;
         }
 #if 0
@@ -81,6 +110,13 @@ protected:
 #endif
         const bool krimbleMenuBar = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
         Q_UNUSED(krimbleMenuBar);
+        if (QMenuBar *kBar = qobject_cast<QMenuBar*>(m_target.data())) {
+            const QFontMetrics kMetrics(kBar->font());
+            const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
+            p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+            qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));
+            return;
+        }
         const QColor krimbleBase = m_target ? m_target->palette().color(QPalette::Window) : palette().color(QPalette::Window);
         QColor topTone    = krimbleBase.lighter(recessed ? 30 : 170);
         if (!qobject_cast<QMenuBar*>(m_target.data()) && !recessed && m_target) {
@@ -92,18 +128,17 @@ protected:
             }
         }
         if (!recessed) { if (QDockWidget *krimbleTabbedDock = qobject_cast<QDockWidget*>(m_target.data())) { if (krimbleDockInTabGroup(krimbleTabbedDock)) topTone = QColor(0, 0, 0, 0); } }
-        if (krimbleToolBoxTarget && !recessed && topTone.alpha() != 0) topTone = krimbleBase.lighter(250);   // was QColor(150, 160, 208)
+        if (krimbleToolBoxTarget && !recessed && topTone.alpha() != 0) topTone = krimbleBase.lighter(250);
         const QColor leftTone   = krimbleBase.lighter(recessed ? 83 : (krimbleToolBoxTarget ? 210 : 150));
         const QColor rightTone  = krimbleBase.lighter(recessed ? 170 : (krimbleToolBoxTarget ? 48 : 90));
-        // const QColor bottomTone = recessed ? QColor(214, 222, 250) : (krimbleToolBoxTarget ? QColor(12, 13, 24) : QColor(32, 34, 56));
         const QColor bottomTone = krimbleBase.lighter(recessed ? 300 : (krimbleToolBoxTarget ? 22 : 60));
         const qreal w = width();
         const qreal h = height();
         const qreal t = qMin(one, qMin(w, h) / 2.0);
-        const qreal ts = (krimbleToolBoxTarget && !recessed) ? qMin(one + 1.0 / qMax<qreal>(1.0, devicePixelRatioF()), qMin(w, h) / 2.0) : t;   // the toolbox's right and bottom shadow: one more line
+        const qreal tt = (krimbleToolBoxTarget && !recessed) ? qMin(t, 3.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())) : t;
+        const qreal ts = (krimbleToolBoxTarget && !recessed) ? qMin(one + 1.0 / qMax<qreal>(1.0, devicePixelRatioF()), qMin(w, h) / 2.0) : t;
         QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
-        // const bool allEdges = !dock || dock->isFloating();
-        const bool allEdges = !dock || dock->isFloating() || krimbleToolBoxTarget;   // 674th+: the docked toolbox has all four edges too
+        const bool allEdges = !dock || dock->isFloating() || krimbleToolBoxTarget;
         p.setPen(Qt::NoPen);
         if (!allEdges) {
             p.fillRect(QRectF(0, 0, w, t), topTone);
@@ -113,7 +148,7 @@ protected:
             return;
         }
         p.setBrush(topTone);
-        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - ts, t) << QPointF(t, t); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - ts, tt) << QPointF(t, tt); p.drawPolygon(poly); }
         if (krimbleToolBoxTarget && !recessed) {
             QLinearGradient shade(QPointF(0, h - ts), QPointF(0, h));
             shade.setColorAt(0.0, krimbleBase.lighter(85));
@@ -132,8 +167,7 @@ protected:
         { QPolygonF poly; poly << QPointF(0, h) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(t, h - ts); p.drawPolygon(poly); }
         p.setClipping(false);
         p.setBrush(leftTone);
-        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - ts) << QPointF(0, h); p.drawPolygon(poly); }
-        // p.setBrush(rightTone);
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, tt) << QPointF(t, h - ts) << QPointF(0, h); p.drawPolygon(poly); }
         if (krimbleToolBoxTarget && !recessed) {
             QLinearGradient shade(QPointF(w - ts, 0), QPointF(w, 0));
             shade.setColorAt(0.0, krimbleBase.lighter(85));
@@ -142,7 +176,7 @@ protected:
         } else {
             p.setBrush(rightTone);
         }
-        { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(w - ts, t); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(w - ts, tt); p.drawPolygon(poly); }
         if (QMenuBar *kBar = qobject_cast<QMenuBar*>(m_target.data())) {
             const QFontMetrics kMetrics(kBar->font());
             const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
@@ -197,7 +231,7 @@ public:
             if (m_taken) return true;
             if (m_tab < 0 || !(me->buttons() & Qt::LeftButton)) break;
             const int limit = qMax(m_bar->height(), 24);
-            if (me->pos().y() >= -limit && me->pos().y() <= m_bar->height() + limit) break;   // still on the row (or near it)
+            if (me->pos().y() >= -limit && me->pos().y() <= m_bar->height() + limit) break;
             QDockWidget *found = nullptr;
             const QString title = m_bar->tabText(m_tab);
             Q_FOREACH (QDockWidget *dock, m_win->findChildren<QDockWidget*>()) {
@@ -231,7 +265,6 @@ private:
     bool m_taken = false;
 };
 
-
 class KrimbleTabTearOff : public QObject
 {
 public:
@@ -241,7 +274,7 @@ public:
         QTabBar *bar = qobject_cast<QTabBar *>(watched);
         if (!bar) return false;
         QMainWindow *win = qobject_cast<QMainWindow *>(bar->parentWidget());
-        if (!win) return false;   // the tab bars of the panel groups are direct children of the main window (the image tabs are not)
+        if (!win) return false;
         if (event->type() == QEvent::Paint && (bar->shape() == QTabBar::RoundedNorth || bar->shape() == QTabBar::TriangularNorth) && bar->count() > 0) {
             paintTabRow(bar);
             return true;
@@ -289,7 +322,7 @@ public:
         if (bar != m_bar) return false;
         if (isMove && down) {
             if (m_taken) {
-                if (m_dock) {   // the panel follows the finger
+                if (m_dock) {
                     const QPoint g = bar->mapToGlobal(pos);
                     m_dock->move(g - m_grab);
                 }
@@ -298,7 +331,7 @@ public:
             if (m_tab < 0) return false;
             const int outside = pos.y() < 0 ? -pos.y() : (pos.y() > bar->height() ? pos.y() - bar->height() : 0);
             m_maxOut = qMax(m_maxOut, outside);
-            const int limit = qMax(bar->height() / 2, 16);   // half a tab row beyond the row, up or down
+            const int limit = qMax(bar->height() / 2, 16);
             const int vertical = qAbs(pos.y() - m_press.y());
             const int horizontal = qAbs(pos.x() - m_press.x());
             const int grabLimit = qMax(int(bar->height() * 0.6), 14);
@@ -309,7 +342,6 @@ public:
                 if (!dock->isFloating() && dock->windowTitle() == title) { found = dock; break; }
             }
             if (!found) {
-                // the title may carry a mnemonic (&) or be shortened: try the dock whose title contains the tab's text without them
                 const QString plain = QString(title).remove(QLatin1Char('&'));
                 Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget *>()) {
                     if (!dock->isFloating() && QString(dock->windowTitle()).remove(QLatin1Char('&')) == plain) { found = dock; break; }
@@ -343,8 +375,6 @@ public:
     }
 
 private:
-    // The tab row, "Tab C": rounded top corners; the selected tab has the color of the panel under it, no line below it, and curves flaring out to the line under the row (inverted
-    // curves); the other tabs are darker and closed off by that line. The colors come from the theme's palette (the panel is the Window color).
     static void paintTabRow(QTabBar *bar)
     {
         QPainter p(bar);
@@ -352,17 +382,16 @@ private:
         const QPalette pal = bar->palette();
         const QColor panel = pal.color(QPalette::Window);
         const QColor dark = panel.darker(130);
-        const QColor strip = panel.darker(300);   // the spaces between the tabs: clearly darker than the tabs
+        const QColor strip = panel.darker(300);
         const QColor edge(0, 0, 0);
         const QColor textOn = pal.color(QPalette::WindowText).lighter(115);
         const QColor textOff = QColor(int(textOn.red() * 0.7), int(textOn.green() * 0.7), int(textOn.blue() * 0.75));
-        const qreal r = 16.0, k = 10.0;   // r: top corner radius (larger = rounder)
+        const qreal r = 16.0, k = 10.0;
         const qreal baseY = bar->height() - 0.5;
         p.fillRect(bar->rect(), strip);
         const int current = bar->currentIndex();
-        // the line under the row first (the top of the panel below); the selected tab's body is drawn over it with a gap
-        for (int pass = 0; pass < 2; ++pass) {   // the other tabs first, the selected tab last
-            if (pass == 1) {   // the line under all the tabs (drawn after the darker tab bodies, which would hide it); the selected tab then covers its part
+        for (int pass = 0; pass < 2; ++pass) {
+            if (pass == 1) {
                 p.setPen(QPen(edge, 1));
                 p.drawLine(QPointF(0, baseY), QPointF(bar->width(), baseY));
             }
@@ -396,7 +425,7 @@ private:
                 p.setPen(QPen(edge, 1));
                 p.setBrush(Qt::NoBrush);
                 p.drawPath(line);
-                if (selected) {   // no line under the selected tab: cover it with the panel's color (the gap)
+                if (selected) {
                     p.setPen(QPen(panel, 1));
                     p.drawLine(QPointF(t.left() - k + 1.0, baseY), QPointF(t.right() + k - 1.0, baseY));
                 }
@@ -424,7 +453,6 @@ void KrimbleTabTearOff::log(const QString &text)
 
 static void krimbleInstallTabDetach(QMainWindow *win)
 {
-    // the tab bars of the panel groups are direct children of the main window (the image tabs live inside the MDI area)
     Q_FOREACH (QTabBar *bar, win->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly)) {
         if (!bar->findChild<KrimbleTabDetachFilter*>(QString(), Qt::FindDirectChildrenOnly)) new KrimbleTabDetachFilter(bar, win);
     }
@@ -475,7 +503,7 @@ private:
         if (now == wanted) return;
         m_busy = true;
         m_central->setGeometry(wanted);
-        m_central->lower();   // the panels and toolbars are drawn above it
+        m_central->lower();
         m_busy = false;
     }
     QPointer<QMainWindow> m_win;
@@ -504,10 +532,10 @@ static KrimbleDockBackgroundSpec krimbleDockBackgroundSpec()
     s_lastSize = sheet.size();
     s_spec = KrimbleDockBackgroundSpec();
     QString plain = sheet;
-    plain.remove(QRegularExpression(QStringLiteral("/\\*.*?\\*/"), QRegularExpression::DotMatchesEverythingOption));   // the comments of the sheet hold old copies of the rule
+    plain.remove(QRegularExpression(QStringLiteral("/\\*.*?\\*/"), QRegularExpression::DotMatchesEverythingOption));
     QRegularExpressionMatchIterator it = QRegularExpression(QStringLiteral("QMainWindow\\s*,\\s*QDockWidget\\s*\\{([^}]*)\\}")).globalMatch(plain);
     QString body;
-    while (it.hasNext()) body = it.next().captured(1);   // the last rule wins
+    while (it.hasNext()) body = it.next().captured(1);
     const QRegularExpressionMatch bg = QRegularExpression(QStringLiteral("background\\s*:\\s*([^;]+);")).match(body);
     if (!bg.hasMatch()) return s_spec;
     const QString value = bg.captured(1).trimmed();
@@ -552,9 +580,9 @@ public:
         } else if (spec.valid) {
             p.fillRect(r, spec.flat);
         } else {
-            p.fillRect(r, dock->palette().color(QPalette::Window));   // no rule found in the sheet: the palette's window color
+            p.fillRect(r, dock->palette().color(QPalette::Window));
         }
-        return false;   // the dock draws its own content over this
+        return false;
     }
 };
 

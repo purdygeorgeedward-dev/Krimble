@@ -7,8 +7,6 @@
 #include "kis_merge_walker.h"
 #include "kis_projection_leaf.h"
 
-
-
 KisMergeWalker::KisMergeWalker(QRect cropRect,  Flags flags)
     : m_flags(flags)
 {
@@ -40,7 +38,6 @@ void KisMergeWalker::startTripImpl(KisProjectionLeafSP startLeaf, KisMergeWalker
         visitLowerNode(prevLeaf);
 }
 
-
 void KisMergeWalker::startTrip(KisProjectionLeafSP startLeaf)
 {
     startTripImpl(startLeaf, m_flags);
@@ -48,17 +45,6 @@ void KisMergeWalker::startTrip(KisProjectionLeafSP startLeaf)
 
 void KisMergeWalker::startTripWithMask(KisProjectionLeafSP filthyMask, KisMergeWalker::Flags flags)
 {
-    /**
-     * Under very rare circumstances it may happen that the update
-     * queue will contain a job pointing to a node that has
-     * already been deleted from the image (directly or by undo
-     * command). If it happens to a layer then the walker will
-     * handle it as usual by building a trivial graph pointing to
-     * nowhere, but when it happens to a mask... not. Because the
-     * mask is always expected to have a parent layer to process.
-     *
-     * So just handle it here separately.
-     */
     KisProjectionLeafSP parentLayer = filthyMask->parent();
     if (!parentLayer) {
         return;

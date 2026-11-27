@@ -59,7 +59,6 @@ private Q_SLOTS:
     void testRenderStrokeDashArrayOdd();
     void testRenderStrokeDashArrayRelative();
 
-
     void testRenderFillDefault();
     void testRenderFillRuleNonZero();
     void testRenderFillRuleEvenOdd();
@@ -184,4 +183,4 @@ private:
 
 };
 
-#endif // TESTSVGPARSER_H
+#endif

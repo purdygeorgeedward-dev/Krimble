@@ -35,7 +35,6 @@ public:
     {
         qreal intensity;
 
-        // And I'm not sure whether this is correct, either.
         intensity = ((qreal)306.0 * src[_CSTraits::red_pos] +
                      (qreal)601.0 * src[_CSTraits::green_pos] +
                      (qreal)117.0 * src[_CSTraits::blue_pos]) / 1024.0;

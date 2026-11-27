@@ -6,7 +6,6 @@
 
 #include "HeifError.h"
 
-
 KisImportExportErrorCode setHeifError(KisDocument* document,
                                                      heif::Error error)
 {
@@ -15,7 +14,6 @@ KisImportExportErrorCode setHeifError(KisDocument* document,
         return ImportExportCodes::OK;
 
   case heif_error_Input_does_not_exist:
-    // this should never happen because we do not read from file names
     KIS_ASSERT_RECOVER_RETURN_VALUE(true, ImportExportCodes::InternalError);
     return ImportExportCodes::InternalError;
 
@@ -29,7 +27,6 @@ KisImportExportErrorCode setHeifError(KisDocument* document,
 
   case heif_error_Usage_error:
   case heif_error_Encoder_plugin_error:
-    // this should never happen if we use libheif in the correct way
       KIS_ASSERT_RECOVER_RETURN_VALUE(true, ImportExportCodes::InternalError);
       return ImportExportCodes::InternalError;
 
@@ -45,7 +42,6 @@ KisImportExportErrorCode setHeifError(KisDocument* document,
       document->setErrorMessage(i18n("Color profile was not found in the document."));
       return ImportExportCodes::OK;
   default:
-    // we only get here when we forgot to handle an error ID
     document->setErrorMessage(QString(i18n("Unknown error: %1")).arg(QString::fromStdString(error.get_message())));
     return ImportExportCodes::Failure;
   }

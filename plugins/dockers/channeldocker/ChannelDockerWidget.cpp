@@ -36,7 +36,6 @@ ChannelDockerWidget::ChannelDockerWidget(QWidget *parent, const char *name)
 
     m_channelTable->setMinimumHeight(50);
 
-    // Use a layout so the widget gets resized properly
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(m_channelTable);
     QHBoxLayout *buttons = new QHBoxLayout();
@@ -63,7 +62,7 @@ ChannelDockerWidget::ChannelDockerWidget(QWidget *parent, const char *name)
 
 void ChannelDockerWidget::slotTableClicked(const QModelIndex &index)
 {
-    if (!index.isValid() || index.column() == 0) return;   // column 0 is the checkbox: the view toggles it itself
+    if (!index.isValid() || index.column() == 0) return;
     if (QApplication::keyboardModifiers() & Qt::ControlModifier) m_model->loadChannelAsSelection(index.row());
     else m_model->isolateChannel(index.row());
 }

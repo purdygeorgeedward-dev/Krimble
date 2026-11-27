@@ -20,9 +20,8 @@ protected:
     void reportThumbnailGenerationCompleted(KisPaintDeviceSP device, const QRect &rect) override;
 
 Q_SIGNALS:
-    //Emitted when thumbnail is updated and overviewImage is fully generated.
     void thumbnailsUpdated(const QVector<QImage> &channels, const KoColorSpace *cs);
 
 };
 
-#endif // KISCHANNELSTHUMBNAILSSTROKESTRATEGY_H
+#endif

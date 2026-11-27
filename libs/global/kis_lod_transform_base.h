@@ -7,10 +7,8 @@
 #ifndef KIS_LOD_TRANSFORM_BASE_H
 #define KIS_LOD_TRANSFORM_BASE_H
 
-
 #include <QtCore/qmath.h>
 #include <QTransform>
-
 
 #include <kritaglobal_export.h>
 
@@ -21,8 +19,6 @@ public:
         m_transform = QTransform::fromScale(scale, scale);
         m_levelOfDetail = levelOfDetail;
     }
-
-
 
     static int scaleToLod(qreal scale, int maxLod) {
         return qMin(maxLod, qMax(0, qFloor(std::log2(1.0 / scale))));
@@ -57,8 +53,6 @@ public:
         return m_transform.inverted().mapRect(rc);
     }
 
-
-
     template <class T>
     T map(const T &object) const {
         return m_transform.map(object);
@@ -74,11 +68,6 @@ public:
         alignByPow2Lo(x1, alignment);
         alignByPow2Lo(y1, alignment);
 
-        /**
-         * Here is a workaround of Qt's QRect::right()/bottom()
-         * "historical reasons". It should be one pixel smaller
-         * than actual right/bottom position
-         */
         alignByPow2ButOneHi(x2, alignment);
         alignByPow2ButOneHi(y2, alignment);
 
@@ -139,20 +128,12 @@ public:
 
 private:
     friend class KisRectsGrid;
-    /**
-     * Aligns @value to the lowest integer not smaller than @value and
-     * that is, increased by one, a divident of alignment
-     */
     static inline void alignByPow2ButOneHi(qint32 &value, qint32 alignment)
     {
         qint32 mask = alignment - 1;
         value |= mask;
     }
 
-    /**
-     * Aligns @value to the highest integer not exceeding @value and
-     * that is a divident of @alignment
-     */
     static inline void alignByPow2Lo(qint32 &value, qint32 alignment)
     {
         qint32 mask = alignment - 1;
@@ -187,4 +168,4 @@ private:
     qreal m_scale;
 };
 
-#endif // KIS_LOD_TRANSFORM_BASE_H
+#endif

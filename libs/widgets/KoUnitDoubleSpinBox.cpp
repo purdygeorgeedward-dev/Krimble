@@ -17,9 +17,6 @@
 #include <klocalizedstring.h>
 #include <qnumeric.h>
 
-// #define DEBUG_VALIDATOR
-// #define DEBUG_VALUEFROMTEXT
-
 class Q_DECL_HIDDEN KoUnitDoubleSpinBox::Private
 {
 public:
@@ -31,9 +28,9 @@ public:
     {
     }
 
-    double lowerInPoints; ///< lowest value in points
-    double upperInPoints; ///< highest value in points
-    double stepInPoints;  ///< step in points
+    double lowerInPoints;
+    double upperInPoints;
+    double stepInPoints;
     KoUnit unit;
 };
 
@@ -42,7 +39,6 @@ KoUnitDoubleSpinBox::KoUnitDoubleSpinBox( QWidget *parent)
     d( new Private(-9999, 9999, 1))
 {
     QDoubleSpinBox::setDecimals( 2 );
-    //setAcceptLocalizedNumbers( true );
     setUnit( KoUnit(KoUnit::Point) );
     setAlignment( Qt::AlignRight );
 
@@ -62,20 +58,18 @@ QValidator::State KoUnitDoubleSpinBox::validate(QString &input, int &pos) const
     Q_UNUSED(pos);
 #endif
 
-    QRegularExpression regexp ("([ a-zA-Z]+)$"); // Letters or spaces at end
+    QRegularExpression regexp ("([ a-zA-Z]+)$");
     QRegularExpressionMatch match;
     const int res = input.indexOf(regexp, 0, &match);
 
     if ( res == -1 )
     {
-        // Nothing like an unit? The user is probably editing the unit
 #ifdef DEBUG_VALIDATOR
         debugWidgets <<"Intermediate (no unit)";
 #endif
         return QValidator::Intermediate;
     }
 
-    // ### TODO: are all the QString::trimmed really necessary?
     const QString number ( input.left( res ).trimmed() );
     const QString unitName ( match.captured( 1 ).trimmed().toLower() );
 
@@ -92,7 +86,6 @@ QValidator::State KoUnitDoubleSpinBox::validate(QString &input, int &pos) const
             newVal = unit.fromUserValue( value );
         else
         {
-            // Probably the user is trying to edit the unit
 #ifdef DEBUG_VALIDATOR
             debugWidgets <<"Intermediate (unknown unit)";
 #endif
@@ -105,7 +98,6 @@ QValidator::State KoUnitDoubleSpinBox::validate(QString &input, int &pos) const
         return QValidator::Invalid;
     }
     newVal = d->unit.toUserValuePrecise(newVal);
-    //input = textFromValue( newVal ); // don't overwrite for now; the effect is not exactly what I expect...
 
     return QValidator::Acceptable;
 }
@@ -113,9 +105,6 @@ QValidator::State KoUnitDoubleSpinBox::validate(QString &input, int &pos) const
 void KoUnitDoubleSpinBox::changeValue( double val )
 {
     QDoubleSpinBox::setValue( d->unit.toUserValue( val ) );
-    // TODO: Q_EMIT valueChanged ONLY if the value was out-of-bounds
-    // This will allow the 'user' dialog to set a dirty bool and ensure
-    // a proper value is getting saved.
 }
 
 void KoUnitDoubleSpinBox::privateValueChanged() {
@@ -133,7 +122,6 @@ void KoUnitDoubleSpinBox::setUnit( const KoUnit &unit )
     qreal step = unit.toUserValue( d->stepInPoints );
 
     if (unit.type() == KoUnit::Pixel) {
-        // limit the pixel step by 1.0
         step = qMax(qreal(1.0), step);
     }
 
@@ -181,9 +169,6 @@ void KoUnitDoubleSpinBox::setMinMaxStep( double min, double max, double step )
 
 QString KoUnitDoubleSpinBox::textFromValue( double value ) const
 {
-    //debugWidgets <<"textFromValue:" << QString::number( value, 'f', 12 ) <<" =>" << num;
-    //const QString num(QString("%1%2").arg(QLocale().toString(value, d->precision ), m_unit.symbol()));
-    //const QString num ( QString( "%1").arg( QLocale().toString( value, d->precision )) );
     return QLocale().toString( value, 'f', decimals() );
 }
 
@@ -192,20 +177,4 @@ double KoUnitDoubleSpinBox::valueFromText( const QString& str ) const
     QString str2( str );
     str2.remove(d->unit.symbol());
     return QLocale().toDouble(str2);
-//    QString str2( str );
-//    /* KLocale::readNumber wants the thousand separator exactly at 1000.
-//       But when editing, it might be anywhere. So we need to remove it. */
-//    const QString sep( KGlobal::locale()->thousandsSeparator() );
-//    if ( !sep.isEmpty() )
-//        str2.remove( sep );
-//    str2.remove(d->unit.symbol());
-//    bool ok;
-//    const double dbl = KGlobal::locale()->readNumber( str2, &ok );
-//#ifdef DEBUG_VALUEFROMTEXT
-//    if ( ok )
-//      debugWidgets <<"valueFromText:" << str <<": => :" << str2 <<": =>" << QString::number( dbl, 'f', 12 );
-//    else
-//        warnWidgets << "valueFromText error:" << str << ": => :" << str2 << ":";
-//#endif
-//    return dbl;
 }

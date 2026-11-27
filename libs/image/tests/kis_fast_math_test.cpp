@@ -28,5 +28,4 @@ void KisFastMathTest::testAtan2()
     }
 }
 
-
 SIMPLE_TEST_MAIN(KisFastMathTest)

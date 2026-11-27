@@ -19,7 +19,6 @@ namespace KisLazyFillTools {
 struct FilteringOptions;
 }
 
-
 class KisColorizeStrokeStrategy : public QObject, public KisRunnableBasedStrokeStrategy
 {
     Q_OBJECT
@@ -43,7 +42,6 @@ public:
     void initStrokeCallback() override;
     void cancelStrokeCallback() override;
     void tryCancelCurrentStrokeJobAsync() override;
-    // TODO: suspend/resume
 
     KisStrokeStrategy *createLodClone(int levelOfDetail) override;
 
@@ -56,4 +54,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_COLORIZE_STROKE_STRATEGY_H */
+#endif

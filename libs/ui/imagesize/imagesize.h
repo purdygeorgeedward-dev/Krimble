@@ -32,4 +32,4 @@ private Q_SLOTS:
     void slotScaleAllLayers();
 };
 
-#endif // IMAGESIZE_H
+#endif

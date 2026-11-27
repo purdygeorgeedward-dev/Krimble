@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testFillCirclesDiff();
 };
 
-#endif /* __KIS_MARKER_PAINTER_TEST_H */
+#endif

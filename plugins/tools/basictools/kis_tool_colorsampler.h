@@ -100,7 +100,6 @@ private:
     void displaySampledColor(const KoColor &color);
     void updateOptionWidget();
 
-    // Configuration
     QScopedPointer<KisToolUtils::ColorSamplerConfig> m_config;
 
     bool m_isActivated {false};
@@ -137,4 +136,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_COLOR_SAMPLER_H_
+#endif

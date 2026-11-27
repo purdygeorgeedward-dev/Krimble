@@ -41,7 +41,6 @@ void KisStorageChooserDelegate::paint(QPainter *painter, const QStyleOptionViewI
     qreal devicePixelRatioF = painter->device()->devicePixelRatioF();
 
     if (thumbnail.isNull()) {
-        //fallback on cute icons.
         thumbnail = koIcon("warning").pixmap(option.decorationSize).toImage();
         if (storageType == "Folder") {
             thumbnail = koIcon("document-open").pixmap(option.decorationSize).toImage();
@@ -87,17 +86,13 @@ void KisStorageChooserDelegate::paint(QPainter *painter, const QStyleOptionViewI
     painter->setPen(penColor);
     painter->drawImage(option.rect.topLeft()+QPoint(4, 4), thumbnail, thumbnail.rect());
 
-
-    // Draw is active checkbox
     QStyleOptionButton checkboxOption;
-    checkboxOption.rect = QRect(option.rect.x() + option.decorationSize.width() + 8, 
-                                option.rect.y() + option.rect.height() - 30, 
+    checkboxOption.rect = QRect(option.rect.x() + option.decorationSize.width() + 8,
+                                option.rect.y() + option.rect.height() - 30,
                                 20, 20);
     checkboxOption.state = active ? QStyle::State_On : QStyle::State_Off;
     QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkboxOption, painter);
 
-
-    // Draw text
     QRect text = option.rect;
     text.setLeft(text.left()+option.decorationSize.width()+8);
     text.setTop(text.top()+4);
@@ -179,7 +174,7 @@ void KisStorageChooserWidget::activated(const QModelIndex &index)
         QMessageBox::critical(qApp->activeWindow(), i18nc("@title:window", "Krimble"), warning);
     }
 
-    repaint(); // this helps the chooser widget update the active state checkbox. The first checkbox doesn't repaint correctly without it
+    repaint();
 
 }
 
@@ -187,5 +182,4 @@ KisStorageChooserWidget::~KisStorageChooserWidget()
 {
 
 }
-
 

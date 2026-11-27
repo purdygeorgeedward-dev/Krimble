@@ -13,7 +13,6 @@
 #include <tuple>
 #include "KoZoomState.h"
 
-
 class KRITAWIDGETS_EXPORT KoZoomActionState
 {
 public:
@@ -36,4 +35,4 @@ public:
 KRITAWIDGETS_EXPORT
 QDebug operator<<(QDebug dbg, const KoZoomActionState::ZoomItem &item);
 
-#endif // KOZOOMACTIONSTATE_H
+#endif

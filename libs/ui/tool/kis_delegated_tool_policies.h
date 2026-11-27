@@ -11,7 +11,6 @@
 
 #include "kritaui_export.h"
 
-
 class KoCanvasBase;
 
 struct KRITAUI_EXPORT NoopActivationPolicy {
@@ -24,5 +23,4 @@ struct KRITAUI_EXPORT DeselectShapesActivationPolicy {
     static void onActivate(KoCanvasBase *canvas);
 };
 
-
-#endif /* __KIS_DELEGATED_TOOL_POLICIES_H */
+#endif

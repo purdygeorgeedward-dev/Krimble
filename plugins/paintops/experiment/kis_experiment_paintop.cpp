@@ -23,7 +23,6 @@
 #include <krita_utils.h>
 #include <kis_algebra_2d.h>
 
-
 KisExperimentPaintOp::KisExperimentPaintOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP node, KisImageSP image)
     : KisPaintOp(painter)
 {
@@ -35,10 +34,10 @@ KisExperimentPaintOp::KisExperimentPaintOp(const KisPaintOpSettingsSP settings, 
     m_experimentOption.read(settings.data());
 
     m_displaceEnabled = m_experimentOption.isDisplacementEnabled;
-    m_displaceCoeff = (m_experimentOption.displacement * 0.01 * 14) + 1; // 1..15 [7 default according alchemy]
+    m_displaceCoeff = (m_experimentOption.displacement * 0.01 * 14) + 1;
 
     m_speedEnabled = m_experimentOption.isSpeedEnabled;
-    m_speedMultiplier = (m_experimentOption.speed * 0.01 * 35); // 0..35 [15 default according alchemy]
+    m_speedMultiplier = (m_experimentOption.speed * 0.01 * 35);
     m_smoothingEnabled = m_experimentOption.isSmoothingEnabled;
     m_smoothingThreshold = m_experimentOption.smoothing;
 
@@ -46,20 +45,18 @@ KisExperimentPaintOp::KisExperimentPaintOp(const KisPaintOpSettingsSP settings, 
     m_windingFill = m_experimentOption.windingFill;
     m_hardEdge = m_experimentOption.hardEdge;
 
-    //Sets the brush to pattern or foregroundColor
     if (m_experimentOption.fillType == ExperimentFillType::Pattern) {
         m_fillStyle = KisPainter::FillStylePattern;
     } else {
         m_fillStyle = KisPainter::FillStyleForegroundColor;
     }
 
-    // Mirror options set with appropriate color, pattern, and fillStyle
     if (m_useMirroring) {
-        m_originalDevice = source()->createCompositionSourceDevice();        
+        m_originalDevice = source()->createCompositionSourceDevice();
         m_originalPainter = new KisPainter(m_originalDevice);
         m_originalPainter->setCompositeOpId(COMPOSITE_COPY);
         m_originalPainter->setPaintColor(painter->paintColor());
-        m_originalPainter->setPattern(painter->pattern());        
+        m_originalPainter->setPattern(painter->pattern());
         m_originalPainter->setFillStyle(m_fillStyle);
 
     }
@@ -89,7 +86,6 @@ void KisExperimentPaintOp::paintRegion(const KisRegion &changedRegion)
         }
     }
     else {
-        //Sets options when mirror is not selected
         painter()->setFillStyle(m_fillStyle);
 
         painter()->setCompositeOpId(COMPOSITE_COPY);
@@ -160,7 +156,6 @@ void KisExperimentPaintOp::paintLine(const KisPaintInformation &pi1, const KisPa
             if (m_savedSmoothingDistance > m_smoothingThreshold) {
                 QPointF pt = (m_savedSmoothingPoint + pos2) * 0.5;
 
-                // for updates approximate curve with two lines
                 m_savedPoints << m_path.currentPosition();
                 m_savedPoints << m_savedSmoothingPoint;
                 m_savedPoints << m_savedSmoothingPoint;
@@ -192,9 +187,6 @@ void KisExperimentPaintOp::paintLine(const KisPaintInformation &pi1, const KisPa
             }
         }
 
-        /**
-         * Refresh rate at least 25fps
-         */
         const int timeThreshold = 40;
         const int elapsedTime = pi2.currentTime() - m_lastPaintTime;
 
@@ -206,14 +198,6 @@ void KisExperimentPaintOp::paintLine(const KisPaintInformation &pi1, const KisPa
                  m_savedUpdateDistance > distanceMetric / 8)) {
 
             if (m_displaceEnabled) {
-                /**
-                 * Rendering the path with diff'ed rects is up to two
-                 * times more efficient for really huge shapes (tested
-                 * on 2000+ px shapes), however for smaller ones doing
-                 * paths arithmetics eats too much time. That's why we
-                 * choose the method on the base of the size of the
-                 * shape.
-                 */
                 const int pathSizeThreshold = 128;
 
                 KisRegion changedRegion;
@@ -246,7 +230,6 @@ void KisExperimentPaintOp::paintLine(const KisPaintInformation &pi1, const KisPa
         }
     }
 }
-
 
 KisSpacingInformation KisExperimentPaintOp::paintAt(const KisPaintInformation& info)
 {
@@ -339,7 +322,7 @@ QPainterPath KisExperimentPaintOp::applyDisplace(const QPainterPath& path, int s
         }
         }
 
-    }// for
+    }
 
     return newPath;
 }

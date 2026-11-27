@@ -12,7 +12,6 @@
 #include <KisResourcesInterface.h>
 #include <KoCanvasResourcesInterface.h>
 
-
 KisPaintOpConfigWidget::KisPaintOpConfigWidget(QWidget * parent, Qt::WindowFlags f)
     : KisConfigWidget(parent, f, 100),
       m_isInsideUpdateCall(0)
@@ -21,7 +20,6 @@ KisPaintOpConfigWidget::KisPaintOpConfigWidget(QWidget * parent, Qt::WindowFlags
 
 KisPaintOpConfigWidget::~KisPaintOpConfigWidget() {
 }
-
 
 void KisPaintOpConfigWidget::writeConfigurationSafe(KisPropertiesConfigurationSP config) const
 {

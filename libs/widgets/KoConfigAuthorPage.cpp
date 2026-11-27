@@ -52,7 +52,6 @@ public:
     QString defaultAuthor;
 };
 
-
 KoConfigAuthorPage::KoConfigAuthorPage()
         : d(new Private)
 {
@@ -74,7 +73,6 @@ KoConfigAuthorPage::KoConfigAuthorPage()
     d->stack = new QStackedWidget();
     layout->addWidget(d->stack, 2, 0, 1, 3);
 
-    //list of positions that we can use to provide useful autocompletion.
     d->positions << QString(i18nc("This is a list of suggestions for positions an artist can take, comma-separated","Adapter,Animator,Artist,Art Director,Author,Assistant,"
                                  "Editor,Background,Cartoonist,Colorist,Concept Artist,"
                                  "Corrector,Cover Artist,Creator,Designer,Inker,"
@@ -82,7 +80,6 @@ KoConfigAuthorPage::KoConfigAuthorPage()
                                  "Pixel Artist,Redliner,Sprite Artist,Typographer,Texture Artist,"
                                  "Translator,Writer,Other")).split(",");
 
-    //Keep these two in sync!
     d->contactModes << i18n("Homepage") << i18n("Email") << i18n("Post Address") << i18n("Telephone") << i18n("Fax");
     d->contactKeys << "homepage" << "email" << "address" << "telephone" << "fax";
     QStringList headerlabels;
@@ -164,10 +161,8 @@ KoConfigAuthorPage::KoConfigAuthorPage()
         }
     }
 
-    // Add all the user defined profiles (old type)
     KConfigGroup authorGroup(KSharedConfig::openConfig(), "Author");
     QStringList profiles = authorGroup.readEntry("profile-names", QStringList());
-
 
     foreach (const QString &profile , profiles) {
         if (!profilesNew.contains(profile)) {
@@ -235,12 +230,9 @@ KoConfigAuthorPage::KoConfigAuthorPage()
         }
     }
 
-
-    // Add a default profile
     aUi = new Ui::KoConfigAuthorPage();
     w = new QWidget;
     if (!profiles.contains(d->defaultAuthor) || profilesNew.contains(d->defaultAuthor)) {
-        //w->setEnabled(false);
         aUi->setupUi(w);
         w->setEnabled(false);
         d->cmbAuthorProfiles->insertItem(0, d->defaultAuthor);
@@ -251,8 +243,6 @@ KoConfigAuthorPage::KoConfigAuthorPage()
         delete w;
     }
 
-
-    // Connect slots
     connect(d->cmbAuthorProfiles, SIGNAL(currentIndexChanged(int)), this, SLOT(profileChanged(int)));
     connect(newUser, SIGNAL(clicked(bool)), this, SLOT(addUser()));
     connect(d->bnDeleteUser, SIGNAL(clicked(bool)), this, SLOT(deleteUser()));
@@ -269,7 +259,6 @@ KoConfigAuthorPage::~KoConfigAuthorPage()
 void KoConfigAuthorPage::profileChanged(int i)
 {
     d->stack->setCurrentIndex(i);
-    // Profile 0 should never be deleted: it's the anonymous profile.
     d->bnDeleteUser->setEnabled(i > 0);
 }
 
@@ -419,7 +408,7 @@ KoContactInfoDelegate::~KoContactInfoDelegate()
 
 }
 
-QWidget* KoContactInfoDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &index) const
+QWidget* KoContactInfoDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem & , const QModelIndex &index) const
 {
 
     if (index.column() > 0) {

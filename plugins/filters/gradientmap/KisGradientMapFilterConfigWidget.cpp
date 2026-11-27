@@ -3,7 +3,7 @@
  *
  * SPDX-FileCopyrightText: 2016 Spencer Brown <sbrown655@gmail.com>
  * SPDX-FileCopyrightText: 2020 Deif Lou <ginoba@gmail.com>
- * 
+ *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
@@ -16,17 +16,16 @@
 #include "KisGradientMapFilterConfigWidget.h"
 #include "KisGradientMapFilterConfiguration.h"
 
-
 KisGradientMapFilterConfigWidget::KisGradientMapFilterConfigWidget(QWidget *parent, Qt::WindowFlags f)
     : KisConfigWidget(parent, f)
 {
     m_ui.setupUi(this);
 
     m_gradientChangedCompressor = new KisSignalCompressor(50, KisSignalCompressor::FIRST_ACTIVE);
-    
+
     m_ui.widgetGradientEditor->setContentsMargins(10, 10, 10, 10);
     m_ui.widgetGradientEditor->loadUISettings();
-    
+
     connect(m_ui.widgetGradientEditor, SIGNAL(sigGradientChanged()), m_gradientChangedCompressor, SLOT(start()));
     connect(m_gradientChangedCompressor, SIGNAL(timeout()), this, SIGNAL(sigConfigurationItemChanged()));
     connect(m_ui.comboBoxColorMode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &KisConfigWidget::sigConfigurationItemChanged);
@@ -41,7 +40,7 @@ KisGradientMapFilterConfigWidget::~KisGradientMapFilterConfigWidget()
 KisPropertiesConfigurationSP KisGradientMapFilterConfigWidget::configuration() const
 {
     KisGradientMapFilterConfiguration *config = new KisGradientMapFilterConfiguration(KisGlobalResourcesInterface::instance());
-    
+
     KoAbstractGradientSP gradient = m_ui.widgetGradientEditor->gradient();
 
     KIS_SAFE_ASSERT_RECOVER_NOOP(canvasResourcesInterface());

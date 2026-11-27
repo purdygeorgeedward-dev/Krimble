@@ -22,7 +22,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(ColorSmudgePaintOpPluginFactory, "kritacolorsmudgepaintop.json", registerPlugin<ColorSmudgePaintOpPlugin>();)
 
-
 ColorSmudgePaintOpPlugin::ColorSmudgePaintOpPlugin(QObject* parent, const QVariantList&):
     QObject(parent)
 {

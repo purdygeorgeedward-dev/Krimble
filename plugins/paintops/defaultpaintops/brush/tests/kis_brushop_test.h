@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testMagicSeven();
 };
 
-#endif /* __KIS_BRUSHOP_TEST_H */
+#endif

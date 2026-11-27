@@ -34,4 +34,4 @@ public:
     LAGER_QT_CURSOR(int, playbackSpeedDenorm);
 };
 
-#endif // KISANIMATIONPLAYBACKCONTROLSMODEL_H
+#endif

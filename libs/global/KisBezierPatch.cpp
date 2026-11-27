@@ -107,13 +107,11 @@ void KisBezierPatch::sampleRegularGrid(QSize &gridSize, QVector<QPointF> &origPo
                                                 ySplit.p3,
                                                 xSplit.proportion);
 
-
             const QPointF transf2 = bezierCurve(xSplit.p0,
                                                 xSplit.p0 + xSplit.relP1,
                                                 xSplit.p3 + xSplit.relP2,
                                                 xSplit.p3,
                                                 ySplit.proportion);
-
 
             const QPointF transf = 0.5 * (transf1 + transf2);
 
@@ -141,7 +139,6 @@ void KisBezierPatch::sampleRegularGridSVG2(QSize &gridSize, QVector<QPointF> &or
 
     const qreal leftLength = KisBezierUtils::curveLength(points[TL], points[TL_VC], points[BL_VC], points[BL], 0.01);
     const qreal rightLength = KisBezierUtils::curveLength(points[TR], points[TR_VC], points[BR_VC], points[BR], 0.01);
-
 
     struct Split {
         QPointF p0;

@@ -15,4 +15,4 @@ private Q_SLOTS:
     void koPathPointSelection_selectedSegmentsData();
 };
 
-#endif // TESTPATHTOOL_H
+#endif

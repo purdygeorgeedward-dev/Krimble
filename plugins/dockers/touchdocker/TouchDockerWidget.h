@@ -29,4 +29,4 @@ private:
     Ui::TouchDockerWidget *ui;
 };
 
-#endif // TouchDockerWIDGET_H
+#endif

@@ -15,7 +15,6 @@
 class KoCanvasResourceProvider;
 #include <KisLodAvailabilityModel.h>
 
-
 class KisLodAvailabilityWidget : public QWidget
 {
     Q_OBJECT
@@ -42,4 +41,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_LOD_AVAILABILITY_WIDGET_H */
+#endif

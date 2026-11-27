@@ -13,7 +13,6 @@
 
 class KisRunnableStrokeJobDataBase;
 
-
 class KRITAIMAGE_EXPORT KisRunnableStrokeJobsInterface
 {
 public:
@@ -28,4 +27,4 @@ public:
     }
 };
 
-#endif // KISRUNNABLESTROKEJOBSINTERFACE_H
+#endif

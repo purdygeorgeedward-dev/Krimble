@@ -14,7 +14,6 @@
 #include "kis_global.h"
 #include "KoShapeStrokeCommand.h"
 
-
 namespace KoFlake {
 
 template <typename ModifyFunction>
@@ -75,5 +74,5 @@ bool compareShapePropertiesEqual(const QList<KoShape*> shapes)
 
 }
 
-#endif // KOFLAKEUTILS_H
+#endif
 

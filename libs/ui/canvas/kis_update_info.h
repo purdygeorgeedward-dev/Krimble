@@ -30,7 +30,6 @@ public:
 
 Q_DECLARE_METATYPE(KisUpdateInfoSP)
 
-
 struct ConversionOptions {
     ConversionOptions() : m_needsConversion(false) {}
     ConversionOptions(const KoColorSpace *destinationColorSpace,
@@ -42,7 +41,6 @@ struct ConversionOptions {
           m_conversionFlags(conversionFlags)
     {
     }
-
 
     bool m_needsConversion {false};
     const KoColorSpace *m_destinationColorSpace {0};
@@ -75,7 +73,6 @@ private:
     int m_levelOfDetail;
 };
 
-
 class KisPPUpdateInfo : public KisUpdateInfo
 {
 public:
@@ -88,46 +85,21 @@ public:
     QRect dirtyImageRect() const override;
     int levelOfDetail() const override;
 
-    /**
-     * The rect that was reported by KisImage as dirty
-     */
     QRect dirtyImageRectVar;
 
-    /**
-     * Rect of KisImage corresponding to @ref viewportRect .
-     * It is cropped and aligned corresponding to the canvas.
-     */
     QRect imageRect;
 
-    /**
-     * Rect of canvas widget corresponding to @ref imageRect
-     */
     QRectF viewportRect;
 
     qreal scaleX;
     qreal scaleY;
 
-    /**
-     * Defines the way the source image is painted onto
-     * prescaled QImage
-     */
     TransferType transfer;
 
-    /**
-     * Render hints for painting the direct painting/patch painting
-     */
     QPainter::RenderHints renderHints;
 
-    /**
-     * The number of additional pixels those should be added
-     * to the patch
-     */
     qint32 borderWidth;
 
-    /**
-     * Used for temporary storage of KisImage's data
-     * by KisProjectionCache
-     */
     KisImagePatch patch;
 };
 
@@ -155,4 +127,4 @@ private:
     QRect m_dirtyImageRect;
 };
 
-#endif /* KIS_UPDATE_INFO_H_ */
+#endif

@@ -20,11 +20,6 @@ struct KoCSSFontInfo;
 class KoSvgTextProperties;
 class QDomElement;
 
-/**
- * @brief The PsdTextDataConverter class
- *
- * This class handles converting PSD text engine data to actual SVG.
- */
 class KRITAPSDUTILS_EXPORT PsdTextDataConverter
 {
 public:
@@ -50,13 +45,7 @@ public:
                                     bool &isHorizontal,
                                     QTransform scaleToPx = QTransform());
 
-    /**
-     * A list of errors happened during loading the user's text
-     */
     QStringList errors() const;
-    /**
-     * A list of warnings produced during loading the user's text
-     */
     QStringList warnings() const;
 private:
 
@@ -73,4 +62,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // PSDTEXTDATAPARSER_H
+#endif

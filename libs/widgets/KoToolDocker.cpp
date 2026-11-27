@@ -18,8 +18,13 @@
 #include <QBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
+#include <QTimer>
+#include "KoDockWidgetTitleBar.h"
 #include <QScrollArea>
 #include <QScroller>
+#include <QPointer>
+#include <QAbstractScrollArea>
+#include <KisKineticScroller.h>
 
 class Q_DECL_HIDDEN KoToolDocker::Private
 {
@@ -30,21 +35,18 @@ public:
     }
 
     ~Private() {
-        /// Hider widget is not part of any widget hierarchy (which is intentional
-        /// due to bug 447522), so we need to delete it manually
         delete hiderWidget;
     }
 
     QList<QPointer<QWidget> > currentWidgetList;
     QSet<QWidget *> currentAuxWidgets;
     QScrollArea *scrollArea {nullptr};
-    QWidget *hiderWidget {nullptr}; // non current widgets are hidden by being children of this
+    QWidget *hiderWidget {nullptr};
     QWidget *housekeeperWidget {nullptr};
     QGridLayout *housekeeperLayout {nullptr};
     QBoxLayout *housekeeperMainLayout{nullptr};
     QLabel *toolNameLabel {nullptr};
 
-    // the name of the selected tool (the tool's own name, what its tool tip says) is shown at the top of the docker
     void updateToolName()
     {
         if (!toolNameLabel) return;
@@ -56,8 +58,19 @@ public:
             }
         }
         if (name.endsWith(QLatin1String(" Tool"))) name.chop(5);
+        if (id == QLatin1String("KisToolTransform") || id == QLatin1String("KisToolFreeRotate")) {
+            QString mode = id == QLatin1String("KisToolFreeRotate") ? QStringLiteral("rotate") : qApp->property("krimbleTransformMode").toString();
+            if (mode.isEmpty() || (mode == QLatin1String("rotate") && id != QLatin1String("KisToolFreeRotate"))) mode = QStringLiteral("scale");
+            mode[0] = mode[0].toUpper();
+            name = i18n("Transform") + QString::fromUtf8(" \u2013 ") + mode;
+        }
         toolNameLabel->setText(name);
         toolNameLabel->setVisible(!name.isEmpty());
+        if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) {
+            bar->setTitleOverride(QString());
+            bar->setTabbedTitle(name);
+            bar->update();
+        }
     }
     KoToolDocker *q {nullptr};
     Qt::DockWidgetArea dockingArea {Qt::NoDockWidgetArea};
@@ -81,7 +94,6 @@ public:
 
         currentWidgetList = optionWidgetList;
 
-        // need to unstretch row that have previously been stretched
         housekeeperLayout->setRowStretch(housekeeperLayout->rowCount()-1, 0);
 
         int cnt = 0;
@@ -99,7 +111,7 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                if (!widget->windowTitle().isEmpty()) {
+                if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
                         0,
@@ -132,7 +144,7 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                if (!widget->windowTitle().isEmpty()) {
+                if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
                         cnt++,
@@ -165,6 +177,48 @@ public:
 
 };
 
+class KrimbleSliderScrollGuard : public QObject
+{
+public:
+    KrimbleSliderScrollGuard(QAbstractScrollArea *area, QObject *parent) : QObject(parent), m_area(area) {}
+    void watch(QWidget *root)
+    {
+        if (!root) return;
+        Q_FOREACH (QWidget *w, root->findChildren<QWidget *>()) {
+            if ((w->inherits("KisAbstractSliderSpinBox") || w->inherits("QAbstractSlider")) && !w->property("krimbleScrollGuard").toBool()) {
+                w->setProperty("krimbleScrollGuard", true);
+                w->installEventFilter(this);
+            }
+        }
+    }
+protected:
+    bool eventFilter(QObject *, QEvent *event) override
+    {
+        if (!m_area) return false;
+        switch (event->type()) {
+        case QEvent::MouseButtonPress:
+        case QEvent::TouchBegin:
+            m_hadGesture = QScroller::hasScroller(m_area);
+            if (m_hadGesture) {
+                QScroller::scroller(m_area)->stop();
+                QScroller::ungrabGesture(m_area);
+            }
+            break;
+        case QEvent::MouseButtonRelease:
+        case QEvent::TouchEnd:
+        case QEvent::TouchCancel:
+            if (m_hadGesture) QTimer::singleShot(0, this, [this]() { if (m_area) QScroller::grabGesture(m_area, KisKineticScroller::getConfiguredGestureType()); });
+            break;
+        default:
+            break;
+        }
+        return false;
+    }
+private:
+    QPointer<QAbstractScrollArea> m_area;
+    bool m_hadGesture {false};
+};
+
 KoToolDocker::KoToolDocker(QWidget *parent)
     : QDockWidget(i18n("Tool Options"), parent),
       d(new Private(this))
@@ -173,7 +227,9 @@ KoToolDocker::KoToolDocker(QWidget *parent)
 
     d->housekeeperWidget = new QWidget();
     d->housekeeperLayout = new QGridLayout;
-    d->housekeeperLayout->setContentsMargins(4,4,4,0);
+    const qreal krimbleMarginDpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+    const int krimbleLeft = qRound(28.0 / krimbleMarginDpr), krimbleRight = qRound(12.0 / krimbleMarginDpr);
+    d->housekeeperLayout->setContentsMargins(krimbleLeft, 4, krimbleRight, 0);
     d->housekeeperLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
     d->housekeeperMainLayout =
         new QBoxLayout(QBoxLayout::TopToBottom, d->housekeeperWidget);
@@ -189,10 +245,13 @@ KoToolDocker::KoToolDocker(QWidget *parent)
         nameFont.setBold(true);
         d->toolNameLabel->setFont(nameFont);
     }
-    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: #ffffff; padding: 3px 6px; border-bottom: 1px solid #343c57; }"));
+    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: palette(window-text); padding: 3px 0px; border-bottom: 1px solid #343c57; }"));
+    d->toolNameLabel->setContentsMargins(krimbleLeft, 0, krimbleRight, 0);
+    d->toolNameLabel->setIndent(0);
     d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
     d->updateToolName();
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });
+    QTimer::singleShot(0, this, [this]() { d->updateToolName(); });
 
     d->hiderWidget = new QWidget();
     d->hiderWidget->setVisible(false);
@@ -224,6 +283,11 @@ bool KoToolDocker::hasOptionWidget()
 void KoToolDocker::setOptionWidgets(const QList<QPointer<QWidget> > &optionWidgetList)
 {
     d->recreateLayout(optionWidgetList);
+    if (d->scrollArea) {
+        KrimbleSliderScrollGuard *guard = d->scrollArea->findChild<KrimbleSliderScrollGuard *>(QString(), Qt::FindDirectChildrenOnly);
+        if (!guard) guard = new KrimbleSliderScrollGuard(d->scrollArea, d->scrollArea);
+        guard->watch(d->housekeeperWidget);
+    }
 }
 
 void KoToolDocker::slotScrollerStateChange(QScroller::State state)
@@ -236,7 +300,6 @@ void KoToolDocker::resetWidgets()
     d->resetWidgets();
 }
 
-
 void KoToolDocker::setCanvas(KoCanvasBase *canvas)
 {
     setEnabled(canvas != 0);
@@ -247,5 +310,4 @@ void KoToolDocker::unsetCanvas()
     setEnabled(false);
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include <moc_KoToolDocker.cpp>

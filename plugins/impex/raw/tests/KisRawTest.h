@@ -18,5 +18,5 @@ private Q_SLOTS:
     void testImportIncorrectFormat();
 };
 
-#endif // _KIS_RAW_TEST_H_
+#endif
 

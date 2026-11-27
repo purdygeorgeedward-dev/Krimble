@@ -29,4 +29,4 @@ public:
     LAGER_QT_READER(IntSpinBoxState, frameRateState);
 };
 
-#endif // KISFRAMERATELIMITMODEL_H
+#endif

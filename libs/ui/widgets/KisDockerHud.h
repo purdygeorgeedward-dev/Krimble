@@ -46,4 +46,4 @@ private:
     static QHash<QString, QList<QString>> borrowedWidgetOwners;
 };
 
-#endif /* __KIS_DOCKER_HUD_H */
+#endif

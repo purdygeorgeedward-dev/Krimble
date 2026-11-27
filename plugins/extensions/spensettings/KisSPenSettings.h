@@ -25,7 +25,6 @@ public:
     }
 };
 
-
 class KisSPenSettings : public KisPreferenceSet
 {
     Q_OBJECT
@@ -78,5 +77,4 @@ public:
     KisSPenSettingsUpdateRepeater repeater;
 };
 
-
-#endif // KISSPENSETTINGS_H
+#endif

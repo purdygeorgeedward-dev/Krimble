@@ -7,7 +7,6 @@
 
 #include "kis_shape_selection_canvas.h"
 
-
 #include <QPainter>
 
 #include <KoShapeManager.h>
@@ -28,20 +27,20 @@ KisShapeSelectionCanvas::~KisShapeSelectionCanvas()
 
 void KisShapeSelectionCanvas::gridSize(QPointF *offset, QSizeF *spacing) const
 {
-    Q_ASSERT(false); // This should never be called as this canvas should have no tools.
+    Q_ASSERT(false);
     Q_UNUSED(offset);
     Q_UNUSED(spacing);
 }
 
 bool KisShapeSelectionCanvas::snapToGrid() const
 {
-    Q_ASSERT(false); // This should never be called as this canvas should have no tools.
+    Q_ASSERT(false);
     return false;
 }
 
 void KisShapeSelectionCanvas::addCommand(KUndo2Command *)
 {
-    Q_ASSERT(false); // This should never be called as this canvas should have no tools.
+    Q_ASSERT(false);
 }
 
 KoShapeManager *KisShapeSelectionCanvas::shapeManager() const
@@ -62,7 +61,6 @@ void KisShapeSelectionCanvas::updateCanvas(const QRectF& rc)
 
 KoToolProxy * KisShapeSelectionCanvas::toolProxy() const
 {
-    //     Q_ASSERT(false); // This should never be called as this canvas should have no tools.
     return 0;
 }
 
@@ -88,7 +86,7 @@ const QWidget* KisShapeSelectionCanvas::canvasWidget() const
 
 KoUnit KisShapeSelectionCanvas::unit() const
 {
-    Q_ASSERT(false); // This should never be called as this canvas should have no tools.
+    Q_ASSERT(false);
     return KoUnit(KoUnit::Point);
 }
 

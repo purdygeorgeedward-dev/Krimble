@@ -1,15 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble Android visual refresh. Kept separate from layout and touch handling.
-// Krimble 2026-11-11: THIS IS THE PAINTED (GRADIENT) SHEET, the one the app used before the flat theme (KrimbleVisualStyle.h). George: "Can we put in the Krimble gradient theme as an option?"
-// It is now applied only while the theme "Krimble Painted" (krita/data/themes/KrimblePainted.colors) is chosen (thememanager.cpp); the function was krimbleVisualStyleSheet(), now
-// krimblePaintedStyleSheet(). The rest of this file is the sheet exactly as it was on 2026-11-10.
-// Krimble 2026-11-06: George: "Do the gradient effects on the whole app." The ChatGPT sheet (kept as KrimbleVisualStyle_chatgpt_74828b7.h.txt) with every color and every
-// gradient replaced by values SAMPLED from George's mockup pictures (the Picker, Mixer and QuickAdjust mockups), and the same effects added to the main window's menu bar,
-// menus, tool bars, headers, progress bars and tool tips (the ChatGPT sheet only styled dialogs). The Claude sheet from before the revert is kept as
-// KrimbleVisualStyle_before_revert_2026-11-06.h.txt.
-// Krimble 2026-11-06 (4th): George: "blue selections should go to a deeper blue." Every selected-state gradient (tabs, checked buttons, list rows, menu items, check boxes)
-// was #0585CE, #016CAC, #015C96, #01548C, #0165A5 (sampled from the Mixer mockup's selected tab); it is now #0B87DD, #0867B8, #0652AD, #05429D (the bottom is the
-// mockup's OK button blue).
 #pragma once
 
 #include <QString>
@@ -54,18 +43,45 @@ QPushButton, QDialog QToolButton {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
 }
 QPushButton:hover, QDialog QToolButton:hover {
-    border-color: #3bbcf5;
+    /* border-color: #0b87dd; */ /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     background: #2f3852;
 }
 QPushButton:pressed, QDialog QToolButton:pressed,
 QPushButton:checked, QDialog QToolButton:checked {
-    border: 2px solid #35d8f8;
-    background: #0b87dd;
+    border: 2px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #06538a, stop:0.05 #8fc2e6, stop:0.49 #1a7fc8, stop:0.5 #0872bd, stop:0.85 #2a8fd4, stop:1 #45a0dd);
 }
 QPushButton:default {
     color: white;
-    border: 2px solid #35d8f8;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a89cd, stop:0.3 #085892, stop:0.6 #07497e, stop:1 #044a9c);
+    border: 2px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
+    /* background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a89cd, stop:0.3 #085892, stop:0.6 #07497e, stop:1 #044a9c); */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #06538a, stop:0.05 #8fc2e6, stop:0.49 #1a7fc8, stop:0.5 #0872bd, stop:0.85 #2a8fd4, stop:1 #45a0dd);  /* OK, Create: "buttons need the new style" */
+}
+/* every push button in Aqua, so it is the same everywhere ("The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly.") */
+QPushButton, QPushButton:hover {
+    color: #ffffff;
+    border: 1px solid #075a96; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #06538a, stop:0.05 #8fc2e6, stop:0.49 #1a7fc8, stop:0.5 #0872bd, stop:0.85 #2a8fd4, stop:1 #45a0dd);
+}
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #043d66, stop:0.05 #5f9fcc, stop:0.49 #12639e, stop:0.5 #065b96, stop:0.85 #1c70ab, stop:1 #2f80b8);
+}
+/* Nov 22: no glistening edges. The real Aqua is painted in code; a push button it does not paint (an unselected toggle, a color button) is a plain raised button. These rules come after the old Aqua rules above and win over them. */
+QPushButton, QPushButton:hover, QPushButton:default {
+    color: #f1f4fc;
+    border: 1px solid #6071a9;
+    border-top: 1px solid #8292c4;
+    border-left: 1px solid #8292c4;
+    border-bottom: 1px solid #000000;
+    border-right: 1px solid #000000;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
+}
+QPushButton:checked {
+    border: 1px solid #075a96;
+    background: #0b87dd;
+}
+QPushButton:pressed {
+    border: 1px solid #000000;
+    background: #262e4b;
 }
 QPushButton:disabled, QDialog QToolButton:disabled {
     color: #7a8199;
@@ -102,7 +118,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
     border-left: 1px solid #000000;
     border-bottom: 1px solid #6071a9;
     border-right: 1px solid #6071a9;
-    border-radius: 5px;
+    /* border-radius: 5px; */ border-radius: 0px;   /* 872nd: square corners, the sunken bevel meets cleanly ("That's better.") */
     padding: 3px 5px;
     background: #0b101e;
 }
@@ -114,16 +130,16 @@ QComboBox {
     border-left: 1px solid #000000;
     border-bottom: 1px solid #6071a9;
     border-right: 1px solid #6071a9;
-    border-radius: 4px;
+    /* border-radius: 4px; */ border-radius: 0px;   /* 872nd: square corners, the sunken bevel meets cleanly ("That's better.") */
     padding: 3px 5px;
     background: #272f46;
 }
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
-    border: 1px solid #3bbcf5;
+    border: 1px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
 }
 QAbstractItemView::item:selected {
     color: white;
-    background: #0b87dd;
+    /* background: #0b87dd; */ background: #0b87dd;
     border: none;
     border-radius: 0px;
 }
@@ -160,7 +176,7 @@ QCheckBox::indicator {
 }
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
-    border: 2px solid #3be0f6;
+    border: 2px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     background: #14233f;
 }
 QMenuBar {
@@ -173,16 +189,16 @@ QMenuBar::item {
     background: transparent;
     border: 1px solid transparent;
     border-radius: 0px;}
-QMenuBar::item:selected {
-    border: 1px solid transparent;
+QMenuBar::item:selected, QMenuBar::item:pressed {
+    border: 1px solid #192138;
     border-radius: 0px;
-    background: #0b87dd;
+    background: #192138;
 }
 QMenu {
     color: #eef1fa;
     border: none;    background: #192138;}
 QMenu::item:selected {
-    background: #0b87dd;
+    /* background: #0b87dd; */ background: #0b87dd;
 }
 QMenu::separator {
     height: 0px;
@@ -234,6 +250,7 @@ QHeaderView::section {
 }
 QProgressBar {
     color: white;
+    text-align: center;   /* the percentage in the middle (it sat in the top left corner) */
     border: 1px solid #3d4967;
     border-radius: 0px;   /* was 4px */
     background: #0d1221;
@@ -245,7 +262,7 @@ QProgressBar::chunk {
 }
 QToolTip {
     color: #eef1fa;
-    border: 1px solid #3bbcf5;
+    border: 1px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     background: #192138;
 }
 QWidget#krimbleStudioCard {

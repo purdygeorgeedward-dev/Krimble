@@ -9,7 +9,6 @@
 #include <KisPaintOpOptionWidgetUtils.h>
 #include <KisPaintopSettingsIds.h>
 
-
 namespace KisPaintOpOptionWidgetUtils {
 
 namespace detail {
@@ -78,7 +77,6 @@ KisCurveOptionWidget *createMixOptionWidget()
 namespace detail {
 QString hueMinLabel()
 {
-    // xgettext: no-c-format
     QString activeColorMsg = i18n("(0° is active color)");
     QString br("<br />");
     QString fullPercent = i18n("+180°");
@@ -89,7 +87,6 @@ QString hueMinLabel()
 
 QString hueMaxLabel()
 {
-    // xgettext: no-c-format
     QString activeColorMsg = i18n("(0° is active color)");
     QString br("<br />");
     QString fullPercent = i18n("+180°");
@@ -100,7 +97,6 @@ QString hueMaxLabel()
 
 QString saturationMinLabel()
 {
-    // xgettext: no-c-format
     QString activeColorMsg = i18n("(0% is active color)");
     QString br("<br />");
     QString fullPercent = i18n("+100%");
@@ -112,7 +108,6 @@ QString saturationMinLabel()
 
 QString saturationMaxLabel()
 {
-    // xgettext: no-c-format
     QString activeColorMsg = i18n("(0% is active color)");
     QString br("<br />");
     QString fullPercent = i18n("+100%");
@@ -123,7 +118,6 @@ QString saturationMaxLabel()
 
 QString valueMinLabel()
 {
-    // xgettext: no-c-format
     QString activeColorMsg = i18n("(0% is active color)");
     QString br("<br />");
     QString fullPercent = i18n("+100%");
@@ -135,14 +129,12 @@ QString valueMinLabel()
 
 QString valueMaxLabel()
 {
-    // xgettext: no-c-format
     QString activeColorMsg = i18n("(0% is active color)");
     QString br("<br />");
     QString fullPercent = i18n("+100%");
     QString zeroPercent = i18n("-100%");
 
     return QString(fullPercent + br + i18nc("Higher HSV brightness", "Higher value"));
-
 
 }
 }

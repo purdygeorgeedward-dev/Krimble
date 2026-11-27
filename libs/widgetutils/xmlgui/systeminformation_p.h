@@ -37,14 +37,13 @@ inline QString SystemInformation::operatingSystemVersion()
 #include <qt_windows.h>
 #define SECURITY_WIN32
 #include <security.h>
-//#include <secext.h> // GetUserNameEx
 
 inline QString SystemInformation::userName()
 {
     WCHAR nameBuffer[256];
     DWORD bufsize = 256;
     if (!GetUserNameExW(NameDisplay, nameBuffer, &bufsize)) {
-        return QStringLiteral("Unknown User"); //should never happen (translate?)
+        return QStringLiteral("Unknown User");
     }
     return QString::fromWCharArray(nameBuffer);
 }
@@ -78,10 +77,9 @@ inline QString SystemInformation::operatingSystemVersion()
         arch = QStringLiteral(" (unknown architecture)");
     }
     QString winVer;
-    //TODO: handle Service packs?
     return windowsVersionString() + arch;
 }
 
 #endif
 
-#endif // SYSTEMINFORMATION_P_H
+#endif

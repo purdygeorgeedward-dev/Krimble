@@ -176,7 +176,6 @@ void KisGuidesConfig::setGuidesLineType(LineTypeInternal value)
     d->guidesLineType = value;
 }
 
-
 QColor KisGuidesConfig::guidesColor() const
 {
     return d->guidesColor;
@@ -275,7 +274,6 @@ bool KisGuidesConfig::loadFromXml(const QDomElement &parent)
     }
     result &= ok;
 
-    // following variables may not be present in older files; do not update result variable
     int guidesLineType = cfg.guidesLineStyle();
     KisDomUtils::loadValue(parent, "lineTypeGuides", &guidesLineType);
     d->guidesLineType = LineTypeInternal(guidesLineType);
@@ -311,7 +309,6 @@ void KisGuidesConfig::transform(const QTransform &transform)
     }
 
     t *= m.translateTransform();
-
 
     QList<qreal> newHorzGuideLines;
     QList<qreal> newVertGuideLines;

@@ -26,7 +26,6 @@
 #include <QRect>
 #include <SvgWriter.h>
 
-
 class KoDragPrivate {
 public:
     KoDragPrivate() : mimeData(0) { }

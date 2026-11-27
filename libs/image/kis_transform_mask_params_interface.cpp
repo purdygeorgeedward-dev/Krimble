@@ -6,8 +6,6 @@
 
 #include "kis_transform_mask_params_interface.h"
 
-
-
 KisTransformMaskParamsInterface::~KisTransformMaskParamsInterface()
 {
 }

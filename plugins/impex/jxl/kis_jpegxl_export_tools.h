@@ -138,7 +138,7 @@ struct JxlOutputProcessor {
     QByteArray output;
     size_t finalized_position{0};
 };
-} // namespace JXLExpTool
+}
 
 namespace HDR
 {
@@ -371,6 +371,6 @@ inline auto writeLayer(const KoID &id, Args &&...args)
         return QByteArray();
     }
 }
-} // namespace HDR
+}
 
-#endif // KIS_JPEGXL_EXPORT_TOOLS_H
+#endif

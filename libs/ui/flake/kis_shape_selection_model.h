@@ -16,9 +16,6 @@
 
 class KisShapeSelection;
 
-/**
- *
- */
 class KisShapeSelectionModel: public QObject, public KoShapeContainerModel
 {
     Q_OBJECT

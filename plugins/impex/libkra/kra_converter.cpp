@@ -76,7 +76,7 @@ KisImportExportErrorCode KraConverter::buildImage(QIODevice *io)
 
     bool success = false;
     {
-        if (m_store->hasFile("root") || m_store->hasFile("maindoc.xml")) {   // Fallback to "old" file format (maindoc.xml)
+        if (m_store->hasFile("root") || m_store->hasFile("maindoc.xml")) {
             QDomDocument doc;
 
             KisImportExportErrorCode res = oldLoadAndParse(m_store, "root", doc);
@@ -137,7 +137,7 @@ KisImportExportErrorCode KraConverter::buildFile(QIODevice *io, const QString &f
     if (m_image->size().isEmpty()) {
         return ImportExportCodes::Failure;
     }
-    
+
     setProgress(5);
     m_store = KoStore::createStore(io, KoStore::Write, m_doc->nativeFormatMimeType(), KoStore::Zip);
 
@@ -229,10 +229,10 @@ KisImportExportErrorCode KraConverter::saveRootDocuments(KoStore *store)
 
     if (store->open("documentinfo.xml")) {
         QDomDocument doc = KisDocument::createDomDocument("document-info"
-                                                          /*DTD name*/, "document-info" /*tag name*/, "1.1");
+                                                          , "document-info" , "1.1");
         doc = m_doc->documentInfo()->save(doc);
         KoStoreDevice dev(store);
-        QByteArray s = doc.toByteArray(); // this is already Utf8!
+        QByteArray s = doc.toByteArray();
         bool success = dev.write(s.data(), s.size());
         if (!success) {
             return ImportExportCodes::ErrorWhileWriting;
@@ -243,7 +243,6 @@ KisImportExportErrorCode KraConverter::saveRootDocuments(KoStore *store)
     }
 
     if (store->open("preview.png")) {
-        // ### TODO: missing error checking (The partition could be full!)
         KisImportExportErrorCode result = savePreview(store);
         (void)store->close();
         if (!result.isOk()) {
@@ -260,8 +259,7 @@ KisImportExportErrorCode KraConverter::saveRootDocuments(KoStore *store)
 bool KraConverter::saveToStream(QIODevice *dev)
 {
     QDomDocument doc = createDomDocument();
-    // Save to buffer
-    QByteArray s = doc.toByteArray(); // utf8 already
+    QByteArray s = doc.toByteArray();
     dev->open(QIODevice::WriteOnly);
     int nwritten = dev->write(s.data(), s.size());
     if (nwritten != (int)s.size()) {
@@ -293,7 +291,6 @@ KisImportExportErrorCode KraConverter::savePreview(KoStore *store)
     QImage preview(pix.toImage().convertToFormat(QImage::Format_ARGB32, Qt::ColorOnly));
     if (preview.size().isEmpty()) {
         QSize newSize = m_doc->savingImage()->bounds().size();
-        // make sure dimensions are at least one pixel, because extreme aspect ratios may cause rounding to zero
         newSize = newSize.scaled(QSize(256, 256), Qt::KeepAspectRatio).expandedTo({1, 1});
         preview = QImage(newSize, QImage::Format_ARGB32);
         preview.fill(QColor(0, 0, 0, 0));
@@ -308,10 +305,8 @@ KisImportExportErrorCode KraConverter::savePreview(KoStore *store)
     return ret ? ImportExportCodes::OK : ImportExportCodes::ErrorWhileWriting;
 }
 
-
 KisImportExportErrorCode KraConverter::oldLoadAndParse(KoStore *store, const QString &filename, QDomDocument &xmldoc)
 {
-    //dbgUI <<"Trying to open" << filename;
 
     if (!store->open(filename)) {
         warnUI << "Entry " << filename << " not found!";
@@ -319,7 +314,6 @@ KisImportExportErrorCode KraConverter::oldLoadAndParse(KoStore *store, const QSt
         return ImportExportCodes::FileNotExist;
     }
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-    // Error variables for QDomDocument::setContent
     QString errorMsg;
     int errorLine, errorColumn;
     bool ok = xmldoc.setContent(store->device(), &errorMsg, &errorLine, &errorColumn);
@@ -363,11 +357,11 @@ KisImportExportErrorCode KraConverter::loadXML(const QDomDocument &doc, KoStore 
        return ImportExportCodes::FileFormatIncorrect;
     }
     root = doc.documentElement();
-    
+
     QString versionTag = root.attribute("syntaxVersion", "3.0");
     QVersionNumber parsedVersionNumber = QVersionNumber::fromString(versionTag);
     const int syntaxVersion = parsedVersionNumber.isNull() ? 3 : parsedVersionNumber.majorVersion();
-    
+
     if (syntaxVersion > 2) {
         errUI << "The file is too new for this version of Krimble:" << syntaxVersion;
         m_doc->setErrorMessage(i18n("The file is too new for this version of Krimble (%1).", syntaxVersion));
@@ -388,7 +382,6 @@ KisImportExportErrorCode KraConverter::loadXML(const QDomDocument &doc, KoStore 
 
     m_kraLoader = new KisKraLoader(m_doc, syntaxVersion, kritaVersionNumber);
 
-    // reset the old image before loading the next one
     m_doc->setCurrentImage(0, false);
 
     for (node = root.firstChild(); !node.isNull(); node = node.nextSibling()) {
@@ -408,7 +401,6 @@ KisImportExportErrorCode KraConverter::loadXML(const QDomDocument &doc, KoStore 
                     return ImportExportCodes::Failure;
                 }
 
-                // HACK ALERT!
                 m_doc->hackPreliminarySetImage(m_image);
 
                 return ImportExportCodes::OK;
@@ -440,7 +432,6 @@ bool KraConverter::completeLoading(KoStore* store)
 
     QString layerPathName = m_kraLoader->imageName();
     if (!m_store->hasDirectory(layerPathName)) {
-        // We might be hitting an encoding problem. Get the only folder in the toplevel
         Q_FOREACH (const QString &entry, m_store->directoryList()) {
             if (entry.contains("/layers/")) {
                 layerPathName = entry.split("/layers/").first();
@@ -464,7 +455,6 @@ bool KraConverter::completeLoading(KoStore* store)
     m_image->enableDirtyRequests();
 
     if (!m_kraLoader->warningMessages().isEmpty()) {
-        // warnings do not interrupt loading process, so we do not return here
         m_doc->setWarningMessage(m_kraLoader->warningMessages().join("\n"));
     }
 

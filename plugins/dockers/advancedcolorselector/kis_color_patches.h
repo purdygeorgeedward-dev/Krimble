@@ -14,7 +14,6 @@
 class KoColor;
 class KisColorPatchesTableView;
 
-
 class KisColorPatches : public KisColorSelectorBase
 {
 Q_OBJECT
@@ -39,9 +38,6 @@ public:
     void addColorPatch(const KoColor &color);
 
 public:
-    /// set buttons, that should be drawn additionally to the patches
-    /// this class takes ownership of them and will delete them
-    /// they will be resized to the patchsize
     void setAdditionalButtons(QList<QWidget*> buttonList);
 
 private:

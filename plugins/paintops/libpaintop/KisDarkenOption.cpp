@@ -18,7 +18,6 @@
 
 namespace kpou = KisPaintOpOptionUtils;
 
-
 KisDarkenOption::KisDarkenOption(const KisPropertiesConfiguration *setting)
     : KisCurveOption(kpou::loadOptionData<KisDarkenOptionData>(setting))
 {
@@ -33,7 +32,6 @@ KoColor KisDarkenOption::apply(KisPainter * painter, const KisPaintInformation& 
     KoColor darkened = painter->paintColor();
     KoColor origColor = darkened;
 
-    // Darken docs aren't really clear about what exactly the amount param can have as value...
     quint32 darkenAmount = (qint32)(255  - 255 * computeSizeLikeValue(info));
 
     KoColorTransformation* darkenTransformation  = darkened.colorSpace()->createDarkenAdjustment(darkenAmount, false, 0.0);
@@ -49,7 +47,6 @@ void KisDarkenOption::apply(KisColorSource* colorSource, const KisPaintInformati
 {
     if (!isChecked()) return;
 
-    // Darken docs aren't really clear about what exactly the amount param can have as value...
     quint32 darkenAmount = (qint32)(255  - 255 * computeSizeLikeValue(info));
 
     KoColorTransformation* darkenTransformation  = colorSource->colorSpace()->createDarkenAdjustment(darkenAmount, false, 0.0);

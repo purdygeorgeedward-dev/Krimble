@@ -50,6 +50,5 @@ private:
     KoResourceServer<TasksetResource> *m_rserver {0};
 };
 
-
 #endif
 

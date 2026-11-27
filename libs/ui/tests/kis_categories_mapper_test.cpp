@@ -9,7 +9,6 @@
 #include <simpletest.h>
 #include "testing_categories_mapper.h"
 
-
 void checkItemsList(const QList<TestingMapper::DataItem*> &list,
                     const QStringList &ref)
 {

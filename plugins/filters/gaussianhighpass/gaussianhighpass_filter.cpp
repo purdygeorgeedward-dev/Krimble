@@ -33,7 +33,6 @@
 #include "KoColorSpaceTraits.h"
 #include <KisSequentialIteratorProgress.h>
 
-
 KisGaussianHighPassFilter::KisGaussianHighPassFilter() : KisFilter(id(), FiltersCategoryOtherId, i18n("&Gaussian High Pass..."))
 {
     setSupportsPainting(true);
@@ -43,7 +42,7 @@ KisGaussianHighPassFilter::KisGaussianHighPassFilter() : KisFilter(id(), Filters
     setColorSpaceIndependence(FULLY_INDEPENDENT);
 }
 
-KisConfigWidget * KisGaussianHighPassFilter::createConfigurationWidget(QWidget* parent, const KisPaintDeviceSP, bool /* useForMasks */) const
+KisConfigWidget * KisGaussianHighPassFilter::createConfigurationWidget(QWidget* parent, const KisPaintDeviceSP, bool ) const
 {
     return new KisWdgGaussianHighPass(parent);
 }
@@ -78,14 +77,13 @@ void KisGaussianHighPassFilter::processImpl(KisPaintDeviceSP device,
                                      blurAmount, blurAmount,
                                      channelFlags,
                                      convolutionUpdater,
-                                     true); // make sure we create an internal transaction on temp device
-    
+                                     true);
+
     KisPainter painter(device);
     painter.setCompositeOpId(COMPOSITE_GRAIN_EXTRACT);
     painter.bitBlt(applyRect.topLeft(), blur, applyRect);
     painter.end();
 }
-
 
 QRect KisGaussianHighPassFilter::neededRect(const QRect & rect, const KisFilterConfigurationSP config, int lod) const
 {

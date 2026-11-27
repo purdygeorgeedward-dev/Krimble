@@ -17,8 +17,6 @@ static QList<QDockWidget*> krimbleRightDocks(QMainWindow *win, bool visibleOnly)
     return docks;
 }
 
-// Sets the width of the right-hand panel column (clamped so the panels keep their smallest width
-// and the canvas keeps some room).
 static void krimbleSetRightPanelsWidth(QMainWindow *win, int width)
 {
     const QList<QDockWidget*> docks = krimbleRightDocks(win, true);
@@ -139,8 +137,8 @@ protected:
                 band.setAlpha(m_dragging ? 90 : 60);
                 p.fillRect(rect(), band);
             }
-            p.fillRect(QRect(width() - 3, 0, 1, height()), QColor(0, 0, 0, 170));          // the darker line
-            p.fillRect(QRect(width() - 2, 0, 1, height()), QColor(255, 255, 255, 110));    // the highlight beside it
+            p.fillRect(QRect(width() - 3, 0, 1, height()), QColor(0, 0, 0, 170));
+            p.fillRect(QRect(width() - 2, 0, 1, height()), QColor(255, 255, 255, 110));
             p.setRenderHint(QPainter::Antialiasing, true);
             QColor dots = palette().color(QPalette::HighlightedText);
             dots.setAlpha(200);
@@ -150,7 +148,6 @@ protected:
                 p.drawEllipse(QPointF(width() - 9, height() / 2.0 + i * 12), 1.8, 1.8);
             }
         } else {
-            // Panels hidden: a slightly wider tab on the window's right edge with an arrow.
             const QRectF tab(width() - 12, (height() - 90) / 2.0, 14, 90);
             p.drawRoundedRect(tab, 5, 5);
             p.setBrush(grip);
@@ -187,8 +184,6 @@ static KrimbleSideBarButton *krimbleRightPanelHandle(QMainWindow *win)
     return win->findChild<KrimbleSideBarButton*>(QStringLiteral("krimbleRightPanelHandle"));
 }
 
-// Hides (hide == true) or shows the right-hand panels. When hiding, the panels that were visible
-// are remembered so exactly those come back.
 static void krimbleSetRightPanelsHidden(QMainWindow *win, bool hide)
 {
     if (hide) {
@@ -203,7 +198,6 @@ static void krimbleSetRightPanelsHidden(QMainWindow *win, bool hide)
     } else {
         QStringList names = win->property("krimbleHiddenRightDocks").toStringList();
         if (names.isEmpty()) {
-            // Nothing remembered (for example after a restart): show the usual three.
             names << QStringLiteral("sharedtooldocker") << QStringLiteral("KisLayerBox")
                   << QStringLiteral("ColorSelectorNg");
         }
@@ -218,7 +212,6 @@ static void krimbleSetRightPanelsHidden(QMainWindow *win, bool hide)
     }
 }
 
-// Keeps the side button's place and the menu text in step with what is on screen.
 static void krimbleUpdateRightPanelUi(QMainWindow *win)
 {
     const QList<QDockWidget*> visibleDocks = krimbleRightDocks(win, true);
@@ -258,7 +251,7 @@ public:
         if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
             const ulong stamp = static_cast<QMouseEvent*>(event)->timestamp();
             const bool press = event->type() == QEvent::MouseButtonPress;
-            if (stamp != 0 && stamp == (press ? m_lastPress : m_lastRelease) && event == m_lastEvent) return false;   // the same event, passed up to a parent
+            if (stamp != 0 && stamp == (press ? m_lastPress : m_lastRelease) && event == m_lastEvent) return false;
             (press ? m_lastPress : m_lastRelease) = stamp;
             m_lastEvent = event;
         }
@@ -323,6 +316,8 @@ static void krimbleResetLayout(QMainWindow *win)
     KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleLayouts");
     g.deleteEntry("portrait");
     g.deleteEntry("landscape");
+    g.deleteEntry("portrait_last");
+    g.deleteEntry("landscape_last");
     g.sync();
     const QByteArray def = g.readEntry("default", QByteArray());
     if (!def.isEmpty()) {
@@ -355,38 +350,38 @@ static void krimbleApplyLayerStyle(KisMainWindow *win, int preset)
     const KoColor black = KoColor::fromXML(QStringLiteral("<color channeldepth='U8'><sRGB r='0.0' g='0.0' b='0.0'/></color>"));
     newStyle->setEnabled(true);
     switch (preset) {
-    case 0: // Drop Shadow
+    case 0:
         newStyle->dropShadow()->setEffectEnabled(true);
         newStyle->dropShadow()->setDistance(12);
         newStyle->dropShadow()->setSize(14);
         newStyle->dropShadow()->setOpacity(70);
         break;
-    case 1: // Inner Shadow
+    case 1:
         newStyle->innerShadow()->setEffectEnabled(true);
         break;
-    case 2: // Outer Glow (white)
+    case 2:
         newStyle->outerGlow()->setEffectEnabled(true);
         newStyle->outerGlow()->setColor(white);
         break;
-    case 3: // Inner Glow
+    case 3:
         newStyle->innerGlow()->setEffectEnabled(true);
         break;
-    case 4: // Stroke, white, 4 px, outside
+    case 4:
         newStyle->stroke()->setEffectEnabled(true);
         newStyle->stroke()->setSize(4);
         newStyle->stroke()->setColor(white);
         newStyle->stroke()->setPosition(psd_stroke_outside);
         break;
-    case 5: // Stroke, black, 4 px, outside
+    case 5:
         newStyle->stroke()->setEffectEnabled(true);
         newStyle->stroke()->setSize(4);
         newStyle->stroke()->setColor(black);
         newStyle->stroke()->setPosition(psd_stroke_outside);
         break;
-    case 6: // Bevel and Emboss
+    case 6:
         newStyle->bevelAndEmboss()->setEffectEnabled(true);
         break;
-    default: // Clear Style
+    default:
         newStyle->setEnabled(false);
         break;
     }
@@ -429,8 +424,6 @@ static void krimbleInstallColorSettings(KisMainWindow *win)
     });
 }
 
-// Adds "Batch Process..." at the end of the Image menu, after a divider (once, when the menu first opens). It was at the end of the
-// File menu, below Exit (George: "I think it should be in the image menu, not below exit.").
 static void krimbleInstallImageExtras(KisMainWindow *win)
 {
     QMenu *imageMenu = nullptr;
@@ -474,11 +467,11 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
         Q_FOREACH (QAction *action, imageMenu->actions()) {
             QString text = action->text();
             text.remove(QLatin1Char('&'));
-            if (text == QLatin1String("Image Rotation") && action->menu()) {
+            if ((text == QLatin1String("Image Rotation") || text == QLatin1String("Rotate")) && action->menu()) {
                 QMenu *rotation = action->menu();
                 QObject::connect(rotation, &QMenu::aboutToShow, win, [win, rotation]() {
                     if (rotation->findChild<QAction*>(QStringLiteral("krimbleFreeRotate"))) return;
-                    QAction *freeRotate = new QAction(i18n("Free Rotate"), rotation);
+                    QAction *freeRotate = new QAction(i18n("Rotate"), rotation);
                     freeRotate->setObjectName(QStringLiteral("krimbleFreeRotate"));
                     QObject::connect(freeRotate, &QAction::triggered, win, [win]() {
                         KisViewManager *view = win->viewManager();
@@ -505,9 +498,6 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
     });
 }
 
-// Adds "Rotation Gadget" (a check mark) at the end of the View menu (once, when the menu first opens): turns the canvas rotation
-// dial in the status bar off and on (Claude's design; George: "I sometimes accidentally trigger the rotation gadget on the bottom.
-// Can we turn it off and on at will?").
 static void krimbleInstallViewExtras(KisMainWindow *win)
 {
     QMenu *viewMenu = nullptr;
@@ -529,7 +519,6 @@ static void krimbleInstallViewExtras(KisMainWindow *win)
             QObject::connect(gadget, &QAction::toggled, win, [win](bool on) {
                 KisConfig cfg(false);
                 cfg.writeEntry<int>("krimble_show_rotation_gadget", on ? 1 : 0);
-                // (only the status bar's dial, not the angle selectors in the panels)
                 if (KisAngleSelector *dial = win->statusBar() ? win->statusBar()->findChild<KisAngleSelector*>() : nullptr) {
                     if (!on) dial->setVisible(false);
                     else if (win->viewManager() && win->viewManager()->image()) dial->setVisible(true);
@@ -537,8 +526,7 @@ static void krimbleInstallViewExtras(KisMainWindow *win)
             });
         }
         QSignalBlocker blocker(gadget);
-        // gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);   (shown by default)
-        gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);   // George: hidden by default
+        gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);
 
         QAction *zoomGadget = viewMenu->findChild<QAction*>(QStringLiteral("krimbleZoomGadget"));
         if (!zoomGadget) {
@@ -559,7 +547,6 @@ static void krimbleInstallViewExtras(KisMainWindow *win)
     });
 }
 
-// Adds "Style Presets" right after "Layer Style..." in the Layer menu (once, when the menu first opens).
 static void krimbleInstallLayerExtras(KisMainWindow *win)
 {
     QMenu *layerMenu = nullptr;
@@ -594,14 +581,23 @@ static void krimbleInstallLayerExtras(KisMainWindow *win)
 class KrimbleClosePopupsOnResizeFilter : public QObject
 {
 public:
-    explicit KrimbleClosePopupsOnResizeFilter(QMainWindow *win) : QObject(win), m_win(win), m_landscape(krimbleIsLandscape(win)) {}
+    explicit KrimbleClosePopupsOnResizeFilter(QMainWindow *win) : QObject(win), m_win(win), m_landscape(krimbleIsLandscape(win)), m_screenLandscape(screenIsLandscape()) {}
+    static bool screenIsLandscape()
+    {
+        QScreen *screen = QGuiApplication::primaryScreen();
+        return screen && screen->size().width() > screen->size().height();
+    }
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (watched == m_win && event->type() == QEvent::Resize) {
             if (krimbleIsLandscape(m_win) != m_landscape) {
                 m_landscape = krimbleIsLandscape(m_win);
                 QMainWindow *win = m_win;
-                QTimer::singleShot(500, win, [win]() { krimbleRestoreSavedLayout(win); });
+                if (screenIsLandscape() != m_screenLandscape && qApp->applicationState() == Qt::ApplicationActive) {
+                    m_screenLandscape = screenIsLandscape();
+                } else {
+                    qWarning() << "Krimble: window shape changed without the screen being turned; the saved layout is not put back";
+                }
             }
             while (QWidget *popup = QApplication::activePopupWidget()) {
                 popup->close();
@@ -620,11 +616,10 @@ public:
 private:
     QMainWindow *m_win;
     bool m_landscape;
+    bool m_screenLandscape {false};
 };
 #endif
 
-
-// Watches the main window and keeps the side button and menu text up to date.
 class KrimbleRightPanelsFilter : public QObject
 {
 public:
@@ -641,7 +636,6 @@ protected:
             relevant = (event->type() == QEvent::LayoutRequest || event->type() == QEvent::Resize
                         || event->type() == QEvent::Show);
         } else if (watched->objectName() == QLatin1String("krimbleCanvasArea")) {
-            // the canvas area changed size or was shown: its right edge moved
             relevant = (event->type() == QEvent::Resize || event->type() == QEvent::Show);
         } else if (qobject_cast<QDockWidget*>(watched)) {
             relevant = (event->type() == QEvent::Move || event->type() == QEvent::Resize

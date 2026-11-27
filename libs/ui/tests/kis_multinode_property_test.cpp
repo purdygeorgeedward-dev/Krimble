@@ -13,7 +13,6 @@
 
 #include "kis_multinode_property.h"
 
-
 void KisMultinodePropertyTest::test()
 {
     TestUtil::MaskParent p;
@@ -27,7 +26,6 @@ void KisMultinodePropertyTest::test()
     nodes << layer2;
     nodes << layer3;
 
-    // Test uniform initial state
     {
         QScopedPointer<QCheckBox> box(new QCheckBox("test ignore"));
         KisMultinodeCompositeOpProperty prop(nodes);
@@ -67,8 +65,6 @@ void KisMultinodePropertyTest::test()
         QCOMPARE(box->isChecked(), true);
     }
 
-
-    // Test non-uniform initial state
     layer1->setCompositeOpId(COMPOSITE_ALPHA_DARKEN);
     layer2->setCompositeOpId(COMPOSITE_OVER);
     layer3->setCompositeOpId(COMPOSITE_OVER);
@@ -116,7 +112,6 @@ void KisMultinodePropertyTest::test()
         QCOMPARE(box->isChecked(), false);
     }
 
-    // Test undo-redo
     {
         QScopedPointer<QCheckBox> box(new QCheckBox("test ignore"));
         KisMultinodeCompositeOpProperty prop(nodes);

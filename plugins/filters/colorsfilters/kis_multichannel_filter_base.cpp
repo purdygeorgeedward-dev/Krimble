@@ -66,7 +66,6 @@ int KisMultiChannelFilter::findChannel(const QVector<VirtualChannelInfo> &virtua
     return KisMultiChannelUtils::findChannel(virtualChannels, channelType);
 }
 
-
 KisMultiChannelFilterConfiguration::KisMultiChannelFilterConfiguration(int channelCount, const QString & name, qint32 version, KisResourcesInterfaceSP resourcesInterface)
         : KisColorTransformationConfiguration(name, version, resourcesInterface)
         , m_channelCount(channelCount)
@@ -87,7 +86,7 @@ KisMultiChannelFilterConfiguration::~KisMultiChannelFilterConfiguration()
 void KisMultiChannelFilterConfiguration::init()
 {
     m_curves.clear();
-    
+
     KisColorTransformationConfiguration::setProperty("nTransfers", m_channelCount);
 
     for (int i = 0; i < m_channelCount; ++i) {
@@ -108,7 +107,6 @@ bool KisMultiChannelFilterConfiguration::isCompatible(const KisPaintDeviceSP dev
 
 void KisMultiChannelFilterConfiguration::setCurves(QList<KisCubicCurve> &curves)
 {
-    // Clean unused properties
     if (curves.size() < m_curves.size()) {
         for (int i = curves.size(); i < m_curves.size(); ++i) {
             const QString name = QLatin1String("curve") + QString::number(i);
@@ -123,7 +121,6 @@ void KisMultiChannelFilterConfiguration::setCurves(QList<KisCubicCurve> &curves)
 
     updateTransfers();
 
-    // Update properties for python
     KisColorTransformationConfiguration::setProperty("nTransfers", m_channelCount);
 
     for (int i = 0; i < m_curves.size(); ++i) {
@@ -208,10 +205,6 @@ void KisMultiChannelFilterConfiguration::fromXML(const QDomElement& root)
         e = e.nextSiblingElement();
     }
 
-    /**
-     * In Krita 2.9 we stored alpha channel under a separate tag, so we
-     * should addend it separately if present
-     */
     if (numTransfersWithAlpha > numTransfers) {
         e = root.firstChild().toElement();
         while (!e.isNull()) {
@@ -224,7 +217,6 @@ void KisMultiChannelFilterConfiguration::fromXML(const QDomElement& root)
         }
     }
 
-    //prepend empty curves for the brightness contrast filter.
     if(getString("legacy") == "brightnesscontrast") {
         if (getString("colorModel") == LABAColorModelID.id()) {
             curves.append(KisCubicCurve());
@@ -250,11 +242,6 @@ void KisMultiChannelFilterConfiguration::fromXML(const QDomElement& root)
     setActiveCurve(activeCurve);
 }
 
-/**
- * Inherited from KisPropertiesConfiguration
- */
-//void KisMultiChannelFilterConfiguration::fromXML(const QString& s)
-
 void addParamNode(QDomDocument& doc,
                   QDomElement& root,
                   const QString &name,
@@ -269,16 +256,6 @@ void addParamNode(QDomDocument& doc,
 
 void KisMultiChannelFilterConfiguration::toXML(QDomDocument& doc, QDomElement& root) const
 {
-    /**
-     * @code
-     * <params version=1>
-     *       <param name="nTransfers">3</param>
-     *       <param name="curve0">0,0;0.5,0.5;1,1;</param>
-     *       <param name="curve1">0,0;1,1;</param>
-     *       <param name="curve2">0,0;1,1;</param>
-     * </params>
-     * @endcode
-     */
 
     root.setAttribute("version", version());
 
@@ -288,7 +265,6 @@ void KisMultiChannelFilterConfiguration::toXML(QDomDocument& doc, QDomElement& r
     addParamNode(doc, root, "nTransfers", QString::number(m_channelCount));
 
     if (m_activeCurve >= 0) {
-        // save active curve if only it has non-default value
         addParamNode(doc, root, "activeCurve", QString::number(m_activeCurve));
     }
 
@@ -350,7 +326,6 @@ void KisMultiChannelFilterConfiguration::setProperty(const QString& name, const 
         m_channelCount = newChannelCount;
         invalidateColorTransformationCache();
 
-
         return;
     }
 
@@ -370,7 +345,6 @@ void KisMultiChannelFilterConfiguration::setProperty(const QString& name, const 
     updateTransfer(curveIndex);
     invalidateColorTransformationCache();
 
-    // Query the curve instead of using the value directly, in case of not valid curve string
     KisColorTransformationConfiguration::setProperty(name, m_curves[curveIndex].toString());
 }
 
@@ -397,10 +371,6 @@ KisMultiChannelConfigWidget::KisMultiChannelConfigWidget(QWidget * parent, KisPa
     m_virtualChannels = KisMultiChannelFilter::getVirtualChannels(targetColorSpace);
 }
 
-/**
- * Initialize the dialog.
- * Note: m_virtualChannels must be populated before calling this
- */
 void KisMultiChannelConfigWidget::init() {
     QHBoxLayout * layout = new QHBoxLayout(this);
     Q_CHECK_PTR(layout);
@@ -419,11 +389,9 @@ void KisMultiChannelConfigWidget::init() {
     connect((QObject*)(m_page->chkLogarithmic), SIGNAL(toggled(bool)), this, SLOT(logHistView()));
     connect((QObject*)(m_page->resetButton), SIGNAL(clicked()), this, SLOT(resetCurve()));
 
-    // create the horizontal and vertical gradient labels
     m_page->hgradient->setPixmap(createGradient(Qt::Horizontal));
     m_page->vgradient->setPixmap(createGradient(Qt::Vertical));
 
-    // init histogram calculator
     const KoColorSpace *targetColorSpace = m_dev->compositionSourceColorSpace();
     QList<QString> keys =
         KoHistogramProducerFactoryRegistry::instance()->keysCompatibleWith(targetColorSpace);
@@ -471,11 +439,6 @@ void KisMultiChannelConfigWidget::setConfiguration(const KisPropertiesConfigurat
     }
 
     if (cfg->curves().empty()) {
-        /**
-         * HACK ALERT: our configuration factory generates
-         * default configuration with nTransfers==0.
-         * Catching it here. Just set everything to defaults instead.
-         */
         const KisPropertiesConfigurationSP &defaultConfiguration = getDefaultConfiguration();
         const auto *defaults = dynamic_cast<const KisMultiChannelFilterConfiguration*>(defaultConfiguration.data());
         KIS_SAFE_ASSERT_RECOVER_RETURN(defaults);
@@ -496,9 +459,6 @@ void KisMultiChannelConfigWidget::setConfiguration(const KisPropertiesConfigurat
                 m_curves[ch] = cfg->curves()[ch];
             }
         } else {
-            // The configuration does not cover all our channels.
-            // This happens when loading a document from an older version, which supported fewer channels.
-            // Reset to make sure the unspecified channels have their default values.
             resetCurves();
 
             auto compareChannels =
@@ -509,13 +469,6 @@ void KisMultiChannelConfigWidget::setConfiguration(const KisPropertiesConfigurat
 
             const KoColorSpace *targetColorSpace = m_dev->compositionSourceColorSpace();
 
-
-            /**
-             * Adjust the layout of channels in the configuration to the layout of the
-             * current version of Krita. When we pass number of loaded channels
-             * to getVirtualChannels() it automatically detects the version of Krita
-             * the configuration was created in.
-             */
             QVector<VirtualChannelInfo> detectedCurves = KisMultiChannelUtils::getVirtualChannels(targetColorSpace, cfg->curves().size());
 
             for (auto detectedIt = detectedCurves.begin(); detectedIt != detectedCurves.end(); ++detectedIt) {
@@ -561,7 +514,7 @@ int KisMultiChannelConfigWidget::findDefaultVirtualChannelSelection()
     return 0;
 }
 
-inline QPixmap KisMultiChannelConfigWidget::createGradient(Qt::Orientation orient /*, int invert (not used yet) */)
+inline QPixmap KisMultiChannelConfigWidget::createGradient(Qt::Orientation orient )
 {
     int width;
     int height;
@@ -593,14 +546,12 @@ inline QPixmap KisMultiChannelConfigWidget::getHistogram()
     QPixmap pix(256, height);
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(m_histogram, pix);
 
-
     bool logarithmic = m_page->chkLogarithmic->isChecked();
 
     if (logarithmic)
         m_histogram->setHistogramType(LOGARITHMIC);
     else
         m_histogram->setHistogramType(LINEAR);
-
 
     QPalette appPalette = QApplication::palette();
 
@@ -612,7 +563,6 @@ inline QPixmap KisMultiChannelConfigWidget::getHistogram()
     p.setOpacity(0.2);
 
     const VirtualChannelInfo &info = m_virtualChannels[m_activeVChannel];
-
 
     if (info.type() == VirtualChannelInfo::REAL) {
         m_histogram->setChannel(info.pixelIndex());

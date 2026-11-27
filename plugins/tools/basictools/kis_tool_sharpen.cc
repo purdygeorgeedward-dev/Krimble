@@ -35,7 +35,6 @@ void KisToolSharpen::activate(const QSet<KoShape*> &shapes)
         return;
     }
 
-    // the built-in filter brush (the one the Blur tool uses), with the Sharpen filter ("sharpen", plugins/filters/convolutionfilters) in place of Gaussian Blur
     KisPaintOpPresetSP sharpenPreset = krimbleLoadEmbeddedPreset(QStringLiteral("filter"));
     if (sharpenPreset && sharpenPreset->settings()) {
         sharpenPreset->settings()->setProperty(QStringLiteral("Filter/id"), QStringLiteral("sharpen"));

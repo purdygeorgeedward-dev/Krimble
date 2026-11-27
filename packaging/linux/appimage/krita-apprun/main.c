@@ -20,27 +20,23 @@
 void split_version(const char *version, int values[4])
 {
     char *ver = strdup(version);
-    
-    // printf("     ver: %s\n", ver);
-                        
+
     int index = 0;
     char *token = strtok(ver, ".");
-            
+
     while (token && index < 4) {
         const int value = atoi(token);
-        
-        // printf("value: %s -> %d\n", token, value);
-        
+
         values[index] = value;
         index++;
         token = strtok(0, ".");
     }
-    
+
     while (index < 4) {
         values[index] = 0;
         index++;
     }
-        
+
     free (ver);
 }
 
@@ -48,12 +44,12 @@ int needs_replace_library(const char *library, const char *base_library)
 {
     int base_value[4];
     int value[4];
-            
+
     split_version(base_library, base_value);
     split_version(library, value);
-                        
+
     int result = 0;
-            
+
     for (int i = 0; i < 4; i++) {
         if (base_value[i] < value[i]) {
             break;
@@ -62,7 +58,7 @@ int needs_replace_library(const char *library, const char *base_library)
             break;
          }
     }
-        
+
     return result;
 }
 
@@ -92,7 +88,6 @@ void try_replace_library(const char *library_name, const char *fallback_dir_name
 
          if (result == 0) {
             if (realpath(info->l_name, real_library_path)) {
-                // noop
             } else {
                 die("Couldn't resolve the name of system %s", library_name);
             }
@@ -118,13 +113,9 @@ void try_replace_library(const char *library_name, const char *fallback_dir_name
          die("Could not access $(APPDIR)/usr/%s/%s\n", fallback_dir_name, library_name);
     }
 
-
     const int version_offset = strlen(library_name) + 1;
     char *fallback_library_name = strstr(fallback_library, library_name);
     char *real_library_name = strstr(real_library_path, library_name);
-
-//    printf("fallback_library_name %s\n", fallback_library_name);
-//    printf("real_library_name %s\n", real_library_name);
 
     char *old_env;
     size_t length;
@@ -142,7 +133,6 @@ void try_replace_library(const char *library_name, const char *fallback_dir_name
          old_env = getenv("LD_LIBRARY_PATH") ?: "";
     }
 }
-
 
 int main(int argc, char **argv)
 {

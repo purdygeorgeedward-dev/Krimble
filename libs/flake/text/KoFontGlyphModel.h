@@ -13,13 +13,6 @@
 #include "kritaflake_export.h"
 
 struct KoOpenTypeFeatureInfo;
-/**
- * @brief The KoFontGlyphModel class
- * Creates a tree model of all the glyphs in a given face.
- *
- * The primary parents are the basic codepoints, the children of those parents (if any),
- * are glyph variations.
- */
 class KRITAFLAKE_EXPORT KoFontGlyphModel: public QAbstractItemModel
 {
     Q_OBJECT
@@ -49,27 +42,12 @@ public:
 
     QModelIndex indexForString(QString grapheme);
 
-    /**
-     * @brief setFace
-     * set the face to retrieve glyph data for.
-     * @param face -- the face.
-     * @param language -- the language for which to retrieve data for, OpenType data can have different glyphs depending on the language.
-     * @param samplesOnly -- Whether to only retrieve enough data for 6 samples, or to retrieve the full glyph layout. Turning this on speeds up loading.
-     */
     void setFace(FT_FaceSP face, QLatin1String language = QLatin1String(), bool samplesOnly = false);
 
     QHash<int, QByteArray> roleNames() const override;
 
-    /**
-     * @brief blocks
-     * @return list of Unicode blocks available in the font.
-     */
     QVector<KoUnicodeBlockData> blocks() const;
 
-    /**
-     * @brief featureInfo
-     * @return list of OpenTypeFeatures available in the font.
-     */
     QMap<QString, KoOpenTypeFeatureInfo> featureInfo() const;
 
 private:
@@ -77,4 +55,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KOFONTGLYPHMODEL_H
+#endif

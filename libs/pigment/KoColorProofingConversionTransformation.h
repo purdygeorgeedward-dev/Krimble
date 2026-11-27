@@ -14,9 +14,6 @@
 class KoColorSpace;
 class KoColorConversionCache;
 
-/**
- * This is the base class of all color transform that convert the color of a pixel
- */
 class KRITAPIGMENT_EXPORT KoColorProofingConversionTransformation : public KoColorConversionTransformation
 {
 
@@ -30,10 +27,6 @@ public:
 
 public:
 
-    /**
-     * @brief proofingSpace
-     * @return the space that is used to proof the color transform
-     */
     const KoColorSpace *proofingSpace() const;
 
 private:

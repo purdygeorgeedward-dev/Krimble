@@ -12,7 +12,6 @@ struct KisHatchingPaintOpSettings::Private
     QList<KisUniformPaintOpPropertyWSP> uniformProperties;
 };
 
-
 KisHatchingPaintOpSettings::KisHatchingPaintOpSettings(KisResourcesInterfaceSP resourcesInterface)
     : KisBrushBasedPaintOpSettings(resourcesInterface),
       m_d(new Private)
@@ -25,15 +24,6 @@ KisHatchingPaintOpSettings::~KisHatchingPaintOpSettings()
 
 void KisHatchingPaintOpSettings::initializeTwin(KisPaintOpSettingsSP settings) const
 {
-    // XXX: this is a nice way to reinvent the copy constructor?
-
-    /*--------DO NOT REMOVE please, use this to review the XML config tree
-    QMap<QString, QVariant> rofl = QMap<QString, QVariant>(getProperties());
-
-    QMap<QString, QVariant>::const_iterator i;
-    for (i = rofl.constBegin(); i != rofl.constEnd(); ++i)
-        dbgKrita << i.key() << ":" << i.value();
-    /----------DO NOT REMOVE----------------*/
 
     KisHatchingPaintOpSettings *convenienttwin = static_cast<KisHatchingPaintOpSettings*>(settings.data());
 
@@ -58,8 +48,6 @@ void KisHatchingPaintOpSettings::initializeTwin(KisPaintOpSettingsSP settings) c
 
     convenienttwin->separationintervals = getInt("Hatching/separationintervals");
 
-    //convenienttwin->trigonometryalgebra = getBool("Hatching/bool_trigonometryalgebra");
-    //convenienttwin->scratchoff = getBool("Hatching/bool_scratchoff");
     convenienttwin->antialias = getBool("Hatching/bool_antialias");
     convenienttwin->opaquebackground = getBool("Hatching/bool_opaquebackground");
     convenienttwin->subpixelprecision = getBool("Hatching/bool_subpixelprecision");
@@ -77,12 +65,10 @@ void KisHatchingPaintOpSettings::initializeTwin(KisPaintOpSettingsSP settings) c
 
 }
 
-
 #include <brushengine/kis_slider_based_paintop_property.h>
 #include "kis_paintop_preset.h"
 #include "KisPaintOpPresetUpdateProxy.h"
 #include "KisHatchingOptionsData.h"
-
 
 QList<KisUniformPaintOpPropertySP> KisHatchingPaintOpSettings::uniformProperties(KisPaintOpSettingsSP settings, QPointer<KisPaintOpPresetUpdateProxy> updateProxy)
 {

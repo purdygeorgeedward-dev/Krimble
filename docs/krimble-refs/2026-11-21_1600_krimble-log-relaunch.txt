@@ -1,0 +1,142 @@
+Log file: /storage/emulated/0/Android/data/org.krimble/files/krita.log (15 KB)
+
+What Android told Krimble:
+Sat Nov 21 15:33:55 MST 2026: onDestroy, isFinishing=true, isChangingConfigurations=false
+  configuration now: {0.8 311mcc480mnc [en_US] ldltr sw339dp w734dp h339dp 510dpi nrml long compactNeeded land finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 2340, 1080) mAppBounds=Rect(0, 0 - 2340, 1080) mMaxBounds=Rect(0, 0 - 2340, 1080) mDisplayRotation=ROTATION_270 mWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_270 mStageConfig=undefined mPopOver=off mOverlappingWithCutout=false} s.25 fontWeightAdjustment=0 ff=0 bf=-1 bts=0 cst=1.0 nightDim=0 themeSeq=0}
+  configuration at start: {0.8 311mcc480mnc [en_US] ldltr sw339dp w339dp h734dp 510dpi nrml long compactNeeded port finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 0 - 1080, 2340) mMaxBounds=Rect(0, 0 - 1080, 2340) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0 mStageConfig=undefined mPopOver=off mOverlappingWithCutout=false} s.2 fontWeightAdjustment=0 ff=0 bf=-1 bts=0 cst=1.0 nightDim=0 themeSeq=0}
+
+Memory of the previous run, newest last (fg = in front, bg = in the background):
+15:22:57 bg every 30 s: app 525 MB (native 0, java 0, graphics 41, other 0); system free 987 of 5427 MB, Android's low line 216 MB
+15:23:28 bg every 30 s: app 525 MB (native 0, java 0, graphics 41, other 0); system free 863 of 5427 MB, Android's low line 216 MB
+15:23:58 bg every 30 s: app 522 MB (native 2, java 0, graphics 41, other 1); system free 1174 of 5427 MB, Android's low line 216 MB
+15:24:28 bg every 30 s: app 522 MB (native 0, java 0, graphics 41, other 0); system free 868 of 5427 MB, Android's low line 216 MB
+15:24:58 bg every 30 s: app 522 MB (native 0, java 0, graphics 41, other 0); system free 996 of 5427 MB, Android's low line 216 MB
+15:25:29 bg every 30 s: app 522 MB (native 0, java 0, graphics 41, other 0); system free 1368 of 5427 MB, Android's low line 216 MB
+15:25:59 bg every 30 s: app 522 MB (native 0, java 0, graphics 41, other 0); system free 759 of 5427 MB, Android's low line 216 MB
+15:26:30 bg every 30 s: app 522 MB (native 0, java 0, graphics 41, other 0); system free 901 of 5427 MB, Android's low line 216 MB
+15:27:00 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 880 of 5427 MB, Android's low line 216 MB
+15:27:30 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 838 of 5427 MB, Android's low line 216 MB
+15:28:01 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 898 of 5427 MB, Android's low line 216 MB
+15:28:31 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 951 of 5427 MB, Android's low line 216 MB
+15:29:01 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 1036 of 5427 MB, Android's low line 216 MB
+15:29:32 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 861 of 5427 MB, Android's low line 216 MB
+15:30:02 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 921 of 5427 MB, Android's low line 216 MB
+15:30:32 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 797 of 5427 MB, Android's low line 216 MB
+15:31:02 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 860 of 5427 MB, Android's low line 216 MB
+15:31:33 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 1); system free 1014 of 5427 MB, Android's low line 216 MB
+15:32:03 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 1006 of 5427 MB, Android's low line 216 MB
+15:32:33 bg every 30 s: app 523 MB (native 0, java 0, graphics 41, other 0); system free 1095 of 5427 MB, Android's low line 216 MB
+15:32:56 fg resume: app 525 MB (native 0, java 0, graphics 41, other 2); system free 1404 of 5427 MB, Android's low line 216 MB
+15:33:03 fg every 30 s: app 567 MB (native 30, java 1, graphics 62, other 35); system free 1273 of 5427 MB, Android's low line 216 MB
+15:33:33 fg every 30 s: app 636 MB (native 93, java 1, graphics 89, other 39); system free 1195 of 5427 MB, Android's low line 216 MB
+15:33:54 bg pause: app 634 MB (native 97, java 2, graphics 93, other 44); system free 1256 of 5427 MB, Android's low line 216 MB
+
+Display (samsung SM-S266V, Android 16): app density 3.1875 (510 dpi), system density 3.1875 (510 dpi), fontScale 0.8, smallestScreenWidthDp 339, screen 2340 x 1080 px
+Text selection droplet (from the app theme): middle = BitmapDrawable 64 x 77 px (20 x 24 dp) left = BitmapDrawable 140 x 70 px (44 x 22 dp) right = BitmapDrawable 140 x 70 px (44 x 22 dp)
+
+Sessions in the log: 2. Not closed correctly: 2.
+
+1. 21 Nov 2026 15:35:01 -0700. Executing /data/app/~~ZTIidrnU6qXw7JIfnUSFxg==/org.krimble-apB5DyzcBLMvuMYR0-rKIw=
+     still running, or no closing line
+     before it: reason 2 (SIGNALED), importance 300 (SERVICE), exit code/signal 9, low-memory kill report supported, no description
+
+2. 21 Nov 2026 12:07:48 -0700. Executing /data/app/~~ZTIidrnU6qXw7JIfnUSFxg==/org.krimble-apB5DyzcBLMvuMYR0-rKIw=
+     ENDED WITHOUT CLOSING CORRECTLY
+     before it: reason 1 (EXIT_SELF), importance 400 (CACHED), exit code/signal 0, low-memory kill report supported, description 'stop org.krimble due to SPEG'
+
+-------- the end of the log (last 96 lines) --------
+================================================================================
+SESSION: 21 Nov 2026 12:07:48 -0700. Executing /data/app/~~ZTIidrnU6qXw7JIfnUSFxg==/org.krimble-apB5DyzcBLMvuMYR0-rKIw==/lib/arm64/libkrita_arm64-v8a.so
+
+Krita Version: 1.0.73-beta (Nov21, git e2c14ad), Qt version compiled: 5.15.7, loaded: 5.15.7. Process ID: 4057
+-- -- -- -- -- -- -- --
+21 Nov 2026 12:07:48 -0700: Style: . Available styles: Windows, Fusion
+21 Nov 2026 12:07:48 -0700: Last exit: reason 1 (EXIT_SELF), importance 400 (CACHED), exit code/signal 0, low-memory kill report supported, description 'stop org.krimble due to SPEG'
+21 Nov 2026 12:08:09 -0700: Creating database from scratch (database didn't exist, new schema version: 0.0.18).
+21 Nov 2026 12:08:09 -0700: INFO: detected unstable build of Krimble, foreign_keys constraint will be enabled
+21 Nov 2026 12:08:09 -0700: INFO: switch foreign_keys state: 0 -> 1
+21 Nov 2026 12:08:36 -0700: Audio Playback Engine: KisPlaybackEngineQT
+21 Nov 2026 13:10:42 -0700: KRIMBLE-TABS the tab tear-off filter is installed (application level)
+21 Nov 2026 13:10:59 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 28 x 681 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 26 columnsNeed 52
+21 Nov 2026 13:11:02 -0700: KRIMBLE-TOOLBOX topLevelChanged: became floating (before) | floating 1 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 681 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 0 userDragged 0 | viewport 50 columnsNeed 52
+21 Nov 2026 13:11:02 -0700: KRIMBLE-TOOLBOX tear-off: 350 ms, before fitHeightToContents | floating 1 | dockArea 0 | orientation setting -1 layout vertical | columns 2 | size 54 x 656 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 0 userDragged 0 | viewport 50 columnsNeed 52
+21 Nov 2026 13:11:02 -0700: KRIMBLE-TOOLBOX tear-off: 350 ms, after | floating 1 | dockArea 0 | orientation setting -1 layout vertical | columns 2 | size 56 x 384 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 1 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:11:02 -0700: KRIMBLE-TOOLBOX tear-off: 900 ms, before fitHeightToContents | floating 1 | dockArea 0 | orientation setting -1 layout vertical | columns 2 | size 56 x 384 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:11:02 -0700: KRIMBLE-TOOLBOX tear-off: 900 ms, after | floating 1 | dockArea 0 | orientation setting -1 layout vertical | columns 2 | size 56 x 384 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:11:03 -0700: KRIMBLE-TOOLBOX tear-off: 2 s later | floating 1 | dockArea 0 | orientation setting -1 layout vertical | columns 2 | size 56 x 384 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:11:13 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 1 | dockArea 0 | orientation setting -1 layout vertical | columns 2 | size 56 x 384 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:11:22 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 1 | dockArea 0 | orientation setting -1 layout vertical | columns 2 | size 56 x 291 | iconWidth 26 chromeWidth 4 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:11:26 -0700: KRIMBLE-TOOLBOX topLevelChanged: became docked (before) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 402 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:11:27 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 681 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:12:20 -0700: Importing image/jpeg to application/x-krita. Location: content://com.android.externalstorage.documents/document/primary%3APictures%2F1795291777974.jpg. Real location: content://com.android.externalstorage.documents/document/primary%3APictures%2F1795291777974.jpg. Batchmode: 0
+21 Nov 2026 13:12:20 -0700: Loaded image from image/jpeg. Size: 1024 * 1024 pixels, 1 dpi. Color model: 8-bit integer/channel RGB/Alpha (sRGB-elle-V2-srgbtrc.icc). Layers: 2
+21 Nov 2026 13:12:21 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 652 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 52
+21 Nov 2026 13:13:15 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 287 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:14:04 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 652 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:19:34 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 604 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:22:29 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 257 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:22:51 -0700: Converting from application/x-krita to application/x-krita. Location: /storage/emulated/0/Android/data/org.krimble/files/Documents/krita-backup/1795291777974.jpg-autosave.kra. Real location: /storage/emulated/0/Android/data/org.krimble/files/Documents/krita-backup/1795291777974.jpg-autosave.kra. Batchmode: 0. Configuration: none
+21 Nov 2026 13:23:19 -0700: Saving Document content://com.android.externalstorage.documents/document/primary%3APictures%2F1795291777974.jpg as content://com.android.externalstorage.documents/document/primary%3APictures%2FT (mime: application/x-krita). 1024 * 1024 pixels, 2 layers.  101 frames, 24 framerate. Export configuration: No configuration
+21 Nov 2026 13:23:19 -0700: Converting from application/x-krita to application/x-krita. Location: content://com.android.externalstorage.documents/document/primary%3APictures%2FT. Real location: content://com.android.externalstorage.documents/document/primary%3APictures%2FT. Batchmode: 0. Configuration: none
+21 Nov 2026 13:23:19 -0700: Completed saving content://com.android.externalstorage.documents/document/primary%3APictures%2FT (mime: application/x-krita). Result: OK. Warning: . Size: 1441845
+21 Nov 2026 13:23:19 -0700: Removing autosave file: /storage/emulated/0/Android/data/org.krimble/files/Documents/krita-backup/1795291777974.jpg-autosave.kra
+21 Nov 2026 13:23:19 -0700: Saving Completed
+21 Nov 2026 13:24:20 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 604 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:25:47 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 257 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:26:21 -0700: Importing image/png to application/x-krita. Location: content://com.android.externalstorage.documents/document/primary%3APictures%2F1795291273637.png. Real location: content://com.android.externalstorage.documents/document/primary%3APictures%2F1795291273637.png. Batchmode: 0
+21 Nov 2026 13:26:21 -0700: Loaded image from image/png. Size: 1024 * 1024 pixels, 1 dpi. Color model: 8-bit integer/channel RGB/Alpha (sRGB-elle-V2-srgbtrc.icc). Layers: 2
+21 Nov 2026 13:26:23 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 257 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:26:28 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 604 | iconWidth 26 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 52
+21 Nov 2026 13:26:44 -0700: Saving Document content://com.android.externalstorage.documents/document/primary%3APictures%2F1795291273637.png as content://com.android.externalstorage.documents/document/primary%3APictures%2Fline.png (mime: image/png). 1024 * 1024 pixels, 2 layers.  101 frames, 24 framerate. Export configuration: No configuration
+21 Nov 2026 13:26:49 -0700: Converting from application/x-krita to image/png. Location: content://com.android.externalstorage.documents/document/primary%3APictures%2Fline.png. Real location: content://com.android.externalstorage.documents/document/primary%3APictures%2Fline.png. Batchmode: 0. Configuration: <!DOCTYPE params>
+<params>
+ <param type="internal" name="alpha">true</param>
+ <param type="internal" name="compression">3</param>
+ <param type="internal" name="downsample">false</param>
+ <param type="internal" name="forceSRGB">true</param>
+ <param type="internal" name="indexed">false</param>
+ <param type="internal" name="interlaced">false</param>
+ <param type="internal" name="saveAsHDR">false</param>
+ <param type="internal" name="saveSRGBProfile">false</param>
+ <param type="internal" name="storeAuthor">false</param>
+ <param type="internal" name="storeMetaData">false</param>
+ <param type="color" name="transparencyFillcolor"><![CDATA[<!DOCTYPE color>
+<color>
+ <RGB space="sRGB-elle-V2-g10.icc" r="1" b="1" g="1"/>
+</color>
+]]></param>
+</params>
+
+21 Nov 2026 13:26:49 -0700: Completed saving content://com.android.externalstorage.documents/document/primary%3APictures%2Fline.png (mime: image/png). Result: OK. Warning: . Size: 1594495
+21 Nov 2026 13:26:49 -0700: Saving Completed
+21 Nov 2026 13:31:38 -0700: KRIMBLE-TOOLBOX Columns menu: picked 1 (before) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 54 x 604 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 64
+21 Nov 2026 13:31:38 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 1 | size 54 x 604 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 52 columnsNeed 32
+21 Nov 2026 13:31:41 -0700: KRIMBLE-TOOLBOX Columns menu: picked 2 (before) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 1 | size 34 x 604 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 32 columnsNeed 32
+21 Nov 2026 13:31:41 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 34 x 604 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 32 columnsNeed 64
+21 Nov 2026 13:32:18 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 257 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 13:32:31 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 299 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 13:32:40 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 233 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 13:32:44 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 210 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 13:32:47 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 194 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 13:33:54 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 36 x 471 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 34 columnsNeed 64
+21 Nov 2026 15:32:59 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 194 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 15:33:26 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 471 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 15:33:30 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 66 x 194 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 64 columnsNeed 64
+21 Nov 2026 15:33:54 -0700: Converting from application/x-krita to application/x-krita. Location: /storage/emulated/0/Android/data/org.krimble/files/Documents/krita-backup/line.png-autosave.kra. Real location: /storage/emulated/0/Android/data/org.krimble/files/Documents/krita-backup/line.png-autosave.kra. Batchmode: 0. Configuration: none
+
+KRITA DID NOT CLOSE CORRECTLY
+================================================================================
+SESSION: 21 Nov 2026 15:35:01 -0700. Executing /data/app/~~ZTIidrnU6qXw7JIfnUSFxg==/org.krimble-apB5DyzcBLMvuMYR0-rKIw==/lib/arm64/libkrita_arm64-v8a.so
+
+Krita Version: 1.0.73-beta (Nov21, git e2c14ad), Qt version compiled: 5.15.7, loaded: 5.15.7. Process ID: 24484
+-- -- -- -- -- -- -- --
+21 Nov 2026 15:35:01 -0700: Style: . Available styles: Windows, Fusion
+21 Nov 2026 15:35:01 -0700: Last exit: reason 2 (SIGNALED), importance 300 (SERVICE), exit code/signal 9, low-memory kill report supported, no description
+21 Nov 2026 15:35:20 -0700: Database is up to date. Version: 0.0.18, created by Krimble 1.0.0-beta2, at Sat Nov 21 12:08:09 2026
+21 Nov 2026 15:35:20 -0700: INFO: detected unstable build of Krimble, foreign_keys constraint will be enabled
+21 Nov 2026 15:35:20 -0700: INFO: switch foreign_keys state: 0 -> 1
+21 Nov 2026 15:35:21 -0700: Audio Playback Engine: KisPlaybackEngineQT
+21 Nov 2026 15:35:52 -0700: KRIMBLE-TABS the tab tear-off filter is installed (application level)
+21 Nov 2026 15:59:03 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 34 x 509 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 32 columnsNeed 64
+21 Nov 2026 15:59:08 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 34 x 509 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 32 columnsNeed 64
+21 Nov 2026 15:59:10 -0700: KRIMBLE-TOOLBOX applyColumns (start) | floating 0 | dockArea 1 | orientation setting -1 layout vertical | columns 2 | size 34 x 509 | iconWidth 32 chromeWidth 2 | justDocked 0 applying 0 userDragged 0 | viewport 32 columnsNeed 64

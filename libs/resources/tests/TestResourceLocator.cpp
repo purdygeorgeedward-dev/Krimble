@@ -40,14 +40,12 @@
 #include <KisResourceModelProvider.h>
 #include <KisSqlQueryLoader.h>
 
-
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
 
 void TestResourceLocator::initTestCase()
 {
-    // disable database migration debug messages to avoid bloating the output
     const_cast<QLoggingCategory&>(_30010()).setEnabled(QtDebugMsg, false);
     const_cast<QLoggingCategory&>(_30010()).setEnabled(QtInfoMsg, false);
     qputenv("KRITA_OVERRIDE_USE_FOREIGN_KEYS", "1");
@@ -75,8 +73,6 @@ void TestResourceLocator::init()
 
 void TestResourceLocator::testForeignKeysAreEnabled()
 {
-    /// in the TestResourceLocator unittest the foreign keys should be enabled
-    /// explicitly by KRITA_OVERRIDE_USE_FOREIGN_KEYS
 
     try {
 
@@ -380,7 +376,6 @@ int countTagRecordsInTagStorages(int tagId)
     }
 }
 
-
 enum MetaDataTestFlag
 {
     None = 0x0,
@@ -418,11 +413,11 @@ void TestResourceLocator::testLoadResourceMetadataFromStorage_data()
 void TestResourceLocator::testLoadResourceMetadataFromStorage()
 {
     QFETCH(MetaDataTestFlags, flags);
-    
+
     const QString &documentName("document");
 
     KisResourceMetaDataModel *metadataModel = KisResourceModelProvider::resourceMetadataModel();
-    
+
     KisResourceModel model(ResourceType::PaintOpPresets);
     const int initialRowCount = model.rowCount();
 
@@ -441,7 +436,6 @@ void TestResourceLocator::testLoadResourceMetadataFromStorage()
     QVERIFY(m_locator->hasStorage(documentName));
     QCOMPARE(model.rowCount(), initialRowCount + 1);
 
-    // the storage was added, so verify its metadata is present
     const int documentStorageId = documentStorage->storageId();
     QCOMPARE(countStorageRecordsForStorageId(documentStorageId), 1);
     QCOMPARE(countMetaDataForStorage(documentStorageId), 1);
@@ -463,7 +457,7 @@ void TestResourceLocator::testLoadResourceMetadataFromStorage()
         QCOMPARE(countVersionedResourcesForResourceId(loadedResourceId), 1);
     }
 
-    KIS_ASSERT(!flags.testFlag(RemoveNewVersionViaStorageSync) || 
+    KIS_ASSERT(!flags.testFlag(RemoveNewVersionViaStorageSync) ||
                 flags.testFlag(NewVersionViaStorageSync));
 
     if (flags.testFlag(NewVersionViaLocator)) {
@@ -478,44 +472,34 @@ void TestResourceLocator::testLoadResourceMetadataFromStorage()
 
         QCOMPARE(metadataModel->metaDataValue(loadedResourceId, "test_metadata"), "66666666");
         QCOMPARE(countMetaDataForResource(loadedResourceId), 1);
-        
+
         QCOMPARE(countCurrentResourcesForResourceId(loadedResourceId), 1);
         QCOMPARE(countVersionedResourcesForResourceId(loadedResourceId), 3);
     }
 
     if (flags.testFlag(NewVersionViaStorageSync)) {
         const QString resourceType = loadedResource->resourceType().first;
-        
-        /**
-         * Create a new version of the resource
-         */
+
         loadedResource->setSomething("098765432109876543210987654321");
-        
-        // manually upload it into the storage bypassing the locator
+
         resource->setVersion(resource->version() + 1);
         documentStorage->saveAsNewVersion(loadedResource);
         resource->setMD5Sum(documentStorage->resourceMd5(resourceType + "/" + resource->filename()));
         resource->setDirty(false);
 
-        // nothing has changed yet, the database is in the old state
         QCOMPARE(metadataModel->metaDataValue(loadedResourceId, "test_metadata"), "12345678");
         QCOMPARE(countMetaDataForResource(loadedResourceId), 1);
         QCOMPARE(countCurrentResourcesForResourceId(loadedResourceId), 1);
         QCOMPARE(countVersionedResourcesForResourceId(loadedResourceId), 1);
 
-        // now synchronize storage with the database
         KisResourceCacheDb::synchronizeStorage(documentStorage);
         Q_EMIT m_locator->storageResynchronized(documentStorage->location(), false);
 
-        // the changes are present in the database
         QCOMPARE(metadataModel->metaDataValue(loadedResourceId, "test_metadata"), "09876543");
         QCOMPARE(countMetaDataForResource(loadedResourceId), 1);
         QCOMPARE(countCurrentResourcesForResourceId(loadedResourceId), 1);
         QCOMPARE(countVersionedResourcesForResourceId(loadedResourceId), 2);
 
-        /**
-         * Create another version of the resource
-         */
         loadedResource->setSomething("6666666666666666666666666");
         resource->setVersion(resource->version() + 1);
         documentStorage->saveAsNewVersion(loadedResource);
@@ -531,10 +515,6 @@ void TestResourceLocator::testLoadResourceMetadataFromStorage()
         QCOMPARE(countVersionedResourcesForResourceId(loadedResourceId), 3);
 
         if (flags.testFlag(RemoveNewVersionViaStorageSync)) {
-            /**
-             * Now remove the last version from the storage and try
-             * to sync it to the database
-             */
 
             KisMemoryStorage *memoryStorageBackend =
                 dynamic_cast<KisMemoryStorage *>(documentStorage->testingGetStoragePlugin());
@@ -572,11 +552,6 @@ void TestResourceLocator::testLoadResourceMetadataFromStorage()
         QCOMPARE(countMetaDataForStorage(documentStorageId), 0);
     }
 
-    /**
-     * We don't test the number of resources in the model after deleteTemporaryResources(),
-     * because this call doesn't actually removes the resources, it only clears them up from
-     * the database.
-     */
     if (flags.testFlag(DeleteStorageNormally)) {
         QCOMPARE(model.rowCount(), initialRowCount);
     }
@@ -631,11 +606,9 @@ public:
         QSharedPointer<DummyResource> resource(new DummyResource(resourceName(), resourceType()));
         resource->setSomething(QString("123456789012345678901234567890_%1").arg(resourceIndex));
 
-        // add a resource to the storage
         storage->addResource(resource);
 
         {
-            // add a tag to the storage
             KisTagSP tag(new KisTag());
             tag->setName(QString("Test Tag %1").arg(tagIndex));
             tag->setNames({{"ru", QString("Тестовый тег %1").arg(tagIndex)}});
@@ -661,7 +634,7 @@ void TestResourceLocator::testRemoveTagsFromStorage()
 {
     QFETCH(TagDeletionMethod, tagDeletionMethod);
 
-    TestStorageWrapper storageWrapper(/* storage */ 1, /* resource */ 1, /* tag */ 1);
+    TestStorageWrapper storageWrapper( 1, 1, 1);
 
     KisTagModel tagModel(ResourceType::PaintOpPresets);
     const int initialTagRowCount = tagModel.rowCount();
@@ -702,10 +675,6 @@ void TestResourceLocator::testRemoveTagsFromStorage()
 
         QEXPECT_FAIL("delete_all_temporary", "Deletion of temporary storages with tag is not yet implemented", Abort);
 
-        /**
-         * All the records related to the storage are removed, all the linked tags
-         * are removed as well (since that is the only storage linking them)
-         */
         QCOMPARE(countStorageRecordsForStorageId(documentStorageId), 0);
         QCOMPARE(countStorageRecordsInTagsStoragesForStorageId(documentStorageId), 0);
 
@@ -715,18 +684,11 @@ void TestResourceLocator::testRemoveTagsFromStorage()
         QCOMPARE(countTagRecordsInTagStorages(testTagId), 0);
     } else if (tagDeletionMethod == StorageDeleteTagAndResync) {
         storageWrapper.memoryStorageBackend()->testingRemoveTag(ResourceType::PaintOpPresets, storageWrapper.tagUrl());
-        // now synchronize storage with the database
         KisResourceCacheDb::synchronizeStorage(storageWrapper.storage);
         Q_EMIT m_locator->storageResynchronized(storageWrapper.storageLocation(), false);
 
-        /**
-         * The storage still exists, but all the mentions of the related tags are removed
-         * TODO: is it an expected behavior actually?
-         */
-
         QCOMPARE(countStorageRecordsForStorageId(documentStorageId), 1);
 
-        // we just have no code to remove tags on resync, we can only add new tags on resync currently
         QEXPECT_FAIL("delete_tag_and_resync", "Deletion of tags on storage resync is not yet implemented", Abort);
 
         QCOMPARE(countStorageRecordsInTagsStoragesForStorageId(documentStorageId), 0);
@@ -739,13 +701,8 @@ void TestResourceLocator::testRemoveTagsFromStorage()
 
 void TestResourceLocator::testTagsForStorageUnique()
 {
-    /**
-     * Create two storages owning tags with **different** URLs,
-     * KisResourceCacheDb::tagsForStorage() should detect them as
-     * unique.
-     */
-    TestStorageWrapper storageWrapper1(/* storage */ 1, /* resource */ 1, /* tag */ 1);
-    TestStorageWrapper storageWrapper2(/* storage */ 2, /* resource */ 2, /* tag */ 2);
+    TestStorageWrapper storageWrapper1( 1, 1, 1);
+    TestStorageWrapper storageWrapper2( 2, 2, 2);
 
     m_locator->addStorage(storageWrapper1.storageLocation(), storageWrapper1.storage);
     m_locator->addStorage(storageWrapper2.storageLocation(), storageWrapper2.storage);
@@ -772,7 +729,6 @@ void TestResourceLocator::testTagsForStorageUnique()
     }
 
     {
-        // unrelated resource type returns nothing
         auto [unique, shared] = KisResourceCacheDb::tagsForStorage(ResourceType::Brushes, storageWrapper1.storageLocation());
         QCOMPARE(unique, {});
         QCOMPARE(shared, {});
@@ -780,14 +736,9 @@ void TestResourceLocator::testTagsForStorageUnique()
 }
 void TestResourceLocator::testTagsForStorageShared()
 {
-    /**
-     * Create two storages owning tags with **the same** URLs,
-     * KisResourceCacheDb::tagsForStorage() should detect them as
-     * shared.
-     */
 
-    TestStorageWrapper storageWrapper1(/* storage */ 1, /* resource */ 1, /* tag */ 1);
-    TestStorageWrapper storageWrapper2(/* storage */ 2, /* resource */ 2, /* tag */ 1);
+    TestStorageWrapper storageWrapper1( 1, 1, 1);
+    TestStorageWrapper storageWrapper2( 2, 2, 1);
 
     m_locator->addStorage(storageWrapper1.storageLocation(), storageWrapper1.storage);
     m_locator->addStorage(storageWrapper2.storageLocation(), storageWrapper2.storage);
@@ -814,7 +765,6 @@ void TestResourceLocator::testTagsForStorageShared()
     }
 
     {
-        // unrelated resource type returns nothing
         auto [unique, shared] = KisResourceCacheDb::tagsForStorage(ResourceType::Brushes, storageWrapper1.storageLocation());
         QCOMPARE(unique, {});
         QCOMPARE(shared, {});
@@ -834,17 +784,11 @@ void TestResourceLocator::testTagsForStorageShared()
 
 void TestResourceLocator::testDeleteStorageWithCrossLinkedTags()
 {
-    /**
-     * A case when a tag from one storage links to the resource from another
-     * storage. The current expected behavior for removal of such tag is to
-     * untag the resource and remove the tag. See TagDesignNotes.md for the
-     * details and planned changes.
-     */
 
     const TagDeletionMethod tagDeletionMethod = StorageExplicitDelete;
 
-    TestStorageWrapper storageWrapper1(/* storage */ 1, /* resource */ 1, /* tag */ 1);
-    TestStorageWrapper storageWrapper2(/* storage */ 2, /* resource */ 2, /* tag */ 2);
+    TestStorageWrapper storageWrapper1( 1, 1, 1);
+    TestStorageWrapper storageWrapper2( 2, 2, 2);
 
     KisTagModel tagModel(ResourceType::PaintOpPresets);
     KisTagResourceModel tagResourceModel(ResourceType::PaintOpPresets);
@@ -854,8 +798,6 @@ void TestResourceLocator::testDeleteStorageWithCrossLinkedTags()
 
     QVERIFY(m_locator->hasStorage(storageWrapper1.storageLocation()));
     QVERIFY(m_locator->hasStorage(storageWrapper2.storageLocation()));
-
-    // now use tag from storageWrapper1 for a resource in storageWrapper2
 
     KisTagSP tag1 = tagModel.tagForUrl(storageWrapper1.tagUrl());
     QVERIFY(tag1);
@@ -867,13 +809,11 @@ void TestResourceLocator::testDeleteStorageWithCrossLinkedTags()
 
     QCOMPARE(countTagRecordsInTags(tag1->id()), 1);
     QCOMPARE(countTagRecordsInTagTranslations(tag1->id()), 1);
-    QCOMPARE(countTagRecordsInResourceTags(tag1->id()), 2); // two resources are tagged with this tag
-    QCOMPARE(countTagRecordsInTagStorages(tag1->id()), 1); // one storage is linked as the source of this tag
+    QCOMPARE(countTagRecordsInResourceTags(tag1->id()), 2);
+    QCOMPARE(countTagRecordsInTagStorages(tag1->id()), 1);
 
     tagResourceModel.setResourcesFilter({resource2});
     QCOMPARE(tagResourceModel.rowCount(), 2);
-
-    // now remove the first storage
 
     if (tagDeletionMethod == StorageExplicitDelete || tagDeletionMethod == StorageDeleteAllTemporary) {
         const int deletedStorageId = storageWrapper1.storage->storageId();
@@ -888,13 +828,6 @@ void TestResourceLocator::testDeleteStorageWithCrossLinkedTags()
         } else if (tagDeletionMethod == StorageDeleteAllTemporary) {
             KisResourceCacheDb::deleteTemporaryResources();
         }
-
-        /**
-         * The current behavior is to untag everything with this tag
-         * and remove it. Ideally, we should keep this tag (move it to
-         * a different, e.g. "folder", storage), but that is yet to
-         * be implemented.
-         */
 
         QCOMPARE(countStorageRecordsForStorageId(deletedStorageId), 0);
         QCOMPARE(countStorageRecordsInTagsStoragesForStorageId(deletedStorageId), 0);
@@ -914,7 +847,6 @@ void TestResourceLocator::testDeleteStorageWithCrossLinkedTags()
             QVERIFY(tag2);
         }
 
-        // the model is automatically updated
         QCOMPARE(tagResourceModel.rowCount(), 1);
     }
 }
@@ -923,9 +855,8 @@ void TestResourceLocator::testDeleteStorageWithSharedTags()
 {
     const TagDeletionMethod tagDeletionMethod = StorageExplicitDelete;
 
-    // the two storages provide the same tag!
-    TestStorageWrapper storageWrapper1(/* storage */ 1, /* resource */ 1, /* tag */ 1);
-    TestStorageWrapper storageWrapper2(/* storage */ 2, /* resource */ 2, /* tag */ 1);
+    TestStorageWrapper storageWrapper1( 1, 1, 1);
+    TestStorageWrapper storageWrapper2( 2, 2, 1);
 
     KisTagModel tagModel(ResourceType::PaintOpPresets);
     KisTagResourceModel tagResourceModel(ResourceType::PaintOpPresets);
@@ -941,8 +872,8 @@ void TestResourceLocator::testDeleteStorageWithSharedTags()
 
     QCOMPARE(countTagRecordsInTags(tag1->id()), 1);
     QCOMPARE(countTagRecordsInTagTranslations(tag1->id()), 1);
-    QCOMPARE(countTagRecordsInResourceTags(tag1->id()), 2); // two resources are tagged with this tag
-    QCOMPARE(countTagRecordsInTagStorages(tag1->id()), 2); // two storages are linked as the source of this tag
+    QCOMPARE(countTagRecordsInResourceTags(tag1->id()), 2);
+    QCOMPARE(countTagRecordsInTagStorages(tag1->id()), 2);
 
     {
         KoResourceSP resource2 = m_locator->resource(storageWrapper2.storageLocation(),
@@ -972,8 +903,6 @@ void TestResourceLocator::testDeleteStorageWithSharedTags()
         QCOMPARE(tagResourceModel.rowCount(), 2);
     }
 
-    // now remove the first storage
-
     if (tagDeletionMethod == StorageExplicitDelete || tagDeletionMethod == StorageDeleteAllTemporary) {
         const int deletedStorageId = storageWrapper1.storage->storageId();
 
@@ -982,12 +911,6 @@ void TestResourceLocator::testDeleteStorageWithSharedTags()
         } else if (tagDeletionMethod == StorageDeleteAllTemporary) {
             KisResourceCacheDb::deleteTemporaryResources();
         }
-
-        /**
-         * Since the tag is shared among two different storages, the removal of
-         * one storage does **not** remove the tag, only decreases the "reference
-         * counter"
-         */
 
         QCOMPARE(countStorageRecordsForStorageId(deletedStorageId), 0);
         QCOMPARE(countStorageRecordsInTagsStoragesForStorageId(deletedStorageId), 0);
@@ -1000,10 +923,6 @@ void TestResourceLocator::testDeleteStorageWithSharedTags()
         QCOMPARE(countTagRecordsInResourceTags(tag2->id()), 1);
         QCOMPARE(countTagRecordsInTagStorages(tag2->id()), 1);
 
-
-        /**
-         * The resource from the second storage is still tagged with this tag
-         */
         {
             KisTagResourceModel tagResourceModel(ResourceType::PaintOpPresets);
             KoResourceSP resource2 = m_locator->resource(storageWrapper2.storageLocation(),
@@ -1031,11 +950,6 @@ void TestResourceLocator::testSyncVersions()
         resourceId = KisResourceCacheDb::resourceIdForResource("test0.kpp", ResourceType::PaintOpPresets, "");
         storageLocation = res->storageLocation();
 
-        // ENTER_FUNCTION() << ppVar(model.rowCount());
-        // for (int i = 0; i < model.rowCount(); i++) {
-        //     qDebug() << ppVar(model.data(model.index(i, KisResourceModel::Filename))) << model.data(model.index(i, KisResourceModel::Id));
-        // }
-
         {
             bool result = m_locator->updateResource(res->resourceType().first, res);
             QVERIFY(result);
@@ -1048,11 +962,6 @@ void TestResourceLocator::testSyncVersions()
             QCOMPARE(res->version(), 2);
         }
 
-        // ENTER_FUNCTION() << ppVar(model.rowCount());
-        // for (int i = 0; i < model.rowCount(); i++) {
-        //     qDebug() << ppVar(model.data(model.index(i, KisResourceModel::Filename))) << model.data(model.index(i, KisResourceModel::Id));
-        // }
-
         QCOMPARE(model.rowCount(), 3);
 
         {
@@ -1064,7 +973,6 @@ void TestResourceLocator::testSyncVersions()
 
     }
 
-    // test removing one version of the resource
     {
         bool result = QFile::remove(storageLocation + "/paintoppresets/test0.0002.kpp");
         QVERIFY(result);
@@ -1075,11 +983,6 @@ void TestResourceLocator::testSyncVersions()
         KisResourceModel model(ResourceType::PaintOpPresets);
         model.setResourceFilter(KisResourceModel::ShowAllResources);
 
-        // ENTER_FUNCTION() << ppVar(model.rowCount());
-        // for (int i = 0; i < model.rowCount(); i++) {
-        //     qDebug() << ppVar(model.data(model.index(i, KisResourceModel::Filename))) << model.data(model.index(i, KisResourceModel::Id));
-        // }
-
         QCOMPARE(model.rowCount(), 3);
 
         KoResourceSP res1 = model.resourceForIndex(model.index(0, 0));
@@ -1089,7 +992,6 @@ void TestResourceLocator::testSyncVersions()
 
     }
 
-    // test adding one more version of the resource
     {
         bool result = QFile::copy(storageLocation + "/paintoppresets/test0.0001.kpp",
                                   storageLocation + "/paintoppresets/test0.0006.kpp");
@@ -1101,11 +1003,6 @@ void TestResourceLocator::testSyncVersions()
         KisResourceModel model(ResourceType::PaintOpPresets);
         model.setResourceFilter(KisResourceModel::ShowAllResources);
 
-        // ENTER_FUNCTION() << ppVar(model.rowCount());
-        // for (int i = 0; i < model.rowCount(); i++) {
-        //     qDebug() << ppVar(model.data(model.index(i, KisResourceModel::Filename))) << model.data(model.index(i, KisResourceModel::Id));
-        // }
-
         QCOMPARE(model.rowCount(), 3);
 
         KoResourceSP res1 = model.resourceForIndex(model.index(0, 0));
@@ -1115,7 +1012,6 @@ void TestResourceLocator::testSyncVersions()
         QCOMPARE(res1->version(), 6);
     }
 
-    // test adding a completely new resource
     {
         bool result = QFile::copy(storageLocation + "/paintoppresets/test0.0001.kpp",
                                   storageLocation + "/paintoppresets/test5.0004.kpp");
@@ -1130,11 +1026,6 @@ void TestResourceLocator::testSyncVersions()
 
         KisResourceModel model(ResourceType::PaintOpPresets);
         model.setResourceFilter(KisResourceModel::ShowAllResources);
-
-        // ENTER_FUNCTION() << ppVar(model.rowCount());
-        // for (int i = 0; i < model.rowCount(); i++) {
-        //     qDebug() << ppVar(model.data(model.index(i, KisResourceModel::Filename))) << model.data(model.index(i, KisResourceModel::Id));
-        // }
 
         QCOMPARE(model.rowCount(), 5);
 
@@ -1151,7 +1042,6 @@ void TestResourceLocator::testSyncVersions()
         }
     }
 
-    // test complete removal of all version of the resource
     {
         bool result = QFile::remove(storageLocation + "/paintoppresets/test5.0004.kpp");
         QVERIFY(result);
@@ -1161,11 +1051,6 @@ void TestResourceLocator::testSyncVersions()
 
         KisResourceModel model(ResourceType::PaintOpPresets);
         model.setResourceFilter(KisResourceModel::ShowAllResources);
-
-        // ENTER_FUNCTION() << ppVar(model.rowCount());
-        // for (int i = 0; i < model.rowCount(); i++) {
-        //     qDebug() << ppVar(model.data(model.index(i, KisResourceModel::Filename))) << model.data(model.index(i, KisResourceModel::Id));
-        // }
 
         QCOMPARE(model.rowCount(), 4);
 
@@ -1198,14 +1083,11 @@ void TestResourceLocator::testImportExportResource()
         QCOMPARE(KoMD5Generator::generateHash(buffer.data()), dataMd5);
     }
 
-
     QSharedPointer<DummyResource> dummyResource = resource.dynamicCast<DummyResource>();
     KIS_ASSERT(dummyResource);
 
     dummyResource->setSomething("some weird data to change MD5");
 
-    // md5 sum of the resource is updated only after it is serialized
-    // into the storage
     QCOMPARE(resource->md5Sum(false), dataMd5);
 
     {
@@ -1214,7 +1096,6 @@ void TestResourceLocator::testImportExportResource()
         resource->saveToDevice(&buffer);
         buffer.close();
 
-        // mere saving the resource will obviously change the resource's MD5
         QVERIFY(KoMD5Generator::generateHash(buffer.data()) != dataMd5);
     }
 
@@ -1222,8 +1103,6 @@ void TestResourceLocator::testImportExportResource()
         QBuffer buffer;
         buffer.open(QIODevice::WriteOnly);
 
-        // but exporting **not**, because it export the latest serialized
-        // version
         KisResourceLocator::instance()->exportResource(resource, &buffer);
         QCOMPARE(KoMD5Generator::generateHash(buffer.data()), dataMd5);
     }
@@ -1246,73 +1125,39 @@ void TestResourceLocator::testImportDuplicatedResource()
     QCOMPARE(resource->md5Sum(false), dataMd5);
     QCOMPARE(resource->version(), 0);
 
-    /**
-     * Without override importing should fail, even though it is exactly the
-     * same resource
-     */
     KoResourceSP res0 = KisResourceLocator::instance()->importResourceFromFile(ResourceType::PaintOpPresets, f.fileName(), false);
     QVERIFY(!res0);
 
-    /**
-     * Since MD5 of the resource fully coincides with the existing resource, it
-     * should return existing object while overriding
-     */
     KoResourceSP res1 = KisResourceLocator::instance()->importResourceFromFile(ResourceType::PaintOpPresets, f.fileName(), true);
 
-    /**
-     * The returned resource must be exactly the same object from the cache
-     */
     QCOMPARE(res1, resource);
 
-    /**
-     * Update the resource to make sure it is now different from the imported one
-     */
     bool result = KisResourceLocator::instance()->updateResource(ResourceType::PaintOpPresets, resource);
     QVERIFY(result);
     QCOMPARE(resource->version(), 1);
 
-    /**
-     * Since the resource is updated now, then the shortcut for the existing
-     * resource cannot work anymore, the resource will be wiped out and
-     * created anew
-     */
     KoResourceSP res3 = KisResourceLocator::instance()->importResourceFromFile(ResourceType::PaintOpPresets, f.fileName(), true);
     QVERIFY(res3);
     QVERIFY(res3 != resource);
     QCOMPARE(res3->md5Sum(false), dataMd5);
     QCOMPARE(res3->version(), 0);
 
-    /**
-     * The previous resource is not available anymore
-     */
     int resourceId = -1;
     result = KisResourceCacheDb::getResourceIdFromVersionedFilename(resource->filename(), resource->resourceType().first, resource->storageLocation(), resourceId);
     QVERIFY(!result);
     QVERIFY(resourceId < 0);
 
 #if defined Q_OS_WIN || defined Q_OS_MACOS
-    /**
-     * Try importing this resource with a different case on a case-insensitive
-     * filesystem
-     */
 
     KIS_ASSERT(f.open());
     KoResourceSP res4 = KisResourceLocator::instance()->importResource(ResourceType::PaintOpPresets, fileName.toUpper(), &f, false);
     f.close();
 
-    /**
-     * Without override flag it should fail
-     */
     QVERIFY(!res4);
 
     KIS_ASSERT(f.open());
     KoResourceSP res5 = KisResourceLocator::instance()->importResource(ResourceType::PaintOpPresets, fileName.toUpper(), &f, true);
     f.close();
-
-    /**
-     * With override flag the resource should be overwritten even when its
-     * md5 already present in the database
-     */
 
     QVERIFY(res5);
     QVERIFY(res5 != res3);
@@ -1344,10 +1189,6 @@ void TestResourceLocator::testOrphanedMetadataRemoval()
 
         KisDatabaseTransactionLock transactionLock(QSqlDatabase::database());
 
-        /**
-         * Slightly break the database consistency by removing the resource
-         * records but "forgetting" to remove its metadata.
-         */
         KisSqlQueryLoader loader("inline://make_resource_orphaned",
                                  "DELETE FROM resources WHERE id = 5;"
                                  "DELETE FROM versioned_resources WHERE resource_id = 5;");

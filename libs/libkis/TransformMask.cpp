@@ -15,9 +15,7 @@
 #include "commands_new/KisLazyCreateTransformMaskKeyframesCommand.h"
 #include <kis_processing_applicator.h>
 
-
 #include "kis_transform_mask_params_interface.h"
-
 
 TransformMask::TransformMask(KisImageSP image, QString name, QObject *parent) :
     Node(image, new KisTransformMask(image, name), parent)
@@ -90,7 +88,6 @@ bool TransformMask::fromXML (const QString &xml)
 
     QString id = main.attribute("id", "not-valid");
 
-    // backward compatibility
     if (id == "animatedtransformparams") {
         id = "tooltransformparams";
     }

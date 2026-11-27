@@ -40,21 +40,16 @@ private Q_SLOTS:
     void testGetParallelLines();
     void testGetParallelLines2();
 
-
     void testVectorPathReversed();
     void testVectorPathIndexes_data();
     void testVectorPathIndexes();
 
-
     void testIsInsideShape_data();
     void testIsInsideShape();
-
 
     void testRemoveGutter_data();
     void testRemoveGutter();
     void testMergingPainterPaths();
-
-
 
     void testFindTrianglePoint();
     void testTriangularMotion();
@@ -77,4 +72,4 @@ private Q_SLOTS:
 
 };
 
-#endif /* __KIS_ALGEBRA_2D_TEST_H */
+#endif

@@ -94,7 +94,6 @@ QVector <double> RgbF32ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) 
 void RgbF32ColorSpace::toYUV(const QVector<double> &channelValues, qreal *y, qreal *u, qreal *v) const
 {
 
-    
     RGBToYUV(channelValues[0],channelValues[1],channelValues[2], y, u, v, lumaCoefficients()[0], lumaCoefficients()[1], lumaCoefficients()[2]);
 }
 
@@ -139,8 +138,6 @@ QList<KoColorConversionTransformationFactory *> RgbF32ColorSpaceFactory::colorCo
         KoColorSpaceRegistry *registry = KoColorSpaceRegistry::instance();
         KoColorProfileQuery query(profile->getColorPrimaries(), TRC_LINEAR);
 
-        /// we cannot generate a profile at this stage, it should have been generated
-        /// by the registry thanks to the call to requiredConnectionProfiles()
         const KoColorProfile *connectionProfile = registry->profileFor(query, false);
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(connectionProfile, QList<KoColorConversionTransformationFactory *>());
 

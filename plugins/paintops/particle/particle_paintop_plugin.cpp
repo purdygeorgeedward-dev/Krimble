@@ -5,13 +5,11 @@
  */
 #include "particle_paintop_plugin.h"
 
-
 #include <klocalizedstring.h>
 #include <kis_debug.h>
 #include <kpluginfactory.h>
 
 #include <brushengine/kis_paintop_registry.h>
-
 
 #include "kis_particle_paintop.h"
 #include "kis_particle_paintop_settings_widget.h"
@@ -21,7 +19,6 @@
 #include "kis_global.h"
 
 K_PLUGIN_FACTORY_WITH_JSON(ParticlePaintOpPluginFactory, "kritaparticlepaintop.json", registerPlugin<ParticlePaintOpPlugin>();)
-
 
 ParticlePaintOpPlugin::ParticlePaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

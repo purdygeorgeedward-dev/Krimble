@@ -24,7 +24,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(MyPaintOpPluginFactory, "kritamypaintop.json", registerPlugin<MyPaintOpPlugin>();)
 
-
 MyPaintOpPlugin::MyPaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

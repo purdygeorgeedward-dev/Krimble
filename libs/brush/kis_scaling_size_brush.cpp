@@ -33,4 +33,3 @@ void KisScalingSizeBrush::setUserEffectiveSize(qreal value)
     this->setScale(value / qMax(this->width(), this->height()));
 }
 
-

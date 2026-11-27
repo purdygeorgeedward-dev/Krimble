@@ -26,7 +26,6 @@
 #include "KisTag.h"
 #include "kis_assert.h"
 
-
 QImage KisResourceQueryMapper::getThumbnailFromQuery(const QSqlQuery &query, bool useResourcePrefix)
 {
     const QString storageLocation =
@@ -34,8 +33,6 @@ QImage KisResourceQueryMapper::getThumbnailFromQuery(const QSqlQuery &query, boo
     const QString resourceType = query.value("resource_type").toString();
     const QString filename = query.value(useResourcePrefix ? "resource_filename" : "filename").toString();
 
-    // NOTE: Only use the private methods of KisResourceThumbnailCache here to prevent any chances of
-    // recursion.
     QImage img =
         KisResourceThumbnailCache::instance()->originalImage(storageLocation, resourceType, filename);
     if (!img.isNull()) {
@@ -111,12 +108,10 @@ QVariant KisResourceQueryMapper::variantFromResourceQuery(const QSqlQuery &query
             QString storageLocation = query.value("location").toString();
             QString filename = query.value(useResourcePrefix ? "resource_filename" : "filename").toString();
 
-            // An uncached resource has not been loaded, so it cannot be dirty
             if (!KisResourceLocator::instance()->resourceCached(storageLocation, resourceType, filename)) {
                 return false;
             }
             else {
-                // Now we have to check the resource, but that's cheap since it's been loaded in any case
                 KoResourceSP resource = KisResourceLocator::instance()->resourceForId(query.value(useResourcePrefix ? "resource_id" : "id").toInt());
                 return resource->isDirty();
             }
@@ -149,11 +144,9 @@ QVariant KisResourceQueryMapper::variantFromResourceQuery(const QSqlQuery &query
             const QString storageLocation = query.value("location").toString();
             const QString filename = query.value(useResourcePrefix ? "resource_filename" : "filename").toString();
 
-            // An uncached resource has not been loaded, so it cannot be dirty
             if (!KisResourceLocator::instance()->resourceCached(storageLocation, resourceType, filename)) {
                 return Qt::Unchecked;
             } else {
-                // Now we have to check the resource, but that's cheap since it's been loaded in any case
                 KoResourceSP resource = KisResourceLocator::instance()->resourceForId(
                     query.value(useResourcePrefix ? "resource_id" : "id").toInt());
                 return resource->isDirty() ? Qt::Checked : Qt::Unchecked;
@@ -217,12 +210,10 @@ QVariant KisResourceQueryMapper::variantFromResourceQuery(const QSqlQuery &query
         QString storageLocation = query.value("location").toString();
         QString filename = query.value(useResourcePrefix ? "resource_filename" : "filename").toString();
 
-        // An uncached resource has not been loaded, so it cannot be dirty
         if (!KisResourceLocator::instance()->resourceCached(storageLocation, resourceType, filename)) {
             return false;
         }
         else {
-            // Now we have to check the resource, but that's cheap since it's been loaded in any case
             KoResourceSP resource = KisResourceLocator::instance()->resourceForId(query.value(useResourcePrefix ? "resource_id" : "id").toInt());
             return resource->isDirty();
         }
@@ -260,7 +251,7 @@ QVariant KisResourceQueryMapper::variantFromResourceQuery(const QSqlQuery &query
 
         return false;
     }
-    case Qt::UserRole + KisAbstractResourceModel::BrokenStatusMessage: 
+    case Qt::UserRole + KisAbstractResourceModel::BrokenStatusMessage:
     {
         if (resourceType == ResourceType::PaintOpPresets) {
             KisResourceMetaDataModel *metaDataModel = KisResourceModelProvider::resourceMetadataModel();

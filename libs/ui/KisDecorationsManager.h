@@ -46,4 +46,4 @@ private:
     KisAction *m_toggleReferenceImages {nullptr};
 };
 
-#endif // KIS_PAINTING_ASSISTANTS_MANAGER_H
+#endif

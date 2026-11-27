@@ -11,13 +11,6 @@
 #include <QScopedPointer>
 #include <QObject>
 
-
-/**
- * Emits the timeout() signal if and only if the flow of start()
- * events has been coming for a consecutive \p delay of milliseconds.
- * If the events were not coming for \p cancelDelay of milliseconds the
- * counting is dropped and the new period is started.
- */
 class KRITAIMAGE_EXPORT KisTimedSignalThreshold : public QObject
 {
     Q_OBJECT
@@ -26,32 +19,14 @@ public:
     ~KisTimedSignalThreshold() override;
 
 public Q_SLOTS:
-    /**
-     * Stops counting and emits the signal forcefully
-     */
     void forceDone();
 
-    /**
-     * Start/continue counting and if the signal flow is stable enough
-     * (longer than \p delay and shorter than \p cancelDelay), the
-     * timeout signal in emitted.
-     */
     void start();
 
-    /**
-     * Stops counting the signals flow
-     */
     void stop();
 
-    /**
-     * Enable or disable emitting the signal
-     */
     void setEnabled(bool value);
 
-
-    /**
-     * The period of time, after which the signal will be emitted
-     */
     void setDelayThreshold(int delay, int cancelDelay = -1);
 
 Q_SIGNALS:
@@ -62,4 +37,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_TIMED_SIGNAL_THRESHOLD_H */
+#endif

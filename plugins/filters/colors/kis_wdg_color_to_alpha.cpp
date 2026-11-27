@@ -115,4 +115,3 @@ void KisWdgColorToAlpha::showEvent(QShowEvent *)
     }
 }
 
-

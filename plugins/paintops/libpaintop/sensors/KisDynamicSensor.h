@@ -46,4 +46,4 @@ private:
     std::optional<KisCubicCurve> m_curve;
 };
 
-#endif // KISDYNAMICSENSOR_H
+#endif

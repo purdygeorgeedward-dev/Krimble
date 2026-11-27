@@ -13,4 +13,4 @@ using KisOffsetScaleOption = KisStandardOption<KisOffsetScaleOptionData>;
 using KisLineWidthOption = KisStandardOption<KisLineWidthOptionData>;
 using KisDensityOption = KisStandardOption<KisDensityOptionData>;
 
-#endif // KISSKETCHSTANDARDOPTIONS_H
+#endif

@@ -4,14 +4,12 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KOALPHAMASKAPPLICATORBASE_H
 #define KOALPHAMASKAPPLICATORBASE_H
 
 #include "kritapigment_export.h"
 #include <QtGlobal>
 #include <QColor>
-
 
 class KRITAPIGMENT_EXPORT KoAlphaMaskApplicatorBase
 {
@@ -24,7 +22,6 @@ public:
                                                           qint32 nPixels) const = 0;
     virtual void fillGrayBrushWithColor(quint8 *dst, const QRgb *brush, quint8 *brushColor, qint32 nPixels) const = 0;
 
-
 };
 
-#endif // KOALPHAMASKAPPLICATORBASE_H
+#endif

@@ -19,12 +19,16 @@ class KisColorSelectorNgDock : public QDockWidget, public KoCanvasObserverBase
 public:
     explicit KisColorSelectorNgDock(bool classic = false);
     QString observerName() override { return "KisColorSelectorNgDock"; }
-    /// reimplemented from KoCanvasObserverBase
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 private:
     KisColorSelectorNgDockerWidget *m_colorSelectorNgWidget;
+    void krimbleFitFloating(bool snap);
+    bool m_krimbleFitting = false;
+    QSize m_krimbleDockedMin;
+    QSize m_krimbleDockedMax;
 };
-
 
 #endif

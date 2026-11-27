@@ -34,7 +34,6 @@
 
 #include <kis_config.h>
 
-
 PageTagChooser::PageTagChooser(KoResourceBundleSP bundle, QWidget *parent) :
     QWizardPage(parent),
     m_ui(new Ui::PageTagChooser)

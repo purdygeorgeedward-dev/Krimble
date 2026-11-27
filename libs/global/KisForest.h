@@ -30,7 +30,6 @@ struct RootNodeImpl
     }
 };
 
-
 template <typename Base>
 struct BaseNode : RootNodeImpl<Base>
 {
@@ -52,11 +51,6 @@ struct Node : public BaseNode<Node<T>>
 
 template <typename T>
 using RootNode = RootNodeImpl<Node<T>>;
-
-
-/*************************************************************************/
-/*               BaseIterator                                            */
-/*************************************************************************/
 
 template <typename BaseClass, typename T, typename Tag, bool is_const>
 class BaseIterator :
@@ -94,67 +88,6 @@ private:
 protected:
     NodeType *m_node;
 };
-
-
-/*************************************************************************/
-/*               ChildIterator                                           */
-/*************************************************************************/
-
-/**
- * Child iterator is used to traverse all the children of the current node.
- * It models \c BidirectionalIterator concept, so you can traverse with it in both
- * directions.
- *
- * \code{.cpp}
- *
- * // Forest:
- * //
- * // 0 1
- * //   2
- * //   3 5 6
- * //       7
- * //   4
- * // 8 9
- * //   10
- *
- * KisForest<int>::iterator it0 = findValue(forest, 0);
- *
- * // iterate through all the children of '0'
- * for (auto it = childBegin(it0); it != childEnd(it0); ++it) {
- *     qDebug() << *it;
- * }
- * // prints: 1,2,3,4
- *
- * \endcode
- *
- * It is also possible to convert any iterator type into child iterator
- * via siblingCurrent() function.
- *
- * \code{.cpp}
- *
- * // Forest:
- * //
- * // 0 1
- * //   2
- * //   3 5 6
- * //       7
- * //   4
- * // 8 9
- * //   10
- *
- * KisForest<int>::iterator it2 = findValue(forest, 2);
- *
- * // iterate the children of '0' from '2' to '4'
- * for (auto it = siblingCurrent(it2); it != siblingEnd(it2); ++it) {
- *     qDebug() << *it;
- * }
- * // prints: 2,3,4
- *
- * \endcode
- *
- * WARNING: converting end() iterator to other iterator types currently leads
- *          to undefined behavior.
- */
 
 template <typename T, bool is_const>
 class ChildIterator :
@@ -235,7 +168,6 @@ QDebug operator<<(QDebug dbg, const ChildIterator<value_type, is_const> &it)
     return dbg;
 }
 
-
 template <typename value_type, bool is_const>
 ChildIterator<value_type, is_const> siblingCurrent(ChildIterator<value_type, is_const> it)
 {
@@ -263,8 +195,6 @@ template <typename Iterator,
           typename ResultIterator = ChildIterator<typename Iterator::value_type, is_const>>
 ResultIterator siblingCurrent(Iterator it)
 {
-    // TODO: conversion of an end-iterator into a child iterator is still not implemented
-    //       and considered as UB. We need to implement all special-cases for that.
     KIS_SAFE_ASSERT_RECOVER_NOOP(it.node());
 
     return ResultIterator(it.node(), it.node() ? it.node()->parent : nullptr, 0);
@@ -322,7 +252,6 @@ ResultIterator childEnd(Iterator it)
     return childEnd(siblingCurrent(it));
 }
 
-
 template <typename value_type, bool is_const>
 ChildIterator<value_type, is_const> parent(const ChildIterator<value_type, is_const> &it)
 {
@@ -341,41 +270,6 @@ template <typename T, bool is_const>
 inline bool isEnd(const ChildIterator<T, is_const> &it) {
     return !it.node();
 }
-
-
-/*************************************************************************/
-/*               HierarchyIterator                                       */
-/*************************************************************************/
-
-/**
- * Hierarchy iterator is used to traverse from the current node to the root
- * of the current subtree of the forest. It models \c ForwardIterator concept.
- *
- * \code{.cpp}
- *
- * // Forest:
- * //
- * // 0 1
- * //   2
- * //   3 5 6
- * //       7
- * //   4
- * // 8 9
- * //   10
- *
- * KisForest<int>::iterator nodeIt = findValue(forest, 5);
- *
- * // print all the parent nodes for nodeIt, including nodeIt itself
- * for (auto it = hierarchyBegin(nodeIt); it != hierarchyEnd(nodeIt); ++it) {
- *     qDebug() << *it;
- * }
- * // prints: 5,3,0
- *
- * \endcode
- *
- * WARNING: converting end() iterator to other iterator types currently leads
- *          to undefined behavior.
- */
 
 template <typename T, bool is_const>
 class HierarchyIterator :
@@ -429,52 +323,6 @@ ResultIterator hierarchyEnd(Iterator it)
     Q_UNUSED(it);
     return ResultIterator(nullptr);
 }
-
-
-/*************************************************************************/
-/*               CompositionIterator                                     */
-/*************************************************************************/
-
-/**
- * Composition iterator is used to traverse entire child-subtree of the node
- * recursively in depth-first order. Every node it entered twice: first time, when
- * subtree is entered; second time, when subtree is left. To check the current
- * state of the iterator (Enter or Leave) use \c it.state() call.
- *
- * Iterator models \c ForwardIterator concept.
- *
- * \code{.cpp}
- *
- * // Forest:
- * //
- * // 0 1
- * //   2
- * //   3 5 6
- * //       7
- * //   4
- * // 8 9
- * //   10
- *
- * KisForest<int>::iterator it3 = findValue(forest, 3);
- *
- * // iterate through all the children of '3' recursively
- * for (auto it = compositionBegin(it3); it != compositionEnd(it3); ++it) {
- *     qDebug() << *it << it.state();
- * }
- * // prints: (3, Enter)
- * //           (5, Enter)
- * //             (6, Enter)
- * //             (6, Leave)
- * //             (7, Enter)
- * //             (7, Leave)
- * //           (5, Leave)
- * //         (3, Leave)
- *
- * \endcode
- *
- * WARNING: converting end() iterator to other iterator types currently leads
- *          to undefined behavior.
- */
 
 enum TraversalState {
     Enter,
@@ -574,59 +422,6 @@ ResultIterator compositionEnd(Iterator it)
         ResultIterator(nullptr, Leave);
 }
 
-
-/*************************************************************************/
-/*               DepthFirstIterator                                      */
-/*************************************************************************/
-
-/**
- * Depth-first iterator is used to traverse entire child-subtree of the node
- * recursively in depth-first order. Every node is entered only once. It
- * implements standard recursion iteration:
- *
- *   * \c DepthFirstIterator<T, Enter> implements head-recursion, that is,
- *     the node is visited *before* its children
- *
- *   * \c DepthFirstIterator<T, Leave> implements tail-recursion, that is,
- *     the node is visited *after* its children
- *
- * Use \c subtreeBegin() and \c subtreeEnd() for head-recursion and \c tailSubtreeBegin() and
- * \c tailSubtreeEnd() for tail-recursion.
- *
- * Iterator models \c ForwardIterator concept.
- *
- * \code{.cpp}
- *
- * // Forest:
- * //
- * // 0 1
- * //   2
- * //   3 5 6
- * //       7
- * //   4
- * // 8 9
- * //   10
- *
- * KisForest<int>::iterator it3 = findValue(forest, 3);
- *
- * // iterate through all the children of '3' in head-recursive way
- * for (auto it = subtreeBegin(it3); it != subtreeEnd(it3); ++it) {
- *     qDebug() << *it << it.state();
- * }
- * // prints: 3, 5, 6, 7
- *
- * // iterate through all the children of '3' in tail-recursive way
- * for (auto it = tailSubtreeBegin(it3); it != tailSubtreeEnd(it3); ++it) {
- *     qDebug() << *it << it.state();
- * }
- * // prints: 6, 7, 5, 3
- *
- * \endcode
- *
- * WARNING: converting end() iterator to other iterator types currently leads
- *          to undefined behavior.
- */
-
 template <typename T, TraversalState visit_on, bool is_const>
 class DepthFirstIterator :
         public boost::iterator_adaptor<
@@ -717,60 +512,6 @@ ResultIterator tailSubtreeEnd(Iterator it)
         std::next(ResultIterator(it.node(), Leave)) :
         ResultIterator(nullptr, Leave);
 }
-
-
-/*************************************************************************/
-/*               Forest                                                  */
-/*************************************************************************/
-
-/**
- * Forest implements a container for composing tree-like structures from
- * arbitrary objects.
- *
- * All add/remove operations are implemented via child_iterator. You can
- * convert any iterator type into a child iterator via \c siblingCurrent()
- * function.
- *
- * * \code{.cpp}
- *
- * // Forest:
- * //
- * // 0 1
- * //   2
- * //   3 5 6
- * //       7
- * //   4
- * // 8 9
- * //   10
- *
- * KisForest<int> forest;
- *
- * auto it0 = forest.insert(childBegin(forest), 0);
- * auto it8 = forest.insert(childEnd(forest), 8);
- *
- * auto it1 = forest.insert(childEnd(it0), 1);
- * auto it2 = forest.insert(childEnd(it0), 2);
- * auto it3 = forest.insert(childEnd(it0), 3);
- * auto it4 = forest.insert(childEnd(it0), 4);
- *
- * auto it5 = forest.insert(childEnd(it3), 5);
- *
- * auto it6 = forest.insert(childEnd(it5), 6);
- * auto it7 = forest.insert(childEnd(it5), 7);
- *
- * auto it9 = forest.insert(childEnd(it8), 9);
- * auto it10 = forest.insert(childEnd(it8), 10);
- *
- * // iterate through all elements of the forest
- * for (auto it = subtreeBegin(forest); it != subtreeEnd(forest); ++it) {
- *     qDebug() << *it << it.state();
- * }
- * // prints: 0,1,2,3,5,6,7,4,8,9,10
- *
- * \endcode
- *
- *
- */
 
 template <typename T>
 class Forest
@@ -933,12 +674,6 @@ public:
         return compositionEndImpl(*this);
     }
 
-    /**
-     * @brief Inserts element \p value into position \p pos.
-     * \p value becomes the child of the same parent as \p pos
-     * and is placed right before \p pos.
-     * @return iterator pointing to the inserted element
-     */
     template <typename X>
     child_iterator insert(child_iterator pos, X &&value) {
         Node<T> *node = new Node<T>(std::forward<X>(value));
@@ -948,11 +683,6 @@ public:
         return child_iterator(node, node->parent, 0);
     }
 
-    /**
-     * @brief Removes element at position \p pos.
-     * If \p pos is 'end', then result is undefined.
-     * @return the element following \p pos
-     */
     child_iterator erase(child_iterator pos) {
         child_iterator nextNode = std::next(pos);
         Node<T> *node = pos.node();
@@ -974,10 +704,6 @@ public:
         return nextNode;
     }
 
-    /**
-     * @brief erases all elements from \p pos to \p end (excluding \p end)
-     * @return \p end
-     */
     child_iterator erase(child_iterator pos, child_iterator end) {
         while (pos != end) {
             pos = erase(pos);
@@ -985,14 +711,7 @@ public:
         return pos;
     }
 
-    /**
-     * @brief move a subtree to new position
-     * Moves \p subtree into a new position pointer by \p newPos. \p newPos
-     * must not be inside the subtree, otherwise cycling links may appear.
-     * @return iterator to a new position of \p subtree
-     */
     child_iterator move(child_iterator subtree, child_iterator newPos) {
-        // sanity check for cycling move
         for (auto it = hierarchyBegin(newPos); it != hierarchyEnd(newPos); ++it) {
             KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(it.node() != subtree.node(), subtree);
         }
@@ -1146,7 +865,6 @@ typename Forest<T>::const_child_iterator childBegin(const Forest<T> &forest)
     return forest.childBegin();
 }
 
-
 template <typename T>
 typename Forest<T>::child_iterator childEnd(Forest<T> &forest)
 {
@@ -1171,7 +889,6 @@ typename Forest<T>::const_composition_iterator compositionBegin(const Forest<T> 
     return forest.compositionBegin();
 }
 
-
 template <typename T>
 typename Forest<T>::composition_iterator compositionEnd(Forest<T> &forest)
 {
@@ -1183,7 +900,6 @@ typename Forest<T>::const_composition_iterator compositionEnd(const Forest<T> &f
 {
     return forest.compositionEnd();
 }
-
 
 template <typename T>
 typename Forest<T>::depth_first_tail_iterator tailSubtreeBegin(Forest<T> &forest)
@@ -1245,5 +961,4 @@ using std::find_if_not;
 template<typename T>
 using KisForest = KisForestDetail::Forest<T>;
 
-
-#endif // KISFOREST_H
+#endif

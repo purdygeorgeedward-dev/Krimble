@@ -52,8 +52,6 @@ static constexpr int BUFFER_SPACE = 5;
 static constexpr int BIG_BUFFER_SPACE_X = 30;
 static constexpr int BIG_BUFFER_SPACE_Y = 30;
 
-
-
 class KisSelectionManager;
 
 struct ActionButtonData {
@@ -99,7 +97,7 @@ struct KisSelectionActionsPanel::Private {
             {"krita_tool_reference_images", i18n("Toggle pin selection actions bar"), &KisSelectionManager::toggleSAPpin}};
         return data;
     }
-    int m_buttonCount = buttonData().size() + 1; // buttons + drag handle
+    int m_buttonCount = buttonData().size() + 1;
 
     int m_actionBarWidth = m_buttonCount * BUTTON_SIZE;
     int m_actionBarHeight = BUTTON_SIZE;
@@ -118,23 +116,16 @@ struct KisSelectionActionsPanel::Private {
     int sapPinButtonIndex = {-1};
 };
 
-
-
 KisSelectionActionsPanel::KisSelectionActionsPanel(KisViewManager *viewManager)
     : d(new Private)
 {
     d->m_viewManager = viewManager;
     d->m_selectionManager = viewManager->selectionManager();
 
-
     KisConfig kcfg(true);
-    // instead of loading the user's configuration, set it to the "old version" of the behaviour:
     kcfg.setSelectionActionBarOrientation(KisConfig::SelectionActionsBarOrientation::Horizontal);
     kcfg.setSelectionActionBarPosition(KisConfig::SelectionActionsBarPosition::Bottom);
-    // whether it's fixed or free-floating can be determined by the pin icon, so let's load that one correctly and don't change it
-    // TODO: remove this whole part when restoring the behaviour
 
-    // Setup buttons...
     QVector<ActionButtonData> data = Private::buttonData();
     for (int i = 0; i  < data.length(); i++) {
         const ActionButtonData &buttonData = data[i];
@@ -186,8 +177,6 @@ void KisSelectionActionsPanel::draw(QPainter &painter, const KoColorDisplayRende
         drawAnchorWhileMoving(painter);
     }
 
-    //drawDebugRectanglesForFreeFloatingBehaviour(painter);
-
     drawActionBarBackground(painter, displayRendererInterface);
     Q_FOREACH(KisSelectionActionsPanelButton* button, d->m_buttons){
         button->draw(painter, displayRendererInterface);
@@ -205,7 +194,6 @@ void KisSelectionActionsPanel::setOrientation(Orientation mode)
     d->m_handleWidget->setOrientation(mode);
     recalculateDimensions();
 
-    //Recalcute the position of the bar to be inside the canvas
     updatePositioning();
 }
 
@@ -308,14 +296,12 @@ void KisSelectionActionsPanel::setVisible(bool p_visible)
 
     d->configure_action->setVisible(p_visible && d->m_viewManager->selection());
 
-    // movePanelWidgets() uses d->m_visible to decide whether to make the widgets
-    // visible or not
     d->m_visible = p_visible;
 
-    if (d->m_viewManager->selection() && p_visible) { // Now visible!
+    if (d->m_viewManager->selection() && p_visible) {
         d->m_handleWidget->installEventFilter(this);
         updatePositioning();
-    } else { // Now hidden!
+    } else {
         d->m_handleWidget->removeEventFilter(this);
 
         for (KisSelectionActionsPanelButton *button : d->m_buttons) {
@@ -336,7 +322,6 @@ void KisSelectionActionsPanel::setEnabled(bool enabled)
 
     d->m_enabled = enabled;
     if (configurationChanged) {
-        // Reset visibility when configuration changes
         setVisible(enabled);
     }
 }
@@ -400,7 +385,6 @@ bool KisSelectionActionsPanel::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-
 void KisSelectionActionsPanel::canvasWidgetChanged(KisCanvasWidgetBase* canvas)
 {
 
@@ -438,13 +422,10 @@ QPoint KisSelectionActionsPanel::clipPositionToCanvasBoundaries(QPoint position,
     int pos_y_min = canvasBounds.top() + BUFFER_SPACE;
     int pos_y_max = canvasBounds.bottom() - ACTION_BAR_HEIGHT - BUFFER_SPACE;
 
-    //Ensure that max is always bigger than min
-    //If the window is small enough max could be smaller than min
     if (pos_x_max < pos_x_min) {
         pos_x_max = pos_x_min;
     }
 
-    //It is pretty implausible for it to happen vertically but better safe than sorry
     if (pos_y_max < pos_y_min) {
         pos_y_max = pos_y_min;
     }
@@ -480,7 +461,6 @@ QPoint KisSelectionActionsPanel::horizontalFreeFloatingTopLeftPosition(bool calc
             anchor = QPoint(selection.right(), 0);
             offsetted = anchor - QPoint(barHorizontalOffset, 0);
         break;
-
 
         case Position::Left:
             anchor = QPoint(selection.left(), 0);
@@ -662,14 +642,12 @@ void KisSelectionActionsPanel::drawActionBarBackground(QPainter &painter, const 
 
     QColor bgColor = qApp->palette().window().color();
 
-    //Slightly lighten the color, to force `dragColor` to  move it in the lighter direction, without this it will always darken the color
     if (!KisIconUtils::useDarkIcons()) {
         bgColor = bgColor.lighter(120);
     }
 
     KisPaintingTweaks::dragColor(&bgColor,  outlineColor, 0.25);
 
-    // Manually convert here, to keep as much consistency as possible.
     KoColor c;
     c.fromQColor(bgColor);
     bgColor = displayRendererInterface->convertColorToDisplayColorSpace(c);
@@ -680,10 +658,8 @@ void KisSelectionActionsPanel::drawActionBarBackground(QPainter &painter, const 
     bgColorTrans.setAlpha(80);
     const int outline_width = 4;
 
-    //an outer 1px wide outline for contrast against the background
     QRectF contrastOutline(d->m_dragHandle.position - QPoint(outline_width + 1,outline_width + 1), QSize(d->m_actionBarWidth, d->m_actionBarHeight) +QSize(outline_width + 1,outline_width + 1) * 2);
     QRectF midOutline(d->m_dragHandle.position - QPoint(outline_width,outline_width), QSize(d->m_actionBarWidth, d->m_actionBarHeight) +QSize(outline_width,outline_width) * 2);
-    //Add a bit of padding here for the icons
     QRectF centerBackground(d->m_dragHandle.position - QPoint(outline_width,outline_width) / 2, QSize(d->m_innerActionBarWidth, d->m_innerActionBarHeight) +QSize(outline_width,outline_width));
     QPainterPath bgPath;
     QPainterPath outlinePath;
@@ -744,11 +720,9 @@ bool KisSelectionActionsPanel::handleRelease(QEvent *event)
 
 void KisSelectionActionsPanel::movePanelWidgets()
 {
-    //This function gets called on panel creation, when dragHandle is not initialized, so we need to handle that
     if (!d->m_handleWidget)
         return;
 
-    // don't show the widgets if the panel is hidden
     if (!d->m_visible)
         return;
 
@@ -847,7 +821,6 @@ void KisSelectionActionsPanel::configChanged(bool skipResettingOffset)
     KisConfig cfg(true);
     KConfigGroup silentCfg = KSharedConfig::openConfig()->group("");
 
-
     setHandleEnabled(cfg.selectionActionBarBehavior() != Behavior::Fixed);
 
     bool resetOffset = false;
@@ -886,8 +859,6 @@ void KisSelectionActionsPanel::themeChanged()
     d->m_handleWidget->themeChanged();
 }
 
-
-
 void KisSelectionActionsPanel::drawDebugRectangle(QPainter &painter, Position position)
 {
     d->position = position;
@@ -898,7 +869,6 @@ void KisSelectionActionsPanel::drawDebugRectangle(QPainter &painter, Position po
     painter.drawRect(QRect(p, QSize(d->m_actionBarWidth, d->m_actionBarHeight)));
     painter.drawEllipse(freeFloatingInitialTopLeftPosition(true), 10, 10);
 }
-
 
 void KisSelectionActionsPanel::drawDebugRectanglesForFreeFloatingBehaviour(QPainter &painter)
 {

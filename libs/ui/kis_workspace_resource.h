@@ -11,7 +11,6 @@
 #include <kis_properties_configuration.h>
 #include "kritaui_export.h"
 
-/// Resource for storing of workspaces
 class KRITAUI_EXPORT KisWorkspaceResource : public KoResource , public KisPropertiesConfiguration
 {
 
@@ -39,4 +38,4 @@ private:
 
 typedef QSharedPointer<KisWorkspaceResource> KisWorkspaceResourceSP;
 
-#endif // KIS_WORKSPACE_RESOURCE_H
+#endif

@@ -9,21 +9,15 @@
 
 #include "kis_abstract_shortcut.h"
 
-/**
- * This class represents a shortcut that executes a simple atomic
- * action. It can be initiated either by a keyboard hotkey or by
- * a mouse wheel rotation.
- */
-
 class KRITAUI_EXPORT KisSingleActionShortcut : public KisAbstractShortcut
 {
 public:
     enum WheelAction {
-        WheelUp, ///< Mouse wheel moves up.
-        WheelDown, ///< Mouse wheel moves down.
-        WheelLeft, ///< Mouse wheel moves left.
-        WheelRight, ///< Mouse wheel moves right.
-        WheelTrackpad, ///< A pan movement on a trackpad.
+        WheelUp,
+        WheelDown,
+        WheelLeft,
+        WheelRight,
+        WheelTrackpad,
     };
 
     KisSingleActionShortcut(KisAbstractInputAction *action, int index);
@@ -37,9 +31,6 @@ public:
     bool match(const QSet<Qt::Key> &modifiers, Qt::Key key);
     bool match(const QSet<Qt::Key> &modifiers, WheelAction wheelAction);
 
-    /**
-     * Check is the shortcut or the key sequence is a prefix of one another
-     */
     bool conflictsWith(const QKeySequence &seq);
 
 private:
@@ -47,4 +38,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_SINGLE_ACTION_SHORTCUT_H */
+#endif

@@ -26,4 +26,3 @@ WdgImagesplit::WdgImagesplit(QWidget* parent)
     chkAutoSave->setChecked(true);
 }
 
-

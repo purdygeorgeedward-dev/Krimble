@@ -13,7 +13,6 @@
 
 class KisNodeManager;
 
-
 class KRITAUI_EXPORT KisNodeSelectionAdapter
 {
 public:
@@ -28,4 +27,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_NODE_SELECTION_ADAPTER_H */
+#endif

@@ -52,4 +52,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // KISAPPLICATIONARGUMENTS_H
+#endif

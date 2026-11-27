@@ -80,9 +80,6 @@ void KisPaletteChooser::paletteSelected(KoResourceSP r)
 
 void KisPaletteChooser::slotAdd()
 {
-    // Don't select any palette,
-    //  because it doesn't need to be added at the end of the list.
-    // The PaletteEditor will select the newly added palette.
     Q_EMIT sigAddPalette();
 }
 
@@ -109,8 +106,6 @@ void KisPaletteChooser::slotExport()
     Q_EMIT sigExportPalette(palette);
 }
 
-/************************* KisPaletteChooserPrivate **********************/
-
 KisPaletteChooserPrivate::KisPaletteChooserPrivate(KisPaletteChooser *a_c)
     : c(a_c)
     , itemChooser(new KisResourceItemChooser(ResourceType::Palettes, false, a_c))
@@ -119,8 +114,6 @@ KisPaletteChooserPrivate::KisPaletteChooserPrivate(KisPaletteChooser *a_c)
 
 KisPaletteChooserPrivate::~KisPaletteChooserPrivate()
 { }
-
-/******************* KisPaletteChooserPrivate::Delegate ******************/
 
 KisPaletteChooserPrivate::Delegate::Delegate(QObject *parent)
     : QAbstractItemDelegate(parent)

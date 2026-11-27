@@ -13,11 +13,9 @@
 #include "kis_layer_style_filter_environment.h"
 #include "kis_psd_layer_style.h"
 
-
 #include "kis_painter.h"
 #include "kis_multiple_projection.h"
 #include "KisLayerStyleKnockoutBlower.h"
-
 
 struct KisLayerStyleFilterProjectionPlane::Private
 {
@@ -38,7 +36,6 @@ struct KisLayerStyleFilterProjectionPlane::Private
     {
         KIS_SAFE_ASSERT_RECOVER_NOOP(_sourceLayer);
     }
-
 
     KisLayer *sourceLayer;
 

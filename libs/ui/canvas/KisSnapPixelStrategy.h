@@ -7,9 +7,7 @@
 #ifndef __KIS_SNAP_PIXEL_STRATEGY_H
 #define __KIS_SNAP_PIXEL_STRATEGY_H
 
-
 #include "KoSnapStrategy.h"
-
 
 class KisSnapPixelStrategy : public KoSnapStrategy
 {
@@ -21,4 +19,4 @@ public:
     QPainterPath decoration(const KoViewConverter &converter) const override;
 };
 
-#endif /* __KIS_SNAP_PIXEL_STRATEGY_H */
+#endif

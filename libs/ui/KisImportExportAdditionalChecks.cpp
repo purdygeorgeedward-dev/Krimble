@@ -7,7 +7,6 @@
 #include "KisImportExportAdditionalChecks.h"
 #include <QFileInfo>
 
-
 bool KisImportExportAdditionalChecks::isFileWritable(QString filepath)
 {
     QFileInfo finfo(filepath);

@@ -11,9 +11,6 @@
 
 #include "kritaglobal_export.h"
 
-/**
- * @brief The KisUsageLogger class logs messages to a logfile
- */
 class KRITAGLOBAL_EXPORT KisUsageLogger
 {
 
@@ -25,22 +22,16 @@ public:
     static void initialize();
     static void close();
 
-    /// basic system information
-    ///    (there is other information spread in the code
-    ///     check usages of writeSysInfo for details)
     static QString basicSystemInfo();
 
     static void writeLocaleSysInfo();
 
-    /// Logs with date/time
     static void log(const QString &message);
 
-    /// Writes to the system information file and Krita log
     static void writeSysInfo(const QString &message);
 
     static void writeHeader();
 
-    /// Returns information about all available screens
     static QString screenInformation();
 
 private:
@@ -57,4 +48,4 @@ private:
 
 };
 
-#endif // KISUSAGELOGGER_H
+#endif

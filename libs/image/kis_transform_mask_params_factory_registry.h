@@ -16,7 +16,6 @@
 
 #include "kis_transform_mask_params_interface.h"
 
-
 class QDomElement;
 
 using KisTransformMaskParamsFactory    = std::function<KisTransformMaskParamsInterfaceSP (const QDomElement &)>;
@@ -43,4 +42,4 @@ private:
     KisAnimatedTransformMaskParamsHolderFactory m_animatedParamsFactory;
 };
 
-#endif /* __KIS_TRANSFORM_MASK_PARAMS_FACTORY_REGISTRY_H */
+#endif

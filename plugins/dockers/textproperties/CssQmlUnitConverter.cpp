@@ -19,18 +19,15 @@ struct CssQmlUnitConverter::Private {
     qreal dataValue{0.0};
     int dataUnit{-1};
     int userUnit{-1};
-    qreal percentageReference {12.0}; ///< 12.0 pt is the default we use for font-size, which most css text properties' % resolve against.
+    qreal percentageReference {12.0};
 
     KoUnit absoluteUnitConverter;
 
-    // fontmetrics
     KoCSSFontInfo fontInfo;
     int fontLineGap = 0;
     KoSvgText::FontMetrics metrics;
 };
 
-// Map of absolute values.
-// by making this a map, it always stays order in the order of KoUnit::type.
 const QMap<KoUnit::Type, CssQmlUnitConverter::UserUnits> koUnitMap = {
     {KoUnit::Millimeter, CssQmlUnitConverter::UserUnits::Mm},
     {KoUnit::Point, CssQmlUnitConverter::UserUnits::Pt},
@@ -81,7 +78,6 @@ void CssQmlUnitConverter::setFontMetricsFromTextPropertiesModel(KoSvgTextPropert
     int parentLineHeight = -1;
     if (textPropertiesModel) {
         KoSvgTextPropertyData data = textPropertiesModel->textData.get();
-        // remove fontsize or lineheight for those specific properties, so the calculation is normal.
         if (isFontSize) {
             main = data.inheritedProperties;
             main.inheritFrom(KoSvgTextProperties::defaultProperties());
@@ -236,7 +232,7 @@ void CssQmlUnitConverter::setUserUnit(int newUserUnit)
         d->dataUnit = d->dataUnitMap.value(UserUnits::Pt);
         emit dataUnitChanged();
         setDataValue(currentAbsoluteValue);
-    } else { // old value was absolute, and new value is relative, or both values are relative.
+    } else {
         d->dataUnit = d->dataUnitMap.value(newUserUnit);
         emit dataUnitChanged();
         setDataValue(convertToRelativeValue(currentAbsoluteValue, newType));

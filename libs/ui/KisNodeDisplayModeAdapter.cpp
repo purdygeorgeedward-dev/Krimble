@@ -8,7 +8,6 @@
 #include "kis_config.h"
 #include "kis_config_notifier.h"
 
-
 KisNodeDisplayModeAdapter::KisNodeDisplayModeAdapter(QObject *parent)
     : QObject(parent)
 {

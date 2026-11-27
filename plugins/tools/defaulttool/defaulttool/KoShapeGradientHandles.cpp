@@ -47,10 +47,8 @@ QVector<KoShapeGradientHandles::Handle> KoShapeGradientHandles::handles() const 
         break;
     }
     case QGradient::ConicalGradient:
-        // not supported
         break;
     case QGradient::NoGradient:
-        // not supported
         break;
     }
 
@@ -61,8 +59,6 @@ QVector<KoShapeGradientHandles::Handle> KoShapeGradientHandles::handles() const 
         const QTransform t = gradientToUser * m_shape->absoluteTransformation();
 
         QVector<Handle>::iterator it = result.begin();
-
-
 
         for (; it != result.end(); ++it) {
             it->pos = t.map(it->pos);
@@ -121,10 +117,8 @@ KUndo2Command *KoShapeGradientHandles::moveGradientHandle(KoShapeGradientHandles
         break;
     }
     case QGradient::ConicalGradient:
-        // not supported
         break;
     case QGradient::NoGradient:
-        // not supported
         break;
     }
 
@@ -161,8 +155,6 @@ QPointF KoShapeGradientHandles::getNewHandlePos(const QPointF &oldPos, const QPo
         const QTransform gradientToUser = KisAlgebra2D::mapToRect(rect);
         localToAbsolute = gradientToUser * localToAbsolute;
 
-        /// Some shapes may have zero-width/height, then inverted transform will not
-        /// exist. Therefore we should use a special method for that.
         const QTransform userToGradient = KisAlgebra2D::mapToRectInverse(rect);
         absoluteToLocal = absoluteToLocal * userToGradient;
     }

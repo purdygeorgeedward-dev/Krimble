@@ -11,11 +11,6 @@
 #include "kis_brush_factory.h"
 #include "kis_brush.h"
 
-/**
- * A brush factory can create a new brush instance based
- * on a properties object that contains a serialized representation
- * of the object.
- */
 class BRUSH_EXPORT KisTextBrushFactory : public KisBrushFactory
 {
 
@@ -28,12 +23,6 @@ public:
         return "kis_text_brush";
     }
 
-
-    /**
-     * Create a new brush from the given data or return an existing KisBrush
-     * object. If this call leads to the creation of a resource, it should be
-     * added to the resource provider, too.
-     */
     KoResourceLoadResult createBrush(const QDomElement& brushDefinition, KisResourcesInterfaceSP resourcesInterface) override;
     KoResourceLoadResult createBrush(const KisBrushModel::BrushData &data, KisResourcesInterfaceSP resourcesInterface) override;
     std::optional<KisBrushModel::BrushData> createBrushModel(const QDomElement &element, KisResourcesInterfaceSP resourcesInterface) override;

@@ -11,7 +11,6 @@
 
 #include <kis_grid_interpolation_tools.h>
 
-
 #include <QRandomGenerator>
 
 #include <KoColor.h>
@@ -22,7 +21,6 @@
 #include <kis_liquify_transform_worker.h>
 #include <kis_algebra_2d.h>
 
-// NOTE: copied from Liquify Transform Worker cpp file
 struct AllPointsFetcherOp
 {
     AllPointsFetcherOp(QRectF srcRect) : m_srcRect(srcRect) {}
@@ -47,10 +45,8 @@ struct AllPointsFetcherOp
     QRectF m_srcRect;
 };
 
-
 QVector<QVector<int>> getCalcGridDimensionsExpectedValues()
 {
-    // start, end, pixelPrecision, expected grid size
     return {
         {0, 8, 8, 2},
         {0, 9, 8, 3},
@@ -85,7 +81,7 @@ void KisGridInterpolationToolsTest::testCalcGridSize()
             QVector<int> x = testCases[i];
             QVector<int> y = testCases[j];
             if (x[2] != y[2]) {
-                continue; // different pixel precision
+                continue;
             }
 
             QRect srcBounds = QRect(QPoint(x[0], y[0]), QPoint(x[1], y[1]));
@@ -94,7 +90,6 @@ void KisGridInterpolationToolsTest::testCalcGridSize()
         }
     }
 }
-
 
 void KisGridInterpolationToolsTest::testCalculateCellIndexes_data()
 {
@@ -107,7 +102,6 @@ void KisGridInterpolationToolsTest::testCalculateCellIndexes_data()
     QTest::addRow("b") << 10 << 0 << QSize(100, 100) << (QVector<int> {10, 11, 111, 110});
     QTest::addRow("c") << 0 << 10 << QSize(100, 100) << (QVector<int> {1000, 1001, 1101, 1100});
     QTest::addRow("d") << 15 << 20 << QSize(100, 100) << (QVector<int> {2015, 2016, 2116, 2115});
-
 
     QTest::addRow("e") << 0 << 0 << QSize(100, 200) << (QVector<int> {0, 1, 101, 100});
     QTest::addRow("f") << 10 << 0 << QSize(100, 200) << (QVector<int> {10, 11, 111, 110});
@@ -122,13 +116,6 @@ void KisGridInterpolationToolsTest::testCalculateCellIndexes_data()
 
 void KisGridInterpolationToolsTest::testCalculateCellIndexes()
 {
-    // it takes the gridSize and row and column index
-    // and then gives out cell indexes (in the long vector with all points)
-    // in a clock-wise manner
-    // 1 -> 2
-    //      |
-    //      v
-    // 4 <- 3
 
     QFETCH(int, column);
     QFETCH(int, row);
@@ -191,7 +178,6 @@ void KisGridInterpolationToolsTest::testPointPolygonIndexToColRow_data()
     QTest::addRow("a") << QPoint(21, 34) << 2 << QPoint(22, 35);
     QTest::addRow("a") << QPoint(21, 34) << 3 << QPoint(21, 35);
 
-
 }
 
 void KisGridInterpolationToolsTest::testPointPolygonIndexToColRow()
@@ -202,24 +188,21 @@ void KisGridInterpolationToolsTest::testPointPolygonIndexToColRow()
 
     QPoint result = GridIterationTools::Private::pointPolygonIndexToColRow(baseColRow, index);
     if (result != expected) {
-        qCritical() << result << expected;// << "for data: " << ppVar(column) << ppVar(row) << ppVar(gridSize);
+        qCritical() << result << expected;
     }
     QCOMPARE(result, expected);
 }
-
 
 void KisGridInterpolationToolsTest::testGetOrthogonalPointApproximation()
 {
 
 }
 
-
-
 void KisGridInterpolationToolsTest::testCalculateCorrectSubGrid_data()
 {
     QTest::addColumn<QRect>("originalBoundsForGrid");
     QTest::addColumn<int>("pixelPrecision");
-    QTest::addColumn<QRectF>("currentBounds"); // accumulated brush strokes
+    QTest::addColumn<QRectF>("currentBounds");
     QTest::addColumn<QSize>("gridSize");
     QTest::addColumn<QRect>("expected");
 
@@ -251,7 +234,7 @@ void KisGridInterpolationToolsTest::testCalculateCorrectSubGrid()
 
     QRect result = GridIterationTools::calculateCorrectSubGrid(originalBoundsForGrid, pixelPrecision, currentBounds, gridSize);
     if (result != expected) {
-        qCritical() << result << expected;// << "for data: " << ppVar(column) << ppVar(row) << ppVar(gridSize);
+        qCritical() << result << expected;
     }
     QCOMPARE(result, expected);
 
@@ -281,8 +264,6 @@ void KisGridInterpolationToolsTest::testCutOutSubgridFromBounds_data()
     QTest::addRow("out-of-bounds") << QRect(10, 5, 4, 7) << srcBoundsSmall << GridIterationTools::calcGridSize(srcBoundsSmall, pixelPrecision)
                                    << getPoints(srcBoundsSmall, pixelPrecision) << QList<QRectF> {QRectF(0,0, 100,40), QRectF(0,40, 80,49), QRectF(0,89, 100,11)};
 
-    // this happened after an issue in calculateCorrectSubgrid, but it's still weird how it calculates it
-    //  GridIterationTools::calcGridSize(QRect(QPoint(824,30), QSize(393,330)), 4)
     QRect srcBounds2 = QRect(QPoint(824,30), QSize(393,330));
 
     QTest::addRow("out-of-bounds-0-width-case") << QRect(QPoint(100,0),QSize(0,84)) << srcBounds2 << QSize(100, 84)
@@ -302,7 +283,7 @@ void KisGridInterpolationToolsTest::testCutOutSubgridFromBounds()
 
     QList<QRectF> result = GridIterationTools::cutOutSubgridFromBounds(correctSubgrid, srcBounds, gridSize, originalPoints);
     if (result != expected) {
-        qCritical() << result << expected;// << "for data: " << ppVar(column) << ppVar(row) << ppVar(gridSize);
+        qCritical() << result << expected;
     }
     QCOMPARE(result, expected);
 
@@ -319,7 +300,6 @@ void KisGridInterpolationToolsTest::testCanProcessPolygonsInRandomOrder()
     QRectF acc = QRectF(10, 10, 20, 20);
     QRect correctSubGrid = GridIterationTools::calculateCorrectSubGrid(srcBounds, pixelPrecision, acc, gridSize);
 
-
     GridIterationTools::RegularGridIndexesOp indexesOp(gridSize);
 
     bool canMergeRects = GridIterationTools::canProcessRectsInRandomOrder(indexesOp, transformedPoints, correctSubGrid);
@@ -335,8 +315,6 @@ void KisGridInterpolationToolsTest::testQImagePolygonOpStructFastAreaCopy()
     GridIterationTools::QImagePolygonOp op(srcImage, dstImage, QPointF(), QPointF(-100, 100));
     op.fastCopyArea(QRect(QPoint(), srcImage.size()));
 
-    //dstImage.save("fast_area_copy_result.png");
 }
-
 
 SIMPLE_TEST_MAIN(KisGridInterpolationToolsTest)

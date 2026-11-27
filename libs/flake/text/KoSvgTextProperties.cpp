@@ -95,7 +95,6 @@ bool KoSvgTextProperties::isEmpty() const
     return m_d->properties.isEmpty();
 }
 
-
 bool KoSvgTextProperties::Private::isInheritable(PropertyId id) {
     return id != UnicodeBidiId && id != AlignmentBaselineId && id != BaselineShiftModeId && id != BaselineShiftValueId && id != TextDecorationLineId
         && id != TextDecorationColorId && id != TextDecorationStyleId && id != InlineSizeId && id != TextTrimId;
@@ -127,8 +126,6 @@ void KoSvgTextProperties::inheritFrom(const KoSvgTextProperties &parentPropertie
 
 void KoSvgTextProperties::resolveRelativeValues(const KoSvgText::FontMetrics metrics, const qreal fontSize, bool onlyFontAndLineHeight)
 {
-    // First resolve 'font-*' properties.
-    // See https://www.w3.org/TR/css-values-4/#font-relative-lengths
     KoSvgText::CssLengthPercentage size = this->fontSize();
     size.convertToAbsolute(metrics, fontSize);
     this->setFontSize(size);
@@ -146,7 +143,6 @@ void KoSvgTextProperties::resolveRelativeValues(const KoSvgText::FontMetrics met
     if (onlyFontAndLineHeight) return;
 
     const KoSvgText::FontMetrics usedMetrics = this->metrics();
-
 
     for (auto it = this->m_d->properties.begin(); it != this->m_d->properties.end(); it++) {
 
@@ -242,7 +238,6 @@ void KoSvgTextProperties::scaleAbsoluteValues(const double scaleInline, const do
             info.customValue *= scaleInline;
             it.value() = QVariant::fromValue(info);
         }
-        // TODO: Check shape padding and margin when they become editable.
     }
 }
 
@@ -327,8 +322,6 @@ void KoSvgTextProperties::parseSvgTextAttribute(const SvgLoadingContext &context
         setProperty(WritingModeId, KoSvgText::parseWritingMode(value));
     } else if (command == "glyph-orientation-vertical") {
         KoSvgText::AutoValue autoValue = KoSvgText::parseAutoValueAngular(value, context);
-        // glyph-orientation-vertical should only be converted for the 'auto', '0' and '90' cases,
-        // and treated as invalid otherwise.
         QStringList acceptedOrientations;
         acceptedOrientations << "auto"
                              << "0"
@@ -467,7 +460,6 @@ void KoSvgTextProperties::parseSvgTextAttribute(const SvgLoadingContext &context
 
         TextDecorations deco = propertyOrDefault(TextDecorationLineId).value<KoSvgText::TextDecorations>();
         if (command == "text-decoration" || command == "text-decoration-line") {
-            // reset deco when those values are being set..
             deco = KoSvgText::DecorationNone;
         }
 
@@ -510,7 +502,6 @@ void KoSvgTextProperties::parseSvgTextAttribute(const SvgLoadingContext &context
 #else
             } else if (QColor::isValidColorName(param)) {
 #endif
-                // TODO: Convert to KoColor::fromSvg11.
                 textDecorationColor = QColor(param);
             }
         }
@@ -730,7 +721,6 @@ QMap<QString, QString> KoSvgTextProperties::convertToSvgTextAttributes() const
         }
     }
 
-    // Word-spacing and letter-spacing don't support % until css-text-4, and in svg 1.1, % were viewport, so save % as em for now.
     if (hasProperty(LetterSpacingId)) {
         result.insert("letter-spacing", writeAutoLengthPercentage(property(LetterSpacingId).value<AutoLengthPercentage>(), "normal", true));
     }
@@ -1035,17 +1025,12 @@ QFont KoSvgTextProperties::generateFont() const
 
     KoSvgText::CssLengthPercentage fontSize = this->fontSize();
 
-    // for rounding see a comment below!
     QFont font(fontFamily
                , qMax(qRound(fontSize.value), 1)
                , propertyOrDefault(KoSvgTextProperties::FontWeightId).toInt()
                , style != QFont::StyleNormal);
     font.setStyle(style);
 
-    /**
-     * The constructor of QFont cannot accept fractional font size, so we pass
-     * a rounded one to it and set the correct one later on
-     */
     font.setPointSizeF(fontSize.value);
 
     font.setStretch(propertyOrDefault(KoSvgTextProperties::FontStretchId).toInt());
@@ -1070,13 +1055,10 @@ QFont KoSvgTextProperties::generateFont() const
                 return 72;
             }
 
-
             return QPaintDevice::metric(metric);
         }
     };
 
-    // paint device is used only to initialize DPI, so
-    // we can delete it right after creation of the font
     FakePaintDevice fake72DpiPaintDevice;
     return QFont(font, &fake72DpiPaintDevice);
 }

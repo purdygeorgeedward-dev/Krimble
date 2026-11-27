@@ -124,7 +124,6 @@ DlgCanvasSize::DlgCanvasSize(QWidget *parent, int width, int height, double reso
     m_page->constrainProportionsCkb->setChecked(cfg.readEntry("CanvasSize/ConstrainProportions", false));
     m_keepAspect = cfg.readEntry("CanvasSize/KeepAspectRatio", false);
 
-
     m_group = new QButtonGroup(m_page);
     m_group->addButton(m_page->topLeft, NORTH_WEST);
     m_group->addButton(m_page->topCenter, NORTH);
@@ -239,9 +238,7 @@ void DlgCanvasSize::slotAspectChanged(bool keep)
 
     m_keepAspect = keep;
 
-
     if (keep) {
-        // Do a dummy update of all the data to force it to recalculate the offset and size
         m_xOffset = 0;
         m_yOffset = 0;
 
@@ -268,7 +265,6 @@ void DlgCanvasSize::slotAnchorButtonClicked(int id)
 
 void DlgCanvasSize::slotWidthChanged(double v)
 {
-    //this slot receives values in pt from the unitspinbox, so just use the resolution.
     const double resValue = v*_widthUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
     m_newWidth = qRound(resValue);
 
@@ -289,7 +285,6 @@ void DlgCanvasSize::slotWidthChanged(double v)
 
 void DlgCanvasSize::slotHeightChanged(double v)
 {
-    //this slot receives values in pt from the unitspinbox, so just use the resolution.
     const double resValue = v*_heightUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
     m_newHeight = qRound(resValue);
 
@@ -310,7 +305,6 @@ void DlgCanvasSize::slotHeightChanged(double v)
 
 void DlgCanvasSize::slotXOffsetChanged(double v)
 {
-    //this slot receives values in pt from the unitspinbox, so just use the resolution.
     const double resValue = v*_xOffsetUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
     m_xOffset = qRound(resValue);
 
@@ -323,10 +317,8 @@ void DlgCanvasSize::slotXOffsetChanged(double v)
 
 void DlgCanvasSize::slotYOffsetChanged(double v)
 {
-    //this slot receives values in pt from the unitspinbox, so just use the resolution.
     const double resValue = v*_xOffsetUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
     m_yOffset = qRound(resValue);
-
 
     m_page->canvasPreview->blockSignals(true);
     m_page->canvasPreview->setImageOffset(m_xOffset, m_yOffset);
@@ -382,14 +374,12 @@ void DlgCanvasSize::updateAnchorIcons(int id)
         id = SOUTH_EAST + 1;
     }
 
-    // we are going to swap arrows direction based on width and height shrinking
     bool shrinkWidth = (m_newWidth < m_originalWidth) ? true : false;
     bool shrinkHeight = (m_newHeight < m_originalHeight) ? true : false;
 
     for (int i = NORTH_WEST; i <= SOUTH_EAST; i++) {
         anchor iconId = iconLayout[id][i];
 
-        // all corner arrows represents shrinking in some direction
         if (shrinkWidth || shrinkHeight) {
             switch (iconId) {
             case NORTH_WEST: iconId = SOUTH_EAST; break;
@@ -439,7 +429,6 @@ void DlgCanvasSize::updateButtons(int forceId)
         double xOffset, yOffset;
         expectedOffset(id, xOffset, yOffset);
 
-        // convert values to internal unit
         int internalXOffset = 0;
         int internalYOffset = 0;
         const KoUnit xOffsetUnit = KoUnit::fromListForUi(m_page->xOffUnit->currentIndex());
@@ -504,7 +493,6 @@ void DlgCanvasSize::expectedOffset(int id, double &xOffset, double &yOffset)
     const int xDiff = m_newWidth - m_originalWidth;
     const int yDiff = m_newHeight - m_originalHeight;
 
-    //convert to unitmanager default unit.
     xOffset = xDiff * xCoeff / _xOffsetUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
     yOffset = yDiff * yCoeff / _yOffsetUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
 }

@@ -23,7 +23,6 @@
 #include <KisHandlePainterHelper.h>
 #include <KoColorDisplayRendererInterface.h>
 
-
 KoPathToolHandle::KoPathToolHandle(KoPathTool *tool)
         : m_tool(tool)
 {
@@ -32,7 +31,6 @@ KoPathToolHandle::KoPathToolHandle(KoPathTool *tool)
 KoPathToolHandle::~KoPathToolHandle()
 {
 }
-
 
 PointHandle::PointHandle(KoPathTool *tool, KoPathPoint *activePoint, KoPathPoint::PointType activePointType)
         : KoPathToolHandle(tool)
@@ -52,7 +50,6 @@ void PointHandle::paint(QPainter &painter, const KoViewConverter &converter, qre
 
     const KisHandlePalette palette = renderInterface->handlePaletteForDisplayColorSpace();
     KisHandlePainterHelper helper = KoShape::createHandlePainterHelperView(&painter, m_activePoint->parent(), converter, handleRadius, decorationThickness);
-
 
     if (allPaintedTypes != m_activePointType) {
         KoPathPoint::PointTypes nonHighlightedType = allPaintedTypes & ~m_activePointType;
@@ -86,11 +83,10 @@ KoInteractionStrategy * PointHandle::handleMousePress(KoPointerEvent *event)
 {
     if ((event->button() & Qt::LeftButton) == 0)
         return 0;
-    if ((event->modifiers() & Qt::ControlModifier) == 0) { // no shift pressed.
+    if ((event->modifiers() & Qt::ControlModifier) == 0) {
         KoPathToolSelection * selection = dynamic_cast<KoPathToolSelection*>(m_tool->selection());
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(selection, 0);
 
-        // control select adds/removes points to/from the selection
         if (event->modifiers() & Qt::ShiftModifier) {
             if (selection->contains(m_activePoint)) {
                 selection->remove(m_activePoint);
@@ -98,12 +94,10 @@ KoInteractionStrategy * PointHandle::handleMousePress(KoPointerEvent *event)
                 selection->add(m_activePoint, false);
             }
         } else {
-            // no control modifier, so clear selection and select active point
             if (!selection->contains(m_activePoint)) {
                 selection->add(m_activePoint, true);
             }
         }
-        // TODO remove canvas from call ?
         if (m_activePointType == KoPathPoint::Node) {
             QPointF movedPointPosition = m_activePoint->parent()->shapeToDocument(m_activePoint->point());
             return new KoPathPointMoveStrategy(m_tool, event->point, movedPointPosition);
@@ -118,7 +112,6 @@ KoInteractionStrategy * PointHandle::handleMousePress(KoPointerEvent *event)
             return 0;
 
         KoPathPointTypeCommand::PointType pointType = KoPathPointTypeCommand::Smooth;
-        // cycle the smooth->symmetric->unsmooth state of the path point
         if (props & KoPathPoint::IsSmooth)
             pointType = KoPathPointTypeCommand::Symmetric;
         else if (props & KoPathPoint::IsSymmetric)

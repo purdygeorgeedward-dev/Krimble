@@ -21,7 +21,6 @@ QString KisAndroidFileProxy::getFileFromContentUri(QString contentUri)
 
     QString filename = file.fileName();
     if (dirPath.exists(filename)) {
-        // if the file already exists, delete it
         dirPath.remove(filename);
     }
 

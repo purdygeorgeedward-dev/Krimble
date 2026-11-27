@@ -40,7 +40,6 @@ void KisResourceThumbnailPainter::paint(QPainter *painter, const QModelIndex& gl
     painter->save();
 
     if(addMargin) {
-        // margin has empty space...which we want to be the color palette background
         painter->fillRect(rect, palette.window());
     }
 
@@ -64,31 +63,26 @@ void KisResourceThumbnailPainter::paint(QPainter *painter, const QModelIndex& gl
             painter->drawImage(innerRect.topLeft(), thumbnail);
         }
     } else if (resourceType == ResourceType::Patterns) {
-        painter->fillRect(innerRect, Qt::white); // no checkers, they are confusing with patterns.
-        // for large patterns, scale down to no less than 50% zoom and crop it,
-        // to see distinguishing details without being too zoomed in
+        painter->fillRect(innerRect, Qt::white);
         double scale = qMin(double(thumbnail.height()) / innerRectSizeDPI.height(), double(thumbnail.width()) / innerRectSizeDPI.width());
         if (!thumbnail.isNull() && (scale >= 1.0)) {
             scale = qMin(scale, 2.0);
             QRect sourceRect = QRect(0, 0, innerRectSizeDPI.width() * scale, innerRectSizeDPI.height() * scale);
             painter->drawImage(innerRect, thumbnail, sourceRect);
         } else {
-            // crisply transform small patterns, which get scaled up to user-space,
-            // preventing them from being too tiny to see on hi-dpi
             painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
             QBrush patternBrush(thumbnail);
             painter->setBrushOrigin(innerRect.topLeft());
             painter->fillRect(innerRect, patternBrush);
         }
     } else if (resourceType == ResourceType::WindowLayouts) {
-        // TODO: thumbnails for window layouts?
         painter->fillRect(innerRect, Qt::white);
         QPen before = painter->pen();
         painter->setPen(Qt::black);
         painter->drawText(innerRect, Qt::TextWordWrap, name.split("_").join(" "));
         painter->setPen(before);
     } else {
-        painter->fillRect(innerRect, Qt::white); // no checkers, they are confusing with patterns.
+        painter->fillRect(innerRect, Qt::white);
         if (!thumbnail.isNull() && !(thumbnail.height() == innerRectSizeDPI.height() &&
                                      thumbnail.width() == innerRectSizeDPI.width())) {
             bool needsUpscaling = thumbnail.height() < innerRectSizeDPI.height()

@@ -11,7 +11,6 @@
 
 class KisMaskingBrushCompositeOpBase;
 
-
 class KisMaskingBrushRenderer
 {
 public:
@@ -23,7 +22,6 @@ public:
 
     void updateProjection(const QRect &rc);
 
-
 private:
     KisPaintDeviceSP m_strokeDevice;
     KisPaintDeviceSP m_maskDevice;
@@ -32,4 +30,4 @@ private:
     QScopedPointer<KisMaskingBrushCompositeOpBase> m_compositeOp;
 };
 
-#endif // KISMASKINGBRUSHRENDERER_H
+#endif

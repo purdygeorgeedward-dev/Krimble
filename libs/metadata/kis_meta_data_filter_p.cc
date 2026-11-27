@@ -61,10 +61,6 @@ void AnonymizerFilter::filter(KisMetaData::Store* store) const
     store->removeEntry(psSchema, "Country");
 }
 
-//------------------------------------//
-//---------- ToolInfoFilter ----------//
-//------------------------------------//
-
 ToolInfoFilter::~ToolInfoFilter()
 {
 }

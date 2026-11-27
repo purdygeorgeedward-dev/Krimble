@@ -21,9 +21,6 @@ class KoGradientSegment;
 
 #include "kritaui_export.h"
 
-/**
- * @brief The KisSegmentGradientSlider class makes it possible to edit gradients.
- */
 class KRITAUI_EXPORT KisSegmentGradientSlider : public QWidget
 {
     Q_OBJECT
@@ -72,7 +69,7 @@ public Q_SLOTS:
     void mirrorSelectedSegment();
     void flipGradient();
     void distributeStopsEvenly();
-    
+
 Q_SIGNALS:
     void selectedHandleChanged();
     void updateRequested();
@@ -108,7 +105,6 @@ private:
         qreal rightMiddleOffset {0.0};
     };
 
-    // This epsilon controls how much can shrink a segment when dragging
     static constexpr int removeStopDistance{32};
     KoSegmentGradientSP m_gradient;
     Handle m_selectedHandle {HandleType_None, 0};

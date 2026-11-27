@@ -20,7 +20,6 @@
 #include "KSharedConfig"
 #include "KConfigGroup"
 
-
 TimelineInsertKeyframeDialog::TimelineInsertKeyframeDialog(QWidget *parent) :
     QDialog(parent)
 {
@@ -29,7 +28,7 @@ TimelineInsertKeyframeDialog::TimelineInsertKeyframeDialog(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    {   // Count and Spacing Forms.
+    {
         QWidget *forms = new QWidget(this);
         layout->addWidget(forms);
 
@@ -44,7 +43,7 @@ TimelineInsertKeyframeDialog::TimelineInsertKeyframeDialog(QWidget *parent) :
         LO->addRow(QString(i18nc("@label:spinbox", "Number of frames:")), &frameCountSpinbox);
         LO->addRow(QString(i18nc("@label:spinbox", "Frame timing:")), &frameTimingSpinbox);
     }
-    {   // Side Buttons.
+    {
         QGroupBox *sideRadioButtons = new QGroupBox(i18nc("@label:group","Side:"), this);
         layout->addWidget(sideRadioButtons);
 
@@ -57,7 +56,7 @@ TimelineInsertKeyframeDialog::TimelineInsertKeyframeDialog(QWidget *parent) :
         LO->addWidget(leftBefore);
         LO->addWidget(rightAfter);
     }
-    {   // Cancel / OK Buttons.
+    {
         QDialogButtonBox *buttonbox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
         layout->addWidget(buttonbox);
 
@@ -80,7 +79,7 @@ bool TimelineInsertKeyframeDialog::promptUserSettings(int &out_count, int &out_t
         out_count = frameCountSpinbox.value();
         out_timing = frameTimingSpinbox.value();
 
-        out_direction = TimelineDirection::LEFT; // Default
+        out_direction = TimelineDirection::LEFT;
         if (rightAfter && rightAfter->isChecked()) {
             out_direction = TimelineDirection::RIGHT;
         }

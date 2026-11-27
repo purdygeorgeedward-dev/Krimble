@@ -14,7 +14,6 @@
 class QWidget;
 class KisScratchPad;
 
-
 class KisScratchPadEventFilter : public QObject
 {
     Q_OBJECT
@@ -41,4 +40,4 @@ private:
     KisScratchPad *m_scratchPad;
 };
 
-#endif /* __KIS_SCRATCH_PAD_EVENT_FILTER_H */
+#endif

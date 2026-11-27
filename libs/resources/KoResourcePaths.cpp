@@ -33,7 +33,6 @@ static QString cleanup(const QString &path)
     return QDir::cleanPath(path);
 }
 
-
 static QStringList cleanup(const QStringList &pathList)
 {
     QStringList cleanedPathList;
@@ -41,10 +40,6 @@ static QStringList cleanup(const QStringList &pathList)
     bool getRidOfAppDataLocation = KoResourcePaths::getAppDataLocation() != QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     const QString writableLocation = []() {
         QString location = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-        // we have to ensure that the location has a trailing separator, because otherwise when we'll do startsWith
-        // check it will skip paths that start have the same path but different directory name. E.g:
-        // ~/.local/share/krita -> AppDataLocation
-        // ~/.local/share/krita3 -> custom location, but this will be skipped in getRidOfAppDataLocation.
         if (location.back() == '/') {
             return location;
         } else {
@@ -89,7 +84,6 @@ void appendResources(QStringList *dst, const QStringList &src, bool eliminateDup
     }
 }
 
-
 #ifdef Q_OS_WIN
 static const Qt::CaseSensitivity cs = Qt::CaseInsensitive;
 #else
@@ -123,9 +117,6 @@ QString getInstallationPrefix() {
         bundlePath = appPath + "/../../";
     }
     else {
-        // This is needed as tests will not run outside of the
-        // install directory without this
-        // This needs krita to be installed.
         QString envInstallPath = qgetenv("KIS_TEST_PREFIX_PATH");
         if (!envInstallPath.isEmpty() && (
                     QDir(envInstallPath + "/share/kritaplugins").exists()
@@ -143,9 +134,6 @@ QString getInstallationPrefix() {
 #elif defined(Q_OS_HAIKU)
 	return qApp->applicationDirPath() + "/";
 #elif defined(Q_OS_ANDROID)
-    // qApp->applicationDirPath() isn't writable and android system won't allow
-    // any files other than libraries
-    // NOTE the subscript [1]. It points to the internal location.
     return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)[1] + "/";
 #else
     return qApp->applicationDirPath() + "/../";
@@ -156,8 +144,8 @@ QString getInstallationPrefix() {
 
 class Q_DECL_HIDDEN KoResourcePaths::Private {
 public:
-    QMap<QString, QStringList> absolutes; // For each resource type, the list of absolute paths, from most local (most priority) to most global
-    QMap<QString, QStringList> relatives; // Same with relative paths
+    QMap<QString, QStringList> absolutes;
+    QMap<QString, QStringList> relatives;
 
     QMutex relativesMutex;
     QMutex absolutesMutex;
@@ -231,9 +219,6 @@ QString KoResourcePaths::getAppDataLocation()
     QFileInfo fi(path);
 
 #if defined Q_OS_UNIX
-    // Check that path is not a Windows path (e.g., "C:/", "D:/", etc.),
-    // that can happen when a config file from Windows installation is
-    // moved to a Linux system.
     QRegularExpression windowsPathPattern("^[A-Za-z]:/");
     if (windowsPathPattern.match(path).hasMatch()) {
         warnResources << "WARNING: KoResourcePaths::getAppDataLocation(): path appears to be a Windows path! Resetting to default..."
@@ -245,8 +230,6 @@ QString KoResourcePaths::getAppDataLocation()
         cfg.writeEntry(KisResourceLocator::resourceLocationKey, path);
     }
 #elif defined Q_OS_WIN
-    // Check that path is not a Linux path, that can happen when a config
-    // file from Linux installation is moved to a Windows system.
     QRegularExpression windowsPathPattern("^/[^/]");
     if (windowsPathPattern.match(path).hasMatch()) {
         warnResources << "WARNING: KoResourcePaths::getAppDataLocation(): path appears to be a Unix path! Resetting to default..."
@@ -257,12 +240,8 @@ QString KoResourcePaths::getAppDataLocation()
         fi.setFile(path);
         cfg.writeEntry(KisResourceLocator::resourceLocationKey, path);
     }
-#endif /* Q_OS_UNIX */
+#endif
 
-    /**
-     * Our code expects the resources location to be **absolute**. Otherwise functions like
-     * makeStorageLocationRelative() or makeStorageLocationAbsolute() do not work.
-     */
     if (fi.isRelative()) {
         warnResources << "WARNING: KoResourcePaths::getAppDataLocation(): resources location is not absolute! Fixing..." << path;
         path = fi.absoluteFilePath();
@@ -270,19 +249,16 @@ QString KoResourcePaths::getAppDataLocation()
         cfg.writeEntry(KisResourceLocator::resourceLocationKey, path);
     }
 
-    // Check whether an existing location is writable
     if (fi.exists() && !fi.isWritable()) {
         path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     }
     else if (!fi.exists()) {
-        // Check whether a non-existing location can be created
         if (!QDir().mkpath(path)) {
             path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         }
         QDir().rmpath(path);
     }
     return path;
-
 
 }
 
@@ -292,28 +268,19 @@ void KoResourcePaths::getAllUserResourceFoldersLocationsForWindowsStore(QString 
     privateLocation = "";
     QString resourcePath = QDir(KisResourceLocator::instance()->resourceLocationBase()).absolutePath();
 #ifndef Q_OS_WIN
-    // not Windows, no problem
     standardLocation = resourcePath;
     return;
 #else
     if (!KisWindowsPackageUtils::isRunningInPackage()) {
-        standardLocation = resourcePath; // Windows, but not Windows Store, so no problem
+        standardLocation = resourcePath;
         return;
     }
 
-    // running inside Windows Store
     const QDir resourceDir(resourcePath);
     QDir appDataGeneralDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     appDataGeneralDir.cdUp();
     const QString appDataGeneralDirPath = appDataGeneralDir.path();
     if (resourceDir.absolutePath().contains(appDataGeneralDirPath, Qt::CaseInsensitive)) {
-        // resource folder location is inside appdata, so it can cause issues
-        // from inside of Krita, we can't determine whether it uses genuine %AppData% or the private Windows Store one
-        // so, half of the time, a custom folder inside %AppData% wouldn't work
-        // we can't fix that, we can only inform users about it or prevent them from choosing such folder
-        // in any case, here we need to return both folders: inside normal appdata and the private one
-        // (note that this case also handles the default resource folder called "krita" inside the appdata)
-
 
         const QString folderName = QFileInfo(resourcePath).fileName();
 
@@ -329,7 +296,7 @@ void KoResourcePaths::getAllUserResourceFoldersLocationsForWindowsStore(QString 
         return;
 
     } else {
-        standardLocation = resourcePath; // custom folder not inside AppData, so no problem (hopefully)
+        standardLocation = resourcePath;
         return;
     }
 
@@ -400,7 +367,7 @@ void KoResourcePaths::addResourceTypeInternal(const QString &type, const QString
     }
 
     d->relativesMutex.lock();
-    QStringList &rels = d->relatives[type]; // find or insert
+    QStringList &rels = d->relatives[type];
 
     if (!rels.contains(copy, cs)) {
         if (priority) {
@@ -418,7 +385,6 @@ void KoResourcePaths::addResourceDirInternal(const QString &type, const QString 
 {
     if (absdir.isEmpty() || type.isEmpty()) return;
 
-    // find or insert entry in the map
     QString copy = absdir;
     if (copy.at(copy.length() - 1) != QLatin1Char('/')) {
         copy += QLatin1Char('/');
@@ -501,13 +467,11 @@ QString KoResourcePaths::findResourceInternal(const QString &type, const QString
     return resource;
 }
 
-
 QStringList filesInDir(const QString &startdir, const QString & filter, bool recursive)
 {
     dbgResources << "filesInDir: startdir" << startdir << "filter" << filter << "recursive" << recursive;
     QStringList result;
 
-    // First the entries in this path
     QStringList nameFilters;
     nameFilters << filter;
     const QStringList fileNames = QDir(startdir).entryList(nameFilters, QDir::Files | QDir::CaseSensitive, QDir::Name);
@@ -517,7 +481,6 @@ QStringList filesInDir(const QString &startdir, const QString & filter, bool rec
         result << file;
     }
 
-    // And then everything underneath, if recursive is specified
     if (recursive) {
         const QStringList entries = QDir(startdir).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         Q_FOREACH (const QString &subdir, entries) {
@@ -569,7 +532,6 @@ QStringList KoResourcePaths::findDirsInternal(const QString &type)
     return dirs;
 }
 
-
 QStringList KoResourcePaths::findAllResourcesInternal(const QString &type,
                                                       const QString &_filter,
                                                       SearchOptions options) const
@@ -584,7 +546,6 @@ QStringList KoResourcePaths::findAllResourcesInternal(const QString &type,
     QStringList aliases = d->aliases(type);
     QString filter = _filter;
 
-    // In cases where the filter  is like "color-schemes/*.colors" instead of "*.kpp", used with unregistered resource types
     if (filter.indexOf('*') > 0) {
         aliases << filter.split('*').first();
         filter = '*' + filter.split('*')[1];
@@ -641,8 +602,6 @@ QStringList KoResourcePaths::findAllResourcesInternal(const QString &type,
 
     dbgResources << "\tresources also from aliases:" << resources.size();
 
-    // if the original filter is "input/*", we only want share/input/* and share/krita/input/* here, but not
-    // share/*. therefore, use _filter here instead of filter which was split into alias and "*".
     QFileInfo fi(_filter);
 
     QStringList prefixResources;
@@ -698,8 +657,6 @@ QString KoResourcePaths::saveLocationInternal(const QString &type, const QString
     }
 
 #ifndef Q_OS_ANDROID
-    // on Android almost all config locations we save to are app specific,
-    // and don't end with "krita".
     if (!path.endsWith("krita") && useStandardLocation) {
         path += "/krita";
     }

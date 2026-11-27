@@ -25,4 +25,4 @@ public:
     ;
 };
 
-#endif // _KIS_WEBP_IMPORT_H_
+#endif

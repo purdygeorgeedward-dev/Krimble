@@ -7,8 +7,6 @@
 #include "specificcolorselector.h"
 #include <stdlib.h>
 
-
-
 #include <kis_debug.h>
 #include <kpluginfactory.h>
 #include <klocalizedstring.h>
@@ -52,7 +50,6 @@ public:
         return DockMinimized;
     }
 };
-
 
 SpecificColorSelectorPlugin::SpecificColorSelectorPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)

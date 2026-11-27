@@ -15,13 +15,11 @@
 
 #include <kis_debug.h>
 
-
 KisScreenMigrationTracker::KisScreenMigrationTracker(QWidget *trackedWidget, QObject *parent)
     : KisRootSurfaceTrackerBase(trackedWidget, parent)
     , m_resolutionChangeCompressor(new KisSignalCompressor(100, KisSignalCompressor::POSTPONE, this))
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(trackedWidget);
-    // WARNING: we potentially call virtual functions here!
     initialize();
 
     connect(m_resolutionChangeCompressor, &KisSignalCompressor::timeout,
@@ -92,8 +90,6 @@ void KisScreenMigrationTracker::slotScreenLogicalResolutionChanged(qreal value)
 void KisScreenMigrationTracker::slotResolutionCompressorTriggered()
 {
     if (!m_connectedTopLevelWindow) {
-        // the tracker is not yet initialized, it should happen only
-        // when the widget have not yet been shown at least once
         KIS_SAFE_ASSERT_RECOVER_NOOP(!trackedWidget()->isVisible());
         return;
     }

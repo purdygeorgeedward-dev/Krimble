@@ -11,17 +11,10 @@
 #include "commands_new/KisAsynchronouslyMergeableCommandInterface.h"
 #include "boost/optional.hpp"
 
-/// The command for setting the node opacity
 class KRITAIMAGE_EXPORT KisNodeOpacityCommand : public KisNodeCommand, public KisAsynchronouslyMergeableCommandInterface
 {
 
 public:
-    /**
-     * Constructor
-     * @param node The node the command will be working on.
-     * @param oldOpacity the old node opacity
-     * @param newOpacity the new node opacity
-     */
     KisNodeOpacityCommand(KisNodeSP node, quint8 newOpacity);
 
     void redo() override;
@@ -38,4 +31,4 @@ private:
     quint8 m_newOpacity;
 };
 
-#endif /* KIS_NODE_OPACITY_COMMAND_H */
+#endif

@@ -21,7 +21,6 @@
 #include "kis_image.h"
 #include <KisGlobalResourcesInterface.h>
 
-
 #include <testutil.h>
 
 #define IMAGE_WIDTH 1000
@@ -47,8 +46,6 @@ void KisFilterMaskTest::testProjectionNotSelected()
     image->addNode(mask, layer);
 
     mask->setFilter(kfc->cloneWithResourcesSnapshot());
-
-    // Check basic apply(). Shouldn't do anything, since nothing is selected yet.
 
     mask->initSelection(layer);
     mask->createNodeProgressProxy();

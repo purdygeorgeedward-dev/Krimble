@@ -15,7 +15,6 @@
 #include <KoColorConversions.h>
 #include <KoColorDisplayRendererInterface.h>
 
-
 enum CurrentHandle {
     NoHandle,
     HueHandle,
@@ -125,24 +124,17 @@ void KoTriangleColorSelector::paintEvent( QPaintEvent * event )
     p.setRenderHint(QPainter::Antialiasing);
     QPointF pos(d->centerColorSelector, d->centerColorSelector);
     p.translate(QPointF( 0.5*width(), 0.5*height()  ) );
-    // Draw the wheel
     p.drawPixmap( -pos, d->wheelPixmap );
-    // Draw the triangle
     p.save();
 
     p.rotate( rotation() );
 
-
     p.drawPixmap( -pos , d->trianglePixmap );
-    // Draw selectors
     p.restore();
-    // Draw value,saturation selector
-    //   Compute coordinates
     {
         qreal vs_selector_ypos_ = value() / 255.0;
-        qreal ls_ = (vs_selector_ypos_) * d->triangleLength; // length of the saturation on the triangle
+        qreal ls_ = (vs_selector_ypos_) * d->triangleLength;
         qreal vs_selector_xpos_ = ls_ * (saturation() / 255.0 - 0.5);
-        // Draw it
         p.save();
         p.setPen( QPen( Qt::white, 1.0) );
 
@@ -155,7 +147,6 @@ void KoTriangleColorSelector::paintEvent( QPaintEvent * event )
                                 d->triangleHandleSize , d->triangleHandleSize ));
     }
     p.restore();
-    // Draw Hue selector
     p.save();
     p.setPen( QPen( Qt::white, 1.0) );
     p.rotate( hue() - 90 );
@@ -185,8 +176,6 @@ void KoTriangleColorSelector::setFollowHue(bool follow)
     d->updateTimer.start();
 }
 
-// make sure to always use get/set functions when managing HSV properties (don't call directly like d->hue)
-// these settings get updated A LOT when the color sampler is being used. You might get unexpected results
 int KoTriangleColorSelector::hue() const
 {
     return d->hue;
@@ -194,11 +183,8 @@ int KoTriangleColorSelector::hue() const
 
 void KoTriangleColorSelector::setHue(int h)
 {
-    // setRealColor() will give you -1 when saturation is 0
-    // ignore setting hue in this instance. otherwise it will mess up the hue ring
     if (h == -1)
         return;
-
 
     h = qBound(0, h, 359);
     d->hue = h;
@@ -253,7 +239,6 @@ void KoTriangleColorSelector::slotSetColor(const KoColor & color)
     if ( getCurrentColor() == color)
         return;
 
-    //displayrenderer->getHsv is what sets the foreground color in the application
     if(d->updateAllowed) {
         int hueRef = hue();
         int saturationRef = saturation();
@@ -290,11 +275,10 @@ void KoTriangleColorSelector::tellColorChanged()
 
 void KoTriangleColorSelector::generateTriangle()
 {
-    QSize size = QSize(1, 1)*d->sizeColorSelector*devicePixelRatioF(); // use when int needed
+    QSize size = QSize(1, 1)*d->sizeColorSelector*devicePixelRatioF();
     QImage image(size, QImage::Format_ARGB32);
     image.setDevicePixelRatio(devicePixelRatioF());
 
-    // Length of triangle
     int hue_ = hue();
 
     qreal triangleTop = d->triangleTop*devicePixelRatioF();
@@ -327,8 +311,6 @@ void KoTriangleColorSelector::generateTriangle()
                     sa = xMax - x;
                     s = 255;
                 }
-                // avoid NaN values if we hit the triangle tip where ls_ is zero
-                // (and black has undefined saturation anyway)
                 else if (ls_ > 0.01) {
                     s = 255 * (x - xStart) / ls_;
                 }
@@ -348,15 +330,13 @@ void KoTriangleColorSelector::generateTriangle()
 
 void KoTriangleColorSelector::generateWheel()
 {
-    QSize size = QSize(1, 1)*d->sizeColorSelector*devicePixelRatioF(); // use only when int needed
+    QSize size = QSize(1, 1)*d->sizeColorSelector*devicePixelRatioF();
     QImage image(size, QImage::Format_ARGB32);
     image.setDevicePixelRatio(devicePixelRatioF());
 
-    // the -0.5 ensures dimensions are respective to pixel centers and hence symmetrical
     qreal center = d->centerColorSelector*devicePixelRatioF() - 0.5;
     qreal wheelNormExt = d->wheelNormExt*devicePixelRatioF() - 0.5;
     qreal wheelNormInt = d->wheelNormInt*devicePixelRatioF() - 0.5;
-
 
     for(int y = 0; y < size.height(); y++)
     {
@@ -431,7 +411,6 @@ void KoTriangleColorSelector::selectColorAt(int _x, int _y, bool checkInWheel)
 
     qreal x = _x - 0.5*width();
     qreal y = _y - 0.5*height();
-    // Check if the click is inside the wheel
     qreal norm = sqrt( x * x + y * y);
     if ( ( (norm < d->wheelNormExt) && (norm > d->wheelNormInt) && d->handle == NoHandle )
          || d->handle == HueHandle ) {
@@ -440,18 +419,17 @@ void KoTriangleColorSelector::selectColorAt(int _x, int _y, bool checkInWheel)
         d->updateTimer.start();
     }
     else {
-    // Compute the s and v value, if they are in range, use them
         qreal rotation = -(this->rotation()) * M_PI / 180;
         qreal cr = cos(rotation);
         qreal sr = sin(rotation);
-        qreal x1 = x * cr - y * sr; // <- now x1 gives the saturation
-        qreal y1 = x * sr + y * cr; // <- now y1 gives the value
+        qreal x1 = x * cr - y * sr;
+        qreal y1 = x * sr + y * cr;
         y1 += d->wheelNormExt;
         qreal ynormalize = (d->triangleTop - y1 ) / ( d->triangleTop - d->triangleBottom );
         if( (ynormalize >= 0.0 && ynormalize <= 1.0 ) || d->handle == ValueSaturationHandle)
         {
             d->handle = ValueSaturationHandle;
-            qreal ls_ = (ynormalize) * d->triangleLength; // length of the saturation on the triangle
+            qreal ls_ = (ynormalize) * d->triangleLength;
             qreal sat = ( x1 / ls_ + 0.5) ;
             if((sat >= 0.0 && sat <= 1.0) || d->handle == ValueSaturationHandle)
             {

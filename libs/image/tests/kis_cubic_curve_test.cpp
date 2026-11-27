@@ -141,7 +141,6 @@ void KisCubicCurveTest::testNull()
     QVERIFY(cc.isIdentity());
 }
 
-
 void KisCubicCurveTest::testTransfer()
 {
     KisCubicCurve cc;

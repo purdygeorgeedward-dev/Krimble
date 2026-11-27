@@ -15,4 +15,4 @@ namespace KritaVersionWrapper {
     KRITAVERSION_EXPORT bool isDevelopersBuild();
 }
 
-#endif // KRITAVERSIONWRAPPER_H
+#endif

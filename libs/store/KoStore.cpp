@@ -23,17 +23,16 @@
 #include <KSharedConfig>
 #include <KConfigGroup>
 
-
 #define DefaultFormat KoStore::Zip
 
 static KoStore::Backend determineBackend(QIODevice *dev)
 {
     unsigned char buf[5];
     if (dev->read((char *)buf, 4) < 4)
-        return DefaultFormat; // will create a "bad" store (bad()==true)
+        return DefaultFormat;
     if (buf[0] == 'P' && buf[1] == 'K' && buf[2] == 3 && buf[3] == 4)
         return KoStore::Zip;
-    return DefaultFormat; // fallback
+    return DefaultFormat;
 }
 
 KoStore* KoStore::createStore(const QString& fileName, Mode mode, const QByteArray & appIdentification, Backend backend, bool writeMimetype)
@@ -50,7 +49,7 @@ KoStore* KoStore::createStore(const QString& fileName, Mode mode, const QByteArr
                 if (file.open(QIODevice::ReadOnly))
                     backend = determineBackend(&file);
                 else
-                    backend = DefaultFormat; // will create a "bad" store (bad()==true)
+                    backend = DefaultFormat;
             }
         }
     }
@@ -58,7 +57,7 @@ KoStore* KoStore::createStore(const QString& fileName, Mode mode, const QByteArr
     case Zip:
         return new KoQuaZipStore(fileName, mode, appIdentification, writeMimetype);
     case Directory:
-        return new KoDirectoryStore(fileName /* should be a dir name.... */, mode, writeMimetype);
+        return new KoDirectoryStore(fileName , mode, writeMimetype);
     default:
         warnStore << "Unsupported backend requested for KoStore : " << backend;
         return 0;
@@ -109,7 +108,6 @@ KoStore::~KoStore()
 bool KoStore::open(const QString & _name)
 {
     Q_D(KoStore);
-    // This also converts from relative to absolute, i.e. merges the currentPath()
     d->fileName = d->toExternalNaming(_name);
 
     debugStore << "KOStore" << _name << d->fileName;
@@ -197,7 +195,7 @@ QByteArray KoStore::read(qint64 max)
 
 qint64 KoStore::write(const QByteArray& data)
 {
-    return write(data.constData(), data.size());   // see below
+    return write(data.constData(), data.size());
 }
 
 qint64 KoStore::read(char *_buffer, qint64 _len)
@@ -253,7 +251,6 @@ qint64 KoStore::size() const
 bool KoStore::enterDirectory(const QString &directory)
 {
     Q_D(KoStore);
-    //debugStore <<"enterDirectory" << directory;
     int pos;
     bool success = true;
     QString tmp(directory);
@@ -356,21 +353,19 @@ bool KoStore::atEnd() const
     return d->stream->atEnd();
 }
 
-// See the specification for details of what this function does.
 QString KoStorePrivate::toExternalNaming(const QString & _internalNaming) const
 {
     if (_internalNaming == ROOTPART)
         return q->currentPath() + MAINNAME;
 
     QString intern;
-    if (_internalNaming.startsWith("tar:/"))     // absolute reference
-        intern = _internalNaming.mid(5);   // remove protocol
+    if (_internalNaming.startsWith("tar:/"))
+        intern = _internalNaming.mid(5);
     else
         intern = q->currentPath() + _internalNaming;
 
     return intern;
 }
-
 
 bool KoStorePrivate::enterDirectoryInternal(const QString &directory)
 {
@@ -395,12 +390,12 @@ bool KoStore::hasDirectory(const QString &directoryName)
 bool KoStore::finalize()
 {
     Q_D(KoStore);
-    Q_ASSERT(!d->finalized);   // call this only once!
+    Q_ASSERT(!d->finalized);
     d->finalized = true;
     return doFinalize();
 }
 
-void KoStore::setCompressionEnabled(bool /*e*/)
+void KoStore::setCompressionEnabled(bool )
 {
 }
 

@@ -17,34 +17,27 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing the importing of files in krita"
 #endif
 
-
 const QString HeightmapMimetype = "image/x-r8";
-
 
 void KisHeightmapTest::testFiles()
 {
     TestUtil::testFiles(QString(FILES_DATA_DIR) + "/sources", QStringList(), QString(), 1);
 }
 
-
-
 void KisHeightmapTest::testImportFromWriteonly()
 {
     TestUtil::testImportFromWriteonly(HeightmapMimetype);
 }
-
 
 void KisHeightmapTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(HeightmapMimetype);
 }
 
-
 void KisHeightmapTest::testImportIncorrectFormat()
 {
     TestUtil::testImportIncorrectFormat(HeightmapMimetype);
 }
-
 
 KISTEST_MAIN(KisHeightmapTest)
 

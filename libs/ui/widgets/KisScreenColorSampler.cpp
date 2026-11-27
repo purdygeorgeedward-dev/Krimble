@@ -119,23 +119,15 @@ void KisScreenColorSampler::sampleScreenColor()
         m_d->colorSamplingEventFilter = new KisScreenColorSamplingEventFilter(this, this);
     }
     m_d->inputGrabberWidget->installEventFilter(m_d->colorSamplingEventFilter);
-     // If user pushes Escape, the last color before sampling will be restored.
     m_d->beforeScreenColorSampling = currentColor();
     m_d->inputGrabberWidget->grabMouse(Qt::CrossCursor);
 
-#ifdef Q_OS_WIN32 // excludes WinCE and WinRT
-    // On Windows mouse tracking doesn't work over other processes's windows
+#ifdef Q_OS_WIN32
     m_d->updateTimer->start(30);
 
-    // HACK: Because mouse grabbing doesn't work across processes, we have to have a dummy,
-    // invisible window to catch the mouse click, otherwise we will click whatever we clicked
-    // and loose focus.
     m_d->dummyTransparentWindow.show();
 #endif
     m_d->inputGrabberWidget->grabKeyboard();
-     /* With setMouseTracking(true) the desired color can be more precisely sampled,
-      * and continuously pushing the mouse button is not necessary.
-      */
     m_d->inputGrabberWidget->setMouseTracking(true);
 
     m_d->screenColorSamplerButton->setDisabled(true);
@@ -159,7 +151,6 @@ void KisScreenColorSampler::cancel()
 
 KoColor KisScreenColorSampler::grabScreenColor(const QPoint &p)
 {
-     // First check whether we're clicking on a Krita window for some real color sampling
     if (m_d->performRealColorSamplingOfCanvas) {
         Q_FOREACH(KisView *view, KisPart::instance()->views()) {
             const KisCanvas2 *canvas = view->canvasBase();
@@ -171,7 +162,6 @@ KoColor KisScreenColorSampler::grabScreenColor(const QPoint &p)
 
                 if (image) {
                     QPointF imagePoint = canvas->coordinatesConverter()->widgetToImage(widgetPoint);
-                    // sample from reference images first
                     KisSharedPtr<KisReferenceImagesLayer> referenceImageLayer = view->document()->referenceImagesLayer();
 
                     if (referenceImageLayer && canvas->referenceImagesDecoration()->visible()) {
@@ -217,8 +207,6 @@ void KisScreenColorSampler::updateColorLabelText(const QPoint &globalPos)
 
 bool KisScreenColorSampler::handleColorSamplingMouseMove(QMouseEvent *e)
 {
-    // If the cross is visible the grabbed color will be black most of the times
-    //cp->setCrossVisible(!cp->geometry().contains(e->pos()));
 
     continueUpdateColorSampling(e->globalPos());
     return true;
@@ -247,7 +235,6 @@ bool KisScreenColorSampler::handleColorSamplingKeyPress(QKeyEvent *e)
 
 void KisScreenColorSampler::releaseColorSampling()
 {
-    // HACK: see class KisGrabKeyboardFocusRecoveryWorkaround
     KisGrabKeyboardFocusRecoveryWorkaround::instance()->recoverFocus();
 
     m_d->inputGrabberWidget->removeEventFilter(m_d->colorSamplingEventFilter);
@@ -279,7 +266,7 @@ void KisScreenColorSampler::updateColorSampling()
         return;
     lastGlobalPos = newGlobalPos;
 
-    if (!rect().contains(mapFromGlobal(newGlobalPos))) { // Inside the dialog mouse tracking works, handleColorSamplingMouseMove will be called
+    if (!rect().contains(mapFromGlobal(newGlobalPos))) {
         continueUpdateColorSampling(newGlobalPos);
 #ifdef Q_OS_WIN32
         m_d->dummyTransparentWindow.setPosition(newGlobalPos);
@@ -290,14 +277,11 @@ void KisScreenColorSampler::updateColorSampling()
 void KisScreenColorSampler::continueUpdateColorSampling(const QPoint &globalPos)
 {
     const KoColor color = grabScreenColor(globalPos);
-    // QTBUG-39792, do not change standard, custom color selectors while moving as
-    // otherwise it is not possible to preselect a custom cell for assignment.
     setCurrentColor(color);
     Q_EMIT sigNewColorHovered(currentColor());
     updateColorLabelText(globalPos);
 }
 
-// Event filter to be installed on the dialog while in color-sampling mode.
 KisScreenColorSamplingEventFilter::KisScreenColorSamplingEventFilter(KisScreenColorSampler *w, QObject *parent)
     : QObject(parent)
     , m_w(w)
@@ -318,7 +302,6 @@ bool KisScreenColorSamplingEventFilter::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-// Register the color sampler factory with the internal color selector
 KIS_DECLARE_STATIC_INITIALIZER {
     KisDlgInternalColorSelector::setScreenColorSamplerFactory(KisScreenColorSampler::createScreenColorSampler);
 }

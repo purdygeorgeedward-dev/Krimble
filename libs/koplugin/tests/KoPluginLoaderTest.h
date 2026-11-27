@@ -23,4 +23,4 @@ private Q_SLOTS:
     void testLoadAll();
 };
 
-#endif // KO_PLUGIN_LOADER_TEST_H
+#endif

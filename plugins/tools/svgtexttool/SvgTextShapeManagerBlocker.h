@@ -27,4 +27,4 @@ private:
 
 KIS_DECLARE_ADAPTED_LOCK(SvgTextShapeManagerBlocker, SvgTextShapeManagerBlockerAdapter)
 
-#endif // SVGTEXTSHAPEMANAGERBLOCKER_H
+#endif

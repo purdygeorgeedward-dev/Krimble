@@ -137,4 +137,4 @@ public:
     }
 };
 
-#endif // KOCOMPOSITEOPMARKER_H_
+#endif

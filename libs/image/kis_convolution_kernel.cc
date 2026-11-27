@@ -44,7 +44,6 @@ void KisConvolutionKernel::setSize(quint32 width, quint32 height)
     d->data.resize(height, width);
 }
 
-
 qreal KisConvolutionKernel::offset() const
 {
     return d->offset;
@@ -108,14 +107,12 @@ KisConvolutionKernelSP KisConvolutionKernel::fromMaskGenerator(KisMaskGenerator*
     Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic>& data = kernel->data();
     qreal factor = 0;
 
-//     dbgImage << ppVar(xc) << ppVar(yc);
     for (int r = 0; r < height; ++r) {
         for (int c = 0; c < width; ++c) {
             qreal x_ = (c - xc);
             qreal y_ = (r - yc);
             qreal x = cosa * x_ - sina * y_;
             qreal y = sina * x_ + cosa * y_;
-//             dbgImage << ppVar(x) << ppVar(y) << ppVar(x_) << ppVar(y_) << ppVar( kmg->interpolatedValueAt( x,y) );
             uint value = 255 - kmg->valueAt(x, y);
             data(r, c) = value;
             factor += value;
@@ -133,12 +130,9 @@ KisConvolutionKernelSP KisConvolutionKernel::fromMatrix(Eigen::Matrix<qreal, Eig
     return kernel;
 }
 
-
-
-
 #if 0
-double xr = (x /*- m_xcenter*/);
-double yr = (y /*- m_ycenter*/);
+double xr = (x );
+double yr = (y );
 double n = norme(xr * m_xcoef, yr * m_ycoef);
 if (n > 1)
 {
@@ -148,10 +142,6 @@ if (n > 1)
     double normeFade = norme(xr * m_xfadecoef, yr * m_yfadecoef);
     if (normeFade > 1) {
         double xle, yle;
-        // xle stands for x-coordinate limit exterior
-        // yle stands for y-coordinate limit exterior
-        // we are computing the coordinate on the external ellipse in order to compute
-        // the fade value
         if (xr == 0) {
             xle = 0;
             yle = yr > 0 ? 1 / m_ycoef : -1 / m_ycoef;
@@ -161,7 +151,6 @@ if (n > 1)
             xle = xr > 0 ? xle : -xle;
             yle = xle * c;
         }
-        // On the internal limit of the fade area, normeFade is equal to 1
         double normeFadeLimitE = norme(xle * m_xfadecoef, yle * m_yfadecoef);
         return (uchar)(255 *(normeFade - 1) / (normeFadeLimitE - 1));
     } else {

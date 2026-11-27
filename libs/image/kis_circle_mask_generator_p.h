@@ -41,4 +41,4 @@ struct Q_DECL_HIDDEN KisCircleMaskGenerator::Private {
     QScopedPointer<KisBrushMaskApplicatorBase> applicator;
 };
 
-#endif /* _KIS_CIRCLE_MASK_GENERATOR_P_H_ */
+#endif

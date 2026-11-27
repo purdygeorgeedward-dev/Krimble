@@ -14,7 +14,6 @@
 
 namespace {
 
-
 class KisSketchOpWidget: public QWidget, public Ui::WdgSketchOptions
 {
 public:
@@ -34,9 +33,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisSketchOpOptionWidget::Private
 {
@@ -47,7 +44,6 @@ struct KisSketchOpOptionWidget::Private
 
     KisSketchOpOptionModel model;
 };
-
 
 KisSketchOpOptionWidget::KisSketchOpOptionWidget(lager::cursor<KisSketchOpOptionData> optionData)
     : KisPaintOpOption(i18n("Brush size"), KisPaintOpOption::GENERAL, true)

@@ -11,8 +11,6 @@
 #include "kis_types.h"
 #include "kis_default_bounds_base.h"
 
-
-
 class QTransform;
 class QDomElement;
 class KisKeyframeChannel;
@@ -25,7 +23,6 @@ class KisAnimatedTransformParamsHolderInterface;
 typedef QSharedPointer<KisAnimatedTransformParamsHolderInterface> KisAnimatedTransformParamsHolderInterfaceSP;
 typedef QWeakPointer<KisAnimatedTransformParamsHolderInterface> KisAnimatedTransformParamsHolderInterfaceWSP;
 
-
 class KRITAIMAGE_EXPORT KisTransformMaskParamsInterface
 {
 public:
@@ -34,11 +31,6 @@ public:
     virtual QTransform finalAffineTransform() const = 0;
     virtual bool isAffine() const = 0;
 
-    /**
-     * Hides the transform mask from the rendering stack. It is used by the
-     * legacy transform tool strategy to hide the mask during the overlay
-     * preview.
-     */
     virtual bool isHidden() const = 0;
     virtual void setHidden(bool value) = 0;
 
@@ -81,4 +73,4 @@ public:
 
 };
 
-#endif /* __KIS_TRANSFORM_MASK_PARAMS_INTERFACE_H */
+#endif

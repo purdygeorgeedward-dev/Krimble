@@ -116,7 +116,7 @@ QWidget *KisKXMLGUIBuilder::createContainer(QWidget *parent, int index, const QD
 
     const QString tagName = element.tagName().toLower();
     if (tagName == d->tagMainWindow) {
-        KisKMainWindow *mainwindow = qobject_cast<KisKMainWindow *>(d->m_widget);  // could be 0
+        KisKMainWindow *mainwindow = qobject_cast<KisKMainWindow *>(d->m_widget);
         return mainwindow;
     }
 
@@ -134,13 +134,6 @@ QWidget *KisKXMLGUIBuilder::createContainer(QWidget *parent, int index, const QD
     }
 
     if (tagName == d->tagMenu) {
-        // Look up to see if we are inside a mainwindow. If yes, then
-        // use it as parent widget (to get kaction to plug itself into the
-        // mainwindow). Don't use a popupmenu as parent widget, otherwise
-        // the popup won't be hidden if it is used as a standalone menu as well.
-        //
-        // Note: menus with a parent of 0, coming from child clients, can be
-        // leaked if the child client is deleted without a proper removeClient call, though.
 
         QWidget *p = parent;
 
@@ -159,16 +152,13 @@ QWidget *KisKXMLGUIBuilder::createContainer(QWidget *parent, int index, const QD
 
         QString i18nText;
         QDomElement textElem = element.namedItem(d->attrText1).toElement();
-        if (textElem.isNull()) { // try with capital T
+        if (textElem.isNull()) {
             textElem = element.namedItem(d->attrText2).toElement();
         }
         const QString text = textElem.text();
         const QString context = textElem.attribute(d->attrContext);
 
-        //qDebug(260) << "DOMAIN" << KLocalizedString::applicationDomain();
-        //qDebug(260) << "ELEMENT TEXT:" << text;
-
-        if (text.isEmpty()) { // still no luck
+        if (text.isEmpty()) {
             i18nText = i18n("No text");
         } else {
             QByteArray domain = textElem.attribute(d->attrDomain).toUtf8();
@@ -184,8 +174,6 @@ QWidget *KisKXMLGUIBuilder::createContainer(QWidget *parent, int index, const QD
                 i18nText = i18ndc(domain.constData(), context.toUtf8().constData(), text.toUtf8().constData());
             }
         }
-
-        //qDebug(260) << "ELEMENT i18n TEXT:" << i18nText;
 
         const QString icon = element.attribute(d->attrIcon);
         QIcon pix;
@@ -245,7 +233,6 @@ QWidget *KisKXMLGUIBuilder::createContainer(QWidget *parent, int index, const QD
 
 void KisKXMLGUIBuilder::removeContainer(QWidget *container, QWidget *parent, QDomElement &element, QAction *containerAction)
 {
-    // Warning parent can be 0L
 
     if (qobject_cast<QMenu *>(container)) {
         if (parent) {
@@ -261,10 +248,6 @@ void KisKXMLGUIBuilder::removeContainer(QWidget *container, QWidget *parent, QDo
     } else if (qobject_cast<QMenuBar *>(container)) {
         QMenuBar *mb = static_cast<QMenuBar *>(container);
         mb->hide();
-        // Don't delete menubar - it can be reused by createContainer.
-        // If you decide that you do need to delete the menubar, make
-        // sure that QMainWindow::d->mb does not point to a deleted
-        // menubar object.
     } else if (qobject_cast<QStatusBar *>(container)) {
         if (qobject_cast<KisKMainWindow *>(d->m_widget)) {
             container->hide();
@@ -293,8 +276,6 @@ QAction *KisKXMLGUIBuilder::createCustomElement(QWidget *parent, int index, cons
     const QString tagName = element.tagName().toLower();
     if (tagName == d->tagSeparator) {
         if (QMenu *menu = qobject_cast<QMenu *>(parent)) {
-            // QMenu already cares for leading/trailing/repeated separators
-            // no need to check anything
             return menu->insertSeparator(before);
         } else if (QMenuBar *bar = qobject_cast<QMenuBar *>(parent)) {
             QAction *separatorAction = new QAction(bar);
@@ -302,26 +283,6 @@ QAction *KisKXMLGUIBuilder::createCustomElement(QWidget *parent, int index, cons
             bar->insertAction(before, separatorAction);
             return separatorAction;
         } else if (KisToolBar *bar = qobject_cast<KisToolBar *>(parent)) {
-            /* FIXME KAction port - any need to provide a replacement for lineSeparator/normal separator?
-            bool isLineSep = true;
-
-            QDomNamedNodeMap attributes = element.attributes();
-            unsigned int i = 0;
-            for (; i < attributes.length(); i++ )
-            {
-              QDomAttr attr = attributes.item( i ).toAttr();
-
-              if ( attr.name().toLower() == d->attrLineSeparator &&
-                   attr.value().toLower() == QStringLiteral("false") )
-              {
-                isLineSep = false;
-                break;
-              }
-            }
-
-            if ( isLineSep )
-                return bar->insertSeparator( index ? bar->actions()[index - 1] : 0L );
-            else*/
 
             return bar->insertSeparator(before);
         }
@@ -391,7 +352,6 @@ void KisKXMLGUIBuilder::finalizeGUI(KisKXMLGUIClient *)
     KisToolBar *toolbar = 0;
     QListIterator<KisToolBar> it(((KisKMainWindow *)d->m_widget)->toolBarIterator());
     while ((toolbar = it.current())) {
-        //qDebug(260) << "KisKXMLGUIBuilder::finalizeGUI toolbar=" << (void*)toolbar;
         ++it;
         toolbar->positionYourself();
     }
@@ -402,6 +362,5 @@ void KisKXMLGUIBuilder::finalizeGUI(KisKXMLGUIClient *)
 
 void KisKXMLGUIBuilder::virtual_hook(int, void *)
 {
-    /*BASE::virtual_hook( id, data );*/
 }
 

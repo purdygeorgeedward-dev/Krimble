@@ -23,7 +23,6 @@ KisBrushColorWells::KisBrushColorWells(KisViewManager *viewManager)
                                                       viewManager->mainWindowAsQWidget(), viewManager->mainWindowAsQWidget());
     button->setFixedSize(40, 40);
 
-    // the same connections as the wells at the bottom of the toolbox
     connect(button, SIGNAL(foregroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetFGColor(KoColor)));
     connect(button, SIGNAL(backgroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetBGColor(KoColor)));
     connect(viewManager->canvasResourceProvider(), SIGNAL(sigBGColorChanged(KoColor)), button, SLOT(setBackgroundColor(KoColor)));

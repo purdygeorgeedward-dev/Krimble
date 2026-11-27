@@ -105,7 +105,6 @@ void PSDUtilsTest::test_psdwrite_pascalstring()
         QBuffer buf;
         buf.open(QBuffer::ReadWrite);
 
-        // test null string
         QString s;
         QVERIFY(psdwrite_pascalstring<psd_byte_order::psdLittleEndian>(buf, s));
         QCOMPARE(buf.buffer().size(), 2);
@@ -116,7 +115,6 @@ void PSDUtilsTest::test_psdwrite_pascalstring()
         buf.buffer().clear();
         buf.open(QBuffer::ReadWrite);
 
-        // test even string
         s = QString("bl");
         QVERIFY(psdwrite_pascalstring<psd_byte_order::psdLittleEndian>(buf, s));
         QCOMPARE(buf.buffer().size(), 3);
@@ -128,7 +126,6 @@ void PSDUtilsTest::test_psdwrite_pascalstring()
         buf.buffer().clear();
         buf.open(QBuffer::ReadWrite);
 
-        // test uneven string
         s = QString("bla");
         QVERIFY(psdwrite_pascalstring<psd_byte_order::psdLittleEndian>(buf, s));
         QCOMPARE(buf.buffer().size(), 5);
@@ -143,7 +140,6 @@ void PSDUtilsTest::test_psdwrite_pascalstring()
         QBuffer buf;
         buf.open(QBuffer::ReadWrite);
 
-        // test null string
         QString s;
         QVERIFY(psdwrite_pascalstring(buf, s));
         QCOMPARE(buf.buffer().size(), 2);
@@ -154,7 +150,6 @@ void PSDUtilsTest::test_psdwrite_pascalstring()
         buf.buffer().clear();
         buf.open(QBuffer::ReadWrite);
 
-        // test even string
         s = QString("bl");
         QVERIFY(psdwrite_pascalstring(buf, s));
         QCOMPARE(buf.buffer().size(), 3);
@@ -166,7 +161,6 @@ void PSDUtilsTest::test_psdwrite_pascalstring()
         buf.buffer().clear();
         buf.open(QBuffer::ReadWrite);
 
-        // test uneven string
         s = QString("bla");
         QVERIFY(psdwrite_pascalstring(buf, s));
         QCOMPARE(buf.buffer().size(), 5);
@@ -281,7 +275,6 @@ void PSDUtilsTest::test_psdread_pascalstring()
         QString s;
         QString r;
 
-        // test null string
         buf.open(QBuffer::ReadWrite);
         QVERIFY(psdwrite_pascalstring<psd_byte_order::psdLittleEndian>(buf, s));
         buf.close();
@@ -290,7 +283,6 @@ void PSDUtilsTest::test_psdread_pascalstring()
         QCOMPARE(r, s);
         QVERIFY(buf.bytesAvailable() == 0);
 
-        // test even string
         buf.close();
         buf.buffer().clear();
         r.clear();
@@ -303,7 +295,6 @@ void PSDUtilsTest::test_psdread_pascalstring()
         QCOMPARE(r, s);
         QVERIFY(buf.bytesAvailable() == 0);
 
-        // test uneven string
         buf.close();
         buf.buffer().clear();
         r.clear();
@@ -324,7 +315,6 @@ void PSDUtilsTest::test_psdread_pascalstring()
         QString s;
         QString r;
 
-        // test null string
         buf.open(QBuffer::ReadWrite);
         QVERIFY(psdwrite_pascalstring(buf, s));
         buf.close();
@@ -333,7 +323,6 @@ void PSDUtilsTest::test_psdread_pascalstring()
         QCOMPARE(r, s);
         QVERIFY(buf.bytesAvailable() == 0);
 
-        // test even string
         buf.close();
         buf.buffer().clear();
         r.clear();
@@ -346,7 +335,6 @@ void PSDUtilsTest::test_psdread_pascalstring()
         QCOMPARE(r, s);
         QVERIFY(buf.bytesAvailable() == 0);
 
-        // test uneven string
         buf.close();
         buf.buffer().clear();
         r.clear();

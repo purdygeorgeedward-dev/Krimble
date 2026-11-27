@@ -7,12 +7,10 @@
 #ifndef KIS_LS_DROP_SHADOW_FILTER_H
 #define KIS_LS_DROP_SHADOW_FILTER_H
 
-
 #include "kis_layer_style_filter.h"
 #include <kritaimage_export.h>
 
 class psd_layer_effects_shadow_base;
-
 
 class KRITAIMAGE_EXPORT KisLsDropShadowFilter : public KisLayerStyleFilter
 {

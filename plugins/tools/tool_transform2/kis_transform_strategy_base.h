@@ -12,7 +12,6 @@
 
 #include "kis_tool.h"
 
-
 class QImage;
 class QTransform;
 class QPainter;
@@ -20,7 +19,6 @@ class QCursor;
 class KoPointerEvent;
 class QPainterPath;
 class KoColorDisplayRendererInterface;
-
 
 class KisTransformStrategyBase : public QObject
 {
@@ -69,4 +67,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_TRANSFORM_STRATEGY_BASE_H */
+#endif

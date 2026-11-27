@@ -15,7 +15,6 @@
 
 #include "kritaimpex_export.h"
 
-
 class KRITAIMPEX_EXPORT KisExportCheckRegistry : public QObject, public KoGenericRegistry<KisExportCheckFactory*>
 {
 public:
@@ -27,5 +26,4 @@ private:
     Q_DISABLE_COPY(KisExportCheckRegistry)
 };
 
-
-#endif // KISEXPORTCHECKREGISTRY_H
+#endif

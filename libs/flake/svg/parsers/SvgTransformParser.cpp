@@ -8,8 +8,6 @@
 
 #include <QtGlobal>
 
-//#include "kis_debug.h"
-
 #include <boost/config/warning_disable.hpp>
 #include <boost/phoenix/fusion.hpp>
 #include <boost/phoenix/operator.hpp>
@@ -104,10 +102,6 @@ struct transform_unit
 };
 }
 
-// We need to tell fusion about our transform_unit struct
-// to make it a first-class fusion citizen. This has to
-// be in global scope.
-
 BOOST_FUSION_ADAPT_STRUCT(
         Private::matrix,
         (qreal, a)
@@ -152,7 +146,6 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 namespace Private
 {
-    // Define our grammar
 
     namespace qi = boost::spirit::qi;
     namespace ascii = boost::spirit::ascii;
@@ -170,7 +163,6 @@ namespace Private
             using phoenix::at_c;
             using phoenix::push_back;
             using namespace qi::labels;
-
 
             comma %= -char_(',');
 
@@ -196,9 +188,6 @@ namespace Private
                 >>  -double_ [at_c<2>(_val) = true]
                 >>  ')';
 
-
-            // due to braces "-(...)" we cannot use automated
-            // semantic actions without relayouting the structure
             rotate_rule =
                 lit("rotate")
                 >> '('
@@ -229,7 +218,6 @@ namespace Private
     };
 }
 
-
 SvgTransformParser::SvgTransformParser(const QString &_str)
     : m_isValid(false)
 {
@@ -237,7 +225,7 @@ SvgTransformParser::SvgTransformParser(const QString &_str)
     typedef std::string::const_iterator iterator_type;
     typedef Private::transform_unit_parser<iterator_type> transform_unit_parser;
 
-    transform_unit_parser g; // Our grammar
+    transform_unit_parser g;
     const std::string str = _str.toStdString();
 
     std::vector<Private::transform_unit> transforms;
@@ -262,5 +250,4 @@ QTransform SvgTransformParser::transform() const
 {
     return m_transform;
 }
-
 

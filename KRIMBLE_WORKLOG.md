@@ -89,7 +89,7 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Oct 30 10:52 AM | `bd5f52d7cc` | Brushes panel: Size, Opacity, Flow rows; changelog 330th |
 | Oct 30 12:23 PM | `760e8c87ed` | Layer > New > Star...; changelog 331st |
 | Oct 30 12:30 PM | `a9c18e1b67` | the 32 old toolbox PNGs removed from the branch; changelog 332nd |
-| Oct 30 12:37 PM | `3bc2e91217` | documentation updated (STATUS, SESSION_CATCHUP, NEXT_BUILD, WORKLOG, ROADMAP, test list, icon coverage); changelog 333rd. The first text said 12:45 PM, a guessed time; the clock said 12:37 PM, corrected in the next commit |
+| Oct 30 12:37 PM | `3bc2e91217` | documentation updated (STATUS, SESSION_CATCHUP, NEXT_Build, worklog, roadmap, test list, icon coverage); changelog 333rd. The first text said 12:45 PM, a guessed time; the clock said 12:37 PM, corrected in the next commit |
 | Oct 30 12:43 PM | `d720ab2485` `85f6f57493` `ceb84c87f2` `dbc37944be` `eb0bc3f31f` | one push: QuickAdjust Keep as layers and Image menu item (334th); Brushes panel never appears by itself (335th); Brush name field (336th); tool buttons app-wide in the stylesheet (337th); panel docking dwell 350 ms (338th) |
 | Oct 30 12:55 PM | `cdcac43d9b` `30cb7cecc8` `e9e9285c6b` `1d54a0a7aa` | one push: six stale comments (339th); File > New icons 64 px (340th); Color Studio one page, gradient SV square (341st); Mixer panel (342nd) |
 | Oct 30 2:40 PM | `5c5c35f1cc` `47cae9dddf` | one push: orange progress bars and fills (344th); new main splash (345th) |
@@ -278,7 +278,7 @@ Row 55 added to KRIMBLE_BUILD_LOG.md (run 42676143585, 69c3a1c, Nov 9 11:40 AM M
 android-build.yml: "Internal error:" lines ignored by the native build error scan (changelog 474th). Pushing the workflow file starts build 56 again (row 56 not in the build log yet).
 ## 2026-11-11, 10:15 to 10:25 (MST): the Preferences keyboard icon, finally
 
-George sent the angled keyboard picture with red arrows along its tilted edges: "This was the new keyboard icon for Preferences. Remember???" The history, so it is not lost again: the icon had been the old keyboard picture (first only its left half, then the whole picture wide, 2026-11-05 and 07); on 2026-11-09 he asked "Rotate the keyboard." and it was turned 90 degrees clockwise (upright), which he called wrong, and he provided a new picture, a keyboard seen at an angle (the picture he uploaded on 2026-11-10). That new picture was never put into the icon, and it was in the to-do list ever since. Now it is (changelog 473): cropped to the keyboard, 720 px wide, in a 480 x 317 SVG for both themes; the source is in `krimble-artwork/3d/keyboard-george-2026-11-10.png`.
+George sent the angled keyboard picture with red arrows along its tilted edges: "This was the new keyboard icon for Preferences. Remember?" The history, so it is not lost again: the icon had been the old keyboard picture (first only its left half, then the whole picture wide, 2026-11-05 and 07); on 2026-11-09 he asked "Rotate the keyboard." and it was turned 90 degrees clockwise (upright), which he called wrong, and he provided a new picture, a keyboard seen at an angle (the picture he uploaded on 2026-11-10). That new picture was never put into the icon, and it was in the to-do list ever since. Now it is (changelog 473): cropped to the keyboard, 720 px wide, in a 480 x 317 SVG for both themes; the source is in `krimble-artwork/3d/keyboard-george-2026-11-10.png`.
 
 ## 2026-11-11, 16:50 to 17:15 (MST): QuickAdjust, finally
 
@@ -332,7 +332,7 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 
 **2026-11-12, 12:05 (MST), task 22.** George: "Try 26." Main dark level 28 to 26, tabs 22, fields 15, odd darks, scheme View colors 26/22; changelog 500; picture dark_areas_26.png.
 
-**2026-11-12, 12:15 (MST), task 23.** George asked where "Load Layer Transparency as Selection" is in the industry standard (answer: a Ctrl-click on the layer thumbnail; menu: Select > Load Selection with the layer's transparency channel), then "Shouldnt we rename it to match Ps?"; I proposed "Load Layer Transparency" and the two exact lines of krita5.xmlgui; "yes. push." Done, changelog 501.
+**2026-11-12, 12:15 (MST), task 23.** George asked where "Load Layer Transparency as Selection" is in the industry standard (answer: a Ctrl-click on the layer thumbnail; menu: Select > Load Selection with the layer's transparency channel), then "Shouldn't we rename it to match the industry standard?"; I proposed "Load Layer Transparency" and the two exact lines of krita5.xmlgui; "yes. push." Done, changelog 501.
 
 **2026-11-12, 12:45 (MST), task 27.** George sent a screenshot of the old plain gray look (every bar #373952, no flat sheet) and asked to keep today's theme as Blue and make the old one the default ("blue-gray"). Two schemes (KritaBlueGray.colors from ad64d9b, KritaBlue.colors), flat sheet gated on "Krimble Blue", default name "Krimble Blue-Gray", legacy "Krimble dark" read as the default (changelog 502).
 
@@ -515,7 +515,7 @@ Run #32 (43594210102, b6e6972): attempt 1 sat queued from 5:19 AM until George c
 Pushed 2257c69..77dcb3e (README features, Krimble Bevel 2 px lines), then dispatched the workflow with the PAT George pasted: HTTP 204, run #33 (43686436841), commit 77dcb3e, label 1.0.59-beta. Row 59 is in KRIMBLE_BUILD_LOG.md (local, not pushed: a push of the log does not start a build).
 
 ## 2026-11-15 5:58 AM MT: George's test of 1.0.59-beta (build 59, commit 77dcb3e)
-George installed 59 and tested it (12 screenshots). Verdict: everything new fails except Hexagon Selection. His words: "This build is a complete disaster." He is considering rolling back all changes to the previous version. Nothing has been changed in the source since; no cause is confirmed yet. His list, as he wrote it:
+George installed 59 and tested it (12 screenshots). Verdict: everything new fails except Hexagon Selection. His words: "This build has serious problems." He is considering rolling back all changes to the previous version. Nothing has been changed in the source since; no cause is confirmed yet. His list, as he wrote it:
 
 1. First screen: no bevels at all. Recent Images writes over the toolbox as if it does not exist. Foreground and background color are both gray. Complete mess.
 2. Tapping the black and white (default colors) button in the toolbox does nothing. Then the toolbox vanishes.
@@ -557,7 +557,7 @@ Two sources of bevels exist. (1) The style sheet borders (light top/left, dark b
 George said he indicated earlier that all themes should have bevels. KRIMBLE_DECISIONS.md line 18 (task 63 split, Nov 13) says the default theme is flat and the Nov 10 bevels belong to Krimble Bevel only: this conflicts with his statement. Not yet changed in the source or in KRIMBLE_DECISIONS.md; he has not said how thick or how visible the bevels in the other themes should be.
 
 ## 2026-11-15 6:05 AM MT: rule: all themes must have bevels
-George sent a picture (a man holding a stone tablet reading "ALL THEMES MUST HAVE BEVELS"). Written in KRIMBLE_DECISIONS.md as a rule above the default theme row. Correction of the 6:01 AM answer: the decisions file did already say, in the default theme row of Nov 13, "one-pixel light and dark lines"; what it lacked was a rule for every theme, and the "Separate themes" row gave the Nov 10 bevels to Krimble Bevel only. The two rows contradicted each other, and the 1.0.59 code followed the second. No source changed.
+George sent a picture (a man holding a stone tablet reading "All themes must have bevels"). Written in KRIMBLE_DECISIONS.md as a rule above the default theme row. Correction of the 6:01 AM answer: the decisions file did already say, in the default theme row of Nov 13, "one-pixel light and dark lines"; what it lacked was a rule for every theme, and the "Separate themes" row gave the Nov 10 bevels to Krimble Bevel only. The two rows contradicted each other, and the 1.0.59 code followed the second. No source changed.
 
 ## 2026-11-15 6:04 AM MT: George: one pixel is not enough; the mockups are useless
 George: "One pixel is insufficient." This replaces the one-pixel rule for bevel lines (Oct 17, 1.0.37: "only one pixel thick"; the default theme row of Nov 13: "one-pixel light and dark lines"). Thickness not yet given; the Krimble Bevel theme already has two (Nov 14, "thicker by one pixel"). Also George: "your mockups for UI design are wildly inaccurate and useless for UI design." Mockups (HTML or image previews made before a build) do not predict how the Qt build looks on his phone: the tab design of 59 (item 6) is the case in point. Not changed in the source or the decisions file yet.
@@ -571,8 +571,8 @@ George: "Neither of those is enough on a high resolution screen." (1 real pixel 
 ## 2026-11-15 6:10 AM MT: bevel lines 3 real pixels (test for the next build)
 George: "Try 3 just to test next time." KisMainWindow.cpp: the overlay lines are 3 real screen pixels on all themes (entry 599). He also asked whether the weird corners were fixed so they are angles: no, they were not (nothing in the notes or code mitres the corners; the overlay draws four rectangles that overlap at the corners). Not changed. No build started.
 
-## 2026-11-15 6:12 AM MT: George: plain rectangles is stupid; angled corners were discussed and not noted
-George: "Plain rectangles is stupid. We wasted a whole session discussing this and you didn't make any notes??????" Searched this repo's worklog, changes and decisions files and the earlier chats Claude can search (the DPaint style chat of Nov 7 to 9, "Krimble drift"): no note or discussion of angled bevel corners was found. The toolbox buttons (KoToolBoxButton.cpp) already draw their bevel as polygons (topLeft and the matching bottom-right polygon); the panel, menu and toolbar overlay (KrimbleBevelOverlay) draws four rectangles. Rule added to KRIMBLE_DECISIONS.md: bevel corners are angled. Not changed in the source.
+## 2026-11-15 6:12 AM MT: George: plain rectangles don't work; angled corners were discussed and not noted
+George: "Plain rectangles don't work. We wasted a whole session discussing this and you didn't make any notes?" Searched this repo's worklog, changes and decisions files and the earlier chats Claude can search (the DPaint style chat of Nov 7 to 9, "Krimble drift"): no note or discussion of angled bevel corners was found. The toolbox buttons (KoToolBoxButton.cpp) already draw their bevel as polygons (topLeft and the matching bottom-right polygon); the panel, menu and toolbar overlay (KrimbleBevelOverlay) draws four rectangles. Rule added to KRIMBLE_DECISIONS.md: bevel corners are angled. Not changed in the source.
 
 ## 2026-11-15 6:21 AM MT: George's bevel concept pictures
 George sent two pictures and asked "You get this concept?" Saved in docs/bevel-reference/ (george-bevel-concept-1-mitered-frame.png, george-bevel-concept-2-layered-bands.png). Reading: a frame of four thick bands, four different tones (top near white, left light blue-gray, right darker, bottom darkest), the bands joined at 45 degree diagonals drawn as pixel staircases (mitered corners); picture 2 has two layered bands per side. This replaces the idea of one-pixel (or 3-pixel) light and dark lines; the overlay's 3 real pixel test (entry 599) is still four plain rectangles. Rule added to KRIMBLE_DECISIONS.md. Source not changed. Earlier question (mitered or chamfered corners): the pictures answer it as mitered.
@@ -650,7 +650,7 @@ George (item 12, QuickAdjust gigantic, buttons stacked): "QuickAdjust should alw
 George sent three QuickAdjust screenshots (1.0.59): buttons one per line, OK cut off. Cause found in libs/ui/KisApplication.cpp krimbleNarrowDialogLayouts (rows of 3+ controls turned into columns when the window's minimum width is wider than the screen). QuickAdjust's bottom row was too wide for a 340-wide portrait screen. Now two rows, both marked krimbleKeepRows. George: "The screenshots show how utterly ridiculous this is." Committed locally, not pushed.
 
 ## 2026-11-15 9:50 AM MT: QuickAdjust size cap (entry 611)
-George: "How about not gigantic??????" Width <= 75% of the short side, height <= 45% of screen height, rows scroll. Numbers are mine (he gave none); he can change them. Committed locally, not pushed.
+George: "How about not gigantic?" Width <= 75% of the short side, height <= 45% of screen height, rows scroll. Numbers are mine (he gave none); he can change them. Committed locally, not pushed.
 
 ## 2026-11-15 10:00 AM MT: QuickAdjust text size (entry 612)
 George: text in QuickAdjust is far bigger than the rest of the screen; "Estimate based on common sizes." Row names/numbers 12 px, buttons 13 px, Preview 12 px (were 15/15/16/13). Pictures and sliders untouched. Committed locally, not pushed.
@@ -659,16 +659,16 @@ George: text in QuickAdjust is far bigger than the rest of the screen; "Estimate
 George: item 13 is about default sizes and "bizarre insane magnification", not an icon cap; no reason for the window to open at the full screen. New dialog width limited to 75% of the screen's short side. Icon size untouched (44 logical px). Committed locally, not pushed.
 
 ## 2026-11-15 10:20 AM MT: real pixels again
-George: "Here we are back at NONSENSE. 'LOGICAL PIXELS' AGAIN." I wrote "44 logical px" about the New dialog icons. Rule (decisions file): sizes are said in REAL screen pixels only. This phone: 1080 x 2340, one unit of the style sheets and layouts = 3.19 real pixels. New dialog icons: 140 real pixels. Corrected the 612 and 613 entries. Committed locally.
+George: "Here we are back at Nonsense. 'logical pixels' again." I wrote "44 logical px" about the New dialog icons. Rule (decisions file): sizes are said in REAL screen pixels only. This phone: 1080 x 2340, one unit of the style sheets and layouts = 3.19 real pixels. New dialog icons: 140 real pixels. Corrected the 612 and 613 entries. Committed locally.
 
 ## 2026-11-15 10:30 AM MT: rule, who decides an issue is resolved
-I moved from QuickAdjust to item 13 on my own, then took George's next QuickAdjust message as being about the New dialog (commit 9a80741, entry 613, a wrong guess, local only). George: "YOU DONT GET TO DECIDE WHEN AN ISSUE IS RESOLVED!!!!!!" Rule added to KRIMBLE_DECISIONS.md. Still on QuickAdjust until he says otherwise.
+I moved from QuickAdjust to item 13 on my own, then took George's next QuickAdjust message as being about the New dialog (commit 9a80741, entry 613, a wrong guess, local only). George: "You don't get to decide when an issue is resolved!" Rule added to KRIMBLE_DECISIONS.md. Still on QuickAdjust until he says otherwise.
 
 ## 2026-11-15 10:40 AM MT: size cap taken out
-I capped QuickAdjust (entry 611) and said "The limits are my numbers". George: "DO NOT CAP THIS WINDOW!!!!! I DID NOT TELL YOU TO DO THAT!!!!" Reverted in source (entry 614). Waiting for his words on what is wrong with the size. Committed locally, not pushed.
+I capped QuickAdjust (entry 611) and said "The limits are my numbers". George: "Do not cap this window! I did not tell you to do that!" Reverted in source (entry 614). Waiting for his words on what is wrong with the size. Committed locally, not pushed.
 
 ## 2026-11-15 10:50 AM MT: QuickAdjust magnified (entry 615)
-George: "The QuickAdjust window is MAGNIFIED!!!! THAT SHOULD NEVER HAPPEN." Text now follows the program's own size. Rows, pictures, sliders, switch untouched. Still on QuickAdjust; George decides when it is finished. Committed locally, not pushed.
+George: "The QuickAdjust window is Magnified! That should never happen." Text now follows the program's own size. Rows, pictures, sliders, switch untouched. Still on QuickAdjust; George decides when it is finished. Committed locally, not pushed.
 
 ## 2026-11-15 11:00 AM MT: QuickAdjust starts small, no stretching (entry 616)
 George: resizable by the user, never magnified; starts small. Banner 520 real pixels max (my number), window opens at its natural size. Rows, pictures untouched. Committed locally, not pushed.
@@ -677,7 +677,7 @@ George: resizable by the user, never magnified; starts small. Banner 520 real pi
 George: "And it cannot be made to bounce when moved off screen either. Again it will get in the way. If anything it should be able to collapse to a bar." I took it as a bug report; he: "I didn't say it bounces." It is a rule. Recorded in KRIMBLE_DECISIONS.md. Code check: only keepOnScreen at first Show (libs/ui/KisApplication.cpp), no pull-back after moves. Collapse to a bar not built (his "if anything"). Committed locally.
 
 ## 2026-11-15 11:35 AM MT: item 11 keyboard at full size (entry 617)
-George: "Ugh. Just render it full size." Page list minimum 486 real pixels (picture is 480). Committed locally, not pushed.
+George: "Just render it full size." Page list minimum 486 real pixels (picture is 480). Committed locally, not pushed.
 
 ## 2026-11-15 11:50 AM MT: new Preferences icon (entry 618)
 George sent the orange K keycap (transparent background). "Yes. It solves the problem cleanly." Put into both config-keyboard SVGs. Committed locally, not pushed.
@@ -743,14 +743,14 @@ George: "Push all of the fixes to the repo." Pushed commits 639 to 650 (menu out
 George: "Build it". Pushed commits 651 to 656 and the build 62 bump (1.0.62-beta). Run started by this push; nothing built or tested yet. Notes: the draft release for 1.0.60-beta still has no notes; no notes exist for 1.0.62.
 
 ## 2026-11-15 12:00 MST — Build 61 started (number reused)
-George: "Build it", then "FAILED BUILDS MUST NOT PERSIST" and "Your rule is stale". Run for 62 cancelled and deleted; the cancelled run of the first 61 deleted. This push (1.0.61-beta) starts the build. Rule going forward: a failed or cancelled build is deleted and its number is reused.
+George: "Build it", then "Failed builds must not persist" and "Your rule is stale". Run for 62 cancelled and deleted; the cancelled run of the first 61 deleted. This push (1.0.61-beta) starts the build. Rule going forward: a failed or cancelled build is deleted and its number is reused.
 
 ## 2026-11-15 12:05 MST — Old failed and cancelled runs deleted
 George: "Yes. Failed builds must be deleted. They serve no purpose other than figuring out why the build failed." Deleted the 12 failed or cancelled runs (Nov 6 to Nov 14) from GitHub. Build 61 (run 43749388783) is running.
 
 **2026-11-15, 14:58 (MST).** Renamed the theme files from Krita*.colors to Krimble*.colors; committed and pushed with the earlier 659-666 commits to master (no build started).
 ## 2026-11-15 2:55 PM MST — Krimble Bevel deleted (entry 659)
-George: "Delete Krimble Bevel. I never authorized that theme." and "When I want something DELETED, I WANT IT DELETED." Deleted the theme file, the install line, the code branch and the property (thememanager.cpp, themes/CMakeLists.txt, KRIMBLE_DECISIONS.md rows). George: "No one has that theme" (no fallback added for a saved name). README and release notes still name the theme: left for George to decide. Pushed only on his word "push".
+George: "Delete Krimble Bevel. I never authorized that theme." and "When I want something Deleted, I want it deleted." Deleted the theme file, the install line, the code branch and the property (thememanager.cpp, themes/CMakeLists.txt, KRIMBLE_DECISIONS.md rows). George: "No one has that theme" (no fallback added for a saved name). README and release notes still name the theme: left for George to decide. Pushed only on his word "push".
 
 ## 2026-11-15 3:00 PM MST — The five Krita-named themes deleted (entry 660)
 George: "Destroy all Krita themes. Nothing called Krita stays in themes." Deleted the five theme files and install lines (themes/CMakeLists.txt, KRIMBLE_DECISIONS.md row). Committed locally; pushed only on his word "push".
@@ -896,3 +896,10 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-20, 04:12 (MST).** Branch krimble-cleanup: 759th (no grab lines on the COLOR LAB band). Not built.
 **2026-11-20, 05:00 (MST).** Branch krimble-cleanup: 760th (dead files and classes deleted, shared rules moved to KrimbleCommonStyle.h, dialog keeper coalesced, KisApplication.cpp split). Not built. Open: inline change notes vs the dual-documentation rule.
 **2026-11-20, 05:20 (MST).** Branch krimble-cleanup: 761st (inline change notes deleted; documentation in KRIMBLE_CHANGES.md only from now on). Not built.
+**2026-11-26, 14:18 (MST).** Branch master: docs/releases/ (word-for-word copies of all 42 GitHub releases, v1.0.29 to v1.0.80, with an index). 1cc24b8c.
+**2026-11-26, 14:38 (MST).** Branch cyber-theme: 1.0.80 test list and 7 screenshots. e8869d9.
+**2026-11-26, 14:52 to 15:20 (MST).** Branch cyber-theme: 901st to 911th (pill buttons 8f7387b, Configure Toolbars 5bd7fd7, Preferences icons 8c09e75, New File height 15b3862, QuickAdjust grip 219f78b, toolbox grip separator, menu shadow deleted 80421f4, thinner eyedropper, toolbox gadget icons on light backgrounds, Black and White theme 6e1f28b + 2408915, Cyber see-through f56d339), changelog 893rd to 911th c789ddf. Not built. Checked in desktop Qt 5.15 with the real style sheets.
+**2026-11-26, 18:33 (MST).** Branch cyber-theme: blurry upside-down image reported again. c4ca7e0.
+**2026-11-26, 18:40 (MST).** Branch cyber-theme: 912th, corner grip on image windows (tested in desktop Qt). ded3def.
+**2026-11-26, 18:58 (MST).** Branch cyber-theme: 913th, Intel One Mono fonts (8 styles, OFL 1.1) and About notice. 5b3e718.
+

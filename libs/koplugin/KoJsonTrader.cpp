@@ -29,10 +29,8 @@ struct KoJsonTrader::PluginCacheEntry
     QSharedPointer<QPluginLoader> loader;
 };
 
-
 KoJsonTrader::KoJsonTrader()
 {
-    // Allow a command line variable KRITA_PLUGIN_PATH to override the automatic search
     m_pluginPath = QProcessEnvironment::systemEnvironment().value("KRITA_PLUGIN_PATH");
 
     if (m_pluginPath.isEmpty() ||
@@ -43,7 +41,6 @@ KoJsonTrader::KoJsonTrader()
         QDir appDir(qApp->applicationDirPath());
         appDir.cdUp();
 #ifdef Q_OS_MACOS
-        // Help Krita run without deployment
         QDir d(appDir);
         d.cd("../../../");
         searchDirs << d;
@@ -86,20 +83,16 @@ KoJsonTrader::KoJsonTrader()
                     m_pluginPath = libDir.absolutePath();
                     break;
 #else
-                    // on many systems this will be the actual lib dir (and krita subdir contains plugins)
                     if (libDir.cd("kritaplugins")) {
                         m_pluginPath = libDir.absolutePath();
                         break;
                     }
 
-                    // on debian at least the actual libdir is a subdir named like "lib/x86_64-linux-gnu"
-                    // so search there for the Krita subdir which will contain our plugins
-                    // FIXME: what are the chances of there being more than one Krita install with different arch and compiler ABI?
                     Q_FOREACH (const QFileInfo &subInfo, libDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
                         QDir subDir(subInfo.absoluteFilePath());
                         if (subDir.cd("kritaplugins")) {
                             m_pluginPath = subDir.absolutePath();
-                            break; // will only break inner loop so we need the extra check below
+                            break;
                         }
                     }
 
@@ -124,7 +117,6 @@ KoJsonTrader::~KoJsonTrader()
 {
 }
 
-
 Q_GLOBAL_STATIC(KoJsonTrader, s_instance)
 
 KoJsonTrader* KoJsonTrader::instance()
@@ -143,7 +135,6 @@ void KoJsonTrader::initializePluginLoaderCache()
     while (dirIter.hasNext()) {
         dirIter.next();
 #ifdef Q_OS_ANDROID
-        // files starting with lib_krita are plugins, it is needed because of the loading rules in NDK
         if (dirIter.fileInfo().isFile() && dirIter.fileName().startsWith("lib_krita")) {
 #elif defined(_MSC_VER)
         if (dirIter.fileInfo().isFile() && dirIter.fileName().startsWith("krita") && !dirIter.fileName().endsWith(".pdb") && !dirIter.fileName().endsWith(".lib")) {

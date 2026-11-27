@@ -33,7 +33,6 @@
 #include <kis_debug.h>
 #include <QUrl>
 
-
 #include <KisKineticScroller.h>
 #include <KoFileDialog.h>
 #include <KoIcon.h>
@@ -110,7 +109,6 @@ public:
     int m_freeCustomWidgetIndex {0};
     KoSectionListItem* m_templatesSeparator {nullptr};
 
-    //Stores pointers to items in the pane, accessible by their untranslated name
     QMap<QString, QTreeWidgetItem *> *m_itemMap;
 };
 
@@ -222,7 +220,6 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
 
     QList<int> sizes;
 
-    // Set the sizes of the details pane splitters
     KConfigGroup cfgGrp( KSharedConfig::openConfig(), "TemplateChooserDialog"); sizes = cfgGrp.readEntry("DetailsPaneSplitterSizes", sizes);
 
     if (!sizes.isEmpty())
@@ -249,8 +246,6 @@ KisOpenPane::~KisOpenPane()
 
     delete d;
 }
-
-
 
 void KisOpenPane::openFileDialog()
 {
@@ -302,8 +297,6 @@ void KisOpenPane::initTemplates(const QString& templatesResourcePath)
             QTreeWidgetItem* item = addPane(group->name(), "Template", group->templates().first()->loadPicture(),
                                             pane, group->sortingWeight() + templateOffset);
 
-
-
             if (!firstItem) {
                 firstItem = item;
             }
@@ -340,9 +333,6 @@ void KisOpenPane::dragEnterEvent(QDragEnterEvent *event)
 void KisOpenPane::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasUrls() && event->mimeData()->urls().size() > 0) {
-        // XXX: when the MVC refactoring is done, this can open a bunch of
-        //      urls, but since the part/document combination is still 1:1
-        //      that won't work for now.
         Q_EMIT openExistingFile(event->mimeData()->urls().first());
 
     }
@@ -364,7 +354,7 @@ void KisOpenPane::addCustomDocumentWidget(QWidget *widget, const QString& title,
     pageColumnLayout->setSpacing(4);
     pageColumnLayout->addWidget(pageScroll, 1);
     if (QDialogButtonBox *confirmButtons = widget->findChild<QDialogButtonBox *>(QStringLiteral("newDialogConfirmationButtonBox"))) {
-        confirmButtons->setParent(pageColumn);   // leaves the page's layout
+        confirmButtons->setParent(pageColumn);
         confirmButtons->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         pageColumnLayout->addWidget(confirmButtons, 0, Qt::AlignRight);
         confirmButtons->show();
@@ -381,7 +371,6 @@ void KisOpenPane::addCustomDocumentWidget(QWidget *widget, const QString& title,
         paneWidget = scrollArea;
     }
 #endif
-    // QTreeWidgetItem* item = addPane(title, untranslatedName, icon, widget, d->m_freeCustomWidgetIndex);
     QTreeWidgetItem* item = addPane(title, untranslatedName, icon, paneWidget, d->m_freeCustomWidgetIndex);
     ++d->m_freeCustomWidgetIndex;
     KConfigGroup cfgGrp( KSharedConfig::openConfig(), "TemplateChooserDialog");
@@ -404,7 +393,6 @@ bool KisOpenPane::selectItem(const QString &name)
     return true;
 }
 
-
 QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untranslatedName, const QString &iconName, QWidget *widget, int sortWeight)
 {
     if (!widget) {
@@ -416,7 +404,6 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
 
     d->m_itemMap->insert(untranslatedName,  (QTreeWidgetItem*)listItem);
 
-    // resizes icons so they are a bit smaller
     QIcon icon = KisIconUtils::loadIcon(iconName);
     const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
     const int topIconSize = untranslatedName.contains(QLatin1String("clipboard"), Qt::CaseInsensitive) ? 53 : 64;
@@ -454,7 +441,6 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
 
         image.convertTo(QImage::Format_ARGB32);
         image = image.copy((image.width() - iconSize) / 2, (image.height() - iconSize) / 2, iconSize, iconSize);
-        // listItem->setIcon(0, QIcon(QPixmap::fromImage(image)));
         QPixmap sectionPixmap = QPixmap::fromImage(image);
         sectionPixmap.setDevicePixelRatio(dpr);
         listItem->setIcon(0, QIcon(sectionPixmap));

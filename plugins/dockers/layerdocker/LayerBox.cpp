@@ -10,6 +10,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QLabel>
 #include <QHBoxLayout>
 #include <QEvent>
 #include <QGridLayout>
@@ -156,10 +157,6 @@ inline void LayerBox::addActionToMenu(QMenu *menu, const QString &id)
 
 qint32 LayerBox::convertOpacityToInt(qreal opacity)
 {
-    /**
-     * Scales opacity from the range 0...100
-     * to the integer range 0...255
-     */
 
     return qMin(255, int(opacity * 2.55 + 0.5));
 }
@@ -168,7 +165,7 @@ qint32 LayerBox::convertOpacityToInt(qreal opacity)
 class KrimbleLongPressOpen : public QObject
 {
 public:
-    explicit KrimbleLongPressOpen(QComboBox *combo, int delayMs = 500) : QObject(combo), m_combo(combo)
+    explicit KrimbleLongPressOpen(QComboBox *combo, int delayMs = 400) : QObject(combo), m_combo(combo)
     {
         combo->installEventFilter(this);
         m_timer.setSingleShot(true);
@@ -197,7 +194,6 @@ private:
     QTimer m_timer;
 };
 
-
 class KrimbleLayerButtonsFilter : public QObject
 {
 public:
@@ -216,8 +212,6 @@ protected:
     }
 
 private:
-    // George: "If all else fails make the buttons smaller." One row of normal buttons (icons 18 px) if they fit; else one row of smaller ones (14 px) if those fit;
-    // else two rows of three, normal size.
     bool fits(int iconSize)
     {
         int needed = 16;
@@ -230,7 +224,7 @@ private:
 
     void relayout()
     {
-        int state = 0;   // 0: two rows, 18 px icons; 1: one row, 18 px; 2: one row, 14 px
+        int state = 0;
         if (fits(18)) state = 1;
         else if (fits(14)) state = 2;
         const int iconSize = (state == 2) ? 14 : 18;
@@ -269,7 +263,6 @@ LayerBox::LayerBox()
     m_wdgLayerBox->setupUi(mainWidget);
 
     QStyle *newStyle = QStyleFactory::create(m_wdgLayerBox->listLayers->style()->objectName());
-    // proxy style steals the ownership of the style and deletes it later
     LayerBoxStyle *proxyStyle = new LayerBoxStyle(newStyle);
 
     proxyStyle->setParent(m_wdgLayerBox->listLayers);
@@ -344,7 +337,7 @@ LayerBox::LayerBox()
         m_wdgLayerBox->hbox2 = nullptr;
         delete m_wdgLayerBox->opacityLayout;
         m_wdgLayerBox->opacityLayout = nullptr;
-        m_wdgLayerBox->opacityLabel->hide();   // the bar says "Opacity: n%" itself
+        m_wdgLayerBox->opacityLabel->hide();
         QGridLayout *header = new QGridLayout;
         header->setContentsMargins(0, 0, 0, 0);
         header->setHorizontalSpacing(6);
@@ -363,6 +356,16 @@ LayerBox::LayerBox()
             topRow->addStretch(1);
             blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             blend->setFixedWidth(110);
+            {
+                QLabel *krimbleTypeLabel = new QLabel(i18n("Type:"));
+                QFont krimbleTypeFont = blend->font();
+                krimbleTypeFont.setBold(true);
+                if (krimbleTypeFont.pointSizeF() > 0) krimbleTypeFont.setPointSizeF(krimbleTypeFont.pointSizeF() * 1.10);
+                else if (krimbleTypeFont.pixelSize() > 0) krimbleTypeFont.setPixelSize(qRound(krimbleTypeFont.pixelSize() * 1.10));
+                krimbleTypeLabel->setFont(krimbleTypeFont);
+                krimbleTypeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+                topRow->addWidget(krimbleTypeLabel);
+            }
             topRow->addWidget(blend);
             topRow->addWidget(m_wdgLayerBox->bnLayerFilters);
             header->addLayout(topRow, 0, 0, 1, 2);
@@ -451,12 +454,6 @@ LayerBox::LayerBox()
     m_filteringModel->setNodeModel(m_nodeModel);
     connect(krimbleSearch, &QLineEdit::textChanged, m_filteringModel.data(), &KisNodeFilterProxyModel::setTextFilter);
 
-    /**
-     * Connect model updateUI() to enable/disable controls.
-     * Note: nodeActivated() is connected separately in setImage(), because
-     *       it needs particular order of calls: first the connection to the
-     *       node manager should be called, then updateUI()
-     */
     connect(m_nodeModel, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateUI()));
     connect(m_nodeModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateUI()));
     connect(m_nodeModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)), SLOT(updateUI()));
@@ -468,7 +465,6 @@ LayerBox::LayerBox()
     connect(m_nodeModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)), SLOT(slotForgetAboutSavedNodeBeforeEditSelectionMode()));
     connect(m_nodeModel, SIGNAL(modelReset()), SLOT(slotForgetAboutSavedNodeBeforeEditSelectionMode()));
 
-    // we should update expanded state of the nodes on adding the nodes
     connect(m_nodeModel, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(slotNodeCollapsedChanged()));
     connect(m_nodeModel, SIGNAL(modelReset()), SLOT(slotNodeCollapsedChanged()));
 
@@ -492,13 +488,9 @@ LayerBox::LayerBox()
             &m_colorLabelCompressor, SLOT(start()));
 
     m_wdgLayerBox->listLayers->setModel(m_filteringModel);
-    // this connection should be done *after* the setModel() call to
-    // happen later than the internal selection model
     connect(m_filteringModel.data(), &KisNodeFilterProxyModel::sigBeforeBeginRemoveRows,
             this, &LayerBox::slotAdjustCurrentBeforeRemoveRows);
 
-
-    //LayerFilter Menu
     QMenu *layerFilterMenu = new QMenu(this);
     m_wdgLayerBox->bnLayerFilters->setMenu(layerFilterMenu);
     m_wdgLayerBox->bnLayerFilters->setPopupMode(QToolButton::InstantPopup);
@@ -530,7 +522,6 @@ LayerBox::LayerBox()
     layerFilterMenuAction->setDefaultWidget(layerFilterWidget);
     layerFilterMenu->addAction(layerFilterMenuAction);
 
-
     KisMenuStyleDontCloseOnAlt *menuStyle = new KisMenuStyleDontCloseOnAlt(layerFilterMenu->style());
     menuStyle->setParent(layerFilterMenu);
     layerFilterMenu->setStyle(menuStyle);
@@ -539,8 +530,6 @@ LayerBox::LayerBox()
 
     connect(&m_colorLabelCompressor, SIGNAL(timeout()), SLOT(updateAvailableLabels()));
 
-
-    // set up the configure menu for changing thumbnail size
     QMenu* configureMenu = new QMenu(this);
     configureMenu->setContentsMargins(6, 6, 6, 6);
     configureMenu->addSection(i18n("Thumbnail Size"));
@@ -550,13 +539,11 @@ LayerBox::LayerBox()
     m_wdgLayerBox->configureLayerDockerToolbar->setPopupMode(QToolButton::InstantPopup);
     m_wdgLayerBox->configureLayerDockerToolbar->setAutoRaise(true);
 
-
-    // add horizontal slider
     thumbnailSizeSlider = new QSlider(this);
     thumbnailSizeSlider->setOrientation(Qt::Horizontal);
     thumbnailSizeSlider->setRange(20, 80);
 
-    thumbnailSizeSlider->setValue(cfg.layerThumbnailSize(false)); // grab this from the kritarc
+    thumbnailSizeSlider->setValue(cfg.layerThumbnailSize(false));
 
     thumbnailSizeSlider->setMinimumHeight(20);
     thumbnailSizeSlider->setMinimumWidth(40);
@@ -567,13 +554,11 @@ LayerBox::LayerBox()
     sliderAction->setDefaultWidget(thumbnailSizeSlider);
     configureMenu->addAction(sliderAction);
 
-
     connect(thumbnailSizeSlider, SIGNAL(valueChanged(int)), &m_thumbnailSizeCompressor, SLOT(start()));
     connect(&m_thumbnailSizeCompressor, SIGNAL(timeout()), SLOT(slotUpdateThumbnailIconSize()));
 
     configureMenu->addSection(i18nc("@item:inmenu Layers Panel settings, slider", "Tree Indentation"));
 
-    // add horizontal slider
     indentationSlider = new QSlider(Qt::Horizontal, this);
     indentationSlider->setRange(20, 100);
     indentationSlider->setMinimumSize(40, 20);
@@ -581,19 +566,13 @@ LayerBox::LayerBox()
     indentationSlider->setPageStep(20);
     indentationSlider->setValue(cfg.layerTreeIndentation());
 
-
     sliderAction= new QWidgetAction(this);
     sliderAction->setDefaultWidget(indentationSlider);
     configureMenu->addAction(sliderAction);
 
-    // NOTE: if KisConfig would just compress its file sync events, we wouldn't need
-    // this extra compressor that juggles between slow UI and disk thrashing
     connect(indentationSlider, SIGNAL(valueChanged(int)), &m_treeIndentationCompressor, SLOT(start()));
     connect(&m_treeIndentationCompressor, SIGNAL(timeout()), SLOT(slotUpdateTreeIndentation()));
 
-
-    // Layer info-text settings:
-    // blending info-text style combobox
     configureMenu->addSection(i18nc("@item:inmenu Layers Panel settings, combobox", "Blending Info Style"));
     infoTextCombobox = new QComboBox(this);
     infoTextCombobox->setToolTip(i18nc("@item:tooltip", "None: Show nothing.\n"
@@ -613,12 +592,10 @@ LayerBox::LayerBox()
     configureMenu->addAction(cmbboxAction);
     connect(infoTextCombobox, SIGNAL(currentIndexChanged(int)), SLOT(slotUpdateLayerInfoTextStyle()));
 
-    // info-text opacity slider
     infoTextOpacitySlider = new KisSliderSpinBox(this);
     KisSpinBoxI18nHelper::setText(infoTextOpacitySlider,
                                   i18nc("{n} is the number value, % is the percent sign", "Opacity: {n}%"));
     infoTextOpacitySlider->setToolTip(i18nc("@item:tooltip", "Blending info text opacity"));
-    // 55% is the opacity of nonvisible layer text
     infoTextOpacitySlider->setRange(55, 100);
     infoTextOpacitySlider->setMinimumSize(40, 20);
     infoTextOpacitySlider->setSingleStep(5);
@@ -634,7 +611,6 @@ LayerBox::LayerBox()
     connect(infoTextOpacitySlider, SIGNAL(valueChanged(int)), &m_infoTextOpacityCompressor, SLOT(start()));
     connect(&m_infoTextOpacityCompressor, SIGNAL(timeout()), SLOT(slotUpdateLayerInfoTextOpacity()));
 
-    // info-text inline checkbox
     infoTextInlineChkbox = new QCheckBox(i18nc("@item:inmenu Layers Panel settings, checkbox", "Inline"), this);
     infoTextInlineChkbox->setChecked(cfg.useInlineLayerInfoText());
     infoTextInlineChkbox->setToolTip(i18nc("@item:tooltip", "If enabled, show blending info beside layer names.\n"
@@ -663,7 +639,6 @@ LayerBox::~LayerBox()
 {
     delete m_wdgLayerBox;
 }
-
 
 void expandNodesRecursively(KisNodeSP root, QPointer<KisNodeFilterProxyModel> filteringModel, NodeView *nodeView)
 {
@@ -734,8 +709,6 @@ void LayerBox::setViewManager(KisViewManager* kisview)
 
     connect(m_opLayerMenu, SIGNAL(aboutToShow()), this, SLOT(slotLayerOpMenuOpened()));
 
-    // It's necessary to clear the layer operations menu when it closes, else
-    // the color selector can't be shared with the right-click context menu
     connect(m_opLayerMenu, SIGNAL(aboutToHide()), this, SLOT(slotLayerOpMenuClosed()));
 
     m_removeAction = actionManager->createAction("remove_layer");
@@ -798,7 +771,6 @@ void LayerBox::setCanvas(KoCanvasBase *canvas)
         KisDummiesFacadeBase *kritaDummiesFacade =
                 static_cast<KisDummiesFacadeBase*>(kritaShapeController);
 
-
         m_selectionActionsAdapter.reset(new KisSelectionActionsAdapter(m_canvas->viewManager()->selectionManager()));
         m_nodeModel->setDummiesFacade(kritaDummiesFacade,
                                       m_image,
@@ -813,10 +785,8 @@ void LayerBox::setCanvas(KoCanvasBase *canvas)
         connect(m_image, SIGNAL(sigAboutToBeDeleted()), SLOT(notifyImageDeleted()));
         connect(m_image, SIGNAL(sigNodeCollapsedChanged()), SLOT(slotNodeCollapsedChanged()));
 
-        // cold start
         if (m_nodeManager) {
             setCurrentNode(m_nodeManager->activeNode());
-            // Connection KisNodeManager -> LayerBox
             connect(m_nodeManager, SIGNAL(sigUiNeedChangeActiveNode(KisNodeSP)),
                     this, SLOT(setCurrentNode(KisNodeSP)));
 
@@ -828,7 +798,6 @@ void LayerBox::setCanvas(KoCanvasBase *canvas)
             setCurrentNode(m_canvas->imageView()->currentNode());
         }
 
-        // Connection LayerBox -> KisNodeManager (isolate layer)
         connect(m_nodeModel, SIGNAL(toggleIsolateActiveNode()),
                 m_nodeManager, SLOT(toggleIsolateActiveNode()));
 
@@ -855,7 +824,6 @@ void LayerBox::setCanvas(KoCanvasBase *canvas)
         addActionToMenu(m_newLayerMenu, "add_new_selection_mask");
     }
 }
-
 
 void LayerBox::unsetCanvas()
 {
@@ -907,7 +875,6 @@ void LayerBox::updateUI()
         if (activeNode) {
             KisPaintDeviceSP parentLayerDevice = activeNode->parent() ? activeNode->parent()->original() : 0;
             if (parentLayerDevice) {
-                // update blending modes availability
                 m_activeNodeConnections.addConnection(
                      parentLayerDevice, SIGNAL(colorSpaceChanged(const KoColorSpace*)),
                      this, SLOT(updateUI()));
@@ -939,8 +906,6 @@ void LayerBox::updateUI()
 
             const KoCompositeOp* compositeOp = activeNode->compositeOp();
             if (compositeOp) {
-                /// the composite op works in the color space of the parent layer,
-                /// not the active one.
                 m_wdgLayerBox->cmbComposite->validate(compositeOp->colorSpace());
                 slotSetCompositeOp(compositeOp);
             } else {
@@ -958,23 +923,8 @@ void LayerBox::updateUI()
     }
 }
 
-
-/**
- * This method is called *only* when non-GUI code requested the
- * change of the current node
- */
 void LayerBox::setCurrentNode(KisNodeSP node)
 {
-    /**
-     * setCanvas() calls to node managed and layer box are coming out-of-sync,
-     * so it might happen that setCurrentNode() call will arrive with a node
-     * from a different image. We should check that and ignore such calls.
-     *
-     * TODO: make bootstrapping of layers-related structures a bit more
-     * straight-forward. We need to have a single source of truth for the
-     * "active layer", and all the initialization should happen in one
-     * direction without cycles.
-     */
     if (node && m_image && node->graphListener() != m_image.data()) {
         return;
     }
@@ -1013,7 +963,6 @@ void LayerBox::slotSetCompositeOp(const KoCompositeOp* compositeOp)
     m_wdgLayerBox->cmbComposite->blockSignals(false);
 }
 
-// range: 0-100
 void LayerBox::slotSetOpacity(double opacity)
 {
     Q_ASSERT(opacity >= 0 && opacity <= 100);
@@ -1152,7 +1101,6 @@ KisNodeSP LayerBox::findNonHidableNode(KisNodeSP startNode)
             startNode->parent() &&
             !startNode->parent()->parent()) {
 
-
         KisNodeSP node = startNode->prevSibling();
         while (node && KisNodeManager::isNodeHidden(node, true)) {
             node = node->prevSibling();
@@ -1196,7 +1144,6 @@ void LayerBox::slotEditGlobalSelection(bool showSelections)
 
     globalSelectionMask = m_image->rootLayer()->selectionMask();
 
-    // try to find deactivated, but visible masks
     if (!globalSelectionMask) {
         KoProperties properties;
         properties.setProperty("visible", true);
@@ -1206,7 +1153,6 @@ void LayerBox::slotEditGlobalSelection(bool showSelections)
         }
     }
 
-    // try to find at least any selection mask
     if (!globalSelectionMask) {
         KoProperties properties;
         QList<KisNodeSP> masks = m_image->rootLayer()->childNodes(QStringList("KisSelectionMask"), properties);
@@ -1267,11 +1213,6 @@ void LayerBox::selectionChanged(const QModelIndexList &selection)
 {
     if (!m_nodeManager) return;
 
-    /**
-     * When the user clears the extended selection by clicking on the
-     * empty area of the docker, the selection should be reset on to
-     * the active layer, which might be even unselected(!).
-     */
     if (selection.isEmpty() && m_nodeManager->activeNode()) {
         QModelIndex selectedIndex =
                 m_filteringModel->indexFromNode(m_nodeManager->activeNode());
@@ -1283,8 +1224,6 @@ void LayerBox::selectionChanged(const QModelIndexList &selection)
 
     QList<KisNodeSP> selectedNodes;
     Q_FOREACH (const QModelIndex &idx, selection) {
-        // Precaution because node manager doesn't like duplicates in that list.
-        // NodeView Selection behavior is SelectRows, although currently only column 0 allows selections.
         if (idx.column() != 0) {
             continue;
         }
@@ -1297,18 +1236,6 @@ void LayerBox::selectionChanged(const QModelIndexList &selection)
 
 void LayerBox::slotAdjustCurrentBeforeRemoveRows(const QModelIndex &parent, int start, int end)
 {
-    /**
-     * Qt has changed its behavior when deleting an item. Previously
-     * the selection priority was on the next item in the list, and
-     * now it has changed to the previous item. Here we just adjust
-     * the selected item after the node removal.
-     *
-     * This method is called right before the Qt's beginRemoveRows()
-     * is called, that is we make sure that Qt will never have to
-     * adjust the position of the removed cursor.
-     *
-     * See bug: https://bugs.kde.org/show_bug.cgi?id=345601
-     */
 
     QModelIndex currentIndex = m_wdgLayerBox->listLayers->currentIndex();
     QAbstractItemModel *model = m_filteringModel;
@@ -1317,11 +1244,11 @@ void LayerBox::slotAdjustCurrentBeforeRemoveRows(const QModelIndex &parent, int 
             && currentIndex.row() >= start && currentIndex.row() <= end) {
         QModelIndex old = currentIndex;
 
-        if (model && end < model->rowCount(parent) - 1) // there are rows left below the change
+        if (model && end < model->rowCount(parent) - 1)
             currentIndex = model->index(end + 1, old.column(), parent);
-        else if (model && start > 0) // there are rows left above the change
+        else if (model && start > 0)
             currentIndex = model->index(start - 1, old.column(), parent);
-        else // there are no rows left in the table
+        else
             currentIndex = QModelIndex();
 
         if (currentIndex.isValid() && currentIndex != old) {
@@ -1363,10 +1290,8 @@ void LayerBox::slotColorLabelChanged(int label)
     KisNodeList selectedNodes = m_nodeManager->selectedNodes();
 
     Q_FOREACH(KisNodeSP selectedNode, selectedNodes) {
-        //Always apply label to selected nodes..
         selectedNode->setColorLabelIndex(label);
 
-        //Apply label only to unlabelled children..
         KisNodeList children = selectedNode->childNodes(QStringList(), KoProperties());
 
         auto applyLabelFunc =
@@ -1502,7 +1427,6 @@ void LayerBox::updateLayerOpMenu(const QModelIndex &index, QMenu &menu) {
 
         addActionToMenu(&menu, "pin_to_timeline");
 
-
         if (singleNode) {
             KisNodeSP node = m_filteringModel->nodeFromIndex(index);
             if (node && !node->inherits("KisTransformMask")) {
@@ -1532,7 +1456,6 @@ void LayerBox::slotUpdateIcons() {
     m_wdgLayerBox->bnDuplicate->setIcon(KisIconUtils::loadIcon("duplicatelayer"));
     m_wdgLayerBox->configureLayerDockerToolbar->setIcon(KisIconUtils::loadIcon("view-choose"));
 
-    // call child function about needing to update icons
     m_wdgLayerBox->listLayers->slotUpdateIcons();
 }
 
@@ -1611,7 +1534,6 @@ void LayerBox::slotUpdateUseInlineLayerInfoText()
     m_wdgLayerBox->listLayers->slotConfigurationChanged();
     m_wdgLayerBox->listLayers->viewport()->update();
 }
-
 
 void LayerBox::slotUpdateUseLayerSelectionCheckbox()
 {

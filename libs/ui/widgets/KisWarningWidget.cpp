@@ -11,7 +11,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-
 KisWarningWidget::KisWarningWidget(QWidget *parent)
     : QWidget(parent)
 {

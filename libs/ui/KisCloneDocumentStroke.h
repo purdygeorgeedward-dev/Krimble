@@ -32,4 +32,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISCLONEDOCUMENTSTROKE_H
+#endif

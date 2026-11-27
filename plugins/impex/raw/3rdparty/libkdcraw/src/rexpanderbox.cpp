@@ -29,8 +29,6 @@
 
 #include "rexpanderbox.h"
 
-// Qt includes
-
 #include <QApplication>
 #include <QMouseEvent>
 #include <QPainter>
@@ -39,8 +37,6 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QCheckBox>
-
-// KDE includes
 
 #include <kconfiggroup.h>
 #include <klocalizedstring.h>
@@ -68,10 +64,6 @@ void RClickLabel::mousePressEvent(QMouseEvent* event)
 {
     QLabel::mousePressEvent(event);
 
-    /*
-     * In some contexts, like QGraphicsView, there will be no
-     * release event if the press event was not accepted.
-     */
     if (event->button() == Qt::LeftButton)
     {
         event->accept();
@@ -106,8 +98,6 @@ void RClickLabel::keyPressEvent(QKeyEvent* e)
     QLabel::keyPressEvent(e);
 }
 
-// ------------------------------------------------------------------------
-
 RSqueezedClickLabel::RSqueezedClickLabel(QWidget* const parent)
     : RAdjustableLabel(parent)
 {
@@ -141,10 +131,6 @@ void RSqueezedClickLabel::mousePressEvent(QMouseEvent* event)
 {
     QLabel::mousePressEvent(event);
 
-    /*
-     * In some contexts, like QGraphicsView, there will be no
-     * release event if the press event was not accepted.
-     */
     if (event->button() == Qt::LeftButton)
     {
         event->accept();
@@ -166,8 +152,6 @@ void RSqueezedClickLabel::keyPressEvent(QKeyEvent* e)
 
     QLabel::keyPressEvent(e);
 }
-
-// ------------------------------------------------------------------------
 
 RArrowClickLabel::RArrowClickLabel(QWidget* const parent)
     : QWidget(parent), m_arrowType(Qt::DownArrow)
@@ -195,10 +179,6 @@ Qt::ArrowType RArrowClickLabel::arrowType() const
 
 void RArrowClickLabel::mousePressEvent(QMouseEvent* event)
 {
-    /*
-     * In some contexts, like QGraphicsView, there will be no
-     * release event if the press event was not accepted.
-     */
     if (event->button() == Qt::LeftButton)
     {
         event->accept();
@@ -215,8 +195,6 @@ void RArrowClickLabel::mouseReleaseEvent(QMouseEvent* event)
 
 void RArrowClickLabel::paintEvent(QPaintEvent*)
 {
-    // Inspired by karrowbutton.cpp,
-    //  Copyright (C) 2001 Frerich Raabe <raabe@kde.org>
 
     QPainter p(this);
 
@@ -225,16 +203,11 @@ void RArrowClickLabel::paintEvent(QPaintEvent*)
     opt.lineWidth    = 2;
     opt.midLineWidth = 0;
 
-    /*
-    p.fillRect( rect(), palette().brush( QPalette::Window ) );
-    style()->drawPrimitive( QStyle::PE_Frame, &opt, &p, this);
-    */
-
     if (m_arrowType == Qt::NoArrow)
         return;
 
     if (width() < m_size + m_margin || height() < m_size + m_margin)
-        return; // don't draw arrows if we are too small
+        return;
 
     unsigned int x = 0, y = 0;
     if (m_arrowType == Qt::DownArrow)
@@ -252,19 +225,11 @@ void RArrowClickLabel::paintEvent(QPaintEvent*)
         x = width() - (m_size + m_margin);
         y = (height() - m_size) / 2;
     }
-    else // arrowType == LeftArrow
+    else
     {
         x = m_margin;
         y = (height() - m_size) / 2;
     }
-
-/*
-    if (isDown())
-    {
-        ++x;
-        ++y;
-    }
-*/
 
     QStyle::PrimitiveElement e = QStyle::PE_IndicatorArrowLeft;
 
@@ -296,8 +261,6 @@ QSize RArrowClickLabel::sizeHint() const
 {
     return QSize(m_size + 2*m_margin, m_size + 2*m_margin);
 }
-
-// ------------------------------------------------------------------------
 
 class Q_DECL_HIDDEN RLabelExpander::Private
 {
@@ -500,12 +463,9 @@ bool RLabelExpander::eventFilter(QObject* obj, QEvent* ev)
     }
     else
     {
-        // pass the event on to the parent class
         return QWidget::eventFilter(obj, ev);
     }
 }
-
-// ------------------------------------------------------------------------
 
 class Q_DECL_HIDDEN RExpanderBox::Private
 {
@@ -785,8 +745,6 @@ void RExpanderBox::writeSettings(KConfigGroup& group)
     }
 }
 
-// ------------------------------------------------------------------------
-
 RExpanderBoxExclusive::RExpanderBoxExclusive(QWidget* const parent)
     : RExpanderBox(parent)
 {
@@ -829,4 +787,4 @@ bool RExpanderBoxExclusive::isToolBox() const
     return (m_toolbox);
 }
 
-} // namespace KDcrawIface
+}

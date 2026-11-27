@@ -23,7 +23,6 @@ protected:
     void frameCancelledCallback(int frame, CancelReason cancelReason) override;
     void clearFrameRegenerationState(bool isCancelled) override;
 
-
 Q_SIGNALS:
     void sigCompleteRegenerationInternal(int frame);
 
@@ -35,4 +34,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISASYNCANIMATIONCACHERENDERER_H
+#endif

@@ -113,7 +113,6 @@ bool Entry::isValidName(const QString& _name)
     return true;
 }
 
-
 bool Entry::operator==(const Entry& e) const
 {
     return qualifiedName() == e.qualifiedName();

@@ -38,7 +38,6 @@
 #include <kis_icon.h>
 #include <KisResourceUserOperations.h>
 
-
 class KisWorkspaceDelegate : public QStyledItemDelegate
 {
 public:
@@ -47,7 +46,6 @@ public:
 public:
     KisWorkspaceDelegate(QObject * parent = 0) : QStyledItemDelegate(parent) {}
     ~KisWorkspaceDelegate() override {}
-
 
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override
     {
@@ -86,7 +84,6 @@ KisWorkspaceChooser::KisWorkspaceChooser(KisViewManager* view, QWidget* parent):
 {
     m_layout = new QGridLayout(this);
 
-    // Workspaces
     m_workspaceWidgets = createChooserWidgets(ResourceType::Workspaces, i18n("Workspaces"));
 
     KisConfig cfg(true);
@@ -100,7 +97,6 @@ KisWorkspaceChooser::KisWorkspaceChooser(KisViewManager* view, QWidget* parent):
 
     slotUpdateWorkspaceSaveButton();
 
-    // Window layouts
     m_windowLayoutWidgets = createChooserWidgets(ResourceType::WindowLayouts, i18n("Window layouts"));
 
     connect(m_windowLayoutWidgets.itemChooser, SIGNAL(resourceSelected(KoResourceSP )),
@@ -288,8 +284,6 @@ void KisWorkspaceChooser::windowLayoutSelected(KoResourceSP resource)
     layout->applyLayout();
 }
 
-// WORKAROUND: setting the row height of the resource chooser gets overridden somehow
-// so set it again here
 void KisWorkspaceChooser::showEvent(QShowEvent* event)
 {
     QWidget::showEvent(event);

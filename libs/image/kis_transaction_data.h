@@ -13,15 +13,6 @@
 
 class KisTransactionWrapperFactory;
 
-/**
- * A tile based undo command.
- *
- * Ordinary KUndo2Command subclasses store parameters and apply the action in
- * the redo() command, however, Krita doesn't work like this. Undo replaces
- * the current tiles in a paint device with the old tiles, redo replaces them
- * again with the new tiles without actually executing the command that changed
- * the image data again.
- */
 class KRITAIMAGE_EXPORT KisTransactionData : public KUndo2Command
 {
 public:
@@ -51,5 +42,5 @@ private:
     Private * const m_d;
 };
 
-#endif /* KIS_TRANSACTION_DATA_H_ */
+#endif
 

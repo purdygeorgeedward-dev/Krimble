@@ -60,7 +60,6 @@ struct KisColorizeStrokeStrategy::Private
 
     QVector<KeyStroke> keyStrokes;
 
-    // default values: disabled
     FilteringOptions filteringOptions;
 };
 
@@ -131,7 +130,6 @@ void KisColorizeStrokeStrategy::initStrokeCallback()
         splitRectIntoPatches(m_d->boundingRect, optimalPatchSize());
 
     if (!m_d->filteredSourceValid) {
-        // TODO: make this conversion concurrent!!!
         KisPaintDeviceSP filteredMainDev = KisPainter::convertToAlphaAsAlpha(m_d->src);
         filteredMainDev->setDefaultBounds(m_d->src->defaultBounds());
 
@@ -267,7 +265,6 @@ void KisColorizeStrokeStrategy::cancelStrokeCallback()
 
 void KisColorizeStrokeStrategy::tryCancelCurrentStrokeJobAsync()
 {
-    // NOTE: this method may be called by the GUI thread asynchronously!
     QSharedPointer<KisProcessingVisitor::ProgressHelper> helper = m_d->progressHelper;
     if (helper) {
         helper->cancel();

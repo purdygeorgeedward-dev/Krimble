@@ -27,14 +27,8 @@
 #ifndef RCOMBOBOX_H
 #define RCOMBOBOX_H
 
-// Qt includes
-
 #include <QWidget>
 #include <QComboBox>
-
-// Local includes
-
-
 
 namespace KDcrawIface
 {
@@ -81,6 +75,6 @@ private:
     Private* const d;
 };
 
-}  // namespace KDcrawIface
+}
 
-#endif /* RCOMBOBOX_H */
+#endif

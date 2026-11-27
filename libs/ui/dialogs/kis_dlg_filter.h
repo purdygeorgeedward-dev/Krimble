@@ -45,7 +45,6 @@ private:
     void startApplyingFilter(KisFilterConfigurationSP config);
     void setDialogTitle(KisFilterSP f);
 
-
 private Q_SLOTS:
     void slotFilterWidgetSizeChanged();
     void updatePreview();

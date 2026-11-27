@@ -18,9 +18,6 @@ class KisKActionCollection;
 class KisActionManager;
 class KisView;
 
-/**
- * Create all the filter actions for the specified view and implement re-apply filter
- */
 class KRITAUI_EXPORT KisFilterManager : public QObject
 {
 
@@ -37,9 +34,7 @@ public:
 
     void apply(KisFilterConfigurationSP filterConfig);
     void finish();
-    //! Cancel current running stroke
     void cancelRunningStroke();
-    //! Call `cancelRunningStroke()` and then delete dialog `d`
     void cancelDialog();
     bool isStrokeRunning() const;
 
@@ -49,15 +44,6 @@ public:
     bool filterAllSelectedFrames();
 
 Q_SIGNALS:
-    /**
-     * Krimble: fired every time a filter is actually applied, with its
-     * full, exact configuration -- unlike QActionCollection::actionTriggered
-     * (which only tells you a menu item was clicked, before any dialog the
-     * user might fill in even opens), this fires with the real, final
-     * parameters the user chose. Used by the Task Set docker to record
-     * genuinely replayable filter/adjustment steps instead of just
-     * "this action was triggered."
-     */
     void sigFilterApplied(KisFilterConfigurationSP filterConfig);
 
 private Q_SLOTS:
@@ -70,7 +56,6 @@ private Q_SLOTS:
     void slotStrokeEndRequested();
     void slotStrokeCancelRequested();
 
-    //! Clean up after filter dialog has been accepted / rejected / closed
     void filterDialogHasFinished(int);
 
 private:

@@ -360,9 +360,6 @@ KisResourceStorageSP KisStorageModel::storageForId(const int storageId) const
 
 QString findUnusedName(QString location, QString filename)
 {
-    // the Save Incremental Version incrementation in KisViewManager is way too complex for this task
-    // and in that case there is a specific file to increment, while here we need to find just
-    // an unused filename
     QFileInfo info = QFileInfo(location + "/" + filename);
     if (!info.exists()) {
         return filename;
@@ -371,7 +368,6 @@ QString findUnusedName(QString location, QString filename)
     QString extension = info.suffix();
     QString filenameNoExtension = filename.left(filename.length() - extension.length());
 
-
     QDir dir = QDir(location);
     QStringList similarEntries = dir.entryList(QStringList() << filenameNoExtension + "*");
 
@@ -379,17 +375,15 @@ QString findUnusedName(QString location, QString filename)
     int maxVersionUsed = -1;
     for (int i = 0; i < similarEntries.count(); i++) {
         QString entry = similarEntries[i];
-        //QFileInfo fi = QFileInfo(entry);
         if (!entry.endsWith(extension)) {
             continue;
         }
-        QString versionStr = entry.right(entry.length() - filenameNoExtension.length()); // strip the common part
+        QString versionStr = entry.right(entry.length() - filenameNoExtension.length());
         versionStr = versionStr.left(versionStr.length() - extension.length());
         if (!versionStr.startsWith("_")) {
             continue;
         }
-        versionStr = versionStr.right(versionStr.length() - 1); // strip '_'
-        // now the part left should be a number
+        versionStr = versionStr.right(versionStr.length() - 1);
         bool ok;
         int version = versionStr.toInt(&ok);
         if (!ok) {
@@ -440,7 +434,6 @@ bool KisStorageModel::importStorageInternal(const QString &filename,
                                             bool dryRun,
                                             const QByteArray &data)
 {
-    // 1. Copy the bundle/storage to the resource folder
     QFileInfo oldFileInfo(filename);
     QString newDir = KoResourcePaths::getAppDataLocation();
     QString newName = oldFileInfo.fileName();
@@ -449,18 +442,16 @@ bool KisStorageModel::importStorageInternal(const QString &filename,
     QFileInfo newFileInfo(newLocation);
     if (newFileInfo.exists()) {
         if (importOption == Overwrite) {
-            //QFile::remove(newLocation);
             return false;
         } else if (importOption == Rename) {
             newName = findUnusedName(newDir, newName);
             newLocation = newDir + '/' + newName;
             newFileInfo = QFileInfo(newLocation);
-        } else { // importOption == None
+        } else {
             return false;
         }
     }
 
-    // Don't actually import, just check if we could.
     if (dryRun) {
         return true;
     }
@@ -479,7 +470,6 @@ bool KisStorageModel::importStorageInternal(const QString &filename,
         f.commit();
     }
 
-    // 2. Add the bundle as a storage/update database
     KisResourceStorageSP storage = QSharedPointer<KisResourceStorage>::create(newLocation);
     KIS_ASSERT(!storage.isNull());
     if (storage.isNull()) { return false; }

@@ -27,36 +27,6 @@
 #include "kis_assert.h"
 #include <input/kis_extended_modifiers_mapper.h>
 
-/**
- * This is a basic template to create selection tools from basic path based drawing tools.
- * The template overrides the ability to execute alternate actions correctly.
- * The default behavior for the modifier keys is as follows:
- *
- * Shift: add to selection
- * Alt: subtract from selection
- * Shift+Alt: intersect current selection
- * Ctrl+Alt: symmetric difference
- * Ctrl: replace selection
- *
- * The mapping itself is done in KisSelectionModifierMapper.
- *
- * Certain tools also use modifier keys to alter their behavior, e.g. forcing square proportions with the rectangle tool.
- * The template enables the following rules for forwarding keys:
-
- * 1) If the user is not selecting, then changing the modifier combination
- *    changes the selection method.
- * 
- * 2) If the user is selecting then the modifier keys are forwarded to the
- *    specific tool, so that it can do with them whatever it wants. The selection
- *    method is not changed in this stage and it will be the same as just before
- *    the user started selecting.
- * 
- * 3) Once the user finishes selecting, the selection method is updated to reflect
- *    the current modifier combination
- * 
- * 4) If the user is moving the selection, then changing the modifiers 
- */
-
 template <class BaseClass>
 class KisToolSelectBase : public BaseClass
 {
@@ -309,9 +279,7 @@ public:
     void keyPressEvent(QKeyEvent *event) override
     {
         const Qt::Key key = KisExtendedModifiersMapper::workaroundShiftAltMetaHell(event);
-        // Assume all the modifiers were unpressed...
         m_currentModifiers = Qt::NoModifier;
-        // ...and add those which are right now
         if (key == Qt::Key_Control || event->modifiers().testFlag(Qt::ControlModifier)) {
             m_currentModifiers.setFlag(Qt::ControlModifier);
         }
@@ -321,8 +289,7 @@ public:
         if (key == Qt::Key_Alt || event->modifiers().testFlag(Qt::AltModifier)) {
             m_currentModifiers.setFlag(Qt::AltModifier);
         }
-        
-        // Avoid changing the selection mode and cursor if the user is interacting
+
         if (isSelecting()) {
             BaseClass::keyPressEvent(event);
             return;
@@ -338,9 +305,7 @@ public:
     void keyReleaseEvent(QKeyEvent *event) override
     {
         const Qt::Key key = KisExtendedModifiersMapper::workaroundShiftAltMetaHell(event);
-        // Assume all the modifiers were pressed...
         m_currentModifiers = Qt::ControlModifier | Qt::ShiftModifier | Qt::AltModifier;
-        // ...and remove those which aren't right now
         if (key == Qt::Key_Control || !event->modifiers().testFlag(Qt::ControlModifier)) {
             m_currentModifiers.setFlag(Qt::ControlModifier, false);
         }
@@ -351,7 +316,6 @@ public:
             m_currentModifiers.setFlag(Qt::AltModifier, false);
         }
 
-        // Avoid changing the selection mode and cursor if the user is interacting
         if (isSelecting()) {
             BaseClass::keyReleaseEvent(event);
             return;
@@ -583,8 +547,6 @@ struct FakeBaseTool : KisTool
     }
 };
 
-
 typedef KisToolSelectBase<FakeBaseTool> KisToolSelect;
 
-
-#endif // KISTOOLSELECTBASE_H
+#endif

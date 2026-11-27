@@ -15,7 +15,6 @@
 #include <KisResourceThumbnailPainter.h>
 #include "wdg_resource_preview.h"
 
-
 class KisActionManager;
 class KisResourceTypeModel;
 class KisStorageModel;
@@ -28,7 +27,7 @@ class KisWdgTagSelectionControllerOneResource;
 namespace Ui
 {
 class WdgDlgResourceManager;
-} // namespace Ui
+}
 
 class DlgResourceManager : public KoDialog
 {
@@ -64,4 +63,4 @@ private:
     WdgResourcePreview *m_wdgResourcePreview;
 };
 
-#endif // DLGRESOURCEMANAGER_H
+#endif

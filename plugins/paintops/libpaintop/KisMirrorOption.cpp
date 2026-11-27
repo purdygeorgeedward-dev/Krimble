@@ -6,7 +6,6 @@
  */
 #include "KisMirrorOption.h"
 
-
 #include <kis_properties_configuration.h>
 #include <kis_paint_information.h>
 #include <KisMirrorOptionData.h>
@@ -14,7 +13,6 @@
 
 #include <KisPaintOpOptionUtils.h>
 namespace kpou = KisPaintOpOptionUtils;
-
 
 KisMirrorOption::KisMirrorOption(const KisPropertiesConfiguration *setting)
     : KisMirrorOption(kpou::loadOptionData<KisMirrorOptionData>(setting))

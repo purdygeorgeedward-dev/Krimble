@@ -57,8 +57,6 @@ void FontAxesModel::setAxesData(QList<KoSvgText::FontFamilyAxis> axes)
         }
     }
     if (newAxes != d->axes) {
-        // TODO: Rework this whole thing so we don't update axes unless absolutely necessary.
-        // This wll probably require a filterproxy model where invisible axes are filtered out.
         beginResetModel();
         d->axes = newAxes;
         endResetModel();
@@ -113,7 +111,6 @@ QVariant FontAxesModel::data(const QModelIndex &index, int role) const
     KoSvgText::FontFamilyAxis axis = d->axes.at(index.row());
     if (role == Qt::DisplayRole) {
         if (axis.tag == OPTICAL_TAG){
-            // Refers to https://learn.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_opsz
             return i18nc("@info:label", "Optical Size");
         }
         if (axis.localizedLabels.isEmpty()) {
@@ -160,11 +157,6 @@ Qt::ItemFlags FontAxesModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags flags = QAbstractItemModel::flags(index) | Qt::ItemNeverHasChildren | Qt::ItemIsEditable;
 
-    /*KoSvgText::FontFamilyAxis axis = d->axes.value(index.row());
-    if (!(axis.tag == OPTICAL_TAG && d->opticalSizeDisabled)) {
-        flags |= Qt::ItemIsEnabled;
-    }*/
-
     return flags;
 }
 
@@ -186,7 +178,6 @@ void FontAxesModel::setFromTextPropertiesModel(KoSvgTextPropertiesModel *textPro
 {
     QStringList families = textPropertiesModel->fontFamilies();
     QList<KoSvgText::FontFamilyAxis> axes;
-
 
     if (!families.isEmpty() && d->fontModel) {
 

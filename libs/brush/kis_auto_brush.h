@@ -17,9 +17,6 @@
 
 class KisMaskGenerator;
 
-/**
- * XXX: docs!
- */
 class BRUSH_EXPORT KisAutoBrush : public KisBrush
 {
 
@@ -87,4 +84,4 @@ private:
     struct Private;
     const QScopedPointer<Private> d;
 };
-#endif // _KIS_AUTOBRUSH_RESOURCE_H_
+#endif

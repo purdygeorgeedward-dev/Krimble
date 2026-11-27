@@ -22,23 +22,10 @@ enum KisImageSignalTypeEnum {
     NodeReselectionRequestSignal
 };
 
-/**
- * A special signal which handles stillPoint capabilities of the image
- *
- * \see KisImage::sigSizeChanged()
- */
 struct KRITAIMAGE_EXPORT ComplexSizeChangedSignal {
     ComplexSizeChangedSignal();
     ComplexSizeChangedSignal(QPointF _oldStillPoint, QPointF _newStillPoint);
 
-    /**
-     * A helper method calculating the still points from image areas
-     * we process. It works as if the source image was "cropped" by \p
-     * portionOfOldImage, and this portion formed the new image of size
-     * \p transformedIntoImageOfSize.
-     *
-     * Note, that \p portionOfTheImage may be equal to the image bounds().
-     */
     ComplexSizeChangedSignal(const QRect &portionOfOldImage, const QSize &transformedIntoImageOfSize);
 
     ComplexSizeChangedSignal inverted() const;
@@ -47,11 +34,6 @@ struct KRITAIMAGE_EXPORT ComplexSizeChangedSignal {
     QPointF newStillPoint;
 };
 
-/**
- * A special signal which handles emitting signals for node reselection
- *
- * \see KisImage::sigRequestNodeReselection()
- */
 struct KRITAIMAGE_EXPORT ComplexNodeReselectionSignal {
     ComplexNodeReselectionSignal();
     ComplexNodeReselectionSignal(KisNodeSP _newActiveNode, KisNodeList _newSelectedNodes,
@@ -80,4 +62,4 @@ struct KRITAIMAGE_EXPORT KisImageSignalType {
 
 typedef QVector<KisImageSignalType> KisImageSignalVector;
 
-#endif // KISIMAGESIGNALS_H
+#endif

@@ -18,18 +18,13 @@ class StarShapeConfigWidget : public KoShapeConfigWidgetBase
     Q_OBJECT
 public:
     StarShapeConfigWidget();
-    /// reimplemented
     void open(KoShape *shape) override;
-    /// reimplemented
     void save() override;
-    /// reimplemented
     void setUnit(const KoUnit &unit) override;
-    /// reimplemented
     bool showOnShapeCreate() override
     {
         return false;
     }
-    /// reimplemented
     KUndo2Command *createCommand() override;
 
 private Q_SLOTS:
@@ -39,4 +34,4 @@ private:
     StarShape *m_star {nullptr};
 };
 
-#endif // STARSHAPECONFIGWIDGET_H
+#endif

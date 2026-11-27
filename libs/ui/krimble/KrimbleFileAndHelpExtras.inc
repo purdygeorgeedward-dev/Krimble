@@ -38,12 +38,10 @@ static void krimbleMirrorLayout(QMainWindow *win)
     place(rightGroups, Qt::LeftDockWidgetArea);
 }
 
-
-// "Where is...?": every menu entry with its path, searchable; tapping one opens it (Claude's idea).
 static void krimbleCollectMenuActions(QMenu *menu, const QString &path, QList<QPair<QString, QPointer<QAction> > > &out, int depth)
 {
     if (!menu || depth > 6) return;
-    Q_EMIT menu->aboutToShow();    // some menus (Window, recent files) fill themselves when they are about to be shown
+    Q_EMIT menu->aboutToShow();
     Q_FOREACH (QAction *action, menu->actions()) {
         if (action->isSeparator()) continue;
         QString text = action->text();
@@ -116,12 +114,11 @@ static void krimbleShowCheatSheet(QMainWindow *win)
         title.remove(QLatin1Char('&'));
         krimbleCollectMenuActions(top->menu(), title + QStringLiteral("  >  "), all, 0);
     }
-    // familiar name, a word that is in the menu entry's name
     static const char *const terms[][2] = {
         {"Crop", "Crop"}, {"Image Size", "Scale Image"}, {"Canvas Size", "Canvas Size"}, {"Rotate Image", "Rotate Image"},
         {"Flatten Image", "Flatten Image"}, {"Merge Visible", "Merge Visible"}, {"Merge Down", "Merge Down"},
         {"New Layer", "New Layer"}, {"Duplicate Layer", "Duplicate Layer"}, {"Layer Mask", "Mask"},
-        {"Free Transform", "Free Transform"}, {"Warp", "Warp"}, {"Liquify", "Liquify"}, {"Flip", "Flip"},
+        {"Transform Scale", "Transform Scale"}, {"Warp", "Warp"}, {"Liquify", "Liquify"}, {"Flip", "Flip"},
         {"Select All", "Select All"}, {"Deselect", "Deselect"}, {"Inverse Selection", "Inverse"}, {"Feather", "Feather"},
         {"Color Range", "Color Range"}, {"Brightness/Contrast", "Brightness"}, {"Levels", "Levels"}, {"Curves", "Curves"},
         {"Hue/Saturation", "Hue"}, {"Color Balance", "Color Balance"}, {"Vibrance", "Vibrance"}, {"Invert", "Invert"},
@@ -166,11 +163,9 @@ static void krimbleShowCheatSheet(QMainWindow *win)
     dialog->show();
 }
 
-// "Share": the picture as it looks flattened, through Android's share sheet (Claude's idea; George: "Share out is great.").
 static void krimbleShareImage(KisMainWindow *win, bool asJpg)
 {
 #ifdef Q_OS_ANDROID
-    // KisImageSP image = win->viewManager() ? win->viewManager()->image() : KisImageSP();   (did not compile: weak and shared pointer in one ?:)
     KisImageSP image;
     if (win->viewManager()) {
         image = win->viewManager()->image();
@@ -255,7 +250,6 @@ static void krimbleShareWithOptions(KisMainWindow *win, bool asJpg, int level, i
         }
         saved = toSave.save(path, "JPG", level);
     } else {
-        // Qt's PNG quality: 0 is the smallest file, 100 the largest; the slider's 9 is the smallest file
         saved = flat.save(path, "PNG", (9 - qBound(0, level, 9)) * 100 / 9);
     }
     if (!saved) {
@@ -355,7 +349,7 @@ static void krimbleShowBatch(KisMainWindow *win)
         QAndroidJniObject jPath = QAndroidJniObject::fromString(temp);
         QAndroidJniObject jMime = QAndroidJniObject::fromString(mime);
         QAndroidJniObject jName = QAndroidJniObject::fromString(name);
-        QAndroidJniObject jFolder = QAndroidJniObject::fromString(folder);   // "Batch", or the folder a script names
+        QAndroidJniObject jFolder = QAndroidJniObject::fromString(folder);
         return QAndroidJniObject::callStaticMethod<jboolean>("org/krimble/android/ShareHelper", "saveToPictures",
             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
             jPath.object<jstring>(), jMime.object<jstring>(), jName.object<jstring>(), jFolder.object<jstring>());
@@ -407,7 +401,6 @@ static void krimbleShowBatch(KisMainWindow *win)
         *cancelRequested = true;
         cancel->setEnabled(false);
     });
-    // QObject::connect(start, &QPushButton::clicked, dialog, [win, dialog, combo, start, bar, status]() {   (the first version, without Cancel)
     QObject::connect(start, &QPushButton::clicked, dialog, [win, dialog, combo, start, bar, status, cancel, closeButton, cancelRequested, guard]() {
         KoFileDialog fileDialog(win, KoFileDialog::OpenFiles, "KrimbleBatch");
         fileDialog.setCaption(i18n("Choose pictures"));
@@ -427,14 +420,11 @@ static void krimbleShowBatch(KisMainWindow *win)
             status->setText(i18n("Picture %1 of %2...", i + 1, files.size()));
             bar->setValue(100 * i / files.size());
             QCoreApplication::processEvents();
-            if (!guard) return;                  // the window was closed (Android's back button) while a picture was processed
+            if (!guard) return;
             if (*cancelRequested) break;
             QImage image(files.at(i));
             if (image.isNull()) { ++failed; continue; }
-            // if (preset.width > 0 && image.width() > preset.width) {
-            //     image = image.scaledToWidth(preset.width, Qt::SmoothTransformation);
-            // }
-            if (preset.width > 0 && qMax(image.width(), image.height()) > preset.width) {   // preset.width is the longest side
+            if (preset.width > 0 && qMax(image.width(), image.height()) > preset.width) {
                 image = image.scaled(preset.width, preset.width, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             }
             if (preset.jpg) {
@@ -490,7 +480,7 @@ public:
     void handleActivityResult(int requestCode, int resultCode, const QAndroidJniObject &data) override
     {
         Q_UNUSED(data);
-        const bool taken = (requestCode == 4711 && resultCode == -1);    // -1 is RESULT_OK
+        const bool taken = (requestCode == 4711 && resultCode == -1);
         if (taken) {
             KisMainWindow *window = m_win.data();
             const QString uri = m_uri;
@@ -521,7 +511,6 @@ public:
             QAndroidJniObject jUri = QAndroidJniObject::fromString(m_uri);
             QAndroidJniObject::callStaticMethod<void>("org/krimble/android/ShareHelper", "deleteUri", "(Ljava/lang/String;)V", jUri.object<jstring>());
         }
-        // (the receiver is not deleted here: a few bytes per photo are left; the camera app has finished with it)
     }
 private:
     QPointer<KisMainWindow> m_win;
@@ -541,10 +530,10 @@ static void krimbleTakePhoto(KisMainWindow *win)
     QAndroidJniObject extraOutput = QAndroidJniObject::getStaticObjectField<jstring>("android/provider/MediaStore", "EXTRA_OUTPUT");
     QAndroidJniObject uriObject = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUri.object<jstring>());
     intent.callObjectMethod("putExtra", "(Ljava/lang/String;Landroid/os/Parcelable;)Landroid/content/Intent;", extraOutput.object<jstring>(), uriObject.object());
-    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;", 3);      // read and write access to that address
+    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;", 3);
     QtAndroid::startActivity(intent, 4711, new KrimbleCameraReceiver(win, uri));
     QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {          // no camera app
+    if (env->ExceptionCheck()) {
         env->ExceptionClear();
         QAndroidJniObject::callStaticMethod<void>("org/krimble/android/ShareHelper", "deleteUri", "(Ljava/lang/String;)V", jUri.object<jstring>());
         QMessageBox::warning(win, i18n("Take Photo"), i18n("No camera app was found on this phone."));
@@ -552,9 +541,6 @@ static void krimbleTakePhoto(KisMainWindow *win)
 }
 #endif
 
-// "Upscale...": makes the picture 2, 3 or 4 times larger with the resize method of your choice (Claude's idea; George: "Yes. Go for it.").
-// Lanczos3 is the default; the other methods are the ones of Image > Image Size. Optionally a light sharpen layer is put on top
-// (a layer, so it can be hidden or removed).
 static void krimbleShowUpscale(KisMainWindow *win)
 {
     KisViewManager *view = win->viewManager();
@@ -594,7 +580,6 @@ static void krimbleShowUpscale(KisMainWindow *win)
     updateResult();
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
     QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
-    // (the lambda is "mutable": it keeps its own copy of the image pointer and calls waitForDone() on it, which a const copy does not allow)
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [win, view, image, dialog, factor, method, sharpen]() mutable {
         const int f = factor->currentData().toInt();
         const qint64 newWidth = qint64(image->width()) * f;
@@ -631,7 +616,6 @@ static void krimbleShowUpscale(KisMainWindow *win)
     dialog->show();
 }
 
-// Adds "Share as JPG" and "Share as PNG" to the File menu, just above Quit (Claude's idea).
 static void krimbleInstallFileExtras(KisMainWindow *win)
 {
     QMenu *file = nullptr;
@@ -671,13 +655,27 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
         QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
         file->insertAction(before, takePhoto);
+        {
+            QAction *imageDonkey = new QAction(i18n("A. I. Image gen"), file);
+            imageDonkey->setObjectName(QStringLiteral("krimbleImageDonkey"));
+            QObject::connect(imageDonkey, &QAction::triggered, win, []() {
+                KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+                QString address = group.readEntry("ImageDonkeyUrl", QString());
+                if (address.trimmed().isEmpty()) {
+                    address = QStringLiteral("https://perchance.org/image-donkey");
+                    group.writeEntry("ImageDonkeyUrl", address);
+                    group.config()->sync();
+                }
+                QDesktopServices::openUrl(QUrl::fromUserInput(address.trimmed()));
+            });
+            file->insertAction(before, imageDonkey);
+        }
         QAction *shareLast = new QAction(KisIconUtils::loadIcon(QStringLiteral("krimble-share")), i18n("Share..."), file);
         QObject::connect(shareLast, &QAction::triggered, win, [win]() { krimbleShowShare(win); });
         file->insertAction(before, shareLast);
     });
 }
 
-// "Send Feedback": opens a prefilled GitHub issue (Claude's idea).
 static void krimbleSendFeedback(QMainWindow *win)
 {
     QString device = QSysInfo::prettyProductName();
@@ -695,7 +693,6 @@ static void krimbleSendFeedback(QMainWindow *win)
     QDesktopServices::openUrl(url);
 }
 
-// The QA overlay: live numbers on the screen, for screenshots (Claude's idea).
 static QString krimbleQaReport(QMainWindow *win)
 {
     QString r;
@@ -772,7 +769,6 @@ static void krimbleSetQaOverlay(QMainWindow *win, bool on)
     label->raise();
 }
 
-// Adds the three entries to the end of the Help menu each time it opens (once).
 static void krimbleInstallHelpExtras(QMainWindow *win)
 {
     QMenu *help = nullptr;

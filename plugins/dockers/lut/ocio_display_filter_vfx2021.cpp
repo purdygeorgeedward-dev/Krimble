@@ -69,10 +69,8 @@ KisExposureGammaCorrectionInterface *OcioDisplayFilter::correctionInterface() co
 
 void OcioDisplayFilter::filter(quint8 *pixels, quint32 numPixels)
 {
-    // processes that data _in_ place
     if (m_processor) {
         if (numPixels > 16) {
-            // creation of PackedImageDesc is really slow on Windows due to malloc/free
             OCIO::PackedImageDesc img(reinterpret_cast<float *>(pixels), numPixels, 1, 4);
             m_processorCPU->apply(img);
         } else {
@@ -86,10 +84,8 @@ void OcioDisplayFilter::filter(quint8 *pixels, quint32 numPixels)
 
 void OcioDisplayFilter::approximateInverseTransformation(quint8 *pixels, quint32 numPixels)
 {
-    // processes that data _in_ place
     if (m_reverseApproximationProcessor) {
         if (numPixels > 16) {
-            // creation of PackedImageDesc is really slow on Windows due to malloc/free
             OCIO::PackedImageDesc img(reinterpret_cast<float *>(pixels), numPixels, 1, 4);
             m_reverseApproximationProcessorCPU->apply(img);
         } else {
@@ -103,10 +99,8 @@ void OcioDisplayFilter::approximateInverseTransformation(quint8 *pixels, quint32
 
 void OcioDisplayFilter::approximateForwardTransformation(quint8 *pixels, quint32 numPixels)
 {
-    // processes that data _in_ place
     if (m_forwardApproximationProcessor) {
         if (numPixels > 16) {
-            // creation of PackedImageDesc is really slow on Windows due to malloc/free
             OCIO::PackedImageDesc img(reinterpret_cast<float *>(pixels), numPixels, 1, 4);
             m_forwardApproximationProcessorCPU->apply(img);
         } else {
@@ -172,22 +166,6 @@ void OcioDisplayFilter::updateProcessor()
 
     vpt->setDisplayViewTransform(transform);
 
-    /**
-     * Look support:
-     * As the OCIO docs will tell you, looks are a aesthetic transform that is
-     * added onto the mix.
-     * A view+display can have it's own assigned Look, or list of looks, and these
-     * can be overridden optionally.
-     * What the OCIO docs won't tell you is that a display transform won't use the
-     * looks attached to it unless "skipColorSpaceConversions" is false...
-     * I have no idea what "skipColorSpaceConversions" is beyond what it says on the
-     * tin. It is not mentioned in the documentation anywhere. Or on the website.
-     * Or how to set it. Or unset it. Why it is apparently set true to begin with.
-     * Only that, apparently, this was done with non-color data in mind...
-     *
-     * Until there's clear documentation on how to use this feature, I am afraid the
-     * override is all we can offer.
-     */
     if (config->getLook(look)) {
         vpt->setLooksOverride(look);
         vpt->setLooksOverrideEnabled(true);
@@ -195,7 +173,6 @@ void OcioDisplayFilter::updateProcessor()
 
     OCIO::GroupTransformRcPtr approximateTransform = OCIO::GroupTransform::Create();
 
-    // fstop exposure control -- not sure how that translates to our exposure
     {
         const double exposureGain = pow(2.0, exposure);
 
@@ -218,11 +195,9 @@ void OcioDisplayFilter::updateProcessor()
         mtx->setOffset(offset4);
         vpt->setLinearCC(mtx);
 
-        // approximation (no color correction);
         approximateTransform->appendTransform(mtx);
     }
 
-    // channel swizzle
     {
         int channelHot[4];
         switch (swizzle) {
@@ -274,7 +249,6 @@ void OcioDisplayFilter::updateProcessor()
         vpt->setChannelView(swizzleTransform);
     }
 
-    // Post-display transform gamma
     {
         double exponent = 1.0 / std::max(1e-6, gamma);
         const double exponent4f[] = {exponent, exponent, exponent, exponent};
@@ -282,7 +256,6 @@ void OcioDisplayFilter::updateProcessor()
         expTransform->setValue(exponent4f);
         vpt->setDisplayCC(expTransform);
 
-        // approximation (no color correction);
         approximateTransform->appendTransform(expTransform);
     }
 
@@ -291,7 +264,6 @@ void OcioDisplayFilter::updateProcessor()
         m_processor = vpt->getProcessor(config, config->getCurrentContext());
         m_processorCPU = m_processor->getDefaultCPUProcessor();
     } catch (OCIO::Exception &e) {
-        // XXX: How to not break the OCIO shader now?
         errKrita << "OCIO exception while parsing the current context:" << e.what();
         m_shaderDirty = false;
         return;
@@ -305,7 +277,6 @@ void OcioDisplayFilter::updateProcessor()
         m_reverseApproximationProcessorCPU = m_reverseApproximationProcessor->getDefaultCPUProcessor();
     } catch (...) {
         warnKrita << "OCIO inverted matrix does not exist!";
-        // m_reverseApproximationProcessor;
     }
 
     m_shaderDirty = true;
@@ -395,8 +366,6 @@ bool OcioDisplayFilter::updateShader()
 template<class F>
 bool OcioDisplayFilter::updateShaderImpl(F *f)
 {
-    // check whether we are allowed to use shaders -- though that should
-    // work for everyone these days
     KisConfig cfg(true);
     if (!cfg.useOpenGL())
         return false;
@@ -411,7 +380,6 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
 
     bool shouldRecompileShader = false;
 
-    // Step 1: Create a GPU Shader Description
     OCIO::GpuShaderDescRcPtr shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
 
 #if OCIO_VERSION_HEX >= 0x2010100 || OCIO_VERSION_HEX >= 0x2020000
@@ -431,10 +399,7 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
     shaderDesc->setFunctionName("OCIODisplay");
     shaderDesc->setResourcePrefix("ocio_");
 
-    // Step 2: Compute the 3D LUT
 #if OCIO_VERSION_HEX >= 0x2010100 || OCIO_VERSION_HEX >= 0x2020000
-    // ensure the new GPU pipeline is used with our GLES3 patch
-    // this way users won't run into errors when using Angle along with OCIO
     const auto gpu = m_processor->getOptimizedGPUProcessor(OCIO::OptimizationFlags::OPTIMIZATION_DEFAULT);
 #else
     const int lut3DEdgeSize = cfg.ocioLutEdgeSize();
@@ -444,31 +409,16 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
 
     gpu->extractGpuShaderInfo(shaderDesc);
 
-    // OCIO v2 assumes you'll use the OglApp helpers
-    // these are unusable from a Qt backend, because they rely on GLUT/GLFW
-    // ociodisplay original pipeline:
-    // https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/508b3f4a0618435aeed2f45058208bdfa99e0887/src/apps/ociodisplay/main.cpp
-    // ociodisplay new pipeline is a single call:
-    // https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/ffddc3341f5775c7866fe2c93275e1d5e0b0540f/src/apps/ociodisplay/main.cpp#L427
-    // we need to replicate this loop:
-    // https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/dd59baf555656e09f52c3838e85ccf154497ec1d/src/libutils/oglapphelpers/oglapp.cpp#L191-L223
-    // calls functions from here:
-    // https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/dd59baf555656e09f52c3838e85ccf154497ec1d/src/libutils/oglapphelpers/glsl.cpp
-
     for (const auto &tex : m_lut3dTexIDs) {
         f->glDeleteTextures(1, &tex.m_uid);
     }
 
     m_lut3dTexIDs.clear();
 
-    // This is the first available index for the textures.
     unsigned currIndex = 1;
-
-    // Process the 3D LUT first.
 
     const unsigned maxTexture3D = shaderDesc->getNum3DTextures();
     for (unsigned idx = 0; idx < maxTexture3D; ++idx) {
-        // 1. Get the information of the 3D LUT.
 
         const char *textureName = nullptr;
         const char *samplerName = nullptr;
@@ -487,8 +437,6 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
             errOpenGL << "The texture values are missing";
             return false;
         }
-
-        // 2. Allocate the 3D LUT.
 
         unsigned texId = 0;
         {
@@ -520,18 +468,13 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
             f->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F_ARB, edgelen, edgelen, edgelen, 0, GL_RGB, GL_FLOAT, values);
         }
 
-        // 3. Keep the texture id & name for the later enabling.
-
         m_lut3dTexIDs.push_back({texId, textureName, samplerName, GL_TEXTURE_3D});
 
         currIndex++;
     }
 
-    // Process the 1D LUTs.
-
     const unsigned maxTexture2D = shaderDesc->getNumTextures();
     for (unsigned idx = 0; idx < maxTexture2D; ++idx) {
-        // 1. Get the information of the 1D LUT.
 
         const char *textureName = nullptr;
         const char *samplerName = nullptr;
@@ -559,8 +502,6 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
             return false;
         }
 
-        // 2. Allocate the 1D LUT (a 2D texture is needed to hold large LUTs).
-
         unsigned texId = 0;
         {
             if (values == nullptr) {
@@ -582,8 +523,6 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
 
 #if OCIO_VERSION_HEX >= 0x2010100 || OCIO_VERSION_HEX >= 0x2020000
 #else
-            // 1D Textures are unsupported by OpenGL ES.
-            // https://github.com/AcademySoftwareFoundation/OpenColorIO/issues/1486
             if (height > 1) {
 #endif
                 f->glBindTexture(GL_TEXTURE_2D, texId);
@@ -612,17 +551,13 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
 #endif
         }
 
-        // 3. Keep the texture id & name for the later enabling.
-
         unsigned type = GL_TEXTURE_2D;
         m_lut3dTexIDs.push_back({texId, textureName, samplerName, type});
         currIndex++;
     }
 
-    // Step 3: Generate the shader text
     QString shaderCacheID = QString::fromLatin1(shaderDesc->getCacheID());
     if (m_program.isEmpty() || shaderCacheID != m_shadercacheid) {
-        // dbgKrita << "Computing Shader " << m_shadercacheid;
 
         m_shadercacheid = shaderCacheID;
 
@@ -630,7 +565,6 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
         shouldRecompileShader = true;
     }
 
-    // Step 4: mirror and bind uniforms
     m_lut3dUniforms.clear();
 
     const unsigned maxUniforms = shaderDesc->getNumUniforms();
@@ -641,7 +575,6 @@ bool OcioDisplayFilter::updateShaderImpl(F *f)
             errOpenGL << "Uniform" << idx << "has an unknown type";
             return false;
         }
-        // Transfer uniform.
         m_lut3dUniforms.push_back({name, data});
     }
 
@@ -663,7 +596,6 @@ void OcioDisplayFilter::setupTextures(GLFunctions *f, QOpenGLShaderProgram *prog
 
         const OCIO::GpuShaderDesc::UniformData &m_data = uniform.m_data;
 
-        // Update value.
         if (m_data.m_getDouble) {
             program->setUniformValue(m_handle, static_cast<GLfloat>(m_data.m_getDouble()));
         } else if (m_data.m_getBool) {

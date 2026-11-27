@@ -12,16 +12,13 @@ struct KisKActionCategoryPrivate {
 
     KisKActionCategoryPrivate(KisKActionCategory *host);
 
-    //! Our host
     KisKActionCategory *q;
 
-    //! The text for this category
     QString text;
 
-    //! List of actions
     QList<QAction *> actions;
 
-}; // class KisKActionCategoryPrivate
+};
 
 KisKActionCategory::KisKActionCategory(const QString &text, KisKActionCollection *parent)
     :   QObject(parent)
@@ -80,7 +77,6 @@ QAction *KisKActionCategory::addAction(
 
 void KisKActionCategory::addAction(QAction *action)
 {
-    // Only add the action if wasn't added earlier.
     if (!d->actions.contains(action)) {
         d->actions.append(action);
     }
@@ -103,20 +99,13 @@ void KisKActionCategory::setText(const QString &text)
 
 void KisKActionCategory::unlistAction(QAction *action)
 {
-    // ATTENTION:
-    //   This method is called from KisKActionCollection with an QObject formerly
-    //   known as a QAction during _k_actionDestroyed(). So don't do fancy stuff
-    //   here that needs a real QAction!
 
-    // Get the index for the action
     int index = d->actions.indexOf(action);
 
-    // Action not found.
     if (index == -1) {
         return;
     }
 
-    // Remove the action
     d->actions.takeAt(index);
 }
 

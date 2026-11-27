@@ -173,7 +173,6 @@ void TestShapeGroupCommand::testToplevelGroupWithExistingTransform()
     QCOMPARE(toplevelShape2->parent(), toplevelGroup);
 
     QCOMPARE(toplevelGroup->boundingRect(), QRectF(50, 50, 50, 150));
-    // NOTE: The shapes are now at the negative side of the group coordinate system!
     QCOMPARE(toplevelGroup->outlineRect(), QRectF(-50, -50, 50, 150));
     QVERIFY(KisAlgebra2D::fuzzyMatrixCompare(toplevelGroup->transformation(),
                                              QTransform::fromTranslate(100, 100),
@@ -299,7 +298,6 @@ void TestShapeGroupCommand::testToplevelGroupWithNormalization()
                                              QTransform::fromTranslate(0, 100),
                                              0.01));
 
-
     cmd1->undo();
 
     QVERIFY(!toplevelShape1->parent());
@@ -344,7 +342,6 @@ void TestShapeGroupCommand::testZIndexFromNowhere()
     cmd2 = createAddCommand(toplevelGroup, {toplevelShape4});
     cmd2->redo();
 
-    // the new shape is added to the top
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
     QCOMPARE(int(toplevelShape2->zIndex()), 1);
     QCOMPARE(int(toplevelShape3->zIndex()), 2);
@@ -372,13 +369,11 @@ void TestShapeGroupCommand::testZIndexFromNowhereReordered()
     toplevelShape3->setZIndex(12);
     toplevelShape4->setZIndex(13);
 
-
     QCOMPARE(int(toplevelShape1->zIndex()), 10);
     QCOMPARE(int(toplevelShape2->zIndex()), 11);
     QCOMPARE(int(toplevelShape3->zIndex()), 12);
     QCOMPARE(int(toplevelShape4->zIndex()), 13);
 
-    // shapes are reordered!
     cmd1 = KoShapeGroupCommand::createCommand(toplevelGroup, {toplevelShape4, toplevelShape3});
     cmd1->redo();
 
@@ -387,13 +382,11 @@ void TestShapeGroupCommand::testZIndexFromNowhereReordered()
     QCOMPARE(int(toplevelShape3->zIndex()), 12);
     QCOMPARE(int(toplevelShape4->zIndex()), 13);
 
-    // shapes are reordered!
     cmd2 = createAddCommand(toplevelGroup, {toplevelShape2, toplevelShape1});
     cmd2->redo();
 
-    // the new shapes are added to the top in a sorted way
-    QCOMPARE(int(toplevelShape1->zIndex()), 14); // corrected
-    QCOMPARE(int(toplevelShape2->zIndex()), 15); // corrected
+    QCOMPARE(int(toplevelShape1->zIndex()), 14);
+    QCOMPARE(int(toplevelShape2->zIndex()), 15);
     QCOMPARE(int(toplevelShape3->zIndex()), 12);
     QCOMPARE(int(toplevelShape4->zIndex()), 13);
 
@@ -422,7 +415,6 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     QCOMPARE(int(toplevelShape3->zIndex()), 0);
     QCOMPARE(int(toplevelShape4->zIndex()), 0);
 
-    // create initial group of 4 shapes
     QScopedPointer<KUndo2Command> cmd1(
         KoShapeGroupCommand::createCommand(toplevelGroup, toplevelShapes));
     cmd1->redo();
@@ -432,7 +424,6 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     QCOMPARE(int(toplevelShape3->zIndex()), 2);
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
 
-    // add two middle shapes to a subgroup
     QScopedPointer<KUndo2Command> cmd2(
         KoShapeGroupCommand::createCommand(sublevelGroup, {toplevelShape2, toplevelShape3}));
     cmd2->redo();
@@ -443,8 +434,6 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
-
-    // offset z-index of subgroup'ed shape to higher values
     QScopedPointer<KUndo2Command> cmd3;
     {
         QList<KoShapeReorderCommand::IndexedShape> indexedShapes({toplevelShape2, toplevelShape3});
@@ -455,22 +444,20 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     cmd3->redo();
 
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
-    QCOMPARE(int(toplevelShape2->zIndex()), 11); // changed!
-    QCOMPARE(int(toplevelShape3->zIndex()), 12); // changed!
+    QCOMPARE(int(toplevelShape2->zIndex()), 11);
+    QCOMPARE(int(toplevelShape3->zIndex()), 12);
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
-    // add the last shape and check it is **appended**
     QScopedPointer<KUndo2Command> cmd4(createAddCommand(sublevelGroup, {toplevelShape4}));
     cmd4->redo();
 
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
     QCOMPARE(int(toplevelShape2->zIndex()), 11);
     QCOMPARE(int(toplevelShape3->zIndex()), 12);
-    QCOMPARE(int(toplevelShape4->zIndex()), 13); // corrected!
+    QCOMPARE(int(toplevelShape4->zIndex()), 13);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
-    // add a bit of poison to the toplevel group by setting z-index to higher values
     QScopedPointer<KUndo2Command> cmd5;
     {
         QList<KoShapeReorderCommand::IndexedShape> indexedShapes({toplevelShape1, sublevelGroup});
@@ -486,20 +473,14 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     QCOMPARE(int(toplevelShape4->zIndex()), 13);
     QCOMPARE(int(sublevelGroup->zIndex()), 101);
 
-
-    // add the first shape and check it is prepended
     QScopedPointer<KUndo2Command> cmd6(createAddCommand(sublevelGroup, {toplevelShape1}));
     cmd6->redo();
 
-    QCOMPARE(int(toplevelShape1->zIndex()), 100); // added and all the shapes are offset
+    QCOMPARE(int(toplevelShape1->zIndex()), 100);
     QCOMPARE(int(toplevelShape2->zIndex()), 101);
     QCOMPARE(int(toplevelShape3->zIndex()), 102);
     QCOMPARE(int(toplevelShape4->zIndex()), 103);
     QCOMPARE(int(sublevelGroup->zIndex()), 101);
-
-    /*************************************************************************/
-    /*   Start undoing stuff                                                 */
-    /*************************************************************************/
 
     cmd6->undo();
 
@@ -514,14 +495,14 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
     QCOMPARE(int(toplevelShape2->zIndex()), 11);
     QCOMPARE(int(toplevelShape3->zIndex()), 12);
-    QCOMPARE(int(toplevelShape4->zIndex()), 13); // corrected!
+    QCOMPARE(int(toplevelShape4->zIndex()), 13);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
     cmd4->undo();
 
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
-    QCOMPARE(int(toplevelShape2->zIndex()), 11); // changed!
-    QCOMPARE(int(toplevelShape3->zIndex()), 12); // changed!
+    QCOMPARE(int(toplevelShape2->zIndex()), 11);
+    QCOMPARE(int(toplevelShape3->zIndex()), 12);
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
@@ -539,7 +520,6 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     QCOMPARE(int(toplevelShape2->zIndex()), 1);
     QCOMPARE(int(toplevelShape3->zIndex()), 2);
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
-    //QCOMPARE(int(sublevelGroup->zIndex()), 0); // TODO!!!
 
     cmd1->undo();
 
@@ -547,7 +527,6 @@ void TestShapeGroupCommand::testZIndexFromSameGroup()
     QCOMPARE(int(toplevelShape2->zIndex()), 0);
     QCOMPARE(int(toplevelShape3->zIndex()), 0);
     QCOMPARE(int(toplevelShape4->zIndex()), 0);
-    //QCOMPARE(int(sublevelGroup->zIndex()), 0); // TODO!!!
 }
 
 #include "KoShapeTransformCommand.h"
@@ -557,12 +536,10 @@ void TestShapeGroupCommand::testUngrouping()
     QList<KoShape*> toplevelShapes;
     toplevelShapes << toplevelShape1 << toplevelShape2 << toplevelShape3 << toplevelShape4;
 
-    // create initial group of 4 shapes
     QScopedPointer<KUndo2Command> cmd1(
         KoShapeGroupCommand::createCommand(toplevelGroup, toplevelShapes));
     cmd1->redo();
 
-    // add two middle shapes to a subgroup
     QScopedPointer<KUndo2Command> cmd2(
         KoShapeGroupCommand::createCommand(sublevelGroup, {toplevelShape2, toplevelShape3}));
     cmd2->redo();
@@ -573,7 +550,6 @@ void TestShapeGroupCommand::testUngrouping()
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
-    // offset z-index of subgroup'ed shape to higher values
     QScopedPointer<KUndo2Command> cmd3;
     {
         QList<KoShapeReorderCommand::IndexedShape> indexedShapes({toplevelShape2, toplevelShape3});
@@ -584,8 +560,8 @@ void TestShapeGroupCommand::testUngrouping()
     cmd3->redo();
 
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
-    QCOMPARE(int(toplevelShape2->zIndex()), 11); // changed!
-    QCOMPARE(int(toplevelShape3->zIndex()), 12); // changed!
+    QCOMPARE(int(toplevelShape2->zIndex()), 11);
+    QCOMPARE(int(toplevelShape3->zIndex()), 12);
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
@@ -601,7 +577,6 @@ void TestShapeGroupCommand::testUngrouping()
                                             {QTransform::fromTranslate(100, 100)}));
     cmd4->redo();
 
-    // child shapes got transformed
     QCOMPARE(toplevelShape2->boundingRect(), QRectF(150, 250, 50, 50));
     QCOMPARE(toplevelShape3->boundingRect(), QRectF(150, 350, 50, 50));
 
@@ -615,25 +590,23 @@ void TestShapeGroupCommand::testUngrouping()
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
     QCOMPARE(int(toplevelShape2->zIndex()), 11);
     QCOMPARE(int(toplevelShape3->zIndex()), 12);
-    QCOMPARE(int(toplevelShape4->zIndex()), 13); // changed!
+    QCOMPARE(int(toplevelShape4->zIndex()), 13);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
-    // transformations didn't change!
     QCOMPARE(toplevelShape2->boundingRect(), QRectF(150, 250, 50, 50));
     QCOMPARE(toplevelShape3->boundingRect(), QRectF(150, 350, 50, 50));
 
     cmd5->undo();
 
     QCOMPARE(int(toplevelShape1->zIndex()), 0);
-    QCOMPARE(int(toplevelShape2->zIndex()), 11); // changed!
-    QCOMPARE(int(toplevelShape3->zIndex()), 12); // changed!
+    QCOMPARE(int(toplevelShape2->zIndex()), 11);
+    QCOMPARE(int(toplevelShape3->zIndex()), 12);
     QCOMPARE(int(toplevelShape4->zIndex()), 3);
     QCOMPARE(int(sublevelGroup->zIndex()), 2);
 
     QCOMPARE(toplevelShape2->parent(), sublevelGroup);
     QCOMPARE(toplevelShape3->parent(), sublevelGroup);
 
-    // transformations didn't change!
     QCOMPARE(toplevelShape2->boundingRect(), QRectF(150, 250, 50, 50));
     QCOMPARE(toplevelShape3->boundingRect(), QRectF(150, 350, 50, 50));
 

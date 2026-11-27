@@ -9,12 +9,6 @@
 
 #include "./xsimd_config.hpp"
 
-// Architecture initialization. Borrowed from Vc
-// Define the following strings to a unique integer, which is the only type the
-// preprocessor can compare. This allows to use -DXSIMD_IMPL=SSE3. The
-// preprocessor will then consider XSIMD_IMPL and SSE3 to be equal.
-// An additional define IMPL_MASK allows to detect the FMA extension.
-
 #define Scalar 0x00100000
 #define SSE2 0x00200000
 #define SSE3 0x00300000
@@ -89,12 +83,7 @@ using current_arch = neon;
 #elif (XSIMD_IMPL & IMPL_MASK) == NEON64
 using current_arch = neon64;
 #endif
-}; // namespace xsimd
-
-// xsimd extension to block AppleClang's auto-lipoization of
-// compiled objects.
-// If the defined instruction sets don't match what's expected
-// from the build flags, zonk out the included file.
+};
 
 #if !defined(XSIMD_IMPL) || defined(XSIMD_IMPL) && (XSIMD_IMPL & IMPL_MASK) == Scalar
 #define XSIMD_UNIVERSAL_BUILD_PASS 3
@@ -127,4 +116,4 @@ using current_arch = neon64;
 #undef FMA4
 #undef IMPL_MASK
 
-#endif // KIS_XSIMD_ARCH_HPP
+#endif

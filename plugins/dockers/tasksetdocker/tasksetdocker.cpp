@@ -49,9 +49,7 @@ public:
     }
 private:
 
-
 };
-
 
 TasksetDockerPlugin::TasksetDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

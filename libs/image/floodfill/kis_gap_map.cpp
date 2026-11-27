@@ -34,9 +34,6 @@
 namespace
 {
 
-// The following four transformation functions are used to parametrize the distance search algorithm.
-// All used together help cover the four octants (a 1/8th circular sector) of a half-circle covering a part of the map.
-
 ALWAYS_INLINE QPoint TransformNone(int x, int y, int xOffset, int yOffset)
 {
     return {x + xOffset, y + yOffset};
@@ -57,7 +54,7 @@ ALWAYS_INLINE QPoint TransformMirrorHorizontally(int x, int y, int xOffset, int 
     return {x + xOffset, y - yOffset};
 }
 
-} // anonymous namespace
+}
 
 template<bool BoundsCheck>
 bool KisGapMap::isOpaque(int x, int y)
@@ -97,13 +94,12 @@ KisGapMap::KisGapMap(int gapSize,
     , m_deviceSp(new KisPaintDevice(KoColorSpaceRegistry::instance()->rgb8()))
     , m_accessor(std::make_unique<KisTileOptimizedAccessor>(m_deviceSp))
 {
-    // Ensure the scanline fill uses the same coordinates.
     KIS_ASSERT((mapBounds.x() == 0) && (mapBounds.y() == 0) &&
                "Gap closing fill assumes x and y start at coordinate (0, 0)");
 
     Data defaultPixel {};
     defaultPixel.distance = DISTANCE_INFINITE;
-    defaultPixel.opacity = MAX_SELECTED;    // here: max = transparent
+    defaultPixel.opacity = MAX_SELECTED;
 
     KoColor color(reinterpret_cast<quint8*>(&defaultPixel), KoColorSpaceRegistry::instance()->rgb8());
     m_deviceSp->setDefaultPixel(color);
@@ -121,7 +117,6 @@ void KisGapMap::loadOpacityTiles(const QRect& tileRect)
         for (int tx = tileRect.left(); tx <= tileRect.right(); ++tx) {
             TileFlags* const pFlags = tileFlagsPtr(tx, ty);
             if ((*pFlags & TILE_OPACITY_LOADED) == 0) {
-                // Resize and clamp to image bounds.
                 QRect rect(tx * TileSize, ty * TileSize, TileSize, TileSize);
                 rect.setRight(qMin(rect.right(), m_size.width() - 1));
                 rect.setBottom(qMin(rect.bottom(), m_size.height() - 1));
@@ -129,10 +124,8 @@ void KisGapMap::loadOpacityTiles(const QRect& tileRect)
 #if KIS_GAP_MAP_DEBUG_LOGGING_AND_ASSERTS
                 qDebug() << "loadOpacityTiles()" << rect;
 #endif
-                // It's not too elegant to pass the device, but this performs the best for now.
                 const bool hasOpaquePixels = m_fillOpacityFunc(m_deviceSp.data(), rect);
 
-                // This tile is now loaded.
                 *pFlags |= TILE_OPACITY_LOADED | (hasOpaquePixels ? TILE_HAS_OPAQUE_PIXELS : 0);
             }
         }
@@ -143,7 +136,6 @@ void KisGapMap::loadOpacityTiles(const QRect& tileRect)
 #endif
 }
 
-/** This is a part of loadDistanceTile() implementation. */
 void KisGapMap::distanceSearchRowInnerLoop(bool boundsCheck, int y, int x1, int x2)
 {
     if (boundsCheck) {
@@ -167,16 +159,6 @@ void KisGapMap::distanceSearchRowInnerLoop(bool boundsCheck, int y, int x1, int 
     }
 }
 
-/** Calculate the gap distance data in the specified rect.
- *  NOTE: Opacity data must have been loaded already.
- *
- *  @see gapDistanceSearch() for an explanation of which distance map pixels
- *  are be affected by this operation.
- *
- *  If the rect is smaller than the whole fill region, then the guardBand is needed
- *  and must be at least equal to the gap size. We need to do calculations in
- *  a larger region in order to compute correct distances within the requested rect.
- */
 void KisGapMap::loadDistanceTile(const QPoint& tile, const QRect& nearbyTilesRect, int guardBand)
 {
 #if KIS_GAP_MAP_MEASURE_ELAPSED_TIME
@@ -186,12 +168,7 @@ void KisGapMap::loadDistanceTile(const QPoint& tile, const QRect& nearbyTilesRec
 
     TileFlags* const pFlags = tileFlagsPtr(tile.x(), tile.y());
 
-    // This tile is now considered loaded.
     *pFlags |= TILE_DISTANCE_LOADED;
-
-    // Optimization: If a tile is completely transparent (TILE_HAS_OPAQUE_PIXELS == 0), then
-    // we can skip the distance calculation for it. Unfortunately, with the guard bands we need
-    // to check the flags of the neighboring tiles as well.
 
     const bool tileOpaque           = (*pFlags & TILE_HAS_OPAQUE_PIXELS) != 0;
     const bool tileOpaqueLeft       = (nearbyTilesRect.left()   == tile.x()) ?                                           false : (*tileFlagsPtr(tile.x() - 1, tile.y())     & TILE_HAS_OPAQUE_PIXELS) != 0;
@@ -201,8 +178,6 @@ void KisGapMap::loadDistanceTile(const QPoint& tile, const QRect& nearbyTilesRec
     const bool tileOpaqueBottom     = (nearbyTilesRect.bottom() == tile.y()) ?                                           false : (*tileFlagsPtr(tile.x(),     tile.y() + 1) & TILE_HAS_OPAQUE_PIXELS) != 0;
 
     if (! (tileOpaqueTopLeft || tileOpaqueTop || tileOpaqueLeft || tileOpaque || tileOpaqueBottomLeft || tileOpaqueBottom)) {
-        // This tile as well as its surroundings are transparent.
-        // We can simply exit without explicitly initializing the tile. The paint device's default pixel is DISTANCE_INFINITE.
 
 #if KIS_GAP_MAP_MEASURE_ELAPSED_TIME
         m_distanceElapsedNanos += timer.nsecsElapsed();
@@ -210,15 +185,9 @@ void KisGapMap::loadDistanceTile(const QPoint& tile, const QRect& nearbyTilesRec
         return;
     }
 
-    // The area of the image covered only by this tile.
     QRect rect(tile.x() * TileSize, tile.y() * TileSize, TileSize, TileSize);
     rect.setRight(qMin(rect.right(), m_size.width() - 1));
     rect.setBottom(qMin(rect.bottom(), m_size.height() - 1));
-
-    // Compromise: At the tile size 64 px and the gap size 32 px, the guard band must be
-    // 31 px at most, because opacity is sampled in gap size + 1 radius, which could be two tiles
-    // away and that tile might not have been loaded yet. To avoid loading one row of that tile,
-    // we can clamp the guard band to 31. The error introduced by it should not be noticeable.
 
     const int guardBandVertical = qMin(guardBand, 31);
     const int y1       = tileOpaqueTopLeft    || tileOpaqueTop    ? qMax(0, rect.top() - guardBandVertical) : rect.top();
@@ -230,24 +199,19 @@ void KisGapMap::loadDistanceTile(const QPoint& tile, const QRect& nearbyTilesRec
     const int x2Middle = tileOpaque                               ? rect.right() : rect.left() - 1;
     const int x2Bottom = tileOpaqueBottom                         ? rect.right() : rect.left() - 1;
 
-    // Apply conservative bounds checking. +1 for opacity.
     const bool boundsCheck =
-        (rect.right() + (m_gapSize + 1) >= m_size.width()) ||  // no risk of accessing x<0
+        (rect.right() + (m_gapSize + 1) >= m_size.width()) ||
         (y1 - (m_gapSize + 1) < 0) || (y2 + (m_gapSize + 1) >= m_size.height());
 
     m_tilePosition = rect.topLeft();
     m_tileDataPtr = reinterpret_cast<Data*>(m_accessor->tileRawData(tile.x(), tile.y()));
 
-    // Process the tile and its neighborhood in three passes:
-    // Top (the top guard bands)
     for (int y = y1; y <= rect.top() - 1; ++y) {
         distanceSearchRowInnerLoop(boundsCheck, y, x1Top, x2Top);
     }
-    // Middle (the left guard band and the tile)
     for (int y = rect.top(); y <= rect.bottom(); ++y) {
         distanceSearchRowInnerLoop(boundsCheck, y, x1Middle, x2Middle);
     }
-    // Bottom (the bottom guard bands)
     for (int y = rect.bottom() + 1; y <= y2; ++y) {
         distanceSearchRowInnerLoop(boundsCheck, y, x1Bottom, x2Bottom);
     }
@@ -257,26 +221,6 @@ void KisGapMap::loadDistanceTile(const QPoint& tile, const QRect& nearbyTilesRec
 #endif
 }
 
-/**
- * Update the distance map in an octant (a 45-degree sector of a half-circle) originating from the (x, y) point.
- *
- * Important: The radius of the right half-circle is equal to the (gap size) for distance map,
- * and the (gap size + 1) for the opacity map.
- *
- * Which octant is used depends on the transform function. With 0 degrees being the -y axis (up):
- *    0-45 deg - TransformNone
- *   45-90 deg - TransformRotateClockwiseMirrorHorizontally
- *  90-135 deg - TransformRotateClockwise
- * 135-180 deg - TransformMirrorHorizontally
- *
- * This function is a bit tricky to reason about:
- *
- * - Calling it for a point at (x, y) will modify the RIGHT half-circle of the distance map, excluding the point.
- * - Conversely, to fully determine the distance at any specific point (mx, my) in the map,
- *   this function must be called for all points in the LEFT half-circle, that is the rect
- *   (mx - gap, my - gap, gap + 1, gap + 1).
- * - Lastly, only some points in the half circle will be modified, it depends on the opacity checks.
- */
 template<bool BoundsCheck, typename CoordinateTransform>
 void KisGapMap::gapDistanceSearch(int x, int y, CoordinateTransform op)
 {
@@ -330,7 +274,6 @@ void KisGapMap::updateDistance(const QPoint& globalPosition, quint16 newDistance
     }
 }
 
-/** Load the required tiles and return pixel's distance data. */
 quint16 KisGapMap::lazyDistance(int x, int y)
 {
 #if KIS_GAP_MAP_DEBUG_LOGGING_AND_ASSERTS
@@ -340,19 +283,15 @@ quint16 KisGapMap::lazyDistance(int x, int y)
     const int tx = x / TileSize;
     const int ty = y / TileSize;
 
-    // Clamped tile neighborhood.
     const QPoint topLeft(qMax(0, tx - 1),
                          qMax(0, ty - 1));
     const QPoint bottomRight(qMin(tx + 1, m_numTiles.width() - 1),
                              qMin(ty + 1, m_numTiles.height() - 1));
     const QRect nearbyTiles = QRect(topLeft, bottomRight);
 
-    // For opacity data, we always load all the adjacent tiles (up to 9 tiles in total).
     loadOpacityTiles(nearbyTiles);
 
-    // For distance data, we always load a single tile.
     loadDistanceTile(QPoint(tx, ty), nearbyTiles, m_gapSize);
 
-    // The data is now ready to be returned.
     return dataPtr(x, y)->distance;
 }

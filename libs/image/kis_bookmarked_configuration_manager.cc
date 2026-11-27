@@ -14,12 +14,10 @@
 #include <klocalizedstring.h>
 #include <kconfiggroup.h>
 
-
 #include <KoID.h>
 
 #include "kis_debug.h"
 #include "kis_serializable_configuration.h"
-
 
 const char KisBookmarkedConfigurationManager::ConfigDefault[] = "Default";
 const char KisBookmarkedConfigurationManager::ConfigLastUsed[] = "Last Used";

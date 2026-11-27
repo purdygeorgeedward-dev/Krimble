@@ -9,7 +9,6 @@
 
 #include "QIcon"
 
-
 struct KisComboBasedPaintOpProperty::Private
 {
     QList<QString> items;

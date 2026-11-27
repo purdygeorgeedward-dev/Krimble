@@ -20,22 +20,16 @@ Q_GLOBAL_STATIC(KisMemoryStatisticsServer, s_instance)
 struct Q_DECL_HIDDEN KisMemoryStatisticsServer::Private
 {
     Private(KisMemoryStatisticsServer *q)
-        : updateCompressor(1000 /* ms */, KisSignalCompressor::POSTPONE, q)
+        : updateCompressor(1000 , KisSignalCompressor::POSTPONE, q)
     {
     }
 
     KisSignalCompressor updateCompressor;
 };
 
-
 KisMemoryStatisticsServer::KisMemoryStatisticsServer()
     : m_d(new Private(this))
 {
-    /**
-     * The first instance() call may happen from non-gui thread,
-     * so we should ensure the signals and timers are running in the
-     * correct (GUI) thread.
-     */
     moveToThread(qApp->thread());
     connect(&m_d->updateCompressor, SIGNAL(timeout()), SIGNAL(sigUpdateMemoryStatistics()));
 }
@@ -91,7 +85,6 @@ qint64 calculateNodeMemoryHiBoundStep(KisNodeSP node,
             node->inherits("KisGroupLayer") ||
             node->inherits("KisAdjustmentLayer");
 
-
     addDevice(node->paintDevice(), false, devices, memBound, layersSize, projectionsSize, lodSize);
     addDevice(node->original(), originalIsProjection, devices, memBound, layersSize, projectionsSize, lodSize);
     addDevice(node->projection(), true, devices, memBound, layersSize, projectionsSize, lodSize);
@@ -122,7 +115,6 @@ qint64 calculateNodeMemoryHiBound(KisNodeSP node,
                                           projectionsSize,
                                           lodSize);
 }
-
 
 KisMemoryStatisticsServer::Statistics
 KisMemoryStatisticsServer::fetchMemoryStatistics(KisImageSP image) const
@@ -165,5 +157,4 @@ void KisMemoryStatisticsServer::notifyImageChanged()
 {
     m_d->updateCompressor.start();
 }
-
 

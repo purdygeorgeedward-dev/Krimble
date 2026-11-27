@@ -17,7 +17,6 @@
 
 namespace KisAlgebra2D {
 
-// TODO: avoid code-duplication
 inline Eigen::Matrix3d fromQTransformStraight(const QTransform &t)
 {
     Eigen::Matrix3d m;
@@ -34,8 +33,6 @@ inline Eigen::Matrix3d fromQTransformStraight(const QTransform &t)
 
 #ifdef HAVE_GSL
 #include <gsl/gsl_multimin.h>
-
-
 
 namespace GSL
 {
@@ -113,7 +110,6 @@ namespace GSL
         int status;
         double size;
 
-        /* Starting point */
         x = gsl_vector_alloc (3);
         gsl_vector_set (x, 0, Strategy::getScale(args));
         gsl_vector_set (x, 1, args.transformedCenter().x());
@@ -122,15 +118,9 @@ namespace GSL
         KisTransformUtils::MatricesPack m(args);
         QTransform t = m.finalTransform();
 
-        /**
-         * Approximate initial offset step by 10% of the moving point
-         * offset. It means that the destination point will be reached
-         * in at most 10 steps.
-         */
         const QPointF transformedMovingPoint = t.map(movingPointSrc);
         const qreal initialStep = 0.1 * kisDistance(transformedMovingPoint, movingPointDst);
 
-        /* Set initial step sizes to 0.1 */
         ss = gsl_vector_alloc (3);
         gsl_vector_set (ss, 0, 0.1);
         gsl_vector_set (ss, 1, initialStep);
@@ -144,7 +134,6 @@ namespace GSL
         p.movingPointDst = movingPointDst;
         p.srcArgs = &args;
 
-        /* Initialize method and iterate */
         minex_func.n = 3;
         minex_func.f = scaleError1D<Strategy>;
         minex_func.params = (void*)&p;
@@ -167,22 +156,12 @@ namespace GSL
             size = gsl_multimin_fminimizer_size (s);
             status = gsl_multimin_test_size (size, 1e-6);
 
-            /**
-             * Sometimes the algorithm may converge to a wrong point,
-             * they just try to force it search better or return invalid
-             * result.
-             */
             if (status == GSL_SUCCESS && scaleError1D<Strategy>(s->x, &p) > 0.5) {
                 status = GSL_CONTINUE;
             }
 
             if (status == GSL_SUCCESS)
             {
-                // dbgKrita << "*******Converged to minimum";
-                // dbgKrita << gsl_vector_get (s->x, 0)
-                //          << gsl_vector_get (s->x, 1)
-                //          << gsl_vector_get (s->x, 2)
-                //          << "|" << s->fval << size;
                 result.scale = gsl_vector_get (s->x, 0);
                 result.transformedCenter =
                     QPointF(gsl_vector_get (s->x, 1),
@@ -255,14 +234,12 @@ namespace GSL
         int status;
         double size;
 
-        /* Starting point */
         x = gsl_vector_alloc (4);
         gsl_vector_set (x, 0, args.scaleX());
         gsl_vector_set (x, 1, args.scaleY());
         gsl_vector_set (x, 2, args.transformedCenter().x());
         gsl_vector_set (x, 3, args.transformedCenter().y());
 
-        /* Set initial step sizes to 0.1 */
         ss = gsl_vector_alloc (4);
         gsl_vector_set (ss, 0, 0.1);
         gsl_vector_set (ss, 1, 0.1);
@@ -277,7 +254,6 @@ namespace GSL
         p.movingPointDst = movingPointDst;
         p.srcArgs = &args;
 
-        /* Initialize method and iterate */
         minex_func.n = 4;
         minex_func.f = scaleError2D;
         minex_func.params = (void*)&p;
@@ -301,23 +277,12 @@ namespace GSL
             size = gsl_multimin_fminimizer_size (s);
             status = gsl_multimin_test_size (size, 1e-6);
 
-            /**
-             * Sometimes the algorithm may converge to a wrong point,
-             * they just try to force it search better or return invalid
-             * result.
-             */
             if (status == GSL_SUCCESS && scaleError2D(s->x, &p) > 0.5) {
                 status = GSL_CONTINUE;
             }
 
             if (status == GSL_SUCCESS)
             {
-                // dbgKrita << "*******Converged to minimum";
-                // dbgKrita << gsl_vector_get (s->x, 0)
-                //          << gsl_vector_get (s->x, 1)
-                //          << gsl_vector_get (s->x, 2)
-                //          << gsl_vector_get (s->x, 3)
-                //          << "|" << s->fval << size;
                 result.scaleX = gsl_vector_get (s->x, 0);
                 result.scaleY = gsl_vector_get (s->x, 1);
                 result.transformedCenter =
@@ -342,16 +307,6 @@ namespace GSL
                                          const QPointF &movingPointDst)
     {
         KisTransformUtils::MatricesPack m(args);
-
-        /// We are solving an system of two equations:
-        ///
-        /// T' * projP' * S' * SC' * BRI' * TS' * P_src1 = P_dst2
-        /// T' * projP' * S' * SC' * BRI' * TS' * P_src2 = P_dst2
-        ///
-        /// When projP is an affine transformation matrix,
-        /// this system has a trivial solution. For the
-        /// non-affine case, the things get much more
-        /// complicated...
 
         Eigen::Matrix3d TS_t = KisAlgebra2D::fromQTransformStraight(m.TS.transposed());
         Eigen::Matrix3d S_t = KisAlgebra2D::fromQTransformStraight(m.S.transposed());
@@ -380,7 +335,6 @@ namespace GSL
 
         Eigen::Matrix<double, 4, 1> B;
         B << P_dst(0,0), P_dst(1,0), P_dst(0,1), P_dst(1,1);
-
 
         ScaleResult2D result;
 
@@ -426,7 +380,7 @@ namespace GSL
 
 }
 
-#else /* HAVE_GSL */
+#else
 
 namespace GSL
 {
@@ -495,4 +449,4 @@ namespace GSL
     }
 }
 
-#endif /* HAVE_GSL */
+#endif

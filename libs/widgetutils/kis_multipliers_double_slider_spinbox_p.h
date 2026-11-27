@@ -13,9 +13,8 @@
 
 struct KisMultipliersDoubleSliderSpinBox::Private {
     qreal currentMultiplier();
-    /// Update the range of the slider depending on the currentMultiplier
     void updateRange();
-    
+
     QComboBox *cmbMultiplier {0};
     KisDoubleSliderSpinBox *slider{0};
     qreal min, max;

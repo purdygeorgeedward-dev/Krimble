@@ -40,7 +40,6 @@
 
 Q_GLOBAL_STATIC(KisDisplayColorConverter, s_instance)
 
-
 struct KisDisplayColorConverter::Private
 {
     Private(KisDisplayColorConverter *_q, KoCanvasResourceProvider *_resourceManager)
@@ -67,7 +66,6 @@ struct KisDisplayColorConverter::Private
     mutable const KoColorSpace *cachedQtWidgetsColorSpace = 0;
     mutable const KoColorSpace *cachedOpenGLSurfaceColorSpace = 0;
 
-    // this color space will never change during the run of Krita
     mutable const KoColorSpace *cachedIntermediateColorSpace = 0;
 
     void notifyDisplayConfigurationChanged() {
@@ -143,8 +141,6 @@ struct KisDisplayColorConverter::Private
     }
 
     const KoColorSpace* intermediateColorSpace() const {
-        // the color space where we apply exposure and
-        // gamma should always be linear
         return cachedIntermediateColorSpace
             ? cachedIntermediateColorSpace
             : (cachedIntermediateColorSpace =
@@ -218,7 +214,6 @@ struct KisDisplayColorConverter::Private
 
             if (m_resourceManager) {
                 qreal exposure = m_resourceManager->resource(KoCanvasResource::HdrExposure).value<qreal>();
-                // not sure if *= is what we want
                 maxValue *= std::pow(2.0, -exposure);
             }
 
@@ -234,7 +229,6 @@ struct KisDisplayColorConverter::Private
         }
 
         QImage convertImageToDisplayColorSpace(const QImage source) const override {
-            // Limited to 8bit sRGB for now...
             KisPaintDeviceSP srcDevice = new KisPaintDevice(KoColorSpaceRegistry::instance()->rgb8());
             srcDevice->convertFromQImage(source, KoColorSpaceRegistry::instance()->p709SRGBProfile(), 0, 0);
             QImage destination = m_displayColorConverter->convertImageToDisplayColorSpace(srcDevice);
@@ -301,7 +295,6 @@ void KisDisplayColorConverter::setImageColorSpace(const KoColorSpace *cs)
     m_d->notifyDisplayConfigurationChanged();
 }
 
-
 KisDisplayColorConverter* KisDisplayColorConverter::dumbConverterInstance()
 {
     return s_instance;
@@ -322,14 +315,11 @@ bool KisDisplayColorConverter::Private::needsColorProofing(const KoColorSpace *s
     if (!paintingColorSpace || srcColorSpace == paintingColorSpace || *srcColorSpace == *paintingColorSpace) {
         return false;
     }
-    // TODO: ideally, we'd identify color profiles that only differ in transfer curves but
-    // define the same primaries/gamut and return false for them aswell
     if (srcColorSpace->colorModelId() == paintingColorSpace->colorModelId()) {
         const KoColorProfile *paintProfile = paintingColorSpace->profile();
         const KoColorProfile *srcProfile = srcColorSpace->profile();
         bool matchingProfiles = (paintProfile == srcProfile) ||
                                 (paintProfile && srcProfile && *paintProfile == *srcProfile);
-        // unless we go float->int, the color spaces are considered compatible
         if (matchingProfiles &&
                 (srcColorSpace->colorDepthId() == Integer8BitsColorDepthID ||
                  srcColorSpace->colorDepthId() == Integer16BitsColorDepthID ||
@@ -478,8 +468,6 @@ void KisDisplayColorConverter::setMultiSurfaceDisplayConfig(const KisMultiSurfac
 {
     if (m_d->multiSurfaceDisplayConfig == config) return;
 
-
-
     m_d->multiSurfaceDisplayConfig = config;
     m_d->notifyDisplayConfigurationChanged();
 }
@@ -502,10 +490,7 @@ void KisDisplayColorConverter::setDisplayFilter(QSharedPointer<KisDisplayFilter>
             m_d->resourceManager->foregroundColor());
     }
 
-
-    { // sanity check
-        // KisConfig cfg;
-        // KIS_ASSERT_RECOVER_NOOP(cfg.useOcio() == (bool) m_d->displayFilter);
+    {
     }
 
     m_d->selectPaintingColorSpace();
@@ -549,7 +534,6 @@ QColor KisDisplayColorConverter::toQColor(const KoColor &srcColor, bool proofToP
         c.setProfile(m_d->ocioOutputProfile());
     }
 
-    // we expect the display profile is rgb8, which is BGRA here
     KIS_ASSERT_RECOVER(m_d->qtWidgetsColorSpace()->pixelSize() == 4) {
         return QColor(Qt::red);
     }
@@ -589,7 +573,6 @@ bool KisDisplayColorConverter::canSkipDisplayConversion(const KoColorSpace *cs) 
          cs->profile()->uniqueId() == displayProfile->uniqueId());
 }
 
-
 KoColor KisDisplayColorConverter::approximateFromRenderedQColor(const QColor &c) const
 {
     return m_d->approximateFromQColor(c);
@@ -624,7 +607,6 @@ QImage KisDisplayColorConverter::toQImage(KisPaintDeviceSP srcDevice, bool proof
         device->setProfile(m_d->ocioOutputProfile(), 0);
     }
 
-    // we expect the display profile is rgb8, which is BGRA here
     KIS_ASSERT_RECOVER(m_d->qtWidgetsColorSpace()->pixelSize() == 4) {
         return QImage();
     }
@@ -682,10 +664,6 @@ QImage KisDisplayColorConverter::toQImage(const KoColorSpace *srcColorSpace, con
 void KisDisplayColorConverter::applyDisplayFilteringF32(KisFixedPaintDeviceSP device,
                                                         const KoColorSpace *dstColorSpace) const
 {
-    /**
-     * This method is optimized for the case when device is already in 32f
-     * version of the painting color space.
-     */
 
     KIS_SAFE_ASSERT_RECOVER_RETURN(device->colorSpace()->colorDepthId() == Float32BitsColorDepthID);
     KIS_SAFE_ASSERT_RECOVER_RETURN(device->colorSpace()->colorModelId() == RGBAColorModelID);
@@ -713,22 +691,17 @@ QColor KisDisplayColorConverter::convertColorToDisplayColorSpace(const KoColor c
         newColor.convertTo(m_d->openGLSurfaceColorSpace(Float32BitsColorDepthID), m_d->multiSurfaceDisplayConfig.intent, m_d->multiSurfaceDisplayConfig.conversionFlags);
     }
 
-    /// No idea why it wouldn't be RGBAColorModelID, but do something useful in any case...
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(newColor.colorSpace()->colorModelId() == RGBAColorModelID, newColor.toQColor());
 
     QVector<float> norm(newColor.colorSpace()->channelCount());
     newColor.colorSpace()->normalisedChannelsValue(newColor.data(), norm);
 
-    // sort into RGBA order... maybe a little overengineered.
     QVector<float> sorted = norm;
     for (int ch = 0; ch < norm.size(); ch++) {
         const KoChannelInfo *info = newColor.colorSpace()->channels().at(ch);
         sorted[info->displayPosition()] = norm[ch];
     }
 
-    // We need to manually create a QColor here, because if we use KoColor.toQColor, the whole KoColor is first
-    // converted to sRGB before becoming a QColor, while we explicitely do not want that for our QColor.
-    // This is further complicated by the fact that QColors cannot have any (Q)ColorSpace metadata associated with it, unlike KoColor.
     return QColor::fromRgbF(sorted[0], sorted[1], sorted[2], sorted[3]);
 }
 
@@ -793,31 +766,26 @@ QColor KisDisplayColorConverter::Private::approximateToQColor(const KoColor &src
     return color.toQColor();
 }
 
-
 KoColor KisDisplayColorConverter::fromHsv(int h, int s, int v, int a) const
 {
-    // generate HSV from sRGB!
     QColor qcolor(QColor::fromHsv(h, s, v, a));
     return m_d->approximateFromQColor(qcolor);
 }
 
 void KisDisplayColorConverter::getHsv(const KoColor &srcColor, int *h, int *s, int *v, int *a) const
 {
-    // we are going through sRGB here!
     QColor color = m_d->approximateToQColor(srcColor);
     color.getHsv(h, s, v, a);
 }
 
 KoColor KisDisplayColorConverter::fromHsvF(qreal h, qreal s, qreal v, qreal a)
 {
-    // generate HSV from sRGB!
     QColor qcolor(QColor::fromHsvF(h, s, v, a));
     return m_d->approximateFromQColor(qcolor);
 }
 
 void KisDisplayColorConverter::getHsvF(const KoColor &srcColor, qreal *h, qreal *s, qreal *v, qreal *a)
 {
-    // we are going through sRGB here!
     QColor color = m_d->approximateToQColor(srcColor);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     color.getHsvF(h, s, v, a);
@@ -841,7 +809,6 @@ void KisDisplayColorConverter::getHsvF(const KoColor &srcColor, qreal *h, qreal 
 
 KoColor KisDisplayColorConverter::fromHslF(qreal h, qreal s, qreal l, qreal a)
 {
-    // generate HSL from sRGB!
     QColor qcolor(QColor::fromHslF(h, s, l, a));
     if (!qcolor.isValid()) {
         warnKrita << "Could not construct valid color from h" << h << "s" << s << "l" << l << "a" << a;
@@ -853,7 +820,6 @@ KoColor KisDisplayColorConverter::fromHslF(qreal h, qreal s, qreal l, qreal a)
 
 void KisDisplayColorConverter::getHslF(const KoColor &srcColor, qreal *h, qreal *s, qreal *l, qreal *a)
 {
-    // we are going through sRGB here!
     QColor color = m_d->approximateToQColor(srcColor);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     color.getHslF(h, s, l, a);
@@ -877,7 +843,6 @@ void KisDisplayColorConverter::getHslF(const KoColor &srcColor, qreal *h, qreal 
 
 KoColor KisDisplayColorConverter::fromHsiF(qreal h, qreal s, qreal i)
 {
-    // generate HSI from sRGB!
     qreal r=0.0;
     qreal g=0.0;
     qreal b=0.0;
@@ -890,7 +855,6 @@ KoColor KisDisplayColorConverter::fromHsiF(qreal h, qreal s, qreal i)
 
 void KisDisplayColorConverter::getHsiF(const KoColor &srcColor, qreal *h, qreal *s, qreal *i)
 {
-    // we are going through sRGB here!
     QColor color = m_d->approximateToQColor(srcColor);
     qreal r=color.redF();
     qreal g=color.greenF();
@@ -900,7 +864,6 @@ void KisDisplayColorConverter::getHsiF(const KoColor &srcColor, qreal *h, qreal 
 
 KoColor KisDisplayColorConverter::fromHsyF(qreal h, qreal s, qreal y, qreal R, qreal G, qreal B, qreal gamma)
 {
-    // generate HSL from sRGB!
     QVector <qreal> channelValues(3);
     y = pow(y, gamma);
     HSYToRGB(h, s, y, &channelValues[0], &channelValues[1], &channelValues[2], R, G, B);
@@ -912,13 +875,11 @@ KoColor KisDisplayColorConverter::fromHsyF(qreal h, qreal s, qreal y, qreal R, q
 
 void KisDisplayColorConverter::getHsyF(const KoColor &srcColor, qreal *h, qreal *s, qreal *y, qreal R, qreal G, qreal B, qreal gamma)
 {
-    // we are going through sRGB here!
     QColor color = m_d->approximateToQColor(srcColor);
     QVector <qreal> channelValues(3);
     channelValues[0]=color.redF();
     channelValues[1]=color.greenF();
     channelValues[2]=color.blueF();
-    //TODO: if we're going to have KoColor here, remember to check whether the TRC of the profile exists...
     KoColorSpaceRegistry::instance()->rgb8()->profile()->linearizeFloatValueFast(channelValues);
     RGBToHSY(channelValues[0], channelValues[1], channelValues[2], h, s, y, R, G, B);
     *y = pow(*y, 1/gamma);

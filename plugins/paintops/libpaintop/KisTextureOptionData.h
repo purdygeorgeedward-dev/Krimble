@@ -22,8 +22,6 @@ enum KisBrushTextureFlag
 Q_DECLARE_FLAGS(KisBrushTextureFlags, KisBrushTextureFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisBrushTextureFlags)
 
-
-
 struct  PAINTOP_EXPORT KisTextureOptionData : boost::equality_comparable<KisTextureOptionData>
 {
     enum TexturingMode {
@@ -95,5 +93,4 @@ struct  PAINTOP_EXPORT KisTextureOptionData : boost::equality_comparable<KisText
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-
-#endif // KISTEXTUREOPTIONDATA_H
+#endif

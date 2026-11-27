@@ -20,10 +20,6 @@
 
 class KoGroupButton;
 
-/**
- * The 'magic wand' selection tool -- in fact just
- * a floodfill that only creates a selection.
- */
 class KisToolSelectContiguous : public KisToolSelect
 {
 
@@ -109,4 +105,4 @@ public:
     }
 };
 
-#endif //__KIS_TOOL_SELECT_CONTIGUOUS_H__
+#endif

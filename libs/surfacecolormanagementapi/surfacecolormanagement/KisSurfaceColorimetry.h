@@ -10,7 +10,6 @@
 #include <KoColorimetryUtils.h>
 #include <kritasurfacecolormanagementapi_export.h>
 
-
 namespace KisSurfaceColorimetry
 {
     using namespace KoColorimetryUtils;
@@ -27,21 +26,21 @@ namespace KisSurfaceColorimetry
     enum class NamedTransferFunction {
         transfer_function_unknown = 0,
         transfer_function_bt1886 = 1,
-        transfer_function_gamma22 = 2, // supported by KDE
+        transfer_function_gamma22 = 2,
         transfer_function_gamma28 = 3,
-        transfer_function_ext_linear = 5, // supported by KDE
-        transfer_function_srgb = 9, // supported by KDE, but broken and deprecated
+        transfer_function_ext_linear = 5,
+        transfer_function_srgb = 9,
         transfer_function_ext_srgb = 10,
-        transfer_function_st2084_pq = 11, // supported by KDE
+        transfer_function_st2084_pq = 11,
         transfer_function_st428 = 12,
     };
 
     enum class RenderIntent {
-        render_intent_perceptual = 0, // perceptual
-        render_intent_relative = 1, // media-relative colorimetric
-        render_intent_saturation = 2, // saturation
-        render_intent_absolute = 3, // ICC-absolute colorimetric
-        render_intent_relative_bpc = 4, // media-relative colorimetric + black point compensation
+        render_intent_perceptual = 0,
+        render_intent_relative = 1,
+        render_intent_saturation = 2,
+        render_intent_absolute = 3,
+        render_intent_relative_bpc = 4,
     };
 
     struct KRITASURFACECOLORMANAGEMENTAPI_EXPORT Luminance : boost::equality_comparable<Luminance> {
@@ -53,9 +52,9 @@ namespace KisSurfaceColorimetry
         {
         }
 
-        uint32_t minLuminance = 2000; // (cd/m^2) * 10000
-        uint32_t maxLuminance = 80; // (cd/m^2)
-        uint32_t referenceLuminance = 80; // (cd/m^2)
+        uint32_t minLuminance = 2000;
+        uint32_t maxLuminance = 80;
+        uint32_t referenceLuminance = 80;
 
         bool operator==(const Luminance &other) const {
             return minLuminance == other.minLuminance &&
@@ -63,10 +62,6 @@ namespace KisSurfaceColorimetry
                    referenceLuminance == other.referenceLuminance;
         }
 
-        /**
-         * When we need to to limit the luminance range to SDR-only,
-         * we should use referenceLuminance for max luminance value
-         */
         Luminance clipToSdr() const {
             return { minLuminance, referenceLuminance, referenceLuminance };
         }
@@ -79,8 +74,8 @@ namespace KisSurfaceColorimetry
             , maxLuminance(maxLuminanceArg)
         {}
 
-        uint32_t minLuminance = 2000; // (cd/m^2) * 10000
-        uint32_t maxLuminance = 80; // (cd/m^2)
+        uint32_t minLuminance = 2000;
+        uint32_t maxLuminance = 80;
 
         static MasteringLuminance fromLuminance(const Luminance &rhs) {
             return {rhs.minLuminance, rhs.maxLuminance};
@@ -94,7 +89,6 @@ namespace KisSurfaceColorimetry
 
     struct KRITASURFACECOLORMANAGEMENTAPI_EXPORT ColorSpace : boost::equality_comparable<ColorSpace> {
         std::variant<NamedPrimaries, Colorimetry> primaries;
-        // named transfer function or <exponent * 10000>
         std::variant<NamedTransferFunction, uint32_t> transferFunction;
         std::optional<Luminance> luminance;
 
@@ -145,4 +139,4 @@ namespace KisSurfaceColorimetry
     KRITASURFACECOLORMANAGEMENTAPI_EXPORT QDebug operator<<(QDebug debug, const RenderIntent &value);
 }
 
-#endif /* KISSURFACECOLORIMETRY_H */
+#endif

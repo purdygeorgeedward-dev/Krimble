@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2015 Wolthera van Hövell tot Westerflier <griffinvalley@gmail.com>
- * 
+ *
  *
  *  SPDX-License-Identifier: LGPL-2.0-or-later
  */
@@ -15,7 +15,6 @@
 #include <KisSpinBoxI18nHelper.h>
 
 namespace {
-
 
 class KisTangentTiltWidget: public QWidget, public Ui::WdgTangentTiltOptions
 {
@@ -35,9 +34,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisTangentTiltOptionWidget::Private
 {
@@ -49,17 +46,16 @@ struct KisTangentTiltOptionWidget::Private
     KisTangentTiltOptionModel model;
 };
 
-
 KisTangentTiltOptionWidget::KisTangentTiltOptionWidget(lager::cursor<KisTangentTiltOptionData> optionData)
     : KisPaintOpOption(i18n("Tangent Tilt"), KisPaintOpOption::GENERAL, true)
     , m_d(new Private(optionData))
 {
-	
+
 	KisTangentTiltWidget *widget = new KisTangentTiltWidget();
 	setObjectName("KisTangentTiltOption");
-	
+
 	m_checkable = false;
-	
+
     using namespace KisWidgetConnectionUtils;
 
     connectControl(widget->comboRed, &m_d->model, "redChannel");
@@ -80,9 +76,9 @@ KisTangentTiltOptionWidget::KisTangentTiltOptionWidget(lager::cursor<KisTangentT
 
     connectControl(widget->sliderElevationSensitivity, &m_d->model, "elevationSensitivity");
     connectControl(widget->sliderMixValue, &m_d->model, "mixValue");
-    
+
     m_d->model.optionData.bind(std::bind(&KisTangentTiltOptionWidget::emitSettingChanged, this));
-    
+
     setConfigurationPage(widget);
 }
 

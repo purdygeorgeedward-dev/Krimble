@@ -11,7 +11,6 @@
 #include <KoColorSpace.h>
 #include <resources/KoPattern.h>
 
-
 #include "psd.h"
 
 #include "kis_default_bounds.h"
@@ -56,7 +55,6 @@ namespace KisLsUtils
                                       const QRect &srcRect)
     {
         const KoColorSpace *cs = srcDevice->colorSpace();
-
 
         KisPixelSelectionSP selection = dstSelection->pixelSelection();
 
@@ -244,7 +242,6 @@ namespace KisLsUtils
 
         KisPixelSelectionSP randomSelection = env->cachedRandomSelection(overlayRect);
 
-
         KisCachedSelection::Guard s1(*env->cachedSelection());
         KisPixelSelectionSP randomOverlay = s1.selection()->pixelSelection();
 
@@ -276,8 +273,6 @@ namespace KisLsUtils
         gc.setCompositeOpId(COMPOSITE_COPY);
         gc.bitBlt(applyRect.topLeft(), randomOverlay, applyRect);
     }
-
-    //const int FULL_PERCENT_RANGE = 100;
 
     void adjustRange(KisPixelSelectionSP selection, const QRect &applyRect, const int range)
     {
@@ -437,13 +432,10 @@ namespace KisLsUtils
             int width = (boundsRect.width() * config->scale() + 100) / 200;
             int height = (boundsRect.height() * config->scale() + 100) / 200;
 
-            /* copy paste from libpsd */
-
             int angle = config->angle();
             int corner_angle = (int)(atan((qreal)boundsRect.height() / boundsRect.width()) * 180 / M_PI + 0.5);
             int sign_x = 1;
             int sign_y = 1;
-
 
             if(angle < 0) {
                 angle += 360;
@@ -474,8 +466,6 @@ namespace KisLsUtils
 
             int radius_corner = (int)(std::sqrt((qreal)(radius_x * radius_x + radius_y * radius_y)) + 0.5);
 
-            /* end of copy paste from libpsd */
-
             KisGradientPainter gc(fillDevice);
             gc.setGradient(config->gradient(resourcesInterface));
             QPointF gradStart;
@@ -484,7 +474,6 @@ namespace KisLsUtils
                 KisGradientPainter::GradientRepeatNone;
 
             QPoint rectangularOffset(sign_x * radius_x, -sign_y * radius_y);
-
 
             switch(config->style())
             {
@@ -539,9 +528,9 @@ namespace KisLsUtils
                              KisSelectionSP baseSelection,
                              KisPaintDeviceSP srcDevice,
                              KisMultipleProjection *dst,
-                             const QRect &/*srcRect*/,
+                             const QRect & ,
                              const QRect &dstRect,
-                             const psd_layer_effects_context */*context*/,
+                             const psd_layer_effects_context * ,
                              const psd_layer_effects_shadow_base *config,
                              KisResourcesInterfaceSP resourcesInterface,
                              const KisLayerStyleFilterEnvironment *env)
@@ -574,7 +563,6 @@ namespace KisLsUtils
                                    true, config->jitter(), env);
         }
 
-        //dstDevice->convertToQImage(0, QRect(0,0,300,300)).save("6_device_shadow.png");
     }
 
     bool checkEffectEnabled(const psd_layer_effects_shadow_base *config, KisMultipleProjection *dst)

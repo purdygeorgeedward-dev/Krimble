@@ -57,7 +57,6 @@ PageResourceChooser::PageResourceChooser(KoResourceBundleSP bundle, QWidget *par
     KisConfig cfg(true);
     m_mode = (cfg.readEntry<quint32>("ResourceItemsBCSelected.viewMode", 1) == 1)? ListViewMode::IconGrid : ListViewMode::Detail;
 
-
     connect(viewModeButton, SIGNAL(onViewThumbnail()), this, SLOT(slotViewThumbnail()));
     connect(viewModeButton, SIGNAL(onViewDetails()), this, SLOT(slotViewDetails()));
 
@@ -83,7 +82,6 @@ PageResourceChooser::PageResourceChooser(KoResourceBundleSP bundle, QWidget *par
         #endif
         resourceTypes << ResourceType::Patterns << ResourceType::Palettes << ResourceType::Workspaces << ResourceType::CssStyles;
 
-
         for (int i = 0; i < resourceTypes.size(); i++) {
             QSharedPointer<KisResourceStorage::ResourceIterator> iter = m_bundleStorage->resources(resourceTypes[i]);
             KisResourcesInterfaceSP resourcesInterface = KisGlobalResourcesInterface::instance();
@@ -96,7 +94,6 @@ PageResourceChooser::PageResourceChooser(KoResourceBundleSP bundle, QWidget *par
                 }
             }
         }
-
 
         QString standarizedResourceType = ResourceType::Brushes;
 
@@ -147,7 +144,6 @@ void PageResourceChooser::slotResourcesSelectionChanged(QModelIndex selected)
     QModelIndexList list = m_wdgResourcePreview->getResourceItemsSelected();
     KisTagFilterResourceProxyModel* proxyModel = m_wdgResourcePreview->getResourceProxyModelsForResourceType()[m_wdgResourcePreview->getCurrentResourceType()];
 
-
     Q_FOREACH (QModelIndex idx, list) {
         int id = proxyModel->data(idx, Qt::UserRole + KisAllResourcesModel::Id).toInt();
         if (!m_selectedResourcesIds.contains(id)) {
@@ -185,7 +181,6 @@ void PageResourceChooser::selectResource(QSortFilterProxyModel *model, const QMo
 {
     QString name = model->data(idx, Qt::UserRole + KisAllResourcesModel::Name).toString();
 
-    // Don't try to bundle special resources
     QString resourceType = m_wdgResourcePreview->getCurrentResourceType();
     if (resourceType == ResourceType::Gradients) {
         if (name == "Foreground to Transparent" || name == "Foreground to Background") {

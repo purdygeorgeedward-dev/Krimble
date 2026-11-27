@@ -10,7 +10,6 @@
 #include <KoDialog.h>
 #include "dlg_buginfo.h"
 
-
 class QSettings;
 class KisOutputColorInfoInterface;
 class KisSurfaceColorManagementInfo;
@@ -36,4 +35,4 @@ private:
     QString m_surfaceManagementReport;
 };
 
-#endif // DLG_COLORMANAGEMENTINFO_H
+#endif

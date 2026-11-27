@@ -23,6 +23,8 @@
 #include <QContextMenuEvent>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QtMath>
+#include <QApplication>
 #include <QStyle>
 #include <QStylePainter>
 #include <QStyleOptionFrame>
@@ -55,8 +57,8 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     d->closeButton->setIcon(d->removeIcon);
     connect(d->closeButton, SIGNAL(clicked()), dockWidget, SLOT(close()));
     d->closeButton->setVisible(true);
-    d->closeButton->setToolTip(i18nc("@info:tooltip", "Close Docker"));   
-    d->closeButton->setStyleSheet("border: 0"); // border makes the header busy looking (appears on some OSs)
+    d->closeButton->setToolTip(i18nc("@info:tooltip", "Close Docker"));
+    d->closeButton->setStyleSheet("border: 0");
 
     d->lockIcon = kisIcon("docker_lock_a");
     d->lockButton = new KoDockWidgetTitleBarButton(this);
@@ -74,7 +76,12 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     d->titleLabel->setText(dockWidget->windowTitle());
 
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(2, 0, 2, 0);
+    {
+        const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+        layout->setContentsMargins(2 + qRound(28.0 / dpr), 0, 2, 0);
+        setMinimumHeight(qCeil(101.0 / dpr));
+        if (!dockWidget->inherits("KisColorSelectorNgDock")) layout->addStrut(qCeil(101.0 / dpr));
+    }
     layout->setSpacing(SPACING);
     layout->addWidget(d->titleLabel, 1);
     layout->addWidget(d->floatButton);
@@ -97,7 +104,27 @@ void KoDockWidgetTitleBar::setTitleTextHidden(bool hidden)
     d->titleTextHidden = hidden;
     QDockWidget *dock = qobject_cast<QDockWidget*>(parentWidget());
     d->titleLabel->setVisible(true);
-    d->titleLabel->setText(hidden || !dock ? QString() : dock->windowTitle());
+    d->titleLabel->setText(d->shownTitle(dock ? dock->windowTitle() : QString()));
+    if (dock) {
+        if (QLabel *toolName = dock->findChild<QLabel*>(QStringLiteral("krimbleToolOptionsName"))) {
+            const bool nameInRow = hidden && !d->tabbedTitle.isEmpty() && d->titleOverride.isEmpty();
+            toolName->setVisible(!nameInRow && !toolName->text().isEmpty());
+        }
+    }
+    update();
+}
+
+void KoDockWidgetTitleBar::setTabbedTitle(const QString &text)
+{
+    d->tabbedTitle = text;
+    setTitleTextHidden(d->titleTextHidden);
+}
+
+void KoDockWidgetTitleBar::setTitleOverride(const QString &text)
+{
+    if (d->titleOverride == text) return;
+    d->titleOverride = text;
+    setTitleTextHidden(d->titleTextHidden);
 }
 
 void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
@@ -117,7 +144,6 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         lockButtonSize = d->lockButton->size();
     }
 
-    // To improve the look with Fusion which has weird 13x15 button sizes
     int fusionTextOffset = 0;
     QRect styleTestRect = q->style()->subElementRect(QStyle::SE_DockWidgetFloatButton, &titleOpt, q);
     if (styleTestRect.width() < 16) {
@@ -126,23 +152,29 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
 
     titleOpt.rect = QRect(QPoint(fw + mw + lockButtonSize.width() + fusionTextOffset, 0),
                           QSize(geometry().width() - (fw * 2) -  mw - lockButtonSize.width(), geometry().height()));
-    // We don't print the title text here. Instead, we have a QLabel.
-    //   titleOpt.title = q->windowTitle();
-    // FIXME: Maybe we just shouldn't use a QStylePainter at all?
     titleOpt.title = QString();
     titleOpt.closable = hasFeature(q, QDockWidget::DockWidgetClosable);
     titleOpt.floatable = hasFeature(q, QDockWidget::DockWidgetFloatable);
     p.drawControl(QStyle::CE_DockWidgetTitle, titleOpt);
 
-
-
     {
         const qreal dpr = devicePixelRatioF();
         int left = 12;
-        if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + 16;
+        const qreal gapDpr = qMax<qreal>(1.0, devicePixelRatioF());
+        if (d->titleLabel && d->titleLabel->isVisible() && !d->titleLabel->text().isEmpty()) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(d->titleLabel->text()) + qRound(36.0 / gapDpr);
+        if (q) {
+            if (QLabel *toolName = q->findChild<QLabel*>(QStringLiteral("krimbleToolOptionsName"))) {
+                const int nameTop = toolName->mapTo(q, QPoint(0, 0)).y() - mapTo(q, QPoint(0, 0)).y();
+                if (toolName->isVisible() && !toolName->text().isEmpty() && nameTop < height()) {
+                    const int nameLeft = toolName->mapTo(q, QPoint(0, 0)).x() - mapTo(q, QPoint(0, 0)).x();
+                    const int nameRight = nameLeft + toolName->contentsRect().left() + 6 + toolName->fontMetrics().horizontalAdvance(toolName->text());
+                    left = qMax(left, nameRight + qRound(36.0 / gapDpr));
+                }
+            }
+        }
         int right = width() - 12;
         Q_FOREACH (QAbstractButton *b, QList<QAbstractButton*>() << d->floatButton << d->closeButton << d->lockButton) {
-            if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
+            if (b && b->isVisible()) right = qMin(right, b->geometry().left() - qRound(70.0 / gapDpr));
         }
         if (right - left >= 24) {
             const qreal thick = 3.0 / dpr;
@@ -150,7 +182,7 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
             QColor c = palette().color(QPalette::WindowText);
             c.setAlpha(150);
             const qreal mid = height() / 2.0;
-            for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);
+            for (int i = 0; i < 6; ++i) p.fillRect(QRectF(left, mid + (i - 2.5) * gap - thick / 2, right - left, thick), c);
         }
     }
 }
@@ -224,16 +256,14 @@ void KoDockWidgetTitleBar::Private::featuresChanged(QDockWidget::DockWidgetFeatu
 
 void KoDockWidgetTitleBar::Private::dockWidgetTitleChanged(const QString &title)
 {
-    titleLabel->setText(titleTextHidden ? QString() : title);
+    titleLabel->setText(shownTitle(title));
 }
-
 
 void KoDockWidgetTitleBar::Private::updateIcons()
 {
     lockIcon = (!locked) ? kisIcon("docker_lock_a") : kisIcon("docker_lock_b");
     lockButton->setIcon(lockIcon);
 
-    // this method gets called when switching themes, so update all of the themed icons now
     floatButton->setIcon(kisIcon("docker_float"));
     closeButton->setIcon(kisIcon("docker_close"));
 
@@ -250,23 +280,14 @@ void KoDockWidgetTitleBar::Private::updateButtonSizes()
     opt.initFrom(q);
     opt.rect = QRect(QPoint(fw, fw), QSize(thePublic->geometry().width() - (fw * 2), thePublic->geometry().height() - (fw * 2)));
     opt.title = q->windowTitle();
-    // Originally it was:
-    //   opt.closable = hasFeature(q, QDockWidget::DockWidgetClosable);
-    // but I think we better just always pretend the close button is visible to
-    // get the button size.
     opt.closable = true;
     opt.floatable = hasFeature(q, QDockWidget::DockWidgetFloatable);
 
-    // Again, we just always use the size of the close button, so we don't
-    // need to get the size of the float button...
-    //   QRect floatRect = q->style()->subElementRect(QStyle::SE_DockWidgetFloatButton, &opt, q);
     const QRect closeRect = q->style()->subElementRect(QStyle::SE_DockWidgetCloseButton, &opt, q);
     QSize buttonSize = closeRect.size();
     if (buttonSize.width() < 16) {
-        // To improve the look with Fusion which has weird 13x15 button sizes
         buttonSize = QSize(16, 16);
     } else if (buttonSize.width() != buttonSize.height()) {
-        // Just make sure the button is square...
         buttonSize.setHeight(buttonSize.width());
     }
 
@@ -275,7 +296,6 @@ void KoDockWidgetTitleBar::Private::updateButtonSizes()
     lockButton->setFixedSize(buttonSize);
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include "moc_KoDockWidgetTitleBar.cpp"
 
 void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
@@ -300,14 +320,9 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
         action->setChecked(current == entry.area);
         action->setEnabled(true);
         const Qt::DockWidgetArea area = entry.area;
-        // connect(action, &QAction::triggered, dock, [dock, mainWindow, area]() {
-        //     mainWindow->addDockWidget(area, dock);
-        //     dock->show();
-        // });
         connect(action, &QAction::triggered, dock, [dock, mainWindow, area]() {
             dock->setAllowedAreas(Qt::AllDockWidgetAreas);
             mainWindow->addDockWidget(area, dock);
-            // addDockWidget alone leaves a floating panel floating; it has to be told to dock.
             if (dock->isFloating()) {
                 dock->setFloating(false);
             }
@@ -378,7 +393,7 @@ void KoDockWidgetTitleBar::mouseMoveEvent(QMouseEvent *event)
         d->grabOffset = d->pressGlobal - q->mapToGlobal(QPoint(0, 0));
         q->setFloating(true);
         d->dragging = true;
-        qApp->installEventFilter(this);   // the mouse may no longer be grabbed by this bar once the panel is its own window; follow the finger from the application
+        qApp->installEventFilter(this);
     }
     q->move(event->globalPos() - d->grabOffset);
     event->accept();

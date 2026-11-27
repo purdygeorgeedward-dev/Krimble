@@ -17,7 +17,6 @@
 #include "kis_group_layer.h"
 #include <testutil.h>
 
-
 class TestMask : public KisMask
 {
 public:
@@ -37,7 +36,6 @@ public:
 };
 
 typedef KisSharedPtr<TestMask> TestMaskSP;
-
 
 void KisMaskTest::testCreation()
 {
@@ -72,10 +70,6 @@ void KisMaskTest::testCropUpdateBySelection()
 {
     TestUtil::MaskParent p;
 
-    /**
-     * We do not use exact selection bounds for cropping,
-     * so the rects should be covered by different tiles
-     */
     QRect selectionRect(10, 10, 20, 20);
     QRect updateRect(64, 64, 20, 20);
 
@@ -87,13 +81,7 @@ void KisMaskTest::testCropUpdateBySelection()
     mask->initSelection(sel, p.layer);
 
     mask->apply(p.layer->projection(), updateRect, updateRect, KisNode::N_FILTHY, KisRenderPassFlag::None);
-    // Here we crash! :)
 
-    /**
-     * If you see a crash, it means KisMask tried to update
-     * the area that is outside its selection.
-     * Please consider fixing KisMask::apply() first
-     */
 }
 
 void KisMaskTest::testSelectionParent()
@@ -139,13 +127,9 @@ void KisMaskTest::testDeferredOffsetInitialization()
 
     mask->initSelection(image->rootLayer());
 
-    // IMPORTANT: a bit weird behavior, but it is needed for
-    // KisKraLoadVisitor to work properly
     QCOMPARE(mask->x(), 10);
     QCOMPARE(mask->y(), 11);
 
-    // Now there is no deferred initialization, so the offset
-    // should simply be reset
     mask->initSelection(image->rootLayer());
     QCOMPARE(mask->x(), 0);
     QCOMPARE(mask->y(), 0);

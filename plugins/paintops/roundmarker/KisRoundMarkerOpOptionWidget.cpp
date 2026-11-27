@@ -1,6 +1,6 @@
 /*
  *  SPDX-FileCopyrightText: 2016 Dmitry Kazakov <dimula73@gmail.com>
- * 
+ *
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -14,7 +14,6 @@
 #include "KisRoundMarkerOpOptionModel.h"
 
 namespace {
-
 
 class KisRoundMarkerOpWidget: public QWidget, public Ui::WdgKisRoundMarkerOption
 {
@@ -30,9 +29,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisRoundMarkerOpOptionWidget::Private
 {
@@ -44,24 +41,23 @@ struct KisRoundMarkerOpOptionWidget::Private
     KisRoundMarkerOpOptionModel model;
 };
 
-
 KisRoundMarkerOpOptionWidget::KisRoundMarkerOpOptionWidget(lager::cursor<KisRoundMarkerOpOptionData> optionData)
     : KisPaintOpOption(i18n("Brush"), KisPaintOpOption::GENERAL, true)
     , m_d(new Private(optionData))
 {
-	
+
 	KisRoundMarkerOpWidget *widget = new KisRoundMarkerOpWidget();
 	setObjectName("KisRoundMarkerOption");
-	
+
 	m_checkable = false;
-	
+
     using namespace KisWidgetConnectionUtils;
 
     connectControl(widget->dblDiameter, &m_d->model, "diameter");
     connectControl(widget->spacingWidget, &m_d->model, "aggregatedSpacing");
-    
+
     m_d->model.optionData.bind(std::bind(&KisRoundMarkerOpOptionWidget::emitSettingChanged, this));
-    
+
     setConfigurationPage(widget);
 }
 

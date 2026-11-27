@@ -51,7 +51,6 @@ public:
                 }
                 shape->setZIndex(z + 1);
 
-                // show config dialog.
                 KPageDialog *dialog = new KPageDialog(canvas->canvasWidget());
                 dialog->setWindowTitle(i18n("%1 Options", factory->name()));
 

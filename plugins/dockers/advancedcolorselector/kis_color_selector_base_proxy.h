@@ -13,13 +13,6 @@ class KoColor;
 class KoColorSpace;
 class KisDisplayColorConverter;
 
-/**
- * A proxy interface for accessing high-level KisColorSelectorBase
- * structure by lower level classes.
- *
- * This small abstractions makes the interface clear and hides all the
- * non-relevant features from the clients
- */
 class KisColorSelectorBaseProxy
 {
 public:
@@ -55,7 +48,6 @@ public:
     KisDisplayColorConverter* converter() const override;
 };
 
-
 class KisColorSelectorBase;
 
 class KisColorSelectorBaseProxyObject : public KisColorSelectorBaseProxy
@@ -73,4 +65,4 @@ private:
     KisColorSelectorBase *m_parent;
 };
 
-#endif /* __KIS_COLOR_SELECTOR_BASE_PROXY_H */
+#endif

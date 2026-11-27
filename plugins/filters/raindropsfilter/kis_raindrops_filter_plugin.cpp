@@ -12,7 +12,6 @@
 
 #include <filter/kis_filter_registry.h>
 
-
 #include "kis_raindrops_filter.h"
 
 K_PLUGIN_FACTORY_WITH_JSON(KisRainDropsFilterPluginFactory, "kritaraindropsfilter.json", registerPlugin<KisRainDropsFilterPlugin>();)

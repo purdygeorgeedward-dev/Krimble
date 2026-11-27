@@ -11,7 +11,6 @@
 #include "commands/KoShapeMoveCommand.h"
 
 #include <klocalizedstring.h>
-// #include <FlakeDebug.h>
 
 class Q_DECL_HIDDEN KoShapeAlignCommand::Private
 {
@@ -33,12 +32,6 @@ KoShapeAlignCommand::KoShapeAlignCommand(const QList<KoShape*> &shapes, Align al
     QPointF delta;
     QRectF bRect;
     Q_FOREACH (KoShape *shape, shapes) {
-//   if (dynamic_cast<KoShapeGroup*> (shape))
-//       debugFlake <<"Found Group";
-//   else if (dynamic_cast<KoShapeContainer*> (shape))
-//       debugFlake <<"Found Container";
-//   else
-//       debugFlake <<"Found shape";
         position = shape->absolutePosition();
         previousPositions  << position;
         bRect = shape->absoluteOutlineRect();
@@ -63,8 +56,6 @@ KoShapeAlignCommand::KoShapeAlignCommand(const QList<KoShape*> &shapes, Align al
             break;
         };
         newPositions  << position + delta;
-//debugFlake <<"-> moving" <<  position.x() <<"," << position.y() <<" to" <<
-//        (position + delta).x() << ", " << (position+delta).y() << Qt::endl;
     }
     d->command = new KoShapeMoveCommand(shapes, previousPositions, newPositions);
 

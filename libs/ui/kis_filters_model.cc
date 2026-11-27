@@ -132,7 +132,6 @@ const KisFilter* KisFiltersModel::indexToFilter(const QModelIndex& idx)
 
 QModelIndex KisFiltersModel::index(int row, int column, const QModelIndex &parent) const
 {
-//     dbgKrita << parent.isValid() << row << Qt::endl;
     if (parent.isValid()) {
         Private::Category* category = static_cast<Private::Category*>(parent.internalPointer());
         return createIndex(row, column, &category->filters[row]);
@@ -151,7 +150,7 @@ QModelIndex KisFiltersModel::parent(const QModelIndex &child) const
         QString catId = filter->filter->menuCategory().id();
         return createIndex(d->categoriesKeys.indexOf(catId) , 0, &d->categories[ catId ]);
     }
-    return QModelIndex(); // categories don't have parents
+    return QModelIndex();
 }
 
 QVariant KisFiltersModel::data(const QModelIndex &index, int role) const
@@ -177,5 +176,4 @@ Qt::ItemFlags KisFiltersModel::flags(const QModelIndex & index) const
         return Qt::ItemIsEnabled;
     }
 }
-
 

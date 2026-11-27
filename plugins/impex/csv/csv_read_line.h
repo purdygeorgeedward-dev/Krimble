@@ -13,10 +13,6 @@
 
 #include "csv_layer_record.h"
 
-/* The .png file names are within 20 characters, only the layer
- * names can be longer. If the length exceeds this, it will be
- * truncated.
- */
 #define CSV_FIELD_MAX 50
 
 class CSVReadLine

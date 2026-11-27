@@ -24,7 +24,6 @@
 #include <KoCanvasResourcesInterface.h>
 #include <KoResourceCacheStorage.h>
 
-
 class ShadowUpdatePresetJob : public QObject, public KisSpontaneousJob
 {
     Q_OBJECT
@@ -123,8 +122,6 @@ void KisPresetShadowUpdater::slotCanvasResourceChanged(int key, const QVariant &
                                 QVariant::fromValue(KoResourceCacheInterfaceSP()));
         }
     } else if (m_d->currentPreset) {
-        /// if the current preset depends on the canvas resources,
-        /// we should reset its cache and restart cache generation
 
         if (m_d->currentPreset->requiredCanvasResources().contains(key)) {
             slotPresetChanged();
@@ -161,8 +158,6 @@ void KisPresetShadowUpdater::slotStartPresetPreparation()
 
             image->addSpontaneousJob(job);
         } else {
-            /// a fallback solution when a preset is selected on
-            /// Krita loading, when there is no image present
 
             KoResourceCacheInterfaceSP cacheInterface =
                 toQShared(new KoResourceCacheStorage());

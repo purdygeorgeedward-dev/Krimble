@@ -28,43 +28,17 @@ private:
 class PaintingStrategy
 {
 public:
-    /// constructor
     PaintingStrategy() {}
-    /// destructor
     virtual ~PaintingStrategy() {}
 
-    /**
-     * Draw the background of the ruler.
-     * @param ruler the ruler to draw on.
-     * @param painter the painter we can paint with.
-     */
     virtual QRectF drawBackground(const KoRulerPrivate *ruler, QPainter &painter) = 0;
 
-    /**
-     * Draw the indicators for text-tabs.
-     * @param ruler the ruler to draw on.
-     * @param painter the painter we can paint with.
-     */
     virtual void drawTabs(const KoRulerPrivate *ruler, QPainter &painter) = 0;
 
-    /**
-     * Draw the indicators for the measurements which typically are drawn every [unit].
-     * @param ruler the ruler to draw on.
-     * @param painter the painter we can paint with.
-     * @param rectangle
-     */
     virtual void drawMeasurements(const KoRulerPrivate *ruler, QPainter &painter, const QRectF &rectangle) = 0;
 
-    /**
-     * Draw the indicators for the indents of a text paragraph
-     * @param ruler the ruler to draw on.
-     * @param painter the painter we can paint with.
-     */
     virtual void drawIndents(const KoRulerPrivate *ruler, QPainter &painter) = 0;
 
-    /**
-     *returns the size suggestion for a ruler with this strategy.
-     */
     virtual QSize sizeHint() = 0;
 };
 
@@ -142,10 +116,10 @@ public:
 
     bool showTabs {false};
     bool relativeTabs {false};
-    bool tabMoved {false}; // set to true on first move of a selected tab
+    bool tabMoved {false};
     QList<KoRuler::Tab> tabs;
-    int originalIndex {0}; //index of selected tab before we started dragging it.
-    int currentIndex {0}; //index of selected tab or selected HotSpot - only valid when selected indicates tab or hotspot
+    int originalIndex {0};
+    int currentIndex {0};
     KoRuler::Tab deletedTab;
     qreal tabDistance {0.0};
 
@@ -171,11 +145,9 @@ public:
 
     RulerTabChooser *tabChooser {0};
 
-    // Cached painting strategies
     PaintingStrategy * normalPaintingStrategy {0};
     PaintingStrategy * distancesPaintingStrategy {0};
 
-    // Current painting strategy
     PaintingStrategy * paintingStrategy {0};
 
     KoRuler *ruler {0};
@@ -185,7 +157,6 @@ public:
     qreal pixelStep {0.0};
 
     qreal numberStepForUnit() const;
-    /// @return The rounding of value to the nearest multiple of stepValue
     qreal doSnapping(const qreal value) const;
     Selection selectionAtPosition(const QPoint & pos, int *selectOffset = 0);
     int hotSpotIndex(const QPoint & pos);

@@ -7,7 +7,6 @@
 #include "kis_debug.h"
 #include "kis_chunk_allocator.h"
 
-
 #define GAP_SIZE(low, high) ((high) - (low) > 0 ? (high) - (low) - 1 : 0)
 
 #define HAS_NEXT(list,iter) ((iter)!=(list).end())
@@ -16,7 +15,6 @@
 #define PEEK_NEXT(iter) (*(iter))
 #define PEEK_PREVIOUS(iter) (*((iter)-1))
 #define WRAP_PREVIOUS_CHUNK_DATA(iter) (KisChunk((iter)-1))
-
 
 KisChunkAllocator::KisChunkAllocator(quint64 slabSize, quint64 storeSize)
 {
@@ -72,7 +70,6 @@ KisChunk KisChunkAllocator::getChunk(quint64 size)
 
     qFatal("KisChunkAllocator: out of swap space");
 
-    // just let gcc be happy! :)
     return KisChunk(m_list.end());
 }
 
@@ -111,13 +108,6 @@ void KisChunkAllocator::freeChunk(KisChunk chunk)
     Q_ASSERT(chunk.position()->m_begin == chunk.begin());
     m_list.erase(chunk.position());
 }
-
-
-
-/**************************************************************/
-/*******             Debugging features                ********/
-/**************************************************************/
-
 
 void KisChunkAllocator::debugChunks()
 {

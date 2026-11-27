@@ -13,9 +13,6 @@
 
 #include <KisActionPlugin.h>
 
-/**
- * Dialog for converting between color models.
- */
 class ColorSpaceConversion : public KisActionPlugin
 {
     Q_OBJECT
@@ -29,4 +26,4 @@ private Q_SLOTS:
     void slotUnifyLayersColorSpace();
 };
 
-#endif // COLORSPACECONVERSION_H
+#endif

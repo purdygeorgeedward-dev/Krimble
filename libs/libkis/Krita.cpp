@@ -136,7 +136,6 @@ void Krita::setBatchmode(bool value)
     d->batchMode = value;
 }
 
-
 QList<Document *> Krita::documents() const
 {
     QList<Document *> ret;
@@ -292,7 +291,6 @@ QMap<QString, Resource*> Krita::resources(QString &type) const
     return resources;
 }
 
-
 QList<QDockWidget*> Krita::dockers() const
 {
     KisMainWindow *mainWindow = KisPart::instance()->currentMainwindow();
@@ -300,7 +298,6 @@ QList<QDockWidget*> Krita::dockers() const
     if (!mainWindow) return {};
     return mainWindow->dockWidgets();
 }
-
 
 QStringList Krita::recentDocuments() const
 {
@@ -402,13 +399,6 @@ Krita* Krita::instance()
     return s_instance;
 }
 
-/**
- * Scripter.fromVariant(variant)
- * variant is a QVariant
- * returns instance of QObject-subclass
- *
- * This is a helper method for PyQt because PyQt cannot cast a variant to a QObject or QWidget
- */
 QObject *Krita::fromVariant(const QVariant& v)
 {
 

@@ -14,19 +14,15 @@
 #include <lager/cursor.hpp>
 #include <lager/extra/qt.hpp>
 
-
 class PAINTOP_EXPORT KisSensorWithLengthModel : public QObject
 {
     Q_OBJECT
 public:
     KisSensorWithLengthModel(lager::cursor<KisSensorWithLengthData> data, QObject *parent);
 
-
-    // the state must be declared **before** any cursors or readers
     lager::cursor<KisSensorWithLengthData> m_data;
     LAGER_QT_CURSOR(int, length);
     LAGER_QT_CURSOR(bool, isPeriodic);
 };
 
-
-#endif // KISSENSORWITHLENGTHMODEL_H
+#endif

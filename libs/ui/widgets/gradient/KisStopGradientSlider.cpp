@@ -65,8 +65,20 @@ void KisStopGradientSlider::updateHandleSize()
 
 int KisStopGradientSlider::handleClickTolerance() const
 {
-    // the size of the default text!
+#ifdef Q_OS_ANDROID
+    return qMax(m_handleSize.width(), qRound(48.0 / qMax<qreal>(1.0, devicePixelRatioF())));
+#else
     return m_handleSize.width();
+#endif
+}
+
+int KisStopGradientSlider::krimbleDragThreshold() const
+{
+#ifdef Q_OS_ANDROID
+    return qMax(QApplication::startDragDistance(), qRound(36.0 / qMax<qreal>(1.0, devicePixelRatioF())));
+#else
+    return 2;
+#endif
 }
 
 void KisStopGradientSlider::setGradientResource(KoStopGradientSP gradient)
@@ -89,9 +101,7 @@ void KisStopGradientSlider::paintEvent(QPaintEvent*)
     const QRect previewRect = gradientStripeRect();
 
     if (m_gradient) {
-        // Gradient
         KisGradientWidgetsUtils::paintGradientBox(painter, m_gradient, previewRect);
-        // Stops
         painter.setRenderHint(QPainter::Antialiasing, true);
         const QRect handlesRect = this->handlesStripeRect();
         const bool hasFocus = this->hasFocus();
@@ -160,7 +170,6 @@ int findNearestHandle(qreal t, const qreal tolerance, const QList<KoGradientStop
     return result;
 }
 
-
 void KisStopGradientSlider::mousePressEvent(QMouseEvent *e)
 {
     if (!allowedClickRegion(handleClickTolerance()).contains(e->pos())) {
@@ -179,6 +188,9 @@ void KisStopGradientSlider::mousePressEvent(QMouseEvent *e)
 
     const int clickedStop = findNearestHandle(t, qreal(handleClickTolerance()) / handlesRect.width(), stops);
 
+    m_krimblePressPos = e->pos();
+    m_krimbleDragStarted = false;
+    m_krimbleTapToInsert = false;
     if (clickedStop >= 0) {
         if (m_selectedStop != clickedStop) {
             m_selectedStop = clickedStop;
@@ -186,8 +198,9 @@ void KisStopGradientSlider::mousePressEvent(QMouseEvent *e)
         }
         m_drag = true;
     } else {
-        insertStop(qBound(0.0, t, 1.0));
-        m_drag = true;
+        m_krimbleTapToInsert = true;
+        m_krimbleInsertT = qBound(0.0, t, 1.0);
+        m_drag = false;
     }
 
     updateHoveredStop(e->pos());
@@ -197,7 +210,15 @@ void KisStopGradientSlider::mousePressEvent(QMouseEvent *e)
 void KisStopGradientSlider::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_UNUSED(e);
+    if (m_krimbleTapToInsert) {
+        m_krimbleTapToInsert = false;
+        if ((e->pos() - m_krimblePressPos).manhattanLength() <= krimbleDragThreshold()) {
+            insertStop(m_krimbleInsertT);
+            Q_EMIT updateRequested();
+        }
+    }
     m_drag = false;
+    m_krimbleDragStarted = false;
     int previousHoveredStop = m_hoveredStop;
     updateHoveredStop(e->pos());
     if (previousHoveredStop != m_hoveredStop) {
@@ -223,6 +244,13 @@ void KisStopGradientSlider::mouseMoveEvent(QMouseEvent *e)
     int previousHoveredStop = m_hoveredStop;
     updateHoveredStop(e->pos());
 
+    if (m_krimbleTapToInsert && (e->pos() - m_krimblePressPos).manhattanLength() > krimbleDragThreshold()) {
+        m_krimbleTapToInsert = false;
+    }
+    if (m_drag && !m_krimbleDragStarted) {
+        if ((e->pos() - m_krimblePressPos).manhattanLength() <= krimbleDragThreshold()) return;
+        m_krimbleDragStarted = true;
+    }
     if (m_drag) {
         QList<KoGradientStop> stops = m_gradient->stops();
         const QRect augmentedRect = kisGrowRect(rect(), removeStopDistance);
@@ -259,7 +287,7 @@ void KisStopGradientSlider::mouseMoveEvent(QMouseEvent *e)
 
         m_gradient->setStops(stops);
         Q_EMIT sigSelectedStop(m_selectedStop);
-        
+
         Q_EMIT updateRequested();
     } else {
         if (previousHoveredStop != m_hoveredStop) {
@@ -279,7 +307,7 @@ void KisStopGradientSlider::mouseDoubleClickEvent(QMouseEvent *e)
     const QRect handlesRect = this->handlesStripeRect();
     const qreal t = (qreal(e->x()) - handlesRect.x()) / handlesRect.width();
     const QList<KoGradientStop> stops = m_gradient->stops();
-    
+
     if (qAbs(t - stops[m_selectedStop].position) < qreal(handleClickTolerance()) / handlesRect.width()) {
         chooseSelectedStopColor();
     }
@@ -532,7 +560,6 @@ void KisStopGradientSlider::chooseSelectedStopColor()
         connect(dialog, &QDialog::accepted, setColorFn);
         colorDialog = dialog;
     }
-    // common functionality
     connect(colorDialog, &QDialog::rejected, [stops, this]()
                                              {
                                                  m_gradient->setStops(stops);

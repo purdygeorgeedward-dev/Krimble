@@ -30,4 +30,4 @@ private:
     QColor m_darkColor;
 };
 
-#endif // KOCHECKERBOARDPAINTER_H
+#endif

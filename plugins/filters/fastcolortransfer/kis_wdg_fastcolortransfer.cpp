@@ -58,7 +58,6 @@ KisWdgFastColorTransfer::KisWdgFastColorTransfer(QWidget * parent) : KisConfigWi
     connect(m_widget->sldFade, SIGNAL(valueChanged(int)), this, SIGNAL(sigConfigurationItemChanged()));
 }
 
-
 KisWdgFastColorTransfer::~KisWdgFastColorTransfer()
 {
     delete m_widget;
@@ -189,10 +188,6 @@ KisPropertiesConfigurationSP KisWdgFastColorTransfer::configuration() const
     config->setProperty("hasSource", hasSource);
 
     if (!hasSource) {
-        // "None" source: PS uses the target image's own statistics here,
-        // meaningful mainly combined with Neutralize (remove the target's
-        // own color cast). processImpl() falls back to the target's own
-        // stats as the reference when hasSource is false.
         return config;
     }
 
@@ -207,7 +202,6 @@ KisPropertiesConfigurationSP KisWdgFastColorTransfer::configuration() const
 
     const int layerIndex = m_widget->cmbLayer->currentIndex();
     if (layerIndex <= 0) {
-        // "Merged" (or nothing selected yet) -- use the flattened projection.
         ref = sourceImage->projection();
     } else {
         KisNodeSP node = sourceImage->rootLayer()->firstChild();

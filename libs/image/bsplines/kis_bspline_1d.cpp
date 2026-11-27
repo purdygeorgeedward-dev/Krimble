@@ -29,8 +29,8 @@ KisBSpline1D::KisBSpline1D(float gridStart,
   : m_d(new Private)
 {
     m_gridStart = gridStart;
-    m_gridEnd = gridEnd/* + step*/;
-    m_numSamples = numSamples/* + 1*/;
+    m_gridEnd = gridEnd ;
+    m_numSamples = numSamples ;
 
     m_d->bc = bc;
     m_d->spline = 0;
@@ -57,7 +57,6 @@ void KisBSpline1D::initializeSplineImpl(const QVector<float> &values)
     bctype.lVal = 0.0;
     bctype.rVal = 0.0;
 
-
     m_d->spline =
         create_UBspline_1d_s(grid,
                              bctype,
@@ -66,10 +65,6 @@ void KisBSpline1D::initializeSplineImpl(const QVector<float> &values)
 
 float KisBSpline1D::value(float x) const
 {
-    /**
-     * The spline works for an open interval only, so include the last point
-     * explicitly
-     */
 
     if (x == m_gridEnd) {
         x -= x * std::numeric_limits<float>::epsilon();

@@ -16,4 +16,4 @@ namespace KisWidgetConnectionUtils
 void KRITAUI_EXPORT connectControl(KisCurveWidget *widget, QObject *source, const char *property);
 }
 
-#endif // KISCURVEWIDGETCONNECTIONHELPER_H
+#endif

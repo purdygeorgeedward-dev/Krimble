@@ -88,7 +88,7 @@ public:
 
     QString defaultProfile() const override
     {
-        return "sRGB-elle-V2-g10.icc";//this is a linear space, because 16bit is enough to only enjoy advantages of linear space
+        return "sRGB-elle-V2-g10.icc";
     }
 
     QList<KoColorProfileQuery> requiredConnectionProfiles(const KoColorProfile *profile) const override;

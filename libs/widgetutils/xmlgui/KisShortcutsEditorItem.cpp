@@ -17,12 +17,10 @@
 #include <QTreeWidgetItem>
 #include <kis_debug.h>
 
-
 KisShortcutsEditorItem::KisShortcutsEditorItem(QTreeWidgetItem *parent, QAction *action)
     : QTreeWidgetItem(parent, ActionItem)
     , m_action(action)
 {
-    // Filtering message requested by translators (scripting).
     m_id = m_action->objectName();
     m_actionNameInTable = i18nc("@item:intable Action name in shortcuts configuration",
                                 "%1", KLocalizedString::removeAcceleratorMarker(m_action->text()));
@@ -34,7 +32,6 @@ KisShortcutsEditorItem::KisShortcutsEditorItem(QTreeWidgetItem *parent, QAction 
     m_collator.setNumericMode(true);
     m_collator.setCaseSensitivity(Qt::CaseSensitive);
 
-    // qDebug() << "Adding new action" << m_id << "with shortcut" << keySequence(LocalPrimary).toString();
 }
 
 KisShortcutsEditorItem::~KisShortcutsEditorItem()
@@ -73,7 +70,6 @@ QVariant KisShortcutsEditorItem::data(int column, int role) const
     case Qt::WhatsThisRole:
         return m_action->whatsThis();
     case Qt::ToolTipRole:
-        // TODO: show command descriptions/tooltips in the shortcut editor
         return QVariant();
     case Qt::FontRole:
         if (column == Name && m_isNameBold) {
@@ -93,21 +89,18 @@ QVariant KisShortcutsEditorItem::data(int column, int role) const
         default:
             return false;
         }
-    //the following are custom roles, defined in this source file only
     case ShortcutRole:
         switch (column) {
         case LocalPrimary:
         case LocalAlternate:
             return QVariant::fromValue(keySequence(column));
         default:
-            // Column not valid for this role
             Q_ASSERT(false);
             return QVariant();
         }
 
     case DefaultShortcutRole: {
 
-        // Note: we are using the QMetaObject system to store this property.
         QList<QKeySequence> defaultShortcuts = m_action->property("defaultShortcuts").value<QList<QKeySequence> >();
 
         switch (column) {
@@ -116,7 +109,6 @@ QVariant KisShortcutsEditorItem::data(int column, int role) const
         case LocalAlternate:
             return QVariant::fromValue(alternateSequence(defaultShortcuts));
         default:
-            // Column not valid for this role
             Q_ASSERT(false);
             return QVariant();
         }
@@ -182,7 +174,6 @@ void KisShortcutsEditorItem::setKeySequence(uint column, const QKeySequence &seq
     updateModified();
 }
 
-//our definition of modified is "modified since the chooser was shown".
 void KisShortcutsEditorItem::updateModified()
 {
     if (m_oldLocalShortcut && *m_oldLocalShortcut == m_action->shortcuts()) {
@@ -213,10 +204,8 @@ bool KisShortcutsEditorItem::isModified(uint column) const
 
 void KisShortcutsEditorItem::undo()
 {
-    //dbgKrita << "Undoing changes for " << data(Name, Qt::DisplayRole).toString();
 
     if (m_oldLocalShortcut) {
-        // We only ever reset the active Shortcut
         m_action->setShortcuts(*m_oldLocalShortcut);
     }
 
@@ -225,7 +214,7 @@ void KisShortcutsEditorItem::undo()
 
 void KisShortcutsEditorItem::commit()
 {
-    if (m_oldLocalShortcut) { // || m_oldShapeGesture || m_oldRockerGesture) {
+    if (m_oldLocalShortcut) {
        dbgUI << "Committing changes for " << data(Name, Qt::DisplayRole).toString();
     }
 

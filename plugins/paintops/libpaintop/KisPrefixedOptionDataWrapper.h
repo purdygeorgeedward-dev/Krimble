@@ -9,12 +9,6 @@
 #include <QString>
 #include <kis_properties_configuration.h>
 
-/**
- * KisPrefixedOptionDataWrapper wraps an option data type
- * so that it would support prefixed loading/saving. That
- * is mostly used for masked brush features.
- */
-
 template <typename T>
 struct KisPrefixedOptionDataWrapper : public T
 {
@@ -50,4 +44,4 @@ struct KisPrefixedOptionDataWrapper : public T
     QString prefix;
 };
 
-#endif // KISPREFIXEDOPTIONDATAWRAPPER_H
+#endif

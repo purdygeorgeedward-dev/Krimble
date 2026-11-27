@@ -47,11 +47,9 @@ public class VideoEncoder {
 
     private static final String TAG = "krita.VideoEncoder";
 
-    // Keep these formats in sync with KisAndroidMediaEncoderRunnable!
     private static final int FORMAT_MP4_H264 = 0;
     private static final int FORMAT_WEBM_VP8 = 1;
     private static final int FORMAT_MP4_AV1 = 2;
-    // These statuses too!
     private static final int STATUS_OK = 0;
     private static final int STATUS_TIMEOUT = 1;
     private static final int STATUS_END_OF_STREAM = 2;
@@ -742,7 +740,6 @@ public class VideoEncoder {
                 videoFormat.setInteger(MediaFormat.KEY_BITRATE_MODE,
                         MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // Should be the default, but let's set it if supported.
                     videoFormat.setInteger(MediaFormat.KEY_PROFILE,
                             MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8);
                 }
@@ -755,9 +752,6 @@ public class VideoEncoder {
 
     private MediaFormat initializeAudioFormat(String audioMimeType) throws Exception {
         int pcmEncoding = getPcmEncodingForAudioFormatName(mAudioFormatName);
-        // Note that this doesn't necessarily actually result in a track with
-        // the given parameters! See the notes in the C++ code about only using
-        // known good parameters to actually get something useful here.
         MediaFormat audioFormat =
                 MediaFormat.createAudioFormat(audioMimeType, mAudioSampleRate, mAudioChannelCount);
         audioFormat.setInteger(MediaFormat.KEY_PCM_ENCODING, pcmEncoding);
@@ -905,7 +899,6 @@ public class VideoEncoder {
                 Log.w(TAG, "Failed to check software-only for codec " + codecInfo.getName());
             }
         }
-        // These are the built-in Android software encoders.
         String lowerName = codecInfo.getName().toLowerCase();
         return lowerName.startsWith("omx.google.") || lowerName.startsWith("c2.android.");
     }

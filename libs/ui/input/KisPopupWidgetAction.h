@@ -20,10 +20,6 @@
 #include "KisPopupWidgetInterface.h"
 class QMenu;
 
-
-/**
- * \brief Get the current tool's popup widget and display it.
- */
 class KisPopupWidgetAction : public QObject, public KisAbstractInputAction
 {
     Q_OBJECT
@@ -37,4 +33,4 @@ public:
     void end(QEvent *) override;
 };
 
-#endif // KIS_POPUP_WIDGET_ACTION_H
+#endif

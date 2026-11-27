@@ -110,9 +110,7 @@ KisDlgInternalColorSelector::KisDlgInternalColorSelector(QWidget *parent, KoColo
     connect(m_d->paletteChooser, SIGNAL(sigPaletteSelected(KoColorSetSP)), this, SLOT(slotChangePalette(KoColorSetSP)));
     connect(m_ui->cmbNameList, SIGNAL(sigColorSelected(KoColor)), SLOT(slotColorUpdated(KoColor)));
 
-    // For some bizarre reason, the modal dialog doesn't like having the colorset set, so let's not.
     if (config.paletteBox) {
-        //TODO: Add disable signal as well. Might be not necessary...?
         KConfigGroup cfg(KSharedConfig::openConfig()->group(""));
         QString paletteMd5 = cfg.readEntry("internal_selector_active_color_set_md5", QString());
         QString paletteName = cfg.readEntry("internal_selector_active_color_set", QString());
@@ -125,11 +123,6 @@ KisDlgInternalColorSelector::KisDlgInternalColorSelector(QWidget *parent, KoColo
         }
 
         if (!savedPal) {
-            /**
-             * We cannot use bestMatch() for fetching "Default" palette,
-             * since bestMatch() is allowed ot fetch resources from the
-             * disabled storages/bundles.
-             */
             KisResourceModel model(ResourceType::Palettes);
             auto foundResources = model.resourcesForName("Default");
             if (!foundResources.isEmpty()) {
@@ -144,8 +137,6 @@ KisDlgInternalColorSelector::KisDlgInternalColorSelector(QWidget *parent, KoColo
 
         if (savedPal) {
             m_d->paletteChooser->setCurrentItem(savedPal);
-            // slotChangePalette() will be automatically called by the connection
-            // of m_d->paletteChooser
         }
 
         connect(m_ui->paletteBox, SIGNAL(sigColorSelected(KoColor)), this,
@@ -177,7 +168,6 @@ KisDlgInternalColorSelector::KisDlgInternalColorSelector(QWidget *parent, KoColo
         m_d->hexColorInput->setToolTip(i18n("This is a hexcode input, for webcolors. It can only get colors in the sRGB space."));
     }
 
-    // KisScreenColorSampler is in the kritaui module, so dependency inversion is used to access it.
     m_ui->screenColorSamplerWidget->setLayout(new QHBoxLayout());
     if (s_screenColorSamplerFactory) {
         m_d->screenColorSampler = s_screenColorSamplerFactory(m_ui->screenColorSamplerWidget);
@@ -189,7 +179,7 @@ KisDlgInternalColorSelector::KisDlgInternalColorSelector(QWidget *parent, KoColo
         }
     }
 
-    m_d->compressColorChanges = new KisSignalCompressor(100 /* ms */, KisSignalCompressor::POSTPONE, this);
+    m_d->compressColorChanges = new KisSignalCompressor(100 , KisSignalCompressor::POSTPONE, this);
     connect(m_d->compressColorChanges, SIGNAL(timeout()), this, SLOT(endUpdateWithNewColor()));
 
     KGuiItem::assign(m_ui->buttonBox->button(QDialogButtonBox::Ok), KStandardGuiItem::ok());
@@ -207,15 +197,10 @@ KisDlgInternalColorSelector::~KisDlgInternalColorSelector()
 
 void KisDlgInternalColorSelector::slotColorUpdated(KoColor newColor)
 {
-    // not-so-nice solution: if someone calls this slot directly and that code was
-    // triggered by our compressor signal, our compressor is technically the sender()!
     if (sender() == m_d->compressColorChanges) {
         return;
     }
-    // Do not accept external updates while a color update Q_EMIT is pending;
-    // Note: Assumes external updates only come from parent(), a separate slot might be better
     if (m_d->allowUpdates || (QObject::sender() && QObject::sender() != this->parent())) {
-        // Enforce palette colors
         KConfigGroup group(KSharedConfig::openConfig(), "");
         if (group.readEntry("colorsettings/forcepalettecolors", false)) {
             newColor = m_ui->paletteBox->closestColor(newColor);
@@ -295,7 +280,6 @@ void KisDlgInternalColorSelector::reject()
 
 void KisDlgInternalColorSelector::updateAllElements(QObject *source)
 {
-    //update everything!!!
     if (source != m_ui->spinboxselector) {
         m_ui->spinboxselector->slotSetColor(m_d->currentColor);
     }
@@ -369,7 +353,6 @@ void KisDlgInternalColorSelector::endUpdateWithNewColor()
 
 void KisDlgInternalColorSelector::focusInEvent(QFocusEvent *)
 {
-    //setPreviousColor();
 }
 
 void KisDlgInternalColorSelector::slotFinishUp()

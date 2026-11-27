@@ -6,7 +6,6 @@
 #ifndef KOSNAPPROXY_H
 #define KOSNAPPROXY_H
 
-
 class KoSnapGuide;
 class KoShape;
 class KoPathSegment;
@@ -16,30 +15,21 @@ class KoCanvasBase;
 
 class QPointF;
 class QRectF;
-/**
- * This class provides access to different shape related snap targets to snap strategies.
- */
 class KRITAFLAKE_EXPORT KoSnapProxy
 {
 public:
     KoSnapProxy(KoSnapGuide *snapGuide);
 
-    /// returns list of points in given rectangle in document coordinates
     QList<QPointF> pointsInRect(const QRectF &rect, bool omitEditedShape);
 
-    /// returns list of shape in given rectangle in document coordinates
     QList<KoShape*> shapesInRect(const QRectF &rect, bool omitEditedShape = false);
 
-    /// returns list of points from given shape
     QList<QPointF> pointsFromShape(KoShape *shape);
 
-    /// returns list of points in given rectangle in document coordinates
     QList<KoPathSegment> segmentsInRect(const QRectF &rect, bool omitEditedShape);
 
-    /// returns list of all shapes
     QList<KoShape*> shapes(bool omitEditedShape = false);
 
-    /// returns canvas we are working on
     KoCanvasBase *canvas();
 
 private:

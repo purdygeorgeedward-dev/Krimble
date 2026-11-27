@@ -37,4 +37,4 @@ private:
     Private* const d;
 };
 
-#endif // KISTAGFILTERWIDGET_H
+#endif

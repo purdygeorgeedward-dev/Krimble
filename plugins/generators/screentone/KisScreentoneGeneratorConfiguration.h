@@ -27,13 +27,11 @@ enum KisScreentonePatternType
 
 enum KisScreentoneShapeType
 {
-    // Dots
     KisScreentoneShapeType_RoundDots,
     KisScreentoneShapeType_EllipseDotsLegacy,
     KisScreentoneShapeType_DiamondDots,
     KisScreentoneShapeType_SquareDots,
     KisScreentoneShapeType_EllipseDots,
-    // Lines
     KisScreentoneShapeType_StraightLines = 0,
     KisScreentoneShapeType_SineWaveLines,
     KisScreentoneShapeType_TriangularWaveLines,
@@ -129,7 +127,7 @@ public:
     int shape() const;
     int interpolation() const;
     int equalizationMode() const;
-    
+
     KoColor foregroundColor() const;
     KoColor backgroundColor() const;
     int foregroundOpacity() const;
@@ -161,7 +159,7 @@ public:
     void setShape(int newShape);
     void setInterpolation(int newInterpolation);
     void setEqualizationMode(int newEqualizationMode);
-    
+
     void setForegroundColor(const KoColor &newForegroundColor);
     void setBackgroundColor(const KoColor &newBackgroundColor);
     void setForegroundOpacity(int newForegroundOpacity);

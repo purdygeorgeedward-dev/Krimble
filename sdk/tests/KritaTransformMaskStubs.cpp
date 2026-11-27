@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KritaTransformMaskStubs.h"
 
 #include "kis_pointer_utils.h"

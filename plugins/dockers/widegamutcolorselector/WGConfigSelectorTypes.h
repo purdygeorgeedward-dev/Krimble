@@ -19,4 +19,4 @@ extern const NumericSetting<KisVisualColorSelector::RenderMode> selectorRenderMo
 
 }
 
-#endif // WGCONFIGSELECTORTYPES_H
+#endif

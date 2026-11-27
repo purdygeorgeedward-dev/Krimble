@@ -152,7 +152,6 @@ void TestPathSegment::segmentSplitAt()
 
 void TestPathSegment::segmentIntersections()
 {
-    // simple line intersections
     {
         KoPathSegment s1(QPointF(0, 0), QPointF(100, 0));
         KoPathSegment s2(QPointF(50, -50), QPointF(50, 50));
@@ -165,7 +164,6 @@ void TestPathSegment::segmentIntersections()
         QList<QPointF> isects = s1.intersections(s2);
         QCOMPARE(isects.count(), 1);
     }
-    // curve intersections
     {
         KoPathSegment s1(QPointF(0, 0), QPointF(50, 50), QPointF(100, -50), QPointF(150, 0));
         KoPathSegment s2(QPointF(75, 75), QPointF(125, 25), QPointF(25, -25), QPointF(75, -75));
@@ -189,37 +187,31 @@ void TestPathSegment::segmentIntersections()
 void TestPathSegment::segmentLength()
 {
     {
-        // line segment
         KoPathSegment s(QPointF(0, 0), QPointF(100, 0));
         QCOMPARE(s.length(), 100.0);
     }
     {
-        // quadric curve segment
         KoPathSegment s1(QPointF(0, 0), QPointF(50, 0), QPointF(100, 0));
         QCOMPARE(s1.length(), 100.0);
         KoPathSegment s2(QPointF(0, 0), QPointF(50, 50), QPointF(100, 0));
         QPainterPath p2;
         p2.moveTo(QPointF(0, 0));
         p2.quadTo(QPointF(50, 50), QPointF(100, 0));
-        // verify that difference is less than 0.5 percent of the length
         QVERIFY(s2.length() - p2.length() < 0.005 * s2.length(0.01));
     }
     {
-        // cubic curve segment
         KoPathSegment s1(QPointF(0, 0), QPointF(25, 0), QPointF(75, 0), QPointF(100, 0));
         QCOMPARE(s1.length(), 100.0);
         KoPathSegment s2(QPointF(0, 0), QPointF(25, 50), QPointF(75, 50), QPointF(100, 0));
         QPainterPath p2;
         p2.moveTo(QPointF(0, 0));
         p2.cubicTo(QPointF(25, 50), QPointF(75, 50), QPointF(100, 0));
-        // verify that difference is less than 0.5 percent of the length
         QVERIFY(s2.length() - p2.length() < 0.005 * s2.length(0.01));
     }
 }
 
 void TestPathSegment::segmentFlatness()
 {
-    // line segments
     {
         KoPathSegment s1(QPointF(0, 0), QPointF(100, 0));
         QVERIFY(s1.isFlat());
@@ -228,7 +220,6 @@ void TestPathSegment::segmentFlatness()
         KoPathSegment s3(QPointF(0, 0), QPointF(100, 100));
         QVERIFY(s3.isFlat());
     }
-    // quadratic segments
     {
         KoPathSegment s1(QPointF(0, 0), QPointF(50, 0), QPointF(100, 0));
         QVERIFY(s1.isFlat());
@@ -243,7 +234,6 @@ void TestPathSegment::segmentFlatness()
         KoPathSegment s6(QPointF(0, 0), QPointF(0, 100), QPointF(100, 100));
         QVERIFY(! s6.isFlat());
     }
-    // cubic segments
     {
         KoPathSegment s1(QPointF(0, 0), QPointF(25, 0), QPointF(75, 0), QPointF(100, 0));
         QVERIFY(s1.isFlat());
@@ -262,7 +252,6 @@ void TestPathSegment::segmentFlatness()
 
 void TestPathSegment::nearestPoint()
 {
-    // line segments
     {
         KoPathSegment s1(QPointF(0, 0), QPointF(100, 0));
         QCOMPARE( s1.nearestPoint( QPointF(0,0) ),    0.0 );
@@ -278,7 +267,6 @@ void TestPathSegment::nearestPoint()
         QCOMPARE( s1.nearestPoint( s1.pointAt( 0.25 ) ),  0.25 );
         QCOMPARE( s1.nearestPoint( s1.pointAt( 0.75 ) ),  0.75 );
     }
-    // quadratic segments
     {
         KoPathSegment s1(QPointF(0, 0), QPointF(50, 0), QPointF(100, 0));
         QCOMPARE( s1.nearestPoint( QPointF(0,0) ),    0.0 );
@@ -301,9 +289,7 @@ void TestPathSegment::nearestPoint()
         QCOMPARE( s2.nearestPoint( s2.pointAt( 0.75 ) ), 0.75 );
         QCOMPARE( s2.nearestPoint( s2.pointAt( 1.0 ) ), 1.0 );
     }
-    // cubic segments
     {
-        // a flat cubic bezier
         KoPathSegment s1(QPointF(0, 0), QPointF(25, 0), QPointF(75, 0), QPointF(100, 0));
         QCOMPARE( s1.nearestPoint( QPointF(0,0) ),    0.0 );
         QCOMPARE( s1.nearestPoint( QPointF(-20,0) ),  0.0 );
@@ -329,7 +315,6 @@ void TestPathSegment::nearestPoint()
 
 void TestPathSegment::paramAtLength()
 {
-    // line segment
     {
         KoPathSegment s1(QPointF(0,0), QPointF(100,0));
         QCOMPARE(s1.paramAtLength(0), 0.0);
@@ -337,17 +322,13 @@ void TestPathSegment::paramAtLength()
         QCOMPARE(s1.paramAtLength(50.0), 0.5);
         QCOMPARE(s1.paramAtLength(120.0), 1.0);
     }
-    // quadratic segments
     {
-        // a flat quadratic bezier
         KoPathSegment s1(QPointF(0, 0), QPointF(50, 0), QPointF(100, 0));
         QCOMPARE(s1.paramAtLength(0), 0.0);
         QCOMPARE(s1.paramAtLength(100.0), 1.0);
         QCOMPARE(s1.paramAtLength(120.0), 1.0);
     }
-    // cubic segments
     {
-        // a flat cubic bezier
         KoPathSegment s1(QPointF(0, 0), QPointF(25, 0), QPointF(75, 0), QPointF(100, 0));
         QCOMPARE(s1.paramAtLength(0), 0.0);
         QCOMPARE(s1.paramAtLength(100.0), 1.0);

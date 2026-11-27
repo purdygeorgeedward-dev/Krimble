@@ -22,11 +22,9 @@
 #include "kis_painter.h"
 #include "KisRegion.h"
 
-//#define DEBUG_PAINTING_POLYGONS
-
 #ifdef DEBUG_PAINTING_POLYGONS
 #include <QPainter>
-#endif /* DEBUG_PAINTING_POLYGONS */
+#endif
 
 namespace GridIterationTools {
 
@@ -94,9 +92,6 @@ struct CellOp
     inline void nextLine() {
         std::swap(prevLinePoints, currLinePoints);
 
-        // we are erasing elements for not freeing the occupied
-        // memory, which is more efficient since we are going to fill
-        // the vector again
         currLinePoints.erase(currLinePoints.begin(), currLinePoints.end());
     }
 
@@ -173,11 +168,6 @@ struct PaintDevicePolygonOp
 
     ~PaintDevicePolygonOp()
     {
-        /**
-         * When setCanMergeRects() is set to true, the caller should
-         * call finalize() to process all the postponed rects, which
-         * would clear the vector
-         */
         KIS_SAFE_ASSERT_RECOVER_NOOP(m_rectsToCopy.isEmpty());
     }
 
@@ -191,11 +181,6 @@ struct PaintDevicePolygonOp
         QRect boundRect = areaToCopy;
         KisSequentialIterator dstIt(m_dstDev, boundRect);
         KisSequentialIterator srcIt(m_srcDev, boundRect);
-
-        // this can possibly be optimized with scanlining the polygon
-        // (use intersectLineConvexPolygon to get a line at every height)
-        // but it doesn't matter much because in the vast majority of cases
-        // it should go straight to the rect area copying
 
         while (dstIt.nextPixel()  && srcIt.nextPixel()) {
             memcpy(dstIt.rawData(), srcIt.oldRawData(), m_dstDev->pixelSize());
@@ -218,7 +203,6 @@ struct PaintDevicePolygonOp
 
     void operator() (const QPolygonF &srcPolygon, const QPolygonF &dstPolygon, const QPolygonF &clipDstPolygon) {
 #ifdef DEBUG_PAINTING_POLYGONS
-        //m_rectId++;
 #endif
         QRect boundRect = clipDstPolygon.boundingRect().toAlignedRect();
         if (boundRect.isEmpty()) return;
@@ -233,12 +217,7 @@ struct PaintDevicePolygonOp
             return;
         }
 
-
-        // provess previous rects so they are all processed
-        // in the same order as without any performance improvements
-        // (according to the grid processing order)
         copyPreviousRects();
-
 
         KisSequentialIterator dstIt(m_dstDev, boundRect);
         KisRandomSubAccessorSP srcAcc = m_srcDev->createRandomSubAccessor();
@@ -248,11 +227,6 @@ struct PaintDevicePolygonOp
         int pixelId = 0;
 #endif
 
-        /**
-         * We need to make sure that the destination polygon is not too small,
-         * otherwise even small rounding will send the src-accessor into
-         * infinity
-         */
         if (interp.isValid(0.1)) {
             int y = boundRect.top();
             interp.setY(y);
@@ -271,13 +245,6 @@ struct PaintDevicePolygonOp
 
                     interp.setX(srcPoint.x());
                     QPointF dstPoint = interp.getValue();
-
-                    // brain-blowing part:
-                    //
-                    // since the interpolator does the inverted
-                    // transformation we read data from "dstPoint"
-                    // (which is non-transformed) and write it into
-                    // "srcPoint" (which is transformed position)
 
                     srcAcc->moveTo(dstPoint);
                     quint8* rawData = dstIt.rawData();
@@ -324,12 +291,6 @@ struct PaintDevicePolygonOp
         copyPreviousRects();
     }
 
-    /**
-     * IMPORTANT: When setCanMergeRects() is set to `true`,
-     * the caller should calls finalize() in the end of
-     * the processing action to actually copy all the lazily
-     * postponed rects.
-     */
     inline void setCanMergeRects(bool newCanMergeRects) {
         m_canMergeRects = newCanMergeRects;
     }
@@ -367,11 +328,6 @@ struct QImagePolygonOp
 
     ~QImagePolygonOp()
     {
-        /**
-         * When setCanMergeRects() is set to true, the caller should
-         * call finalize() to process all the postponed rects, which
-         * would clear the vector
-         */
         KIS_SAFE_ASSERT_RECOVER_NOOP(m_rectsToCopy.isEmpty());
     }
 
@@ -385,16 +341,12 @@ struct QImagePolygonOp
             return;
         }
 
-        // only handling saved offsets
         QRect srcArea = areaToCopy.translated(-m_srcImageOffset.toPoint());
         QRect dstArea = areaToCopy.translated(-m_dstImageOffset.toPoint());
 
         srcArea = srcArea.intersected(m_srcImageRect);
         dstArea = dstArea.intersected(m_dstImageRect);
 
-        // it might look pointless but it cuts off unneeded areas on both rects based on where they end up
-        // since *I know* they are the same rectangle before translation
-        // TODO: I'm pretty sure this logic is correct, but let's check it when I'm less sleepy
         QRect srcAreaUntranslated = srcArea.translated(m_srcImageOffset.toPoint());
         QRect dstAreaUntranslated = dstArea.translated(m_dstImageOffset.toPoint());
 
@@ -434,8 +386,6 @@ struct QImagePolygonOp
             return;
         }
 
-        // provess previous rects so they are all processed
-        // in the same order as without any performance improvements
         copyPreviousRects();
 
         KisFourPointInterpolatorBackward interp(srcPolygon, dstPolygon);
@@ -449,9 +399,6 @@ struct QImagePolygonOp
 
                     interp.setX(srcPoint.x());
                     QPointF dstPoint = interp.getValue();
-
-                    // about srcPoint/dstPoint hell please see a
-                    // comment in PaintDevicePolygonOp::operator() ()
 
                     srcPoint -= m_dstImageOffset;
                     dstPoint -= m_srcImageOffset;
@@ -476,9 +423,8 @@ struct QImagePolygonOp
         gc.drawPolygon(clipDstPolygon.translated(-m_dstImageOffset));
 
         gc.setBrush(Qt::blue);
-        //gc.drawPolygon(dstPolygon.translated(-m_dstImageOffset));
 
-#endif /* DEBUG_PAINTING_POLYGONS */
+#endif
 
     }
 
@@ -498,12 +444,6 @@ struct QImagePolygonOp
         copyPreviousRects();
     }
 
-    /**
-     * IMPORTANT: When setCanMergeRects() is set to `true`,
-     * the caller should calls finalize() in the end of
-     * the processing action to actually copy all the lazily
-     * postponed rects.
-     */
     inline void setCanMergeRects(bool canMergeRects) {
         m_canMergeRects = canMergeRects;
     }
@@ -523,16 +463,6 @@ private:
     QVector<QRect> m_rectsToCopy;
 };
 
-/*************************************************************/
-/*      Iteration through precalculated grid                 */
-/*************************************************************/
-
-/**
- *    A-----B         The polygons will be in the following order:
- *    |     |
- *    |     |         polygon << A << B << D << C;
- *    C-----D
- */
 inline QVector<int> calculateCellIndexes(int col, int row, const QSize &gridSize)
 {
     const int tl = col + row * gridSize.width();
@@ -616,18 +546,6 @@ inline QList<QRectF> cutOutSubgridFromBounds(QRect subGrid, QRect srcBounds, con
     QRectF cutOut = QRectF(topLeftReal, bottomRightReal);
 
     QList<QRectF> response;
-    // *-----------*
-    // |    top    |
-    // |-----------|
-    // | l |xxx| r |
-    // | e |xxx| i |
-    // | f |xxx| g |
-    // | t |xxx| h |
-    // |   |xxx| t |
-    // |-----------|
-    // |   bottom  |
-    // *-----------*
-
 
     QRectF top = QRectF(srcBounds.topLeft(), QPointF(srcBounds.right() + 1, topLeftReal.y()));
     QRectF bottom = QRectF(QPointF(srcBounds.left(), bottomRightReal.y() + 1), srcBounds.bottomRight() + QPointF(1, 1));
@@ -643,9 +561,6 @@ inline QList<QRectF> cutOutSubgridFromBounds(QRect subGrid, QRect srcBounds, con
 
 }
 
-
-
-
 template <class IndexesOp>
 bool getOrthogonalPointApproximation(const QPoint &cellPt,
                                 const QVector<QPointF> &originalPoints,
@@ -657,25 +572,21 @@ bool getOrthogonalPointApproximation(const QPoint &cellPt,
     QVector<Private::PointExtension> extensionPoints;
     Private::PointExtension ext;
 
-    // left
     if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(-1, 0))) >= 0 &&
         (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(-2, 0))) >= 0) {
 
         extensionPoints << ext;
     }
-    // top
     if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(0, -1))) >= 0 &&
         (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(0, -2))) >= 0) {
 
         extensionPoints << ext;
     }
-    // right
     if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(1, 0))) >= 0 &&
         (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(2, 0))) >= 0) {
 
         extensionPoints << ext;
     }
-    // bottom
     if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(0, 1))) >= 0 &&
         (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(0, 2))) >= 0) {
 
@@ -683,25 +594,21 @@ bool getOrthogonalPointApproximation(const QPoint &cellPt,
     }
 
     if (extensionPoints.isEmpty()) {
-        // top-left
         if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(-1, -1))) >= 0 &&
             (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(-2, -2))) >= 0) {
 
             extensionPoints << ext;
         }
-        // top-right
         if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(1, -1))) >= 0 &&
             (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(2, -2))) >= 0) {
 
             extensionPoints << ext;
         }
-        // bottom-right
         if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(1, 1))) >= 0 &&
             (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(2, 2))) >= 0) {
 
             extensionPoints << ext;
         }
-        // bottom-left
         if ((ext.near = indexesOp.tryGetValidIndex(cellPt + QPoint(-1, 1))) >= 0 &&
             (ext.far = indexesOp.tryGetValidIndex(cellPt + QPoint(-2, 2))) >= 0) {
 
@@ -775,7 +682,6 @@ struct IncompletePolygonPolicy {
                                                     &dstPoint);
 
                 if (!result) {
-                    //dbgKrita << "*NOT* found any valid point" << allSrcPoints[pointToIndex(cellPt)] << "->" << ppVar(pt);
                     break;
                 } else {
                     srcPolygon << srcPoint;
@@ -863,14 +769,6 @@ struct RegularGridIndexesOp {
     QSize m_gridSize;
 };
 
-/**
- * There is a weird problem in fetching correct bounds of the polygon.
- * If the rightmost (bottommost) point of the polygon is integral, then
- * QRectF() will end exactly on it, but when converting into QRect the last
- * point will not be taken into account. It happens due to the difference
- * between center-point/topleft-point point representation. In many cases
- * the latter is expected, but we don't work with it in Qt/Krita.
- */
 inline void adjustAlignedPolygon(QPolygonF &polygon)
 {
     static const qreal eps = 1e-5;
@@ -907,9 +805,7 @@ bool canProcessRectsInRandomOrder(IndexesOp &indexesOp, const QVector<QPointF> &
                 dstPolygon << transformedPoints[index];
             }
 
-
             adjustAlignedPolygon(dstPolygon);
-
 
             if (!KisAlgebra2D::isPolygonTrulyConvex(dstPolygon)) {
                 return false;
@@ -919,8 +815,6 @@ bool canProcessRectsInRandomOrder(IndexesOp &indexesOp, const QVector<QPointF> &
     }
     return true;
 }
-
-
 
 template <template <class PolygonOp, class IndexesOp> class IncompletePolygonPolicy,
           class PolygonOp,
@@ -946,9 +840,7 @@ void iterateThroughGrid(PolygonOp &polygonOp,
 {
     QVector<int> polygonPoints(4);
     QPoint startPoint = subGrid.topLeft();
-    QPoint endPoint = subGrid.bottomRight(); // it's weird but bottomRight on QRect point does give us one unit of margin on both x and y
-    // when start is on (0, 0), and size is (500, 500), bottomRight is on (499, 499)
-    // but remember that it also only needs a top left corner of the polygon
+    QPoint endPoint = subGrid.bottomRight();
 
     KIS_SAFE_ASSERT_RECOVER(startPoint.x() >= 0 && startPoint.y() >= 0 && endPoint.x() <= gridSize.width() - 1 && endPoint.y() <= gridSize.height() - 1) {
         startPoint = QPoint(qMax(startPoint.x(), 0), qMax(startPoint.y(), 0));
@@ -992,4 +884,4 @@ void iterateThroughGrid(PolygonOp &polygonOp,
 
 }
 
-#endif /* __KIS_GRID_INTERPOLATION_TOOLS_H */
+#endif

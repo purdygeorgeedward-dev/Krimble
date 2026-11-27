@@ -28,8 +28,6 @@
 #ifndef RSLIDERSPINBOX_H
 #define RSLIDERSPINBOX_H
 
-// Qt includes
-
 #include <QWidget>
 #include <QString>
 #include <QRect>
@@ -43,9 +41,6 @@ class RAbstractSliderSpinBoxPrivate;
 class RSliderSpinBoxPrivate;
 class RDoubleSliderSpinBoxPrivate;
 
-/**
- * TODO: when inactive, also show the progress bar part as inactive!
- */
 class RAbstractSliderSpinBox : public QWidget
 {
     Q_OBJECT
@@ -103,8 +98,6 @@ protected:
     RAbstractSliderSpinBoxPrivate* const d_ptr;
 };
 
-// ---------------------------------------------------------------------------------
-
 class RSliderSpinBox : public RAbstractSliderSpinBox
 {
     Q_OBJECT
@@ -142,8 +135,6 @@ protected:
     void setInternalValue(int value) override;
 };
 
-// ---------------------------------------------------------------------------------
-
 class RDoubleSliderSpinBox : public RAbstractSliderSpinBox
 {
     Q_OBJECT
@@ -178,6 +169,6 @@ protected:
     void setInternalValue(int val) override;
 };
 
-}  // namespace KDcrawIface
+}
 
-#endif // RSLIDERSPINBOX_H
+#endif

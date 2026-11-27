@@ -11,7 +11,6 @@
 
 #include "kis_tool_transform.h"
 
-
 #include <math.h>
 #include <limits>
 
@@ -128,10 +127,9 @@ KisToolTransform::KisToolTransform(KoCanvasBase * canvas)
     liquifyAction = new KisAction(i18nc("Liquify Transform Tab Label", "Liquify"));
     meshAction = new KisAction(i18nc("Mesh Transform Tab Label", "Mesh"));
     cageAction = new KisAction(i18nc("Cage Transform Tab Label", "Cage"));
-    freeTransformAction = new KisAction(i18nc("Free Transform Tab Label", "Free"));
+    freeTransformAction = new KisAction(i18nc("Free Transform Tab Label", "Scale"));
     perspectiveAction = new KisAction(i18nc("Perspective Transform Tab Label", "Perspective"));
 
-    // extra actions for free transform that are in the tool options
     mirrorHorizontalAction = new KisAction(i18n("Mirror Horizontal"));
     mirrorVerticalAction = new KisAction(i18n("Mirror Vertical"));
     rotateNinetyCWAction = new KisAction(i18n("Rotate 90 degrees Clockwise"));
@@ -228,11 +226,6 @@ void KisToolTransform::imageTooBigRequested(bool value)
 void KisToolTransform::convexHullCalculationRequested()
 {
     if (m_strokeId && !m_transaction.rootNodes().isEmpty()) {
-        /**
-         * Free transform strategy issues the recalculation request every time
-         * the user performs a bounds rotation action, so we should skip actual
-         * recalculation, when it is not necessary anymore
-         */
 
         if (m_transaction.convexHullHasBeenRequested()) {
             return;
@@ -251,12 +244,6 @@ void KisToolTransform::slotConvexHullCalculated(QPolygon hull, void *strokeStrat
 {
     if (!m_strokeId || strokeStrategyCookie != m_strokeStrategyCookie) return;
     QPolygonF hullF = hull;
-    /**
-     * Only use the convex hull if it matches the original bounding rect.
-     * When we skip setConvexHull() call, nothing serious happens, except that
-     * rotatted bounds are rotated around the entire clip rect, not actual
-     * clip's data.
-     */
     if (hullF.boundingRect() == m_transaction.originalRect()) {
         m_transaction.setConvexHull(hullF);
         currentStrategy()->externalConfigChanged();
@@ -280,7 +267,7 @@ KisTransformStrategyBase* KisToolTransform::currentStrategy() const
         return m_liquifyStrategy.data();
     } else if (m_currentArgs.mode() == ToolTransformArgs::MESH) {
         return m_meshStrategy.data();
-    } else /* if (m_currentArgs.mode() == ToolTransformArgs::PERSPECTIVE_4POINT) */ {
+    } else {
         return m_perspectiveStrategy.data();
     }
 }
@@ -299,7 +286,6 @@ void KisToolTransform::paint(QPainter& gc, const KoViewConverter &converter)
     currentStrategy()->setDecorationThickness(decorationThickness());
     currentStrategy()->paint(gc, m_canvas->displayRendererInterface());
 
-
     if (!m_cursorOutline.isEmpty()) {
         QPainterPath mappedOutline =
             KisTransformUtils::imageToFlakeTransform(
@@ -317,7 +303,6 @@ void KisToolTransform::setFunctionalCursor()
     if (!m_strokeId) {
         useCursor(KisCursor::pointingHandCursor());
     } else if (m_strokeId && m_transaction.rootNodes().isEmpty()) {
-        // we are in the middle of stroke initialization
         useCursor(KisCursor::waitCursor());
     } else {
         useCursor(currentStrategy()->getCurrentCursor());
@@ -343,7 +328,6 @@ void KisToolTransform::cursorOutlineUpdateRequested(const QPointF &imagePos)
     }
 
     if (!canvasUpdateRect.isEmpty()) {
-        // grow rect a bit to follow interpolation fuzziness
         canvasUpdateRect = kisGrowRect(canvasUpdateRect, 2);
         m_canvas->updateCanvas(canvasUpdateRect);
     }
@@ -429,7 +413,6 @@ QMenu* KisToolTransform::popupActionsMenu()
         m_contextMenu->clear();
 
         m_contextMenu->addSection(i18n("Transform Tool Actions"));
-        // add a quick switch to different transform types
         m_contextMenu->addAction(freeTransformAction);
         m_contextMenu->addAction(perspectiveAction);
         m_contextMenu->addAction(warpAction);
@@ -437,7 +420,6 @@ QMenu* KisToolTransform::popupActionsMenu()
         m_contextMenu->addAction(liquifyAction);
         m_contextMenu->addAction(meshAction);
 
-        // extra options if free transform is selected
         if (transformMode() == FreeTransformMode) {
             m_contextMenu->addSeparator();
             m_contextMenu->addAction(mirrorHorizontalAction);
@@ -512,10 +494,6 @@ void KisToolTransform::endAlternateAction(KoPointerEvent *event, AlternateAction
 
 void KisToolTransform::mousePressEvent(KoPointerEvent *event)
 {
-    // When using touch drawing, we only ever receive move events after the
-    // finger has pressed down. This confuses the strategies greatly, since they
-    // expect to receive a hover to tell which anchor the user wants to
-    // manipulate or similar. So in this case, we send an artificial hover.
     if (event->isTouchEvent() && this->mode() != KisTool::PAINT_MODE) {
         currentStrategy()->hoverActionCommon(event);
         setFunctionalCursor();
@@ -796,8 +774,6 @@ void KisToolTransform::initThumbnailImage(KisPaintDeviceSP previewDevice)
         }
     }
 
-    // init both strokes since the thumbnail is initialized only once
-    // during the stroke
     m_freeStrategy->setThumbnailImage(origImg, thumbToImageTransform);
     m_perspectiveStrategy->setThumbnailImage(origImg, thumbToImageTransform);
     m_warpStrategy->setThumbnailImage(origImg, thumbToImageTransform);
@@ -822,8 +798,6 @@ void KisToolTransform::activate(const QSet<KoShape*> &shapes)
 {
     KisTool::activate(shapes);
 
-    /// we cannot initialize the setting in the constructor, because
-    /// factory() is not yet initialized, so we cannot get toolId()
     slotGlobalConfigChanged();
 
     m_actionConnections.addConnection(action("movetool-move-up"), SIGNAL(triggered(bool)),
@@ -919,11 +893,9 @@ void KisToolTransform::startStroke(ToolTransformArgs::TransformMode mode, bool f
     KisPaintDeviceSP externalSource = m_externalSourceForNextActivation;
     m_externalSourceForNextActivation.clear();
 
-    // set up and null checks before we do anything
     KisResourcesSnapshotSP resources =
             new KisResourcesSnapshot(image(), currentNode(), this->canvas()->resourceManager(), 0, selectedNodes(), 0);
     KisNodeList rootNodes = resources->selectedNodes();
-    //Filter out any nodes that might be children of other selected nodes so they aren't used twice
     KisLayerUtils::filterMergeableNodes(rootNodes, true);
     KisSelectionSP selection = resources->activeSelection();
 
@@ -958,7 +930,6 @@ void KisToolTransform::startStroke(ToolTransformArgs::TransformMode mode, bool f
             return;
         }
 
-        // some layer types cannot be transformed. Give a message and return if a user tries it
         if (currentNode->inherits("KisColorizeMask") ||
             currentNode->inherits("KisFileLayer") ||
             currentNode->inherits("KisCloneLayer")) {
@@ -983,7 +954,6 @@ void KisToolTransform::startStroke(ToolTransformArgs::TransformMode mode, bool f
         KisNodeSP impossibleMask =
             KisLayerUtils::recursiveFindNode(currentNode,
             [currentNode] (KisNodeSP node) {
-                // we can process transform masks of the first level
                 if (node == currentNode || node->parent() == currentNode) return false;
 
                 return node->inherits("KisTransformMask") && node->visible(true);
@@ -998,10 +968,6 @@ void KisToolTransform::startStroke(ToolTransformArgs::TransformMode mode, bool f
             return;
         }
 
-        /**
-         * When working with transform mask, selections are not
-         * taken into account.
-         */
         if (selection && dynamic_cast<KisTransformMask*>(currentNode.data())) {
             kisCanvas->viewManager()->
                 showFloatingMessage(
@@ -1012,7 +978,6 @@ void KisToolTransform::startStroke(ToolTransformArgs::TransformMode mode, bool f
             selection = 0;
         }
     }
-    // Overlay preview is never used when transforming an externally provided image
     m_currentlyUsingOverlayPreviewStyle = m_preferOverlayPreviewStyle && !externalSource;
 
     KisStrokeStrategy *strategy = 0;
@@ -1024,10 +989,6 @@ void KisToolTransform::startStroke(ToolTransformArgs::TransformMode mode, bool f
         connect(transformStrategy, SIGNAL(sigConvexHullCalculated(QPolygon, void*)), SLOT(slotConvexHullCalculated(QPolygon, void*)));
         strategy = transformStrategy;
 
-        // save unique identifier of the stroke so we could
-        // recognize it when sigTransactionGenerated() is
-        // received (theoretically, the user can start two
-        // strokes at the same time, if he is quick enough)
         m_strokeStrategyCookie = transformStrategy;
 
     } else {
@@ -1036,10 +997,6 @@ void KisToolTransform::startStroke(ToolTransformArgs::TransformMode mode, bool f
         connect(transformStrategy, SIGNAL(sigConvexHullCalculated(QPolygon, void*)), SLOT(slotConvexHullCalculated(QPolygon, void*)));
         strategy = transformStrategy;
 
-        // save unique identifier of the stroke so we could
-        // recognize it when sigTransactionGenerated() is
-        // received (theoretically, the user can start two
-        // strokes at the same time, if he is quick enough)
         m_strokeStrategyCookie = transformStrategy;
     }
 
@@ -1177,17 +1134,15 @@ void KisToolTransform::slotTrackerChangedConfig(KisToolChangesTrackerDataSP stat
 QWidget* KisToolTransform::createOptionWidget()
 {
     if (!m_canvas) return 0;
-     
+
     m_optionsWidget = new KisToolTransformConfigWidget(&m_transaction, m_canvas, 0);
     Q_CHECK_PTR(m_optionsWidget);
     m_optionsWidget->setObjectName(toolId() + " option widget");
 
-    // See https://bugs.kde.org/show_bug.cgi?id=316896
     QWidget *specialSpacer = new QWidget(m_optionsWidget);
     specialSpacer->setObjectName("SpecialSpacer");
     specialSpacer->setFixedSize(0, 0);
     m_optionsWidget->layout()->addWidget(specialSpacer);
-
 
     connect(m_optionsWidget, SIGNAL(sigConfigChanged(bool)),
             this, SLOT(slotUiChangedConfig(bool)));
@@ -1213,14 +1168,12 @@ QWidget* KisToolTransform::createOptionWidget()
     connect(m_optionsWidget, SIGNAL(sigEditingFinished()),
             this, SLOT(slotEditingFinished()));
 
-
     connect(mirrorHorizontalAction, SIGNAL(triggered(bool)), m_optionsWidget, SLOT(slotFlipX()));
     connect(mirrorVerticalAction, SIGNAL(triggered(bool)), m_optionsWidget, SLOT(slotFlipY()));
     connect(rotateNinetyCWAction, SIGNAL(triggered(bool)), m_optionsWidget, SLOT(slotRotateCW()));
     connect(rotateNinetyCCWAction, SIGNAL(triggered(bool)), m_optionsWidget, SLOT(slotRotateCCW()));
 
     connect(keepAspectRatioAction, SIGNAL(triggered(bool)), m_optionsWidget, SLOT(slotSetKeepAspectRatio(bool)));
-
 
     connect(warpAction, SIGNAL(triggered(bool)), this, SLOT(slotUpdateToWarpType()));
     connect(perspectiveAction, SIGNAL(triggered(bool)), this, SLOT(slotUpdateToPerspectiveType()));
@@ -1232,14 +1185,13 @@ QWidget* KisToolTransform::createOptionWidget()
     connect(applyTransformation, SIGNAL(triggered(bool)), this, SLOT(slotApplyTransform()));
     connect(resetTransformation, SIGNAL(triggered(bool)), this, SLOT(slotCancelTransform()));
 
-
     updateOptionWidget();
 
     return m_optionsWidget;
 }
 
 void KisToolTransform::updateOptionWidget()
-{    
+{
     if (!m_optionsWidget) return;
 
     if (!currentNode()) {
@@ -1316,15 +1268,6 @@ void KisToolTransform::slotResetTransform(ToolTransformArgs::TransformMode mode)
     if (m_currentArgs.continuedTransform()) {
         ToolTransformArgs::TransformMode savedMode = m_currentArgs.mode();
 
-        /**
-         * Our reset transform button can be used for two purposes:
-         *
-         * 1) Reset current transform to the initial one, which was
-         *    loaded from the previous user action.
-         *
-         * 2) Reset transform frame to infinity when the frame is unchanged
-         */
-
         const bool transformDiffers = !m_currentArgs.continuedTransform()->isSameMode(m_currentArgs);
 
         if (transformDiffers &&
@@ -1365,7 +1308,7 @@ void KisToolTransform::slotRestartTransform()
     if (!m_strokeId || m_transaction.rootNodes().isEmpty()) return;
 
     KisNodeSP root = m_transaction.rootNodes()[0];
-    KIS_ASSERT_RECOVER_RETURN(root); // the stroke is guaranteed to be started by an 'if' above
+    KIS_ASSERT_RECOVER_RETURN(root);
 
     ToolTransformArgs savedArgs(m_currentArgs);
     cancelStroke();
@@ -1377,7 +1320,7 @@ void KisToolTransform::slotRestartAndContinueTransform()
     if (!m_strokeId || m_transaction.rootNodes().isEmpty()) return;
 
     KisNodeSP root = m_transaction.rootNodes()[0];
-    KIS_ASSERT_RECOVER_RETURN(root); // the stroke is guaranteed to be started by an 'if' above
+    KIS_ASSERT_RECOVER_RETURN(root);
 
     ToolTransformArgs savedArgs(m_currentArgs);
     endStroke();
@@ -1529,7 +1472,7 @@ QList<QAction *> KisToolTransformFactory::createActionsImpl()
 
     auto makeSubtoolAction = [&actionRegistry, &actions, this](QString actionName, const char *slot) {
         QAction *action = actionRegistry->makeQAction(actionName, this);
-        action->setProperty("always_enabled", true); // To allow this action to be triggered when the transform tool isn't already active
+        action->setProperty("always_enabled", true);
         connect(action, SIGNAL(triggered()), slot);
         actions << action;
     };
@@ -1558,11 +1501,8 @@ void KisToolTransformFactory::activateSubtool(KisToolTransform::TransformToolMod
     KIS_SAFE_ASSERT_RECOVER_RETURN(transformTool);
 
     if (toolManager->activeToolId() == id()) {
-        // Tool is already active: switch its mode immediately in place.
         transformTool->setTransformMode(mode);
     } else {
-        // Tool isn't active yet: queue the mode so it's the one the tool
-        // lands in as soon as it activates, then switch to it.
         transformTool->setNextActivationTransformMode(mode);
         toolManager->switchToolRequested(id());
     }
@@ -1633,7 +1573,7 @@ protected:
             }
             m_lastAngle = angle;
             m_haveLast = true;
-            return true;      // the canvas must not zoom or turn at the same time
+            return true;
         }
         m_haveLast = false;
         return false;
@@ -1663,7 +1603,6 @@ void KisToolFreeRotate::rotateByDegrees(double degrees)
     }
 }
 
-// the angle, in degrees, of the finger as seen from the center of the transformation (image coordinates; y down, so a clockwise turn is a growing angle)
 double KisToolFreeRotate::pointerAngle(KoPointerEvent *event) const
 {
     KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas());

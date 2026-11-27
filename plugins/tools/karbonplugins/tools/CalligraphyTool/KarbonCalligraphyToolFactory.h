@@ -20,4 +20,4 @@ public:
     QList<QAction *> createActionsImpl() override;
 };
 
-#endif // _KARBONCALLIGRAPHYTOOLFACTORY_H_
+#endif

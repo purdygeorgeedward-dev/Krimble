@@ -22,7 +22,6 @@ void KisHLineIteratorBenchmark::initTestCase()
     m_colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     m_device = new KisPaintDevice(m_colorSpace);
     m_color = new KoColor(m_colorSpace);
-    // some random color
     m_color->fromQColor(QColor(0,0,250));
     m_device->fill(0,0,TEST_IMAGE_WIDTH,TEST_IMAGE_HEIGHT,m_color->data());
 }
@@ -32,7 +31,6 @@ void KisHLineIteratorBenchmark::cleanupTestCase()
     delete m_color;
     delete m_device;
 }
-
 
 void KisHLineIteratorBenchmark::benchmarkCreation()
 {
@@ -69,7 +67,6 @@ void KisHLineIteratorBenchmark::benchmarkReadBytes()
     }
 }
 
-
 void KisHLineIteratorBenchmark::benchmarkConstReadBytes()
 {
     KisHLineConstIteratorSP cit = m_device->createHLineConstIteratorNG(0, 0, TEST_IMAGE_WIDTH);
@@ -89,7 +86,7 @@ void KisHLineIteratorBenchmark::benchmarkReadWriteBytes(){
     c.fromQColor(QColor(250,120,0));
     KisPaintDevice dab(m_colorSpace);
     dab.fill(0,0,TEST_IMAGE_WIDTH,TEST_IMAGE_HEIGHT, c.data());
-    
+
     KisHLineIteratorSP writeIterator = m_device->createHLineIteratorNG(0, 0, TEST_IMAGE_WIDTH);
     KisHLineConstIteratorSP constReadIterator = dab.createHLineConstIteratorNG(0, 0, TEST_IMAGE_WIDTH);
 
@@ -104,8 +101,6 @@ void KisHLineIteratorBenchmark::benchmarkReadWriteBytes(){
     }
 }
 
-
-
 void KisHLineIteratorBenchmark::benchmarkReadWriteBytes2()
 {
     KoColor c(m_colorSpace);
@@ -115,7 +110,7 @@ void KisHLineIteratorBenchmark::benchmarkReadWriteBytes2()
 
     KisHLineIteratorSP writeIterator = m_device->createHLineIteratorNG(0,0,TEST_IMAGE_WIDTH);
     KisHLineIteratorSP readIterator = dab.createHLineIteratorNG(0,0,TEST_IMAGE_WIDTH);
-    
+
     QBENCHMARK{
         for (int j = 0; j < TEST_IMAGE_HEIGHT; j++) {
             do {
@@ -127,11 +122,7 @@ void KisHLineIteratorBenchmark::benchmarkReadWriteBytes2()
         }
     }
 
-    ///QImage img = m_device->convertToQImage(m_device->colorSpace()->profile(),0,0,TEST_IMAGE_WIDTH, TEST_IMAGE_HEIGHT);
-    //img.save("write.png");
-    
 }
-
 
 void KisHLineIteratorBenchmark::benchmarkNoMemCpy()
 {
@@ -144,7 +135,6 @@ void KisHLineIteratorBenchmark::benchmarkNoMemCpy()
         }
     }
 }
-
 
 void KisHLineIteratorBenchmark::benchmarkConstNoMemCpy()
 {
@@ -163,7 +153,7 @@ void KisHLineIteratorBenchmark::benchmarkTwoIteratorsNoMemCpy(){
     c.fromQColor(QColor(250,120,0));
     KisPaintDevice dab(m_colorSpace);
     dab.fill(0,0,TEST_IMAGE_WIDTH,TEST_IMAGE_HEIGHT, c.data());
-    
+
     KisHLineIteratorSP writeIterator = m_device->createHLineIteratorNG(0, 0, TEST_IMAGE_WIDTH);
     KisHLineConstIteratorSP constReadIterator = dab.createHLineConstIteratorNG(0, 0, TEST_IMAGE_WIDTH);
 
@@ -174,9 +164,7 @@ void KisHLineIteratorBenchmark::benchmarkTwoIteratorsNoMemCpy(){
             writeIterator->nextRow();
         }
     }
-    
+
 }
-
-
 
 SIMPLE_TEST_MAIN(KisHLineIteratorBenchmark)

@@ -17,33 +17,6 @@
 #include <QLocale>
 #include <KisSynchronizedConnection.h>
 
-/**
- * There is a hierarchy of libraries built on the kritaresources library
- * that provide resources:
- *
- * pigment: kocolorset, kosegmentgradient, kostopgradient, kopattern
- *   flake: koseexprscript, kogamutmask, kosvgsymbolcollection
- *     image: kispaintoppreset, kispsdlayerstyle
- *       brush: kisgbrbrush, kisimagepipebrush, kissvgbrush, kispngbrush
- *         ui: kiswindowloyout, kissession, kisworkspace
- *
- * Depending on which library the test links again, it should use
- *
- *  testresources.h
- *  testpigment.h
- *  testflake.h
- *  testimage.h
- *  testbrush.h
- *  testui.h
- *
- * To get the right KISTEST_MAIN for the resources it needs access to.
- *
- * This means that adding a new resource means not only adding it in
- * KisApplication, but also this file.
- */
-
-
-
 #if defined(QT_NETWORK_LIB)
 #  include <QtTest/qtest_network.h>
 #endif
@@ -54,7 +27,6 @@
 #else
 #  define QTEST_DISABLE_KEYPAD_NAVIGATION
 #endif
-
 
 #if defined(TESTRESOURCES) || defined(TESTPIGMENT) || defined (TESTFLAKE) || defined(TESTBRUSH) || defined(TESTIMAGE) || defined(TESTUI)
 #include <QImageReader>
@@ -112,7 +84,6 @@ namespace {
 void addResourceTypes()
 {
 #if defined(TESTRESOURCES) || defined(TESTPIGMENT) || defined (TESTFLAKE) || defined(TESTIMAGE) || defined(TESTBRUSH) || defined(TESTUI)
-    // All Krita's resource types
     KoResourcePaths::addAssetType("markers", "data", "/styles/");
     KoResourcePaths::addAssetType("kis_pics", "data", "/pics/");
     KoResourcePaths::addAssetType("kis_images", "data", "/images/");
@@ -130,7 +101,6 @@ void addResourceTypes()
     KoResourcePaths::addAssetType("pythonscripts", "data", "/pykrita");
     KoResourcePaths::addAssetType("preset_icons", "data", "/preset_icons");
 
-    // Make directories for all resources we can save, and tags
     QDir d;
     d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/tags/");
     d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/asl/");
@@ -140,9 +110,6 @@ void addResourceTypes()
     d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/paintoppresets/");
     d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/palettes/");
     d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/patterns/");
-    // between 4.2.x and 4.3.0 there was a change from 'taskset' to 'tasksets'
-    // so to make older resource folders compatible with the new version, let's rename the folder
-    // so no tasksets are lost.
     if (d.exists(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/taskset/")) {
         d.rename(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/taskset/",
                  QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/tasksets/");
@@ -213,7 +180,6 @@ void registerResources()
     reg->add(new KisResourceLoader<KoSvgSymbolCollectionResource>(ResourceType::Symbols, ResourceType::Symbols, i18n("SVG symbol libraries"), QStringList() << "image/svg+xml"));
     reg->add(new KisResourceLoader<KoFontFamily>(ResourceType::FontFamilies, ResourceType::FontFamilies, i18n("Font Families"), QStringList() << "application/x-font-ttf" << "application/x-font-otf"));
 #endif
-
 
 #if defined(TESTIMAGE) || defined(TESTBRUSH) || defined(TESTUI)
      reg->add(new KisResourceLoader<KisPaintOpPreset>(ResourceType::PaintOpPresets, ResourceType::PaintOpPresets, i18n("Brush presets"), QStringList() << "application/x-krita-paintoppreset"));
@@ -286,6 +252,5 @@ int main(int argc, char *argv[]) \
     return QTest::qExec(&tc, argc, argv); \
 }
 #endif
-
 
 #endif

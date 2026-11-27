@@ -66,10 +66,6 @@ QPair<qreal, qreal> getInputBlackAndWhitePoints(ChannelHistogram histogram,
 
     const qreal totalNumberOfSamples = static_cast<qreal>(histogram.histogram->producer()->count());
 
-    // This basically integrates the probability mass function given by the
-    // histogram, from the left and the right, until the thresholds given by the
-    // clipping are reached, to obtain the black and white points
-
     int blackPoint = 0;
     qreal accumulator = 0.0;
     for (int i = 0; i < numberOfBins; ++i) {
@@ -120,7 +116,7 @@ qreal getGamma(qreal blackPoint, qreal whitePoint, qreal inputIntensity, qreal o
 {
     Q_ASSERT(blackPoint < whitePoint);
     Q_ASSERT(inputIntensity >= blackPoint && inputIntensity <= whitePoint);
-    
+
     if (qFuzzyIsNull(outputIntensity)) {
         return 0.01;
     }
@@ -133,7 +129,6 @@ qreal getGamma(qreal blackPoint, qreal whitePoint, qreal inputIntensity, qreal o
 
     return qBound(0.01, log(inputIntensityAfterLinearMapping) / log(outputIntensity), 10.0);
 }
-
 
 QVector<KisLevelsCurve> adjustMonochromaticContrast(ChannelHistogram lightnessHistogram,
                                                    QVector<ChannelHistogram> &channelsHistograms,
@@ -163,7 +158,7 @@ QVector<KisLevelsCurve> adjustMonochromaticContrast(ChannelHistogram lightnessHi
 
     for (int i = 0; i < channelsHistograms.size(); ++i) {
         ChannelHistogram &channelHistogram = channelsHistograms[i];
-            
+
         qreal gamma = 1.0;
         if (midtonesAdjustmentMethod != MidtonesAdjustmentMethod_None &&
             channelHistogram.histogram &&

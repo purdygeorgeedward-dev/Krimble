@@ -40,4 +40,4 @@ struct Q_DECL_HIDDEN KisGaussCircleMaskGenerator::Private
 
 };
 
-#endif /* _KIS_GAUSS_MASK_GENERATOR_P_H_ */
+#endif

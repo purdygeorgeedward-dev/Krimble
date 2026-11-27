@@ -17,7 +17,6 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-
 #if KRITA_QT_HAS_XKB_CONTEXT_IN_NATIVE_INTERFACE
 
 #include <QGuiApplication>
@@ -29,26 +28,18 @@
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 
-#endif /* KRITA_QT_HAS_XKB_CONTEXT_IN_NATIVE_INTERFACE */
+#endif
 
 static struct xkb_context *getGlobalXkbContextFromQt() {
 #if KRITA_QT_HAS_XKB_CONTEXT_IN_NATIVE_INTERFACE
     auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
     return waylandApp ? waylandApp->xkbContext() : nullptr;
 #else
-    /**
-     * Linking to QPlatformIntegration has no binary compatibility guarantees, so we should
-     * prefer the usage of a direct published interface that is more stable.
-     */
     QPlatformIntegration *platformIntegration = QGuiApplicationPrivate::platformIntegration();
     auto waylandIntegration = dynamic_cast<QtWaylandClient::QWaylandIntegration *>(platformIntegration);
     return waylandIntegration ? waylandIntegration->display()->xkbContext() : nullptr;
-#endif /* KRITA_QT_HAS_XKB_CONTEXT_IN_NATIVE_INTERFACE */
+#endif
 }
-
-/****************************************************************************/
-/*              KisWaylandKeyboardWatcher::Watcher::Keyboard                         */
-/****************************************************************************/
 
 class KisWaylandKeyboardWatcher::Keyboard : public QtWayland::wl_keyboard
 {
@@ -69,7 +60,7 @@ public:
 
         if (mXkbState) {
             for (uint32_t key : std::as_const(mNativeKeys)) {
-                auto code = key + 8; // map to wl_keyboard::keymap_format::keymap_format_xkb_v1
+                auto code = key + 8;
 
                 xkb_keysym_t sym = xkb_state_key_get_one_sym(mXkbState.get(), code);
                 Qt::KeyboardModifiers modifiers = QXkbCommon::modifiers(mXkbState.get(), sym);
@@ -185,12 +176,6 @@ private:
     bool m_focus = false;
 };
 
-
-/****************************************************************************/
-/*              KisWaylandKeyboardWatcher::Seat                          */
-/****************************************************************************/
-
-
 class KisWaylandKeyboardWatcher::Seat
     : public QWaylandClientExtensionTemplate<KisWaylandKeyboardWatcher::Seat>
     , public QtWayland::wl_seat
@@ -253,11 +238,6 @@ Qt::KeyboardModifiers KisWaylandKeyboardWatcher::Seat::modifiers() const
 
     return m_keyboard->modifiers();
 }
-
-/****************************************************************************/
-/*              KisWaylandKeyboardWatcher                                   */
-/****************************************************************************/
-
 
 KisWaylandKeyboardWatcher::KisWaylandKeyboardWatcher()
     : m_seat(new Seat())

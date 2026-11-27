@@ -14,7 +14,6 @@
 
 namespace {
 
-
 class KisHatchingPreferences: public QWidget, public Ui::WdgHatchingPreferences
 {
 public:
@@ -24,9 +23,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisHatchingPreferencesWidget::Private
 {
@@ -37,7 +34,6 @@ struct KisHatchingPreferencesWidget::Private
 
     KisHatchingPreferencesModel model;
 };
-
 
 KisHatchingPreferencesWidget::KisHatchingPreferencesWidget(lager::cursor<KisHatchingPreferencesData> optionData)
     : KisPaintOpOption(i18n("Hatching preferences"), KisPaintOpOption::GENERAL, true)

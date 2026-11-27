@@ -11,8 +11,6 @@
 #include <QLayout>
 #include "kritawidgetutils_export.h"
 
-// code taken partially from https://doc.qt.io/qt-5/qtwidgets-layouts-flowlayout-example.html
-// and https://doc.qt.io/qt-5/layout.html
 class KRITAWIDGETUTILS_EXPORT KisWrappableHBoxLayout : public QLayout
 {
     Q_OBJECT
@@ -40,5 +38,4 @@ private:
 
 };
 
-
-#endif // KIS_WRAPPABLE_HBOX_LAYOUT_H
+#endif

@@ -5,22 +5,12 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-/* this code supports:
- * reading:
- *     uncompressed and run length encoded indexed, grey and color tga files.
- *     image types 1, 2, 3, 9, 10 and 11.
- *     only RGB color maps with no more than 256 colors.
- *     pixel formats 8, 15, 24 and 32.
- * writing:
- *     uncompressed true color tga files
- */
 #ifndef TGA_H
 #define TGA_H
 
 #include <QDataStream>
 #include <QColor>
 
-// Header format of saved files.
 const uchar targaMagic[12] = { 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 enum TGAType {
@@ -43,7 +33,6 @@ enum TGAType {
 #define TGA_ORIGIN_LOWER    0x00
 #define TGA_ORIGIN_UPPER    0x20
 
-/** Tga Header. */
 struct TgaHeader {
     uchar id_length;
     uchar colormap_type;
@@ -58,9 +47,8 @@ struct TgaHeader {
     uchar pixel_size;
     uchar flags;
 
-    enum { SIZE = 18 }; // const static int SIZE = 18;
+    enum { SIZE = 18 };
 };
-
 
 struct Color555 {
     ushort b : 5;
@@ -96,15 +84,9 @@ struct TgaHeaderInfo {
             grey = true;
             break;
         default:
-            // Error, unknown image type.
             break;
         }
     }
 };
 
-
-
-
-
-
-#endif // TGA_H
+#endif

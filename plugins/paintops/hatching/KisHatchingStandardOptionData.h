@@ -43,4 +43,4 @@ struct KisThicknessOptionData : KisCurveOptionData
     {}
 };
 
-#endif // KISHATCHINGSTANDARDOPTIONDATA_H
+#endif

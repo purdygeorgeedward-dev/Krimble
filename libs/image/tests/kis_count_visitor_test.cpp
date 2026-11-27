@@ -14,20 +14,6 @@
 #include "kis_types.h"
 #include "kis_count_visitor.h"
 #include "kis_image.h"
-/*
-
-  root
-     TestNodeA
-        TestNodeA
-           TestNodeA
-     TestNodeB
-        TestNodeB
-          TestNodeB
-     TestNodeC
-        TestNodeC
-           TestNodeC
-
- */
 void KisCountVisitorTest::testCounting()
 {
 
@@ -66,14 +52,12 @@ void KisCountVisitorTest::testCounting()
     facade.addNode(new TestNodeC(), root->at(2)->at(0)->at(0));
     root->at(2)->at(0)->at(0)->at(0)->setName("TestNodeC 2.0.0.0");
 
-    // Count all nodes
     {
         KisCountVisitor v = KisCountVisitor(QStringList(), KoProperties());
         root->accept(v);
         QVERIFY(v.count() == 13);
     }
 
-    // Count all nodes of type A without taking properties in mind
     {
         QStringList types;
         types << "TestNodeA";
@@ -82,7 +66,6 @@ void KisCountVisitorTest::testCounting()
         QVERIFY(v.count() == 4);
     }
 
-    // Count all nodes of type A and B
     {
         QStringList types;
         types << "TestNodeA" << "TestNodeB";
@@ -91,7 +74,6 @@ void KisCountVisitorTest::testCounting()
         QVERIFY(v.count() == 8);
     }
 
-    // Count all nodes of type A and B and C
     {
         QStringList types;
         types << "TestNodeA" << "TestNodeB" << "TestNodeC";
@@ -100,13 +82,11 @@ void KisCountVisitorTest::testCounting()
         QVERIFY(v.count() == 12);
     }
 
-    // Count all nodes of type A that are visible.
     root->at(0)->setVisible(true);
     root->at(0)->at(0)->setVisible(true);
     root->at(0)->at(0)->at(0)->setVisible(true);
     root->at(0)->at(0)->at(0)->at(0)->setVisible(true);
 
-    // Count all nodes of type A that are visible
     {
         QStringList types;
         types << "TestNodeA";
@@ -117,7 +97,6 @@ void KisCountVisitorTest::testCounting()
         QCOMPARE((int)v.count(), 4);
     }
 
-    // Count all nodes of type A that are visible
     {
         root->at(0)->at(0)->setVisible(false);
         QStringList types;
@@ -131,5 +110,4 @@ void KisCountVisitorTest::testCounting()
 }
 
 SIMPLE_TEST_MAIN(KisCountVisitorTest)
-
 

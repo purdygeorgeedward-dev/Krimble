@@ -41,7 +41,6 @@ void KisToolHeal::activate(const QSet<KoShape*> &shapes)
         return;
     }
 
-    // the built-in Clone (duplicate) brush, with Healing on, 40 px to start with
     KisPaintOpPresetSP preset = krimbleLoadEmbeddedPreset(QStringLiteral("duplicate"));
     if (preset && preset->settings()) {
         preset->settings()->setProperty(QStringLiteral("Duplicateop/Healing"), true);
@@ -53,7 +52,6 @@ void KisToolHeal::activate(const QSet<KoShape*> &shapes)
     canvas2->viewManager()->showFloatingMessage(i18n("Healing Brush: tap the spot to copy from, then paint over the flaw"), QIcon(), 3000);
 }
 
-// Armed: this tap is the source point (the same as Ctrl-click for the Clone brush); nothing is painted. Otherwise: an ordinary stroke.
 void KisToolHeal::beginPrimaryAction(KoPointerEvent *event)
 {
     if (m_sourceArmed) {

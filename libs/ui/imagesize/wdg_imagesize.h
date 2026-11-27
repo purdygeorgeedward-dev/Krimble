@@ -34,15 +34,6 @@ public:
 
     WdgImageSize(QWidget * parent, int width, int height, double resolution);
 
-    /**
-     * Krimble: constructor matching KisOperationUIWidgetFactory<T>'s
-     * expected (parent, view, config) signature, so this same widget --
-     * unchanged validation/unit/aspect-ratio logic -- can be registered as
-     * a real KisOperation UI, making "Image Size" a genuinely replayable
-     * Actions-panel step instead of a bare menu-item trigger. Delegates to
-     * the constructor above, reading the current image's own dimensions
-     * exactly as ImageSize::slotImageSize() used to do by hand.
-     */
     WdgImageSize(QWidget *parent, KisViewManager *view, KisOperationConfigurationSP config);
 
     ~WdgImageSize() override;
@@ -87,4 +78,4 @@ private:
     KisSpinBoxUnitManager* m_printSizeUnitManager;
 };
 
-#endif // WDG_IMAGESIZE
+#endif

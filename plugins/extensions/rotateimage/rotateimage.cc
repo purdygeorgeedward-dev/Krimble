@@ -29,12 +29,6 @@
 
 namespace {
 
-/**
- * Krimble: DlgRotateImage is already a full KoDialog (its own preview/lock
- * logic), same situation as DlgCanvasSize -- a small custom factory
- * wrapping it as-is, exactly as slotRotateImage() always did, rather than
- * refactoring its internals to fit the widget-template shape.
- */
 class RotateImageUIFactory : public KisOperationUIFactory
 {
 public:
@@ -160,7 +154,6 @@ void RotateImage::slotMirrorImageHorizontal()
                                              kundo2_i18n("Mirror Image Horizontally"),
                                              Qt::Horizontal, 0);
 }
-
 
 void RotateImage::rotateLayerCustomImpl(KisNodeSP rootNode)
 {

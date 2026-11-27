@@ -1,7 +1,7 @@
 /*
  *  SPDX-FileCopyrightText: 2022 Agata Cacko <cacko.azh@gmail.com>
  *  SPDX-FileCopyrightText: 2010 Lukáš Tvrdý <lukast.dev@gmail.com>
- * 
+ *
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -15,7 +15,6 @@
 #include "KisCurveOpOptionModel.h"
 
 namespace {
-
 
 class KisCurveOptionsWidget: public QWidget, public Ui::WdgCurveOptions
 {
@@ -36,9 +35,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisCurveOpOptionWidget::Private
 {
@@ -50,26 +47,25 @@ struct KisCurveOpOptionWidget::Private
     KisCurveOpOptionModel model;
 };
 
-
 KisCurveOpOptionWidget::KisCurveOpOptionWidget(lager::cursor<KisCurveOpOptionData> optionData)
     : KisPaintOpOption(i18nc("Brush settings curve value", "Value"), KisPaintOpOption::GENERAL, true)
     , m_d(new Private(optionData))
 {
-	
+
 	KisCurveOptionsWidget *widget = new KisCurveOptionsWidget();
 	setObjectName("KisCurveOpOption");
-	
+
 	m_checkable = false;
-	
+
     using namespace KisWidgetConnectionUtils;
     connectControl(widget->connectionCHBox, &m_d->model, "curvePaintConnectionLine");
     connectControl(widget->smoothingCHBox, &m_d->model, "curveSmoothing");
     connectControl(widget->historySizeSlider, &m_d->model, "curveStrokeHistorySize");
     connectControl(widget->lineWidthSlider, &m_d->model, "curveLineWidth");
     connectControl(widget->curvesOpacitySlider, &m_d->model, "curveCurvesOpacity");
-    
+
     m_d->model.optionData.bind(std::bind(&KisCurveOpOptionWidget::emitSettingChanged, this));
-    
+
     setConfigurationPage(widget);
 }
 

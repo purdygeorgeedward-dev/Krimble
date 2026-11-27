@@ -11,7 +11,6 @@
 #include "KisCanvasAnimationState.h"
 #include "KisPlaybackEngine.h"
 
-
 KisAnimationPlaybackControlsModel::KisAnimationPlaybackControlsModel()
     : m_dropFramesMode {true}
     , LAGER_QT(dropFramesMode) {m_dropFramesMode}

@@ -57,20 +57,17 @@
 #include "KisImageConfigNotifier.h"
 #include <KisSpinBoxI18nHelper.h>
 
-
 KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
     KisUtilityTitleBar(new QLabel(i18n("Animation Timeline"), parent), parent)
 {
     setFocusPolicy(Qt::ClickFocus);
 
-    // Transport Controls...
     transport = new KisTransportControls(this);
     transport->showSkipButtons(true);
     widgetAreaLayout->addWidget(transport);
 
     widgetAreaLayout->addSpacing(SPACING_UNIT);
 
-    // Frame Register...
     frameRegister = new KisIntParseSpinBox(this);
     frameRegister->setToolTip(i18n("Frame register"));
     frameRegister->setPrefix("#  ");
@@ -79,12 +76,11 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
 
     widgetAreaLayout->addSpacing(SPACING_UNIT);
 
-    {   // Drop Frames..
+    {
         btnDropFrames = new QToolButton(this);
         btnDropFrames->setAutoRaise(true);
         widgetAreaLayout->addWidget(btnDropFrames);
 
-        // Playback Speed..
         sbSpeed = new KisSliderSpinBox(this);
         sbSpeed->setRange(25, 200);
         sbSpeed->setSingleStep(5);
@@ -98,7 +94,7 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
 
     widgetAreaLayout->addSpacing(SPACING_UNIT);
 
-    {   // Frame ops...
+    {
         QWidget *widget = new QWidget(this);
         QHBoxLayout *layout = new QHBoxLayout(widget);
         layout->setSpacing(0);
@@ -121,14 +117,13 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
 
     widgetAreaLayout->addStretch();
 
-    {   // Menus..
+    {
         QWidget *widget = new QWidget(this);
 
         QHBoxLayout *layout = new QHBoxLayout(widget);
         layout->setSpacing(0);
         layout->setContentsMargins(SPACING_UNIT,0,0,0);
 
-        // Onion skins menu.
         btnOnionSkinsMenu = new QToolButton(this);
         btnOnionSkinsMenu->setIcon(KisIconUtils::loadIcon("onion_skin_options"));
         btnOnionSkinsMenu->setToolTip(i18n("Onion skins menu"));
@@ -136,7 +131,7 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
         btnOnionSkinsMenu->setAutoRaise(true);
         layout->addWidget(btnOnionSkinsMenu);
 
-        {   // Audio menu..
+        {
             QMenu *audioMenu = new QMenu(this);
 
             strImportAudio = QString(i18nc("@item:inmenu Load audio file into Krimble from disk.", "Import Audio..."));
@@ -176,12 +171,12 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
 
             btnAudioMenu->setPopupMode(QToolButton::InstantPopup);
             btnAudioMenu->setMenu(audioMenu);
-            btnAudioMenu->setEnabled(false); // To be enabled on set canvas...
+            btnAudioMenu->setEnabled(false);
 
             layout->addWidget(btnAudioMenu);
         }
 
-        {   // Settings menu..
+        {
             btnSettingsMenu = new QToolButton(this);
             btnSettingsMenu->setIcon(KisIconUtils::loadIcon("view-choose-22"));
             btnSettingsMenu->setToolTip(i18n("Animation settings menu"));
@@ -211,8 +206,7 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
             QVBoxLayout *buttonsLayout = new QVBoxLayout(buttons);
             buttonsLayout->setAlignment(Qt::AlignTop);
 
-            {   // AutoKey..
-                // AutoKey Actions & Action Group..
+            {
                 autoKeyBlank = new QAction(i18n("AutoKey Blank"), this);
                 autoKeyBlank->setCheckable(true);
                 autoKeyDuplicate = new QAction(i18n("AutoKey Duplicate"), this);
@@ -235,11 +229,9 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
                     KisImageConfigNotifier::instance()->notifyAutoKeyFrameConfigurationChanged();
                 });
 
-                // AutoKey Mode Menu..
                 QMenu *autoKeyModeMenu = new QMenu(settingsMenuWidget);
                 autoKeyModeMenu->addActions(autoKeyModes->actions());
 
-                // AutoKey Button..
                 btnAutoKey = new QToolButton(settingsMenuWidget);
                 btnAutoKey->setMenu(autoKeyModeMenu);
                 btnAutoKey->setPopupMode(QToolButton::MenuButtonPopup);
@@ -263,8 +255,6 @@ KisAnimTimelineDockerTitlebar::KisAnimTimelineDockerTitlebar(QWidget* parent) :
         widgetAreaLayout->addWidget(widget);
     }
 }
-
-
 
 struct KisAnimTimelineDocker::Private
 {
@@ -295,15 +285,12 @@ struct KisAnimTimelineDocker::Private
     KisAnimationPlaybackControlsModel controlsModel;
 };
 
-
-
 KisAnimTimelineDocker::KisAnimTimelineDocker()
     : QDockWidget(i18n("Animation Timeline"))
     , m_d(new Private(this))
 {
     setWidget(m_d->framesView);
 
-    // Titlebar Widget..
     setTitleBarWidget(m_d->titlebar);
 
     connect(m_d->titlebar->btnOnionSkinsMenu, &QToolButton::released, [this](){
@@ -320,7 +307,6 @@ KisAnimTimelineDocker::KisAnimTimelineDocker()
         connectControl(m_d->titlebar->sbSpeed, &m_d->controlsModel, "playbackSpeedDenorm");
     }
 
-    // Watch for KisPlaybackEngine changes and initialize current one..
     connect(KisPart::instance(), &KisPart::playbackEngineChanged, this, &KisAnimTimelineDocker::setPlaybackEngine);
     setPlaybackEngine(KisPart::instance()->playbackEngine());
 
@@ -365,8 +351,7 @@ void KisAnimTimelineDocker::setCanvas(KoCanvasBase * canvas)
         m_d->framesModel->setNodeManipulationInterface(0);
     }
 
-    // Deinitialize from previous canvas...
-    if (m_d->canvas) { 
+    if (m_d->canvas) {
         m_d->canvas->disconnectCanvasObserver(this);
         m_d->canvas->animationState()->disconnect(this);
         m_d->titlebar->transport->setPlaying(false);
@@ -385,7 +370,6 @@ void KisAnimTimelineDocker::setCanvas(KoCanvasBase * canvas)
     setEnabled(m_d->canvas != 0);
     m_d->framesView->slotCanvasUpdate(m_d->canvas);
 
-    // Reinitialize new canvas..
     if (m_d->canvas) {
         KisDocument *doc = static_cast<KisDocument*>(m_d->canvas->imageView()->document());
         KisShapeController *kritaShapeController = dynamic_cast<KisShapeController*>(doc->shapeController());
@@ -397,7 +381,7 @@ void KisAnimTimelineDocker::setCanvas(KoCanvasBase * canvas)
 
         updateFrameCache();
 
-        {   // Titlebar widgets...
+        {
             KisSignalsBlocker blocker(m_d->titlebar->sbStartFrame,
                                       m_d->titlebar->sbEndFrame,
                                       m_d->titlebar->sbFrameRate,
@@ -408,8 +392,8 @@ void KisAnimTimelineDocker::setCanvas(KoCanvasBase * canvas)
             m_d->titlebar->sbEndFrame->setValue(animinterface->documentPlaybackRange().end());
             m_d->titlebar->sbFrameRate->setValue(animinterface->framerate());
             m_d->titlebar->frameRegister->setValue(animinterface->currentTime());
-            
-            m_d->titlebar->btnAudioMenu->setEnabled(true); // Menu is disabled until a canvas is loaded.
+
+            m_d->titlebar->btnAudioMenu->setEnabled(true);
         }
 
         m_d->framesModel->setAnimationPlayer(m_d->canvas->animationState());
@@ -456,10 +440,9 @@ void KisAnimTimelineDocker::setCanvas(KoCanvasBase * canvas)
             m_d->titlebar->sbStartFrame->setValue(start);
             m_d->titlebar->sbEndFrame->setValue(end);
 
-            //Auto zoom Timeline to new document playback range..
             KisConfig cfg(true);
             if (cfg.autoZoomTimelineToPlaybackRange()) {
-                m_d->framesView->slotFitViewToFrameRange(0, end); // TODO: fit from start to end, instead of 0 to end.
+                m_d->framesView->slotFitViewToFrameRange(0, end);
             }
         });
 
@@ -502,7 +485,6 @@ void KisAnimTimelineDocker::setImageAnimSettings()
 
     KisImageAnimSettingCommand *undoCommand = new KisImageAnimSettingCommand(m_d->canvas->image()->animationInterface(), settings);
 
-    //KisProcessingApplicator::applyCommand(undoCommand);
     QScopedPointer<KisProcessingApplicator> applicator(
         new KisProcessingApplicator(m_d->canvas->image(), 0, KisProcessingApplicator::NONE,
                                     KisImageSignalVector(),
@@ -515,7 +497,6 @@ void KisAnimTimelineDocker::setImageAnimSettings()
 void KisAnimTimelineDocker::establishPlaybackEngineConnections(KisPlaybackEngine *playbackEngine, KisActionManager *actionManager)
 {
     if (actionManager) {
-        // Connect actions..
         KisAction *action = nullptr;
 
         action = actionManager->createAction("stop_playback");
@@ -571,7 +552,6 @@ void KisAnimTimelineDocker::establishPlaybackEngineConnections(KisPlaybackEngine
         });
     }
 
-    // Connect transport controls gui..
     connect(m_d->titlebar->transport, SIGNAL(skipBack()), playbackEngine, SLOT(previousKeyframe()), Qt::UniqueConnection);
     connect(m_d->titlebar->transport, SIGNAL(back()), playbackEngine, SLOT(previousFrame()), Qt::UniqueConnection);
     connect(m_d->titlebar->transport, SIGNAL(stop()), playbackEngine, SLOT(stop()), Qt::UniqueConnection);
@@ -648,12 +628,6 @@ void KisAnimTimelineDocker::updatePlaybackStatistics()
             .arg(playbackEngineClass);
     }
 
-    /**
-     * NOTE: we update stats on the **action**, but not on the
-     * button itself, so the stats will automatically propagate
-     * to all the buttons that use this action, including the
-     * one in the curves docker
-     */
     action->setToolTip(actionText);
 }
 
@@ -684,7 +658,6 @@ void KisAnimTimelineDocker::setViewManager(KisViewManager *view)
     titleBar->btnRemoveKeyframe->setDefaultAction(action);
     titleBar->btnRemoveKeyframe->setIconSize(QSize(22, 22));
 
-    // Connect playback-related actions..
     action = actionManager->createAction("toggle_playback");
     action->setActivationFlags(KisAction::ACTIVE_IMAGE);
     connect(action, SIGNAL(triggered(bool)), this, SLOT(togglePlayback()));

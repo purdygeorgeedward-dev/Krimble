@@ -16,7 +16,6 @@
 #include "kis_image_layer_add_command.h"
 #include "KisNotifySelectionChangedCommand.h"
 
-
 KisReselectGlobalSelectionCommand::KisReselectGlobalSelectionCommand(KisImageWSP image, KUndo2Command * parent)
     : KisCommandUtils::AggregateCommand(kundo2_i18n("Reselect"), parent)
     , m_image(image)

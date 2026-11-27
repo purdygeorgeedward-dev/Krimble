@@ -22,4 +22,4 @@ public:
     virtual int version() const = 0;
 };
 
-#endif // DUMMY_TRIVIAL_INTERFACE_H
+#endif

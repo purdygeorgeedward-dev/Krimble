@@ -8,7 +8,6 @@
 
 #include "kis_pixelize_filter_plugin.h"
 
-
 #include <kpluginfactory.h>
 
 #include <kis_paint_device.h>
@@ -30,5 +29,4 @@ KisPixelizeFilterPlugin::~KisPixelizeFilterPlugin()
 }
 
 #include "kis_pixelize_filter_plugin.moc"
-
 

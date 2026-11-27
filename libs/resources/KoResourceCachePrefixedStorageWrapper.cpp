@@ -7,7 +7,6 @@
 
 #include <QVariant>
 
-
 KoResourceCachePrefixedStorageWrapper::KoResourceCachePrefixedStorageWrapper(const QString &prefix, KoResourceCacheInterfaceSP baseInterface)
     : m_prefix(prefix),
       m_baseInterface(baseInterface)

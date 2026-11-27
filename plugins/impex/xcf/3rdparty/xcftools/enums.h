@@ -1,9 +1,3 @@
-/* Extracted from
- *   gimp/base-enums.h
- *   gimp/gimpbaseenums.h
- *   gimp/xcf-private.h
- * by mkenumsh.pl
- */
 typedef enum
 {
   GIMP_NORMAL_MODE,
@@ -29,29 +23,29 @@ typedef enum
   GIMP_GRAIN_EXTRACT_MODE,
   GIMP_GRAIN_MERGE_MODE,
   GIMP_COLOR_ERASE_MODE,
-  GIMP_ERASE_MODE,           /*< pdb-skip, skip >*/
-  GIMP_REPLACE_MODE,         /*< pdb-skip, skip >*/
-  GIMP_ANTI_ERASE_MODE       /*< pdb-skip, skip >*/
+  GIMP_ERASE_MODE,
+  GIMP_REPLACE_MODE,
+  GIMP_ANTI_ERASE_MODE
   ,GIMP_NORMAL_NOPARTIAL_MODE=-1
 } GimpLayerModeEffects;
 const char *showGimpLayerModeEffects(GimpLayerModeEffects);
 #define GimpLayerModeEffects_LAST GIMP_ANTI_ERASE_MODE
 typedef enum
 {
-  GIMP_RGB,     /*< desc="RGB color"     >*/
-  GIMP_GRAY,    /*< desc="Grayscale"     >*/
-  GIMP_INDEXED  /*< desc="Indexed color" >*/
+  GIMP_RGB,
+  GIMP_GRAY,
+  GIMP_INDEXED
 } GimpImageBaseType;
 const char *showGimpImageBaseType(GimpImageBaseType);
 #define GimpImageBaseType_LAST GIMP_INDEXED
 typedef enum
 {
-  GIMP_RGB_IMAGE,      /*< desc="RGB"             >*/
-  GIMP_RGBA_IMAGE,     /*< desc="RGB-alpha"       >*/
-  GIMP_GRAY_IMAGE,     /*< desc="Grayscale"       >*/
-  GIMP_GRAYA_IMAGE,    /*< desc="Grayscale-alpha" >*/
-  GIMP_INDEXED_IMAGE,  /*< desc="Indexed"         >*/
-  GIMP_INDEXEDA_IMAGE  /*< desc="Indexed-alpha"   >*/
+  GIMP_RGB_IMAGE,
+  GIMP_RGBA_IMAGE,
+  GIMP_GRAY_IMAGE,
+  GIMP_GRAYA_IMAGE,
+  GIMP_INDEXED_IMAGE,
+  GIMP_INDEXEDA_IMAGE
 } GimpImageType;
 const char *showGimpImageType(GimpImageType);
 #define GimpImageType_LAST GIMP_INDEXEDA_IMAGE
@@ -96,8 +90,8 @@ typedef enum
 {
   COMPRESS_NONE              =  0,
   COMPRESS_RLE               =  1,
-  COMPRESS_ZLIB              =  2,  /* unused */
-  COMPRESS_FRACTAL           =  3   /* unused */
+  COMPRESS_ZLIB              =  2,
+  COMPRESS_FRACTAL           =  3
 } XcfCompressionType;
 const char *showXcfCompressionType(XcfCompressionType);
 #define XcfCompressionType_LAST COMPRESS_FRACTAL

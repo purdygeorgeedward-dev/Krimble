@@ -48,16 +48,14 @@
 #include <config-qt-patches-present.h>
 #endif
 
-
 struct IMEDecorationInfo {
-    int start = -1; ///< The startPos from the attribute.
-    int length = 0; ///< The length from the attribute.
-    KoSvgText::TextDecorations decor = KoSvgText::DecorationNone; ///< Which sides get decorated.
-    KoSvgText::TextDecorationStyle style = KoSvgText::Solid; ///< The style.
-    bool thick = false; ///< Whether the decoration needs to be doubled in size.
+    int start = -1;
+    int length = 0;
+    KoSvgText::TextDecorations decor = KoSvgText::DecorationNone;
+    KoSvgText::TextDecorationStyle style = KoSvgText::Solid;
+    bool thick = false;
 
     void setDecorationFromQStyle(QTextCharFormat::UnderlineStyle s) {
-        // whenever qt sets an underlinestyle it always sets the underline.
         decor.setFlag(KoSvgText::DecorationUnderline, s != QTextCharFormat::NoUnderline);
         if (s == QTextCharFormat::DotLine) {
             style = KoSvgText::Dotted;
@@ -89,12 +87,6 @@ struct IMEDecorationInfo {
         if (format.hasProperty(QTextFormat::TextUnderlineStyle)) {
             setDecorationFromQStyle(format.underlineStyle());
         }
-        /**
-         * Because Qt doesn't have a concept of a thick or double underline at time of writing,
-         * most of Qt's QPA will set the background to a solid color instead. Sometimes the underline
-         * style is changed (as with IBus). We don't support setting the background right now, so instead
-         * we'll 'convert' it back to a thick solid underline.
-         */
         if (format.hasProperty(QTextFormat::BackgroundBrush)) {
             thick = format.background().isOpaque();
 #ifdef Q_OS_LINUX
@@ -105,7 +97,6 @@ struct IMEDecorationInfo {
 
         }
         if (decor == KoSvgText::DecorationNone) {
-            // Ensure a underline is always set.
             decor.setFlag(KoSvgText::DecorationUnderline, true);
         }
     }
@@ -159,7 +150,6 @@ struct Q_DECL_HIDDEN SvgTextCursor::Private {
     public:
         InputQueryUpdateBlocker(SvgTextCursor::Private *d)
             : m_d(d)
-            // Only unblock updates if they were blocked to begin with.
             , m_unblockQueryUpdates(!std::exchange(d->blockQueryUpdates, true))
         {
         }
@@ -217,8 +207,6 @@ struct Q_DECL_HIDDEN SvgTextCursor::Private {
     QPainterPath selection;
     QRectF oldSelectionRect;
 
-
-    // This is used to adjust cursorpositions better on text-shape relayouts.
     int posIndex = 0;
     int anchorIndex = 0;
 
@@ -234,13 +222,13 @@ struct Q_DECL_HIDDEN SvgTextCursor::Private {
     QRectF oldTypeSettingRect;
     TypeSettingDecorInfo typeSettingDecor;
 
-    SvgTextInsertCommand *preEditCommand {nullptr}; ///< PreEdit string as an command provided by the input method.
-    int preEditStart = -1; ///< Start of the preEdit string as a cursor pos.
-    int preEditLength = -1; ///< Length of the preEditString.
-    QVector<IMEDecorationInfo> styleMap; ///< Decoration info (underlines) for the preEdit string to differentiate it from regular text.
-    QPainterPath IMEDecoration; ///< The decorations for the current preedit string.
-    QRectF oldIMEDecorationRect; ///< Update Rectangle of previous decoration.
-    bool blockQueryUpdates = false; ///< Block qApp->inputMethod->update(), enabled during the inputmethod event flow.
+    SvgTextInsertCommand *preEditCommand {nullptr};
+    int preEditStart = -1;
+    int preEditLength = -1;
+    QVector<IMEDecorationInfo> styleMap;
+    QPainterPath IMEDecoration;
+    QRectF oldIMEDecorationRect;
+    bool blockQueryUpdates = false;
 
     SvgTextCursorPropertyInterface *interface{nullptr};
 
@@ -255,7 +243,6 @@ SvgTextCursor::SvgTextCursor(KoCanvasBase *canvas) :
     d->canvas = canvas;
     d->interface = new SvgTextCursorPropertyInterface(this);
     if (d->canvas->canvasController()) {
-        // Mockcanvas in the tests has no canvas controller.
         connect(d->canvas->canvasController()->proxyObject, SIGNAL(sizeChanged(QSize)), this, SLOT(updateInputMethodItemTransform()));
         connect(d->canvas->canvasController()->proxyObject,
                 SIGNAL(moveDocumentOffset(QPointF, QPointF)),
@@ -634,8 +621,6 @@ int SvgTextCursor::posForTypeSettingHandleAndRect(const TypeSettingModeHandle ha
     return 0;
 }
 
-
-
 void SvgTextCursor::moveCursor(MoveMode mode, bool moveAnchor)
 {
     if (d->shape) {
@@ -655,7 +640,6 @@ void SvgTextCursor::insertText(QString text)
 {
 
     if (d->shape) {
-        //KUndo2Command *parentCmd = new KUndo2Command;
         if (hasSelection()) {
             SvgTextRemoveCommand *removeCmd = removeSelectionImpl(false);
             addCommandToUndoAdapter(removeCmd);
@@ -670,7 +654,6 @@ void SvgTextCursor::insertText(QString text)
 void SvgTextCursor::insertRichText(KoSvgTextShape *insert, bool inheritPropertiesIfPossible)
 {
     if (d->shape) {
-        //KUndo2Command *parentCmd = new KUndo2Command;
         if (hasSelection()) {
             SvgTextRemoveCommand *removeCmd = removeSelectionImpl(false);
             addCommandToUndoAdapter(removeCmd);
@@ -991,7 +974,6 @@ void SvgTextCursor::paintDecorations(QPainter &gc, QColor selectionColor, int de
             QString name = handleName(d->hoveredTypeSettingHandle);
             if (!name.isEmpty()) {
                 QPainterPath textP;
-                // When we're drawing on opengl, there's no anti-aliasing, so we should have full hinting for readabiltiy.
                 QFont font = gc.font();
                 font.setHintingPreference(QFont::PreferFullHinting);
                 textP.addText(painterTf.map(d->typeSettingDecor.closestBaselinePoint).toPoint(), font, name);
@@ -1014,18 +996,14 @@ QVariant SvgTextCursor::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     dbgTools << "receiving inputmethod query" << query;
 
-    // Because we set the input item transform to be shape->document->view->widget->window,
-    // the coordinates here should be in shape coordinates.
     switch(query) {
     case Qt::ImEnabled:
         return d->shape? true: false;
         break;
     case Qt::ImCursorRectangle:
-        // The platform integration will always define the cursor as the 'left side' handle.
         if (d->shape) {
             QPointF caret1(d->cursorCaret.p1());
             QPointF caret2(d->cursorCaret.p2());
-
 
             QRectF rect = QRectF(caret1, caret2).normalized();
             if (!rect.isValid()) {
@@ -1041,7 +1019,6 @@ QVariant SvgTextCursor::inputMethodQuery(Qt::InputMethodQuery query) const
         }
         break;
     case Qt::ImAnchorRectangle:
-        // The platform integration will always define the anchor as the 'right side' handle.
         if (d->shape) {
             QPointF caret1(d->anchorCaret.p1());
             QPointF caret2(d->anchorCaret.p2());
@@ -1057,7 +1034,6 @@ QVariant SvgTextCursor::inputMethodQuery(Qt::InputMethodQuery query) const
             return rect.toAlignedRect();
         }
         break;
-    //case Qt::ImFont: // not sure what this is used for, but we cannot sent out without access to properties.
     case Qt::ImAbsolutePosition:
     case Qt::ImCursorPosition:
         if (d->shape) {
@@ -1101,7 +1077,7 @@ QVariant SvgTextCursor::inputMethodQuery(Qt::InputMethodQuery query) const
         }
         break;
     case Qt::ImMaximumTextLength:
-        return QVariant(); // infinite text length!
+        return QVariant();
         break;
     case Qt::ImAnchorPosition:
         if (d->shape) {
@@ -1109,29 +1085,17 @@ QVariant SvgTextCursor::inputMethodQuery(Qt::InputMethodQuery query) const
         }
         break;
     case Qt::ImHints:
-        // It would be great to use Qt::ImhNoTextHandles or Qt::ImhNoEditMenu,
-        // but neither are implemented for anything but web platform integration
         return Qt::ImhMultiLine;
         break;
-    // case Qt::ImPreferredLanguage: // requires access to properties.
 #if defined(Q_OS_ANDROID) && KRITA_QT_HAS_ANDROID_INPUT_PLATFORM_DATA_SOFT_INPUT_ADJUST_NOTHING
     case Qt::ImPlatformData:
-        // Platform-specific data. Qt normally only uses this on iOS, but we
-        // have a patch that allows us to control the keyboard pan behavior.
-        // Normally it pans the application window up if the text area would end
-        // up underneath the keyboard, but that's silly for the on-canvas text
-        // input because the location can be changed by panning the canvas. And
-        // if you do that while the keyboard is up, you end up with the whole
-        // window panned up for no reason until you dismiss and re-show it, so
-        // better to just do nothing in the first place and let the user pan.
         return Qt::ANDROID_INPUT_PLATFORM_DATA_SOFT_INPUT_ADJUST_NOTHING;
 #endif
     case Qt::ImEnterKeyType:
         if (d->shape) {
-            return Qt::EnterKeyDefault; // because input method hint is always multiline, this will show a return key.
+            return Qt::EnterKeyDefault;
         }
         break;
-    // case Qt::ImInputItemClipRectangle // whether the input item is clipped?
     default:
         return QVariant();
     }
@@ -1149,7 +1113,6 @@ void SvgTextCursor::inputMethodEvent(QInputMethodEvent *event)
     bool isGettingInput = !event->commitString().isEmpty() || !event->preeditString().isEmpty()
                 || event->replacementLength() > 0;
 
-    // Remove previous preedit string.
     if (d->preEditCommand) {
         d->preEditCommand->undo();
         d->preEditCommand = 0;
@@ -1167,10 +1130,8 @@ void SvgTextCursor::inputMethodEvent(QInputMethodEvent *event)
 
     Private::InputQueryUpdateBlocker inputQueryUpdateBlocker(d);
 
-    // remove the selection if any.
     addCommandToUndoAdapter(removeSelectionImpl(false));
 
-    // set the text insertion pos to replacement start and also remove replacement length, if any.
     int originalPos = d->pos;
     int index = d->shape->indexForPos(d->pos) + event->replacementStart();
     d->pos = d->shape->posForIndex(index);
@@ -1184,12 +1145,10 @@ void SvgTextCursor::inputMethodEvent(QInputMethodEvent *event)
         addCommandToUndoAdapter(cmd);
     }
 
-    // add the commit string, if any.
     if (!event->commitString().isEmpty()) {
         insertText(event->commitString());
     }
 
-    // set the selection...
     Q_FOREACH(const QInputMethodEvent::Attribute attribute, event->attributes()) {
         if (attribute.type == QInputMethodEvent::Selection) {
             d->pos = d->shape->posForIndex(attribute.start);
@@ -1198,8 +1157,6 @@ void SvgTextCursor::inputMethodEvent(QInputMethodEvent *event)
         }
     }
 
-
-    // insert a preedit string, if any.
     if (!event->preeditString().isEmpty()) {
         int index = d->shape->indexForPos(d->pos);
         d->preEditCommand = new SvgTextInsertCommand(d->shape, d->pos, d->anchor, event->preeditString());
@@ -1210,15 +1167,10 @@ void SvgTextCursor::inputMethodEvent(QInputMethodEvent *event)
         d->preEditCommand = 0;
     }
 
-    // Apply the cursor offset for the preedit.
     QVector<IMEDecorationInfo> styleMap;
     Q_FOREACH(const QInputMethodEvent::Attribute attribute, event->attributes()) {
         dbgTools << "attribute: "<< attribute.type << "start: " << attribute.start
                  << "length: " << attribute.length << "val: " << attribute.value;
-        // Text Format is about setting the look of the preedit string, and there can be multiple per event
-        // we primarily interpret the underline. When a background color is set, we increase the underline
-        // thickness, as that's what is actually supposed to happen according to the comments in the
-        // platform input contexts for both macOS and Windows.
 
         if (attribute.type == QInputMethodEvent::TextFormat) {
             QVariant val = attribute.value;
@@ -1313,9 +1265,6 @@ void SvgTextCursor::inputMethodEvent(QInputMethodEvent *event)
                 styleMap.append(decoration);
             }
 
-        // QInputMethodEvent::Language is about setting the locale on the given  preedit string, which is not possible yet.
-        // QInputMethodEvent::Ruby is supposedly ruby info for the preedit string, but none of the platform integrations
-        // actually implement this at time of writing, and it may have been something from a previous live of Qt's.
         } else if (attribute.type == QInputMethodEvent::Cursor) {
             if (d->preEditStart < 0) {
                 d->anchor = d->pos;
@@ -1325,14 +1274,11 @@ void SvgTextCursor::inputMethodEvent(QInputMethodEvent *event)
                 d->anchor = d->pos;
             }
 
-            // attribute value is the cursor color, and should be used to paint the cursor.
-            // attribute length is about whether the cursor should be visible at all...
         }
     }
 
     blocker.unlock();
     updateRect |= d->shape->boundingRect();
-    // TODO: replace with KoShapeBulkActionLock
     d->shape->updateAbsolute(updateRect);
     d->styleMap = styleMap;
     updateIMEDecoration();
@@ -1361,7 +1307,6 @@ void SvgTextCursor::stopBlinkCursor()
 
 void SvgTextCursor::updateInputMethodItemTransform()
 {
-    // Mockcanvas in the tests has no window.
     if (!d->canvas->canvasWidget()) {
         return;
     }
@@ -1375,7 +1320,6 @@ void SvgTextCursor::updateInputMethodItemTransform()
         QTransform docToView = d->canvas->viewConverter()->documentToView();
         QTransform viewToWidget = d->canvas->viewConverter()->viewToWidget();
         inputItemTransform = shapeTransform * docToView * viewToWidget * widgetToWindow;
-        // Only mess with IME if we're actually the thing being typed at.
         if (d->hasFocus) {
             QInputMethod *inputMethod = QGuiApplication::inputMethod();
             inputMethod->setInputItemTransform(inputItemTransform);
@@ -1488,7 +1432,6 @@ void SvgTextCursor::keyPressEvent(QKeyEvent *event)
     updateModifiers(event->modifiers());
 
     if (d->preEditCommand) {
-        //MacOS will keep sending keyboard events during IME handling.
         event->accept();
         return;
     }
@@ -1546,9 +1489,6 @@ void SvgTextCursor::keyPressEvent(QKeyEvent *event)
     KoSvgText::WritingMode mode = KoSvgText::WritingMode(props.propertyOrDefault(KoSvgTextProperties::WritingModeId).toInt());
     KoSvgText::Direction direction = KoSvgText::Direction(props.propertyOrDefault(KoSvgTextProperties::DirectionId).toInt());
 
-    // Qt's keysequence stuff doesn't handle vertical, so to test all the standard keyboard shortcuts as if it did,
-    // we reinterpret the direction keys according to direction and writing mode, and test against that.
-
     int newKey = event->key();
 
     if (direction == KoSvgText::DirectionRightToLeft) {
@@ -1602,12 +1542,6 @@ void SvgTextCursor::keyPressEvent(QKeyEvent *event)
 
     QKeySequence testSequence(event->modifiers() | newKey);
 
-
-    // Note for future, when we have format changing actions:
-    // We'll need to test format change actions before the standard
-    // keys, as one of the standard keys for deleting a line is ctrl+u
-    // which would probably be expected to do underline before deleting.
-
     Q_FOREACH(QAction *action, d->actions) {
         if (action->shortcut() == testSequence) {
             event->accept();
@@ -1616,10 +1550,6 @@ void SvgTextCursor::keyPressEvent(QKeyEvent *event)
         }
     }
 
-    // This first set is already tested above, however, if they still
-    // match, then it's one of the extra sequences for MacOs, which
-    // seem to be purely logical, instead of the visual set we tested
-    // above.
     if (testSequence == QKeySequence::MoveToNextChar) {
         moveCursor(SvgTextCursor::MoveNextChar, true);
         event->accept();
@@ -1798,7 +1728,6 @@ void SvgTextCursor::updateCursor(bool firstUpdate)
     }
     d->interface->emitCharacterSelectionChange();
     if (!(d->canvas->canvasWidget() && d->canvas->canvasController())) {
-        // Mockcanvas in the tests has neither.
         return;
     }
     if (d->shape && !firstUpdate) {
@@ -1855,8 +1784,6 @@ void SvgTextCursor::updateIMEDecoration()
     }
 }
 
-/// Lineheight calculation is a little tricky sometimes...
-/// Maybe we should generalize this so the one in the layout and this one uses the same base function.
 int calcLineHeight(const KoSvgText::LineHeightInfo &lineHeight, const KoSvgText::FontMetrics &metrics, const qreal scaleMetrics) {
     if (!lineHeight.isNormal) {
         if (lineHeight.isNumber) {
@@ -1954,7 +1881,6 @@ void SvgTextCursor::updateTypeSettingDecoration()
         d->typeSettingDecor.handles.first = rtl? last.finalPos: first.finalPos;
         d->typeSettingDecor.handles.second = rtl? first.finalPos: last.finalPos;
 
-        //Start collecting the metrics decoration...
         d->typeSettingDecor.paths = QMap<SvgTextCursor::TypeSettingModeHandle, QPainterPath>();
         d->typeSettingDecor.baselines = QMap<SvgTextCursor::TypeSettingModeHandle, QPainterPath>();
         d->typeSettingDecor.edges = QPainterPath();
@@ -1969,7 +1895,6 @@ void SvgTextCursor::updateTypeSettingDecoration()
         const int maxPos = qMax(d->pos, d->anchor);
         const int endPos = d->shape->posForIndex(d->shape->plainText().size());
 
-        /// This adds the start and end decoration...
         if (minPos > 0 || maxPos < endPos) {
             const KoSvgTextProperties props = d->shape->textProperties();
             KoSvgText::LineHeightInfo lineHeight = props.propertyOrDefault(KoSvgTextProperties::LineHeightId).value<KoSvgText::LineHeightInfo>();
@@ -2032,8 +1957,7 @@ void SvgTextCursor::updateTypeSettingDecoration()
             }
         }
 
-        /// This could be better but requires better nodeindex retrieval...
-        bool toggleOffset = false; // MetricInfos are visually-ordered.
+        bool toggleOffset = false;
         for (auto it = metricInfos.begin(); it != metricInfos.end(); it++) {
             const int currentPos = (d->pos == d->anchor)? -1 :d->shape->posForIndex(it->logicalIndex);
 
@@ -2062,7 +1986,6 @@ void SvgTextCursor::updateTypeSettingDecoration()
             }
         }
 
-        /// Split up baselines into paths and baselines.
         const QList<SvgTextCursor::TypeSettingModeHandle> nonBaselines = {
             LineHeightTop, Ascender, BaselineShift, Descender, LineHeightBottom
         };
@@ -2077,7 +2000,7 @@ void SvgTextCursor::updateTypeSettingDecoration()
 
         updateRect = d->shape->shapeToDocument(d->typeSettingDecor.boundingRect(d->handleRadius));
     }
-    updateTypeSettingDecorFromShape(); // To remove the text-in-path nodes..
+    updateTypeSettingDecorFromShape();
     Q_EMIT updateCursorDecoration(updateRect | d->oldTypeSettingRect);
     d->oldTypeSettingRect = updateRect;
 }
@@ -2167,18 +2090,14 @@ int SvgTextCursor::moveModeResult(const SvgTextCursor::MoveMode mode, int &pos, 
     return newPos;
 }
 
-/// More or less copied from bool QInputControl::isAcceptableInput(const QKeyEvent *event) const
 bool SvgTextCursor::acceptableInput(const QKeyEvent *event) const
 {
     const QString text = event->text();
     if (text.isEmpty())
         return false;
     const QChar c = text.at(0);
-    // Formatting characters such as ZWNJ, ZWJ, RLM, etc. This needs to go before the
-    // next test, since CTRL+SHIFT is sometimes used to input it on Windows.
     if (c.category() == QChar::Other_Format)
         return true;
-    // QTBUG-35734: ignore Ctrl/Ctrl+Shift; accept only AltGr (Alt+Ctrl) on German keyboards
     if (event->modifiers() == Qt::ControlModifier
             || event->modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
         return false;
@@ -2214,8 +2133,6 @@ void SvgTextCursor::commitIMEPreEdit()
 
 void SvgTextCursor::updateCanvasResources()
 {
-    // Only update canvas resources when there's no selection.
-    // This relies on Krita not setting anything on the text when there's no selection.
     if (d->shape && d->canvas->resourceManager() && d->pos == d->anchor) {
         KoSvgTextProperties props = hasSelection()? d->shape->propertiesForPos(qMin(d->pos, d->anchor), true): d->shape->textProperties();
         KoColorBackground *bg = dynamic_cast<KoColorBackground *>(props.background().data());
@@ -2238,7 +2155,6 @@ void SvgTextCursor::updateCanvasResources()
         }
 
         Q_FOREACH (QAction *action, d->actions) {
-            // Blocking signals so that we don't get a toggle action while evaluating the checked-ness.
             action->blockSignals(true);
             const QList<KoSvgTextProperties> r = d->shape->propertiesForRange(qMin(d->pos, d->anchor), qMax(d->pos, d->anchor), true);
             if (action->isCheckable() && SvgTextShortCuts::possibleActions().contains(action->objectName())) {
@@ -2280,7 +2196,6 @@ QList<KoSvgTextProperties> SvgTextCursorPropertyInterface::getSelectedProperties
 
 QList<KoSvgTextProperties> SvgTextCursorPropertyInterface::getCharacterProperties()
 {
-    // When there's only a single node, its best to only return empty properties, as paragraph properties handle that single node.
     if (!d->parent->shape()) return QList<KoSvgTextProperties>();
     if (d->parent->shape()->singleNode()) {
         return {KoSvgTextProperties()};
@@ -2290,8 +2205,6 @@ QList<KoSvgTextProperties> SvgTextCursorPropertyInterface::getCharacterPropertie
 
 KoSvgTextProperties SvgTextCursorPropertyInterface::getInheritedProperties()
 {
-    // 9 times out of 10 this is correct, though we could do better by actually
-    // getting inherited properties for the range and not just defaulting to the paragraph.
     return (d->parent->shape())? d->parent->shape()->textProperties(): KoSvgTextProperties();
 }
 
@@ -2317,8 +2230,6 @@ bool SvgTextCursorPropertyInterface::characterPropertiesEnabled()
 
 void SvgTextCursorPropertyInterface::emitSelectionChange()
 {
-    // Don't bother updating the selection when there's no shape
-    // this is so we can use the text properties last used to create new texts.
     if (!d->parent->shape()) return;
     d->compressor.start();
 }

@@ -34,7 +34,6 @@ void KisColorPatchesTableDelegate::paint(QPainter *painter,
     const QColor color = index.data(Qt::UserRole).value<QColor>();
 
     if (color.isValid()) {
-        // painter->fillRect(QRect(option.rect.topLeft(), size), color);
         painter->fillRect(option.rect, color);
     }
 }
@@ -64,7 +63,6 @@ KisColorPatchesTableView::KisColorPatchesTableView(const QString &configPrefix, 
     setShowGrid(false);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setSelectionMode(QAbstractItemView::NoSelection);
-    // makes sure that the patches don't go out of bounds, one can notice if kinetic scrolling enabled.
     setStyleSheet("QTableView{ border: 0px}");
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -138,7 +136,6 @@ void KisColorPatchesTableView::reloadWidgetConfig()
         setMinimumWidth((m_d->patchWidth + 0) * m_d->numCols);
         setMaximumWidth((m_d->patchWidth + 0) * m_d->numCols);
 
-        // reset if this was previously Horizontal
         setMinimumHeight(m_d->patchHeight);
         setMaximumHeight(QWIDGETSIZE_MAX);
 
@@ -147,14 +144,12 @@ void KisColorPatchesTableView::reloadWidgetConfig()
         setMinimumHeight((m_d->patchHeight + 0) * m_d->numRows);
         setMaximumHeight((m_d->patchHeight + 0) * m_d->numRows);
 
-        // reset if this was previously Vertical
         setMinimumWidth(m_d->patchWidth);
         setMaximumWidth(QWIDGETSIZE_MAX);
 
         setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     }
 
-    // minimum should always be set before default.
     verticalHeader()->setMinimumSectionSize(m_d->patchHeight);
     verticalHeader()->setMaximumSectionSize(m_d->patchHeight);
     verticalHeader()->setDefaultSectionSize(m_d->patchHeight);
@@ -162,7 +157,6 @@ void KisColorPatchesTableView::reloadWidgetConfig()
     horizontalHeader()->setMaximumSectionSize(m_d->patchWidth);
     horizontalHeader()->setDefaultSectionSize(m_d->patchWidth);
 
-    // don't let the user resize us.
     verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
@@ -205,7 +199,6 @@ void KisColorPatchesTableView::wheelEvent(QWheelEvent *event)
     if (m_d->direction == KisColorPatches::Horizontal) {
         bool horizontal = qAbs(event->angleDelta().x()) > qAbs(event->angleDelta().y());
         if (!horizontal) {
-            // HACK: here we make our normal vertical scroller, also do a horizontal scroll
             QPoint modifiedAngleDelta = {event->angleDelta().y(), event->angleDelta().x()};
             QWheelEvent modifiedEvent(event->position(),
                                       event->globalPosition(),
@@ -241,23 +234,15 @@ void KisColorPatchesTableView::redraw()
         return;
     }
 
-    // a simple index, keeping count of how many patches have been put in the model.
     int linearIndex = 0;
-    // sorry for the lack of term, think of pointer as pointing to an array and index iterating inside that
-    // array.
     const int limit = ((m_d->direction == KisColorPatches::Vertical) ? m_d->numCols : m_d->numRows);
     int pointer = 0;
-    // index should start from 1, because the first item is the "extra" button we have to take care of.
     int index = 1 % limit;
 
     Q_FOREACH (const KoColor &color, m_d->colorPatches) {
         if (linearIndex > m_d->patchCount) {
             break;
         }
-        // We handle two cases:
-        // (1) say if numColumn = 1 and we are on row = 0, then we should add a row than trying to draw in
-        // i + 1 column (since column never changes in this case).
-        // (2) we have reached the end of the "array". Create a new sequence.
         if (index == 0) {
             pointer++;
             if (m_d->direction == KisColorPatches::Vertical) {
@@ -281,7 +266,6 @@ void KisColorPatchesTableView::redraw()
 
 boost::optional<KoColor> KisColorPatchesTableView::colorPatchAt(const QPoint &pos) const
 {
-    // TODO(sh_zam): Is there a better way that doesn't have to involve mapFromGlobal?
     const QModelIndex index = indexAt(mapFromGlobal(pos));
     if (!index.isValid()) {
         return boost::none;
@@ -292,7 +276,6 @@ boost::optional<KoColor> KisColorPatchesTableView::colorPatchAt(const QPoint &po
     } else {
         linearIndex = index.column() * m_d->model->rowCount() + index.row();
     }
-    // since (0, 0) index has the additional button.
     linearIndex -= 1;
 
     if (linearIndex < 0 || linearIndex >= m_d->colorPatches.size()) {

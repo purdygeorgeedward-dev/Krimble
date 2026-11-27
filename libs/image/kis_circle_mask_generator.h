@@ -16,9 +16,6 @@
 template <typename V>
 struct FastRowProcessor;
 
-/**
- * Create, serialize and deserialize an elliptical 8-bit mask.
- */
 class KRITAIMAGE_EXPORT KisCircleMaskGenerator : public KisMaskGenerator
 {
 public:

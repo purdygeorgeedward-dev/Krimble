@@ -10,12 +10,10 @@
 #include <QCheckBox>
 #include <QScopedPointer>
 
-
 #include "kis_types.h"
 #include <KoDialog.h>
 
 #include "ui_wdglayerproperties.h"
-
 
 class QWidget;
 class QBitArray;
@@ -32,11 +30,6 @@ public:
     }
 };
 
-/**
- * KisDlgLayerProperties is a dialogue for displaying and modifying information on a KisLayer.
- * The dialog is non modal by default and uses a timer to check for user changes to the
- * configuration, showing a preview of them.
- */
 class KisDlgLayerProperties : public KoDialog
 {
     Q_OBJECT
@@ -69,5 +62,5 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // KIS_DLG_LAYER_PROPERTIES_H_
+#endif
 

@@ -30,7 +30,6 @@
 #include <KisGlobalResourcesInterface.h>
 #include <KisLocalStrokeResources.h>
 
-
 void KisLayerStyleProjectionPlaneTest::test(KisPSDLayerStyleSP style, const QString testName)
 {
     const QRect imageRect(0, 0, 200, 200);
@@ -51,7 +50,6 @@ void KisLayerStyleProjectionPlaneTest::test(KisPSDLayerStyleSP style, const QStr
 
     KIS_DUMP_DEVICE_2(layer->projection(), imageRect, "00L_initial", testName);
 
-    //layer->paintDevice()->fill(rFillRect, KoColor(Qt::red, cs));
     {
         KisPainter gc(layer->paintDevice());
         gc.setPaintColor(KoColor(Qt::red, cs));
@@ -113,8 +111,6 @@ void KisLayerStyleProjectionPlaneTest::test(KisPSDLayerStyleSP style, const QStr
         }
     }
 
-    //return;
-
     KisTransparencyMaskSP transparencyMask = new KisTransparencyMask(image, "tmask");
 
     KisSelectionSP selection = new KisSelection();
@@ -155,7 +151,6 @@ void KisLayerStyleProjectionPlaneTest::test(KisPSDLayerStyleSP style, const QStr
         KIS_DUMP_DEVICE_2(projection, imageRect, "12P_apply_partial", testName);
     }
 
-    // half updates
     transparencyMask->setVisible(false);
 
     {
@@ -190,7 +185,6 @@ void KisLayerStyleProjectionPlaneTest::test(KisPSDLayerStyleSP style, const QStr
         KIS_DUMP_DEVICE_2(projection, imageRect, "16P_apply_half2", testName);
     }
 }
-
 
 void KisLayerStyleProjectionPlaneTest::testShadow()
 {
@@ -272,8 +266,6 @@ void KisLayerStyleProjectionPlaneTest::testGlowGradientJitter()
     style->outerGlow()->setFillType(psd_fill_gradient);
     style->outerGlow()->setJitter(20);
 
-
-
     test(style, "glow_outer_grad_jit");
 }
 
@@ -306,7 +298,6 @@ void KisLayerStyleProjectionPlaneTest::testGlowInnerGradient()
 }
 
 #include <KoCompositeOpRegistry.h>
-
 
 void KisLayerStyleProjectionPlaneTest::testSatin()
 {
@@ -372,7 +363,6 @@ void KisLayerStyleProjectionPlaneTest::testPatternOverlay()
 
     QVERIFY(pattern->load(KisGlobalResourcesInterface::instance()));
 
-
     QSharedPointer<KisLocalStrokeResources> resourcesInterface(new KisLocalStrokeResources());
     resourcesInterface->addResource(pattern);
     style->setResourcesInterface(resourcesInterface);
@@ -403,7 +393,6 @@ void KisLayerStyleProjectionPlaneTest::testStroke()
 
     test(style, "stroke_col_in");
 
-
     QString fileName(TestUtil::fetchDataFileLazy("pattern.pat"));
     KoPatternSP pattern(new KoPattern(fileName));
     QVERIFY(pattern->load(KisGlobalResourcesInterface::instance()));
@@ -416,7 +405,6 @@ void KisLayerStyleProjectionPlaneTest::testStroke()
     style->stroke()->setFillType(psd_fill_pattern);
 
     test(style, "stroke_pat");
-
 
     QLinearGradient testGradient;
     testGradient.setColorAt(0.0, Qt::white);
@@ -446,7 +434,6 @@ void KisLayerStyleProjectionPlaneTest::testBumpmap()
     QRect fillRect(210, 110, 80, 80);
     quint8 selectedness = 256 - numCycles * step;
 
-
     for (int i = 0; i < numCycles; i++) {
         device->select(fillRect, selectedness);
 
@@ -455,7 +442,6 @@ void KisLayerStyleProjectionPlaneTest::testBumpmap()
     }
 
     KIS_DUMP_DEVICE_2(device, applyRect, "00_initial", "bumpmap");
-
 
     bumpmap_vals_t bmvals;
 
@@ -611,7 +597,6 @@ void KisLayerStyleProjectionPlaneTest::testBlending()
     }
 
     const QRect rc = bg->exactBounds() | layer->exactBounds();
-
 
     KIS_DUMP_DEVICE_2(layer, rc, "00_layer", "dd");
     KIS_DUMP_DEVICE_2(overlay, rc, "01_overlay", "dd");

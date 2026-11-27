@@ -19,7 +19,6 @@
 #include <KisBezierUtils.h>
 #include <KisBezierPatch.h>
 
-
 #include <KisBezierMesh.h>
 #include <KisBezierGradientMesh.h>
 #include <KisBezierTransformMesh.h>
@@ -30,7 +29,6 @@
 #include <kis_grid_interpolation_tools.h>
 
 using namespace KisBezierUtils;
-
 
 bool testCurveLinear(const QPointF &p0,
                      const QPointF &p1,
@@ -43,25 +41,17 @@ bool testCurveLinear(const QPointF &p0,
 
     const bool isLinear = isLinearSegmentByControlPoints(p0, p1, p2, p3, threshold);
 
-    //qDebug() << ppVar(isLinear);
-
     bool distanceCorrect = true;
 
     for (qreal t = 0.0; t < 1.0; t += 0.05) {
         const QPointF pt = bezierCurve(p0, p1, p2, p3, t);
 
-        //qDebug() << ppVar(t) << pt;
-
         const qreal distance = kisDistanceToLine(pt, QLineF(p0, p3));
 
         if (distance > threshold) {
             distanceCorrect = false;
-            //qDebug() << "Non-linear point" << ppVar(t) << ppVar(pt) << ppVar(distance);
         }
     }
-
-
-    //qDebug() << "==";
 
     return isLinear == expectedValue && (!expectedValue || distanceCorrect);
 }
@@ -114,7 +104,6 @@ void KisMeshTransformWorkerTest::testPointsQImage()
 
     {
 
-
         QImage dstImage(dstBoundsI.size(), srcImage.format());
         dstImage.fill(0);
 
@@ -130,7 +119,6 @@ void KisMeshTransformWorkerTest::testPointsQImage()
     {
         KisPaintDeviceSP dstDev = new KisPaintDevice(srcDev->colorSpace());
         dstDev->prepareClone(srcDev);
-
 
         KisBezierTransformMesh::transformPatch(patch, srcDev, dstDev);
 
@@ -200,7 +188,6 @@ void KisMeshTransformWorkerTest::testMeshSubdivision()
         QCOMPARE(mesh.node(2, 2).node, QPointF(100, 100));
     }
 
-
     {
         KisBezierMesh mesh(QRectF(0,0,100,100));
         mesh.node(0,0).setRightControlRelative(QPointF(10, -5));
@@ -246,9 +233,7 @@ void KisMeshTransformWorkerTest::testGlobalToLocal()
     mesh.node(1,1).setLeftControlRelative(QPointF(-10, 5));
     mesh.node(1,1).setTopControlRelative(QPointF(5, -10));
 
-
     KisBezierPatch patch = mesh.makePatch(0,0);
-
 
     auto verifyPoint = [&] (const QPointF &globalPoint, const QPointF &expectedLocalPoint) {
         const qreal eps = 1e-3;
@@ -327,10 +312,6 @@ void KisMeshTransformWorkerTest::testRemovePoint()
     deCasteljau(p0, p1, p2, p3, t1, &c1, &c2, &c3, &q1, &q2);
     q0 = c3;
 
-//    qDebug() << ppVar(p0) << ppVar(p1) << ppVar(p2) << ppVar(p3);
-//    qDebug() << ppVar(c0) << ppVar(c1) << ppVar(c2) << ppVar(c3);
-//    qDebug() << ppVar(q0) << ppVar(q1) << ppVar(q2) << ppVar(q3);
-
     QPointF r1;
     QPointF r2;
 
@@ -349,15 +330,6 @@ void KisMeshTransformWorkerTest::testIsIdentity()
     mesh.node(0,0).setRightControlRelative(QPointF(18, 0));
     mesh.node(0,0).setBottomControlRelative(QPointF(0, 18));
 
-    /**
-     * WISHLIST: in the current implementation even a slight change of the
-     * mesh, which doesn't cause any deformations, will be considered as
-     * making the mesh non-identity. Ideally, we could check the mesh for
-     * mathematical transformation identity, but that seems to be a bit of
-     * overkill for the current usecase (silently canceling transform tool
-     * a action). Implementing this change is rather complicated because the
-     * same functionality is used in the KisBezierGradientMesh.
-     */
     QVERIFY(!mesh.isIdentity());
 
     mesh.node(0,0).setRightControlRelative(QPointF(10, -5));
@@ -390,8 +362,6 @@ void KisMeshTransformWorkerTest::testSerialization()
     doc.appendChild(e);
 
     KisDomUtils::saveValue(&e, "mytransform", mesh);
-
-    //printf("%s", doc.toString(4).toLatin1().data());
 
     KisBezierTransformMesh roundTripMesh;
 
@@ -468,8 +438,6 @@ void KisMeshTransformWorkerTest::testIteratorConstness()
     {
         using NodeIndex = KisBezierTransformMesh::NodeIndex;
         using SegmentIndex = KisBezierTransformMesh::SegmentIndex;
-//        using ControlPointIndex = KisBezierTransformMesh::ControlPointIndex;
-//        using ControlType = KisBezierTransformMesh::ControlType;
 
         auto segmentIt = mesh.find(SegmentIndex(NodeIndex(0,0), 1));
 
@@ -537,7 +505,6 @@ void KisMeshTransformWorkerTest::testHitTestPatchInSourceSpace()
     QCOMPARE(rect, QRect(0,0,3,3));
 }
 
-
 void KisMeshTransformWorkerTest::testParamToSourceSpace()
 {
     using namespace KisBezierUtils;
@@ -551,7 +518,6 @@ void KisMeshTransformWorkerTest::testParamToSourceSpace()
 
     Range externalRange;
     Range internalRange;
-
 
     {
         Range rect = {60, 70};
@@ -608,9 +574,6 @@ void KisMeshTransformWorkerTest::testParamToSourceSpace()
         KIS_COMPARE_FLT(internalRange.start, 0.750000, 6);
         KIS_COMPARE_FLT(internalRange.end, 1.00000, 6);
 
-        /**
-         * The second pass for better precision
-         */
         std::tie(externalRange, internalRange) =
             calcTightSrcRectRangeInParamSpace1D(externalRange, searchSrcRange, rect, func, 0.001, Range{0.4, 0.6});
 
@@ -627,7 +590,6 @@ void KisMeshTransformWorkerTest::testApproximateSourceToParam()
     KisBezierMesh mesh(QRectF(50, 50, 100, 100));
     KisBezierPatch patch = mesh.makePatch(0,0);
     const QRect rect(60, 60, 20, 20);
-
 
     const QRectF result = KisBezierTransformMesh::calcTightSrcRectRangeInParamSpace(patch, rect, 0.1);
 
@@ -678,7 +640,6 @@ void KisMeshTransformWorkerTest::testComplexChangeRect()
 
     bool result =
         KisDomUtils::findOnlyElement(e, "mesh_transform", &meshEl);
-
 
     QVERIFY(result);
     QVERIFY(!meshEl.isNull());

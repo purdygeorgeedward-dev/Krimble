@@ -37,4 +37,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // RESOURCEMANAGER_H
+#endif

@@ -41,7 +41,6 @@ struct DefaultKoColorInitializer
         value = new KoColor(Qt::black, defaultColorSpace);
 #ifndef NODEBUG
 #ifndef QT_NO_DEBUG
-        // warn about rather expensive checks in assertPermanentColorspace().
         qWarning() << "KoColor debug runtime checks are active.";
 #endif
 #endif
@@ -52,10 +51,6 @@ struct DefaultKoColorInitializer
     void initializeMetatype() {
         qRegisterMetaType<KoColor>();
 
-        /**
-         * We want KoColor to be comparable inside QVariant,
-         * so we should generate comparators.
-         */
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
         QMetaType::registerEqualsComparator<KoColor>();
 #endif
@@ -111,7 +106,6 @@ KoColor::KoColor(const quint8 * data, const KoColorSpace * colorSpace)
     memmove(m_data, data, m_size);
 }
 
-
 KoColor::KoColor(const KoColor &src, const KoColorSpace * colorSpace)
 {
     Q_ASSERT(colorSpace);
@@ -135,8 +129,6 @@ bool KoColor::operator==(const KoColor &other) const {
 
 void KoColor::convertTo(const KoColorSpace * cs, KoColorConversionTransformation::Intent renderingIntent, KoColorConversionTransformation::ConversionFlags conversionFlags)
 {
-    //dbgPigment <<"Our colormodel:" << d->colorSpace->id().name()
-    //      << ", new colormodel: " << cs->id().name() << "\n";
 
     if (*m_colorSpace == *cs)
         return;
@@ -194,7 +186,6 @@ void KoColor::setColor(const quint8 * data, const KoColorSpace * colorSpace)
     m_colorSpace = KoColorSpaceRegistry::instance()->permanentColorspace(colorSpace);
 }
 
-// To save the user the trouble of doing color->colorSpace()->toQColor(color->data(), &c, &a, profile
 void KoColor::toQColor(QColor *c) const
 {
     Q_ASSERT(c);
@@ -276,15 +267,11 @@ void KoColor::dump() const
 
     for (QList<KoChannelInfo *>::const_iterator it = begin; it != end; ++it) {
         KoChannelInfo * ch = (*it);
-        // XXX: setNum always takes a byte.
         if (ch->size() == sizeof(quint8)) {
-            // Byte
             dbgPigment <<"Channel (byte):" << ch->name() <<":" << QString().setNum(m_data[ch->pos()]) <<"";
         } else if (ch->size() == sizeof(quint16)) {
-            // Short (may also by an nvidia half)
             dbgPigment <<"Channel (short):" << ch->name() <<":" << QString().setNum(*((const quint16 *)(m_data+ch->pos())))  <<"";
         } else if (ch->size() == sizeof(quint32)) {
-            // Integer (may also be float... Find out how to distinguish these!)
             dbgPigment <<"Channel (int):" << ch->name() <<":" << QString().setNum(*((const quint32 *)(m_data+ch->pos())))  <<"";
         }
     }
@@ -404,8 +391,6 @@ KoColor KoColor::fromXML(const QDomElement &elt, const QString &channelDepthId, 
     }
 
     KoColor c(cs);
-    // TODO: Provide a way for colorFromXML() to notify the caller if parsing failed.
-    //       Currently it returns default values on failure.
     cs->colorFromXML(c.data(), elt);
 
     QDomElement e = elt.nextSiblingElement("metadata");
@@ -483,16 +468,12 @@ QString KoColor::toSVG11(QHash<QString, const KoColorProfile *> *profileList) co
         sRGB = true;
     }
 
-    // We don't write a icc-color definition for XYZ and 8bit sRGB.
     if (!(sRGB && colorSpace()->colorDepthId() == Integer8BitsColorDepthID) &&
             colorSpace()->colorModelId() != XYZAColorModelID) {
         QStringList iccColor;
         QString csName = colorSpace()->profile()->name();
-        // remove forbidden characters
-        // https://www.w3.org/TR/SVG11/types.html#DataTypeName
         csName.remove(QRegularExpression("[\\(\\),\\s]"));
 
-        //reuse existing name if possible. We're looking for the color profile, because svg doesn't care about depth.
         csName = profileList->key(colorSpace()->profile(), csName);
 
         if (sRGB) {
@@ -536,10 +517,7 @@ KoColor KoColor::fromSVG11(const QString value, QHash<QString, const KoColorProf
         return parsed;
     }
 
-    // add the sRGB default name.
     profileList.insert("sRGB", KoColorSpaceRegistry::instance()->p709SRGBProfile());
-    // first, try to split at \w\d\) space.
-    // we want to split up a string like... colorcolor none rgb(0.8, 0.1, 200%) #ff0000 icc-color(blah, 0.0, 1.0, 1.0, 0.0);
     QRegularExpression splitDefinitions("(#?\\w+|[\\w\\-]*\\(.+\\))\\s");
     int pos = 0;
     QStringList colorDefinitions;
@@ -595,7 +573,6 @@ KoColor KoColor::fromSVG11(const QString value, QHash<QString, const KoColorProf
             QString iccprofilename = values.first().split("(").last();
             values.removeFirst();
 
-            // svg11 docs say that searching the name should be case-insensitive.
             QStringList entry = QStringList(profileList.keys()).filter(iccprofilename, Qt::CaseInsensitive);
             if (entry.empty()) {
                 continue;
@@ -607,7 +584,6 @@ KoColor KoColor::fromSVG11(const QString value, QHash<QString, const KoColorProf
             QString colormodel = profile->colorModelID();
             QString depth = "F32";
             if (colormodel == LABAColorModelID.id()) {
-                // let our xml handling deal with lab
                 QVector<float> labV(3);
                 for (int i = 0; i < values.size(); i++) {
                     if (i<labV.size()) {
@@ -628,8 +604,6 @@ KoColor KoColor::fromSVG11(const QString value, QHash<QString, const KoColorProf
             } else if (colormodel == CMYKAColorModelID.id()) {
                 depth = "U16";
             } else if (colormodel == XYZAColorModelID.id()) {
-                // Inkscape decided to have X and Z go from 0 to 2, and I can't for the live of me figure out why.
-                // So we're just not parsing XYZ.
                 continue;
             }
             const KoColorSpace * cs = KoColorSpaceRegistry::instance()->colorSpace(colormodel, depth, profile);

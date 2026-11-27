@@ -25,7 +25,6 @@
 
 Q_GLOBAL_STATIC(TextBrushInitializationWorkaround, s_instance)
 
-
 TextBrushInitializationWorkaround *TextBrushInitializationWorkaround::instance()
 {
     return s_instance;
@@ -62,8 +61,7 @@ void KisBrushBasedPaintOp::preinitializeOpStatically(KisPaintOpSettingsSP settin
     TextBrushInitializationWorkaround::instance()->preinitialize(settings);
 }
 
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
-
+#endif
 
 KisBrushBasedPaintOp::KisBrushBasedPaintOp(const KisPaintOpSettingsSP settings, KisPainter* painter, KisBrushTextureFlags textureFlags)
     : KisPaintOp(painter),
@@ -79,15 +77,13 @@ KisBrushBasedPaintOp::KisBrushBasedPaintOp(const KisPaintOpSettingsSP settings, 
 
 #ifdef HAVE_THREADED_TEXT_RENDERING_WORKAROUND
     m_brush = TextBrushInitializationWorkaround::instance()->tryGetBrush(settings);
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
     if (!m_brush) {
         const KisBrushBasedPaintOpSettings *brushBasedSettings =
             dynamic_cast<const KisBrushBasedPaintOpSettings*>(settings.data());
 
         if (brushBasedSettings) {
-            // we don't use KisBrushOptionProperties manually here because
-            // we want the properties to cache this brush in m_savedBrush
             m_brush = brushBasedSettings->brush();
         }
 
@@ -148,7 +144,6 @@ bool KisBrushBasedPaintOp::checkSizeTooSmall(qreal scale)
 
 KisSpacingInformation KisBrushBasedPaintOp::effectiveSpacing(qreal scale) const
 {
-    // we parse dab rotation separately, so don't count it
     QSizeF metric = m_brush->characteristicSize(KisDabShape(scale, 1.0, 0));
     return effectiveSpacing(metric.width(), metric.height(), 1.0, false, 0.0, false);
 }
@@ -173,7 +168,6 @@ KisSpacingInformation KisBrushBasedPaintOp::effectiveSpacing(qreal scale, qreal 
     MirrorProperties prop = m_mirrorOption.apply(pi);
     const bool implicitFlipped = prop.horizontalMirror != prop.verticalMirror;
 
-    // we parse dab rotation separately, so don't count it
     QSizeF metric = m_brush->characteristicSize(KisDabShape(scale, 1.0, 0));
 
     return KisPaintOpPluginUtils::effectiveSpacing(metric.width(), metric.height(),

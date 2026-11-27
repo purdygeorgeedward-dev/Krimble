@@ -26,15 +26,6 @@ SvgTextInsertCommand::SvgTextInsertCommand(KoSvgTextShape *shape, int pos, int a
 QString SvgTextInsertCommand::filterInputUnicodeString(QString text)
 {
     QRegularExpression exp;
-    // This replaces...
-    // - carriage return
-    // - carriage return-linefeed
-    // - line separator
-    // - paragraph separator
-    // - vertical tab/line tab
-    // with a single linefeed to avoid them from being added to the textShape.
-    // NOTE: \r\n comes **before** \r to ensure that full match
-    //       is preferred to the partial match!
     exp.setPattern("(\\r\\n|\\r|\\x{2029}|\\x{2028}|\\x{000b})");
     text.replace(exp, "\n");
     return text;
@@ -43,7 +34,6 @@ QString SvgTextInsertCommand::filterInputUnicodeString(QString text)
 void SvgTextInsertCommand::redo()
 {
     KoShapeBulkActionLock lock(m_shape);
-    // Index defaults to -1 when there's no text in the shape.
     int oldIndex = qMax(0, m_shape->indexForPos(m_pos));
 
     m_textData = m_shape->getMemento();
@@ -71,7 +61,6 @@ int SvgTextInsertCommand::id() const
 bool SvgTextInsertCommand::mergeWith(const KUndo2Command *other)
 {
     const SvgTextInsertCommand *command = dynamic_cast<const SvgTextInsertCommand*>(other);
-
 
     if (!command || command->m_shape != m_shape) {
         return false;

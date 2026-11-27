@@ -14,7 +14,6 @@ class KisNativeGestureShortcut::Private
 public:
 	Private() { }
 
-    // Coverity requires sane defaults for every variable (CID 248365)
     Qt::NativeGestureType type {Qt::PanNativeGesture};
 };
 
@@ -36,6 +35,5 @@ int KisNativeGestureShortcut::priority() const
 
 bool KisNativeGestureShortcut::match(QNativeGestureEvent* event)
 {
-	//printf("checking NativeGesture against KisNativeGestureShortcut %d %d\n", (int)event->gestureType(), (int)d->type);
 	return event->gestureType() == d->type;
 }

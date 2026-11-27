@@ -12,12 +12,10 @@
 #include "KoColor.h"
 #include "KoColorProfile.h"
 
-
 #include "kis_image.h"
 #include "kis_layer.h"
 #include "kis_group_layer.h"
 #include "kis_undo_adapter.h"
-
 
 KisImageLayerMoveCommand::KisImageLayerMoveCommand(KisImageWSP image, KisNodeSP layer, KisNodeSP newParent, KisNodeSP newAbove, bool doUpdates)
         : KisImageCommand(kundo2_i18n("Move Layer"), image)

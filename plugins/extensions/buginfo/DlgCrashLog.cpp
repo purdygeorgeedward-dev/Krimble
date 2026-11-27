@@ -24,7 +24,6 @@ QString DlgCrashLog::originalFileName()
 #elif defined(Q_OS_ANDROID)
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/kritacrashlog.txt";
 #else
-    // since we only have crash log for windows and android
     return QString();
 #endif
 }

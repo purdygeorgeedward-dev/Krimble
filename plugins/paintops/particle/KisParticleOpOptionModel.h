@@ -30,4 +30,4 @@ public:
     LAGER_QT_CURSOR(qreal, particleScaleY);
 };
 
-#endif // KIS_PARTICLEOP_OPTION_MODEL_H
+#endif

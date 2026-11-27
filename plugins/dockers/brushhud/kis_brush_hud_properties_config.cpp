@@ -12,7 +12,6 @@
 #include "kis_config.h"
 #include "kis_dom_utils.h"
 
-
 struct KisBrushHudPropertiesConfig::Private
 {
     QDomDocument doc;
@@ -29,7 +28,6 @@ KisBrushHudPropertiesConfig::KisBrushHudPropertiesConfig()
 {
     m_d->readConfig();
 }
-
 
 KisBrushHudPropertiesConfig::~KisBrushHudPropertiesConfig()
 {

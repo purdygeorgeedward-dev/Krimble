@@ -25,11 +25,6 @@ public:
 
     void setBorderWidth(int width) override;
 
-    /**
-     * @brief getSpaceForSquare
-     * @param geom the full widget rectangle
-     * @return rectangle with enough space for second widget
-     */
     QRect getSpaceForSquare(QRect geom) override;
     QRect getSpaceForCircle(QRect geom) override;
     QRect getSpaceForTriangle(QRect geom) override;
@@ -57,4 +52,4 @@ private:
     bool m_gamutMaskNeedsUpdate;
 };
 
-#endif // KISVISUALCOLORSELECTOR_H
+#endif

@@ -67,7 +67,6 @@ struct KoFontGlyphModel::Private {
 
     ~Private() = default;
 
-
     static QVector<CodePointInfo> charMap(FT_FaceSP face) {
         QVector<CodePointInfo> codePoints;
 
@@ -114,8 +113,6 @@ struct KoFontGlyphModel::Private {
     }
 
     QMap<QString, KoOpenTypeFeatureInfo> getOpenTypeTables(FT_FaceSP face, QVector<CodePointInfo> &charMap, QMap<QString, KoOpenTypeFeatureInfo> previousFeatureInfo, bool gpos, bool samplesOnly, QStringList locales, QLatin1String lang = QLatin1String()) {
-        // All of this was referenced from Inkscape's OpenTypeUtil.cpp::readOpenTypeGsubTable
-        // It has since been reworked to include language testing and alternates.
         QMap<QString, KoOpenTypeFeatureInfo> featureInfo = previousFeatureInfo;
         hb_face_t_sp hbFace(hb_ft_face_create_referenced(face.data()));
         hb_tag_t table = gpos? HB_OT_TAG_GPOS: HB_OT_TAG_GSUB;
@@ -194,7 +191,6 @@ struct KoFontGlyphModel::Private {
                 hb_tag_to_string(*tagIt, c);
                 const QByteArray tagName(c, 4);
                 uint featureIndex;
-
 
                 bool found = hb_ot_layout_language_find_feature (hbFace.data(), table,
                                                                  targetScriptIndex,
@@ -284,10 +280,6 @@ struct KoFontGlyphModel::Private {
                         continue;
                     }
 
-                    // https://github.com/harfbuzz/harfbuzz/issues/673 suggest against checking the lookups,
-                    // but if we don't know the input glyphs, initialization can get really slow.
-                    // Given this is run only when the model is created, this should be fine for now.
-
                     hb_set_t_sp glyphsBefore (hb_set_create());
                     hb_set_t_sp glyphsInput (hb_set_create());
                     hb_set_t_sp glyphsAfter (hb_set_create());
@@ -318,7 +310,6 @@ struct KoFontGlyphModel::Private {
                                                                                    nullptr, nullptr);
 
                         if (alt_count > 0) {
-                            // 0 is the default value.
                             for(uint j = 1; j < alt_count; ++j) {
                                 gci.featureIndex = j;
 
@@ -356,9 +347,6 @@ struct KoFontGlyphModel::Private {
     }
 };
 
-
-
-
 KoFontGlyphModel::KoFontGlyphModel(QObject *parent)
     : QAbstractItemModel(parent)
     , d(new Private)
@@ -383,13 +371,11 @@ QVariant KoFontGlyphModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
     if (role == Qt::DisplayRole) {
-        //qDebug() << Q_FUNC_INFO<< index << index.parent().isValid() << index.parent();
         if (!index.parent().isValid()) {
             return d->codePoints.value(index.row()).utfString;
         } else {
             const Private::CodePointInfo &codePoint = d->codePoints.value(index.parent().row());
             const Private::GlyphInfo &glyph = codePoint.glyphs.value(index.row());
-            //qDebug () << index.parent().row() << index.row() << codePoint.utfString << codePoint.ucs;
             if (glyph.type == UnicodeVariationSelector) {
                 return QString(codePoint.utfString + glyph.baseString);
             } else {
@@ -427,7 +413,6 @@ QVariant KoFontGlyphModel::data(const QModelIndex &index, int role) const
         if (index.parent().isValid()) {
             const Private::CodePointInfo &codePoint = d->codePoints.value(index.parent().row());
             const Private::GlyphInfo &glyph = codePoint.glyphs.value(index.row());
-            //qDebug () << index.parent().row() << index.row() << codePoint.utfString << codePoint.ucs;
             if (glyph.type == OpenType) {
                 features.insert(glyph.baseString, glyph.featureIndex);
             }

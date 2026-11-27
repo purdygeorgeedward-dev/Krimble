@@ -10,14 +10,8 @@
 
 #include <QString>
 
-/**
- * A sham header to make it easier to handle gmic types without
- * needing gmic itself.
- */
-
 enum class OutputMode { InPlace, NewLayers, NewActiveLayers, NewImage, Unspecified = 100 };
 
-// this enum is also index in LAYER_MODE_STRINGS list
 enum class InputLayerMode {
     NoInput,
     Active,
@@ -26,23 +20,22 @@ enum class InputLayerMode {
     ActiveAndAbove,
     AllVisible,
     AllInvisible,
-    AllVisiblesDesc_DEPRECATED, /* Removed since 2.8.2 */
-    AllInvisiblesDesc_DEPRECATED, /* Removed since 2.8.2 */
-    AllDesc_DEPRECATED, /* Removed since 2.8.2 */
+    AllVisiblesDesc_DEPRECATED,
+    AllInvisiblesDesc_DEPRECATED,
+    AllDesc_DEPRECATED,
     Unspecified = 100
 };
 
 template<typename T>
 struct gmic_image {
-    unsigned int _width{0}; // Number of image columns (dimension along the X-axis).
-    unsigned int _height{0}; // Number of image lines (dimension along the Y-axis)
-    unsigned int _depth{1}; // Number of image slices (dimension along the Z-axis).
-    unsigned int _spectrum{3}; // Number of image channels (dimension along the C-axis).
-    bool _is_shared{false}; // Tells if the data buffer is shared by another structure.
-    T *_data{nullptr}; // Pointer to the first pixel value.
-    QString name{}; // Layer name
+    unsigned int _width{0};
+    unsigned int _height{0};
+    unsigned int _depth{1};
+    unsigned int _spectrum{3};
+    bool _is_shared{false};
+    T *_data{nullptr};
+    QString name{};
 
-    // Destructor.
     ~gmic_image()
     {
         if (!_is_shared)
@@ -58,4 +51,4 @@ struct gmic_image {
     }
 };
 
-#endif // GMIC_H
+#endif

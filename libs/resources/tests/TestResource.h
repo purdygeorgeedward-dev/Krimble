@@ -15,4 +15,4 @@ private Q_SLOTS:
     void testCopyResource();
 };
 
-#endif // TESTRESOURCE_H
+#endif

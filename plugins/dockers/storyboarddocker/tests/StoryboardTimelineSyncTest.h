@@ -25,7 +25,7 @@ private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
 
-    void cleanup(); // Called between each test. vvv
+    void cleanup();
 
     void testAddKeyframeExtendsDuration();
     void testStoryboardTimelineTimeSynchronization();

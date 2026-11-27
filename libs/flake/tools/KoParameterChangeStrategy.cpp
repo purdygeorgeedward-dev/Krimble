@@ -12,7 +12,6 @@
 #include <KoCanvasBase.h>
 #include "KoSnapGuide.h"
 
-
 KoParameterChangeStrategy::KoParameterChangeStrategy(KoToolBase *tool, KoParameterShape *parameterShape, int handleId)
     : KoInteractionStrategy(*(new KoParameterChangeStrategyPrivate(tool, parameterShape, handleId)))
 {
@@ -48,15 +47,13 @@ KUndo2Command* KoParameterChangeStrategy::createCommand()
     d->tool->canvas()->snapGuide()->reset();
 
     KoParameterHandleMoveCommand *cmd = 0;
-    // check if handle position changed
     if (d->startPoint != QPointF(0, 0) && d->startPoint != d->releasePoint) {
         cmd = new KoParameterHandleMoveCommand(d->parameterShape, d->handleId, d->startPoint, d->releasePoint, d->lastModifierUsed);
     }
     return cmd;
 }
 
-void KoParameterChangeStrategy::finishInteraction(Qt::KeyboardModifiers /*modifiers*/)
+void KoParameterChangeStrategy::finishInteraction(Qt::KeyboardModifiers )
 {
 }
-
 

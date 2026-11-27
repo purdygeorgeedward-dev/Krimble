@@ -26,18 +26,12 @@ public:
 
     void configure(QRectF gradientRect, const QTransform& painterTransform) {
 
-        // NOTE: This is a necessary step to prevent loss of quality, because painterTransform is scaled.
-
-        // we wish to scale the patch, but not translate, because patch should stay inside
-        // the boundingRect
         QTransform painterTransformShifted = painterTransform *
             QTransform::fromTranslate(painterTransform.dx(), painterTransform.dy()).inverted();
 
-        // we are applying transformation on a Unit rect, so we can extract scaling info only
         QRectF unitRectScaled = painterTransformShifted.mapRect(QRectF(gradientRect.topLeft(), QSize(1, 1)));
         QTransform scaledTransform = QTransform::fromScale(unitRectScaled.width(), unitRectScaled.height());
 
-        // boundingRect of the scaled version
         QRectF scaledGradientRect = scaledTransform.mapRect(gradientRect);
 
         m_patch = QImage(scaledGradientRect.size().toSize(), QImage::Format_ARGB32);
@@ -45,10 +39,8 @@ public:
 
         m_patchPainter.begin(&m_patch);
 
-        // this ensures that the patch renders inside the boundingRect
         m_patchPainter.translate(-scaledGradientRect.topLeft());
 
-        // upscale the patch to the same scaling factor as the painterTransform
         m_patchPainter.setTransform(scaledTransform, true);
         m_patchPainter.setCompositionMode(QPainter::CompositionMode_Source);
     }
@@ -80,7 +72,6 @@ public:
             QVector<QColor> colors;
             if (type == SvgMeshGradient::BICUBIC) {
 
-                // it is a parent patch, so calculate coefficients aka alpha
                 if (mesharray) {
                     calculateAlpha(mesharray, row, col, patch);
                 }
@@ -144,9 +135,6 @@ public:
         }
     }
 
-    /*
-     * returns false if the variation is below tolerance.
-     */
     bool checkColorVariance(quint8 c[4][4])
     {
         const KoColorSpace* cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -173,7 +161,6 @@ public:
         }
         return v3;
     }
-
 
     QVector<qreal> multiply(const QVector<qreal>& v1, qreal n)
     {
@@ -230,7 +217,6 @@ public:
         qreal b = getValue(alpha[2], p);
         qreal a = getValue(alpha[3], p);
 
-        // Clamp
         r = r > 1.0 ? 1.0 : r;
         g = g > 1.0 ? 1.0 : g;
         b = b > 1.0 ? 1.0 : b;
@@ -247,7 +233,6 @@ public:
         return result;
     }
 
-    /// Naming convention adopted from: https://en.wikipedia.org/wiki/Bicubic_interpolation#Computation
     QVector<qreal> getAlpha(const QVector<qreal>& X)
     {
         const static qreal A[16][16] = {
@@ -268,7 +253,6 @@ public:
             {-6, 6, 6,-6, -4,-2, 4, 2, -3, 3,-3, 3, -2,-1,-2,-1},
             { 4,-4,-4, 4,  2, 2,-2,-2,  2,-2, 2,-2,  1, 1, 1, 1}};
 
-
         QVector<qreal> alpha(16, 0);
         for (int i = 0; i < 16; ++i) {
             alpha[i] = 0;
@@ -284,7 +268,7 @@ public:
     {
         qreal distance = QLineF(stop1.point, stop2.point).length();
 
-        if (distance == 0.0) {  // NaN
+        if (distance == 0.0) {
             return {0.0, 0.0, 0.0, 0.0};
         }
 
@@ -312,7 +296,6 @@ public:
         for (int i = 0; i < 4; ++i) {
             qreal slope = (delta0[i] + delta1[i]) / 2;
 
-            // if sign changes
             if ((delta0[i] * delta1[i]) < 0 && delta0[i] > 0) {
                 slope = 0;
             } else if (abs(slope) > 3 * abs(delta0[i])) {
@@ -326,7 +309,6 @@ public:
         return result;
     }
 
-    /// Derivative in the X direction, but the patch should not be on an edge
     QVector<QVector<qreal>> derivativeX(const SvgMeshPatch* patch0,
                                         const SvgMeshPatch* patch1,
                                         const SvgMeshPatch* patch2)
@@ -350,7 +332,6 @@ public:
         return {d11, d12, d21, d22};
     }
 
-    /// Derivative in the Y direction, but the patch should not be on an edge
     QVector<QVector<qreal>> derivativeY(const SvgMeshPatch* patch0,
                                         const SvgMeshPatch* patch1,
                                         const SvgMeshPatch* patch2)
@@ -374,7 +355,6 @@ public:
         return {d11, d12, d21, d22};
     }
 
-    /// Derivative in the X direction. The edge has to be in left-most column.
     QVector<QVector<qreal>> derivativeEdgeBeginX(const SvgMeshPatch* patch0,
                                                  const SvgMeshPatch* patch1)
     {
@@ -394,7 +374,6 @@ public:
         return {d00, d01, d10, d11};
     }
 
-    /// Derivative in the Y direction. The edge has to be in top row
     QVector<QVector<qreal>> derivativeEdgeBeginY(const SvgMeshPatch* patch0,
                                                  const SvgMeshPatch* patch1)
     {
@@ -414,7 +393,6 @@ public:
         return {d00, d01, d10, d11};
     }
 
-    // Derivative in the X direction. The edge has to be in right-most column.
     QVector<QVector<qreal>> derivativeEdgeEndX(const SvgMeshPatch* patch1,
                                                const SvgMeshPatch* patch0)
     {
@@ -434,7 +412,6 @@ public:
         return {d02, d03, d12, d13};
     }
 
-    // Derivative in the Y direction. The edge has to be the bottom row
     QVector<QVector<qreal>> derivativeEdgeEndY(const SvgMeshPatch* patch1,
                                                 const SvgMeshPatch* patch0)
     {
@@ -454,30 +431,8 @@ public:
         return {d22, d23, d32, d33};
     }
 
-    // TODO: Make this private
     void calculateAlpha(const SvgMeshArray* mesharray, const int row, const int col, const SvgMeshPatch* patch)
     {
-        // This is the convention which is being followed:
-        //
-        // f00, f03, f30, f33 are corners and their respective derivatives are represented as
-        // d00, d03, d30, d33
-        //   
-        //   +-----> U/x (row)
-        // |
-        // |                 f00-------f01-------f02-------f03
-        // V                  |         |         |         |
-        //  V/y (col)         |         |         |         |
-        //                    |         |         |         |
-        //                   f10-------f11-------f12-------f13
-        //                    |         |         |         |
-        //                    |         |         |         |
-        //                    |         |         |         |
-        //                   f20-------f21-------f22-------f23
-        //                    |         |         |         |
-        //                    |         |         |         |
-        //                    |         |         |         |
-        //                   f30-------f31-------f32-------f33
-        //
 
         SvgMeshStop f11 = patch->getStop(SvgMeshPatch::Top);
         SvgMeshStop f12 = patch->getStop(SvgMeshPatch::Right);
@@ -487,10 +442,8 @@ public:
         QVector<QVector<qreal>> dx(4, QVector<qreal>(4, 0));
         QVector<QVector<qreal>> dy(4, QVector<qreal>(4, 0));
 
-        // dx
         if (!mesharray || mesharray->numColumns() < 2) {
 
-            // NOTE: they're zero here: from trial and error
             dx[0] = multiply(secant(f11, f12), 2);
             dx[2] = multiply(secant(f21, f22), 2);
             dx[1] = dx[3] = {0, 0, 0, 0};
@@ -507,10 +460,8 @@ public:
                              mesharray->getPatch(row, col + 1));
         }
 
-        // dy
         if (!mesharray || mesharray->numRows() < 2) {
 
-            // NOTE: they're zero here: from trial and error
             dy[0] = multiply(secant(f11, f21), 2);
             dy[1] = multiply(secant(f12, f22), 2);
             dy[2] = dy[3] = {0, 0, 0, 0};
@@ -553,7 +504,6 @@ public:
                 dy[2][i] * height01,
                 dy[3][i] * height23,
 
-                // Specs says not to care about cross derivatives
                 0,
                 0,
                 0,
@@ -620,8 +570,7 @@ public:
 private:
     QImage m_patch;
     QPainter m_patchPainter;
-    // TODO: make them local
     QVector<QVector<qreal>> m_alpha;
 };
 
-#endif // KOMESHPATCHESRENDERER_H
+#endif

@@ -45,7 +45,6 @@ private:
     bool m_showDescription {true};
 };
 
-
 class SvgSymbolCollectionDockerFactory : public KoDockFactoryBase
 {
 public:
@@ -67,7 +66,6 @@ public:
     explicit SvgSymbolCollectionDocker(QWidget *parent = 0);
     ~SvgSymbolCollectionDocker();
 
-    /// reimplemented
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
 
@@ -83,7 +81,6 @@ private Q_SLOTS:
     void slotResourceModelAboutToBeReset();
     void slotResourceModelReset();
 
-
 private:
 
     void clearModels();
@@ -93,7 +90,6 @@ private:
     QSlider* m_iconSizeSlider {0};
     QRadioButton* m_thumbnailsRadioButton {0};
     QRadioButton* m_detailsRadioButton {0};
-
 
     KisResourceModel* m_resourceModel {0};
     int m_rememberedSvgCollectionId {-1};

@@ -51,7 +51,7 @@ public:
     ~KisVideoExportOptionsDialog() override;
 
     void setSupportsHDR(bool value);
-    
+
     QStringList customUserOptions() const;
     QString customUserOptionsString() const;
     bool videoConfiguredForHDR() const;
@@ -87,4 +87,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // VIDEO_EXPORT_OPTIONS_DIALOG_H
+#endif

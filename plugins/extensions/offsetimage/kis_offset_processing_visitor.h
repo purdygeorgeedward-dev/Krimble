@@ -11,7 +11,6 @@
 #include <QRect>
 #include "kis_types.h"
 
-
 class KisOffsetProcessingVisitor : public KisSimpleProcessingVisitor
 {
 public:
@@ -28,4 +27,4 @@ private:
     QRect m_wrapRect;
 };
 
-#endif /* __KIS_OFFSET_PROCESSING_VISITOR_H */
+#endif

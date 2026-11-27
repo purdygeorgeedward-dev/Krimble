@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_ZOOM_SCROLLBAR_H
 #define KIS_ZOOM_SCROLLBAR_H
 
@@ -25,14 +24,10 @@ public:
 
     QPoint barPosition();
 
-    //Catch for teleportation from one side of the screen to the other.
     bool catchTeleports(QMouseEvent* event);
 
-    //Window-space wrapping for mouse dragging. Allows for blender-like
-    //infinite mouse scrolls.
     void handleWrap(const QPoint &accel, const QPoint &globalMouseCoord);
 
-    //Scroll based on a mouse acceleration value.
     void handleScroll(const QPoint &accel);
 
     void tabletEvent(QTabletEvent *event) override;
@@ -60,4 +55,4 @@ private:
     bool zoomEnabled = true;
 };
 
-#endif // KIS_ZOOM_SCROLLBAR_H
+#endif

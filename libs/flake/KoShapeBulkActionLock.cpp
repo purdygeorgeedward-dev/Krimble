@@ -14,8 +14,6 @@
 KoShapeBulkActionLockAdapter::KoShapeBulkActionLockAdapter(const QList<KoShape*> &shapes)
 {
     Q_FOREACH(KoShape *shape, shapes) {
-        // explicitly called shaped will be "updated" in both
-        // ways, using normal updates and dependent bulk updates
         m_normalUpdateShapes.append(shape);
         tryAddBulkInterfaceShape(shape);
         addBulkInterfaceDependees(shape->dependees());
@@ -26,8 +24,6 @@ void KoShapeBulkActionLockAdapter::tryAddBulkInterfaceShape(KoShape *shape)
 {
     KoShapeBulkActionInterface *iface = dynamic_cast<KoShapeBulkActionInterface *>(shape);
     if (iface) {
-        // postpone update till the end, if the shape is present
-        // multiple times
         if (m_bulkInterfaceShapes.contains(iface)) {
             m_bulkInterfaceShapes.removeOne(iface);
         }
@@ -94,7 +90,6 @@ KoShapeBulkActionLock::~KoShapeBulkActionLock()
 
 void KoShapeBulkActionLock::bulkShapesUpdate(const UpdatesList &updates)
 {
-    // TODO: implement optimization for shape managers merging
     for (auto it = updates.begin(); it != updates.end(); ++it) {
         it->first->updateAbsolute(it->second);
     }

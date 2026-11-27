@@ -17,7 +17,6 @@
 #include <kconfig.h>
 #include <kconfiggroup.h>
 
-
 class KisDoubleSliderSpinBox;
 class QCheckBox;
 class QGridLayout;
@@ -53,7 +52,6 @@ public:
     bool fixedangle {false};
 };
 
-
 class KisToolDyna : public KisToolFreehand
 {
     Q_OBJECT
@@ -85,24 +83,20 @@ private Q_SLOTS:
 private:
     QGridLayout* m_optionLayout {nullptr};
 
-    // dyna gui
     QCheckBox * m_chkFixedAngle {nullptr};
     KisDoubleSliderSpinBox * m_massSPBox {nullptr};
     KisDoubleSliderSpinBox * m_dragSPBox {nullptr};
     KisAngleSelector * m_angleSelector {nullptr};
 
-    // dyna algorithm
     QVector<QPointF> m_prevPosition;
     qreal m_odelx {0.0};
     qreal m_odely {0.0};
 
-    // mouse info
     QPointF m_mousePos;
 
     qreal m_surfaceWidth {0.0};
     qreal m_surfaceHeight {0.0};
 
-    // settings variables
     KConfigGroup m_configGroup;
     qreal m_width {0.0};
     qreal m_curmass {0.0};
@@ -112,8 +106,6 @@ private:
     qreal m_yangle {0.0};
     qreal m_widthRange {0.0};
 
-
-    // methods
     qreal flerp(qreal f0, qreal f1, qreal p) {
         return ((f0 *(1.0 - p)) + (f1 * p));
     }
@@ -128,7 +120,6 @@ private:
 
 };
 
-
 class KisToolDynaFactory : public KisToolPaintFactoryBase
 {
 
@@ -139,7 +130,6 @@ public:
         setToolTip(i18n("Dynamic Brush Tool"));
         setSection(ToolBoxSection::Shape);
         setIconName(koIconNameCStr("krita_tool_dyna"));
-        //setShortcut(QKeySequence(Qt::Key_F));
         setPriority(10);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }
@@ -152,6 +142,5 @@ public:
 
 };
 
-
-#endif // KIS_TOOL_DYNA_H_
+#endif
 

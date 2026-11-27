@@ -25,4 +25,4 @@ protected:
 private:
     KUndo2Command *m_transactionData;
 };
-#endif // KIS_TRANSACTION_BASED_COMMAND_H
+#endif

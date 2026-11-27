@@ -115,4 +115,4 @@ private:
     bool m_shaderDirty;
 };
 
-#endif // OCIO_DISPLAY_FILTER_H
+#endif

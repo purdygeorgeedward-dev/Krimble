@@ -27,7 +27,7 @@
 #include <kis_command_utils.h>
 #include <kis_icon_utils.h>
 
-#define UPDATE_DELAY 100 /*ms */
+#define UPDATE_DELAY 100
 
 KisDlgGeneratorLayer::KisDlgGeneratorLayer(const QString & defaultName, KisViewManager *view, QWidget *parent, KisGeneratorLayerSP glayer = 0, const KisFilterConfigurationSP previousConfig = 0, const KisStrokeId stroke = KisStrokeId())
         : QDialog(parent)
@@ -62,9 +62,6 @@ KisDlgGeneratorLayer::KisDlgGeneratorLayer(const QString & defaultName, KisViewM
 
     connect(dlgWidget.btnBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(dlgWidget.btnBox, SIGNAL(rejected()), this, SLOT(reject()));
-    // Call these in the destructor instead to avoid a crash where the object was deleted mid `saveLayer()` call
-    // connect(this, SIGNAL(accepted()), this, SLOT(saveLayer()));
-    // connect(this, SIGNAL(rejected()), this, SLOT(restoreLayer()));
 
     if (layer && !isEditing) {
         slotDelayedPreviewGenerator();
@@ -75,11 +72,6 @@ KisDlgGeneratorLayer::KisDlgGeneratorLayer(const QString & defaultName, KisViewM
 
 void KisDlgGeneratorLayer::saveLayer()
 {
-    /*
-     * Editing a layer should be using the show function with automatic deletion on close.
-     * Because of this, the action should be taken care of when the window is closed and
-     * the user has accepted the changes.
-     */
     if (isEditing) {
         KUndo2Command *cmd = nullptr;
 
@@ -123,7 +115,6 @@ void KisDlgGeneratorLayer::restoreLayer()
 
 KisDlgGeneratorLayer::~KisDlgGeneratorLayer()
 {
-    //Qt doc says not to use `result()` if `WA_DeleteOnClose` flag is set, but since we're doing this inside the dialog, before it is being deleted, it's fine
     if (result() == QDialog:: Accepted) {
         saveLayer();
     }
@@ -166,7 +157,6 @@ void KisDlgGeneratorLayer::previewGenerator()
 void KisDlgGeneratorLayer::setConfiguration(const KisFilterConfigurationSP  config)
 {
     dlgWidget.wdgGenerator->setConfiguration(config);
-    // hack! forcibly re-render the layer
     slotDelayedPreviewGenerator();
 }
 

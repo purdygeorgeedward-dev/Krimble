@@ -59,8 +59,8 @@ QSize CommentDelegate::sizeHint(const QStyleOptionViewItem &option,
 }
 
 QWidget *CommentDelegate::createEditor(QWidget *parent,
-                                       const QStyleOptionViewItem &/*option*/ ,
-                                       const QModelIndex &/*index*/) const
+                                       const QStyleOptionViewItem & ,
+                                       const QModelIndex & ) const
 {
     QLineEdit *editor = new QLineEdit(parent);
     return editor;
@@ -89,7 +89,6 @@ bool CommentDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, cons
     return false;
 }
 
-//set the existing data in the editor
 void CommentDelegate::setEditorData(QWidget *editor,
                                     const QModelIndex &index) const
 {
@@ -105,12 +104,11 @@ void CommentDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
     QString value = lineEdit->text();
 
-    //TO DO: don't add empty string
     model->setData(index, value, Qt::EditRole);
 }
 
 void CommentDelegate::updateEditorGeometry(QWidget *editor,
-                                           const QStyleOptionViewItem &option, const QModelIndex &/*index*/) const
+                                           const QStyleOptionViewItem &option, const QModelIndex & ) const
 {
     editor->setGeometry(option.rect);
 }

@@ -60,8 +60,6 @@ public:
         const int scalarBlock = numColorChannels;
 #endif
 
-        // qWarning() << ppVar(avx2Block) << ppVar(sse2Block);
-
         for (int row = 0; row < numRows; row++) {
             const quint8 *srcPtr = src;
             auto *dstPtr = reinterpret_cast<quint16 *>(dst);
@@ -143,8 +141,6 @@ public:
         const auto offset2 = uint16_v(128);
 
 #elif XSIMD_WITH_SSE2 || XSIMD_WITH_NEON || XSIMD_WITH_NEON64
-        // SSE2, unlike the previous function, is a perfectly valid option
-        // while under generic.
 #if XSIMD_WITH_SSE2
         using uint16_v = xsimd::batch<uint16_t, xsimd::sse2>;
 #elif XSIMD_WITH_NEON64
@@ -164,8 +160,6 @@ public:
         const int sse2Block = 0;
         const int scalarBlock = numColorChannels;
 #endif
-
-        // qWarning() << ppVar(avx2Block) << ppVar(sse2Block);
 
         for (int row = 0; row < numRows; row++) {
             const quint16 *srcPtr = reinterpret_cast<const quint16 *>(src);
@@ -189,9 +183,6 @@ public:
 
                 x1.data = _mm256_packus_epi16(x1, x2);
 
-                // Packing in AVX2 does a bit different thing, not
-                // what you expect that after seeing a SSE2 version :)
-                // Therefore we need to permute the result...
                 x1.data = _mm256_permute4x64_epi64(x1, 0xd8);
 
                 x1.store_unaligned(reinterpret_cast<typename uint16_v::value_type *>(dstPtr));
@@ -246,4 +237,4 @@ public:
     }
 };
 
-#endif // KoOptimizedPixelDataScalerU8ToU16_H
+#endif

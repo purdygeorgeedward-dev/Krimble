@@ -8,8 +8,6 @@
 
 #include <stdlib.h>
 
-
-
 #include <kis_debug.h>
 #include <kpluginfactory.h>
 #include <klocalizedstring.h>
@@ -46,7 +44,7 @@ public:
     QDockWidget* createDockWidget() override
     {
         ChannelDockerDock * dockWidget = new ChannelDockerDock();
-        
+
         dockWidget->setObjectName(id());
 
         return dockWidget;
@@ -58,9 +56,7 @@ public:
     }
 private:
 
-
 };
-
 
 ChannelDockerPlugin::ChannelDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

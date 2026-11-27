@@ -10,7 +10,6 @@
 #include "kis_iterator_ng.h"
 #include "kis_wrapped_rect.h"
 
-
 class WrappedHLineIteratorStrategy
 {
 public:
@@ -70,7 +69,7 @@ public:
 
                 m_iteratorRowStart = KisWrappedRect::BOTTOMLEFT;
                 m_lastRowCoord = m_splitRect->bottomLeft().bottom();
-            } else /* if (m_iteratorRowStart == KisWrappedRect::BOTTOMLEFT) */ {
+            } else {
                 m_iteratorRowStart = KisWrappedRect::TOPLEFT;
                 m_lastRowCoord = m_splitRect->topLeft().bottom();
 
@@ -103,12 +102,11 @@ public:
 private:
     KisWrappedRect *m_splitRect;
     QVector<IteratorTypeSP> *m_iterators;
-    int m_iteratorRowStart; // may be either KisWrappedRect::TOPLEFT or KisWrappedRect::BOTTOMLEFT
+    int m_iteratorRowStart;
     int m_lastRowCoord;
 };
 
 #include "kis_wrapped_line_iterator_base.h"
 typedef KisWrappedLineIteratorBase<WrappedHLineIteratorStrategy, KisHLineIteratorNG> KisWrappedHLineIterator;
 
-
-#endif /* __KIS_WRAPPED_HLINE_ITERATOR_H */
+#endif

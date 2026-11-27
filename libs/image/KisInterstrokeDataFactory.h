@@ -12,15 +12,6 @@
 
 class KisInterstrokeData;
 
-/**
- * A factory class for creation KisInterstrokeData by paint tools
- *
- * The main purpose for the factory is to check if the currently
- * attached interstroke data is compatible with the current tool
- * and replace it with the new one if needed.
- *
- * \see KisInterstrokeData
- */
 class KRITAIMAGE_EXPORT KisInterstrokeDataFactory
 {
 public:
@@ -30,4 +21,4 @@ public:
     virtual KisInterstrokeData* create(KisPaintDeviceSP device) = 0;
 };
 
-#endif // KISINTERSTROKEDATAFACTORY_H
+#endif

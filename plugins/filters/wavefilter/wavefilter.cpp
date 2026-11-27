@@ -149,7 +149,7 @@ void KisFilterWave::processImpl(KisPaintDeviceSP device,
         horizontalWave = new KisTriangleWaveCurve(horizontalamplitude, horizontalwavelength, horizontalshift);
     else
         horizontalWave = new KisSinusoidalWaveCurve(horizontalamplitude, horizontalwavelength, horizontalshift);
-    
+
     KisSequentialIteratorProgress destination(device, applyRect, progressUpdater);
     KisRandomSubAccessorSP source = device->createRandomSubAccessor();
 

@@ -39,7 +39,6 @@ void KisAnimatedTransformParametersTest::testTransformKeyframing()
     KisTransformMaskSP mask = new KisTransformMask(p.image, "mask");
     p.image->addNode(mask, p.layer);
 
-    // Make mask animated
     QList<KoID> ids = {
         KisKeyframeChannel::PositionX,
         KisKeyframeChannel::PositionY,
@@ -114,6 +113,5 @@ void KisAnimatedTransformParametersTest::testTransformKeyframing()
     mask->forceUpdateTimedNode();
     p.image->waitForDone();
 }
-
 
 KISTEST_MAIN(KisAnimatedTransformParametersTest)

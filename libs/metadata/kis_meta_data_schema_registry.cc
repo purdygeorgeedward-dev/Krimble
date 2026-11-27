@@ -16,8 +16,6 @@
 
 using namespace KisMetaData;
 
-// ---- Schema Registry ---- //
-
 struct Q_DECL_HIDDEN SchemaRegistry::Private {
     QHash<QString, Schema*> uri2Schema;
     QHash<QString, Schema*> prefix2Schema;
@@ -52,7 +50,6 @@ SchemaRegistry::SchemaRegistry()
         }
     }
 
-    // DEPRECATED WRITE A SCHEMA FOR EACH OF THEM
     create(Schema::MakerNoteSchemaUri, "mkn");
     create(Schema::IPTCSchemaUri, "Iptc4xmpCore");
     create(Schema::PhotoshopSchemaUri, "photoshop");
@@ -62,7 +59,6 @@ SchemaRegistry::~SchemaRegistry()
 {
     delete d;
 }
-
 
 const Schema* SchemaRegistry::schemaFromUri(const QString & uri) const
 {
@@ -76,17 +72,14 @@ const Schema* SchemaRegistry::schemaFromPrefix(const QString & prefix) const
 
 const Schema* SchemaRegistry::create(const QString & uri, const QString & prefix)
 {
-    // First search for the schema
     const Schema* schema = schemaFromUri(uri);
     if (schema) {
         return schema;
     }
-    // Second search for the prefix
     schema = schemaFromPrefix(prefix);
     if (schema) {
-        return 0; // A schema with the same prefix already exist
+        return 0;
     }
-    // The schema doesn't exist yet, create it
     Schema* nschema = new Schema(uri, prefix);
     d->uri2Schema[uri] = nschema;
     d->prefix2Schema[prefix] = nschema;

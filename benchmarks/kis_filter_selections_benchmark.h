@@ -14,7 +14,6 @@
 #include "filter/kis_filter_registry.h"
 #include "kis_processing_information.h"
 
-
 class KisFilterSelectionsBenchmark : public QObject
 {
     Q_OBJECT

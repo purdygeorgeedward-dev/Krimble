@@ -90,7 +90,6 @@ public:
         if (isEditModeActive()) {
             return;
         }
-        // Store the current value
         m_valueBeforeEditing = m_q->value();
         m_lineEdit->setReadOnly(false);
         m_q->selectAll();
@@ -108,7 +107,6 @@ public:
         } else if (updateMode == ValueUpdateMode_UseValueBeforeEditing) {
             setValue(m_valueBeforeEditing, false, false, true);
         }
-        // Restore palette colors
         QPalette pal = m_lineEdit->palette();
         pal.setBrush(QPalette::Text, m_q->palette().text());
         m_lineEdit->setPalette(pal);
@@ -118,14 +116,12 @@ public:
         m_lineEdit->update();
         m_q->update();
     }
-    
+
     bool isEditModeActive() const
     {
         return !m_lineEdit->isReadOnly();
     }
 
-    // Compute a new value as a function of the x and y coordinates relative
-    // to the lineedit, and some combination of modifiers
     ValueType valueForPoint(const QPoint &p, Qt::KeyboardModifiers modifiers) const
     {
         const QRectF rect(m_lineEdit->rect());
@@ -139,44 +135,27 @@ public:
         const double minimum = static_cast<double>(useSoftRange ? m_softMinimum : m_q->minimum());
         const double maximum = static_cast<double>(useSoftRange ? m_softMaximum : m_q->maximum());
         const double rangeSize = maximum - minimum;
-        // Get the distance relative to the line edit center and transformed
-        // so that it starts counting 32px away from the widget. If the position
-        // is inside the widget or that 32px area the distance will be 0 so that
-        // the value change will be the same near the widget
         const double distanceY =
             std::max(
                 0.0,
                 std::abs(static_cast<double>(p.y()) - center.y()) - center.y() - constantDraggingMargin
             );
-        // Get the scale
         double scale;
         if (modifiers & Qt::ShiftModifier) {
-            // If the shift key is pressed we scale the distanceY value to make the scale
-            // have a stronger effect and also offset it so that the minimum
-            // scale will be 5x (1x + 4x).
-            // function
             scale = (rect.width() + 2.0 * distanceY * 10.0) / rect.width() + 4.0;
         } else {
-            // Get the scale as a function of the vertical position
             scale = (rect.width() + 2.0 * distanceY * 2.0) / rect.width();
         }
-        // Scale the horizontal coordinates around where we first clicked 
-        // as a function of the y coordinate
         const double scaledRectLeft = (0.0 - center.x()) * scale + center.x();
         const double scaledRectRight = (rect.width() - center.x()) * scale + center.x();
-        // Map the current horizontal position to the new rect
         const double scaledRectWidth = scaledRectRight - scaledRectLeft;
         const double posX = static_cast<double>(p.x()) - scaledRectLeft;
-        // Normalize
         const double normalizedPosX = qBound(0.0, posX / scaledRectWidth, 1.0);
-        // Final value
         const double normalizedValue = std::pow(normalizedPosX, m_exponentRatio);
         double value = normalizedValue * rangeSize + minimum;
-        // If key CTRL is pressed, round to the closest step.
         if (modifiers & Qt::ControlModifier) {
             value = std::round(value / m_fastSliderStep) * m_fastSliderStep;
         }
-        //Return the value
         if (std::is_same<ValueType, double>::value) {
             return value;
         } else {
@@ -207,7 +186,6 @@ public:
         return QPoint(static_cast<int>(qRound(computeSliderWidth(min, max, value))), 0);
     }
 
-    // Custom setValue that allows disabling signal emission
     void setValue(ValueType newValue,
                   bool blockSignals = false,
                   bool emitSignalsEvenWhenValueNotChanged = false,
@@ -251,7 +229,6 @@ public:
     {
         m_q->BaseSpinBoxType::setRange(newMinimum, newMaximum);
         if (computeNewFastSliderStep) {
-            // Behavior taken from the old slider spinbox. Kind of arbitrary
             m_fastSliderStep = (m_q->maximum() - m_q->minimum()) / 20;
             if (m_fastSliderStep == 0) {
                 m_fastSliderStep = 1;
@@ -269,7 +246,6 @@ public:
         m_q->setDecimals(newNumberOfDecimals);
         m_q->BaseSpinBoxType::setRange(newMinimum, newMaximum);
         if (computeNewFastSliderStep) {
-            // Behavior taken from the old slider. Kind of arbitrary
             const double rangeSize = m_q->maximum() - m_q->minimum();
             if (rangeSize >= 2.0 || newNumberOfDecimals <= 0) {
                 m_fastSliderStep = 1.0;
@@ -295,8 +271,6 @@ public:
         m_fastSliderStep = newFastSliderStep;
     }
 
-    // Set the soft range. Set newSoftMinimum = newSoftMaximum to signal that
-    // the soft range must not be used
     void setSoftRange(ValueType newSoftMinimum, ValueType newSoftMaximum)
     {
         if ((newSoftMinimum != newSoftMaximum) &&
@@ -333,12 +307,11 @@ public:
     {
         return m_isDragging;
     }
-    
+
     void makeSoftRangeActive()
     {
         m_sliderAnimation.stop();
         m_isSoftRangeActive = true;
-        // scale the animation duration in case the animation is in the middle
         const int animationDuration =
             static_cast<int>(std::round(m_sliderAnimation.currentValue().toReal() * fullAnimationDuration));
         m_sliderAnimation.setStartValue(m_sliderAnimation.currentValue());
@@ -351,7 +324,6 @@ public:
     {
         m_sliderAnimation.stop();
         m_isSoftRangeActive = false;
-        // scale the duration in case the animation is in the middle
         const int animationDuration =
             static_cast<int>(std::round((1.0 - m_sliderAnimation.currentValue().toReal()) * fullAnimationDuration));
         m_sliderAnimation.setStartValue(m_sliderAnimation.currentValue());
@@ -410,22 +382,16 @@ public:
 
     bool qResizeEvent(QResizeEvent*)
     {
-        // When resizing the spinbox, perform style specific positioning
-        // of the lineedit
-        
-        // Get the default rect for the lineedit widget
+
         QStyleOptionSpinBox spinBoxOptions;
         m_q->initStyleOption(&spinBoxOptions);
         QRect rect = m_q->style()->subControlRect(QStyle::CC_SpinBox, &spinBoxOptions, QStyle::SC_SpinBoxEditField);
-        // Offset the rect to make it take all the available space inside the
-        // spinbox, without overlapping the buttons
         QString style = qApp->property(currentUnderlyingStyleNameProperty).toString().toLower();
         if (style == "breeze") {
             rect.adjust(-4, -4, 0, 4);
         } else if (style == "fusion") {
             rect.adjust(-2, -1, 2, 1);
         }
-        // Set the rect
         if (isSoftRangeValid() && m_softRangeViewMode == SoftRangeViewMode_ShowBothRanges) {
             m_lineEdit->setGeometry(rect.adjusted(0, 0, -widthOfRangeModeToggle, 0));
             m_widgetRangeToggle->setGeometry(rect.adjusted(rect.width() - widthOfRangeModeToggle, 0, 0, 0));
@@ -438,8 +404,6 @@ public:
 
     bool qFocusOutEvent(QFocusEvent*)
     {
-        // If the focus is lost then the edition stops, unless the focus
-        // was lost because the menu was shown
         if (m_focusLostDueToMenu) {
             m_focusLostDueToMenu = false;
         } else {
@@ -452,8 +416,6 @@ public:
 
     bool qMousePressEvent(QMouseEvent*)
     {
-        // If we click in any part of the spinbox outside the lineedit
-        // then the edition stops
         endEditing();
         return false;
     }
@@ -461,9 +423,6 @@ public:
     bool qKeyPressEvent(QKeyEvent *e)
     {
         switch (e->key()) {
-            // If the lineedit is not in edition mode, make the left and right
-            // keys have the same effect as the down and up keys. This replicates
-            // the behaviour of the old slider spinbox
             case Qt::Key_Right:
                 if (!isEditModeActive()) {
                     qApp->postEvent(m_q, new QKeyEvent(QEvent::KeyPress, Qt::Key_Up, e->modifiers()));
@@ -476,9 +435,6 @@ public:
                     return true;
                 }
                 break;
-            // The enter key can be used to enter the edition mode if the
-            // lineedit is not in it or to commit the entered value and leave
-            // the edition mode if we are in it
             case Qt::Key_Enter:
             case Qt::Key_Return:
                 if (!e->isAutoRepeat()) {
@@ -493,18 +449,12 @@ public:
                     }
                 }
                 return true;
-            // The escape key can be used to leave the edition mode rejecting
-            // the written value 
             case Qt::Key_Escape:
                 if (isEditModeActive()) {
                     endEditing(ValueUpdateMode_UseValueBeforeEditing);
                     return true;
                 }
                 break;
-            // If we press a number key when in slider mode, then start the edit
-            // mode and resend the key event so that the key is processed again
-            // in edit mode. Since entering edit mode selects all text, the new
-            // event will replace the text by the new key text
             default:
                 if (!isEditModeActive() && e->key() >= Qt::Key_0 && e->key() <= Qt::Key_9) {
                     startEditing();
@@ -518,17 +468,11 @@ public:
 
     bool qContextMenuEvent(QContextMenuEvent *e)
     {
-        // Shows a menu. Code inspired by the QAbstractSpinBox
-        // contextMenuEvent function
-        
-        // Return if we are in slider mode and the mouse is in the line edit
+
         if (!isEditModeActive() && m_lineEdit->rect().contains(e->pos())) {
             return true;
         }
-        // Create the menu
         QPointer<QMenu> menu;
-        // If we are in edit mode, then add the line edit
-        // actions
         if (isEditModeActive()) {
             menu = m_lineEdit->createStandardContextMenu();
             m_focusLostDueToMenu = true;
@@ -538,7 +482,6 @@ public:
         if (!menu) {
             return true;
         }
-        // Override select all action
         QAction *selectAllAction = nullptr;
         if (isEditModeActive()) {
             selectAllAction = new QAction(i18nc("Menu action to select all text in the slider spin box", "&Select All"), menu);
@@ -549,15 +492,12 @@ public:
             menu->addAction(selectAllAction);
             menu->addSeparator();
         }
-        // Add step up and step down actions
         const uint stepEnabled = m_q->stepEnabled();
         QAction *stepUpAction = menu->addAction(i18nc("Menu action to step up in the slider spin box", "&Step up"));
         stepUpAction->setEnabled(stepEnabled & SpinBoxType::StepUpEnabled);
         QAction *stepDown = menu->addAction(i18nc("Menu action to step down in the slider spin box", "Step &down"));
         stepDown->setEnabled(stepEnabled & SpinBoxType::StepDownEnabled);
         menu->addSeparator();
-        // This code is taken from QAbstractSpinBox. Use a QPointer in case the
-        // spin box is destroyed while the menu is shown??
         const QPointer<SpinBoxType> spinbox = m_q;
         const QPoint pos =
             (e->reason() == QContextMenuEvent::Mouse)
@@ -580,9 +520,6 @@ public:
 
     bool blockInputMethodQuery(QInputMethodQueryEvent *e)
     {
-        // On Android, pressing on a text input shows text selection handles,
-        // see QAndroidInputContext::updateSelectionHandles. We don't want that
-        // if a slider is not in edit mode, so we respond with "not enabled".
         if (e->queries().testFlag(Qt::ImEnabled) && !isEditModeActive()) {
             e->setValue(Qt::ImEnabled, false);
             e->accept();
@@ -592,7 +529,6 @@ public:
         }
     }
 
-    // Generic "style aware" helper function to draw a rect
     void paintSliderRect(QPainter &painter, const QRectF &rect, const QBrush &brush)
     {
         painter.save();
@@ -643,9 +579,7 @@ public:
     {
         QTextOption textOption(Qt::AlignAbsolute | Qt::AlignHCenter | Qt::AlignVCenter);
         textOption.setWrapMode(QTextOption::NoWrap);
-        // Draw portion of the text that is over the background
         paintSliderText(painter, text, rect, rect.adjusted(sliderRect.width(), 0, 0, 0), m_lineEdit->palette().text().color(), textOption);
-        // Draw portion of the text that is over the progress bar
         paintSliderText(painter, text, rect, sliderRect, m_lineEdit->palette().highlightedText().color(), textOption);
     };
 
@@ -665,11 +599,9 @@ public:
             const double animationPos = m_sliderAnimation.currentValue().toReal();
             const double a = heightOfCollapsedSliderPlusSpace;
             const double b = heightOfCollapsedSliderPlusSpace + heightBetween;
-            // Paint background text
             QTextOption textOption(Qt::AlignAbsolute | Qt::AlignHCenter | Qt::AlignVCenter);
             textOption.setWrapMode(QTextOption::NoWrap);
             paintSliderText(painter, text, rect, rect, m_lineEdit->palette().text().color(), textOption);
-            // Paint soft range slider
             const QColor softSliderColor = KisPaintingTweaks::blendColors(highlightColor, m_q->palette().base().color(), 1.0 - 0.25);
             const double softSliderAdjustment = -KisAlgebra2D::lerp(a, b, animationPos);
             paintSliderRect(
@@ -677,14 +609,12 @@ public:
                 rect.adjusted(0, 0, -(rect.width() - slider02Width), softSliderAdjustment),
                 softSliderColor
             );
-            // Paint hard range slider
             const double hardSliderAdjustment = KisAlgebra2D::lerp(a, b, 1.0 - animationPos);
             paintSliderRect(
                 painter,
                 rect.adjusted(0, hardSliderAdjustment, -(rect.width() - slider01Width), 0),
                 highlightColor
             );
-            // Paint text in the sliders
             paintSliderText(
                 painter, text, rect,
                 rect.adjusted(0, 0, -(rect.width() - slider02Width), softSliderAdjustment),
@@ -715,10 +645,7 @@ public:
         painter.setRenderHint(QPainter::Antialiasing, true);
 
         const double value = m_q->value();
-        
-        // If we are not editing, just draw the text, otherwise draw a 
-        // semi-transparent rect to dim the background and let the QLineEdit
-        // draw the rest (text, selection, cursor, etc.)
+
         const double hardSliderWidth = computeSliderWidth(static_cast<double>(m_q->minimum()), static_cast<double>(m_q->maximum()), value);
         const double softSliderWidth = computeSliderWidth(m_softMinimum, m_softMaximum, value);
         if (!isEditModeActive()) {
@@ -730,11 +657,9 @@ public:
                     paintSlider(painter, text, hardSliderWidth, softSliderWidth);
                 }
             } else {
-                // Draw the slider
                 paintSlider(painter, text, hardSliderWidth);
             }
         } else {
-            // Draw the slider
             if (isSoftRangeValid()) {
                 if (m_softRangeViewMode == SoftRangeViewMode_AlwaysShowSoftRange) {
                     paintSlider(painter, QString(), softSliderWidth);
@@ -744,13 +669,10 @@ public:
             } else {
                 paintSlider(painter, QString(), hardSliderWidth);
             }
-            // Paint the overlay with the base color
             QColor color = m_q->palette().base().color();
             color.setAlpha(128);
             paintSliderRect(painter, m_lineEdit->rect(), color);
         }
-        // If we are editing the text then return false and let the QLineEdit
-        // paint all the edit related stuff (e.g. selection)
         return !isEditModeActive();
     }
 
@@ -782,17 +704,8 @@ public:
             return false;
         }
         if (!isEditModeActive()) {
-            // Releasing the right mouse button makes the lineedit enter
-            // the edition mode if we are not editing
             if (e->button() == Qt::RightButton) {
-                // If we call startEditing() right from the eventFilter(),
-                // then the mouse release event will be somehow be passed
-                // to Qt further and generate ContextEvent on Windows.
-                // Therefore we should call it from a normal timer event.
                 QTimer::singleShot(0, &m_startEditingSignalProxy, SLOT(start()));
-            // Releasing the left mouse button stops the dragging. If signals
-            // must be blocked when dragging then we set the value here and
-            // Q_EMIT a signal
             } else if (e->button() == Qt::LeftButton) {
                 if (m_blockUpdateSignalOnDrag) {
                     const QPoint p(m_useRelativeDragging ? e->pos().x() + m_relativeDraggingOffset : e->pos().x(),
@@ -820,8 +733,6 @@ public:
         if (!isEditModeActive()) {
             if (e->buttons() & Qt::LeftButton) {
                 m_isDragging = true;
-                // At this point we are dragging so record the position and set
-                // the value
                 const QPoint p(m_useRelativeDragging ? e->pos().x() + m_relativeDraggingOffset : e->pos().x(),
                                e->pos().y());
                 setValue(valueForPoint(p, e->modifiers()), m_blockUpdateSignalOnDrag);
@@ -835,7 +746,6 @@ public:
     {
         QPainter painter(m_widgetRangeToggle);
         painter.setRenderHint(QPainter::Antialiasing, true);
-        // Compute sizes and positions
         const double width = static_cast<double>(m_widgetRangeToggle->width());
         const double height = static_cast<double>(m_widgetRangeToggle->height());
         constexpr double marginX = 4.0;
@@ -846,16 +756,13 @@ public:
         const double smallRadius = bigRadius * 0.5;
         const double sliderAnimationPos = m_sliderAnimation.currentValue().toReal();
         const double radius = smallRadius + sliderAnimationPos * (bigRadius - smallRadius);
-        // Compute color
         const double rangeToggleHoverAnimationPos = m_rangeToggleHoverAnimation.currentValue().toReal();
         const QColor baseColor = m_q->palette().base().color();
         const QColor textColor = m_q->palette().text().color();
         const QColor color = KisPaintingTweaks::blendColors(baseColor, textColor, 1.0 - (0.60 + 0.40 * rangeToggleHoverAnimationPos));
-        // Paint outer circle
         painter.setPen(color);
         painter.setBrush(Qt::NoBrush);
         painter.drawEllipse(QPointF(centerX, centerY), bigRadius, bigRadius);
-        // Paint dot
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
         painter.drawEllipse(QPointF(centerX, centerY), radius, radius);
@@ -881,7 +788,6 @@ public:
     bool widgetRangeToggleEnterEvent(QEvent*)
     {
         m_rangeToggleHoverAnimation.stop();
-        // scale the animation duration in case the animation is in the middle
         const int animationDuration =
             static_cast<int>(std::round(m_rangeToggleHoverAnimation.currentValue().toReal() * fullAnimationDuration));
         m_rangeToggleHoverAnimation.setStartValue(m_rangeToggleHoverAnimation.currentValue());
@@ -894,7 +800,6 @@ public:
     bool widgetRangeToggleLeaveEvent(QEvent*)
     {
         m_rangeToggleHoverAnimation.stop();
-        // scale the animation duration in case the animation is in the middle
         const int animationDuration =
             static_cast<int>(std::round(m_rangeToggleHoverAnimation.currentValue().toReal() * fullAnimationDuration));
         m_rangeToggleHoverAnimation.setStartValue(m_rangeToggleHoverAnimation.currentValue());
@@ -942,16 +847,10 @@ public:
     }
 
 private:
-    // Margin around the spinbox for which the dragging gives same results,
-    // regardless of the vertical distance
     static constexpr double constantDraggingMargin{32.0};
-    // Height of the collapsed slider bar
     static constexpr double heightOfCollapsedSlider{3.0};
-    // Height of the space between the soft and hard range sliders
     static constexpr double heightOfSpaceBetweenSliders{0.0};
-    // Width of the area to activate soft/hard range
     static constexpr double widthOfRangeModeToggle{16.0};
-    // The duration of the animation 
     static constexpr double fullAnimationDuration{200.0};
 
     SpinBoxType *m_q {nullptr};
@@ -981,4 +880,4 @@ private:
     } m_softRangeViewMode{SoftRangeViewMode_ShowBothRanges};
 };
 
-#endif // KISSLIDERSPINBOXPRIVATE_H
+#endif

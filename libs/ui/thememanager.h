@@ -15,13 +15,9 @@
 #ifndef THEMEMANAGER_H
 #define THEMEMANAGER_H
 
-// Qt includes
-
 #include <QObject>
 #include <QPixmap>
 #include <QString>
-
-// KDE includes
 
 #include <ksharedconfig.h>
 
@@ -31,18 +27,12 @@ class KActionMenu;
 namespace Digikam
 {
 
-
 class ThemeManager : public QObject
 {
     Q_OBJECT
 
 public:
 
-    /**
-     * @brief ThemeManager
-     * @param theme the currently active theme: the palette will not be changed to this theme
-     * @param parent
-     */
     explicit ThemeManager(const QString &theme = "", QObject *parent = 0);
     ~ThemeManager() override;
 
@@ -71,6 +61,6 @@ private:
     ThemeManagerPriv* const d;
 };
 
-}  // namespace Digikam
+}
 
-#endif /* THEMEMANAGER_H */
+#endif

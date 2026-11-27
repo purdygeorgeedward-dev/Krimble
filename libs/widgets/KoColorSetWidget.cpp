@@ -44,12 +44,10 @@ void KoColorSetWidget::KoColorSetWidgetPrivate::addRecent(const KoColor &color)
         connect(recentPatches[numRecents], SIGNAL(triggered(KoColorPatch*)), thePublic, SLOT(slotPatchTriggered(KoColorPatch*)));
         numRecents++;
     }
-    // shift colors to the right
     for (int i = numRecents- 1; i >0; i--) {
         recentPatches[i]->setColor(recentPatches[i-1]->color());
     }
 
-    //Finally set the recent color
     recentPatches[0]->setColor(color);
 }
 
@@ -97,8 +95,8 @@ KoColorSetWidget::KoColorSetWidget(QWidget *parent)
     d->bottomLayout = new QHBoxLayout;
     d->bottomLayout->addWidget(d->paletteChooserButton);
     d->bottomLayout->addWidget(d->colorNameCmb);
-    d->bottomLayout->setStretch(0, 0); // minimize chooser button
-    d->bottomLayout->setStretch(1, 1); // maximize color name cmb
+    d->bottomLayout->setStretch(0, 0);
+    d->bottomLayout->setStretch(1, 1);
 
     d->mainLayout = new QVBoxLayout(this);
     d->mainLayout->setContentsMargins(4, 4, 4, 4);
@@ -175,7 +173,7 @@ void KoColorSetWidget::slotPatchTriggered(KoColorPatch *patch)
         }
     }
 
-    if (i == d->numRecents) { // we didn't find it above
+    if (i == d->numRecents) {
         d->addRecent(patch->color());
     }
 }
@@ -191,5 +189,4 @@ void KoColorSetWidget::slotNameListSelection(const KoColor &color)
     Q_EMIT colorChanged(color, true);
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include "moc_KoColorSetWidget.cpp"

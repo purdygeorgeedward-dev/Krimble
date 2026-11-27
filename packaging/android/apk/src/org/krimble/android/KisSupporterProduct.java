@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
-// Keep in sync with KisSupporterProduct.h!
 public final class KisSupporterProduct {
     private static final String TAG = "krita.KisSupporterProduct";
 

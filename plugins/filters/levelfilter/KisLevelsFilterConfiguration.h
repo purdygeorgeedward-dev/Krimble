@@ -31,7 +31,7 @@ public:
     using KisFilterConfiguration::fromXML;
     using KisFilterConfiguration::toXML;
     using KisFilterConfiguration::fromLegacyXML;
-    
+
     void fromLegacyXML(const QDomElement& root) override;
     void fromXML(const QDomElement& e) override;
     void toXML(QDomDocument& doc, QDomElement& root) const override;

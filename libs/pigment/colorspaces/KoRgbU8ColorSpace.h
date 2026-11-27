@@ -15,10 +15,6 @@
 
 struct KoBgrU8Traits;
 
-/**
- * The alpha mask is a special color strategy that treats all pixels as
- * alpha value with a color common to the mask. The default color is white.
- */
 class KoRgbU8ColorSpace : public KoSimpleColorSpace<KoBgrU8Traits>
 {
 
@@ -35,7 +31,7 @@ public:
     void fromQColor(const QColor& color, quint8 *dst) const override;
 
     void toQColor(const quint8 *src, QColor *c) const override;
-    
+
     void toHSY(const QVector<double> &channelValues, qreal *hue, qreal *sat, qreal *luma) const override;
     QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const override;
     void toYUV(const QVector<double> &channelValues, qreal *y, qreal *u, qreal *v) const override;

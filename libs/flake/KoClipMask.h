@@ -19,14 +19,12 @@ class QTransform;
 class QPointF;
 class QPainter;
 
-
 class KRITAFLAKE_EXPORT KoClipMask
 {
 public:
     KoClipMask();
     ~KoClipMask();
 
-    // Work around MSVC inability to generate copy ops with QSharedDataPointer.
     KoClipMask(const KoClipMask &);
     KoClipMask &operator=(const KoClipMask &);
 
@@ -55,4 +53,4 @@ private:
     QSharedDataPointer<Private> m_d;
 };
 
-#endif // KOCLIPMASK_H
+#endif

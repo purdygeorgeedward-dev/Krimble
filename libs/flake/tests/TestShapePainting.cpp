@@ -12,7 +12,6 @@
 #include <MockShapes.h>
 #include <testflake.h>
 
-
 #include <simpletest.h>
 
 void TestShapePainting::testPaintShape()
@@ -39,12 +38,10 @@ void TestShapePainting::testPaintShape()
     QPainter painter(&image);
     manager.paint(painter);
 
-    // with the shape not being clipped, the shapeManager will paint it for us.
     QCOMPARE(shape1->paintedCount, 1);
     QCOMPARE(shape2->paintedCount, 1);
     QCOMPARE(container->paintedCount, 1);
 
-    // the container should thus not paint the shape
     shape1->paintedCount = 0;
     shape2->paintedCount = 0;
     container->paintedCount = 0;
@@ -53,7 +50,6 @@ void TestShapePainting::testPaintShape()
     QCOMPARE(shape1->paintedCount, 0);
     QCOMPARE(shape2->paintedCount, 0);
     QCOMPARE(container->paintedCount, 1);
-
 
     container->setClipped(shape1, false);
     container->setClipped(shape2, true);
@@ -65,10 +61,7 @@ void TestShapePainting::testPaintShape()
     container->paintedCount = 0;
     manager.paint(painter);
 
-
-    // with this shape not being clipped, the shapeManager will paint the container and this shape
     QCOMPARE(shape1->paintedCount, 1);
-    // with this shape being clipped, the container will paint it for us.
     QCOMPARE(shape2->paintedCount, 1);
     QCOMPARE(container->paintedCount, 1);
 }
@@ -81,7 +74,6 @@ void TestShapePainting::testPaintHiddenShape()
     MockContainer *fourth = new MockContainer();
     MockContainer *third = new MockContainer();
     MockContainer *second = new MockContainer();
-
 
     top->addShape(second);
     second->addShape(third);
@@ -108,13 +100,6 @@ void TestShapePainting::testPaintHiddenShape()
 
 void TestShapePainting::testPaintOrder()
 {
-    // the stacking order determines the painting order so things on top
-    // get their paint called last.
-    // Each shape has a zIndex and within the children a container has
-    // it determines the stacking order. Its important to realize that
-    // the zIndex is thus local to a container, if you have layer1 and layer2
-    // with both various child shapes the stacking order of the layer shapes
-    // is most important, then within this the child shape index is used.
 
     class OrderedMockShape : public MockShape {
     public:
@@ -164,12 +149,11 @@ void TestShapePainting::testPaintOrder()
         QCOMPARE(shape4->paintedCount, 1);
 
         QCOMPARE(order.count(), 4);
-        QVERIFY(order[0] == shape3); // lowest first
+        QVERIFY(order[0] == shape3);
         QVERIFY(order[1] == shape4);
         QVERIFY(order[2] == shape2);
         QVERIFY(order[3] == shape1);
 
-        // again, with clipping.
         order.clear();
         painter.setClipRect(0, 0, 100, 100);
         manager.paint(painter);
@@ -181,7 +165,7 @@ void TestShapePainting::testPaintOrder()
         QCOMPARE(shape4->paintedCount, 2);
 
         QCOMPARE(order.count(), 4);
-        QVERIFY(order[0] == shape3); // lowest first
+        QVERIFY(order[0] == shape3);
         QVERIFY(order[1] == shape4);
         QVERIFY(order[2] == shape2);
         QVERIFY(order[3] == shape1);
@@ -285,7 +269,6 @@ void TestShapePainting::testGroupUngroup()
 
             new KoShapeUngroupCommand(group, group->shapes(), QList<KoShape*>(), &ungroupingCommand);
             canvas.shapeController()->removeShape(group, &ungroupingCommand);
-            // NOTE: group will be deleted in ungroupingCommand's d-tor
 
             ungroupingCommand.redo();
 

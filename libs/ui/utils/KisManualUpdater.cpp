@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisManualUpdater.h"
 #include <KisMultiFeedRSSModel.h>
 #include <KritaVersionWrapper.h>
@@ -15,7 +14,6 @@
 #include <QVersionNumber>
 
 #include <kis_debug.h>
-
 
 KisManualUpdater::KisManualUpdater()
     : m_currentVersion(KritaVersionWrapper::versionString())
@@ -37,8 +35,6 @@ void KisManualUpdater::checkForUpdate()
 
 void KisManualUpdater::rssDataChanged()
 {
-    // grab the latest release post and URL for reference later
-    // if we need to update
     QString availableVersion;
     QString downloadLink;
 
@@ -46,18 +42,15 @@ void KisManualUpdater::rssDataChanged()
        const QModelIndex &idx = m_rssModel->index(i);
 
        if (idx.isValid()) {
-           // only use official release announcements to get version number
            if ( idx.data(KisRssReader::RssRoles::CategoryRole).toString() !=  "Official Release") {
                continue;
            }
 
            QString linkTitle = idx.data(KisRssReader::RssRoles::TitleRole).toString();
 
-           // regex to capture version number
            QRegularExpression versionRegex("\\d\\.\\d\\.?\\d?\\.?\\d");
            QRegularExpressionMatch matched = versionRegex.match(linkTitle);
 
-           // only take the top match for release version since that is the newest
            if (matched.hasMatch()) {
                availableVersion = matched.captured(0);
                downloadLink = idx.data(KisRssReader::RssRoles::LinkRole).toString();

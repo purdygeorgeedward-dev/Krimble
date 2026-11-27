@@ -31,14 +31,6 @@ class KisAction;
 class KisActionManager;
 class KisPlaybackEngine;
 
-
-/** @brief A customized titlebar for the Animation Timeline Docker that's
- * packed with useful widgets and menus.
- *
- * To avoid cluttering the UI, elements that are important to the
- * animator's workflow should be available at a glace, while
- * set-and-forget types of things should be hidden inside of menus.
- */
 class KisAnimTimelineDockerTitlebar : public KisUtilityTitleBar
 {
     Q_OBJECT
@@ -79,15 +71,6 @@ private:
     const int MAX_FRAMES = 9999;
 };
 
-
-/** @brief Krita's Animation Timeline Docker.
- * This is the GUI heart of Krita's traditional animation workflow,
- * and is where artists can configure, edit, scrub and play their animation.
- *
- * Currently interacts with the TimelineFramesView/Model as well as
- * the KisImageAnimationInterface. (TODO: Consider refactoring to
- * streamline this interaction towards Docker -> AnimationPlayer -> ImageAnimInterface)
- */
 class KisAnimTimelineDocker : public QDockWidget, public KisMainwindowObserver
 {
     Q_OBJECT
@@ -121,6 +104,5 @@ private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
-
 
 #endif

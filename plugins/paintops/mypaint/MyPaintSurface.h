@@ -35,11 +35,6 @@ public:
     KisMyPaintSurface(KisPainter* painter, KisPaintDeviceSP paintNode=nullptr, KisImageSP image = nullptr);
     ~KisMyPaintSurface();
 
-    /**
-      * mypaint_surface_draw_dab:
-      *
-      * Draw a dab onto the surface.
-      */
     static int draw_dab(MyPaintSurface *self, float x, float y, float radius,
                            float color_r, float color_g, float color_b, float opaque, float hardness,
                            float color_a, float aspect_ratio, float angle, float lock_alpha,
@@ -68,7 +63,6 @@ public:
     calculate_rr (int xp, int yp, float x, float y, float aspect_ratio,
                   float sn, float cs, float one_over_radius2);
 
-
     KisPainter* painter();
     void paint(KoColor *color, KoColor* bgColor);
     qreal calculateOpacity(float angle, float hardness, float opaque, float x, float y,
@@ -90,4 +84,4 @@ private:
 
 };
 
-#endif // KIS_MYPAINT_SURFACE_H
+#endif

@@ -46,17 +46,14 @@ DlgEmbedTags::DlgEmbedTags(QList<int> selectedTags, QWidget *parent)
     setButtonGuiItem(Ok, KStandardGuiItem::save());
     m_selectedTagIds = selectedTags;
 
-
     KoDocumentInfo info;
     info.updateParameters();
-
 
     m_ui->bnAdd->setIcon(KisIconUtils::loadIcon("arrow-right"));
     connect(m_ui->bnAdd, SIGNAL(clicked()), SLOT(addSelected()));
 
     m_ui->bnRemove->setIcon(KisIconUtils::loadIcon("arrow-left"));
     connect(m_ui->bnRemove, SIGNAL(clicked()), SLOT(removeSelected()));
-
 
     m_ui->cmbResourceTypes->addItem(i18n("Brushes"), ResourceType::Brushes);
     m_ui->cmbResourceTypes->addItem(i18n("Brush Presets"), ResourceType::PaintOpPresets);
@@ -129,7 +126,6 @@ void DlgEmbedTags::resourceTypeSelected(int idx)
         int id = model.data(idx, Qt::UserRole + KisAllTagsModel::Id).toInt();
 
         if (id < 0) {
-            // skip automated tags
             continue;
         }
 
@@ -145,5 +141,4 @@ void DlgEmbedTags::resourceTypeSelected(int idx)
     }
 
 }
-
 

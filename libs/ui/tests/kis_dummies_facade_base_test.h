@@ -53,4 +53,4 @@ private:
     QString m_movedDummies;
 };
 
-#endif /* __KIS_DUMMIES_FACADE_BASE_TEST_H */
+#endif

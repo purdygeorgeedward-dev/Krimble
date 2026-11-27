@@ -93,27 +93,20 @@ void KisAsyncAnimationRendererBase::cancelCurrentFrameRendering(CancelReason can
 
 void KisAsyncAnimationRendererBase::slotFrameRegenerationCancelled()
 {
-    // the cancel can arrive in async way
     if (!m_d->requestedImage) return;
     frameCancelledCallback(m_d->requestedFrame, RenderingFailed);
 }
 
 void KisAsyncAnimationRendererBase::slotFrameRegenerationTimedOut()
 {
-    // the timeout can arrive in async way
     if (!m_d->requestedImage) return;
     frameCancelledCallback(m_d->requestedFrame, RenderingTimedOut);
 }
 
 void KisAsyncAnimationRendererBase::slotFrameRegenerationFinished(int frame)
 {
-    // We might have already cancelled the regeneration. We don't check
-    // isCancelled flag here because this code runs asynchronously.
     if (!m_d->requestedImage) return;
 
-    // WARNING: executed in the context of image worker thread!
-
-    // probably a bit too strict...
     KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() != this->thread());
 
     frameCompletedCallback(frame, m_d->requestedRegion);
@@ -123,12 +116,9 @@ void KisAsyncAnimationRendererBase::notifyFrameCompleted(int frame)
 {
     KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() == this->thread());
 
-    // the image events can come with a delay, even after
-    // the processing was cancelled
     if (m_d->isCancelled) return;
 
     {
-        // clean state right after the assert checks
         auto cleanup = kismpl::finally([&] () {
             clearFrameRegenerationState(false);
         });
@@ -137,7 +127,6 @@ void KisAsyncAnimationRendererBase::notifyFrameCompleted(int frame)
         KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->requestedFrame == frame);
     }
 
-
     Q_EMIT sigFrameCompleted(frame);
 }
 
@@ -145,12 +134,9 @@ void KisAsyncAnimationRendererBase::notifyFrameCancelled(int frame, CancelReason
 {
     KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() == this->thread());
 
-    // the image events can come with a delay, even after
-    // the processing was cancelled
     if (m_d->isCancelled) return;
 
     {
-        // clean state right after the assert checks
         auto cleanup = kismpl::finally([&] () {
             clearFrameRegenerationState(true);
         });
@@ -164,8 +150,6 @@ void KisAsyncAnimationRendererBase::notifyFrameCancelled(int frame, CancelReason
 
 void KisAsyncAnimationRendererBase::clearFrameRegenerationState(bool isCancelled)
 {
-    // TODO: for some reason we mark the process as cancelled in any case, and it
-    //       seem to be a correct behavior
     Q_UNUSED(isCancelled);
 
     m_d->imageRequestConnections.clear();
@@ -180,5 +164,4 @@ KisImageSP KisAsyncAnimationRendererBase::requestedImage() const
 {
     return m_d->requestedImage;
 }
-
 

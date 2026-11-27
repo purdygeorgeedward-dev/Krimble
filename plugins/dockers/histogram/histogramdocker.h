@@ -12,9 +12,6 @@
 
 class KisViewManager;
 
-/**
- * Template of view plugin
- */
 class HistogramDockerPlugin : public QObject
 {
     Q_OBJECT

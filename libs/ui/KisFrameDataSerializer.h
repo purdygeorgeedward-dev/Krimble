@@ -10,25 +10,12 @@
 #include <QScopedPointer>
 #include "opengl/kis_texture_tile_info_pool.h"
 
-// TODO: extract DataBuffer into a separate file
 #include "opengl/kis_texture_tile_update_info.h"
 
 #include <vector>
 #include <boost/optional.hpp>
 
 class QString;
-
-
-/**
- * KisFrameDataSerializer is the lowest level class for storing frame
- * data on disk. Its responsibilities are simple:
- *
- * 1) Accept low-level frame data object (KisFrameDataSerializer::Frame),
- *    which contains raw data in it (the data may be not a pixel data,
- *    but a preprocessed pixel differences)
- *
- * 2) Compress this data and save it on disk
- */
 
 class KRITAUI_EXPORT KisFrameDataSerializer
 {
@@ -122,4 +109,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISFRAMEDATASERIALIZER_H
+#endif

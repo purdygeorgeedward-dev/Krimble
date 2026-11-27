@@ -8,7 +8,6 @@
 
 #include <QApplication>
 
-
 #include <KoStore.h>
 #include <KoStoreDevice.h>
 #include <KoColorSpaceRegistry.h>
@@ -71,7 +70,6 @@ vKisNodeSP OraConverter::activeNodes()
 KisImportExportErrorCode OraConverter::buildFile(QIODevice *io, KisImageSP image, vKisNodeSP activeNodes)
 {
 
-    // Open file for writing
     KoStore* store = KoStore::createStore(io, KoStore::Write, "image/openraster", KoStore::Zip);
     if (!store) {
         delete store;
@@ -104,10 +102,8 @@ KisImportExportErrorCode OraConverter::buildFile(QIODevice *io, KisImageSP image
     return ImportExportCodes::OK;
 }
 
-
 void OraConverter::cancel()
 {
     m_stop = true;
 }
-
 

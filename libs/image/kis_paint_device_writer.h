@@ -15,5 +15,4 @@ public:
     virtual bool write(const char* data, qint64 length) = 0;
 };
 
-
-#endif // KIS_PAINT_DEVICE_WRITER_H
+#endif

@@ -22,17 +22,11 @@
 
 #include <kstandardguiitem.h>
 
-
 KisPresetSaveWidget::KisPresetSaveWidget(QWidget * parent)
     : KisPaintOpPresetSaveDialog(parent)
 {
-    // this is setting the area we will "capture" for saving the brush preset. It can potentially be a different
-    // area that the entire scratchpad
     brushPresetThumbnailWidget->setCutoutOverlayRect(QRect(0, 0, brushPresetThumbnailWidget->height(), brushPresetThumbnailWidget->width()));
 
-
-    // we will default to reusing the previous preset thumbnail
-    // have that checked by default, hide the other elements, and load the last preset image
     connect(clearBrushPresetThumbnailButton, SIGNAL(clicked(bool)), brushPresetThumbnailWidget, SLOT(fillDefault()));
     connect(loadImageIntoThumbnailButton, SIGNAL(clicked(bool)), this, SLOT(loadImageFromFile()));
 
@@ -62,10 +56,8 @@ void KisPresetSaveWidget::showDialog()
 {
     setModal(true);
 
-    // set the name of the current brush preset area.
     KisPaintOpPresetSP preset = m_resourceProvider->currentPreset();
 
-    // UI will look a bit different if we are saving a new brush
     if (m_useNewBrushDialog) {
         setWindowTitle(i18n("Save New Brush Preset"));
         newBrushNameTexField->setVisible(true);
@@ -73,13 +65,11 @@ void KisPresetSaveWidget::showDialog()
         loadImageIntoThumbnailButton->setVisible(true);
         currentBrushNameLabel->setVisible(false);
 
-        // If the id is -1, this is a new preset that has never been saved, so it cannot be a copy
         QString name = preset->name();
         if (preset && preset->resourceId() > -1) {
             name.append(" ").append(i18n("Copy"));
         }
         newBrushNameTexField->setText(name);
-
 
     } else {
         setWindowTitle(i18n("Save Brush Preset"));
@@ -99,18 +89,15 @@ void KisPresetSaveWidget::showDialog()
 
 void KisPresetSaveWidget::loadImageFromFile()
 {
-    // create a dialog to retrieve an image file.
     KoFileDialog dialog(0, KoFileDialog::OpenFile, "OpenDocument");
     dialog.setMimeTypeFilters(KisImportExportManager::supportedMimeTypes(KisImportExportManager::Import));
     dialog.setDefaultDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
-    QString filename = dialog.filename(); // the filename() returns the entire path & file name, not just the file name
+    QString filename = dialog.filename();
 
-
-    if (filename != "") { // empty if "cancel" is pressed
-        // take that file and load it into the thumbnail are
+    if (filename != "") {
         const QImage imageToLoad(filename);
 
-        brushPresetThumbnailWidget->fillTransparent(); // clear the background in case our new image has transparency
+        brushPresetThumbnailWidget->fillTransparent();
         brushPresetThumbnailWidget->paintCustomImage(imageToLoad);
     }
 
@@ -128,7 +115,6 @@ void KisPresetSaveWidget::loadExistingThumbnail()
 
 void KisPresetSaveWidget::loadImageFromLibrary()
 {
-    //add dialog code here.
     QDialog dialog;
     dialog.setWindowTitle(i18n("Preset Icon Library"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
@@ -142,7 +128,6 @@ void KisPresetSaveWidget::loadImageFromLibrary()
     connect(buttons, SIGNAL(rejected()), &dialog, SLOT(reject()));
     layout->addWidget(buttons);
 
-    //if dialog accepted, get image.
     if (dialog.exec() == QDialog::Accepted) {
 
         QImage presetImage = libWidget->getImage();
@@ -162,13 +147,10 @@ void KisPresetSaveWidget::savePreset()
         return;
     }
 
-    // if we are saving a new brush, use what we type in for the input
     QString presetFileName = m_useNewBrushDialog ? newBrushNameTexField->text() : curPreset->name();
-    // We don't want dots or spaces in the filenames
     presetFileName = presetFileName.replace(' ', '_').replace('.', '_');
     QString extension = curPreset->defaultFileExtension();
 
-    // Ensure the filename has the corresponding extension
     if (!presetFileName.endsWith(extension)) {
         presetFileName.append(extension);
     }
@@ -177,7 +159,7 @@ void KisPresetSaveWidget::savePreset()
 
     if (m_useNewBrushDialog) {
         KisPaintOpPresetSP newPreset = curPreset->clone().dynamicCast<KisPaintOpPreset>();
-        newPreset->setResourceId(-1); // so it won't confuse anything into overwriting
+        newPreset->setResourceId(-1);
         newPreset->setFilename(presetFileName);
         newPreset->setName(m_useNewBrushDialog ? newBrushNameTexField->text() : curPreset->name());
         newPreset->setImage(brushPresetThumbnailWidget->cutoutOverlay());
@@ -187,42 +169,32 @@ void KisPresetSaveWidget::savePreset()
             success = false;
         }
 
-        // trying to get brush preset to load after it is created
         if (success) Q_EMIT resourceSelected(newPreset);
 
     }
-    else { // saving a preset that is replacing an existing one
+    else {
         curPreset->setName(m_useNewBrushDialog ? newBrushNameTexField->text() : curPreset->name());
         curPreset->setImage(brushPresetThumbnailWidget->cutoutOverlay());
-        // Ensure it has the updated name (for mypaint serialization) -- BUG 445282
         curPreset->setFilename(presetFileName);
 
         if (!KisResourceUserOperations::updateResourceWithUserInput(this, curPreset)) {
             success = false;
         }
 
-        // this helps updating the thumbnail in the big label in the editor
         if (success) Q_EMIT resourceSelected(curPreset);
     }
 
-
-    //    // HACK ALERT! the server does not notify the observers
-    //    // automatically, so we need to call the update manually!
-    //    rServer->tagCategoryMembersChanged();
     if (success) {
         m_favoriteResourceManager->updateFavoritePresets();
-        close(); // we are done... so close the save brush dialog
+        close();
     }
 
 }
-
-
 
 void KisPresetSaveWidget::saveScratchPadThumbnailArea(QImage image)
 {
     scratchPadThumbnailArea = image;
 }
-
 
 void KisPresetSaveWidget::useNewBrushDialog(bool show)
 {

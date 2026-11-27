@@ -42,5 +42,4 @@ private:
     static QTextCharFormat s_fatal;
 };
 
-
 #endif

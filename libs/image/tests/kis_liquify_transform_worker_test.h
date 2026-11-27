@@ -20,7 +20,6 @@ private Q_SLOTS:
     void testMaskRendering_data();
     void testMaskRendering();
 
-
 };
 
-#endif /* __KIS_LIQUIFY_TRANSFORM_WORKER_TEST_H */
+#endif

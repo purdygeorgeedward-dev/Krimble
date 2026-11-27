@@ -51,16 +51,11 @@ public:
     CacheStatus frameStatus(int time) const;
     bool tryGlueSameFrames(const KisTimeSpan &range);
 
-
     KisImageWSP image();
 
     KisOpenGLUpdateInfoSP fetchFrameData(int time, KisImageSP image, const KisRegion &requestedRegion) const;
     void addConvertedFrameData(KisOpenGLUpdateInfoSP info, int time);
 
-    /**
-     * Drops all the frames with worse level of detail values than the current
-     * desired level of detail.
-     */
     void dropLowQualityFrames(const KisTimeSpan &range, const QRect &regionOfInterest, const QRect &minimalRect);
 
     bool framesHaveValidRoi(const KisTimeSpan &range, const QRect &regionOfInterest);

@@ -7,7 +7,6 @@
 #ifndef KIS_TOOL_SHAPE_H_
 #define KIS_TOOL_SHAPE_H_
 
-
 #include <kritaui_export.h>
 #include <kconfig.h>
 #include <kconfiggroup.h>
@@ -23,7 +22,6 @@
 class KoCanvasBase;
 class KoPathShape;
 
-
 class WdgGeometryOptions : public QWidget, public Ui::WdgGeometryOptions
 {
     Q_OBJECT
@@ -34,9 +32,6 @@ public:
     }
 };
 
-/**
- * Base for tools specialized in drawing shapes
- */
 class KRITAUI_EXPORT KisToolShape : public KisToolPaint
 {
 
@@ -77,15 +72,11 @@ protected:
 
     void addPathShape(KoPathShape* pathShape, const KUndo2MagicString& name);
 
-    /**
-     * Use these methods in subclassed to notify when the user starts and
-     * finishes making a shape, and override to be notified
-     */
     virtual void beginShape() {}
     virtual void endShape() {}
 
     KConfigGroup m_configGroup;
 };
 
-#endif // KIS_TOOL_SHAPE_H_
+#endif
 

@@ -45,7 +45,7 @@ void KoMarkerSelector::paintEvent(QPaintEvent *pe)
     option.initFrom(this);
     option.frame = hasFrame();
     QRect rect = style()->subControlRect(QStyle::CC_ComboBox, &option, QStyle::SC_ComboBoxEditField, this);
-    if (!option.frame) { // frameless combo boxes have smaller margins but styles do not take this into account
+    if (!option.frame) {
         rect.adjust(-14, 0, 14, 1);
     }
 
@@ -89,7 +89,6 @@ void KoMarkerSelector::updateMarkers(const QList<KoMarker*> markers)
 {
     KoMarkerModel *model = new KoMarkerModel(markers, d->model->position(), this);
     d->model = model;
-    // this deletes the old model
     setModel(model);
 }
 

@@ -15,7 +15,6 @@
 #include <kis_pointer_utils.h>
 #include <KoMD5Generator.h>
 
-
 class FolderTagIterator : public KisResourceStorage::TagIterator
 {
 public:
@@ -71,13 +70,11 @@ private:
     KisTagSP m_tag;
 };
 
-
 class FolderItem : public KisResourceStorage::ResourceItem
 {
 public:
     ~FolderItem() override {}
 };
-
 
 KisFolderStorage::KisFolderStorage(const QString &location)
     : KisStoragePlugin(location)
@@ -115,7 +112,6 @@ bool KisFolderStorage::loadVersionedResource(KoResourceSP resource)
 
     bool r = resource->loadFromDevice(&f, KisGlobalResourcesInterface::instance());
 
-    // Check for the thumbnail
     if (r) {
         sanitizeResourceFileNameCase(resource, fi.dir());
 
@@ -165,13 +161,12 @@ QSharedPointer<KisResourceStorage::ResourceIterator> KisFolderStorage::resources
         VersionedResourceEntry entry;
         entry.filename = it.filePath().mid(resourcesSaveLocation.size() + 1);
 
-        // Don't load 4.x backup resources
         if (entry.filename.contains("backup")) {
             continue;
         }
 
         entry.lastModified = info.lastModified();
-        entry.tagList = {}; // TODO
+        entry.tagList = {};
         entry.resourceType = resourceType;
         entries.append(entry);
     }
@@ -259,9 +254,6 @@ bool KisFolderStorage::addResource(const QString &resourceType, KoResourceSP res
         return false;
     }
     resourceFile.close();
-
-
-
 
     return true;
 }

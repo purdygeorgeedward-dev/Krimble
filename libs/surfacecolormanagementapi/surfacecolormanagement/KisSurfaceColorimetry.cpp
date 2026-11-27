@@ -200,6 +200,5 @@ QString SurfaceDescription::makeTextReport() const
     return report;
 }
 
-} // namespace KisSurfaceColorimetry
+}
 
-/* KISSURFACECOLORIMETRY_H */

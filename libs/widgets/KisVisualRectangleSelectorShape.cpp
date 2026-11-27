@@ -21,14 +21,12 @@ KisVisualRectangleSelectorShape::KisVisualRectangleSelectorShape(KisVisualColorS
                                                                  singelDTypes d)
     : KisVisualColorSelectorShape(parent, dimension, channel1, channel2)
 {
-    //qDebug()  << "creating KisVisualRectangleSelectorShape" << this;
     m_type = d;
     m_barWidth = width;
 }
 
 KisVisualRectangleSelectorShape::~KisVisualRectangleSelectorShape()
 {
-    //qDebug() << "deleting KisVisualRectangleSelectorShape" << this;
 }
 
 void KisVisualRectangleSelectorShape::setBorderWidth(int width)
@@ -91,7 +89,6 @@ QRect KisVisualRectangleSelectorShape::getAvailableSpace(QRect geom, bool stretc
 
 QPointF KisVisualRectangleSelectorShape::convertShapeCoordinateToWidgetCoordinate(QPointF coordinate) const
 {
-    // Reminder: in Qt widget space, origin is top-left, but we want zero y to be at the bottom
     qreal x = 0.5 * width();
     qreal y = 0.5 * height();
     qreal offset = 5.0;
@@ -130,7 +127,7 @@ QPointF KisVisualRectangleSelectorShape::convertShapeCoordinateToWidgetCoordinat
             y = qRound(intersect.y());
 
         }
-        else /*if (m_type == KisVisualRectangleSelectorShape::borderMirrored)*/  {
+        else  {
 
             QRectF innerRect(m_barWidth/2, m_barWidth/2, width()-m_barWidth, height()-m_barWidth);
             QPointF bottom (innerRect.center().x(), innerRect.bottom());
@@ -179,8 +176,6 @@ QPointF KisVisualRectangleSelectorShape::convertShapeCoordinateToWidgetCoordinat
 
 QPointF KisVisualRectangleSelectorShape::convertWidgetCoordinateToShapeCoordinate(QPointF coordinate) const
 {
-    // Reminder: in Qt widget space, origin is top-left, but we want zero y to be at the bottom
-    //default values:
     qreal x = 0.5;
     qreal y = 0.5;
     qreal offset = 5.0;
@@ -191,7 +186,6 @@ QPointF KisVisualRectangleSelectorShape::convertWidgetCoordinateToShapeCoordinat
         } else if (m_type == KisVisualRectangleSelectorShape::horizontal) {
             x = (coordinate.x()-offset)/(width()-offset*2);
         } else if (m_type == KisVisualRectangleSelectorShape::border) {
-            //border
 
             QRectF innerRect(m_barWidth, m_barWidth, width()-(m_barWidth*2), height()-(m_barWidth*2));
             QPointF left (innerRect.left(),innerRect.center().y());
@@ -222,8 +216,7 @@ QPointF KisVisualRectangleSelectorShape::convertWidgetCoordinateToShapeCoordinat
 
             x = length/totalLength;
 
-        } else /*if (m_type == KisVisualRectangleSelectorShape::borderMirrored)*/  {
-            //border
+        } else  {
 
             QRectF innerRect(m_barWidth, m_barWidth, width()-(m_barWidth*2), height()-(m_barWidth*2));
             QPointF bottom (innerRect.center().x(), innerRect.bottom());
@@ -282,8 +275,6 @@ QRegion KisVisualRectangleSelectorShape::getMaskMap()
 
 QImage KisVisualRectangleSelectorShape::renderAlphaMask() const
 {
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     KisVisualColorSelector::RenderMode mode = colorSelector()->renderMode();
     if (isHueControl() && mode == KisVisualColorSelector::StaticBackground) {
         return QImage();
@@ -300,8 +291,6 @@ QImage KisVisualRectangleSelectorShape::renderAlphaMask() const
 
 QImage KisVisualRectangleSelectorShape::renderStaticAlphaMask() const
 {
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     KisVisualColorSelector::RenderMode mode = colorSelector()->renderMode();
     if (isHueControl() && mode == KisVisualColorSelector::DynamicBackground) {
         return QImage();
@@ -318,8 +307,6 @@ QImage KisVisualRectangleSelectorShape::renderStaticAlphaMask() const
 
 QImage KisVisualRectangleSelectorShape::renderAlphaMaskImpl(qreal ratioStart, qreal ratioEnd) const
 {
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     const int deviceWidth = qCeil(width() * devicePixelRatioF());
     const int deviceHeight = qCeil(height() * devicePixelRatioF());
 
@@ -347,7 +334,7 @@ QImage KisVisualRectangleSelectorShape::renderAlphaMaskImpl(qreal ratioStart, qr
             const int end = (barWidth*ratioEnd) - start;
             painter.drawRect(marginMajor, start + marginMinor, width() - (2*marginMajor), end);
 
-        } else /*if (m_type == border || m_type == borderMirrored)*/ {
+        } else {
             painter.drawRect(2, 2, width() - 4, height() - 4);
             painter.setBrush(Qt::black);
             painter.drawRect(m_barWidth, m_barWidth, width() - 2 * m_barWidth, height() - 2 * m_barWidth);
@@ -361,7 +348,6 @@ QImage KisVisualRectangleSelectorShape::renderAlphaMaskImpl(qreal ratioStart, qr
 
 void KisVisualRectangleSelectorShape::drawCursor(QPainter &painter)
 {
-    //qDebug() << this << "KisVisualRectangleSelectorShape::drawCursor: image needs update" << imagesNeedUpdate();
     QPointF cursorPoint = convertShapeCoordinateToWidgetCoordinate(getCursorPosition());
     QColor col = getColorFromConverter(getCurrentColor());
     QBrush fill(Qt::SolidPattern);

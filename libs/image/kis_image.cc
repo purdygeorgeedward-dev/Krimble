@@ -7,7 +7,7 @@
 
 #include "kis_image.h"
 
-#include <KoConfig.h> // WORDS_BIGENDIAN
+#include <KoConfig.h>
 
 #include <stdlib.h>
 #include <math.h>
@@ -101,9 +101,6 @@
 #include <KisStaticInitializer.h>
 #include "KisImageGlobalSelectionManagementInterface.h"
 
-
-// #define SANITY_CHECKS
-
 #ifdef SANITY_CHECKS
 #define SANITY_CHECK_LOCKED(name)                                       \
     if (!locked()) warnKrita() << "Locking policy failed:" << name          \
@@ -146,7 +143,6 @@ public:
                 scheduler.setProgressProxy(&compositeProgressProxy);
             }
 
-            // Each of these lambdas defines a new factory function.
             scheduler.setLod0ToNStrokeStrategyFactory(
                 [=](bool forgettable) {
                     return KisLodSyncPair(
@@ -201,20 +197,10 @@ public:
     }
 
     ~KisImagePrivate() {
-        /**
-         * First delete the nodes, while strokes
-         * and undo are still alive
-         */
 
         KIS_SAFE_ASSERT_RECOVER_NOOP(rootLayer->graphListener() == q);
         KIS_SAFE_ASSERT_RECOVER_NOOP(rootLayer->image() == q);
 
-        /**
-         * Firstly we need to disconnect the nodes from the image,
-         * because some of the nodes (e.g. KisGroupLayer) may
-         * request the image back via defaultBouds() and/or
-         * animationInterface()
-         */
         if (rootLayer->image() == q) {
             rootLayer->setImage(0);
         }
@@ -225,9 +211,6 @@ public:
 
         rootLayer.clear();
 
-        /**
-         * Stop animation interface. It may use the rootLayer.
-         */
         delete animationInterface;
     }
 
@@ -247,8 +230,8 @@ public:
 
     KisImageGlobalSelectionManagementInterface globalSelectionInterface;
     KisSelectionMaskSP deselectedGlobalSelectionMask;
-    KisGroupLayerSP rootLayer; // The layers are contained in here
-    KisSelectionMaskSP targetOverlaySelectionMask; // the overlay switching stroke will try to switch into this mask
+    KisGroupLayerSP rootLayer;
+    KisSelectionMaskSP targetOverlaySelectionMask;
     KisSelectionMaskSP overlaySelectionMask;
     QList<KisLayerCompositionSP> compositions;
 
@@ -268,7 +251,6 @@ public:
     QAtomicInt disableUIUpdateSignals;
     KisLocklessStack<QRect> savedDisabledUIUpdates;
 
-    // filters are applied in a reversed way, from rbegin() to rend()
     QVector<KisProjectionUpdatesFilterSP> projectionUpdatesFilters;
     QStack<KisProjectionUpdatesFilterCookie> disabledUpdatesCookies;
     KisImageSignalRouter signalRouter;
@@ -320,7 +302,6 @@ KisImage::KisImage(KisUndoStore *undoStore, qint32 width, qint32 height, const K
                                   colorSpace, undoStore,
                                   new KisImageAnimationInterface(this)))
 {
-    // make sure KisImage belongs to the GUI thread
     moveToThread(qApp->thread());
     connect(this, SIGNAL(sigInternalStopIsolatedModeRequested()), SLOT(stopIsolatedMode()));
 
@@ -330,13 +311,10 @@ KisImage::KisImage(KisUndoStore *undoStore, qint32 width, qint32 height, const K
 
 KisImage::~KisImage()
 {
-    /**
-     * Request the tools to end currently running strokes
-     */
     waitForDone();
 
     delete m_d;
-    disconnect(); // in case Qt gets confused
+    disconnect();
 }
 
 KisImageSP KisImage::fromQImage(const QImage &image, KisUndoStore *undoStore)
@@ -415,20 +393,7 @@ void KisImage::copyFromImage(const KisImage &rhs)
 
 void KisImage::copyFromImageImpl(const KisImage &rhs, int policy)
 {
-    // make sure we choose exactly one from REPLACE and CONSTRUCT
     KIS_ASSERT_RECOVER_RETURN(bool(policy & REPLACE) != bool(policy & CONSTRUCT));
-
-    /**
-     * We should replace the root before emitting any signals, because some of the layers
-     * may be subscribed to sigSizeChanged() signal (e.g. KisSelectionBasedLayer). So the
-     * old layers should be fully detached before we actually Q_EMIT this signal.
-     *
-     * We should also change all the dimensional properties of the image before setting
-     * the image on the nodes, because some nodes may emit signals if something changes
-     * internally (e.g. resolution).
-     *
-     * See bug 447599 for more details.
-     */
 
     const bool sizeChanged = m_d->width != rhs.width() || m_d->height != rhs.height();
     const bool colorSpaceChanged = *m_d->colorSpace != *rhs.colorSpace();
@@ -448,7 +413,6 @@ void KisImage::copyFromImageImpl(const KisImage &rhs, int policy)
         m_d->yres = rhs.m_d->yres;
     }
 
-    // from KisImage::KisImage(const KisImage &, KisUndoStore *, bool)
     setObjectName(rhs.objectName());
 
     KisNodeSP oldRoot = this->root();
@@ -465,7 +429,6 @@ void KisImage::copyFromImageImpl(const KisImage &rhs, int policy)
         oldRoot->disconnect();
     }
 
-    // only when replacing do we need to Q_EMIT signals
 #define EMIT_IF_NEEDED if (!(policy & REPLACE)) {} else emit
 
     if (sizeChanged) {
@@ -520,12 +483,6 @@ void KisImage::copyFromImageImpl(const KisImage &rhs, int policy)
                                                    m_d->rootLayer->notifyChildMaskChanged();
                                                }
 
-
-                                               // Re-establish DefaultBounds Instances for Existing Nodes
-                                               // This is a workaround for copy-constructors failing to pass
-                                               // proper DefaultBounds due to either lacking image data on construction
-                                               // We should change the way "DefaultBounds" works to try to make it
-                                               // safer for threading races.
                                                using KeyframeChannelContainer = QMap<QString, KisKeyframeChannel*>;
                                                KeyframeChannelContainer keyframeChannels = node->keyframeChannels();
                                                for (KeyframeChannelContainer::iterator i = keyframeChannels.begin();
@@ -539,8 +496,6 @@ void KisImage::copyFromImageImpl(const KisImage &rhs, int policy)
                                        [](KisNodeSP node) {
                                            dbgImage << "Node: " << (void *)node.data();
                                        });
-
-
 
     m_d->compositions.clear();
 
@@ -573,7 +528,6 @@ KisImage::KisImage(const KisImage& rhs, KisUndoStore *undoStore, bool exactCopy)
                               undoStore ? undoStore : new KisDumbUndoStore(),
                               new KisImageAnimationInterface(*rhs.animationInterface(), this)))
 {
-    // make sure KisImage belongs to the GUI thread
     moveToThread(qApp->thread());
     connect(this, SIGNAL(sigInternalStopIsolatedModeRequested()), SLOT(stopIsolatedMode()));
 
@@ -732,7 +686,6 @@ QString KisImage::nextLayerName(const QString &_baseName) const
             }
         });
 
-    // special case if there is only root node
     if (numLayers == 1) {
         return i18nc("Name for the bottom-most layer in the layerstack", "Background");
     }
@@ -876,11 +829,6 @@ void KisImage::cropImage(const QRect& newRect)
 
 void KisImage::purgeUnusedData(bool isCancellable)
 {
-    /**
-     * In cancellable mode, the action does **not** touch the paint
-     * devices of the image, only projections, because it can break
-     * undo/redo.
-     */
 
     struct PurgeUnusedDataStroke : public KisRunnableBasedStrokeStrategy {
         PurgeUnusedDataStroke(KisImageSP image, bool isCancellable)
@@ -912,8 +860,6 @@ void KisImage::purgeUnusedData(bool isCancellable)
                     Q_FOREACH (KisPaintDeviceSP dev, deviceList) {
                         if (!dev) continue;
 
-                        // we do **not** strip paint devices in the forgettable
-                        // mode, since we should handle transactions for them
                         if (dev == node->paintDevice() && !canForgetAboutMe()) {
                             paintDevicesList << dev;
                         } else {
@@ -922,20 +868,15 @@ void KisImage::purgeUnusedData(bool isCancellable)
                     }
                  });
 
-            /// make sure we deduplicate the list to avoid
-            /// concurrent write access to the devices
             KritaUtils::makeContainerUnique(paintDevicesList);
             KritaUtils::makeContainerUnique(projectionsList);
 
             Q_FOREACH(KisPaintDeviceSP dev, paintDevicesList) {
                 projectionsList.removeAll(dev);
 
-                // all transactions will be linked to the final command via the
-                // parent-child relationship
                 m_transactions.emplace_back(dev, m_finalCommand.get(), -1, nullptr, KisTransaction::None);
             }
 
-            // now, when the transactions are started, we can merge the two lists
             paintDevicesList << projectionsList;
             projectionsList.clear();
 
@@ -953,11 +894,8 @@ void KisImage::purgeUnusedData(bool isCancellable)
             for (auto it = m_transactions.begin(); it != m_transactions.end(); ++it) {
                 std::unique_ptr<KUndo2Command> cmd(it->endAndTake());
 
-                // verify the transaction command is linked to m_finalCommand,
-                // if not, just delete on return
                 KIS_SAFE_ASSERT_RECOVER(cmd->hasParent()) { continue; }
 
-                // if has a parent, release...
                 (void)cmd.release();
             }
 
@@ -966,7 +904,6 @@ void KisImage::purgeUnusedData(bool isCancellable)
             m_finalCommand->redo();
             m_image->postExecutionUndoAdapter()->addCommand(toQShared(m_finalCommand.release()));
 
-            // now reset the thumbnail generation limitation
             KisLayerUtils::recursiveApplyNodes(m_image->root(),
                 [](KisNodeSP node) {
                     if (node->preferredThumbnailBoundsMode() != KisThumbnailBoundsMode::Precise) {
@@ -1006,10 +943,8 @@ void KisImage::cropNode(KisNodeSP node, const QRect& newRect, const bool activeF
         new KisCropProcessingVisitor(newRect, true, false);
 
     if (node->isAnimated() && activeFrameOnly) {
-        // Crop active frame..
         applicator.applyVisitor(visitor, KisStrokeJobData::CONCURRENT);
     } else {
-        // Crop all frames..
         applicator.applyVisitorAllFrames(visitor, KisStrokeJobData::CONCURRENT);
     }
     applicator.end();
@@ -1129,8 +1064,6 @@ void KisImage::rotateImpl(const KUndo2MagicString &actionName,
                           bool resizeImage,
                           KisSelectionSP selection)
 {
-    // we can either transform (and resize) the whole image or
-    // transform a selection, we cannot do both at the same time
     KIS_SAFE_ASSERT_RECOVER(!(bool(selection) && resizeImage)) {
         selection = 0;
     }
@@ -1176,16 +1109,13 @@ void KisImage::rotateImpl(const KUndo2MagicString &actionName,
         (newSize.width() != baseBounds.width() ||
          newSize.height() != baseBounds.height());
 
-    // These signals will be emitted after processing is done
     KisImageSignalVector emitSignals;
     if (sizeChanged) emitSignals << ComplexSizeChangedSignal(baseBounds, newSize);
 
-    // These flags determine whether updates are transferred to the UI during processing
     KisProcessingApplicator::ProcessingFlags signalFlags =
         sizeChanged ?
         KisProcessingApplicator::NO_UI_UPDATES :
         KisProcessingApplicator::NONE;
-
 
     KisProcessingApplicator applicator(this, nodes,
                                        KisProcessingApplicator::RECURSIVE | signalFlags,
@@ -1213,7 +1143,6 @@ void KisImage::rotateImpl(const KUndo2MagicString &actionName,
     }
     applicator.end();
 }
-
 
 void KisImage::rotateImage(double radians)
 {
@@ -1262,7 +1191,6 @@ void KisImage::shearImpl(const KUndo2MagicString &actionName,
     }
     const QPointF origin = QRectF(baseBounds).center();
 
-    //angleX, angleY are in degrees
     const qreal pi = 3.1415926535897932385;
     const qreal deg2rad = pi / 180.0;
 
@@ -1352,7 +1280,6 @@ void KisImage::convertLayerColorSpace(KisNodeSP node,
                                       KoColorConversionTransformation::ConversionFlags conversionFlags)
 {
     if (!node->projectionLeaf()->isLayer()) return;
-    // must not be an image root, use convertImageColorSpace() for that:
     KIS_SAFE_ASSERT_RECOVER_RETURN(!node->image() || (node.data() != node->image()->rootLayer().data()));
 
     const KoColorSpace *srcColorSpace = node->colorSpace();
@@ -1444,7 +1371,6 @@ void KisImage::KisImagePrivate::convertImageColorSpaceImpl(const KoColorSpace *d
                                                           KisCommandUtils::FlipFlopCommand::FINALIZING),
         KisStrokeJobData::BARRIER);
 
-
     applicator.end();
 }
 
@@ -1475,8 +1401,6 @@ void KisImage::unifyLayersColorSpace()
                                        flags,
                                        emitSignals, actionName);
 
-    // src and dst color spaces coincide, since we should just unify
-    // all our layers
     applicator.applyVisitor(
                 new KisConvertColorSpaceProcessingVisitor(
                     m_d->colorSpace, m_d->colorSpace,
@@ -1515,7 +1439,6 @@ bool KisImage::assignLayerProfile(KisNodeSP node, const KoColorProfile *profile)
 
     return true;
 }
-
 
 bool KisImage::assignImageProfile(const KoColorProfile *profile, bool blockAllUpdates)
 {
@@ -1566,7 +1489,6 @@ bool KisImage::assignImageProfile(const KoColorProfile *profile, bool blockAllUp
                                                           KisImageWSP(this),
                                                           KisCommandUtils::FlipFlopCommand::FINALIZING),
         KisStrokeJobData::BARRIER);
-
 
     applicator.end();
 
@@ -1759,8 +1681,6 @@ QImage KisImage::convertToQImage(qint32 x,
     return image;
 }
 
-
-
 QImage KisImage::convertToQImage(const QSize& scaledImageSize, const KoColorProfile *profile)
 {
     if (scaledImageSize.isEmpty()) {
@@ -1774,12 +1694,7 @@ QImage KisImage::convertToQImage(const QSize& scaledImageSize, const KoColorProf
     double scaleX = qreal(scaledImageSize.width()) / width();
     double scaleY = qreal(scaledImageSize.height()) / height();
 
-
     if (scaleX < 1.0/256 || scaleY < 1.0/256) {
-        // quick checking if we're not trying to scale too much
-        // convertToQImage uses KisFixedPoint values, which means that the scale cannot be smaller than 1/2^8
-        // BUG:432182
-        // FIXME: would be best to extend KisFixedPoint instead
         return convertToQImage(size(), profile).scaled(scaledImageSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
 
@@ -1890,7 +1805,6 @@ void KisImage::setRootLayer(KisGroupLayerSP rootLayer)
 
 void KisImage::addAnnotation(KisAnnotationSP annotation)
 {
-    // Find the icc annotation, if there is one
     vKisAnnotationSP_it it = m_d->annotations.begin();
     while (it != m_d->annotations.end()) {
         if ((*it)->type() == annotation->type()) {
@@ -1962,13 +1876,6 @@ void KisImage::waitForDone()
 
 KisStrokeId KisImage::startStroke(KisStrokeStrategy *strokeStrategy)
 {
-    /**
-     * Ask open strokes to end gracefully. All the strokes clients
-     * (including the one calling this method right now) will get
-     * a notification that they should probably end their strokes.
-     * However this is purely their choice whether to end a stroke
-     * or not.
-     */
     if (strokeStrategy->requestsOtherStrokesToEnd()) {
         requestStrokeEnd();
     }
@@ -1998,10 +1905,6 @@ bool KisImage::startIsolatedMode(KisNodeSP node, bool isolateLayer, bool isolate
     m_d->isolateGroup = isolateGroup;
     if ((isolateLayer || isolateGroup) == false) return false;
 
-    /**
-     * Isolation of transform masks is not possible, so we should
-     * not allow that
-     */
     if (!node->projection()) return false;
 
     struct StartIsolatedModeStroke : public KisRunnableBasedStrokeStrategy {
@@ -2021,11 +1924,8 @@ bool KisImage::startIsolatedMode(KisNodeSP node, bool isolateLayer, bool isolate
 
         void initStrokeCallback() override {
             if (m_isolateLayer == false && m_isolateGroup == true) {
-                // Isolate parent node unless node is the root note.
                 m_newRoot = m_newRoot->parent() ? m_newRoot->parent() : m_newRoot;
             }
-            // pass-though node don't have any projection prepared, so we should
-            // explicitly regenerate it before activating isolated mode.
             m_newRoot->projectionLeaf()->explicitlyRegeneratePassThroughProjection();
             m_prevRoot = m_image->m_d->isolationRootNode;
 
@@ -2043,8 +1943,6 @@ bool KisImage::startIsolatedMode(KisNodeSP node, bool isolateLayer, bool isolate
         }
 
         void finishStrokeCallback() override {
-            // the GUI uses our thread to do the color space conversion so we
-            // need to Q_EMIT this signal in multiple threads
 
             if (m_prevRoot && m_prevRootNeedsFullRefresh) {
                 m_image->refreshGraphAsync(m_prevRoot);
@@ -2119,11 +2017,6 @@ void KisImage::stopIsolatedMode()
             if (m_oldNodeNeedsRefresh){
                 m_oldRootNode->setDirty(m_image->bounds());
             } else {
-                // TODO: Substitute notifyProjectionUpdated() with this code
-                // when update optimization is implemented
-                //
-                // QRect updateRect = bounds() | oldRootNode->extent();
-                //oldRootNode->setDirty(updateRect);
 
                 QVector<KisRunnableStrokeJobData*> jobs;
                 m_image->m_d->notifyProjectionUpdatedInPatches(m_image->bounds(), jobs);
@@ -2211,10 +2104,6 @@ void KisImage::requestStrokeEndActiveNode()
 
 void KisImage::initialRefreshGraph()
 {
-    /**
-     * NOTE: Tricky part. We set crop rect to null, so the clones
-     * will not rely on precalculated projections of their sources
-     */
 
     refreshGraphAsync(0, bounds(), QRect());
     waitForDone();
@@ -2228,16 +2117,6 @@ void KisImage::refreshGraphAsync(KisNodeSP root, const QVector<QRect> &rects, co
 
     KisGroupLayer *group = dynamic_cast<KisGroupLayer*>(root.data());
     if (group && group->passThroughMode()) {
-        /**
-         * We cannot regenerate a pass-through group, since it is not present in
-         * the layers stack. Instead we should delegate this regeneration pass
-         * to the parent group.
-         *
-         * We should also take into account the change rect of all the layers that lay
-         * above the "dirty" pass-through group (i.e. convert the change rect of the
-         * child into a change rect of the parent). That is required for a case,
-         * when there are adjustment layers laying above the pass-through group.
-         */
         QVector<QRect> changeRects = requestedRects;
         KisProjectionLeafSP leaf = root->projectionLeaf()->nextSibling();
         while (leaf) {
@@ -2256,10 +2135,6 @@ void KisImage::refreshGraphAsync(KisNodeSP root, const QVector<QRect> &rects, co
         KIS_SAFE_ASSERT_RECOVER_RETURN(root);
     }
 
-    /**
-     * We iterate through the filters in a reversed way. It makes the most nested filters
-     * to execute first.
-     */
     for (auto it = m_d->projectionUpdatesFilters.rbegin();
          it != m_d->projectionUpdatesFilters.rend();
          ++it) {
@@ -2393,18 +2268,8 @@ int KisImage::workingThreadsLimit() const
 
 void KisImage::notifySelectionChanged()
 {
-    /**
-     * The selection is calculated asynchronously, so it is not
-     * handled by disableUIUpdates() and other special signals of
-     * KisImageSignalRouter
-     */
     m_d->legacyUndoAdapter.emitSelectionChanged();
 
-    /**
-     * Editing of selection masks doesn't necessary produce a
-     * setDirty() call, so in the end of the stroke we need to request
-     * direct update of the UI's cache.
-     */
     if (m_d->isolationRootNode &&
         dynamic_cast<KisSelectionMask*>(m_d->isolationRootNode.data())) {
 
@@ -2425,10 +2290,6 @@ void KisImage::KisImagePrivate::
 
 void KisImage::requestProjectionUpdate(KisNode *node, const QVector<QRect> &rects, KisProjectionUpdateFlags flags)
 {
-    /**
-     * We iterate through the filters in a reversed way. It makes the most nested filters
-     * to execute first.
-     */
     for (auto it = m_d->projectionUpdatesFilters.rbegin();
          it != m_d->projectionUpdatesFilters.rend();
          ++it) {
@@ -2444,15 +2305,7 @@ void KisImage::requestProjectionUpdate(KisNode *node, const QVector<QRect> &rect
         m_d->animationInterface->notifyNodeChanged(node, rects, false);
     }
 
-    /**
-     * Here we use 'permitted' instead of 'active' intentively,
-     * because the updates may come after the actual stroke has been
-     * finished. And having some more updates for the stroke not
-     * supporting the wrap-around mode will not make much harm.
-     */
     if (m_d->wrapAroundModePermitted && !flags.testFlag(KisProjectionUpdateFlag::NoFilthy)) {
-        /// TODO: Remove the no-filthy condition. I have no idea, why it is present.
-        ///       Or replace it with an assert. (DK)
         QVector<QRect> allSplitRects;
 
         const QRect boundRect = effectiveLodBounds();
@@ -2591,7 +2444,6 @@ WrapAroundAxis KisImage::wrapAroundModeAxis() const
     return m_d->wrapAroundModeAxis;
 }
 
-
 bool KisImage::wrapAroundModePermitted() const
 {
     return m_d->wrapAroundModePermitted;
@@ -2643,8 +2495,6 @@ void KisImage::setProofingConfiguration(KisProofingConfigurationSP proofingConfi
     const bool changed = bool(m_d->proofingConfig) != bool(proofingConfig) ||
         (m_d->proofingConfig && proofingConfig && *m_d->proofingConfig != *proofingConfig);
 
-    // we still assign even when unchanged since they can be different
-    // shared pointer objects
     m_d->proofingConfig = proofingConfig;
 
     if (changed) {

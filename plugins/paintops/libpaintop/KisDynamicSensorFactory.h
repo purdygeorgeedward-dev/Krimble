@@ -16,10 +16,6 @@ class PAINTOP_EXPORT KisDynamicSensorFactory
 public:
     virtual ~KisDynamicSensorFactory();
 
-    /**
-     * return the id for the shape this factory creates.
-     * @return the id for the shape this factory creates.
-     */
     virtual QString id() const = 0;
 
     virtual int minimumValue() = 0;
@@ -30,4 +26,4 @@ public:
     virtual QWidget* createConfigWidget(lager::cursor<KisCurveOptionDataCommon>, QWidget*) = 0;
 };
 
-#endif // KISDYNAMICSENSORFACTORY_H
+#endif

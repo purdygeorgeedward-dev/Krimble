@@ -42,9 +42,6 @@ struct KRITAUI_EXPORT OptionInfoToQStringConverter {
 
 typedef KisCategorizedListModel<KisOptionInfo, OptionInfoToQStringConverter> BaseOptionCategorizedListModel;
 
-/**
- * This model can be use to show a list of visible composite op in a list view.
- */
 class KRITAUI_EXPORT KisPaintOpOptionListModel : public BaseOptionCategorizedListModel
 {
 public:
@@ -63,4 +60,4 @@ private:
     QSignalMapper m_stateSignalsMapper;
 };
 
-#endif // _KIS_PAINTOP_OPTION_LIST_MODEL_H_
+#endif

@@ -28,7 +28,6 @@ void KisStabilizedEventsSamplerTest::test()
     KisStabilizedEventsSampler::iterator end;
     std::tie(it, end) = sampler.range();
 
-
     int numTotal = 0;
     int num1 = 0;
     int num2 = 0;

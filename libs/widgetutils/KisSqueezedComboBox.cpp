@@ -10,9 +10,6 @@
  * ============================================================ */
 
 #include "KisSqueezedComboBox.h"
-/** @file KisSqueezedComboBox.cpp */
-
-// Qt includes.
 
 #include <QComboBox>
 #include <QTimer>
@@ -137,16 +134,13 @@ void KisSqueezedComboBox::slotTimeOut()
 
 QString KisSqueezedComboBox::squeezeText(const QString& original, const QWidget *widget)
 {
-    // not the complete widgetSize is usable. Need to compensate for that.
     int widgetSize = widget->width() - 30;
     QFontMetrics fm(widget->fontMetrics());
 
-    // If we can fit the full text, return that.
     if (fm.boundingRect(original).width() < widgetSize)
         return(original);
 
-    // We need to squeeze.
-    QString sqItem = original; // prevent empty return value;
+    QString sqItem = original;
     widgetSize = widgetSize - fm.boundingRect("...").width();
     for (int i = 0 ; i != original.length(); ++i) {
         if ((int)fm.boundingRect(original.right(i)).width() > widgetSize) {

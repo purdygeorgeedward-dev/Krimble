@@ -9,12 +9,6 @@
 #include <KoResource.h>
 
 #include "kritaresources_export.h"
-/**
- * Never use manual save/restore calls to
- * KoResource::isDirty()/KoResource::setDirty()! They will lead to
- * hard-to-tack-down bugs when the dirty state will not be
- * restored on jumps like 'return', 'break' or exception.
- */
 template <typename T>
 class KisDirtyStateSaver
 {
@@ -37,4 +31,4 @@ private:
     bool m_isDirty = false;
 };
 
-#endif // KISDIRTYSTATESAVER_H
+#endif

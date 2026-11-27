@@ -14,7 +14,6 @@
 
 class KisPainter;
 
-
 class KisColorSmudgeStrategyBase : public KisColorSmudgeStrategy
 {
 public:
@@ -123,5 +122,4 @@ private:
     bool m_useDullingMode {true};
 };
 
-
-#endif //KRITA_KISCOLORSMUDGESTRATEGYBASE_H
+#endif

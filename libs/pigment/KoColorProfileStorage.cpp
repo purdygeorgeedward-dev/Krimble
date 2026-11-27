@@ -18,7 +18,6 @@
 #include "KoColorProfileQuery.h"
 #include "kis_assert.h"
 
-
 struct KoColorProfileStorage::Private {
     QHash<QString, KoColorProfile * > profileMap;
     QHash<QByteArray, KoColorProfile * > profileUniqueIdMap;
@@ -65,7 +64,6 @@ void KoColorProfileStorage::addProfile(KoColorProfile *profile)
     if (profile->valid()) {
         d->profileMap[profile->name()] = profile;
         if (d->profileUniqueIdMap.contains(profile->uniqueId())) {
-            //warnPigment << "Duplicated profile" << profile->name() << profile->fileName() << d->profileUniqueIdMap[profile->uniqueId()]->fileName();
             d->duplicates.append(d->profileUniqueIdMap[profile->uniqueId()]);
         }
         d->profileUniqueIdMap.insert(profile->uniqueId(), profile);
@@ -102,20 +100,12 @@ void KoColorProfileStorage::removeProfileAlias(const QString &name)
 QString KoColorProfileStorage::profileAlias(const QString &name) const
 {
     QReadLocker l(&d->lock);
-    /**
-     * Profile aliases are considered 'weak', i.e. they can
-     * be overridden by a read profile added to the storage.
-     */
     return d->profileMap.contains(name) ? name : d->profileAlias.value(name, name);
 }
 
 const KoColorProfile *KoColorProfileStorage::profileByName(const QString &name) const
 {
     QReadLocker l(&d->lock);
-    /**
-     * Profile aliases are considered 'weak', i.e. they can
-     * be overridden by a read profile added to the storage.
-     */
     if (d->profileMap.contains(name)) {
         return d->profileMap[name];
     }
@@ -141,7 +131,6 @@ void KoColorProfileStorage::Private::populateUniqueIdMap()
     }
 }
 
-
 const KoColorProfile *KoColorProfileStorage::profileByUniqueId(const QByteArray &id) const
 {
     QReadLocker l(&d->lock);
@@ -166,7 +155,6 @@ QList<const KoColorProfile *> KoColorProfileStorage::profilesFor(const KoColorSp
         KoColorProfile *  profile = it.value();
         if (csf->profileIsCompatible(profile)) {
             Q_ASSERT(profile);
-            //         if (profile->colorSpaceSignature() == csf->colorSpaceSignature()) {
             profiles.push_back(profile);
         }
     }
@@ -203,7 +191,6 @@ QList<const KoColorProfile *> KoColorProfileStorage::profilesFor(const KoColorPr
             if (profile->getColorantsxyY().size() == query.rgbColorants.size()) {
                 QVector<KoColorimetryUtils::xyY> col = profile->getColorantsxyY();
                 if (col.isEmpty()) {
-                    // too few colorants, skip.
                     continue;
                 }
 
@@ -226,10 +213,6 @@ QList<const KoColorProfile *> KoColorProfileStorage::profilesFor(const KoColorPr
         }
 
         if (query.transfer == TRC_ITU_R_BT_2100_0_PQ) {
-            // by default we expect HDR profiles to have HDR Reference White point
-            // to set to 203 nits
-            // TODO: should we spit a warning if the reference white is not set
-            //       for a pq space?
             const qreal requestedHdrReferenceWhite = query.hdrReferenceWhite.value_or(203.0);
             luminanceMatch = (profile->hdrReferenceWhite() && qFuzzyCompare(*profile->hdrReferenceWhite(), requestedHdrReferenceWhite));
         }

@@ -5,16 +5,13 @@
  */
 #include "KisResourcesInterface.h"
 
-
 #include <QString>
 #include "kis_assert.h"
 #include "KisResourcesInterface_p.h"
 
 #include "kis_debug.h"
 
-//#define SANITY_CHECKS
 #define CRASH_ON_SANITY_CHECK_FAILURE
-
 
 KisResourcesInterface::KisResourcesInterface()
     : d_ptr(new KisResourcesInterfacePrivate)
@@ -34,8 +31,6 @@ KisResourcesInterface::~KisResourcesInterface()
 KisResourcesInterface::ResourceSourceAdapter &KisResourcesInterface::source(const QString &type) const
 {
     Q_D(const KisResourcesInterface);
-
-    // use double-locking for fetching the source
 
     ResourceSourceAdapter *source = 0;
 
@@ -92,8 +87,6 @@ KoResourceSP KisResourcesInterface::ResourceSourceAdapter::findResource(const QS
             }
 
             if (!filename.isEmpty() && filename != res->filename()) {
-                /// filename is more important than name, so it gives
-                /// higher penalty
                 penalty += 2;
             }
 
@@ -104,20 +97,12 @@ KoResourceSP KisResourcesInterface::ResourceSourceAdapter::findResource(const QS
             foundResources.append(qMakePair(res, penalty));
         }
 
-        /// In case of exact match we **must** find the resource
-        /// via its md5 if provided
         if (exactMatch && foundResources.isEmpty()) {
             return {};
         }
     }
 
 #ifdef SANITY_CHECKS
-    /**
-     * When we request a resource using MD5, but it is found only via its
-     * filename, it is, most probably, a problem with the preset. Namely,
-     * the MD5 tag saved into the preset is wrong. Let's just warn about
-     * that.
-     */
     const bool warnAboutIncorrectMd5Fetch =
         foundResources.isEmpty() && !md5.isEmpty();
 #endif
@@ -165,9 +150,9 @@ KoResourceSP KisResourcesInterface::ResourceSourceAdapter::findResource(const QS
 
 #ifdef CRASH_ON_SANITY_CHECK_FAILURE
         qFatal("Exiting...");
-#endif /* CRASH_ON_SANITY_CHECK_FAILURE */
+#endif
     }
-#endif /* SANITY_CHECKS */
+#endif
 
     return result;
 }

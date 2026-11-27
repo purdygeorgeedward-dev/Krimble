@@ -6,7 +6,6 @@
 #ifndef KIS_PARTICLEOP_OPTION_DATA_H
 #define KIS_PARTICLEOP_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -37,4 +36,4 @@ struct KisParticleOpOptionData : boost::equality_comparable<KisParticleOpOptionD
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-#endif // KIS_PARTICLEOP_OPTION_DATA_H
+#endif

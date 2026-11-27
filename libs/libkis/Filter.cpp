@@ -57,7 +57,6 @@ bool Filter::operator!=(const Filter &other) const
     return !(operator==(other));
 }
 
-
 QString Filter::name() const
 {
     return d->name;
@@ -141,7 +140,6 @@ bool Filter::startFilter(Node *node, int x, int y, int w, int h)
     processRect &= image->bounds();
 
     image->addJob(currentStrokeId, new KisFilterStrokeStrategy::FilterJobData());
-
 
     image->endStroke(currentStrokeId);
     image->waitForDone();

@@ -18,10 +18,8 @@
 #include <kis_algebra_2d.h>
 #include <kis_grid_interpolation_tools.h>
 
-
 #include <quazip.h>
 #include <quazipfile.h>
-
 
 KisPaintDeviceSP getBlackImageDev(int size = 5000)
 {
@@ -32,11 +30,8 @@ KisPaintDeviceSP getBlackImageDev(int size = 5000)
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     dev->convertFromQImage(image, 0);
 
-    //qCritical() << ppVar(dev->exactBounds());
     return dev;
 }
-
-
 
 QList<QPointF> preparePointsData(const QPointF& A, const QPointF& B, const QPointF& C, const QPointF& D, int oneWayBasesCount)
 {
@@ -84,9 +79,6 @@ void testPoints(KisLiquifyTransformWorkerBenchmark::Operation operation, bool us
                                      updater,
                                      pixelPrecision);
 
-    // A --- D
-    // |     |
-    // C --- B
     qreal smaller = size/5.0;
     qreal bigger = 4*size/5.0;
     if (onlySmallAreaOfChange) {
@@ -98,20 +90,17 @@ void testPoints(KisLiquifyTransformWorkerBenchmark::Operation operation, bool us
     QPointF C = QPointF(smaller, bigger);
     QPointF D = QPointF(bigger, smaller);
 
-
     int oneWayBasesCount = 300;
     QList<QPointF> bases = preparePointsData(A, B, C, D, oneWayBasesCount);
 
     QRandomGenerator randGen(1000);
-    QList<qreal> sigmas; // that means "sizes"...
-    QList<qreal> flows; // the "amount" or strength
-    QList<qreal> scales; // the scale values for scales
-
+    QList<qreal> sigmas;
+    QList<qreal> flows;
+    QList<qreal> scales;
 
     int randValuesCount = 100;
 
     prepareRandData(randGen, sigmas, flows, scales, randValuesCount);
-
 
     if (operation == KisLiquifyTransformWorkerBenchmark::Translate) {
         QBENCHMARK {
@@ -148,9 +137,7 @@ void testPoints(KisLiquifyTransformWorkerBenchmark::Operation operation, bool us
             worker.scalePoints(bases[i], scales[i%scales.length()], sigmas[i%sigmas.length()], useWashMode, flows[i%flows.length()]);
         }
 
-
         QList<QPointF> undoBases = preparePointsData((A + D)/2, (C+B)/2, (B+D)/2, (A+C)/2, oneWayBasesCount);
-
 
         QBENCHMARK {
 
@@ -200,13 +187,11 @@ void testPoints(KisLiquifyTransformWorkerBenchmark::Operation operation, bool us
     }
     else if (operation == KisLiquifyTransformWorkerBenchmark::BenchmarkCopyConstructor) {
         int cases = 1000;
-        //qCritical() << "cases: " << cases << "number of points: " << worker.originalPoints().length();
 
         KisLiquifyTransformWorker previous(worker);
         QSize prevSize;
         QBENCHMARK {
             for (int i = 0; i < cases; i++) {
-                //previous = KisLiquifyTransformWorker(previous);
                 KisLiquifyTransformWorker here(previous);
                 prevSize = here.gridSize();
             }
@@ -216,7 +201,6 @@ void testPoints(KisLiquifyTransformWorkerBenchmark::Operation operation, bool us
 
         QRect bounds = dev->exactBounds();
         QPointF addition = bounds.topLeft() - QPointF(bounds.width(), bounds.height());
-
 
         QBENCHMARK {
             for (int i = 0; i < bases.count(); i++) {
@@ -230,10 +214,9 @@ void testPoints(KisLiquifyTransformWorkerBenchmark::Operation operation, bool us
             }
         }
 
-    } //
+    }
 
 }
-
 
 void KisLiquifyTransformWorkerBenchmark::testInitialization()
 {
@@ -311,7 +294,6 @@ void KisLiquifyTransformWorkerBenchmark::testSmallChangeOnQImage()
     testPoints(RunOnQImage, true, true);
 }
 
-
 KisLiquifyTransformWorker* getWorkerFromIODeviceXml(QIODevice* device)
 {
     QDomDocument doc;
@@ -323,11 +305,9 @@ KisLiquifyTransformWorker* getWorkerFromIODeviceXml(QIODevice* device)
     return KisLiquifyTransformWorker::fromXML(data);
 }
 
-
 KisLiquifyTransformWorker* getWorkerFromXml(QString filename)
 {
     filename = TestUtil::fetchDataFileLazy(filename);
-
 
     if (filename.endsWith("zip")) {
         QuaZip zipArchive(filename);
@@ -337,7 +317,6 @@ KisLiquifyTransformWorker* getWorkerFromXml(QString filename)
         if (filenames.length() < 1) {
             return nullptr;
         }
-        // it should be the first and only file
         QString correctFilename = filenames[0];
         if (!zipArchive.setCurrentFile(correctFilename)) {
             qWarning() << "Could not set current file" << zipArchive.getZipError() << correctFilename;
@@ -364,7 +343,6 @@ KisLiquifyTransformWorker* getWorkerFromXml(QString filename)
 
 }
 
-
 void KisLiquifyTransformWorkerBenchmark::testRenderingMask_data()
 {
 
@@ -379,7 +357,6 @@ void KisLiquifyTransformWorkerBenchmark::testRenderingMask_data()
 
     QTest::addRow("liquify_mask_unusual_config, true") << "liquify_mask_unusual_config.zip" << true;
     QTest::addRow("liquify_mask_unusual_config, false") << "liquify_mask_unusual_config.zip" << false;
-
 
 }
 
@@ -416,7 +393,6 @@ void KisLiquifyTransformWorkerBenchmark::testRenderingMask()
 
 }
 
-
 void KisLiquifyTransformWorkerBenchmark::testCopyConstructor()
 {
     testPoints(BenchmarkCopyConstructor, true, false);
@@ -442,9 +418,6 @@ void KisLiquifyTransformWorkerBenchmark::checkMath()
                                      updater,
                                      pixelPrecision);
 
-    // A --- D
-    // |     |
-    // C --- B
     qreal smaller = size/5.0;
     qreal bigger = 4*size/5.0;
 
@@ -453,15 +426,13 @@ void KisLiquifyTransformWorkerBenchmark::checkMath()
     QPointF C = QPointF(smaller, bigger);
     QPointF D = QPointF(bigger, smaller);
 
-
     int oneWayBasesCount = 300;
     QList<QPointF> bases = preparePointsData(A, B, C, D, oneWayBasesCount);
 
     QRandomGenerator randGen(1000);
-    QList<qreal> sigmas; // that means "sizes"...
-    QList<qreal> flows; // the "amount" or strength
-    QList<qreal> scales; // the scale values for scales
-
+    QList<qreal> sigmas;
+    QList<qreal> flows;
+    QList<qreal> scales;
 
     int randValuesCount = 100;
 
@@ -482,7 +453,6 @@ void KisLiquifyTransformWorkerBenchmark::testCheckingIfPolygonsAreConvex()
     }
 
     QVERIFY(isConvex);
-
 
 }
 

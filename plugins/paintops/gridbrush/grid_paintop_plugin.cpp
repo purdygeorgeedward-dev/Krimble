@@ -19,7 +19,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(GridPaintOpPluginFactory, "kritagridpaintop.json", registerPlugin<GridPaintOpPlugin>();)
 
-
 GridPaintOpPlugin::GridPaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

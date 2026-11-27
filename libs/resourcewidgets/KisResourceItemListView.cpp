@@ -13,7 +13,6 @@
 
 #include "KisIconToolTip.h"
 
-
 struct  Q_DECL_HIDDEN KisResourceItemListView::Private
 {
     ListViewMode viewMode = ListViewMode::IconGrid;
@@ -31,11 +30,10 @@ KisResourceItemListView::KisResourceItemListView(QWidget *parent)
     , m_d(new Private)
 {
     setSelectionMode(QAbstractItemView::SingleSelection);
-    setContextMenuPolicy(Qt::DefaultContextMenu);   
+    setContextMenuPolicy(Qt::DefaultContextMenu);
     setResizeMode(QListView::Adjust);
     setUniformItemSizes(true);
 
-    // Default configuration
     setViewMode(QListView::IconMode);
     setGridSize(QSize(56, 56));
     setIconSize(QSize(56, 56));
@@ -80,7 +78,6 @@ void KisResourceItemListView::setListViewMode(ListViewMode viewMode)
         setFlow(Flow::LeftToRight);
         setWrapping(false);
 
-        // this is the only way to hide it and not have it occupy space
         horizontalScrollBar()->setStyleSheet("QScrollBar::horizontal {height: 0px;}");
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 
@@ -93,7 +90,6 @@ void KisResourceItemListView::setListViewMode(ListViewMode viewMode)
         setWrapping(false);
         restoreScrollbar();
         setItemSize(m_d->requestedItemSize);
-        // horizontalScrollBar()->setStyleSheet(m_d->prev_scrollbar_style);
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
         setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
         break;
@@ -112,8 +108,6 @@ void KisResourceItemListView::setItemSize(QSize size)
         break;
     }
     case ListViewMode::IconStripHorizontal: {
-        // you can not set the item size in strip mode
-        // it is configured automatically based on size
         break;
     }
     case ListViewMode::Detail: {
@@ -142,8 +136,6 @@ void KisResourceItemListView::setToolTipShouldRenderCheckers(bool value)
 
 void KisResourceItemListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
-    // QAbstractItemView moves the current index if the row it points to is removed,
-    // which we don't want for strict selections
     QModelIndex current = currentIndex();
     if (selectionMode() == SingleSelection
             && m_d->strictSelectionMode
@@ -158,7 +150,6 @@ void KisResourceItemListView::rowsAboutToBeRemoved(const QModelIndex &parent, in
 
 void KisResourceItemListView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    // base class takes care of viewport updates
     QListView::selectionChanged(selected, deselected);
 
     if (selected.isEmpty()) {
@@ -173,7 +164,6 @@ QItemSelectionModel::SelectionFlags KisResourceItemListView::selectionCommand(co
 {
     QItemSelectionModel::SelectionFlags cmd = QListView::selectionCommand(index, event);
 
-    // avoid deselecting the current item by Ctrl-clicking in single selection mode
     if (selectionMode() == SingleSelection
             && m_d->strictSelectionMode
             && cmd.testFlag(QItemSelectionModel::Deselect)) {

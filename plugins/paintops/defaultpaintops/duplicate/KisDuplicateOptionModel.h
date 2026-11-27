@@ -29,4 +29,4 @@ public:
     LAGER_QT_CURSOR(bool, cloneFromProjection);
 };
 
-#endif // __KISDUPLICATEOPTIONMODEL_H_
+#endif

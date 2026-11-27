@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-// to disable assert when the leak tracker is active
 #include "config-memory-leak-tracker.h"
 
 #include <QGlobalStatic>
@@ -17,8 +16,6 @@
 #include "kis_tile_data_store_iterators.h"
 
 Q_GLOBAL_STATIC(KisTileDataStore, s_instance)
-
-//#define DEBUG_PRECLONE
 
 #ifdef DEBUG_PRECLONE
 #include <stdio.h>
@@ -105,8 +102,6 @@ KisTileDataStore::MemoryStatistics KisTileDataStore::memoryStatistics()
 
 void KisTileDataStore::tryForceUpdateMemoryStatisticsWhileIdle()
 {
-    // in case the pooler is disabled, we should force it
-    // to update the stats
     if (!m_pooler.isRunning()) {
         m_pooler.forceUpdateMemoryStats();
     }
@@ -117,9 +112,6 @@ inline void KisTileDataStore::registerTileDataImp(KisTileData *td)
     int index = m_counter.fetchAndAddOrdered(1);
     td->m_tileNumber = index;
 
-    // make sure that access to the hash table is guarded by GC block
-    // (it avoids removal of the referenced cells caused by concurrent
-    // migrations)
     m_tileDataMap.getGC().lockRawPointerAccess();
     m_tileDataMap.assign(index, td);
     m_tileDataMap.getGC().unlockRawPointerAccess();
@@ -137,9 +129,6 @@ void KisTileDataStore::registerTileData(KisTileData *td)
 
 inline void KisTileDataStore::unregisterTileDataImp(KisTileData *td)
 {
-    // make sure that access to the hash table is guarded by GC block
-    // (it avoids removal of the referenced cells caused by concurrent
-    // migrations)
     m_tileDataMap.getGC().lockRawPointerAccess();
 
     if (m_clockIndex == td->m_tileNumber) {
@@ -213,7 +202,6 @@ void KisTileDataStore::freeTileData(KisTileData *td)
 
 void KisTileDataStore::ensureTileDataLoaded(KisTileData *td)
 {
-//    dbgKrita << "#### SWAP MISS! ####" << td << ppVar(td->mementoed()) << ppVar(td->age()) << ppVar(td->numUsers());
     checkFreeMemory();
 
     td->m_swapLock.lockForRead();
@@ -221,24 +209,7 @@ void KisTileDataStore::ensureTileDataLoaded(KisTileData *td)
     while (!td->data()) {
         td->m_swapLock.unlock();
 
-        /**
-         * The order of this heavy locking is very important.
-         * Change it only in case, you really know what you are doing.
-         */
         m_iteratorLock.lockForWrite();
-
-        /**
-         * If someone has managed to load the td from swap, then, most
-         * probably, they have already taken the swap lock. This may
-         * lead to a deadlock, because COW mechanism breaks lock
-         * ordering rules in duplicateTileData() (it takes m_listLock
-         * while the swap lock is held). In our case it is enough just
-         * to check whether the other thread has already fetched the
-         * data. Please notice that we do not take both of the locks
-         * while checking this, because holding m_listLock is
-         * enough. Nothing can happen to the tile while we hold
-         * m_listLock.
-         */
 
         if (!td->data()) {
             td->m_swapLock.lockForWrite();
@@ -251,19 +222,12 @@ void KisTileDataStore::ensureTileDataLoaded(KisTileData *td)
 
         m_iteratorLock.unlock();
 
-        /**
-         * <-- In theory, livelock is possible here...
-         */
-
         td->m_swapLock.lockForRead();
     }
 }
 
 bool KisTileDataStore::trySwapTileData(KisTileData *td)
 {
-    /**
-     * This function is called with m_listLock acquired
-     */
 
     bool result = false;
     if (!td->m_swapLock.tryLockForWrite()) return result;
@@ -342,9 +306,6 @@ void KisTileDataStore::debugSwapAll()
 
     endIteration(iter);
 
-//    dbgKrita << "Number of tiles:" << numTiles();
-//    dbgKrita << "Tiles in memory:" << numTilesInMemory();
-//    m_swappedStore.debugStatistics();
 }
 
 void KisTileDataStore::debugClear()

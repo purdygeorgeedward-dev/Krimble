@@ -35,4 +35,4 @@ public:
     LAGER_QT_CURSOR(bool, useSoakInk);
 };
 
-#endif // KIS_HAIRYINK_OPTION_MODEL_H
+#endif

@@ -25,6 +25,4 @@ private:
     KisSmudgeOptionWidget *m_smudgeOptionWidget {nullptr};
 };
 
-
-
-#endif // KIS_ROUNDMARKEROP_SETTINGS_WIDGET_H_
+#endif

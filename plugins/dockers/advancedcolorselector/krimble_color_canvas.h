@@ -1,9 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-08: the Color panel's Picker page, built from the MEASUREMENTS of the mockup (color_panel_measurements.md; George: "Measure everything for proportions. Don't
-// wing it. Sizing and scale matter." and "Remember this app asks the user to scale it as a percentage. Issues of scale are not a problem."). The canvas is the mockup's card:
-// 1178 x 1100 design units (the mockup's own pixels). Every part is placed at its measured rectangle times the scale (the panel's width / 1178), so the proportions are exact at any
-// size, and the symbols are the mockup's own (krimble_color_symbols.h). The color square, hue strip, number boxes, HEX box, color boxes, recent colors and palette cells are real
-// widgets of krimble_color_studio.h; the canvas paints the frames, wells, labels and symbols under and around them.
 #pragma once
 #include <QWidget>
 #include <QPainter>
@@ -28,10 +23,21 @@
 class KrimbleColorCanvas : public KrimbleColorBase
 {
 public:
-    static constexpr double DH = 1100.0;   // the card's height
-    double designHeight() const override { return DH; }
+    static constexpr double DH = 1100.0;
+    static constexpr double PaletteRowH = 51.5;
+    int extraPaletteRows = 0;
+    double extraH() const { return extraPaletteRows * PaletteRowH; }
+    int visibleRows() const { return 4 + extraPaletteRows; }
+    void setExtraPaletteRows(int n)
+    {
+        n = qBound(0, n, 10);
+        if (n == extraPaletteRows) return;
+        extraPaletteRows = n;
+        updateGeometry();
+        relayout();
+    }
+    double designHeight() const override { return DH + extraH(); }
 
-    // the parts the color studio hands over (all children of this canvas)
     QWidget *square = nullptr;
     QWidget *hue = nullptr;
     QSpinBox *hsv[3] = {nullptr, nullptr, nullptr};
@@ -41,23 +47,22 @@ public:
     QLabel *bg = nullptr;
     QVector<QWidget *> *recentCells = nullptr;
     QVector<QWidget *> *paletteCells = nullptr;
-    // buttons made here (transparent: the canvas paints them)
     QToolButton *eyedropper = nullptr;
     QToolButton *copy = nullptr;
     QToolButton *swap = nullptr;
     QToolButton *add = nullptr;
     QToolButton *trash = nullptr;
     QToolButton *mode = nullptr;
-    QToolButton *paletteMenu = nullptr;   // 2026-11-08: the palette name box (opens the list of palettes)
-    QToolButton *pencil = nullptr;        // rename the palette
-    QToolButton *duplicate = nullptr;     // duplicate the palette
-    QToolButton *more = nullptr;          // New, Open, Import, Export, Delete
-    QToolButton *paletteUp = nullptr;     // 2026-11-08: George: "you better be able to scroll through 256 swatches." The palette area shows 4 rows of 19; the scroll bar, the wheel
-    QToolButton *paletteDown = nullptr;   // and the arrows move it by rows
-    int paletteScroll = 0;                // the first visible row
+    QToolButton *paletteMenu = nullptr;
+    QToolButton *pencil = nullptr;
+    QToolButton *duplicate = nullptr;
+    QToolButton *more = nullptr;
+    QToolButton *paletteUp = nullptr;
+    QToolButton *paletteDown = nullptr;
+    int paletteScroll = 0;
     void setPaletteScroll(int row)
     {
-        const int maxRow = qMax(0, paletteRowCount() - 4);
+        const int maxRow = qMax(0, paletteRowCount() - visibleRows());
         row = qBound(0, row, maxRow);
         if (row == paletteScroll) return;
         paletteScroll = row;
@@ -101,7 +106,6 @@ public:
     QSize sizeHint() const override { return QSize(330, heightForWidth(330)); }
     QSize minimumSizeHint() const override { return QSize(240, heightForWidth(240)); }
 
-    // the up and down parts of the six number boxes: call once, after hsv[] and rgb[] are set
     void createSteppers()
     {
         QSpinBox *boxes[6] = {hsv[0], hsv[1], hsv[2], rgb[0], rgb[1], rgb[2]};
@@ -121,7 +125,6 @@ public:
     void setForeground(const QColor &c) { fgColor = c; if (fg) krimbleSetSheet(fg, foregroundStyle(c)); }
     void setBackground(const QColor &c) { bgColor = c; if (bg) krimbleSetSheet(bg, backgroundStyle(c)); }
 
-    // the sizes of the color boxes' own frames follow the scale (the style sheet text is made here)
     QString foregroundStyle(const QColor &c) const
     {
         const qreal s = scale();
@@ -130,8 +133,6 @@ public:
     QString backgroundStyle(const QColor &c) const
     {
         const qreal s = scale();
-        // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;")
-        //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));
         return QStringLiteral("background:%1;border:none;border-radius:%2px;").arg(c.name()).arg(qMax(3, qRound(14 * s)));
     }
 
@@ -162,7 +163,7 @@ public:
             const QRect whole = r(876, spinY[i], 229, spinH[i]).toAlignedRect();
             boxes[i]->setGeometry(whole.left(), whole.top(), whole.width() - arrowW, whole.height());
             boxes[i]->setFont(f);
-            krimbleSetSheet(boxes[i], QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
+            krimbleSetSheet(boxes[i], QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }"
                                                     "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
                                                     "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(18 * s)));
             if (m_up[i] && m_down[i]) {
@@ -173,12 +174,12 @@ public:
         if (hex) {
             hex->setGeometry(r(876, 520, 214, 54).toAlignedRect());
             hex->setFont(f);
-            krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(22 * s)));
+            krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }").arg(qRound(22 * s)));
         }
         copy->setGeometry(r(1100, 520, 56, 54).toAlignedRect());
         if (fg) fg->setGeometry(r(33, 615, 119, 112).toAlignedRect());
         if (bg) bg->setGeometry(r(247, 613, 117, 118).toAlignedRect());
-        if (fg && fgColor.isValid()) krimbleSetSheet(fg, foregroundStyle(fgColor));   // the frames' sizes follow the scale
+        if (fg && fgColor.isValid()) krimbleSetSheet(fg, foregroundStyle(fgColor));
         if (bg && bgColor.isValid()) krimbleSetSheet(bg, backgroundStyle(bgColor));
         swap->setGeometry(r(176, 646, 54, 52).toAlignedRect());
         add->setGeometry(r(788, 764, 54, 56).toAlignedRect());
@@ -187,12 +188,11 @@ public:
         duplicate->setGeometry(r(944, 764, 50, 56).toAlignedRect());
         more->setGeometry(r(1097, 761, 59, 64).toAlignedRect());
         paletteUp->setGeometry(r(1116, 846, 39, 37).toAlignedRect());
-        paletteDown->setGeometry(r(1116, 1026, 39, 37).toAlignedRect());
-        paletteScroll = qBound(0, paletteScroll, qMax(0, paletteRowCount() - 4));
+        paletteDown->setGeometry(r(1116, 1026 + extraH(), 39, 37).toAlignedRect());
+        paletteScroll = qBound(0, paletteScroll, qMax(0, paletteRowCount() - visibleRows()));
         trash->setGeometry(r(1018, 764, 56, 56).toAlignedRect());
         if (recentCells) layoutCells(*recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0);
-        // if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2);
-        if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, paletteScroll);
+        if (paletteCells) layoutCells(*paletteCells, 19, visibleRows(), QRectF(29, 850, 1070, 206 + extraH()), 3.5, 4.2, paletteScroll);
         update();
     }
 
@@ -212,12 +212,11 @@ protected:
         f.setPixelSize(qMax(8, qRound(38 * s)));
         p.setFont(f);
 
-        // the card: a smooth gradient (measured #283248, #242A3F, #1B2235), a dark outline and a light line along the top that fades toward both ends
         {
-            const QRectF card(0.5, 0.5, width() - 1.0, DH * s - 1.0);
+            const QRectF card(0.5, 0.5, width() - 1.0, designHeight() * s - 1.0);
             QPainterPath path;
             path.addRoundedRect(card, 22 * s, 22 * s);
-            QLinearGradient g(0, 0, 0, DH * s);
+            QLinearGradient g(0, 0, 0, designHeight() * s);
             g.setColorAt(0.0, QColor("#283248"));
             g.setColorAt(0.5, QColor("#242a3f"));
             g.setColorAt(1.0, QColor("#1b2235"));
@@ -235,7 +234,6 @@ protected:
 
         const QColor label("#d9deee");
 
-        // the mode drop-down (HSV or HSL) and the eyedropper button (the Picker page only: the other pages are widgets over this part)
         if (topPage == 0) {
         paintButton(p, r(804, 26, 237, 62), 12 * s);
         p.setPen(label);
@@ -251,7 +249,6 @@ protected:
         paintButton(p, r(1073, 26, 78, 62), 12 * s);
         drawSymbol(p, QStringLiteral("eyedropper"), r(1073, 26, 78, 62).center(), 1.0);
 
-        // the number boxes: H S V, then R G B, with their labels and units
         static const double spinY[6] = {111, 168, 225, 310, 366, 423};
         static const double spinH[6] = {51, 50, 50, 50, 51, 51};
         const QString names[6] = {QStringLiteral("H:"), QStringLiteral("S:"), modeText == QLatin1String("HSL") ? QStringLiteral("L:") : QStringLiteral("V:"),
@@ -260,7 +257,6 @@ protected:
         for (int i = 0; i < 6; ++i) {
             const QRectF box = r(876, spinY[i], 229, spinH[i]);
             paintField(p, box, 9 * s);
-            // the arrow section: the right 38 units
             const QRectF arrows(box.right() - 38 * s, box.top(), 38 * s, box.height());
             QLinearGradient ag(0, arrows.top(), 0, arrows.bottom());
             ag.setColorAt(0.0, QColor("#343d5e"));
@@ -284,7 +280,6 @@ protected:
             }
         }
 
-        // the two thin dividers of the value column, HEX with its copy button
         paintLine(p, 804, 292, 1154, s);
         paintLine(p, 804, 496, 1154, s);
         p.setPen(label);
@@ -293,38 +288,31 @@ protected:
         paintButton(p, r(1100, 520, 56, 54), 11 * s);
         drawSymbol(p, QStringLiteral("copy"), r(1100, 520, 56, 54).center(), 1.0);
 
-        }   // the Picker page's own painting
+        }
         drawSymbol(p, QStringLiteral("swap"), r(176, 646, 54, 52).center(), 1.0);
 
-        // Recent Colors: a divider above and below, the label, the dark well with the ten cells (empty places are dark), the chevron of the mockup is left out
         paintLine(p, 404, 603, 1158, s);
         paintLine(p, 404, 751, 1158, s);
         p.setPen(label);
         {
-            // the label is as wide as the mockup's (170 units for "Recent Colors")
             p.setFont(fittedFont(f, QStringLiteral("Recent Colors"), 170 * s));
             p.drawText(QRectF(430 * s, 606 * s, 500 * s, 46 * s), Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("Recent Colors"));
             p.setFont(f);
         }
         paintWell(p, r(422, 657, 669, 64), 10 * s);
-        // paintEmptyCells(p, recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0, QColor("#1a1f33"), 5 * s);
-        paintEmptyCells(p, recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0, QColor("#1a1f33"), 0);   // 2026-11-09: square corners
+        paintEmptyCells(p, recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0, QColor("#1a1f33"), 0);
 
-        // the palette row: grid symbol, the name, the add and remove buttons; then the palette well
-        // the mockup's palette row: a raised frame with the grid symbol and "Palette:", joined to the raised name box
         paintButton(p, r(27, 761, 188, 64), 12 * s);
         p.setPen(label);
         p.setFont(fittedFont(f, QStringLiteral("Palette:"), 98 * s));
         p.drawText(QRectF(102 * s, 764 * s, 150 * s, 56 * s), Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("Palette:"));
         p.setFont(f);
         drawSymbol(p, QStringLiteral("grid"), r(40, 768, 50, 48).center(), 1.0);
-        // paintField(p, r(215, 761, 536, 64), 10 * s);
         paintButton(p, r(215, 761, 536, 64), 12 * s);
         p.setPen(QColor("#f1f4fc"));
         p.drawText(QRectF(236 * s, 761 * s, 480 * s, 64 * s), Qt::AlignLeft | Qt::AlignVCenter, paletteName);
         drawSymbol(p, QStringLiteral("plus"), r(788, 764, 54, 56).center(), 1.0);
         drawSymbol(p, QStringLiteral("trash"), r(1018, 764, 56, 56).center(), 1.0);
-        // 2026-11-08: the rest of the mockup's palette row: the chevron of the name box, a divider, the pencil, duplicate and "..." buttons
         drawSymbol(p, QStringLiteral("chev_palette"), r(715, 793, 0, 0).topLeft(), 1.0);
         p.setPen(QPen(QColor(8, 11, 26, 200), 1.2));
         p.drawLine(QPointF(775 * s, 770 * s), QPointF(775 * s, 816 * s));
@@ -334,16 +322,14 @@ protected:
         drawSymbol(p, QStringLiteral("duplicate"), r(944, 764, 50, 56).center(), 1.0);
         paintButton(p, r(1097, 761, 59, 64), 11 * s);
         drawSymbol(p, QStringLiteral("more"), r(1097, 761, 59, 64).center(), 1.0);
-        paintWell(p, r(24, 843, 1081, 220), 10 * s);
-        // paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 3 * s, paletteScroll);
-        paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 0, paletteScroll);   // 2026-11-09: square corners
-        // the scroll bar of the palette (the mockup's: up and down arrows and a thumb), measured: 39 units wide beside the well
+        paintWell(p, r(24, 843, 1081, 220 + extraH()), 10 * s);
+        paintEmptyCells(p, paletteCells, 19, visibleRows(), QRectF(29, 850, 1070, 206 + extraH()), 3.5, 4.2, QColor("#0f1325"), 0, paletteScroll);
         {
-            paintWell(p, r(1116, 846, 39, 217), 8 * s);
+            paintWell(p, r(1116, 846, 39, 217 + extraH()), 8 * s);
             paintButton(p, r(1116, 846, 39, 37), 8 * s);
-            paintButton(p, r(1116, 1026, 39, 37), 8 * s);
+            paintButton(p, r(1116, 1026 + extraH(), 39, 37), 8 * s);
             drawSymbol(p, QStringLiteral("scroll_up"), r(1116, 846, 39, 37).center(), 0.9);
-            drawSymbol(p, QStringLiteral("scroll_down"), r(1116, 1026, 39, 37).center(), 0.9);
+            drawSymbol(p, QStringLiteral("scroll_down"), r(1116, 1026 + extraH(), 39, 37).center(), 0.9);
             const QRectF thumb = paletteThumb();
             QLinearGradient tg(0, thumb.top(), 0, thumb.bottom());
             tg.setColorAt(0.0, QColor("#59679a"));
@@ -354,21 +340,20 @@ protected:
         }
     }
 
-    // the scroll bar: the thumb's place (its length is the part of the palette that shows)
     QRectF paletteThumb() const
     {
         const int rows = paletteRowCount();
-        const double trackTop = 886, trackH = 137;
-        const double ratio = rows > 4 ? 4.0 / rows : 1.0;
+        const double trackTop = 886, trackH = 137 + extraH();
+        const double ratio = rows > visibleRows() ? double(visibleRows()) / rows : 1.0;
         const double thumbH = qMax(30.0, trackH * ratio);
-        const int maxRow = qMax(0, rows - 4);
+        const int maxRow = qMax(0, rows - visibleRows());
         const double y = trackTop + (trackH - thumbH) * (maxRow > 0 ? double(paletteScroll) / maxRow : 0.0);
         return r(1119, y, 33, thumbH);
     }
     void wheelEvent(QWheelEvent *e) override
     {
         if (topPage > 2) { QWidget::wheelEvent(e); return; }
-        if (r(24, 843, 1135, 220).contains(QPointF(e->pos()))) {
+        if (r(24, 843, 1135, 220 + extraH()).contains(QPointF(e->pos()))) {
             setPaletteScroll(paletteScroll - (e->angleDelta().y() > 0 ? 1 : -1));
             e->accept();
             return;
@@ -377,11 +362,11 @@ protected:
     }
     void mousePressEvent(QMouseEvent *e) override
     {
-        const QRectF track = r(1116, 883, 39, 143);
+        const QRectF track = r(1116, 883, 39, 143 + extraH());
         if (track.contains(QPointF(e->pos()))) {
             const QRectF thumb = paletteThumb();
             if (thumb.contains(QPointF(e->pos()))) { m_thumbDrag = true; m_thumbGrab = e->pos().y() - thumb.top(); }
-            else setPaletteScroll(paletteScroll + (e->pos().y() < thumb.top() ? -4 : 4));
+            else setPaletteScroll(paletteScroll + (e->pos().y() < thumb.top() ? -visibleRows() : visibleRows()));
             return;
         }
         QWidget::mousePressEvent(e);
@@ -390,9 +375,9 @@ protected:
     {
         if (!m_thumbDrag) { QWidget::mouseMoveEvent(e); return; }
         const int rows = paletteRowCount();
-        const int maxRow = qMax(0, rows - 4);
-        const double trackTop = 886 * scale(), trackH = 137 * scale();
-        const double thumbH = qMax(30.0 * scale(), trackH * (rows > 4 ? 4.0 / rows : 1.0));
+        const int maxRow = qMax(0, rows - visibleRows());
+        const double trackTop = 886 * scale(), trackH = (137 + extraH()) * scale();
+        const double thumbH = qMax(30.0 * scale(), trackH * (rows > visibleRows() ? double(visibleRows()) / rows : 1.0));
         const double span = qMax(1.0, trackH - thumbH);
         setPaletteScroll(qRound(maxRow * qBound(0.0, (e->pos().y() - m_thumbGrab - trackTop) / span, 1.0)));
     }

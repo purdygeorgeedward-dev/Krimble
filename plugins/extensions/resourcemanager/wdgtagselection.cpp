@@ -1,9 +1,4 @@
-﻿/*
- *  Copyright (c) 2020 Agata Cacko cacko.azh@gmail.com
- *  SPDX-FileCopyrightText: 2023 Srirupa Datta <srirupa.sps@gmail.com>
- *
- * SPDX-License-Identifier: LGPL-2.0-or-later
- */
+﻿
 
 #include "wdgtagselection.h"
 
@@ -29,7 +24,6 @@
 
 #include<KisWrappableHBoxLayout.h>
 
-
 #include "kis_icon.h"
 
 KisWdgTagSelectionControllerOneResource::KisWdgTagSelectionControllerOneResource(KisTagSelectionWidget *widget, bool editable)
@@ -40,7 +34,7 @@ KisWdgTagSelectionControllerOneResource::KisWdgTagSelectionControllerOneResource
     connect(widget, SIGNAL(sigAddTagToSelection(KoID)), this, SLOT(slotAddTag(KoID)));
     connect(widget, SIGNAL(sigRemoveTagFromSelection(KoID)), this, SLOT(slotRemoveTag(KoID)));
     connect(widget, SIGNAL(sigCreateNewTag(QString)), this, SLOT(slotCreateNewTag(QString)));
-    m_tagSelectionWidget->setEnabled(false); // because there is no resource selected yet
+    m_tagSelectionWidget->setEnabled(false);
 
 }
 
@@ -102,7 +96,7 @@ void KisWdgTagSelectionControllerOneResource::slotCreateNewTag(QString tag)
         QVector<KoResourceSP> vec;
         m_tagModel->addTag(tag, false, vec);
         tagsp = m_tagModel->tagForUrl(tag);
-    } else if (!tagsp->active()) { // if tag is active, simply use that tag
+    } else if (!tagsp->active()) {
         QMessageBox question = QMessageBox(QMessageBox::Question,
             i18nc("Dialog title", "Overwrite tag?"),
             i18nc("Question to the user in a dialog about creating a tag",
@@ -120,10 +114,10 @@ void KisWdgTagSelectionControllerOneResource::slotCreateNewTag(QString tag)
         question.addButton(QMessageBox::Cancel);
         question.exec();
         QMessageBox::ButtonRole response = question.buttonRole(question.clickedButton());
-        if (response == QMessageBox::DestructiveRole) { // Overwrite
-            m_tagModel->addTag(tag, true, QVector<KoResourceSP>()); // will overwrite the tag
+        if (response == QMessageBox::DestructiveRole) {
+            m_tagModel->addTag(tag, true, QVector<KoResourceSP>());
             tagsp = m_tagModel->tagForUrl(tag);
-        } else if (response == QMessageBox::AcceptRole) { // Restore/use previously existing one
+        } else if (response == QMessageBox::AcceptRole) {
             m_tagModel->setTagActive(tagsp);
         } else {
             updateView();
@@ -157,10 +151,6 @@ void KisWdgTagSelectionControllerOneResource::updateView()
         }
     }
 
-    // IMPORTANT: this only works correctly because there was setResourcesFilter() called in setResourceIds() function
-    // if at any moment there is situation this needs to work without setResourceIds(),
-    // call m_tagResourceModel->setResourcesFilter(m_resourceIds.toVector()); before this loop
-    // (it will make it slightly slower since it invalidates filter in the proxy model)
     for (int i = 0; i < m_tagResourceModel->rowCount(); i++) {
         QModelIndex idx = m_tagResourceModel->index(i, 0);
         KisTagSP tag = m_tagResourceModel->data(idx, Qt::UserRole + KisAllTagResourceModel::Tag).value<KisTagSP>();
@@ -183,7 +173,7 @@ void KisWdgTagSelectionControllerOneResource::updateView()
             selected << tag;
         } else if (tagsCounts[tagUrl] > 0) {
             semiSelected << tag;
-            toSelect << tag; // we want to be able to add a tag to every resource even though some are already tagged
+            toSelect << tag;
         } else {
             toSelect << tag;
         }
@@ -229,7 +219,7 @@ void KisWdgTagSelectionControllerBundleTags::slotRemoveTag(KoID custom)
             updateView();
         }
     }
-    
+
     Q_EMIT tagRemoved(custom);
 }
 
@@ -279,7 +269,6 @@ void KisWdgTagSelectionControllerBundleTags::updateView()
     QList<KoID> selected = m_selectedTagsByResourceType.contains(m_resourceType) ? m_selectedTagsByResourceType[m_resourceType] : QList<KoID>();
     QList<KoID> notSelected;
 
-
     for (int i = 0; i < model->rowCount(); i++) {
         QModelIndex idx = model->index(i, 0);
         KisTagSP tag = model->data(idx, Qt::UserRole + KisAllTagsModel::KisTagRole).value<KisTagSP>();
@@ -294,12 +283,10 @@ void KisWdgTagSelectionControllerBundleTags::updateView()
             if (!m_selectedTagsByResourceType[m_resourceType].contains(custom)) {
                 notSelected << custom;
             }
-        } else { // no tags from this resource type are selected
+        } else {
             notSelected << custom;
         }
     }
-
-    // m_selectedTags is already categorized correctly and is in KoID form
 
     m_tagSelectionWidget->setTagList(m_editable, selected, notSelected);
 
@@ -310,16 +297,4 @@ void KisWdgTagSelectionControllerBundleTags::setResourceType(const QString &reso
     m_resourceType = resourceType;
     updateView();
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

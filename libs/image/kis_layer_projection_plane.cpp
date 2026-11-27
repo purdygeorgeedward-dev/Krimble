@@ -15,13 +15,11 @@
 #include "kis_cached_paint_device.h"
 #include "kis_sequential_iterator.h"
 
-
 struct KisLayerProjectionPlane::Private
 {
     KisLayer *layer;
     KisCachedPaintDevice cachedDevice;
 };
-
 
 KisLayerProjectionPlane::KisLayerProjectionPlane(KisLayer *layer)
     : m_d(new Private)

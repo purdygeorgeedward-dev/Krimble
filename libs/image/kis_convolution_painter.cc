@@ -42,7 +42,6 @@
 #include "kis_convolution_worker_fft.h"
 #endif
 
-
 bool KisConvolutionPainter::useFFTImplementation(const KisConvolutionKernelSP kernel) const
 {
     bool result = false;
@@ -83,7 +82,6 @@ KisConvolutionWorker<factory>* KisConvolutionPainter::createWorker(const KisConv
     return worker;
 }
 
-
 bool KisConvolutionPainter::supportsFFTW()
 {
 #ifdef HAVE_FFTW3
@@ -92,7 +90,6 @@ bool KisConvolutionPainter::supportsFFTW()
     return false;
 #endif
 }
-
 
 KisConvolutionPainter::KisConvolutionPainter()
     : KisPainter(),
@@ -125,25 +122,12 @@ void KisConvolutionPainter::setEnginePreference(EnginePreference value)
 
 void KisConvolutionPainter::applyMatrix(const KisConvolutionKernelSP kernel, const KisPaintDeviceSP src, QPoint srcPos, QPoint dstPos, QSize areaSize, KisConvolutionBorderOp borderOp)
 {
-    /**
-     * Force BORDER_IGNORE op for the wraparound mode,
-     * because the paint device has its own special
-     * iterators, which do everything for us.
-     */
     if (src->defaultBounds()->wrapAroundMode() && src->supportsWraproundMode()) {
         borderOp = BORDER_IGNORE;
     }
 
-    // Determine whether we convolve border pixels, or not.
     switch (borderOp) {
     case BORDER_REPEAT: {
-        /**
-         * We don't use defaultBounds->topLevelWrapRect(), because
-         * the main purpose of this wrapping is "getting expected
-         * results when applying to the layer". If a mask is bigger
-         * than the image, then it should be wrapped around the mask
-         * instead.
-         */
         const QRect boundsRect = src->defaultBounds()->bounds();
         const QRect requestedRect = QRect(srcPos, areaSize);
         QRect dataRect = requestedRect | boundsRect;
@@ -151,16 +135,6 @@ void KisConvolutionPainter::applyMatrix(const KisConvolutionKernelSP kernel, con
         KIS_SAFE_ASSERT_RECOVER(boundsRect != KisDefaultBounds().bounds()) {
             dataRect = requestedRect | src->exactBounds();
         }
-
-        /**
-         * FIXME: Implementation can return empty destination device
-         * on faults and has no way to report this. This will cause a crash
-         * on sequential convolutions inside iterators.
-         *
-         * o implementation should do it's work or assert otherwise
-         *   (or report the issue somehow)
-         * o check other cases of the switch for the vulnerability
-         */
 
         if(dataRect.isValid()) {
             KisConvolutionWorker<RepeatIteratorFactory> *worker;

@@ -7,8 +7,6 @@ public:
         : QWidget(parent)
     {
         setFixedSize(20, 20);
-        // Looked up by this name (see the topLevelChanged handler). This class has no
-        // Q_OBJECT, so findChild<KisFloatingDockSizeGrip*>() would match any widget.
         setObjectName(QStringLiteral("krimbleResizeHandle"));
     }
 
@@ -42,7 +40,7 @@ protected:
         pen.setWidthF(2.0);
         p.setPen(pen);
         for (int i = 1; i <= 3; ++i) {
-            const qreal offset = i * 4.5;     // was i * 6 (26 px handle) and i * 8 (36 px handle)
+            const qreal offset = i * 4.5;
             p.drawLine(QPointF(width() - 2.5 - offset, height() - 2.5), QPointF(width() - 2.5, height() - 2.5 - offset));
         }
     }
@@ -52,7 +50,6 @@ private:
     QSize m_startSize;
 };
 
-// Keeps the resize handle in the lower right corner of its floating panel.
 class KisFloatingDockGripPlacer : public QObject
 {
 public:
@@ -77,8 +74,6 @@ private:
     QWidget *m_grip;
 };
 
-// Remembers the size a panel had while it was docked, so that it can be given
-// back when the panel is detached (used for the toolbox).
 class KisDockedSizeTracker : public QObject
 {
 public:
@@ -112,12 +107,8 @@ static void krimbleAttachDockWhereItIs(QMainWindow *win, QDockWidget *dock, cons
         dock->setFloating(false);
         return;
     }
-    // Set while this runs, so the "docked again" handler in createDockWidget() does not
-    // start a second placement.
     dock->setProperty("krimbleAttaching", true);
 
-    // Left or right: the side of the main window the panel is nearest to. (Panels are
-    // not put above or below the canvas.)
     const qreal fx = qreal(center.x() - windowRect.left()) / windowRect.width();
     const Qt::DockWidgetArea area = (fx < 0.5) ? Qt::LeftDockWidgetArea : Qt::RightDockWidgetArea;
 
@@ -125,7 +116,6 @@ static void krimbleAttachDockWhereItIs(QMainWindow *win, QDockWidget *dock, cons
     const Qt::Orientation stackOrientation = vertical ? Qt::Vertical : Qt::Horizontal;
     const int centerAlong = vertical ? center.y() : center.x();
 
-    // Panels already docked in that area, in their order along it.
     QList<QDockWidget*> docked;
     Q_FOREACH (QDockWidget *other, win->findChildren<QDockWidget*>()) {
         if (other != dock && other->isVisible() && !other->isFloating() && win->dockWidgetArea(other) == area) {
@@ -136,7 +126,6 @@ static void krimbleAttachDockWhereItIs(QMainWindow *win, QDockWidget *dock, cons
         return vertical ? a->geometry().top() < b->geometry().top() : a->geometry().left() < b->geometry().left();
     });
 
-    // The panel after which the moved panel goes: the last one whose middle lies before it.
     QDockWidget *after = nullptr;
     Q_FOREACH (QDockWidget *other, docked) {
         const QPoint otherCenter = other->geometry().center();
@@ -145,13 +134,11 @@ static void krimbleAttachDockWhereItIs(QMainWindow *win, QDockWidget *dock, cons
         }
     }
 
-    // A floating panel is only allowed in no area; allow all before docking it.
     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
     win->addDockWidget(area, dock);
     if (after) {
         win->splitDockWidget(after, dock, stackOrientation);
     } else if (!docked.isEmpty()) {
-        // Goes before every panel already there: put the others after it, in order.
         QDockWidget *previous = dock;
         Q_FOREACH (QDockWidget *other, docked) {
             win->splitDockWidget(previous, other, stackOrientation);
@@ -168,7 +155,6 @@ static void krimbleAttachDockWhereItIs(QMainWindow *win, QDockWidget *dock)
 {
     krimbleAttachDockWhereItIs(win, dock, dock->geometry().center());
 }
-
 
 static int krimbleRubberBandDefault(KisConfig &cfg)
 {

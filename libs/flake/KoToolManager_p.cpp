@@ -12,8 +12,6 @@
 #include <KoToolFactoryBase.h>
 #include "kis_action_registry.h"
 
-//   ************ KoToolAction::Private **********
-
 class Q_DECL_HIDDEN KoToolAction::Private
 {
 public:
@@ -36,10 +34,8 @@ void KoToolAction::trigger()
     KoToolManager::instance()->switchToolRequested(id());
 }
 
-
 QString KoToolAction::iconText() const
 {
-    // There is no specific iconText in KoToolFactoryBase
     return d->toolFactory->toolTip();
 }
 
@@ -62,7 +58,6 @@ QKeySequence KoToolAction::shortcut() const
 {
     return d->toolFactory->shortcut();
 }
-
 
 QString KoToolAction::section() const
 {
@@ -89,7 +84,6 @@ KoToolFactoryBase *KoToolAction::toolFactory() const
     return d->toolFactory;
 }
 
-//   ************ Connector **********
 Connector::Connector(KoShapeManager *parent)
         : QObject(parent),
         m_shapeManager(parent)

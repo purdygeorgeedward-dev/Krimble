@@ -8,7 +8,6 @@
 
 #include <QVector>
 
-
 struct Q_DECL_HIDDEN KoCompositeColorTransformation::Private
 {
     ~Private() {
@@ -17,7 +16,6 @@ struct Q_DECL_HIDDEN KoCompositeColorTransformation::Private
 
     QVector<KoColorTransformation*> transformations;
 };
-
 
 KoCompositeColorTransformation::KoCompositeColorTransformation(Mode mode)
     : m_d(new Private)

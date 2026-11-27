@@ -14,7 +14,6 @@
 Q_DECLARE_METATYPE(KoUnit::Type)
 Q_DECLARE_METATYPE(KoUnit::ListOptions)
 
-
 void TestKoUnit::testSimpleConstructor()
 {
     KoUnit unit;
@@ -23,7 +22,6 @@ void TestKoUnit::testSimpleConstructor()
     KoUnit otherUnit;
     QCOMPARE(unit, otherUnit);
 }
-
 
 void TestKoUnit::testConstructor_data()
 {
@@ -127,7 +125,7 @@ void TestKoUnit::testListForUi_data()
             const int index =
                 (i == 0) ? 0 :
                 (i == 1) ? unitCount/2 :
-                /*i == 2*/ unitCount-1;
+                unitCount-1;
 
             const QString rowName = QLatin1String(optionsName[o]) + QLatin1String(indexName[i]);
 
@@ -146,32 +144,26 @@ void TestKoUnit::testListForUi()
     QCOMPARE(unit.indexInListForUi(listOptions), index);
 }
 
-
 void TestKoUnit::testToUserValue_data()
 {
-    // regression test to check whether changes in KoUnit changes the conversion output
 
     QTest::addColumn<KoUnit::Type>("type");
     QTest::addColumn<qreal>("value");
     QTest::addColumn<qreal>("expected");
     QTest::addColumn<qreal>("expectedRounded");
 
-
-    // 1000.0
     QTest::newRow("point 1000") << KoUnit::Point << 1000.0 << 1000.0 << 1000.0;
     QTest::newRow("pica 1000") << KoUnit::Pica  << 1000.0 << 83.3333330000 << 83.3333300000;
     QTest::newRow("pixel 1000") << KoUnit::Pixel << 1000.0 << 1000.0 << 1000.0;
     QTest::newRow("inch 1000") << KoUnit::Inch << 1000.0 << 13.8888888889 << 13.8888800000;
     QTest::newRow("decimeter 1000") << KoUnit::Decimeter  << 1000.0 << 3.5277716700 << 3.5277000000;
 
-    // 1.37
     QTest::newRow("point 1.37") << KoUnit::Point << 1.37 << 1.37 << 1.37;
     QTest::newRow("pica 1.37") << KoUnit::Pica  << 1.37 << 0.114166666210 << 0.1141600000;
     QTest::newRow("pixel 1.37") << KoUnit::Pixel << 1.37 << 1.37 << 1.37;
     QTest::newRow("inch 1.37") << KoUnit::Inch << 1.37 << 0.019027777777779 << 0.019020000000;
     QTest::newRow("decimeter 1.37") << KoUnit::Decimeter  << 1.37 <<  0.004833047187900 << 0.004800000000;
 
-    // 0.0001111
     QTest::newRow("point 0.0001111") << KoUnit::Point << 0.0001111 << 0.000111100000  << 0.0 ;
     QTest::newRow("pica 0.0001111") << KoUnit::Pica  << 0.0001111 << 0.00000925833329630 << 0.0;
     QTest::newRow("pixel 0.0001111") << KoUnit::Pixel << 0.0001111 << 0.000111100000  << 0.000111100000 ;

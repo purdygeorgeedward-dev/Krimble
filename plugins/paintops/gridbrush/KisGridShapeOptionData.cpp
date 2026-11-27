@@ -8,7 +8,6 @@
 
 #include "kis_properties_configuration.h"
 
-
 bool KisGridShapeOptionData::read(const KisPropertiesConfiguration *setting)
 {
 	shape = setting->getInt(GRIDSHAPE_SHAPE, 0);

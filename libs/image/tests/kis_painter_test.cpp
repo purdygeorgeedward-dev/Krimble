@@ -37,13 +37,12 @@ void KisPainterTest::allCsApplicator(void (KisPainterTest::* funcPtr)(const KoCo
     Q_FOREACH (const KoColorSpace* cs, colorspaces) {
 
         QString csId = cs->id();
-        // ALL THESE COLORSPACES ARE BROKEN: WE NEED UNITTESTS FOR COLORSPACES!
         if (csId.startsWith("KS")) continue;
         if (csId.startsWith("Xyz")) continue;
         if (csId.startsWith('Y')) continue;
         if (csId.contains("AF")) continue;
-        if (csId == "GRAYU16") continue; // No point in testing bounds with a cs without alpha
-        if (csId == "GRAYU8") continue; // No point in testing bounds with a cs without alpha
+        if (csId == "GRAYU16") continue;
+        if (csId == "GRAYU8") continue;
 
         dbgKrita << "Testing with cs" << csId;
 
@@ -94,23 +93,6 @@ void KisPainterTest::testSimpleBlt()
     allCsApplicator(&KisPainterTest::testSimpleBlt);
 }
 
-/*
-
-Note: the bltSelection tests assume the following geometry:
-
-0,0               0,30
-  +---------+------+
-  |  10,10  |      |
-  |    +----+      |
-  |    |####|      |
-  |    |####|      |
-  +----+----+      |
-  |       20,20    |
-  |                |
-  |                |
-  +----------------+
-                  30,30
- */
 void KisPainterTest::testPaintDeviceBltSelection(const KoColorSpace * cs)
 {
 
@@ -188,8 +170,6 @@ void KisPainterTest::testPaintDeviceBltSelectionIrregular(const KoColorSpace * c
 
     QCOMPARE(dst->exactBounds(), QRect(10, 10, 10, 10));
     Q_FOREACH (KoChannelInfo * channel, cs->channels()) {
-        // Only compare alpha if there actually is an alpha channel in
-        // this colorspace
         if (channel->channelType() == KoChannelInfo::ALPHA) {
             QColor c;
 
@@ -199,7 +179,6 @@ void KisPainterTest::testPaintDeviceBltSelectionIrregular(const KoColorSpace * c
         }
     }
 }
-
 
 void KisPainterTest::testPaintDeviceBltSelectionIrregular()
 {
@@ -234,7 +213,6 @@ void KisPainterTest::testPaintDeviceBltSelectionInverted()
     allCsApplicator(&KisPainterTest::testPaintDeviceBltSelectionInverted);
 }
 
-
 void KisPainterTest::testSelectionBltSelection()
 {
     KisPixelSelectionSP src = new KisPixelSelection();
@@ -258,29 +236,10 @@ void KisPainterTest::testSelectionBltSelection()
 
     KisSequentialConstIterator it(dst, QRect(10, 10, 10, 10));
     while (it.nextPixel()) {
-        // These are selections, so only one channel and it should
-        // be totally selected
         QCOMPARE(it.oldRawData()[0], MAX_SELECTED);
     }
 }
 
-/*
-
-Test with non-square selection
-
-0,0               0,30
-  +-----------+------+
-  |    13,13  |      |
-  |      x +--+      |
-  |     +--+##|      |
-  |     |#####|      |
-  +-----+-----+      |
-  |         20,20    |
-  |                  |
-  |                  |
-  +------------------+
-                  30,30
- */
 void KisPainterTest::testSelectionBltSelectionIrregular()
 {
 
@@ -335,32 +294,6 @@ void KisPainterTest::testSelectionBitBltFixedSelection()
     painter.end();
 
     QCOMPARE(dst->exactBounds(), QRect(5, 5, 10, 10));
-    /*
-dbgKrita << "canary1.5";
-    dst->clear();
-    painter.begin(dst);
-
-    painter.bitBltWithFixedSelection(0, 0, src, fixedSelection, 10, 20);
-    painter.end();
-dbgKrita << "canary2";
-    QCOMPARE(dst->exactBounds(), QRect(5, 5, 5, 10));
-
-    dst->clear();
-    painter.begin(dst);
-
-    painter.bitBltWithFixedSelection(0, 0, src, fixedSelection, 5, 5, 5, 5, 10, 20);
-    painter.end();
-dbgKrita << "canary3";
-    QCOMPARE(dst->exactBounds(), QRect(5, 5, 5, 10));
-
-    dst->clear();
-    painter.begin(dst);
-
-    painter.bitBltWithFixedSelection(5, 5, src, fixedSelection, 10, 20);
-    painter.end();
-dbgKrita << "canary4";
-    QCOMPARE(dst->exactBounds(), QRect(10, 10, 5, 10));
-    */
 }
 
 void KisPainterTest::testSelectionBitBltEraseCompositeOp()
@@ -385,8 +318,6 @@ void KisPainterTest::testSelectionBitBltEraseCompositeOp()
     painter.setCompositeOpId(op);
     painter.bitBlt(0, 0, src, 0, 0, 150, 150);
     painter.end();
-
-    //dst->convertToQImage(0).save("result.png");
 
     QRect erasedRect(50, 50, 50, 50);
     KisSequentialConstIterator it(dst, QRect(0, 0, 150, 150));
@@ -583,7 +514,6 @@ void KisPainterTest::testMassiveBltFixedCornerCases()
     QVERIFY(dst->extent().isEmpty());
 
     {
-        // empty devices, shouldn't crash
         KisPainter painter(dst);
         painter.bltFixed(QRect(60,60,20,20), devices);
         painter.end();
@@ -600,7 +530,6 @@ void KisPainterTest::testMassiveBltFixedCornerCases()
     devices.append(KisRenderedDab(dev));
 
     {
-        // rect outside the devices bounds, shouldn't crash
         KisPainter painter(dst);
         painter.bltFixed(QRect(60,60,20,20), devices);
         painter.end();
@@ -608,7 +537,6 @@ void KisPainterTest::testMassiveBltFixedCornerCases()
 
     QVERIFY(dst->extent().isEmpty());
 }
-
 
 #include "kis_lod_transform.h"
 
@@ -637,8 +565,6 @@ void testOptimizedCopyingImpl(const QRect &srcRect,
 
     KisPainter::copyAreaOptimized(dstPt, src, dst, srcCopyRect);
 
-    //KIS_DUMP_DEVICE_2(dst, QRect(0,0,5000,5000), "dst", "dd");
-
     QCOMPARE(dst->exactBounds(), expectedDstBounds);
     QCOMPARE(dst->extent(), expectedDstExtent);
 }
@@ -647,7 +573,6 @@ void KisPainterTest::testOptimizedCopying()
 {
     const QRect srcRect(1000, 1000, 1000, 1000);
     const QRect srcCopyRect(0, 0, 5000, 5000);
-
 
     testOptimizedCopyingImpl(srcRect, QRect(6000, 500, 1000,1000),
                              srcCopyRect, srcCopyRect.topLeft(),
@@ -672,5 +597,4 @@ void KisPainterTest::testOptimizedCopying()
 }
 
 KISTEST_MAIN(KisPainterTest)
-
 

@@ -11,22 +11,14 @@
 
 #include <kritaresources_export.h>
 
-/**
- * @brief The KisMemoryStorage class stores the temporary resources
- * that are not saved to disk or bundle. It is also used to stores
- * transient per-document resources, such as the document-local palette
- * list.
- */
 class KRITARESOURCES_EXPORT KisMemoryStorage : public KisStoragePlugin
 {
 public:
     KisMemoryStorage(const QString &location = QString("memory"));
     virtual ~KisMemoryStorage();
 
-    /// Copying the memory storage clones all contained resources and tags
     KisMemoryStorage(const KisMemoryStorage &rhs);
 
-    /// This clones all contained resources and tags from rhs
     KisMemoryStorage &operator=(const KisMemoryStorage &rhs);
 
     bool saveAsNewVersion(const QString &resourceType, KoResourceSP resource) override;
@@ -59,5 +51,4 @@ private:
 
 };
 
-
-#endif // KISMEMORYSTORAGE_H
+#endif

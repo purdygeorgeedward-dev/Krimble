@@ -14,7 +14,6 @@
 
 #include <KisTransformMaskTestingInterface.h>
 
-
 struct KisTransformMaskTestingListener : KisTransformMaskTestingInterface
 {
     struct Data : boost::equality_comparable<Data>
@@ -84,5 +83,4 @@ inline QDebug operator<<(QDebug dbg, const KisTransformMaskTestingListener::Data
     return dbg.space();
 }
 
-
-#endif // KISTRANSFORMMASKTESTINGLISTENER_H
+#endif

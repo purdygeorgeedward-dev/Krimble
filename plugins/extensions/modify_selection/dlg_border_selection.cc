@@ -15,7 +15,6 @@
 #include <kis_image.h>
 #include <operations/kis_operation_configuration.h>
 
-
 WdgBorderSelection::WdgBorderSelection(QWidget* parent, KisViewManager *view, KisOperationConfigurationSP config)
     : KisOperationUIWidget(i18n("Border Selection"), parent)
     , m_width(config->getInt("x-radius", 1))
@@ -36,7 +35,6 @@ WdgBorderSelection::WdgBorderSelection(QWidget* parent, KisViewManager *view, Ki
     cmbUnit->addItems(KoUnit::listOfUnitNameForUi());
     cmbUnit->setCurrentIndex(KoUnit(KoUnit::Pixel).indexInListForUi());
 
-    // ensure that both spinboxes request the same horizontal size
     KisSizeGroup *spbGroup = new KisSizeGroup(this);
     spbGroup->addWidget(spbWidth);
     spbGroup->addWidget(spbWidthDouble);

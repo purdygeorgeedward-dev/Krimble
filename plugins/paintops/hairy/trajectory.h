@@ -7,7 +7,6 @@
 #ifndef _TRAJECTORY_H_
 #define _TRAJECTORY_H_
 
-
 #include <QVector>
 #include <QPointF>
 

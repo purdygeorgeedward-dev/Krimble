@@ -18,26 +18,6 @@ void KRITAIMAGE_EXPORT passBlockingSignalSafely(FunctionToSignalProxy &source, S
 void KRITAIMAGE_EXPORT initProxyObject(QObject *object);
 }
 
-
-/**
- * A special class for safe forwarding of blocking-queued signal to the GUI thread.
- *
- * The class automatically resolves deadlocks when GUI thread blocks on the image.
- * This tie-breaking algorithm is implemented via KisBusyWaitBroker.
- *
- * Usage:
- *
- *        \code{.cpp}
- *
- *        // create the proxy
- *        KisSafeBlockingQueueConnectionProxy<QTransform> proxy(
- *            std::bind(&KisShapeLayer::slotTransformShapes, shapeLayer));
- *
- *        // Q_EMIT synchronous signal with deadlock-avoidance
- *        proxy.start(QTransform::fromScale(0.5, 0.5));
- *
- *        \endcode
- */
 template <typename T>
 class KisSafeBlockingQueueConnectionProxy
 {
@@ -75,10 +55,6 @@ private:
     QQueue<T> m_value;
 };
 
-/**
- * An override of KisSafeBlockingQueueConnectionProxy for forwarding signals
- * without any parameters.
- */
 template <>
 class KisSafeBlockingQueueConnectionProxy<void>
 {
@@ -109,4 +85,4 @@ private:
     SignalToFunctionProxy m_destination;
 };
 
-#endif // KISSAFEBLOCKINGQUEUECONNECTIONPROXY_H
+#endif

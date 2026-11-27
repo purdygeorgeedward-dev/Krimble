@@ -15,11 +15,6 @@
 
 #include "ui_wdgseexprsavepreset.h"
 
-/**
- * Dialog for saving SeExpr presets.
- *
- * Based on Scott Petrovic's KisPaintOpPresetSaveDialog.
- */
 class KisWdgSeExprSavePreset : public QDialog, public Ui::WdgSeExprSavePreset
 {
     Q_OBJECT
@@ -42,11 +37,9 @@ public:
 
     void showDialog();
 
-    /// determines if we should show the save as dialog (true) or save in the background (false)
     void useNewPresetDialog(bool show);
 
 Q_SIGNALS:
-    // Triggers after resource is saved
     void resourceSelected(KoResourceSP resource);
 
 public Q_SLOTS:

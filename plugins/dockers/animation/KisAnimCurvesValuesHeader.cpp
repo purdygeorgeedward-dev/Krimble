@@ -27,10 +27,10 @@ struct KisAnimCurvesValuesHeader::Private
 
     qreal valueOffset;
     qreal scale;
-    
+
     bool mouseTracking;
     QPoint mouseLastPos;
-    
+
     QScopedPointer<KisCustomModifiersCatcher> modifiersCatcher;
 };
 
@@ -110,11 +110,10 @@ void KisAnimCurvesValuesHeader::zoomToFitRange(qreal min, qreal max)
     setScale(rect().height() / rangePixels);
 }
 
-void KisAnimCurvesValuesHeader::paintEvent(QPaintEvent */*e*/)
+void KisAnimCurvesValuesHeader::paintEvent(QPaintEvent * )
 {
     QPainter painter(viewport());
 
-    // Colors.
     const QColor textColor = qApp->palette().color(QPalette::ButtonText);
     const QColor majorNotchColor = QColor(textColor.red(), textColor.green(), textColor.blue(), 192);
     const QColor minorNotchColor = QColor(textColor.red(), textColor.green(), textColor.blue(), 128);
@@ -128,8 +127,6 @@ void KisAnimCurvesValuesHeader::paintEvent(QPaintEvent */*e*/)
     const int majorNotchLength = rect().width();
     const int minorNotchLength = 12;
 
-    // Draw notch at each major step.
-    //const qreal upperValueThreshold = firstVisibleValue + (visibleSteps + 2) * valueStep;
     for (int major = 0; major <= visibleSteps + 1; major++) {
         const qreal value = firstVisibleValue + valueStep * major;
 
@@ -139,7 +136,6 @@ void KisAnimCurvesValuesHeader::paintEvent(QPaintEvent */*e*/)
         painter.setPen(value != 0 ? majorNotchColor : zeroColor);
         painter.drawLine(majorLeft, majorRight);
 
-        // Draw interior notches at minor substeps.
         const qreal pixelsPerMinorNotch = pixelsPerStep(valueStep) / (minorNotches + 1);
         for (int minor = 0; minor < minorNotches; minor++) {
             const QPoint minorRight = QPoint(rect().width(), majorRight.y() + pixelsPerMinorNotch * (minor + 1));
@@ -149,7 +145,7 @@ void KisAnimCurvesValuesHeader::paintEvent(QPaintEvent */*e*/)
             painter.drawLine(minorLeft, minorRight);
         }
 
-        {   // Draw label.
+        {
             const int padding = 4;
 
             const QString label = QString::number(value, 'f', valueStep < 1 ? 2 : 0);
@@ -180,7 +176,7 @@ void KisAnimCurvesValuesHeader::mouseMoveEvent(QMouseEvent* mouseEvent) {
             m_d->mouseTracking = false;
         }
     }
-    
+
     QHeaderView::mouseMoveEvent(mouseEvent);
 }
 
@@ -189,6 +185,6 @@ void KisAnimCurvesValuesHeader::mousePressEvent(QMouseEvent* mouseEvent) {
         m_d->mouseTracking = true;
         m_d->mouseLastPos = mouseEvent->pos();
     }
-    
+
     QHeaderView::mousePressEvent(mouseEvent);
 }

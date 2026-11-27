@@ -11,42 +11,6 @@
 #include <QMutexLocker>
 #include <QWaitCondition>
 
-/**
- * This class is used for catching a particular condition met.
- * We call it "lazy", because the decision about the condition is made
- * by the waiting thread itself. The other thread, "wakingup" one,
- * just points the former one the moments of time when the condition
- * *might* have been satisfied. This creates some limitations for
- * the condition (see a note in the end of the text).
- *
- * Usage pattern:
- *
- * Waiting thread:
- *
- * KisLazyWaitCondition condition;
- * condition.initWaiting();   // (1)
- * while(!checkSatisfied()) {
- *     condition.wait();
- * }
- * condition.endWaiting();     // (2)
- *
- *
- * Wakingup thread:
- *
- * if(checkMightSatisfied()) {
- *     condition.wakeAll();
- * }
- *
- * If the condition is met and reported, it is guaranteed that
- * all the threads, those are currently running between
- * lines (1) and (2) will be waken up and leave the loop.
- *
- * NOTE:
- * The condition checkSatisfied() must not change it's state, until
- * all the waiting threads leave the waiting loop. This requirement
- * must be guaranteed by the user of this class
- */
-
 class KisLazyWaitCondition
 {
 public:
@@ -103,4 +67,4 @@ private:
     int m_wakeupCounter;
 };
 
-#endif /* __KIS_LAZY_WAIT_CONDITION_H */
+#endif

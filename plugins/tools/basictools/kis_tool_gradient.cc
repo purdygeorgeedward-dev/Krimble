@@ -24,7 +24,6 @@
 #include <klocalizedstring.h>
 #include <kcombobox.h>
 
-
 #include <KoPointerEvent.h>
 #include <KoCanvasBase.h>
 #include <KoViewConverter.h>
@@ -49,7 +48,6 @@
 #include "kis_command_utils.h"
 #include "kis_processing_applicator.h"
 #include "kis_processing_visitor.h"
-
 
 KisToolGradient::KisToolGradient(KoCanvasBase * canvas)
         : KisToolPaint(canvas, KisCursor::loadWithSize("tool_gradient_cursor.svg", 32, 32, 6, 6))
@@ -114,15 +112,7 @@ void KisToolGradient::beginPrimaryAction(KoPointerEvent *event)
 
 void KisToolGradient::continuePrimaryAction(KoPointerEvent *event)
 {
-    /**
-     * TODO: The gradient tool is still not in strokes, so the end of
-     *       its action can call processEvent(), which would result in
-     *       nested event handler calls. Please uncomment this line
-     *       when the tool is ported to strokes.
-     */
-    //CHECK_MODE_SANITY_OR_RETURN(KisTool::PAINT_MODE);
 
-    // First ensure the old guideline is deleted
     updateGuideline();
 
     QPointF pos = convertToPixelCoordAndSnap(event, QPointF(), false);
@@ -236,9 +226,6 @@ QWidget* KisToolGradient::createOptionWidget()
     Q_CHECK_PTR(widget);
     widget->setObjectName(toolId() + " option widget");
 
-
-    // Make sure to create the connections last after everything is set up. The initialized values
-    // won't be loaded from the configuration file if you add the widget before the connection
     m_lbShape = new QLabel(i18n("Shape:"), widget);
     m_cmbShape = new KComboBox(widget);
     m_cmbShape->setObjectName("shape_combo");
@@ -262,7 +249,6 @@ QWidget* KisToolGradient::createOptionWidget()
     m_cmbRepeat->addItem(i18nc("The gradient will repeat alternatingly", "Alternating"));
     addOptionWidgetOption(m_cmbRepeat, m_lbRepeat);
     connect(m_cmbRepeat, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetRepeat(int)));
-
 
     m_lbAntiAliasThreshold = new QLabel(i18n("Anti-alias threshold:"), widget);
     m_slAntiAliasThreshold = new KisDoubleSliderSpinBox(widget);
@@ -297,8 +283,6 @@ QWidget* KisToolGradient::createOptionWidget()
 
     widget->setFixedHeight(widget->sizeHint().height());
 
-
-    // load configuration settings into widget (updating UI will update internal variables from signals/slots)
     m_ckDither->setChecked(m_configGroup.readEntry<bool>("dither", false));
     m_ckReverse->setChecked((bool)m_configGroup.readEntry("reverse", false));
     m_cmbShape->setCurrentIndex((int)m_configGroup.readEntry("shape", 0));
@@ -337,5 +321,4 @@ void KisToolGradient::slotSetAntiAliasThreshold(qreal value)
     m_antiAliasThreshold = value;
     m_configGroup.writeEntry("antialiasThreshold", value);
 }
-
 

@@ -30,10 +30,6 @@ ShapeShearStrategy::ShapeShearStrategy(KoToolBase *tool, KoSelection *selection,
     : KoInteractionStrategy(tool)
     , m_start(clicked)
 {
-    /**
-     * The outline of the selection should look as if it is also sheared, so we
-     * add it to the transformed shapes list.
-     */
     m_transformedShapesAndSelection = selection->selectedEditableShapes();
     m_transformedShapesAndSelection << selection;
 
@@ -41,7 +37,6 @@ ShapeShearStrategy::ShapeShearStrategy(KoToolBase *tool, KoSelection *selection,
         m_oldTransforms << shape->transformation();
     }
 
-    // Even though we aren't currently activated by the corner handles we might as well code like it
     switch (direction) {
     case KoFlake::TopMiddleHandle:
         m_top = true; m_bottom = false; m_left = false; m_right = false; break;
@@ -61,7 +56,7 @@ ShapeShearStrategy::ShapeShearStrategy(KoToolBase *tool, KoSelection *selection,
         m_top = true; m_bottom = false; m_left = true; m_right = false; break;
     default:
         Q_UNREACHABLE();
-        ;// throw exception ?  TODO
+        ;
     }
     m_initialSize = selection->size();
     m_solidPoint = QPointF(m_initialSize.width() / 2, m_initialSize.height() / 2);
@@ -97,8 +92,6 @@ ShapeShearStrategy::ShapeShearStrategy(KoToolBase *tool, KoSelection *selection,
     qreal currentAngle = atan2(edge.y(), edge.x()) / M_PI * 180;
     m_initialSelectionAngle = currentAngle - angle;
 
-    // use cross product of top edge and left edge of selection bounding rect
-    // to determine if the selection is mirrored
     QPointF top = selection->absolutePosition(KoFlake::TopRight) - selection->absolutePosition(KoFlake::TopLeft);
     QPointF left = selection->absolutePosition(KoFlake::BottomLeft) - selection->absolutePosition(KoFlake::TopLeft);
     m_isMirrored = (top.x() * left.y() - top.y() * left.x()) < 0.0;
@@ -125,7 +118,6 @@ void ShapeShearStrategy::handleMouseMove(const QPointF &point, Qt::KeyboardModif
         shearY = m_initialSize.width() > 0 ? shearVector.y() / m_initialSize.width() : 0;
     }
 
-    // if selection is mirrored invert the shear values
     if (m_isMirrored) {
         shearX *= -1.0;
         shearY *= -1.0;

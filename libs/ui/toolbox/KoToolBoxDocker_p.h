@@ -19,6 +19,7 @@ class KoCanvasBase;
 class KoToolBox;
 class KoToolBoxScrollArea;
 class KoDualColorButton;
+class QBoxLayout;
 class KisViewManager;
 
 class QMenu;
@@ -30,11 +31,9 @@ class KoToolBoxDocker : public QDockWidget, public KisMainwindowObserver
 public:
     explicit KoToolBoxDocker(KoToolBox *toolBox);
 
-    /// reimplemented from KoCanvasObserverBase
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
     QString observerName() override { return "KoToolBoxDocker"; }
-    /// reimplemented from KisMainwindowObserver
     void setViewManager(KisViewManager *viewManager) override;
 
 protected:
@@ -88,6 +87,7 @@ private:
     KoToolBoxScrollArea *m_scrollArea;
     QVBoxLayout *m_containerLayout {nullptr};
     KoDualColorButton *m_dualColorButton {nullptr};
+    QBoxLayout *m_krimbleGadgets {nullptr};
     KisViewManager *m_viewManager {nullptr};
     QMenu *m_contextMenu {nullptr};
     Qt::DockWidgetArea m_dockArea {Qt::NoDockWidgetArea};
@@ -105,4 +105,4 @@ private:
     QWidget *m_edgeBottom {nullptr};
 };
 
-#endif // _KO_TOOLBOX_DOCKER_H_
+#endif

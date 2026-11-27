@@ -60,7 +60,6 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
     int start, end;
     KisNodeSP node;
     QByteArray ba;
-//    KisTimeKeyframePair keyframeEntry;
     KisKeyframeSP keyframe;
     QVector<CSVLayerRecord*> layers;
 
@@ -68,18 +67,11 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
 
     KisCursorOverrideLock cursorLock(Qt::WaitCursor);
 
-// XXX: Stream was unused?
-//    //DataStream instead of TextStream for correct line endings
-//    QDataStream stream(&f);
-
-    //Using the original local path
     QString path = m_doc->localFilePath();
 
     if (path.right(4).toUpper() == ".CSV")
         path = path.left(path.size() - 4);
     else {
-        // something is wrong: the local file name is not .csv!
-        // trying the given (probably temporary) filename as well
 
         KIS_SAFE_ASSERT_RECOVER(0 && "Wrong extension of the saved file!") {
             path = path.left(path.size() - 4);
@@ -87,19 +79,13 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
     }
     path.append(".frames");
 
-    //create directory
-
     QDir dir(path);
     if (!dir.exists()) {
         dir.mkpath(".");
     }
-    //according to the QT docs, the slash is a universal directory separator
     path.append("/");
 
     node = m_image->rootLayer()->firstChild();
-
-    //TODO: correct handling of the layer tree.
-    //for now, only top level paint layers are saved
 
     idx = 0;
 
@@ -107,7 +93,7 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
         if (node->inherits("KisLayer")) {
             KisLayer* paintLayer = qobject_cast<KisLayer*>(node.data());
             CSVLayerRecord* layerRecord = new CSVLayerRecord();
-            layers.prepend(layerRecord); //reverse order!
+            layers.prepend(layerRecord);
 
             layerRecord->name = paintLayer->name();
             layerRecord->name.replace(QRegularExpression("[\"\\r\\n]"), "_");
@@ -136,7 +122,6 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
 
         if (end < start) end = start;
     } else {
-        //undefined length, searching for the last keyframe
         end = start;
         int keyframeTime;
 
@@ -152,17 +137,12 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
         }
     }
 
-    //create temporary doc for exporting
     QScopedPointer<KisDocument> exportDoc(KisPart::instance()->createDocument());
     createTempImage(exportDoc.data());
 
     KisImportExportErrorCode retval= ImportExportCodes::OK;
 
     if (!m_batchMode) {
-        // TODO: use other systems of progress reporting (KisViewManager::createUnthreadedUpdater()
-        //emit m_doc->statusBarMessage(i18n("Saving CSV file..."));
-        //emit m_doc->sigProgress(0);
-        //connect(m_doc, SIGNAL(sigProgressCanceled()), this, SLOT(cancel()));
     }
     int frame = start;
     int step = 0;
@@ -177,19 +157,19 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
 
         switch(step) {
 
-        case 0 :    //first row
+        case 0 :
             if (io->write("UTF-8, TVPaint, \"CSV 1.0\"\r\n") < 0) {
                 retval = ImportExportCodes::Failure;
             }
             break;
 
-        case 1 :    //scene header names
+        case 1 :
             if (io->write("Project Name, Width, Height, Frame Count, Layer Count, Frame Rate, Pixel Aspect Ratio, Field Mode\r\n") < 0) {
                 retval = ImportExportCodes::Failure;
             }
             break;
 
-        case 2 :    //scene header values
+        case 2 :
             ba = QString("\"%1\", ").arg(m_image->objectName()).toUtf8();
             if (io->write(ba.data()) < 0) {
                 retval = ImportExportCodes::Failure;
@@ -206,7 +186,6 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
                 retval = ImportExportCodes::Failure;
                 break;
             }
-            //the framerate is an integer here
             ba = QString("%1, ").arg((double)(animation->framerate()),0,'f',6).toUtf8();
             if (io->write(ba.data()) < 0) {
                 retval = ImportExportCodes::Failure;
@@ -219,8 +198,8 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
             }
             break;
 
-        case 3 :    //layer header values
-            if (io->write("#Layers") < 0) {          //Layers
+        case 3 :
+            if (io->write("#Layers") < 0) {
                 retval = ImportExportCodes::Failure;
                 break;
             }
@@ -233,7 +212,7 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
             break;
 
         case 4 :
-            if (io->write("\r\n#Density") < 0) {     //Density
+            if (io->write("\r\n#Density") < 0) {
                 retval = ImportExportCodes::Failure;
                 break;
             }
@@ -245,7 +224,7 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
             break;
 
         case 5 :
-            if (io->write("\r\n#Blending") < 0) {     //Blending
+            if (io->write("\r\n#Blending") < 0) {
                 retval = ImportExportCodes::Failure;
                 break;
             }
@@ -257,7 +236,7 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
             break;
 
         case 6 :
-            if (io->write("\r\n#Visible") < 0) {     //Visible
+            if (io->write("\r\n#Visible") < 0) {
                 retval = ImportExportCodes::Failure;
                 break;
             }
@@ -271,7 +250,7 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
             }
             break;
 
-        default :    //frames
+        default :
 
             if (frame > end) {
                 if (io->write("\r\n") < 0)
@@ -295,17 +274,15 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
                     if (frame == start) {
                         keyframe = channel->activeKeyframeAt(frame);
                     } else {
-                        keyframe = channel->keyframeAt(frame); //TODO: Ugly...
+                        keyframe = channel->keyframeAt(frame);
                     }
                 } else {
-                    keyframe.clear(); // without animation
+                    keyframe.clear();
                 }
 
                 if ( keyframe || (frame == start) ) {
 
                     if (!m_batchMode) {
-                        //emit m_doc->sigProgress(((frame - start) * layers.size() + idx) * 100 /
-                        //                        ((end - start) * layers.size()));
                     }
                     retval = getLayer(layer, exportDoc.data(), keyframe, path, frame, idx);
 
@@ -321,7 +298,7 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
                 retval = ImportExportCodes::Failure;
 
             frame++;
-            step = 6; //keep step here
+            step = 6;
             break;
         }
         step++;
@@ -329,12 +306,7 @@ KisImportExportErrorCode CSVSaver::encode(QIODevice *io)
 
     qDeleteAll(layers);
 
-    // io->close();  it seems this is not required anymore
-
     if (!m_batchMode) {
-        //disconnect(m_doc, SIGNAL(sigProgressCanceled()), this, SLOT(cancel()));
-        //emit m_doc->sigProgress(100);
-        //emit m_doc->clearStatusBarMessage();
     }
 
     return retval;
@@ -345,7 +317,6 @@ QString CSVSaver::convertToBlending(const QString &opid)
     if (opid == COMPOSITE_OVER) return "Color";
     if (opid == COMPOSITE_BEHIND) return "Behind";
     if (opid == COMPOSITE_ERASE) return "Erase";
-    // "Shade"
     if (opid == COMPOSITE_LINEAR_LIGHT) return "Light";
     if (opid == COMPOSITE_COLORIZE) return "Colorize";
     if (opid == COMPOSITE_HUE) return "Hue";
@@ -354,8 +325,6 @@ QString CSVSaver::convertToBlending(const QString &opid)
     if (opid == COMPOSITE_INVERSE_SUBTRACT) return "Sub";
     if (opid == COMPOSITE_MULT) return "Multiply";
     if (opid == COMPOSITE_SCREEN) return "Screen";
-    // "Replace"
-    // "Substitute"
     if (opid == COMPOSITE_DIFF) return "Difference";
     if (opid == COMPOSITE_DIVIDE) return "Divide";
     if (opid == COMPOSITE_OVERLAY) return "Overlay";
@@ -376,7 +345,6 @@ QString CSVSaver::convertToBlending(const QString &opid)
 
 KisImportExportErrorCode CSVSaver::getLayer(CSVLayerRecord* layer, KisDocument* exportDoc, KisKeyframeSP keyframe, const QString &path, int frame, int idx)
 {
-    //render to the temp layer
     KisImageSP image = exportDoc->savingImage();
 
     if (!image) image= exportDoc->image();
@@ -389,12 +357,12 @@ KisImportExportErrorCode CSVSaver::getLayer(CSVLayerRecord* layer, KisDocument* 
             rasterKeyframe->writeFrameToDevice(device);
         }
     } else {
-        device->makeCloneFrom(layer->layer->projection(),image->bounds()); // without animation
+        device->makeCloneFrom(layer->layer->projection(),image->bounds());
     }
     QRect bounds = device->exactBounds();
 
     if (bounds.isEmpty()) {
-        layer->last = "";                   //empty frame
+        layer->last = "";
         return ImportExportCodes::OK;
     }
     layer->last = QString("frame%1-%2.png").arg(idx + 1,5,10,QChar('0')).arg(frame,5,10,QChar('0'));
@@ -402,7 +370,6 @@ KisImportExportErrorCode CSVSaver::getLayer(CSVLayerRecord* layer, KisDocument* 
     QString filename = path;
     filename.append(layer->last);
 
-    //save to PNG
     KisSequentialConstIterator it(device, image->bounds());
     const KoColorSpace* cs = device->colorSpace();
 
@@ -425,7 +392,7 @@ KisImportExportErrorCode CSVSaver::getLayer(CSVLayerRecord* layer, KisDocument* 
     options.compression = 8;
     options.tryToSaveAsIndexed = false;
     options.transparencyFillColor = QColor(0,0,0);
-    options.saveSRGBProfile = true;                 //TVPaint can use only sRGB
+    options.saveSRGBProfile = true;
     options.forceSRGB = false;
 
     KisPNGConverter kpc(exportDoc);
@@ -453,7 +420,6 @@ void CSVSaver::createTempImage(KisDocument* exportDoc)
     KisPaintLayer* paintLayer = new KisPaintLayer(exportImage, "paint device", OPACITY_OPAQUE_U8);
     exportImage->addNode(paintLayer, exportImage->rootLayer(), KisLayerSP(0));
 }
-
 
 KisImportExportErrorCode CSVSaver::buildAnimation(QIODevice *io)
 {

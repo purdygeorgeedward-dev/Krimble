@@ -25,6 +25,7 @@ public:
     void krimbleSetLongPress(bool on) { m_krimbleLongPress = on; update(); }
     bool krimbleHasLongPress() const { return m_krimbleLongPress; }
     KoToolAction *krimbleToolAction() const { return m_toolAction; }
+    void krimbleSetIconOverride(const QString &iconName) { if (m_krimbleIconOverride == iconName) return; m_krimbleIconOverride = iconName; krimbleRefreshIcon(); }
     static void krimblePaintRaisedBox(QWidget *widget, bool down);
 
 Q_SIGNALS:
@@ -40,18 +41,19 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    void setDataFromToolAction(QAction *action); // Generates tooltips.
+    void setDataFromToolAction(QAction *action);
 private Q_SLOTS:
     void slotUpdateActionData();
 private:
     KoToolAction *m_toolAction;
     bool m_krimbleLongPress {false};
+    QString m_krimbleIconOverride;
     bool m_krimbleLongPressFired {false};
     QSize m_krimbleBaseIconSize;
-    QSize m_krimbleSetIconSize;       // the size set for a full color picture (so a size set by the toolbox afterwards is noticed)
+    QSize m_krimbleSetIconSize;
     bool m_krimbleColorFit {false};
     QPoint m_krimblePressPos;
     QTimer m_krimbleTimer;
 };
 
-#endif // _KO_TOOLBOXBUTTON_H_
+#endif

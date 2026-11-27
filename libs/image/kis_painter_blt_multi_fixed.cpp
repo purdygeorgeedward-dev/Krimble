@@ -24,7 +24,6 @@ void KisPainter::Private::applyDevice(const QRect &applyRect,
     const int srcPixelSize = srcColorSpace->pixelSize();
     const int dabRowStride = srcPixelSize * dabRect.width();
 
-
     qint32 dstY = rc.y();
     qint32 rowsRemaining = rc.height();
 
@@ -50,7 +49,6 @@ void KisPainter::Private::applyDevice(const QRect &applyRect,
             localParamInfo.maskRowStride = 0;
             localParamInfo.rows          = rows;
             localParamInfo.cols          = columns;
-
 
             const int dabX = dstX - dabRect.x();
             const int dabY = dstY - dabRect.y();
@@ -84,7 +82,6 @@ void KisPainter::Private::applyDeviceWithSelection(const QRect &applyRect,
     const int srcPixelSize = srcColorSpace->pixelSize();
     const int dabRowStride = srcPixelSize * dabRect.width();
 
-
     qint32 dstY = rc.y();
     qint32 rowsRemaining = rc.height();
 
@@ -114,7 +111,6 @@ void KisPainter::Private::applyDeviceWithSelection(const QRect &applyRect,
             localParamInfo.maskRowStride = maskRowStride;
             localParamInfo.rows          = rows;
             localParamInfo.cols          = columns;
-
 
             const int dabX = dstX - dabRect.x();
             const int dabY = dstY - dabRect.y();
@@ -178,10 +174,7 @@ void KisPainter::bltFixed(const QRect &applyRect, const QList<KisRenderedDab> al
         }
     }
 
-
 #if 0
-    // the code above does basically the same thing as this one,
-    // but more efficiently :)
 
     Q_FOREACH (KisFixedPaintDeviceSP dev, devices) {
         const QRect copyRect = dev->bounds() & rc;

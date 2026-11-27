@@ -74,5 +74,4 @@ void TestPathTool::koPathPointSelection_selectedSegmentsData()
     QVERIFY(pd1 == pd2);
 }
 
-
 SIMPLE_TEST_MAIN(TestPathTool)

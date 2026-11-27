@@ -44,7 +44,7 @@ QPointF EllipseAssistant::project(const QPointF& pt) const
     return e.project(pt);
 }
 
-QPointF EllipseAssistant::adjustPosition(const QPointF& pt, const QPointF& /*strokeBegin*/, const bool /*snapToAny*/, qreal /*moveThresholdPt*/)
+QPointF EllipseAssistant::adjustPosition(const QPointF& pt, const QPointF& , const bool , qreal )
 {
     return project(pt);
 
@@ -69,14 +69,12 @@ void EllipseAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, con
     gc.save();
     gc.resetTransform();
     QPoint mousePos;
-    
+
     if (canvas){
-        //simplest, cheapest way to get the mouse-position//
         mousePos= canvas->canvasWidget()->mapFromGlobal(QCursor::pos());
     }
     else {
-        //...of course, you need to have access to a canvas-widget for that.//
-        mousePos = QCursor::pos();//this'll give an offset//
+        mousePos = QCursor::pos();
         dbgFile<<"canvas does not exist in the ellipse assistant, you may have passed arguments incorrectly:"<<canvas;
     }
 
@@ -86,13 +84,9 @@ void EllipseAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, con
 
         if (isAssistantComplete()){
             if (e.set(*handles()[0], *handles()[1], *handles()[2])) {
-                // valid ellipse
                 gc.setTransform(initialTransform);
                 gc.setTransform(e.getInverse(), true);
                 QPainterPath path;
-                //path.moveTo(QPointF(-e.semiMajor(), 0)); path.lineTo(QPointF(e.semiMajor(), 0));
-                //path.moveTo(QPointF(0, -e.semiMinor())); path.lineTo(QPointF(0, e.semiMinor()));
-                // Draw the ellipse
                 path.addEllipse(QPointF(0, 0), e.semiMajor(), e.semiMinor());
                 drawPreview(gc, path, displayRenderInterface);
             }
@@ -102,7 +96,6 @@ void EllipseAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, con
     KisPaintingAssistant::drawAssistant(gc, updateRect, converter, displayRenderInterface, cached, canvas, assistantVisible, previewVisible);
 
 }
-
 
 void EllipseAssistant::drawCache(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool assistantVisible)
 {
@@ -114,7 +107,6 @@ void EllipseAssistant::drawCache(QPainter& gc, const KisCoordinatesConverter *co
     QTransform initialTransform = converter->documentToWidgetTransform();
 
     if (handles().size() == 2) {
-        // just draw the axis
         gc.setTransform(initialTransform);
         QPainterPath path;
         path.moveTo(*handles()[0]);
@@ -123,14 +115,12 @@ void EllipseAssistant::drawCache(QPainter& gc, const KisCoordinatesConverter *co
         return;
     }
     if (e.set(*handles()[0], *handles()[1], *handles()[2])) {
-        // valid ellipse
 
         gc.setTransform(initialTransform);
         gc.setTransform(e.getInverse(), true);
         QPainterPath path;
         path.moveTo(QPointF(-e.semiMajor(), 0)); path.lineTo(QPointF(e.semiMajor(), 0));
         path.moveTo(QPointF(0, -e.semiMinor())); path.lineTo(QPointF(0, e.semiMinor()));
-        // Draw the ellipse
         path.addEllipse(QPointF(0, 0), e.semiMajor(), e.semiMinor());
         drawPath(gc, path, displayRenderInterface, isSnappingActive());
     }

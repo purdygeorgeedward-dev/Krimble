@@ -9,7 +9,6 @@
 
 #include <simpletest.h>
 
-
 class KisStrokeTest : public QObject
 {
     Q_OBJECT
@@ -23,4 +22,4 @@ private Q_SLOTS:
     void testCancelStrokeCase6();
 };
 
-#endif /* __KIS_STROKE_TEST_H */
+#endif

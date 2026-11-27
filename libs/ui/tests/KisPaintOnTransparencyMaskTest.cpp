@@ -80,7 +80,6 @@ protected:
         Q_UNUSED(iteration);
         Q_UNUSED(resources);
 
-
         KisPaintInformation pi1;
         KisPaintInformation pi2;
 
@@ -94,7 +93,6 @@ protected:
 
         image->addJob(strokeId(), new KisAsynchronousStrokeUpdateHelper::UpdateData(true));
     }
-
 
     void checkDeviceIsEmpty(KisPaintDeviceSP dev, const QString &name)
     {

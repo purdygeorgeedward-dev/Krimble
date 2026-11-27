@@ -32,7 +32,6 @@ void KisLodCapableLayerOffsetTest::test()
         new TestUtil::TestingTimedDefaultBounds();
     KisDefaultBoundsBaseSP _sp(bounds);
 
-
     KisLodCapableLayerOffset refOffset(bounds);
     refOffset->setX(12);
     refOffset->setY(16);
@@ -62,13 +61,11 @@ void KisLodCapableLayerOffsetTest::test()
 
     QVERIFY(checkOffset(refOffset, 6, 8));
 
-
     KisLodCapableLayerOffset copy(refOffset);
     bounds->testingSetLod(0);
     QVERIFY(checkOffset(copy, 12, 16));
     bounds->testingSetLod(1);
     QVERIFY(checkOffset(copy, 6, 8));
-
 
     KisLodCapableLayerOffset copy2(bounds);
     copy2 = refOffset;

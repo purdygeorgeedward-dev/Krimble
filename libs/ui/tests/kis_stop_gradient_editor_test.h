@@ -17,4 +17,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif /* __KIS_STOP_GRADIENT_EDITOR_TEST_H */
+#endif

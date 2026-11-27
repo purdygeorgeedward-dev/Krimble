@@ -1,7 +1,7 @@
 /*
  *  SPDX-FileCopyrightText: 2022 Agata Cacko <cacko.azh@gmail.com>
  *  SPDX-FileCopyrightText: 2010 Lukáš Tvrdý <lukast.dev@gmail.com>
- * 
+ *
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -26,7 +26,7 @@ public:
     KisSprayOptionsWidget(QWidget *parent = 0)
         : QWidget(parent) {
         setupUi(this);
-        
+
         diameterSpinBox->setRange(1, 1000, 0);
 		diameterSpinBox->setValue(100);
 		diameterSpinBox->setExponentRatio(1.5);
@@ -60,7 +60,7 @@ public:
 		coverageSpin->setValue(0.003);
         KisSpinBoxI18nHelper::setText(coverageSpin, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
 		coverageSpin->setVisible(false);
-		
+
 		angularDistCombo->setToolTip(i18n("Select how the particles are distributed as a function of the angle to the center of the spray area."));
 
 		curveAngularDistWidget->setToolTip(i18n(
@@ -77,7 +77,6 @@ public:
 		));
 
 		radialDistCombo->setToolTip(i18n("Select how the particles are distributed as a function of the distance from the center of the spray area."));
-
 
 		centerBiasedPolarDistanceBox->setToolTip(i18n("Activates the old behavior where the particles are more accumulated towards the center of the spray area."));
 
@@ -113,13 +112,13 @@ public:
 		));
 
 		layoutAngularDist->takeAt(1);
-		
+
 		curveAngularDistContainer->setVisible(false);
-		
+
 		layoutRadialDist->takeAt(1);
 		layoutRadialDist->takeAt(1);
 		layoutRadialDist->takeAt(1);
-		
+
 		stdDeviationRadialDistSpin->setVisible(false);
 		clusterRadialDistSpin->setVisible(false);
 		curveRadialDistContainer->setVisible(false);
@@ -148,7 +147,7 @@ namespace {
 			widget->curveAngularDistContainer->setVisible(true);
 		}
 	}
-	
+
 	void slotSetupRadialDistributionWidget(KisSprayOptionsWidget *widget, int index)
 	{
 		while (widget->layoutRadialDist->count() > 2) {
@@ -172,19 +171,18 @@ namespace {
 	}
 }
 
-
 KisSprayOpOptionWidget::KisSprayOpOptionWidget(lager::cursor<KisSprayOpOptionData> optionData)
     : KisPaintOpOption(i18n("Spray Area"), KisPaintOpOption::GENERAL, true)
     , m_d(new Private(optionData))
 {
-	
+
 	KisSprayOptionsWidget *widget = new KisSprayOptionsWidget();
 	setObjectName("KisSprayOpOption");
-	
+
 	m_checkable = false;
-	
+
     using namespace KisWidgetConnectionUtils;
-    
+
     connectControl(widget->diameterSpinBox, &m_d->model, "diameter");
     connectControl(widget->aspectSPBox, &m_d->model, "aspect");
     connectControl(widget->rotationAngleSelector, &m_d->model, "brushRotation");
@@ -192,50 +190,44 @@ KisSprayOpOptionWidget::KisSprayOpOptionWidget(lager::cursor<KisSprayOpOptionDat
     connectControl(widget->spacingSpin, &m_d->model, "spacing");
     connectControl(widget->jitterMoveBox, &m_d->model, "jitterMovement");
     connectControl(widget->jitterMovementSpin, &m_d->model, "jitterAmount");
-    
+
     connectControl(widget->densityRadioButton, &m_d->model, "useDensity");
-    
-    
+
     connectControl(widget->particlesSpinBox, &m_d->model, "particleCount");
     connectControl(widget->coverageSpin, &m_d->model, "coverage");
-    
-    
+
     connectControl(widget->angularDistCombo, &m_d->model, "angularDistributionType");
-    
+
     connectControl(widget->curveAngularDistWidget, &m_d->model, "angularDistributionCurve");
     connectControl(widget->curveAngularDistSpin, &m_d->model, "angularDistributionCurveRepeat");
-    
-    // enable widgets for the angular distribution
+
     slotSetupAngularDistributionWidget(widget, m_d->model.angularDistributionType() == KisSprayOpOptionData::ParticleDistribution_Uniform ? 0 : 1);
     connect(&m_d->model, &KisSprayOpOptionModel::angularDistributionTypeChanged, widget, [widget] (int index) {
 		slotSetupAngularDistributionWidget(widget, index);
 	});
-    
-    
+
     connectControl(widget->radialDistCombo, &m_d->model, "radialDistributionType");
     connectControl(widget->stdDeviationRadialDistSpin, &m_d->model, "radialDistributionStdDeviation");
     connectControl(widget->clusterRadialDistSpin, &m_d->model, "radialDistributionClusteringAmount");
-    
+
     connectControl(widget->curveRadialDistWidget, &m_d->model, "radialDistributionCurve");
-    
-    // enable widgets for radial distribution
+
     slotSetupRadialDistributionWidget(widget, (int)m_d->model.radialDistributionType());
     connect(&m_d->model, &KisSprayOpOptionModel::radialDistributionTypeChanged, widget, [widget] (int index) {
 		slotSetupRadialDistributionWidget(widget, index);
 	});
-	
-    
+
     connectControl(widget->curveRadialDistSpin, &m_d->model, "radialDistributionCurveRepeat");
     connectControl(widget->centerBiasedPolarDistanceBox, &m_d->model, "radialDistributionCenterBiased");
-    
+
     widget->jitterMovementSpin->setEnabled(m_d->model.jitterMovement());
     connect(&m_d->model, &KisSprayOpOptionModel::jitterMovementChanged, widget->jitterMovementSpin, &KisDoubleSliderSpinBox::setEnabled);
-    
+
     connectWidgetVisibleToProperty(widget->particlesSpinBox, &m_d->model, "isNumParticlesVisible");
     connectWidgetVisibleToProperty(widget->coverageSpin, &m_d->model, "useDensity");
-    
+
     m_d->model.optionData.bind(std::bind(&KisSprayOpOptionWidget::emitSettingChanged, this));
-    
+
     setConfigurationPage(widget);
 }
 

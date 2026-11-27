@@ -72,13 +72,12 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
     KisCursorOverrideLock cursorLock(Qt::WaitCursor);
 
     idx = filename.lastIndexOf(QRegularExpression("[\\/]"));
-    QString base = (idx == -1) ? QString() : filename.left(idx + 1); //include separator
+    QString base = (idx == -1) ? QString() : filename.left(idx + 1);
     QString path = filename;
 
     if (path.right(4).toUpper() == ".CSV")
         path = path.left(path.size() - 4);
 
-    //according to the QT docs, the slash is a universal directory separator
     path.append(".frames/");
 
     KisImportExportErrorCode retval = ImportExportCodes::OK;
@@ -93,27 +92,7 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
     KisView *setView(0);
 
     if (!m_batchMode) {
-        // TODO: use other systems of progress reporting (KisViewManager::createUnthreadedUpdater()
 
-//        //show the statusbar message even if no view
-//        Q_FOREACH (KisView* view, KisPart::instance()->views()) {
-//            if (view && view->document() == m_doc) {
-//                setView = view;
-//                break;
-//            }
-//        }
-
-//        if (!setView) {
-//            QStatusBar *sb = KisPart::instance()->currentMainwindow()->statusBar();
-//            if (sb) {
-//                sb->showMessage(i18n("Loading CSV file..."));
-//            }
-//        } else {
-//            Q_EMIT m_doc->statusBarMessage(i18n("Loading CSV file..."));
-//        }
-
-//        Q_EMIT m_doc->sigProgress(0);
-//        connect(m_doc, SIGNAL(sigProgressCanceled()), this, SLOT(cancel()));
     }
     int step = 0;
 
@@ -130,17 +109,17 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
                 retval = ImportExportCodes::FileFormatIncorrect;
             break;
         }
-        field = readLine.nextField(); //first field of the line
+        field = readLine.nextField();
 
-        if (field.isNull()) continue; //empty row
+        if (field.isNull()) continue;
 
         switch (step) {
 
-        case 0 :    //skip first row
+        case 0 :
             step = 1;
             break;
 
-        case 1 :    //scene header names
+        case 1 :
             step = 2;
 
             for (idx = 0; !field.isNull(); idx++) {
@@ -166,7 +145,7 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
             }
             break;
 
-        case 2 :    //scene header values
+        case 2 :
             step= 3;
 
             for (idx= 0; !field.isNull(); idx++) {
@@ -202,7 +181,7 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
             retval = createNewImage(width, height, pixelRatio, projName.isNull() ? filename : projName);
             break;
 
-        case 3 :    //create level headers
+        case 3 :
             if (field[0] != '#') break;
 
             for (; !(field = readLine.nextField()).isNull(); ) {
@@ -214,38 +193,33 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
             step = 4;
             Q_FALLTHROUGH();
 
-        case 4 :    //level header
+        case 4 :
 
             if (field == "#Layers") {
-                //layer name
                 for (idx = 0; !(field = readLine.nextField()).isNull() && (idx < layers.size()); idx++)
                     layers.at(idx)->name = field;
 
                 break;
             }
             if (field == "#Density") {
-                //layer opacity
                 for (idx = 0; !(field = readLine.nextField()).isNull() && (idx < layers.size()); idx++)
                     layers.at(idx)->density = field.toFloat();
 
                 break;
             }
             if (field == "#Blending") {
-                //layer blending mode
                 for (idx = 0; !(field = readLine.nextField()).isNull() && (idx < layers.size()); idx++)
                     layers.at(idx)->blending = field;
 
                 break;
             }
             if (field == "#Visible") {
-                //layer visibility
                 for (idx = 0; !(field = readLine.nextField()).isNull() && (idx < layers.size()); idx++)
                     layers.at(idx)->visible = field.toInt();
 
                 break;
             }
             if (field == "#Folder") {
-                //CSV 1.1 folder location
                 for (idx = 0; !(field = readLine.nextField()).isNull() && (idx < layers.size()); idx++)
                     layers.at(idx)->path = validPath(field, base);
 
@@ -257,7 +231,7 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
 
             Q_FALLTHROUGH();
 
-        case 5 :    //frames
+        case 5 :
 
             if ((field.size() < 2) || (field[0] != '#') || !field[1].isDigit()) break;
 
@@ -266,8 +240,6 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
 
                 if (layer->last != field) {
                     if (!m_batchMode) {
-                        //Q_EMIT m_doc->sigProgress((frame * layers.size() + idx) * 100 /
-                        //                        (frameCount * layers.size()));
                     }
                     retval = setLayer(layer, importDoc.data(), path);
                     layer->last = field;
@@ -278,8 +250,6 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
             break;
         }
     } while (retval.isOk());
-
-    //finish the layers
 
     if (retval.isOk()) {
         if (m_image) {
@@ -294,7 +264,6 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
 
         for (idx = 0; idx < layers.size(); idx++) {
             CSVLayerRecord* layer = layers.at(idx);
-            //empty layers without any pictures are dropped
 
             if ((layer->frame > 0) || !layer->last.isEmpty()) {
                 retval = setLayer(layer, importDoc.data(), path);
@@ -306,7 +275,6 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
     }
 
     if (m_image) {
-        //insert the existing layers by the right order
         for (idx = layers.size() - 1; idx >= 0; idx--) {
             CSVLayerRecord* layer = layers.at(idx);
 
@@ -320,8 +288,6 @@ KisImportExportErrorCode CSVLoader::decode(QIODevice *io, const QString &filenam
     io->close();
 
     if (!m_batchMode) {
-        // disconnect(m_doc, SIGNAL(sigProgressCanceled()), this, SLOT(cancel()));
-        // Q_EMIT m_doc->sigProgress(100);
 
         if (!setView) {
             QStatusBar *sb = KisPart::instance()->currentMainwindow()->statusBar();
@@ -341,7 +307,6 @@ QString CSVLoader::convertBlending(const QString &blending)
     if (blending == "Color") return COMPOSITE_OVER;
     if (blending == "Behind") return COMPOSITE_BEHIND;
     if (blending == "Erase") return COMPOSITE_ERASE;
-    // "Shade"
     if (blending == "Light") return COMPOSITE_LINEAR_LIGHT;
     if (blending == "Colorize") return COMPOSITE_COLORIZE;
     if (blending == "Hue") return COMPOSITE_HUE;
@@ -349,8 +314,6 @@ QString CSVLoader::convertBlending(const QString &blending)
     if (blending == "Sub") return COMPOSITE_INVERSE_SUBTRACT;
     if (blending == "Multiply") return COMPOSITE_MULT;
     if (blending == "Screen") return COMPOSITE_SCREEN;
-    // "Replace"
-    // "Substitute"
     if (blending == "Difference") return COMPOSITE_DIFF;
     if (blending == "Divide") return COMPOSITE_DIVIDE;
     if (blending == "Overlay") return COMPOSITE_OVERLAY;
@@ -370,13 +333,12 @@ QString CSVLoader::convertBlending(const QString &blending)
 
 QString CSVLoader::validPath(const QString &path,const QString &base)
 {
-    //replace Windows directory separators with the universal /
 
     QString tryPath= QString(path).replace(QString("\\"), QString("/"));
     int i = tryPath.lastIndexOf("/");
 
     if (i == (tryPath.size() - 1))
-        tryPath= tryPath.left(i); //remove the ending separator if exists
+        tryPath= tryPath.left(i);
 
     if (QFileInfo(tryPath).isDir())
         return tryPath.append("/");
@@ -385,16 +347,15 @@ QString CSVLoader::validPath(const QString &path,const QString &base)
     i = -1;
 
     while ((i= (scan.lastIndexOf("/",i) - 1)) > 0) {
-        //avoid testing if the next level will be the default xxxx.layers folder
 
         if ((i >= 6) && (scan.mid(i - 6, 7) == ".layers")) continue;
 
-        tryPath= QString(base).append(scan.mid(i + 2)); //base already ending with a /
+        tryPath= QString(base).append(scan.mid(i + 2));
 
         if (QFileInfo(tryPath).isDir())
             return tryPath.append("/");
     }
-    return QString(); //NULL string
+    return QString();
 }
 
 KisImportExportErrorCode CSVLoader::setLayer(CSVLayerRecord* layer, KisDocument *importDoc, const QString &path)
@@ -402,7 +363,6 @@ KisImportExportErrorCode CSVLoader::setLayer(CSVLayerRecord* layer, KisDocument 
     bool result = true;
 
     if (layer->channel == 0) {
-        //create a new document layer
 
         float opacity = layer->density;
 
@@ -426,9 +386,7 @@ KisImportExportErrorCode CSVLoader::setLayer(CSVLayerRecord* layer, KisDocument 
             (paintLayer->getKeyframeChannel(KisKeyframeChannel::Raster.id(), true));
     }
 
-
     if (!layer->last.isEmpty()) {
-        //png image
         QString filename = layer->path.isNull() ? path : layer->path;
         filename.append(layer->last);
 
@@ -438,7 +396,6 @@ KisImportExportErrorCode CSVLoader::setLayer(CSVLayerRecord* layer, KisDocument 
             layer->channel->importFrame(layer->frame, importDoc->image()->projection(), nullptr);
 
     } else {
-        //blank
         layer->channel->addKeyframe(layer->frame);
     }
     return (result) ? ImportExportCodes::OK : ImportExportCodes::Failure;
@@ -446,7 +403,6 @@ KisImportExportErrorCode CSVLoader::setLayer(CSVLayerRecord* layer, KisDocument 
 
 KisImportExportErrorCode CSVLoader::createNewImage(int width, int height, float ratio, const QString &name)
 {
-    //the CSV is RGBA 8bits, sRGB
 
     if (!m_image) {
         const KoColorSpace* cs = KoColorSpaceRegistry::instance()->colorSpace(

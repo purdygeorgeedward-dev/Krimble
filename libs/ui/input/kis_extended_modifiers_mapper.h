@@ -24,15 +24,6 @@ public:
 
     typedef QVector<Qt::Key> ExtendedModifiers;
 
-    /**
-     * Query the native platform API for keys.
-     *
-     * A word of caution: using the result of this to modify KisShortcutMatcher's state (directly or indirectly)
-     * can result in keys becoming "stuck" whenever we observe key status through this function, especially when
-     * the application does not have focus.
-     * On Windows in particular, [Windows Key]+D or [Windows Key]+[0~9] are prone to this behavior.
-     * \see KisInputManager::Private::fixShortcutMatcherModifiersState
-     */
     ExtendedModifiers queryExtendedModifiers();
     Qt::KeyboardModifiers queryStandardModifiers();
 
@@ -48,4 +39,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_EXTENDED_MODIFIERS_MAPPER_H */
+#endif

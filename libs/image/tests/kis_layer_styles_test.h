@@ -20,4 +20,4 @@ private Q_SLOTS:
     void testLayerStylesRects();
 };
 
-#endif /* __KIS_LAYER_STYLES_TEST_H */
+#endif

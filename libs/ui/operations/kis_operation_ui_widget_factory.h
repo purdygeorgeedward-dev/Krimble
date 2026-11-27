@@ -4,8 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
-
 #ifndef KIS_OPERATION_UI_WIDGET_FACTORY_H
 #define KIS_OPERATION_UI_WIDGET_FACTORY_H
 
@@ -16,11 +14,6 @@
 #include "operations/kis_operation_ui_widget.h"
 #include "KisViewManager.h"
 
-
-/**
- *  Factory to get operation configurations from QWidget based operation widgets
- *  T has to be a KisOperationUIWidget
- */
 template <class T> class KisOperationUIWidgetFactory : public KisOperationUIFactory
 {
 
@@ -30,17 +23,11 @@ public:
         , m_configuration(nullptr)
     {
     }
-    
+
     ~KisOperationUIWidgetFactory() override
     {
     }
 
-    /**
-    *  Reimplemented. Show a dialog the widget specify as T
-    *  @param view the view
-    *  @param configuration the configuration to the operation
-    *  @returns true if the configuration could be constructed (not canceled)
-    */
     bool fetchConfiguration(KisViewManager* view, KisOperationConfigurationSP configuration) override {
         KoDialog * dialog = new KoDialog(view->mainWindowAsQWidget());
         Q_CHECK_PTR(dialog);
@@ -63,4 +50,4 @@ private:
     KisOperationConfigurationSP m_configuration;
 };
 
-#endif // KIS_OPERATION_UI_WIDGET_FACTORY_H
+#endif

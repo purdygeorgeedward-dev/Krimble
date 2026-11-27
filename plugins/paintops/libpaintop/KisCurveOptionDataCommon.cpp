@@ -23,7 +23,6 @@ KisCurveOptionDataCommon::KisCurveOptionDataCommon(const KoID &_id, bool _isChec
 {
 }
 
-// TODO: rename into constSensors
 std::vector<const KisSensorData*> KisCurveOptionDataCommon::sensors() const
 {
     return sensorData->constSensors();
@@ -67,5 +66,4 @@ void KisCurveOptionDataCommon::writePrefixed(KisPropertiesConfiguration *setting
 {
     sensorData->write(*this, setting);
 }
-
 

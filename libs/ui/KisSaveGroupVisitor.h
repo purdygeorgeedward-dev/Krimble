@@ -18,28 +18,10 @@
 #include <kis_node.h>
 #include <kis_image.h>
 
-
-/**
- * @brief The KisSaveGroupVisitor class saves the groups in
- * a Krita image to separate images.
- */
 class KRITAUI_EXPORT KisSaveGroupVisitor : public KisNodeVisitor
 {
 public:
 
-    /**
-     * Create a KisSaveGroupVisitor
-     *
-     * @param image: the image to save
-     * @param saveInvisible: also save invisible layers
-     * @param saveTopLevelOnly: if true, only save the toplevel layers, otherwise
-     *        descend into groups and save the bottom-most groups (groups that do
-     *        not contain another group.
-     * @param path the base location where the images will be saved
-     * @param baseName the basename of the images
-     * @param extension the file format extension
-     * @param mimeFilter the export image type
-     */
     KisSaveGroupVisitor(KisImageWSP image,
                         bool saveInvisible,
                         bool saveTopLevelOnly,
@@ -87,5 +69,4 @@ private:
     QString m_mimeFilter;
 };
 
-
-#endif // KISSAVEGROUPVISITOR_H
+#endif

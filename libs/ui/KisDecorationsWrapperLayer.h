@@ -13,11 +13,6 @@
 
 class KisDocument;
 
-/**
- * KisDecorationsWrapperLayer is a fake node for connecting Grids, Guides and Assistants
- * the KisNodeVisitor system. This allows things like crops and transformations to be
- * applied to these decoration style items.
- */
 class KisDecorationsWrapperLayer : public KisExternalLayer
 {
     Q_OBJECT
@@ -29,9 +24,7 @@ public:
     void setDocument(KisDocument *document);
     KisDocument* document() const;
 
-
 public:
-    // reimplemented from KisLayer
 
     bool allowAsChild(KisNodeSP) const override;
 
@@ -60,5 +53,4 @@ private:
 typedef KisSharedPtr<KisDecorationsWrapperLayer> KisDecorationsWrapperLayerSP;
 typedef KisWeakSharedPtr<KisDecorationsWrapperLayer> KisDecorationsWrapperLayerWSP;
 
-
-#endif // KISDECORATIONSWRAPPERLAYER_H
+#endif

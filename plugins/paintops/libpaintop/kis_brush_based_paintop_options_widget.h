@@ -32,4 +32,4 @@ private:
     KisBrushOptionWidget *m_brushOption;
 };
 
-#endif // KIS_BRUSH_BASED_PAINTOP_OPTIONS_WIDGET_H
+#endif

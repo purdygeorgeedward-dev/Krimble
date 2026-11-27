@@ -41,7 +41,6 @@ public:
     KoZoomActionState currentActionState;
 };
 
-
 KoZoomAction::KoZoomAction(const QString& text, QObject *parent)
     : KSelectAction(text, parent)
     , d(new Private(this))
@@ -69,10 +68,6 @@ void KoZoomAction::slotZoomStateChanged(const KoZoomState &zoomState)
 
 void KoZoomAction::slotTextZoomChanged(const QString &value)
 {
-    // HACK ALERT: all items in predefined zooms are handled by
-    //             slotZoomLevelChangedIndex(), which comes first;
-    //             this implementation is for explicitly entered
-    //             values only.
 
     bool isValid = false;
     qreal zoom = QLocale().toDouble(value, &isValid);
@@ -85,21 +80,12 @@ void KoZoomAction::slotTextZoomChanged(const QString &value)
         if (trimmedValue.endsWith('%')) {
             trimmedValue = stringRemoveLast(trimmedValue);
         } else if (trimmedValue.startsWith('%')) {
-            /**
-             * In Turkish language, the percent sign can go before the
-             * number...
-             */
             trimmedValue = stringRemoveFirst(trimmedValue);
         }
         zoom = QLocale().toDouble(trimmedValue, &isValid);
     }
 
     if (isValid) {
-        /**
-         * If the value has been selected from the dropdown, then it has already
-         * been activated by slotZoomLevelChangedIndex() and we shouldn't emit it
-         * once again.
-         */
         const KoZoomState &zoomState = d->currentActionState.zoomState;
         if (zoomState.mode != KoZoomMode::ZOOM_CONSTANT ||
             qRound(zoomState.zoom * 1000.0) != qRound(zoom * 10.0)) {

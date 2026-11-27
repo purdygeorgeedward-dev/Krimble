@@ -24,5 +24,4 @@ private:
     QStringList directories;
 };
 
-
-#endif // RECORDER_DIRECTORY_CLEANER_H
+#endif

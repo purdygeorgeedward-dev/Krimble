@@ -13,14 +13,6 @@
 #include <QString>
 #include <kis_debug.h>
 
-//#define DEBUG_OFFSET_ON_EXIT
-
-/**
- * Check if the position of \p device has moved further by
- * \p expectedOffset and correct it if needed. It also issues
- * a warning if needed.
- */
-
 class KRITAPSDUTILS_EXPORT KisOffsetOnExitVerifier
 {
 public:
@@ -43,7 +35,7 @@ public:
             warnKrita << "*** |" << m_objectName << msg;
             warnKrita << "    |" << m_domain;
 
-#endif /* DEBUG_OFFSET_ON_EXIT */
+#endif
 
             m_device.seek(m_expectedPos);
         }
@@ -60,4 +52,4 @@ private:
 #define SETUP_OFFSET_VERIFIER(name, device, expectedOffset, maxPadding)                                                                                        \
     KisOffsetOnExitVerifier name(device, expectedOffset, maxPadding, QString(#name), QString(__FILE__) + ":" + QString::number(__LINE__))
 
-#endif /* __KIS_OFFSET_ON_EXIT_VERIFIER_H */
+#endif

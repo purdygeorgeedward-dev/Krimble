@@ -25,8 +25,6 @@
 
 namespace detail {
 
-// just a simple wrapper that unpacks arguments from a QVariantList into
-// a proper interface for KisWaylandSurfaceColorManager
 class KisWaylandSurfaceColorManagerWrapper: public KisWaylandSurfaceColorManager
 {
 public:
@@ -37,7 +35,7 @@ public:
     }
 };
 
-} // namespace detail
+}
 
 class KisWaylandSurfaceColorManagementInfo : public KisSurfaceColorManagementInfo
 {
@@ -61,15 +59,11 @@ public:
 
             return promise.future();
         } else {
-            // wrap the info fetcher into the resulting lambda
             QFuture<QString> result = promise.future().then(
                 [infoFetcher] (const QString &report) {
-                    // a simple wrapping class that holds the fetcher until the
-                    // result is reported or the future is destroyed
                     return report;
             });
 
-            // move the promise into the handler of its completion signal
             connect(infoFetcher.get(), &KisWaylandDebugInfoFetcher::sigDebugInfoReady,
                     infoFetcher.get(), [promise = std::move(promise)] (const QString &report) mutable {
                         promise.addResult(report);
@@ -81,7 +75,7 @@ public:
     }
 };
 
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
 
 K_PLUGIN_FACTORY_WITH_JSON(KritaPlatformPluginWaylandFactory, "kritaplatformwayland.json",
     (
@@ -90,10 +84,9 @@ K_PLUGIN_FACTORY_WITH_JSON(KritaPlatformPluginWaylandFactory, "kritaplatformwayl
         , registerPlugin<detail::KisWaylandSurfaceColorManagerWrapper>()
         , registerPlugin<KisWaylandOutputColorInfo>()
         , registerPlugin<KisWaylandSurfaceColorManagementInfo>()
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif
     );)
 
 #if KRITA_USE_SURFACE_COLOR_MANAGEMENT_API
-// for detail::KisWaylandSurfaceColorManagerWrapper
 #include <KritaPlatformPluginWayland.moc>
-#endif /* KRITA_USE_SURFACE_COLOR_MANAGEMENT_API */
+#endif

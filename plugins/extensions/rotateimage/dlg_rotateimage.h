@@ -62,4 +62,4 @@ private:
 
 };
 
-#endif // DLG_ROTATEIMAGE
+#endif

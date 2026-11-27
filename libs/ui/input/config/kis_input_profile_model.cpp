@@ -26,7 +26,7 @@ void KisInputProfileModel::profileNamesChanged()
     setStringList(KisInputProfileManager::instance()->profileNames());
 }
 
-bool KisInputProfileModel::setData(const QModelIndex &index, const QVariant &value, int /*role*/)
+bool KisInputProfileModel::setData(const QModelIndex &index, const QVariant &value, int )
 {
     QString oldName = profileName(index);
     return KisInputProfileManager::instance()->renameProfile(oldName, value.toString());

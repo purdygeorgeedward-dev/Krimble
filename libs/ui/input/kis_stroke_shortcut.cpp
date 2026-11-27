@@ -19,7 +19,6 @@ public:
     QSet<Qt::MouseButton> buttons;
 };
 
-
 KisStrokeShortcut::KisStrokeShortcut(KisAbstractInputAction *action, int index)
     : KisAbstractShortcut(action, index),
       m_d(new Private)

@@ -152,4 +152,4 @@ protected:
     QScopedPointer<DelegateTool> m_localTool;
 };
 
-#endif /* __KIS_DELEGATED_TOOL_H */
+#endif

@@ -14,7 +14,6 @@
 #include <input/kis_input_manager.h>
 #include <kis_canvas2.h>
 
-
 class Q_DECL_HIDDEN KisAbstractInputAction::Private
 {
 public:
@@ -193,12 +192,6 @@ QPoint KisAbstractInputAction::eventPos(const QEvent *event)
         KisCanvas2 *canvas = d->inputManager->canvas();
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(canvas, QPoint());
 
-        /**
-         * Native gesture event has an issue in Qt on MacOS, its
-         * event->position() method returns an incorrect value (not
-         * in the widget's coordinates). So we should manually map it
-         * from global.
-         */
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         return canvas->canvasWidget()->mapFromGlobal(QPointF(static_cast<const QNativeGestureEvent*>(event)->globalPos())).toPoint();
 #else
@@ -242,12 +235,6 @@ QPointF KisAbstractInputAction::eventPosF(const QEvent *event) {
         KisCanvas2 *canvas = d->inputManager->canvas();
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(canvas, QPointF());
 
-        /**
-         * Native gesture event has an issue in Qt on MacOS, its
-         * event->position() method returns an incorrect value (not
-         * in the widget's coordinates). So we should manually map it
-         * from global.
-         */
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         return canvas->canvasWidget()->mapFromGlobal(QPointF(static_cast<const QNativeGestureEvent*>(event)->globalPos()));
 #else

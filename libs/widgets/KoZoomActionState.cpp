@@ -24,7 +24,6 @@ QVector<KoZoomActionState::ZoomItem> generateZoomGuiItems(const QVector<qreal> &
 {
     QVector<qreal> zoomLevels;
 
-    // we keep only sane zoom levels in the dropdown menu
     std::copy_if(standardZoomLevels.begin(), standardZoomLevels.end(),
         std::back_inserter(zoomLevels),
         [] (qreal zoom) { return zoom >= 0.2 && zoom <= 10; });
@@ -43,7 +42,7 @@ QVector<KoZoomActionState::ZoomItem> generateZoomGuiItems(const QVector<qreal> &
     return result;
 }
 
-} // namespace
+}
 
 KoZoomActionState::KoZoomActionState(const KoZoomState &state)
 {
@@ -83,11 +82,6 @@ void KoZoomActionState::setZoomState(const KoZoomState &newState)
         auto it = std::lower_bound(realGuiLevels.begin(), realGuiLevels.end(),
                                    newState.zoom, fuzzyCompareLess);
 
-        /**
-         * 1) If all elements are smaller than the new zoom, then add into the end
-         * 2) If the found element is too similar to the new zoom, then just keep
-         *    the existing element instead
-         */
         if (it == realGuiLevels.end() || !(qAbs(std::get<qreal>(*it) - newState.zoom) < eps)) {
             it = realGuiLevels.insert(it, {KoZoomMode::ZOOM_CONSTANT, newState.zoom, zoomToString(newState.zoom)});
         }

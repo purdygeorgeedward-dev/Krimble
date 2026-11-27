@@ -21,7 +21,6 @@ public:
     KoSvgPaste();
     virtual ~KoSvgPaste();
 
-
     bool hasShapes();
     QList<KoShape*> fetchShapes(QRectF viewportInPx, qreal resolutionPPI, QSizeF *fragmentSize = nullptr);
     static QList<KoShape*> fetchShapesFromData(const QByteArray &data, QRectF viewportInPx, qreal resolutionPPI, QSizeF *fragmentSize = nullptr);
@@ -33,4 +32,4 @@ private:
     Q_DISABLE_COPY(KoSvgPaste);
 };
 
-#endif // KOSVGPASTE_H
+#endif

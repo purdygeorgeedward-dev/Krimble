@@ -14,4 +14,4 @@ private Q_SLOTS:
     void testXMLClone();
 };
 
-#endif // KIS_AUTO_BRUSH_FACTORY_TEST_H
+#endif

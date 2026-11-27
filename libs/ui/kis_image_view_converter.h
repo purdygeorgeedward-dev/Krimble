@@ -13,21 +13,9 @@
 #include "KisClonableViewConverter.h"
 #include "KisImageResolutionProxy.h"
 
-/**
- * ViewConverter to convert from flake-internal points to
- * krita-internal pixels and back. You can use this class wherever
- * the flake tools or shapes come in contact with the krita-image.
- *
- * For usage remember that the document here is the flake-points. And
- * the view is the krita-pixels.
- */
 class KRITAUI_EXPORT KisImageViewConverter : public KisClonableViewConverter
 {
 public:
-    /**
-     * constructor
-     * @param image the image this viewConverter works for.
-     */
     KisImageViewConverter();
     KisImageViewConverter(const KisImageWSP image);
     KisImageViewConverter(KisImageResolutionProxySP proxy);
@@ -38,7 +26,6 @@ public:
 
     void setImage(KisImageWSP image);
 
-    /// reimplemented from superclass
     void zoom(qreal *zoomX, qreal *zoomY) const override;
 
     qreal documentToViewX(qreal documentX) const override;
@@ -46,7 +33,6 @@ public:
     qreal viewToDocumentX(qreal viewX) const override;
     qreal viewToDocumentY(qreal viewY) const override;
 
-    // This method shouldn't be used for image
     qreal zoom() const;
 
 private:

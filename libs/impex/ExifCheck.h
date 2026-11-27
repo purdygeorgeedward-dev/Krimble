@@ -36,7 +36,7 @@ public:
         return eIV.exifInfo();
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -85,7 +85,7 @@ public:
         return eIV.exifInfo() && image->rootLayer()->childCount() > 1;
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -113,4 +113,4 @@ public:
     }
 };
 
-#endif // ExifCHECK_H
+#endif

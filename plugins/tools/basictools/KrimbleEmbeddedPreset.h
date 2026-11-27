@@ -23,8 +23,6 @@
 #include <kis_paintop_box.h>
 #include <kis_canvas_resource_provider.h>
 
-// Returns the embedded preset for the given brush engine id ("paintbrush", "colorsmudge",
-// "filter", ...), or a null pointer if it cannot be loaded. Each call returns a new copy.
 inline KisPaintOpPresetSP krimbleLoadEmbeddedPreset(const QString &paintOpId)
 {
     const QString path = QStringLiteral(":/presets/") + paintOpId + QStringLiteral(".kpp");

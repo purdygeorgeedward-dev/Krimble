@@ -48,7 +48,6 @@ void QMic::slotQMic(bool again)
 
     std::unique_ptr<KisQmicPluginInterface> plugin;
 
-    // find the krita-gmic-qt plugin
     const QList<KoJsonTrader::Plugin> offers = KoJsonTrader::instance()->query("Krita/GMic", QString());
     if (offers.isEmpty()) {
         QMessageBox::warning(qApp->activeWindow(), i18nc("@title:window", "Krimble"), i18n("The GMic plugin is not installed or could not be loaded."));

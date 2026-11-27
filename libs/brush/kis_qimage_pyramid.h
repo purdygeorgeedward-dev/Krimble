@@ -12,7 +12,6 @@
 #include <kis_dab_shape.h>
 #include <kritabrush_export.h>
 
-
 class BRUSH_EXPORT KisQImagePyramid
 {
 public:
@@ -64,4 +63,4 @@ private:
     QVector<PyramidLevel> m_levels;
 };
 
-#endif /* __KIS_QIMAGE_PYRAMID_H */
+#endif

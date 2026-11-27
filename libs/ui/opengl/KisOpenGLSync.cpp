@@ -7,7 +7,6 @@
 #include "KisOpenGLSync.h"
 
 namespace Sync {
-    //For checking sync status
     enum SyncStatus {
         Signaled,
         Unsignaled
@@ -26,7 +25,6 @@ namespace Sync {
     #define GL_SYNC_STATUS 0x9114
 #endif
 
-    //Function pointers for glFenceSync and glGetSynciv
     typedef GLsync (*kis_glFenceSync)(GLenum, GLbitfield);
     static kis_glFenceSync k_glFenceSync = 0;
     typedef void (*kis_glGetSynciv)(GLsync, GLenum, GLsizei, GLsizei*, GLint*);
@@ -36,8 +34,6 @@ namespace Sync {
     typedef GLenum (*kis_glClientWaitSync)(GLsync,GLbitfield,GLuint64);
     static kis_glClientWaitSync k_glClientWaitSync = 0;
 
-    //Initialise the function pointers for glFenceSync and glGetSynciv
-    //Note: Assumes a current OpenGL context.
     void init(QOpenGLContext* ctx) {
 #if defined Q_OS_WIN
         if (KisOpenGL::supportsFenceSync()) {
@@ -66,7 +62,6 @@ namespace Sync {
         }
     }
 
-    //Get a fence sync object from OpenGL
     GLsync getSync() {
         if(k_glFenceSync) {
             GLsync sync = k_glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -78,7 +73,6 @@ namespace Sync {
         return 0;
     }
 
-    //Check the status of a sync object
     SyncStatus syncStatus(GLsync syncObject) {
         if(syncObject && k_glGetSynciv) {
             GLint status = -1;

@@ -46,7 +46,7 @@
 
 #include <KisImportUserFeedbackInterface.h>
 #include <QMessageBox>
-#endif /* TIFF_HAS_PSD_TAGS */
+#endif
 
 #ifdef HAVE_JPEG_TURBO
 #include <turbojpeg.h>
@@ -108,7 +108,7 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
         if (nbchannels == 0)
             nbchannels = 1;
         extrasamplescount =
-            nbchannels - 1; // FIX the extrasamples count in case of
+            nbchannels - 1;
         if (sampletype == SAMPLEFORMAT_IEEEFP) {
             if (color_nb_bits == 16) {
 #ifdef HAVE_OPENEXR
@@ -119,22 +119,21 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
                 destDepth = 32;
                 return {GrayAColorModelID.id(), Float32BitsColorDepthID.id()};
             }
-            return {}; // sanity check; no support for float of
-                       // higher or lower bit depth
+            return {};
         }
         if (color_nb_bits <= 8) {
             destDepth = 8;
             return {GrayAColorModelID.id(), Integer8BitsColorDepthID.id()};
-        } else /* if (color_nb_bits == bits16) */ {
+        } else {
             destDepth = 16;
             return {GrayAColorModelID.id(), Integer16BitsColorDepthID.id()};
         }
 
-    } else if (color_type == PHOTOMETRIC_RGB /*|| color_type == */) {
+    } else if (color_type == PHOTOMETRIC_RGB ) {
         if (nbchannels == 0)
             nbchannels = 3;
         extrasamplescount =
-            nbchannels - 3; // FIX the extrasamples count in case of
+            nbchannels - 3;
         if (sampletype == SAMPLEFORMAT_IEEEFP) {
             if (color_nb_bits == 16) {
 #ifdef HAVE_OPENEXR
@@ -145,13 +144,12 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
                 destDepth = 32;
                 return {RGBAColorModelID.id(), Float32BitsColorDepthID.id()};
             }
-            return {}; // sanity check; no support for float of
-                       // higher or lower bit depth
+            return {};
         } else {
             if (color_nb_bits <= 8) {
                 destDepth = 8;
                 return {RGBAColorModelID.id(), Integer8BitsColorDepthID.id()};
-            } else /* if (color_nb_bits == bits16) */ {
+            } else {
                 destDepth = 16;
                 return {RGBAColorModelID.id(), Integer16BitsColorDepthID.id()};
             }
@@ -160,7 +158,7 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
         if (nbchannels == 0)
             nbchannels = 3;
         extrasamplescount =
-            nbchannels - 3; // FIX the extrasamples count in case of
+            nbchannels - 3;
         if (sampletype == SAMPLEFORMAT_IEEEFP) {
             if (color_nb_bits == 16) {
 #ifdef HAVE_OPENEXR
@@ -171,13 +169,12 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
                 destDepth = 32;
                 return {YCbCrAColorModelID.id(), Float32BitsColorDepthID.id()};
             }
-            return {}; // sanity check; no support for float of
-                       // higher or lower bit depth
+            return {};
         } else {
             if (color_nb_bits <= 8) {
                 destDepth = 8;
                 return {YCbCrAColorModelID.id(), Integer8BitsColorDepthID.id()};
-            } else /* if (color_nb_bits == bits16) */ {
+            } else {
                 destDepth = 16;
                 return {YCbCrAColorModelID.id(),
                         Integer16BitsColorDepthID.id()};
@@ -190,13 +187,11 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
             destDepth = 16;
             return {YCbCrAColorModelID.id(), Integer16BitsColorDepthID.id()};
         } else {
-            return {}; // sanity check; no support
-                       // integers of higher bit depth
+            return {};
         }
     } else if (color_type == PHOTOMETRIC_SEPARATED) {
         if (nbchannels == 0)
             nbchannels = 4;
-        // SEPARATED is in general CMYK but not always, so we check
         uint16_t inkset = 0;
         if ((TIFFGetField(image, TIFFTAG_INKSET, &inkset) == 0)) {
             dbgFile << "Image does not define the inkset.";
@@ -215,13 +210,9 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
                 }
             } else {
                 dbgFile << "inknames are not defined !";
-                // To be able to read stupid adobe files, if there are no
-                // information about inks and four channels, then it's a CMYK
-                // file :
                 if (nbchannels - extrasamplescount != 4) {
                     return {};
                 }
-                // else - assume it's CMYK and proceed
             }
         }
         if (sampletype == SAMPLEFORMAT_IEEEFP) {
@@ -234,8 +225,7 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
                 destDepth = 32;
                 return {CMYKAColorModelID.id(), Float32BitsColorDepthID.id()};
             }
-            return {}; // sanity check; no support for float of
-                       // higher or lower bit depth
+            return {};
         }
         if (color_nb_bits <= 8) {
             destDepth = 8;
@@ -244,13 +234,13 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
             destDepth = 16;
             return {CMYKAColorModelID.id(), Integer16BitsColorDepthID.id()};
         } else {
-            return {}; // no support for other bit depths
+            return {};
         }
     } else if (color_type == PHOTOMETRIC_CIELAB
                || color_type == PHOTOMETRIC_ICCLAB) {
         if (nbchannels == 0)
             nbchannels = 3;
-        extrasamplescount = nbchannels - 3; // FIX the extrasamples count
+        extrasamplescount = nbchannels - 3;
 
         switch (color_nb_bits) {
         case bits32: {
@@ -258,7 +248,7 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
             if (sampletype == SAMPLEFORMAT_IEEEFP) {
                 return {LABAColorModelID.id(), Float32BitsColorDepthID.id()};
             } else {
-                return {}; // no support for other bit depths
+                return {};
             }
         }
         case bits16: {
@@ -270,7 +260,7 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
             } else {
                 return {LABAColorModelID.id(), Integer16BitsColorDepthID.id()};
             }
-            return {}; // no support for other bit depths
+            return {};
         }
         case bits8: {
             destDepth = bits8;
@@ -284,9 +274,7 @@ QPair<QString, QString> getColorSpaceForColorType(uint16_t sampletype,
         destDepth = 16;
         if (nbchannels == 0)
             nbchannels = 2;
-        extrasamplescount = nbchannels - 2; // FIX the extrasamples count
-        // <-- we will convert the index image to RGBA16 as the palette is
-        // always on 16bits colors
+        extrasamplescount = nbchannels - 2;
         return {RGBAColorModelID.id(), Integer16BitsColorDepthID.id()};
     }
     return {};
@@ -345,11 +333,9 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
 
     const KoColorSpace *cs = basicInfo.cs;
 
-    // Attempt to get the ICC profile from the image resource section
     if (resources.contains(KisTiffPsdResourceRecord::ICC_PROFILE)) {
         const KoColorProfile *profile = nullptr;
 
-        // Use the color mode from the synthetic PSD header
         QPair<QString, QString> colorSpaceId =
             psd_colormode_to_colormodelid(photoshopLayerRecord.colorMode(),
                                           photoshopLayerRecord.channelDepth());
@@ -381,7 +367,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
                     colorSpaceId.second,
                     profile);
             if (tempCs) {
-                // Profile found, override the colorspace
                 dbgFile << "TIFF: PSD metadata overrides the color space!"
                         << cs->name() << cs->profile()->name();
                 cs = tempCs;
@@ -400,25 +385,19 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
     psdImage->setResolution(
         POINT_TO_INCH(static_cast<qreal>(basicInfo.xres)),
         POINT_TO_INCH(static_cast<qreal>(
-            basicInfo.yres))); // It is the "invert" macro because we convert
-                               // from pointer-per-inch to points
+            basicInfo.yres)));
 
-    // set the correct resolution
     if (resources.contains(KisTiffPsdResourceRecord::RESN_INFO)) {
         RESN_INFO_1005 *resInfo = dynamic_cast<RESN_INFO_1005 *>(
             resources[KisTiffPsdResourceRecord::RESN_INFO]->resource);
         if (resInfo) {
-            // check resolution size is not zero
             if (resInfo->hRes * resInfo->vRes > 0)
                 psdImage->setResolution(POINT_TO_INCH(resInfo->hRes),
                                         POINT_TO_INCH(resInfo->vRes));
-            // let's skip the unit for now; we can only set that on the
-            // KisDocument, and krita doesn't use it.
             delete resources.take(KisTiffPsdResourceRecord::RESN_INFO);
         }
     }
 
-    // Preserve all the annotations
     for (const auto &resourceBlock : resources.values()) {
         psdImage->addAnnotation(resourceBlock);
     }
@@ -429,12 +408,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
 
     groupStack << psdImage->rootLayer().data();
 
-    /**
-     * PSD has a weird "optimization": if a group layer has only one
-     * child layer, it omits it's 'psd_bounding_divider' section. So
-     * fi you ever see an unbalanced layers group in PSD, most
-     * probably, it is just a single layered group.
-     */
     KisNodeSP lastAddedLayer;
 
     using LayerStyleMapping = QPair<QDomDocument, KisLayerSP>;
@@ -493,9 +466,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
                 QString compositeOp = psd_blendmode_to_composite_op(
                     layerRecord->infoBlocks.sectionDividerBlendMode);
 
-                // Krita doesn't support pass-through blend
-                // mode. Instead it is just a property of a group
-                // layer, so flip it
                 if (compositeOp == COMPOSITE_PASS_THROUGH) {
                     compositeOp = COMPOSITE_OVER;
                     groupLayer->setPassThroughMode(true);
@@ -505,15 +475,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
 
                 newLayer = groupLayer;
             } else {
-                /**
-                 * In some files saved by PS CS6 the group layer sections seem
-                 * to be unbalanced.  I don't know why it happens because the
-                 * reporter didn't provide us an example file. So here we just
-                 * check if the new layer was created, and if not, skip the
-                 * initialization of masks.
-                 *
-                 * See bug: 357559
-                 */
 
                 warnKrita << "WARNING: Provided PSD has unbalanced group "
                           << "layer markers. Some masks and/or layers can "
@@ -541,7 +502,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
                 allStylesXml << LayerStyleMapping(styleXml, layer);
             }
 
-            // XXX: does this require endianness handling?
             if (!layerRecord->readPixelData(photoshopLayerData,
                                             layer->paintDevice())) {
                 dbgFile << "failed reading channels for layer: "
@@ -577,11 +537,7 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
         lastAddedLayer = newLayer;
     }
 
-    // Only assign the image if the parsing was successful (for fallback
-    // purposes)
     this->m_image = psdImage;
-    // PS images only have one IFD plus the layer blob
-    // Ward off inconsistencies by blocking future attempts to parse them
     this->m_photoshopBlockParsed = true;
 
     return ImportExportCodes::OK;
@@ -608,14 +564,11 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
     KoColorTransformation *&transform = basicInfo.transform;
     uint8_t &dstDepth = basicInfo.dstDepth;
 
-    // Check if there is an alpha channel
-    int32_t alphapos = -1; // <- no alpha
+    int32_t alphapos = -1;
     bool hasPremultipliedAlpha = false;
-    // Check which extra is alpha if any
     dbgFile << "There are" << nbchannels << " channels and" << extrasamplescount
             << " extra channels";
-    if (sampleinfo) { // index images don't have any sampleinfo, and therefore
-                      // sampleinfo == 0
+    if (sampleinfo) {
         for (uint16_t i = 0; i < extrasamplescount; i++) {
             dbgFile << "sample" << i << "extra sample count"
                     << extrasamplescount << "color channel count"
@@ -623,16 +576,12 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
                     << nbchannels << "sample info" << sampleinfo[i];
             switch (sampleinfo[i]) {
             case EXTRASAMPLE_ASSOCALPHA:
-                // The color values are already multiplied with the alpha value.
-                // This is reversed in the postprocessor.
                 dbgPlugins << "Detected associated alpha @ " << i;
                 hasPremultipliedAlpha = true;
                 alphapos = static_cast<int32_t>(extrasamplescount
-                                                - 1U); // nbsamples - 1
+                                                - 1U);
                 break;
             case EXTRASAMPLE_UNASSALPHA:
-                // color values are not premultiplied with alpha, and can be
-                // used as they are.
                 alphapos = i;
                 break;
             case EXTRASAMPLE_UNSPECIFIED:
@@ -644,8 +593,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
             }
 
             if (sampleinfo[i] == EXTRASAMPLE_UNASSALPHA) {
-                // color values are not premultiplied with alpha, and can be
-                // used as they are.
                 alphapos = i;
             }
         }
@@ -653,7 +600,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
 
     dbgFile << "Alpha pos:" << alphapos;
 
-    // Read META Information
     KoDocumentInfo *info = m_doc->documentInfo();
     char *text = nullptr;
     if (TIFFGetField(image, TIFFTAG_ARTIST, &text) == 1) {
@@ -673,7 +619,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
 
     dbgFile << "Orientation:" << orientation;
 
-    // Try to get IPTC metadata
     uint32_t iptc_profile_size = 0;
     uint32_t *iptc_profile_data = nullptr;
     if (TIFFGetField(image,
@@ -684,20 +629,17 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
         dbgFile << "IPTC metadata not found!";
     }
 
-    // Try to get XMP metadata
     uint32_t xmp_size = 0;
     uint8_t *xmp_data = nullptr;
     if (TIFFGetField(image, TIFFTAG_XMLPACKET, &xmp_size, &xmp_data) == 0) {
         dbgFile << "XML metadata not found!";
     }
 
-    // Get the planar configuration
     uint16_t planarconfig = PLANARCONFIG_CONTIG;
     if (TIFFGetField(image, TIFFTAG_PLANARCONFIG, &planarconfig) == 0) {
         dbgFile << "Planar configuration is not defined";
         return ImportExportCodes::FileFormatIncorrect;
     }
-    // Creating the KisImageSP
     if (!m_image) {
         m_image = new KisImage(m_doc->createUndoStore(),
                                static_cast<qint32>(width),
@@ -707,8 +649,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(
             m_image,
             ImportExportCodes::InsufficientMemory);
-        // It is the "invert" macro because we
-        // convert from pointer-per-unit to points
         if (basicInfo.resolution == TiffResolution::INCH) {
             m_image->setResolution(POINT_TO_INCH(static_cast<qreal>(xres)), POINT_TO_INCH(static_cast<qreal>(yres)));
         } else {
@@ -731,7 +671,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
     std::unique_ptr<std::remove_pointer_t<tdata_t>, decltype(&_TIFFfree)> buf(
         nullptr,
         &_TIFFfree);
-    // used only for planar configuration separated
     auto ps_buf = make_unique_with_deleter(new QVector<uint8_t *>(),
                                            [](QVector<uint8_t *> *buf) {
                                                for (uint8_t *p : *buf)
@@ -742,7 +681,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
     QSharedPointer<KisBufferStreamBase> tiffstream = nullptr;
     QSharedPointer<KisTIFFReaderBase> tiffReader = nullptr;
 
-    // Configure poses
     uint16_t nbcolorsamples = nbchannels - extrasamplescount;
     const auto poses = [&]() -> std::array<quint8, 5> {
         switch (color_type) {
@@ -790,13 +728,12 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
         }
     }();
 
-    // Initialize tiffReader
     QVector<uint16_t> lineSizeCoeffs(nbchannels, 1);
     uint16_t vsubsampling = 1;
     uint16_t hsubsampling = 1;
     if (color_type == PHOTOMETRIC_PALETTE) {
         uint16_t *red =
-            nullptr; // No need to free them they are free by libtiff
+            nullptr;
         uint16_t *green = nullptr;
         uint16_t *blue = nullptr;
         if ((TIFFGetField(image, TIFFTAG_COLORMAP, &red, &green, &blue)) == 0) {
@@ -1248,8 +1185,7 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
         dbgFile << rowsPerStrip << "" << height;
         rowsPerStrip =
             qMin(rowsPerStrip,
-                 height); // when TIFFNumberOfStrips(image) == 1 it might happen
-                          // that rowsPerStrip is incorrectly set
+                 height);
         if (planarconfig == PLANARCONFIG_CONTIG
             && !(color_type == PHOTOMETRIC_YCBCR
                  && compression == COMPRESSION_JPEG && hsubsampling != 1
@@ -1434,8 +1370,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
     layer->paintDevice()->setX(static_cast<int>(basicInfo.x * basicInfo.xres));
     layer->paintDevice()->setY(static_cast<int>(basicInfo.y * basicInfo.yres));
 
-    // Process rotation before handing image over
-    // https://developer.apple.com/documentation/imageio/cgimagepropertyorientation
     switch (orientation) {
     case ORIENTATION_TOPRIGHT:
         KisTransformWorker::mirrorX(layer->paintDevice());
@@ -1464,12 +1398,10 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
         break;
     }
 
-    // Process IPTC metadata
     if (iptc_profile_size > 0 && iptc_profile_data != nullptr) {
         dbgFile << "Loading IPTC profile. Size: "
                 << sizeof(uint32_t) * iptc_profile_size;
 
-        // warning: profile is an array of uint32_t's
         if (TIFFIsByteSwapped(image) != 0) {
             TIFFSwabArrayOfLong(iptc_profile_data,
                                 iptc_profile_size / sizeof(uint32_t));
@@ -1478,21 +1410,18 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
         KisMetaData::IOBackend *iptcIO =
             KisMetadataBackendRegistry::instance()->value("iptc");
 
-        // Copy the xmp data into the byte array
         QByteArray ba(reinterpret_cast<const char *>(iptc_profile_data),
                       static_cast<int>(iptc_profile_size));
         QBuffer buf(&ba);
         iptcIO->loadFrom(layer->metaData(), &buf);
     }
 
-    // Process XMP metadata
     if (xmp_size > 0 && xmp_data != nullptr) {
         dbgFile << "Loading XMP data. Size: " << xmp_size;
 
         KisMetaData::IOBackend *xmpIO =
             KisMetadataBackendRegistry::instance()->value("xmp");
 
-        // Copy the xmp data into the byte array
         QByteArray ba(reinterpret_cast<char *>(xmp_data),
                       static_cast<int>(xmp_size));
         QBuffer buf(&ba);
@@ -1505,8 +1434,6 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
 KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIFF *image, KisTiffBasicInfo &basicInfo)
 {
 #ifdef TIFF_HAS_PSD_TAGS
-  // Attempt to parse PS metadata
-    // if it succeeds, divert and load as PSD
 
     if (!m_photoshopBlockParsed) {
         QBuffer photoshopLayerData;
@@ -1521,7 +1448,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIF
         KisTiffPsdResourceRecord photoshopImageResourceRecord;
 
         {
-            // Determine if we have PS metadata
             uint32_t length{0};
             uint8_t *data{nullptr};
 
@@ -1544,7 +1470,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIF
         }
 
         {
-            // Determine if we have PS metadata
             uint32_t length{0};
             uint8_t *data{nullptr};
 
@@ -1613,7 +1538,6 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIF
 KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
                                                           TIFF *image)
 {
-    // Read information about the tiff
 
     KisTiffBasicInfo basicInfo;
 
@@ -1629,19 +1553,16 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
 
     if (TIFFGetField(image, TIFFTAG_XRESOLUTION, &basicInfo.xres) == 0 || basicInfo.xres == 0) {
         dbgFile << "Image does not define x resolution";
-        // but we don't stop
         basicInfo.xres = 100;
     }
 
     if (TIFFGetField(image, TIFFTAG_YRESOLUTION, &basicInfo.yres) == 0 || basicInfo.yres == 0) {
         dbgFile << "Image does not define y resolution";
-        // but we don't stop
         basicInfo.yres = 100;
     }
 
     if (TIFFGetField(image, TIFFTAG_RESOLUTIONUNIT, &basicInfo.resolution) == 0) {
         dbgFile << "Image does not define resolution unit";
-        // but we don't stop
         basicInfo.resolution = TiffResolution::INCH;
     }
 
@@ -1666,15 +1587,12 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
         basicInfo.sampletype = SAMPLEFORMAT_UINT;
     }
 
-    // Determine the number of channels (useful to know if a file has an alpha
-    // or not
     if (TIFFGetField(image, TIFFTAG_SAMPLESPERPIXEL, &basicInfo.nbchannels)
         == 0) {
         dbgFile << "Image has an undefined number of samples per pixel";
         basicInfo.nbchannels = 0;
     }
 
-    // Get the number of extrasamples and information about them
     if (TIFFGetField(image,
                      TIFFTAG_EXTRASAMPLES,
                      &basicInfo.extrasamplescount,
@@ -1683,7 +1601,6 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
         basicInfo.extrasamplescount = 0;
     }
 
-    // Determine the colorspace
     if (TIFFGetField(image, TIFFTAG_PHOTOMETRIC, &basicInfo.color_type) == 0) {
         dbgFile << "Image has an undefined photometric interpretation";
         basicInfo.color_type = PHOTOMETRIC_MINISWHITE;
@@ -1709,7 +1626,6 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
             << basicInfo.depth << " and with a nb of channels of"
             << basicInfo.nbchannels;
 
-    // Read image profile
     dbgFile << "Reading profile";
     const KoColorProfile *profile = nullptr;
     quint32 EmbedLen = 0;
@@ -1729,7 +1645,6 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
         basicInfo.colorSpaceIdTag.first,
         basicInfo.colorSpaceIdTag.second);
 
-    // Check that the profile is used by the color space
     if (profile) {
             if (!KoColorSpaceRegistry::instance()->profileIsCompatible(profile, colorSpaceId)
             ||  !(profile->isSuitableForInput() || profile->isSuitableForOutput())) {
@@ -1741,9 +1656,6 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
         }
     }
 
-    // Do not use the linear gamma profile for 16 bits/channel by default, tiff
-    // files are usually created with gamma correction. XXX: Should we ask the
-    // user?
     if (!profile) {
         dbgFile << "No profile found; trying to assign a default one.";
         if (basicInfo.colorSpaceIdTag.first == RGBAColorModelID.id()) {
@@ -1767,7 +1679,6 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
         }
     }
 
-    // Retrieve a pointer to the colorspace
     if (profile && profile->isSuitableForWorkspace()) {
         dbgFile << "image has embedded profile:" << profile->name() << "";
         basicInfo.cs = KoColorSpaceRegistry::instance()->colorSpace(
@@ -1775,8 +1686,6 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
             basicInfo.colorSpaceIdTag.second,
             profile);
     } else {
-        // Ensure an empty profile name is supplied so that the fallback logic
-        // in KoColorSpaceRegistry is triggered. BUG:464848
         basicInfo.cs = KoColorSpaceRegistry::instance()->colorSpace(basicInfo.colorSpaceIdTag.first,
                                                                     basicInfo.colorSpaceIdTag.second,
                                                                     "");
@@ -1789,7 +1698,6 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
         return ImportExportCodes::FormatColorSpaceUnsupported;
     }
 
-  // Create the cmsTransform if needed
   if (profile && !profile->isSuitableForWorkspace() && profile->isSuitableForInput()) {
       dbgFile << "The profile can't be used in krita, need conversion";
       basicInfo.transform =
@@ -1813,8 +1721,8 @@ KisImportExportErrorCode KisTIFFImport::readTIFFDirectory(KisDocument *m_doc,
 
 KisImportExportErrorCode
 KisTIFFImport::convert(KisDocument *document,
-                       QIODevice * /*io*/,
-                       KisPropertiesConfigurationSP /*configuration*/)
+                       QIODevice * ,
+                       KisPropertiesConfigurationSP )
 {
     dbgFile << "Start decoding TIFF File";
 
@@ -1830,10 +1738,8 @@ KisTIFFImport::convert(KisDocument *document,
         return KisImportExportErrorCode(KisImportExportErrorCannotRead(file.error()));
     }
 
-    // Open the TIFF file
     const QByteArray encodedFilename = QFile::encodeName(filename());
 
-    // https://gitlab.com/libtiff/libtiff/-/issues/173
 #ifdef Q_OS_WIN
     const intptr_t handle = _get_osfhandle(file.handle());
 #else
@@ -1855,8 +1761,6 @@ KisTIFFImport::convert(KisDocument *document,
     }
 
     if (!m_photoshopBlockParsed) {
-        // PS images only have one IFD plus the layer blob
-        // Ward off inconsistencies by blocking future attempts to parse them
         m_photoshopBlockParsed = true;
         while (TIFFReadDirectory(image.get())) {
             result = readTIFFDirectory(document, image.get());
@@ -1865,13 +1769,10 @@ KisTIFFImport::convert(KisDocument *document,
             }
         }
     }
-    // Freeing memory
     image.reset();
     file.close();
 
     {
-        // HACK!! Externally parse the Exif metadata
-        // libtiff has no way to access the fields wholesale
         try {
             KisExiv2IODevice::ptr_type basicIoDevice(new KisExiv2IODevice(filename()));
 
@@ -1886,17 +1787,14 @@ KisTIFFImport::convert(KisDocument *document,
             const KisMetaData::IOBackend *io =
                 KisMetadataBackendRegistry::instance()->value("exif");
 
-            // All IFDs are paint layer children of root
             KisNodeSP node = m_image->rootLayer()->firstChild();
 
             QBuffer ioDevice;
 
             {
-                // Synthesize the Exif blob
                 Exiv2::ExifData tempData;
                 Exiv2::Blob tempBlob;
 
-                // NOTE: do not use std::copy_if, auto_ptrs beware
                 for (const Exiv2::Exifdatum &i : readImg->exifData()) {
                     const uint16_t tag = i.tag();
 
@@ -1927,17 +1825,14 @@ KisTIFFImport::convert(KisDocument *document,
                     tempData.add(i);
                 }
 
-                // Encode into temporary blob
                 Exiv2::ExifParser::encode(tempBlob,
                                           Exiv2::littleEndian,
                                           tempData);
 
-                // Reencode into Qt land
                 ioDevice.setData(reinterpret_cast<char *>(tempBlob.data()),
                                  static_cast<int>(tempBlob.size()));
             }
 
-            // Get layer
             KisLayer *layer = qobject_cast<KisLayer *>(node.data());
             KIS_ASSERT_RECOVER(layer)
             {
@@ -1945,7 +1840,6 @@ KisTIFFImport::convert(KisDocument *document,
                 return ImportExportCodes::InternalError;
             }
 
-            // Inject the data as any other IOBackend
             io->loadFrom(layer->metaData(), &ioDevice);
 #if EXIV2_TEST_VERSION(0,28,0)
         } catch (Exiv2::Error &e) {

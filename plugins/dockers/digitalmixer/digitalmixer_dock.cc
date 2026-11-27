@@ -47,13 +47,10 @@ DigitalMixerDock::DigitalMixerDock( )
     QWidget* widget = new QWidget(this);
     QGridLayout* layout = new QGridLayout( widget );
 
-    // Current Color
     m_currentColorPatch = new KoColorPatch(this);
     m_currentColorPatch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_currentColorPatch->setMinimumWidth(48);
     layout->addWidget(m_currentColorPatch, 0, 0,3,1);
-
-    // Create the sliders
 
     KisSignalMapper* signalMapperSelectColor = new KisSignalMapper(this);
     connect(signalMapperSelectColor, SIGNAL(mapped(int)), SLOT(popupColorChanged(int)));
@@ -91,7 +88,6 @@ DigitalMixerDock::DigitalMixerDock( )
         signalMapperTargetColor->setMapping(mixer.targetColor, i);
     }
 
-    //Gradient Mixer
     KisSignalMapper* signalMapperGradientStartColor = new KisSignalMapper(this);
     connect(signalMapperGradientStartColor, SIGNAL(mapped(int)), SLOT(gradientStartColorChanged(int)));
 
@@ -104,7 +100,6 @@ DigitalMixerDock::DigitalMixerDock( )
     KisSignalMapper* signalMapperGradientTargetColor = new KisSignalMapper(this);
     connect(signalMapperGradientTargetColor, SIGNAL(mapped(int)), SLOT(gradientTargetColorChanged(int)));
 
-
     m_gradientMixer.targetColor = new DigitalMixerPatch(this);
     m_gradientMixer.targetColor->setFixedSize(32,32);
     layout->addWidget(m_gradientMixer.targetColor, 3, 0);
@@ -115,9 +110,6 @@ DigitalMixerDock::DigitalMixerDock( )
 
     m_gradientMixer.targetSlider = new KoColorSlider(Qt::Horizontal, this);
     m_gradientMixer.targetSlider->setFixedHeight(22);
-    // m_gradientMixer.targetSlider->setMinimumWidth(20);
-    // m_gradientMixer.targetSlider->setMaximumWidth(120);
-    // m_gradientMixer.targetSlider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     layout->addWidget(m_gradientMixer.targetSlider, 3, 2, 1, 4);
 
     m_gradientMixer.endColor = new KisColorButton(this);
@@ -142,7 +134,7 @@ DigitalMixerDock::DigitalMixerDock( )
     layout->addWidget(m_reset_button, 0, 0, Qt::AlignLeft);
     connect(m_reset_button, SIGNAL(clicked()), SLOT(resetMixer()));
 
-    resetMixer(); // reset colors to default
+    resetMixer();
     setWidget( widget );
 }
 
@@ -166,7 +158,6 @@ void DigitalMixerDock::setCanvas(KoCanvasBase * canvas)
     }
 }
 
-
 void DigitalMixerDock::gradientStartColorChanged(int id)
 {
     KoColor color = m_gradientMixer.startColor->color();
@@ -177,7 +168,7 @@ void DigitalMixerDock::gradientStartColorChanged(int id)
     gradientColorSliderChanged(id);
 }
 
-void DigitalMixerDock::gradientColorSliderChanged(int /*id*/)
+void DigitalMixerDock::gradientColorSliderChanged(int )
 {
     m_gradientMixer.targetColor->setColor(m_gradientMixer.targetSlider->currentColor());
 }
@@ -192,7 +183,7 @@ void DigitalMixerDock::gradientEndColorChanged(int id)
     gradientColorSliderChanged(id);
 }
 
-void DigitalMixerDock::gradientTargetColorChanged(int /*id*/)
+void DigitalMixerDock::gradientTargetColorChanged(int )
 {
     setCurrentColor(m_gradientMixer.targetColor->color());
 }
@@ -288,7 +279,6 @@ void DigitalMixerDock::saveToWorkspace(KisWorkspaceResourceSP workspace)
 
 static void useColor(const KisPropertiesConfiguration &conf, KisColorButton* colorButton, const QString &color)
 {
-  // Do not change if undefined
   KoColor koColor = conf.getColor(color, colorButton->color());
   colorButton->setColor(koColor);
 }

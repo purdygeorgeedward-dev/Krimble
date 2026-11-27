@@ -16,7 +16,7 @@
 
 #include <math.h>
 
-#include <qnumeric.h> // for qIsNaN
+#include <qnumeric.h>
 static bool qIsNaNPoint(const QPointF &p) {
     return qIsNaN(p.x()) || qIsNaN(p.y());
 }
@@ -155,12 +155,10 @@ void KoPathPoint::removeControlPoint2()
 void KoPathPoint::setProperties(PointProperties properties)
 {
     d->properties = properties;
-    // CloseSubpath only allowed with StartSubpath or StopSubpath
     if ((d->properties & StartSubpath) == 0 && (d->properties & StopSubpath) == 0)
         d->properties &= ~CloseSubpath;
 
     if (! activeControlPoint1() || ! activeControlPoint2()) {
-        // strip smooth and symmetric flags if point has not two control points
         d->properties &= ~IsSmooth;
         d->properties &= ~IsSymmetric;
     }
@@ -175,7 +173,6 @@ void KoPathPoint::setProperty(PointProperty property)
     case StartSubpath:
     case StopSubpath:
     case CloseSubpath:
-        // nothing special to do here
         break;
     case IsSmooth:
         d->properties &= ~IsSymmetric;
@@ -189,7 +186,6 @@ void KoPathPoint::setProperty(PointProperty property)
     d->properties |= property;
 
     if (! activeControlPoint1() || ! activeControlPoint2()) {
-        // strip smooth and symmetric flags if point has not two control points
         d->properties &= ~IsSymmetric;
         d->properties &= ~IsSmooth;
     }
@@ -214,7 +210,6 @@ void KoPathPoint::unsetProperty(PointProperty property)
         break;
     case IsSmooth:
     case IsSymmetric:
-        // no others depend on these
         break;
     default: return;
     }
@@ -223,7 +218,6 @@ void KoPathPoint::unsetProperty(PointProperty property)
 
 bool KoPathPoint::activeControlPoint1() const
 {
-    // only start point on closed subpaths can have a controlPoint1
     if ((d->properties & StartSubpath) && (d->properties & CloseSubpath) == 0)
         return false;
 
@@ -232,7 +226,6 @@ bool KoPathPoint::activeControlPoint1() const
 
 bool KoPathPoint::activeControlPoint2() const
 {
-    // only end point on closed subpaths can have a controlPoint2
     if ((d->properties & StopSubpath) && (d->properties & CloseSubpath) == 0)
         return false;
 
@@ -254,7 +247,6 @@ void KoPathPoint::paint(KisHandlePainterHelper &handlesHelper, PointTypes types,
     bool drawControlPoint1 = types & ControlPoint1 && (!active || activeControlPoint1());
     bool drawControlPoint2 = types & ControlPoint2 && (!active || activeControlPoint2());
 
-    // draw lines at the bottom
     if (drawControlPoint2) {
         handlesHelper.drawConnectionLine(point(), controlPoint2());
     }
@@ -263,7 +255,6 @@ void KoPathPoint::paint(KisHandlePainterHelper &handlesHelper, PointTypes types,
         handlesHelper.drawConnectionLine(point(), controlPoint1());
     }
 
-    // the point is lowest
     if (types & Node) {
         if (properties() & IsSmooth) {
             handlesHelper.drawHandleCircle(point());
@@ -274,12 +265,10 @@ void KoPathPoint::paint(KisHandlePainterHelper &handlesHelper, PointTypes types,
         }
     }
 
-    // then comes control point 2
     if (drawControlPoint2) {
         handlesHelper.drawHandleSmallCircle(controlPoint2());
     }
 
-    // then comes control point 1
     if (drawControlPoint1) {
         handlesHelper.drawHandleSmallCircle(controlPoint1());
     }
@@ -287,8 +276,6 @@ void KoPathPoint::paint(KisHandlePainterHelper &handlesHelper, PointTypes types,
 
 void KoPathPoint::setParent(KoPathShape* parent)
 {
-    // don't set to zero
-    //Q_ASSERT(parent);
     d->shape = parent;
 }
 
@@ -331,7 +318,6 @@ bool KoPathPoint::isSmooth(KoPathPoint * prev, KoPathPoint * next) const
     if (activeControlPoint1()) {
         t1 = point() - controlPoint1();
     } else {
-        // we need the previous path point but there is none provided
         if (! prev)
             return false;
         if (prev->activeControlPoint2())
@@ -343,7 +329,6 @@ bool KoPathPoint::isSmooth(KoPathPoint * prev, KoPathPoint * next) const
     if (activeControlPoint2()) {
         t2 = controlPoint2() - point();
     } else {
-        // we need the next path point but there is none provided
         if (! next)
             return false;
         if (next->activeControlPoint1())
@@ -352,7 +337,6 @@ bool KoPathPoint::isSmooth(KoPathPoint * prev, KoPathPoint * next) const
             t2 = next->point() - point();
     }
 
-    // normalize tangent vectors
     qreal l1 = sqrt(t1.x() * t1.x() + t1.y() * t1.y());
     qreal l2 = sqrt(t2.x() * t2.x() + t2.y() * t2.y());
     if (qFuzzyCompare(l1 + 1, qreal(1.0)) || qFuzzyCompare(l2 + 1, qreal(1.0)))
@@ -362,7 +346,6 @@ bool KoPathPoint::isSmooth(KoPathPoint * prev, KoPathPoint * next) const
     t2 /= l2;
 
     qreal scalar = t1.x() * t2.x() + t1.y() * t2.y();
-    // tangents are parallel if t1*t2 = |t1|*|t2|
     return qFuzzyCompare(scalar, qreal(1.0));
 }
 

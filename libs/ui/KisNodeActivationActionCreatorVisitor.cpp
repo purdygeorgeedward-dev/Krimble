@@ -17,7 +17,6 @@ KisNodeActivationActionCreatorVisitor::KisNodeActivationActionCreatorVisitor(Kis
 {
 }
 
-
 bool KisNodeActivationActionCreatorVisitor::createAction(KisNode *node)
 {
     if (!node->projectionLeaf()->isRoot()) {

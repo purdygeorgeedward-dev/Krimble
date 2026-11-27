@@ -40,7 +40,6 @@
 #include "KisDumbTransformMaskParams.h"
 #include <KisGlobalResourcesInterface.h>
 
-
 KisSelectionSP createPixelSelection(KisPaintDeviceSP paintDevice)
 {
     KisSelectionSP pixelSelection = new KisSelection(new KisSelectionDefaultBounds(paintDevice), KisImageResolutionProxy::identity());
@@ -109,7 +108,6 @@ KisDocument* createCompleteDocument()
         gc.end();
     }
 
-
     KisCloneLayerSP cloneLayer1 = new KisCloneLayer(group1, image, "clonelayer1", 150);
     cloneLayer1->setX(100);
     cloneLayer1->setY(100);
@@ -129,9 +127,6 @@ KisDocument* createCompleteDocument()
     image->addNode(cloneLayer1, group2);
     image->addNode(adjustmentLayer1, group2);
 
-//    KoShapeContainer * parentContainer =
-//        dynamic_cast<KoShapeContainer*>(doc->shapeForNode(group1));
-
     KoPathShape* path = new KoPathShape();
     path->setShapeId(KoPathShapeId);
     path->moveTo(QPointF(10, 10));
@@ -149,7 +144,7 @@ KisDocument* createCompleteDocument()
 
     kfc = KisFilterRegistry::instance()->get("pixelize")->defaultConfiguration(KisGlobalResourcesInterface::instance());
     filterMask1->setFilter(kfc->cloneWithResourcesSnapshot());
-    kfc = 0; // kfc cannot be shared!
+    kfc = 0;
 
     filterMask1->setSelection(createPixelSelection(paintLayer1->paintDevice()));
     image->addNode(filterMask1, paintLayer1);
@@ -158,7 +153,7 @@ KisDocument* createCompleteDocument()
 
     kfc = KisFilterRegistry::instance()->get("pixelize")->defaultConfiguration(KisGlobalResourcesInterface::instance());
     filterMask2->setFilter(kfc->cloneWithResourcesSnapshot());
-    kfc = 0; // kfc cannot be shared!
+    kfc = 0;
 
     filterMask2->setSelection(createVectorSelection(paintLayer2->paintDevice(), image, doc->shapeController()));
     image->addNode(filterMask2, paintLayer2);
@@ -199,6 +194,5 @@ KisDocument *createEmptyDocument()
 
     return doc;
 }
-
 
 #endif

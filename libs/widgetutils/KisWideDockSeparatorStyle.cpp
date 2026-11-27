@@ -113,8 +113,6 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
         painter->restore();
         return;
 
-        // (3rd) draw nothing at all, and the older versions below, are kept, not deleted. They are not reached.
-        // (2nd) three larger dots (radius 3 logical pixels, which is about 8 device pixels: too big):
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
         painter->setPen(Qt::NoPen);

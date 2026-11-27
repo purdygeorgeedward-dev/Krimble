@@ -56,37 +56,24 @@ public:
     CanvasData *createCanvasData(KoCanvasController *controller, const KoInputDevice &device);
     KoToolBase* createTool(KoCanvasController *controller, KoToolAction *toolAction);
 
-    /**
-     * Request a switch from to the param input device.
-     * This will cause the tool for that device to be selected.
-     */
     void switchInputDevice(const KoInputDevice &device);
 
-    /**
-     * Whenever a new tool proxy class is instantiated, it will use this method to register itself
-     * so the toolManager can update it to the latest active tool.
-     * @param proxy the proxy to register.
-     * @param canvas which canvas the proxy is associated with; whenever a new tool is selected for that canvas,
-     *        the proxy gets an update.
-     */
     void registerToolProxy(KoToolProxy *proxy, KoCanvasBase *canvas);
 
     KoToolManager *q;
 
-    QList<KoToolAction*> toolActionList; // list of all available tools via their actions.
+    QList<KoToolAction*> toolActionList;
 
     QHash<KoCanvasController*, QList<CanvasData*> > canvasses;
     QHash<KoCanvasBase*, KoToolProxy*> proxies;
 
-    CanvasData *canvasData; // data about the active canvas.
+    CanvasData *canvasData;
 
     KoInputDevice inputDevice;
 
     bool layerExplicitlyDisabled;
 };
 
-/// \internal
-/// Helper class to transform a simple signal selection changed into a signal with a parameter
 class Connector : public QObject
 {
     Q_OBJECT

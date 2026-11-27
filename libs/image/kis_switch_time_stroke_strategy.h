@@ -14,7 +14,6 @@
 class KisImageAnimationInterface;
 class KisPostExecutionUndoAdapter;
 
-
 class KisSwitchTimeStrokeStrategy : public KisSimpleStrokeStrategy
 {
 public:
@@ -34,12 +33,6 @@ public:
     typedef QWeakPointer<SharedToken> SharedTokenWSP;
 
 public:
-    /**
-     * Switches current time to \p frameId
-     *
-     * NOTE: switching time *does* end all the running stroke, because it is
-     *       not a background action, but a distinct user action.
-     */
     KisSwitchTimeStrokeStrategy(int frameId,
                                 bool needsRegeneration,
                                 KisImageAnimationInterface *interface,
@@ -51,10 +44,9 @@ public:
 
     SharedTokenSP token() const;
 
-
 private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_SWITCH_TIME_STROKE_STRATEGY_H */
+#endif

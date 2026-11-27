@@ -19,7 +19,6 @@ struct KisSprayPaintOpSettings::Private
     QList<KisUniformPaintOpPropertyWSP> uniformProperties;
 };
 
-
 KisSprayPaintOpSettings::KisSprayPaintOpSettings(KisResourcesInterfaceSP resourcesInterface)
     : KisOutlineGenerationPolicy<KisPaintOpSettings>(KisCurrentOutlineFetcher::SIZE_OPTION |
                                                      KisCurrentOutlineFetcher::ROTATION_OPTION,
@@ -66,7 +65,6 @@ bool KisSprayPaintOpSettings::paintIncremental()
     return data.paintingMode == enumPaintingMode::BUILDUP;
 }
 
-
 KisOptimizedBrushOutline KisSprayPaintOpSettings::brushOutline(const KisPaintInformation &info, const OutlineMode &mode, qreal alignForZoom)
 {
     KisOptimizedBrushOutline path;
@@ -90,7 +88,6 @@ KisOptimizedBrushOutline KisSprayPaintOpSettings::brushOutline(const KisPaintInf
 #include "kis_paintop_preset.h"
 #include "KisPaintOpPresetUpdateProxy.h"
 #include "kis_standard_uniform_properties_factory.h"
-
 
 QList<KisUniformPaintOpPropertySP> KisSprayPaintOpSettings::uniformProperties(KisPaintOpSettingsSP settings, QPointer<KisPaintOpPresetUpdateProxy> updateProxy)
 {

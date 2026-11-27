@@ -36,5 +36,4 @@ public:
     QRect changedRect(const QRect & rect, const KisFilterConfigurationSP _config, int lod) const override;
 };
 
-
-#endif // KIS_CONVERT_HEIGHT_TO_NORMAL_MAP_FILTER_H
+#endif

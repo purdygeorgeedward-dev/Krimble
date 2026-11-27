@@ -15,7 +15,6 @@
 
 #include <QScopedPointer>
 
-
 class KisHatchingPaintOpSettings : public KisBrushBasedPaintOpSettings
 {
 
@@ -23,7 +22,6 @@ public:
     KisHatchingPaintOpSettings(KisResourcesInterfaceSP resourcesInterface);
     ~KisHatchingPaintOpSettings() override;
 
-    //Dialogs enabled
     bool enabledcurveangle {false};
     bool enabledcurvecrosshatching {false};
     bool enabledcurveopacity {false};
@@ -31,7 +29,6 @@ public:
     bool enabledcurvesize {false};
     bool enabledcurvethickness {false};
 
-    //Hatching Options
     double angle {0.0};
     double separation {0.0};
     double thickness {0.0};
@@ -45,14 +42,10 @@ public:
     int crosshatchingstyle {0};
     int separationintervals {0};
 
-    //Hatching Preferences
-    //bool trigonometryalgebra {false};
-    //bool scratchoff {false};
     bool antialias {false};
     bool subpixelprecision {false};
     bool opaquebackground {false};
 
-    //Angle, Crosshatching, Separation and Thickness curves
     double anglesensorvalue {0.0};
     double crosshatchingsensorvalue {0.0};
     double separationsensorvalue {0.0};

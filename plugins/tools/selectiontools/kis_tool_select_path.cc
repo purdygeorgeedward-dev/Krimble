@@ -39,8 +39,6 @@ void KisToolSelectPath::requestStrokeCancellation()
     localTool()->cancelPath();
 }
 
-// Install an event filter to catch right-click events.
-// This code is duplicated in kis_tool_path.cc
 bool KisToolSelectPath::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
@@ -96,7 +94,6 @@ void KisDelegatedSelectPathWrapper::beginPrimaryDoubleClickAction(KoPointerEvent
 
 void KisDelegatedSelectPathWrapper::mousePressEvent(KoPointerEvent *event)
 {
-    // this event will be forwarded using beginPrimaryAction
     Q_UNUSED(event);
 }
 
@@ -104,7 +101,6 @@ void KisDelegatedSelectPathWrapper::mouseMoveEvent(KoPointerEvent *event)
 {
     DelegatedSelectPathTool::mouseMoveEvent(event);
 
-    // WARNING: the code is duplicated from KisToolPaint::requestUpdateOutline
     KisCanvas2 *kiscanvas = qobject_cast<KisCanvas2*>(canvas());
     KisPaintingAssistantsDecorationSP decoration = kiscanvas->paintingAssistantsDecoration();
     if (decoration && decoration->visible() && decoration->hasPaintableAssistants()) {
@@ -114,13 +110,11 @@ void KisDelegatedSelectPathWrapper::mouseMoveEvent(KoPointerEvent *event)
 
 void KisDelegatedSelectPathWrapper::mouseReleaseEvent(KoPointerEvent *event)
 {
-    // this event will be forwarded using continuePrimaryAction
     Q_UNUSED(event);
 }
 
 void KisDelegatedSelectPathWrapper::mouseDoubleClickEvent(KoPointerEvent *event)
 {
-    // this event will be forwarded using endPrimaryAction
     Q_UNUSED(event);
 }
 
@@ -187,8 +181,6 @@ void __KisToolSelectPathLocalTool::addPathShape(KoPathShape* pathShape)
             -> KUndo2Command * {
                 KisPainter painter(tmpSel);
                 painter.setPaintColor(KoColor(Qt::black, tmpSel->colorSpace()));
-                // Since the feathering already smooths the selection, the
-                // antiAlias is not applied if we must feather
                 painter.setAntiAliasPolygonFill(antiAlias && feather == 0);
                 painter.setFillStyle(KisPainter::FillStyleForegroundColor);
                 painter.setStrokeStyle(KisPainter::StrokeStyleNone);
@@ -265,5 +257,4 @@ void KisToolSelectPath::resetCursorStyle()
         KisToolSelectBase<KisDelegatedSelectPathWrapper>::resetCursorStyle();
     }
 }
-
 

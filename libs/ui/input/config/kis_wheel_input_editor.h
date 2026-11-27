@@ -17,9 +17,6 @@ namespace Ui
 class KisWheelInputEditor;
 }
 
-/**
- * \brief An editor widget for mouse wheel input with modifiers.
- */
 class KisWheelInputEditor : public QPushButton
 {
     Q_OBJECT
@@ -41,4 +38,4 @@ private:
     Private *const d {nullptr};
 };
 
-#endif // KISWHEELINPUTEDITOR_H
+#endif

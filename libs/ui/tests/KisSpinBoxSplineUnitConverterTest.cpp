@@ -8,9 +8,7 @@
 #include <testutil.h>
 #include <testui.h>
 
-
 #include <KisSpinBoxSplineUnitConverterTest.h>
-
 
 void KisSpinBoxSplineUnitConverterTest::testCurveCalculationToCurve_data()
 {
@@ -21,7 +19,6 @@ void KisSpinBoxSplineUnitConverterTest::testCurveCalculationToCurve_data()
 
     QTest::newRow("0.6 in (0, 10) = 6") << 6 << 0 << 10 << 0.6;
 }
-
 
 void KisSpinBoxSplineUnitConverterTest::testCurveCalculationToCurve()
 {
@@ -71,14 +68,12 @@ void KisSpinBoxSplineUnitConverterTest::testCurveCalculationTwoWay_data()
     QTest::newRow("0.3 in (10, 0) = 7") << 0.3 << 10 << 0 << 7;
 }
 
-
 void KisSpinBoxSplineUnitConverterTest::testCurveCalculationTwoWay()
 {
     QFETCH(double, xDouble);
     QFETCH(int, min);
     QFETCH(int, max);
     QFETCH(int, xInt);
-
 
     int resultInt = converter.sp2io(xDouble, min, max);
     QCOMPARE(resultInt, xInt);
@@ -97,7 +92,5 @@ void KisSpinBoxSplineUnitConverterTest::testCurveCalculationCase64()
 
     QCOMPARE(resultInt, inX);
 }
-
-
 
 KISTEST_MAIN(KisSpinBoxSplineUnitConverterTest)

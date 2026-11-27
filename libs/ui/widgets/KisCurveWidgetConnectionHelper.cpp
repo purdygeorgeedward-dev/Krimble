@@ -11,7 +11,6 @@
 #include "kis_cubic_curve.h"
 #include "kis_curve_widget.h"
 
-
 namespace {
 class ConnectCurveWidgetHelper : public QObject
 {

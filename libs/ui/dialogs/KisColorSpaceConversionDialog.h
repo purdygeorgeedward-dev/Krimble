@@ -8,7 +8,6 @@
 #ifndef KISCOLORSPACECONVERSIONDIALOG_H
 #define KISCOLORSPACECONVERSIONDIALOG_H
 
-
 #include <QButtonGroup>
 
 #include <KoDialog.h>
@@ -33,9 +32,6 @@ public:
     }
 };
 
-/**
- * XXX
- */
 class KRITAUI_EXPORT KisColorSpaceConversionDialog : public KoDialog
 {
 
@@ -65,4 +61,4 @@ private:
     KisImageSP m_image;
 };
 
-#endif // KISCOLORSPACECONVERSIONDIALOG_H
+#endif

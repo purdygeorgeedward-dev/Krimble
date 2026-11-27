@@ -4,11 +4,9 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
 #include "kis_tool_movetooloptionswidget.h"
 #include <ksharedconfig.h>
 #include <KoUnit.h>
-
 
 MoveToolOptionsWidget::MoveToolOptionsWidget(QWidget *parent, int resolution, QString toolId)
   : QWidget(parent)
@@ -18,8 +16,6 @@ MoveToolOptionsWidget::MoveToolOptionsWidget(QWidget *parent, int resolution, QS
     setupUi(this);
     m_configGroup = KSharedConfig::openConfig()->group(toolId);
 
-
-    // load radio button
     m_moveToolMode = static_cast<KisToolMove::MoveToolMode>(m_configGroup.readEntry("moveToolMode", 0));
     if(m_moveToolMode == KisToolMove::MoveSelectedLayer)
         radioSelectedLayer->setChecked(true);
@@ -28,21 +24,18 @@ MoveToolOptionsWidget::MoveToolOptionsWidget(QWidget *parent, int resolution, QS
     else
         radioGroup->setChecked(true);
 
-    // Keyboard shortcut move step
     m_moveStep = m_configGroup.readEntry<int>("moveToolStep", 1);
     m_moveStepUnit = m_configGroup.readEntry<int>("moveToolUnit", KoUnit(KoUnit::Pixel).indexInListForUi());
     cmbUnit->addItems(KoUnit::listOfUnitNameForUi());
     cmbUnit->setCurrentIndex(m_moveStepUnit);
     updateUIUnit(m_moveStepUnit);
 
-    // Scale for large moves
     m_moveScale = m_configGroup.readEntry<int>("moveToolScale", 10.0);
     spinMoveScale->blockSignals(true);
     spinMoveScale->setValue(m_moveScale);
     spinMoveScale->setSuffix("x");
     spinMoveScale->blockSignals(false);
 
-    // Switch mode for showing coordinates
     m_showCoordinates = m_configGroup.readEntry("moveToolShowCoordinates", false);
     connect(chkShowCoordinates, SIGNAL(toggled(bool)), SIGNAL(showCoordinatesChanged(bool)));
 
@@ -92,7 +85,6 @@ void MoveToolOptionsWidget::on_spinMoveScale_valueChanged(double UIMoveScale)
     m_moveScale = UIMoveScale;
     m_configGroup.writeEntry("moveToolScale", m_moveScale);
 }
-
 
 void MoveToolOptionsWidget::on_cmbUnit_currentIndexChanged(int newUnit)
 {

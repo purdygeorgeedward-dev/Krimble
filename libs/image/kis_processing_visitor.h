@@ -10,7 +10,6 @@
 #include "kritaimage_export.h"
 #include "kis_shared.h"
 
-
 class KisNode;
 class KoUpdater;
 class KoProgressUpdater;
@@ -28,11 +27,6 @@ class KisGeneratorLayer;
 class KisColorizeMask;
 class KUndo2Command;
 
-/**
- * A visitor that processes a single layer; it does not recurse into the
- * layer's children. Classes inheriting KisProcessingVisitor must not
- * Q_EMIT signals or ask the image to update the projection.
- */
 class KRITAIMAGE_EXPORT KisProcessingVisitor : public KisShared
 {
 public:
@@ -51,11 +45,6 @@ public:
     virtual void visit(KisColorizeMask *mask, KisUndoAdapter *undoAdapter) = 0;
     virtual void visit(KisSelectionMask *mask, KisUndoAdapter *undoAdapter) = 0;
 
-    /**
-     * Create a command that initializes the processing visitor before running
-     * on all the layers. The command is executed sequentially, non-exclusively
-     * on the image by applicator.
-     */
     virtual KUndo2Command* createInitCommand();
 
 public:
@@ -72,4 +61,4 @@ public:
     };
 };
 
-#endif /* __KIS_PROCESSING_VISITOR_H */
+#endif

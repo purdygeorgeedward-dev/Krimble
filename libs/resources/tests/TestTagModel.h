@@ -34,7 +34,6 @@ private Q_SLOTS:
     void testAddEmptyTagWithResources();
     void testAddTagWithResources();
 
-
     void cleanupTestCase();
 private:
 

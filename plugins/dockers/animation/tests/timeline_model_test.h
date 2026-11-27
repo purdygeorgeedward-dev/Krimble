@@ -16,7 +16,6 @@ class KisNameServer;
 class KisShapeController;
 class KisNodeDisplayModeAdapter;
 
-
 class TimelineModelTest : public QObject, public TestUtil::EmptyNodesTest
 {
     Q_OBJECT
@@ -46,4 +45,4 @@ private:
     KisNodeDisplayModeAdapter *m_displayModeAdapter;
 };
 
-#endif /* __TIMELINE_MODEL_TEST_H */
+#endif

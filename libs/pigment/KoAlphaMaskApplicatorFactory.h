@@ -18,4 +18,4 @@ public:
     static KoAlphaMaskApplicatorBase* create(KoID depthId, int numChannels, int alphaPos);
 };
 
-#endif // KOALPHAMASKAPPLICATORFACTORY_H
+#endif

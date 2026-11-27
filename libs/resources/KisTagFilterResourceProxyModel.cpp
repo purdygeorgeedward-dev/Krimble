@@ -25,8 +25,8 @@ struct KisTagFilterResourceProxyModel::Private
 
     QString resourceType;
 
-    KisResourceModel *resourceModel {0}; // This is the source model if we are _not_ filtering by tag
-    KisTagResourceModel *tagResourceModel {0}; // This is the source model if we are filtering by tag
+    KisResourceModel *resourceModel {0};
+    KisTagResourceModel *tagResourceModel {0};
 
     QScopedPointer<KisResourceSearchBoxFilter> filter;
     bool filteringWithinCurrentTag {false};
@@ -268,8 +268,6 @@ void KisTagFilterResourceProxyModel::updateTagFilter()
 
             filter << d->currentTagFilter;
         } else {
-            // combination with for untagged resources in not implemented
-            // in KisTagResourceModel
             KIS_SAFE_ASSERT_RECOVER_NOOP(!d->currentTagFilter ||
                                          d->currentTagFilter->url() != KisAllTagsModel::urlAllUntagged());
         }
@@ -300,8 +298,6 @@ void KisTagFilterResourceProxyModel::updateTagFilter()
         }
     }
 
-    // TODO: when model changes the current selection in the
-    //       view disappears. We should try to keep it somehow.
     if (sourceModel() != desiredModel) {
         setSourceModel(desiredModel);
     }
@@ -348,27 +344,23 @@ int KisTagFilterResourceProxyModel::isResourceTagged(const KisTagSP tag, const i
     return d->tagResourceModel->isResourceTagged(tag, resourceId);
 }
 
-bool KisTagFilterResourceProxyModel::filterAcceptsColumn(int /*source_column*/, const QModelIndex &/*source_parent*/) const
+bool KisTagFilterResourceProxyModel::filterAcceptsColumn(int , const QModelIndex & ) const
 {
     return true;
 }
 
 bool KisTagFilterResourceProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    // if both filters are empty, just accept everything
     if (d->filter->isEmpty() && d->metaDataMapFilter.isEmpty() && !d->useStorageIdFilter) {
         return true;
     }
 
-    // If there's a tag set to filter on, we use the tagResourceModel, so that already filters for the tag
-    // Here, we only have to filter by the search string.
     QModelIndex idx = sourceModel()->index(source_row, 0, source_parent);
 
     if (!idx.isValid()) {
         return false;
     }
 
-    // checking the storage filter
     if (d->useStorageIdFilter) {
         int storageId = sourceModel()->data(idx, Qt::UserRole + KisAbstractResourceModel::StorageId).toInt();
         if (storageId != d->storageId) {
@@ -394,7 +386,6 @@ bool KisTagFilterResourceProxyModel::filterAcceptsRow(int source_row, const QMod
     if (!resourceNameMatches) {
         resourceNameMatches = additionalResourceNameChecks(idx, d->filter.data());
     }
-
 
     return resourceNameMatches;
 }

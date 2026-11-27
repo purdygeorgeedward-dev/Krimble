@@ -19,7 +19,7 @@ Krimble is a graphics editor for Android phones and tablets, made from Krita and
 - The two healing tools have a button each: the **bandaid** and the **stamp** (tap **Set source**, then paint: it copies the texture from the source spot).
 - **Blur** and **Sharpen** are brushes: they soften or sharpen only where you brush.
 - **UNDO** is the last button: tap it to undo, press and hold it for Redo.
-- **The toolbox menu:** press and hold the toolbox's handle (the bar with three lines). It has **Compact**, **Icon Size**, **Icon Style** (Full color or Silhouette), **Button Style** (Flat or Raised), **Layout**, **Orientation**, **Columns**, and **Dock**.
+- **The toolbox menu:** press and hold the toolbox's handle (the bar with three lines). It has **Compact**, **Icon Size**, **Icon Style** (White, Black, Grayscale, or Classic: black line art for shape tools and gray shaded art for object tools), **Button Style** (Flat or Raised, on a Panel background, Light gray or White), **Layout**, **Orientation**, **Columns**, and **Dock**.
 - **Docking:** in the toolbox menu, **Dock Left**, **Dock Right**, **Dock Top** and **Dock Bottom** put the toolbox on that side of the screen, and **Undock** makes it float. On the left or right it is a column as tall as the screen; at the top or bottom it is a row. A floating toolbox can also be dragged by its handle to an edge of the screen and let go there. **Dock by Dragging**, in the same menu, turns that off for the toolbox and every panel: they then stay wherever they are let go.
 - **Columns** sets how many columns an upright toolbox uses, so that more tools fit.
 
@@ -61,7 +61,7 @@ Emoji (as plain black shapes) can be used in text.
 - **Mode** changes the color kind. **Indexed Color...** limits a picture to a palette (see below).
 - **Quick Adjust...** is the first entry: six sliders in one window (**Brightness**, **Contrast**, **Saturation**, **Hue**, **Lightness**, **Vibrance**), a **Preview** switch, **Reset**, and **Keep as layers**, which leaves the changes as adjustment layers you can edit later.
 - **Adjustments**: Quick Adjust, Brightness/Contrast, Levels, Curves, Vibrance, Hue/Saturation, Color Balance, Photo Filter, Invert, Posterize, Threshold, Gradient Map, Desaturate, Match Color.
-- **Auto Tone**, **Auto Contrast**, **Auto Color**: one-tap fixes.
+- **Auto Tone**, **Auto Contrast**, **Auto Color**: one-tap fixes, each a curve for red, green and blue worked out from the picture. **Auto Tone** stretches each color on its own (fixes washed-out pictures and color casts); **Auto Contrast** stretches all three together (more contrast, colors unchanged); **Auto Color** makes the darkest and lightest colors true black and white, makes near-gray midtones truly gray without changing the overall brightness, and gently lifts dull colors. In **Curves**, the **Auto** button beside Reset puts Auto Color's curves in the window so you can adjust them before OK.
 - **Image Size...**, **Resolution...**, **Canvas Size...**, **Image Rotation** (with **Free Rotate**, which turns the picture with two fingers), **Crop**, **Crop to Image Size**, **Crop to Layer**, **Auto Crop...**, **Crop to Selection**, **Duplicate...**, **Shear...**, **Offset...**.
 - **Properties...**, **Purge Unused Data**, **Split Image...**, **Wavelet Decompose...**, **Separate**.
 - **Upscale...** makes a picture 2, 3 or 4 times larger, and can add a light sharpen layer on top. It refuses a result of more than 100 million pixels.
@@ -83,6 +83,22 @@ Emoji (as plain black shapes) can be used in text.
 ## Content-Aware Fill
 
 Select the part you want to remove (with any selection tool), then choose **Edit > Fill > Content-Aware...**. Krimble fills the hole from the picture around it. It works best on plain or repeating backgrounds; on very busy pictures the fill can look soft.
+
+## Quick Mask and Screen Mode
+
+The two buttons under the color swatches at the bottom of the toolbox. **Quick Mask** (a rectangle with a circle): tap it and the selection becomes a mask you paint with any brush: white selects, black deselects, gray selects partly. With nothing selected it starts empty, so you paint the selection in. Tap it again to go back to the marching ants. **Screen Mode** (two screens): shows the picture only, with the panels hidden; tap the X to bring them back.
+
+## A. I. Image gen
+
+**File > A. I. Image gen** opens the free Image Donkey image generator (perchance.org/image-donkey) in your browser. Describe the picture you want and generate it there, save it to your phone, then open it in Krimble with **File > Open**. The address is kept as a setting (`ImageDonkeyUrl` in the `[Krimble]` group of krimblerc), so it can be changed to another generator.
+
+## Lens Flare
+
+**Filter > Render > Lens Flare...** adds the flare a bright light makes in a camera lens. Choose a **Type**: **Zoom lens** (fine rays, a rainbow ring and a trail of colored ghosts), **Prime lens** (a tighter ring, fewer ghosts), **Cinematic** (a blue horizontal streak with oval ghosts) or **Starburst** (long spikes). While the window is open, **touch the picture and drag**: the light follows your finger (two fingers still move and zoom the picture). **Light across** and **Light down** show where the light is (in percent of the picture's width and height) and can set it too; the ghosts line up through the center of the picture on the other side, as in a real lens. **Brightness**, **Rays**, **Ghosts**, **Ring** and **Color (cool to warm)** change its look. The preview shows the result as you move the sliders. The flare only brightens the picture; it never darkens it.
+
+## Lightsaber
+
+**Filter > Render > Lightsaber...** draws a glowing energy blade: a white-hot core inside a colored glow. Pick the **Blade** color (Blue, Green, Red, Purple, Yellow, White, or **Other color** with the **Color** button). While the window is open, **touch the picture and drag**: the end of the blade nearer your finger follows it (two fingers still move and zoom the picture). **Hilt end** and **Tip** (across and down, in percent) show and set the two ends. **Blade width**, **Glow** and **Brightness** change its look. It only brightens the picture, so it looks best over darker areas; use it on a new layer filled with black and set that layer to Screen to keep it separate.
 
 ## Hex maps and stars
 

@@ -24,7 +24,7 @@ class KoToolProxyPrivate
 public:
     explicit KoToolProxyPrivate(KoToolProxy *p);
 
-    void timeout(); // Auto scroll the canvas
+    void timeout();
 
     void checkAutoScroll(const KoPointerEvent &event);
 
@@ -32,7 +32,6 @@ public:
 
     bool isActiveLayerEditable();
 
-    /// the toolManager tells us which KoCanvasController this toolProxy is working for.
     void setCanvasController(KoCanvasController *controller);
 
     KoToolBase *activeTool {0};
@@ -42,15 +41,12 @@ public:
     KoCanvasController *controller {0};
     KoToolProxy *parent {0};
 
-    // used to determine if the mouse-release is after a drag or a simple click
     QPoint mouseDownPoint;
 
-    // up until at least 4.3.0 we get a mouse move event when the tablet leaves the canvas.
     bool mouseLeaveWorkaround {false};
 
     bool isToolPressed {false};
 
-    // for multi clicking (double click or triple click) we need the following
     int multiClickCount {0};
     QPointF multiClickGlobalPoint;
     QElapsedTimer multiClickTimeStamp;

@@ -12,8 +12,6 @@
 
 #include "kis_tool_line.h"
 
-
-
 #include <ksharedconfig.h>
 
 #include <KoCanvasBase.h>
@@ -44,14 +42,12 @@
 #include <brushengine/kis_paintop_preset.h>
 #include <kis_image_config.h>
 
-
 const KisCoordinatesConverter* getCoordinatesConverter(KoCanvasBase * canvas)
 {
     KisCanvas2 *kritaCanvas = dynamic_cast<KisCanvas2*>(canvas);
     KIS_ASSERT(kritaCanvas);
     return kritaCanvas->coordinatesConverter();
 }
-
 
 KisToolLine::KisToolLine(KoCanvasBase * canvas)
     : KisToolShape(canvas, KisCursor::loadWithSize("tool_line_cursor.svg", 32, 32, 6, 6)),
@@ -136,7 +132,7 @@ QWidget* KisToolLine::createOptionWidget()
         m_krimbleThicknessSlider = new QSlider(Qt::Horizontal, thicknessRow);
         m_krimbleThicknessSlider->setMinimumHeight(38);
         m_krimbleThicknessSpin = new QSpinBox(thicknessRow);
-        const int maxThickness = qMax(1, int(KisImageConfig(true).maxBrushSize()));   // the largest brush size the program allows
+        const int maxThickness = qMax(1, int(KisImageConfig(true).maxBrushSize()));
         m_krimbleThicknessSlider->setRange(1, qMin(maxThickness, 500));
         m_krimbleThicknessSpin->setRange(1, maxThickness);
         m_krimbleThicknessSpin->setSuffix(QStringLiteral(" px"));
@@ -162,17 +158,11 @@ QWidget* KisToolLine::createOptionWidget()
         syncKrimbleThickness();
     }
 
-
-
-
-    // hook up connections for value changing
     connect(m_chkUseSensors, SIGNAL(clicked(bool)), this, SLOT(setUseSensors(bool)) );
     connect(m_chkShowPreview, SIGNAL(clicked(bool)), this, SLOT(setShowPreview(bool)) );
     connect(m_chkShowGuideline, SIGNAL(clicked(bool)), this, SLOT(setShowGuideline(bool)) );
     connect(m_chkSnapToAssistants, SIGNAL(clicked(bool)), this, SLOT(setSnapToAssistants(bool)) );
 
-
-    // read values in from configuration
     m_chkUseSensors->setChecked(configGroup.readEntry("useSensors", true));
     m_chkShowPreview->setChecked(configGroup.readEntry("showPreview", true));
     m_chkShowGuideline->setChecked(configGroup.readEntry("showGuideline", true));
@@ -241,7 +231,6 @@ void KisToolLine::requestStrokeCancellation()
 
 void KisToolLine::requestStrokeEnd()
 {
-    // Terminate any in-progress strokes
     if (nodePaintAbility() == PAINT && m_helper->isRunning()) {
         endStroke();
     }
@@ -249,15 +238,12 @@ void KisToolLine::requestStrokeEnd()
 
 void KisToolLine::updatePreviewTimer(bool showGuideline)
 {
-    // If the user disables the guideline, we will want to try to draw some
-    // preview lines even if they're slow, so set the timer to FIRST_ACTIVE.
     if (showGuideline) {
         m_strokeUpdateCompressor.setMode(KisSignalCompressor::POSTPONE);
     } else {
         m_strokeUpdateCompressor.setMode(KisSignalCompressor::FIRST_ACTIVE);
     }
 }
-
 
 void KisToolLine::paint(QPainter& gc, const KoViewConverter &converter)
 {
@@ -290,7 +276,6 @@ void KisToolLine::beginPrimaryAction(KoPointerEvent *event)
     const KisToolShape::ShapeAddInfo info =
         shouldAddShape(currentNode());
 
-    // Always show guideline on vector layers
     m_showGuideline = m_chkShowGuideline->isChecked() || nodeAbility != PAINT;
     updatePreviewTimer(m_showGuideline);
     m_helper->setEnabled((nodeAbility == PAINT && !info.shouldAddShape) || info.shouldAddSelectionShape);
@@ -322,25 +307,15 @@ void KisToolLine::continuePrimaryAction(KoPointerEvent *event)
     CHECK_MODE_SANITY_OR_RETURN(KisTool::PAINT_MODE);
     if (!m_strokeIsRunning) return;
 
-    // If the user was holding Alt at the start of the line, we don't want to
-    // move the origin around because moving the origin of a zero-length line
-    // is silly and this interferes with users coming from PS binding Alt to
-    // the quick switch line tool.
     Qt::KeyboardModifiers effectiveModifiers = event->modifiers();
     if (m_altInitiallyHeld){
         if (effectiveModifiers.testFlag(Qt::AltModifier)) {
-            // Remove the modifier if it was held at the beginning. The checks
-            // in the subsequent code use equality instead of testing the flag,
-            // so this retains the expected behavior without much rejigging.
             effectiveModifiers.setFlag(Qt::AltModifier, false);
         } else {
-            // User lifted the Alt key, we'll let them re-press it from this
-            // point on to move the origin after all.
             m_altInitiallyHeld = false;
         }
     }
 
-    // First ensure the old guideline is deleted
     updateGuideline();
 
     QPointF pos = convertToPixelCoordAndSnap(event);
@@ -350,7 +325,7 @@ void KisToolLine::continuePrimaryAction(KoPointerEvent *event)
         m_helper->translatePoints(trans);
         m_startPoint += trans;
         m_endPoint += trans;
-        m_originalStartPoint += trans; // original start point is only original in terms of snapping to assistants
+        m_originalStartPoint += trans;
     } else if (effectiveModifiers == Qt::ShiftModifier) {
         pos = straightLine(pos);
         m_helper->addPoint(event, pos);
@@ -361,10 +336,7 @@ void KisToolLine::continuePrimaryAction(KoPointerEvent *event)
     }
     m_endPoint = pos;
 
-    // Draw preview if requested
     if (m_chkShowPreview->isChecked()) {
-        // If the cursor has moved a significant amount, immediately clear the
-        // current preview and redraw. Otherwise, do slow redraws periodically.
         auto updateDistance = (pixelToView(m_lastUpdatedPoint) - pixelToView(pos)).manhattanLength();
         if (updateDistance > 10) {
             m_helper->clearPaint();
@@ -411,7 +383,6 @@ bool KisToolLine::primaryActionSupportsHiResEvents() const
     return true;
 }
 
-
 void KisToolLine::endStroke()
 {
     NodePaintAbility nodeAbility = nodePaintAbility();
@@ -457,11 +428,6 @@ void KisToolLine::cancelStroke()
     if (!m_strokeIsRunning) return;
     if (m_startPoint == m_endPoint) return;
 
-    /**
-     * The actual stroke is run by the timer so it is a legal
-     * situation when m_strokeIsRunning is true, but the actual redraw
-     * stroke is not running.
-     */
     if (m_helper->isRunning()) {
         m_helper->cancel();
     }
@@ -501,8 +467,6 @@ QPointF KisToolLine::snapToAssistants(QPointF point)
         c->paintingAssistantsDecoration()->setEraserSnap(m_chkSnapEraser->isChecked());
         QPointF startPoint = m_originalStartPoint;
 
-        // startPoint etc. are in image coordinates system (pixels)
-        // but assistants work in document coordinates system ("points")
         QPointF startPointInDoc = getCoordinatesConverter(canvas())->imageToDocument(startPoint);
         QPointF pointInDoc = getCoordinatesConverter(canvas())->imageToDocument(point);
 
@@ -518,7 +482,6 @@ QPointF KisToolLine::snapToAssistants(QPointF point)
     return point;
 }
 
-
 void KisToolLine::updateGuideline()
 {
     if (canvas()) {
@@ -526,7 +489,6 @@ void KisToolLine::updateGuideline()
         canvas()->updateCanvas(convertToPt(bound.normalized().adjusted(-3, -3, 3, 3)));
     }
 }
-
 
 void KisToolLine::showSize()
 {

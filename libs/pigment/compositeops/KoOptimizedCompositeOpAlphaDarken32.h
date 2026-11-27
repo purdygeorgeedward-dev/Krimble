@@ -18,28 +18,14 @@ template<typename channels_type, typename pixel_type, typename ParamsWrapperT>
 struct AlphaDarkenCompositor32 {
     using ParamsWrapper = ParamsWrapperT;
 
-    /**
-     * This is a vector equivalent of compositeOnePixelScalar(). It is considered
-     * to process float_v::size pixels in a single pass.
-     *
-     * o the \p haveMask parameter points whether the real (non-null) mask
-     *   pointer is passed to the function.
-     * o the \p src pointer may be aligned to vector boundary or may be
-     *   not. In case not, it must be pointed with a special parameter
-     *   \p src_aligned.
-     * o the \p dst pointer must always(!) be aligned to the boundary
-     *   of a streaming vector. Unaligned writes are really expensive.
-     */
     template<bool haveMask, bool src_aligned, typename _impl>
     static ALWAYS_INLINE void compositeVector(const quint8 *src, quint8 *dst, const quint8 *mask, float opacity, const ParamsWrapper &oparams)
     {
         using float_v = typename KoStreamedMath<_impl>::float_v;
         using float_m = typename float_v::batch_bool_type;
 
-        // we don't use directly passed value
         Q_UNUSED(opacity);
 
-        // instead we use value calculated by ParamsWrapper
         opacity = oparams.opacity;
         const float_v opacity_vec(255.0f * opacity);
 
@@ -147,9 +133,6 @@ struct AlphaDarkenCompositor32 {
         KoStreamedMath<_impl>::write_channels_32(dst, dst_alpha, dst_c1, dst_c2, dst_c3);
     }
 
-    /**
-     * Composes one pixel of the source into the destination
-     */
     template <bool haveMask, typename _impl>
     static ALWAYS_INLINE void compositeOnePixelScalar(const channels_type *src, channels_type *dst, const quint8 *mask, float opacity, const ParamsWrapper &oparams)
     {
@@ -160,10 +143,8 @@ struct AlphaDarkenCompositor32 {
         const float uint8Rec2 = 1.0f / (255.0f * 255.0f);
         const float uint8Max = 255.0;
 
-        // we don't use directly passed value
         Q_UNUSED(opacity);
 
-        // instead we use value calculated by ParamsWrapper
         opacity = oparams.opacity;
 
         const quint8 dstAlphaInt = dst[alpha_pos];
@@ -186,7 +167,6 @@ struct AlphaDarkenCompositor32 {
             auto *d = reinterpret_cast<pixel_type*>(dst);
             *d = *s;
         }
-
 
         const float flow = oparams.flow;
         const float averageOpacity = oparams.averageOpacity;
@@ -212,11 +192,6 @@ struct AlphaDarkenCompositor32 {
     }
 };
 
-/**
- * An optimized version of a composite op for the use in 4 byte
- * colorspaces with alpha channel placed at the last byte of
- * the pixel: C1_C2_C3_A.
- */
 template<typename _impl, class ParamsWrapper>
 class KoOptimizedCompositeOpAlphaDarken32Impl : public KoCompositeOp
 {
@@ -256,5 +231,4 @@ public:
     }
 };
 
-
-#endif // KOOPTIMIZEDCOMPOSITEOPALPHADARKEN32_H_
+#endif

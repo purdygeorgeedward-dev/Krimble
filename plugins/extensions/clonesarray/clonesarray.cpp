@@ -26,11 +26,9 @@ ClonesArray::ClonesArray(QObject *parent, const QVariantList &)
     connect(action, SIGNAL(triggered()), this, SLOT(slotCreateClonesArray()));
 }
 
-
 ClonesArray::~ClonesArray()
 {
 }
-
 
 void ClonesArray::slotCreateClonesArray()
 {

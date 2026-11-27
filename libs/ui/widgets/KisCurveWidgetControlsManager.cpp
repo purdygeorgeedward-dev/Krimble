@@ -64,7 +64,7 @@ bool willChangeSpinBox(const QDoubleSpinBox *spinBox, qreal newValue)
         qRound(newValue * spinBox->decimals());
 }
 
-} // namespace detail
+}
 
 KisCurveWidgetControlsManagerBase::KisCurveWidgetControlsManagerBase(KisCurveWidget *curveWidget)
     : QObject(curveWidget)
@@ -77,7 +77,6 @@ KisCurveWidgetControlsManagerBase::KisCurveWidgetControlsManagerBase(KisCurveWid
 KisCurveWidgetControlsManagerBase::~KisCurveWidgetControlsManagerBase()
 {
 }
-
 
 template <typename SpinBox>
 KisCurveWidgetControlsManager<SpinBox>::
@@ -123,7 +122,7 @@ setupInOutControls(SpinBox *in, SpinBox *out,
     m_outMin = outMin;
     m_outMax = outMax;
 
-    ValueType realInMin = qMin(inMin, inMax); // tilt elevation has range (90, 0), which QSpinBox can't handle
+    ValueType realInMin = qMin(inMin, inMax);
     ValueType realInMax = qMax(inMin, inMax);
 
     m_intIn->setRange(realInMin, realInMax);
@@ -194,7 +193,6 @@ syncIOControls()
             m_intOut->setValue(outValue);
         }
     } else {
-        /*FIXME: Ideally, these controls should hide away now */
     }
 }
 

@@ -26,14 +26,10 @@
 
 #include "rcombobox.h"
 
-// Qt includes
-
 #include <QApplication>
 #include <QStyle>
 #include <QToolButton>
 #include <QHBoxLayout>
-
-// KDE includes
 
 #include <klocalizedstring.h>
 
@@ -77,8 +73,6 @@ RComboBox::RComboBox(QWidget* const parent)
     hlay->setStretchFactor(d->combo, 10);
     hlay->setContentsMargins(0, 0, 0, 0);
     hlay->setSpacing(QApplication::style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing));
-
-    // -------------------------------------------------------------
 
     connect(d->resetButton, &QToolButton::clicked,
             this, &RComboBox::slotReset);
@@ -152,4 +146,4 @@ void RComboBox::slotCurrentIndexChanged(int v)
     Q_EMIT currentIndexChanged(v);
 }
 
-}  // namespace KDcrawIface
+}

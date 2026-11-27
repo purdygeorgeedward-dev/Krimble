@@ -150,11 +150,6 @@ struct KisColorPairSampler
                     qRound(qBound(0.0, value, 1.0) * unitValue<quint16>());
             };
 
-            /**
-             * Some composite ops reply on the halfValue to decide about the
-             * processing they do, so we should make sure that float and uint16
-             * modes use the same half-point in the test
-             */
             const quint16 red = scaleChannel(redF);
             const quint16 green = scaleChannel(greenF);
             const quint16 blue = scaleChannel(blueF);
@@ -170,7 +165,6 @@ struct KisColorPairSampler
         };
 
         static inline KoColor createColor(qreal red, qreal green, qreal blue, qreal alpha, const KoColorSpace *colorSpace) {
-
 
             if (colorSpace->hasHighDynamicRange()) {
                 KoColor result(colorSpace);
@@ -232,5 +226,4 @@ struct KisColorPairSampler
     }
 };
 
-
-#endif // KISCOLORPAIRSAMPLER_H
+#endif

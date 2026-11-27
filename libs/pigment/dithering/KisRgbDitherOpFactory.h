@@ -8,7 +8,6 @@
 
 #include "KisDitherOpImpl.h"
 
-
 template<class srcCSTraits> inline void addStandardDitherOps(KoColorSpace *cs)
 {
     static_assert(std::is_same<srcCSTraits, KoBgrU8Traits>::value || std::is_same<srcCSTraits, KoBgrU16Traits>::value ||

@@ -134,7 +134,6 @@ void KisSliderBasedPaintOpProperty<T>::setSuffix(QString value)
     m_suffix = value;
 }
 
-
 #include "kis_callback_based_paintop_property_impl.h"
 
 template class KRITAIMAGE_EXPORT_INSTANCE KisSliderBasedPaintOpProperty<int>;

@@ -24,4 +24,4 @@ private:
     KisUpdatesFacade *m_updatesFacade;
 };
 
-#endif // KISDISABLEDIRTYREQUESTSCOMMAND_H
+#endif

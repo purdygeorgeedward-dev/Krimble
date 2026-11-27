@@ -13,4 +13,4 @@ struct KisFrameChangeUpdateRecipe
     void notify(KisNode *node) const;
 };
 
-#endif // KISFRAMECHANGEUPDATERECIPE_H
+#endif

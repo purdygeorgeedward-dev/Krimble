@@ -13,7 +13,6 @@
 #include "kis_post_execution_undo_adapter.h"
 #include "commands_new/kis_switch_current_time_command.h"
 
-
 struct KisSwitchTimeStrokeStrategy::Private
 {
     Private(int frameId, bool needsRegeneration)
@@ -36,11 +35,8 @@ KisSwitchTimeStrokeStrategy::KisSwitchTimeStrokeStrategy(int frameId,
     m_d->interface = interface;
     m_d->undoAdapter = undoAdapter;
 
-
     enableJob(JOB_INIT, true, KisStrokeJobData::SEQUENTIAL, KisStrokeJobData::EXCLUSIVE);
 
-    // switching frames is a distinct user action, so it should
-    // cancel the playback or any action easily
     setRequestsOtherStrokesToEnd(true);
     setClearsRedoOnStart(false);
 }
@@ -69,15 +65,6 @@ KisStrokeStrategy* KisSwitchTimeStrokeStrategy::createLodClone(int levelOfDetail
 {
     Q_UNUSED(levelOfDetail);
 
-    // This stroke is explicitly made LEGACY, so that it could create a barrier for
-    // time switch. Theoretically, we can have separate time ids for Lod0 and LodN,
-    // but currently this idea doesn't work for some reason. The consequences of
-    // making this stroke a barrier:
-    //
-    // * LodSync stroke is started after every time switch (not slow, but still...)
-    // * The frame switches only *after* all the pending strokes are finished
-    // * LodSync stroke is started even when the image is not changed (not regeneration needed)!
-
     return 0;
 }
 
@@ -85,11 +72,6 @@ KisSwitchTimeStrokeStrategy::SharedTokenSP KisSwitchTimeStrokeStrategy::token() 
 {
     return m_d->token;
 }
-
-
-/*****************************************************************/
-/*        KisSwitchTimeStrokeStrategy::SharedToken               */
-/*****************************************************************/
 
 struct KisSwitchTimeStrokeStrategy::SharedToken::Private {
     Private(int _time, bool _needsRegeneration)

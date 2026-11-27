@@ -7,7 +7,6 @@
 #ifndef __KIS_SNAP_CONFIG_H
 #define __KIS_SNAP_CONFIG_H
 
-
 class KisSnapConfig
 {
 public:
@@ -84,4 +83,4 @@ private:
     bool m_toPixel;
 };
 
-#endif /* __KIS_SNAP_CONFIG_H */
+#endif

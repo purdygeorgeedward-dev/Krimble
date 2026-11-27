@@ -113,7 +113,6 @@ KisKBugReport::KisKBugReport(const KAboutData &aboutData, QWidget *_parent)
 
     int row = 0;
 
-    // Program name
     QString qwtstr = i18n("The application for which you wish to submit a bug report - if incorrect, please use the Report Bug menu item of the correct application");
     tmpLabel = new QLabel(i18n("Application: "), this);
     glay->addWidget(tmpLabel, row, 0);
@@ -128,7 +127,6 @@ KisKBugReport::KisKBugReport(const KAboutData &aboutData, QWidget *_parent)
 
     tmpLabel->setWhatsThis(qwtstr);
 
-    // Version
     qwtstr = i18n("The version of this application - please make sure that no newer version is available before sending a bug report");
     tmpLabel = new QLabel(i18n("Version:"), this);
     glay->addWidget(tmpLabel, ++row, 0);
@@ -139,7 +137,6 @@ KisKBugReport::KisKBugReport(const KAboutData &aboutData, QWidget *_parent)
     }
     d->m_version = new QLabel(d->m_strVersion, this);
     d->m_version->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    //glay->addWidget( d->m_version, row, 1 );
     glay->addWidget(d->m_version, row, 1, 1, 2);
     d->m_version->setWhatsThis(qwtstr);
 
@@ -150,8 +147,6 @@ KisKBugReport::KisKBugReport(const KAboutData &aboutData, QWidget *_parent)
     tmpLabel = new QLabel(d->os, this);
     tmpLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     glay->addWidget(tmpLabel, row, 1, 1, 2);
-
-    // Point to the web form
 
     lay->addSpacing(10);
     QString text = i18n("<qt>"
@@ -204,7 +199,7 @@ KisKBugReport::KisKBugReport(const KAboutData &aboutData, QWidget *_parent)
     okButton->setText(i18n("&Submit Bug Report"));
     okButton->setIcon(KisIconUtils::loadIcon(QStringLiteral("tools-report-bug")));
     lay->addWidget(buttonBox);
-    setMinimumHeight(sizeHint().height() + 20);   // WORKAROUND: prevent "cropped" qcombobox
+    setMinimumHeight(sizeHint().height() + 20);
 }
 
 KisKBugReport::~KisKBugReport()
@@ -216,9 +211,8 @@ void KisKBugReportPrivate::_k_updateUrl()
 {
     url = QUrl(QStringLiteral("https://bugs.kde.org/enter_bug.cgi"));
     QUrlQuery query;
-    query.addQueryItem(QStringLiteral("format"), QLatin1String("guided"));    // use the guided form
+    query.addQueryItem(QStringLiteral("format"), QLatin1String("guided"));
 
-    // the string format is product/component, where component is optional
     QStringList list = QStringList() << appname;
     query.addQueryItem(QStringLiteral("product"), list[0]);
     if (list.size() == 2) {
@@ -227,7 +221,6 @@ void KisKBugReportPrivate::_k_updateUrl()
 
     query.addQueryItem(QStringLiteral("version"), m_strVersion);
 
-    // TODO: guess and fill OS(sys_os) and Platform(rep_platform) fields
 #ifdef Q_OS_WIN
     query.addQueryItem(QStringLiteral("op_sys"), QStringLiteral("MS Windows"));
     query.addQueryItem(QStringLiteral("rep_platform"), QStringLiteral("MS Windows"));
@@ -240,6 +233,5 @@ void KisKBugReport::accept()
 {
     QDesktopServices::openUrl(d->url);
 }
-
 
 #include "moc_kbugreport.cpp"

@@ -16,7 +16,6 @@
 #include "KisAnimAutoKey.h"
 #include "kis_undo_adapter.h"
 
-
 FillProcessingVisitor::FillProcessingVisitor(KisPaintDeviceSP refPaintDevice,
                                              KisSelectionSP selection,
                                              KisResourcesSnapshotSP resources)
@@ -64,8 +63,6 @@ void FillProcessingVisitor::visitNodeWithPaintDevice(KisNode *node, KisUndoAdapt
 
 void FillProcessingVisitor::visitColorizeMask(KisColorizeMask *mask, KisUndoAdapter *undoAdapter)
 {
-    // we fill only the coloring project so the user can work
-    // with the mask like with a usual paint layer
     if (!m_progressHelper) {
         m_progressHelper.reset(new ProgressHelper(mask));
     }
@@ -86,10 +83,8 @@ void FillProcessingVisitor::fillPaintDevice(KisPaintDeviceSP device, KisUndoAdap
     if (m_selectionOnly ||
         (m_refPaintDevice->nonDefaultPixelArea().isEmpty() && m_sizemod == 0 && m_feather == 0 && !m_antiAlias)) {
         if (device->defaultBounds()->wrapAroundMode()) {
-            // Always fill if wrap around mode is on
             selectionFill(device, fillRect, undoAdapter);
         } else {
-            // Otherwise fill only if any of the points is inside the rect
             for (const QPoint &seedPoint : m_seedPoints) {
                 if (fillRect.contains(seedPoint)) {
                     selectionFill(device, fillRect, undoAdapter);
@@ -201,20 +196,11 @@ void FillProcessingVisitor::normalFill(KisPaintDeviceSP device, const QRect &fil
 
 void FillProcessingVisitor::continuousFill(KisPaintDeviceSP device, const QRect &fillRect, const QPoint &seedPoint, KisUndoAdapter *undoAdapter)
 {
-    // In continuous filling we use a selection mask that represents the
-    // cumulated regions already filled. Being able to discard filling
-    // operations based on if they were already filled the area under
-    // the cursor speeds up greatly the continuous fill operation
 
     KIS_ASSERT(m_continuousFillMask);
     KIS_SAFE_ASSERT_RECOVER_NOOP(m_continuousFillReferenceColor);
 
-    // The following checks are useful in the continuous fill.
     if (m_useSelectionAsBoundary && m_selection) {
-        // If we must use the current selection as boundary we must discard
-        // the continuous fill points that lie outside of it.
-        // This avoids unnecessary and expensive flood fill operations
-        // when the user drags the mouse outside the selection.
         if (!m_selection->selectedRect().contains(seedPoint)) {
             return;
         }
@@ -223,21 +209,13 @@ void FillProcessingVisitor::continuousFill(KisPaintDeviceSP device, const QRect 
             return;
         }
     }
-    // Filling a pixel is likely to fill nearby pixels with the same color,
-    // so this check should reduce the number of flood fill operations
-    // considerably
     {
-        // If the color in the m_continuous fill mask under the start point
-        // equals white we return early and don't fill. This means the area
-        // under the start point was already filled
         const quint8 opacity = m_continuousFillMask->pixelSelection()->pixel(seedPoint).opacityU8();
         if (opacity == OPACITY_OPAQUE_U8) {
             return;
         }
     }
     if (m_continuousFillMode == ContinuousFillMode_FillSimilarRegions) {
-        // If the color in the reference device under the start point
-        // differs from the reference color we return early and don't fill
         const KoColor referenceColor = m_continuousFillReferenceColor->convertedTo(m_refPaintDevice->colorSpace());
         const KoColor referenceDeviceColor = m_refPaintDevice->pixel(seedPoint);
         if (referenceColor != referenceDeviceColor) {
@@ -247,7 +225,6 @@ void FillProcessingVisitor::continuousFill(KisPaintDeviceSP device, const QRect 
 
     KisSelectionSP newFillSelection;
     KisPaintDeviceSP sourceDevice = m_unmerged ? device : m_refPaintDevice;
-    // First we get the new region mask
     {
         KisFillPainter painter;
 
@@ -278,12 +255,6 @@ void FillProcessingVisitor::continuousFill(KisPaintDeviceSP device, const QRect 
                                             m_selection ? m_selection->resolutionProxy() : KisImageResolutionProxy::identity());
         newFillSelection->pixelSelection()->applySelection(pixelSelection, SELECTION_REPLACE);
     }
-    // Now we actually fill the destination device
-    // If there is an active selection, we use a trimmed version of the mask to
-    // fill. We cannot trim the obtained mask since that would delete the not
-    // selected areas from it and those are need to be part of the continuous
-    // fill mask. This avoids unnecessary and expensive flood fill operations
-    // when the user drags the mouse outside the selection.
     {
         KisSelectionSP trimmedFillSelection;
         if (m_selection) {
@@ -298,7 +269,6 @@ void FillProcessingVisitor::continuousFill(KisPaintDeviceSP device, const QRect 
         selectionFill(device, fillRect, undoAdapter);
         m_selection = tmpSelection;
     }
-    // Now we update the continuous fill mask with the new mask
     {
         m_continuousFillMask->pixelSelection()->applySelection(newFillSelection->pixelSelection(), SELECTION_ADD);
     }

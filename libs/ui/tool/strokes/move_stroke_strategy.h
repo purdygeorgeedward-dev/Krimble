@@ -25,7 +25,6 @@
 class KisUpdatesFacade;
 class KisPostExecutionUndoAdapter;
 
-
 class KRITAUI_EXPORT MoveStrokeStrategy : public QObject, public KisStrokeStrategyUndoCommandBased
 {
     Q_OBJECT
@@ -52,7 +51,6 @@ public:
     private:
         PickLayerData(const PickLayerData &rhs, int levelOfDetail);
     };
-
 
     struct KRITAUI_EXPORT BarrierUpdateData : public KisAsynchronousStrokeUpdateHelper::UpdateData
     {
@@ -114,4 +112,4 @@ private:
     void recursiveApplyNodes(const KisNodeList &nodes, Functor &&func);
 };
 
-#endif /* __MOVE_STROKE_STRATEGY_H */
+#endif

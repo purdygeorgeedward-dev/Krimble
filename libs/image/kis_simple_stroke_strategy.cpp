@@ -6,11 +6,6 @@
 
 #include "kis_simple_stroke_strategy.h"
 
-
-/***************************************************************/
-/*         private class: SimpleStrokeJobStrategy              */
-/***************************************************************/
-
 class SimpleStrokeJobStrategy : public KisStrokeJobStrategy
 {
 public:
@@ -59,11 +54,6 @@ private:
     KisSimpleStrokeStrategy::JobType m_type;
     KisSimpleStrokeStrategy *m_parentStroke;
 };
-
-
-/***************************************************************/
-/*                 KisSimpleStrokeStrategy                     */
-/***************************************************************/
 
 KisSimpleStrokeStrategy::KisSimpleStrokeStrategy(const QLatin1String &id, const KUndo2MagicString &name)
     : KisStrokeStrategy(id, name),

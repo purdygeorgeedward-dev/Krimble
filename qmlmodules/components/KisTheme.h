@@ -133,7 +133,6 @@ class KisThemeColorGroup : public QObject
     QML_UNCREATABLE("Use Theme instead")
     Q_PROPERTY(int state READ state WRITE setState NOTIFY stateChanged FINAL)
 
-    // Foreground roles: used for text.
     Q_PROPERTY(QColor textColor READ textColor NOTIFY textColorChanged FINAL)
     Q_PROPERTY(QColor disabledTextColor READ disabledTextColor NOTIFY disabledTextColorChanged FINAL)
     Q_PROPERTY(QColor activeTextColor READ activeTextColor NOTIFY activeTextColorChanged FINAL)
@@ -145,7 +144,6 @@ class KisThemeColorGroup : public QObject
     Q_PROPERTY(QColor neutralTextColor READ neutralTextColor NOTIFY neutralTextColorChanged FINAL)
     Q_PROPERTY(QColor positiveTextColor READ positiveTextColor NOTIFY positiveTextColorChanged FINAL)
 
-    // Background roles: used for backgrounds.
     Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY backgroundColorChanged FINAL)
     Q_PROPERTY(QColor activeBackgroundColor READ activeBackgroundColor NOTIFY activeBackgroundColorChanged FINAL)
 
@@ -160,11 +158,8 @@ class KisThemeColorGroup : public QObject
     Q_PROPERTY(
         QColor alternateBackgroundColor READ alternateBackgroundColor NOTIFY alternateBackgroundColorChanged FINAL)
 
-    // Decoration roles: used for borders.
     Q_PROPERTY(QColor focusColor READ focusColor NOTIFY focusColorChanged FINAL)
     Q_PROPERTY(QColor hoverColor READ hoverColor NOTIFY hoverColorChanged FINAL)
-
-    // Shade roles: used for 3d elements like bevels.
 
     Q_PROPERTY(QColor lightShadeColor READ lightShadeColor NOTIFY lightShadeColorChanged FINAL)
     Q_PROPERTY(QColor midLightShadeColor READ midLightShadeColor NOTIFY midLightShadeColorChanged FINAL)
@@ -243,13 +238,6 @@ private:
     QPalette::ColorGroup m_state = QPalette::Active;
 };
 
-/**
- * @brief The KisTheme class
- *
- * This class both handles retrieving colors from KColorScheme, as well
- * as listening to theme changes, simplifying theme updates.
- */
-
 class KisTheme : public QObject
 {
     Q_OBJECT
@@ -281,4 +269,4 @@ private:
     KisThemeColorGroup m_tooltip;
 };
 
-#endif // KISTHEME_H
+#endif

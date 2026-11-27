@@ -14,7 +14,6 @@ using namespace KisMetaData;
 
 Q_GLOBAL_STATIC(FilterRegistry, s_instance)
 
-
 FilterRegistry::FilterRegistry()
 {
     add(new AnonymizerFilter());
@@ -37,7 +36,7 @@ FilterRegistry::~FilterRegistry()
         delete get(id);
     }
     dbgRegistry << "Deleting FilterRegistry";
-    
+
 }
 
 FilterRegistry* FilterRegistry::instance()

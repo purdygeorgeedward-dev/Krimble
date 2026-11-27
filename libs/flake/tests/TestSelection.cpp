@@ -23,7 +23,7 @@ void TestSelection::testSelectedShapes()
     QCOMPARE(selection.count(), 1);
     QCOMPARE(selection.selectedShapes().count(), 1);
 
-    selection.select(shape1); // same one.
+    selection.select(shape1);
     QCOMPARE(selection.count(), 1);
     QCOMPARE(selection.selectedShapes().count(), 1);
 

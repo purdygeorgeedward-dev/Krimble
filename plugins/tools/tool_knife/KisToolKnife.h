@@ -28,7 +28,6 @@ class KoCanvasBase;
 class KisPaintInformation;
 class KisSpacingInformation;
 
-
 class KisToolKnife : public KoInteractionTool
 {
     Q_OBJECT
@@ -53,12 +52,10 @@ public Q_SLOTS:
 
     bool isValidForCurrentLayer() const;
 private:
-    //friend class KisToolKnifeOptionsWidget;
 private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
-
 
 class KisToolKnifeFactory : public KisToolPaintFactoryBase
 {
@@ -85,5 +82,4 @@ public:
 
 };
 
-
-#endif // KIS_TOOL_KNIFE_H_
+#endif

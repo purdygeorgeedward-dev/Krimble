@@ -66,7 +66,6 @@ void KisScanlineFillTest::testFillGeneral(const QVector<KisFillInterval> &initia
     }
     QCOMPARE(forwardIntervals.size(), expectedForwardIntervals.size());
 
-
     QStack<KisFillInterval> backwardIntervals =
         gc.testingGetBackwardIntervals()->fetchAllIntervals();
 
@@ -85,17 +84,17 @@ void KisScanlineFillTest::testSimpleFill()
 {
     QVector<KisFillInterval> initialBackwardIntervals;
     QVector<QColor> expectedResult;
-    expectedResult << testingColor(200); //  0
-    expectedResult << testingColor(255); //  1
-    expectedResult << testingColor(255); //  2
-    expectedResult << testingColor(200); //  3
-    expectedResult << testingColor(200); //  4
-    expectedResult << testingColor(255); //  5
-    expectedResult << testingColor(200); //  6
-    expectedResult << testingColor(200); //  7
-    expectedResult << testingColor(255); //  8
-    expectedResult << testingColor(200); //  9
-    expectedResult << testingColor(200); // 10
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
 
     QVector<KisFillInterval> expectedForwardIntervals;
     expectedForwardIntervals << KisFillInterval(-10,  0, 1);
@@ -119,17 +118,17 @@ void KisScanlineFillTest::testFillBackwardCollisionOnTheLeft()
     initialBackwardIntervals << KisFillInterval(-10,  0, 0);
 
     QVector<QColor> expectedResult;
-    expectedResult << testingColor(  0); //  0
-    expectedResult << testingColor(255); //  1
-    expectedResult << testingColor(255); //  2
-    expectedResult << testingColor(200); //  3
-    expectedResult << testingColor(200); //  4
-    expectedResult << testingColor(255); //  5
-    expectedResult << testingColor(200); //  6
-    expectedResult << testingColor(200); //  7
-    expectedResult << testingColor(255); //  8
-    expectedResult << testingColor(200); //  9
-    expectedResult << testingColor(200); // 10
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
 
     QVector<KisFillInterval> expectedForwardIntervals;
     expectedForwardIntervals << KisFillInterval(3,  4, 1);
@@ -139,7 +138,6 @@ void KisScanlineFillTest::testFillBackwardCollisionOnTheLeft()
     QVector<KisFillInterval> expectedBackwardIntervals;
     expectedBackwardIntervals << KisFillInterval(-10,  -1, 0);
     expectedBackwardIntervals << KisFillInterval(11, 16, 0);
-
 
     testFillGeneral(initialBackwardIntervals,
                     expectedResult,
@@ -153,17 +151,17 @@ void KisScanlineFillTest::testFillBackwardCollisionOnTheRight()
     initialBackwardIntervals << KisFillInterval(9, 20, 0);
 
     QVector<QColor> expectedResult;
-    expectedResult << testingColor(200); //  0
-    expectedResult << testingColor(255); //  1
-    expectedResult << testingColor(255); //  2
-    expectedResult << testingColor(200); //  3
-    expectedResult << testingColor(200); //  4
-    expectedResult << testingColor(255); //  5
-    expectedResult << testingColor(200); //  6
-    expectedResult << testingColor(200); //  7
-    expectedResult << testingColor(255); //  8
-    expectedResult << testingColor(  0); //  9
-    expectedResult << testingColor(  0); // 10
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(200);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(  0);
 
     QVector<KisFillInterval> expectedForwardIntervals;
     expectedForwardIntervals << KisFillInterval(-10,  0, 1);
@@ -186,17 +184,17 @@ void KisScanlineFillTest::testFillBackwardCollisionFull()
     initialBackwardIntervals << KisFillInterval(-10, 20, 0);
 
     QVector<QColor> expectedResult;
-    expectedResult << testingColor(  0); //  0
-    expectedResult << testingColor(255); //  1
-    expectedResult << testingColor(255); //  2
-    expectedResult << testingColor(  0); //  3
-    expectedResult << testingColor(  0); //  4
-    expectedResult << testingColor(255); //  5
-    expectedResult << testingColor(  0); //  6
-    expectedResult << testingColor(  0); //  7
-    expectedResult << testingColor(255); //  8
-    expectedResult << testingColor(  0); //  9
-    expectedResult << testingColor(  0); // 10
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(255);
+    expectedResult << testingColor(  0);
+    expectedResult << testingColor(  0);
 
     QVector<KisFillInterval> expectedForwardIntervals;
 
@@ -233,7 +231,7 @@ void KisScanlineFillTest::testFillBackwardCollisionSanityCheck()
     }
 
     QVERIFY(gotException);
-#endif /* ENABLE_FILL_SANITY_CHECKS */
+#endif
 }
 
 void KisScanlineFillTest::testClearNonZeroComponent()
@@ -321,38 +319,27 @@ void KisScanlineFillTest::testGapClosingFillGeneral(QPoint seed, int gapSize)
 
 void KisScanlineFillTest::testGapClosingFill()
 {
-    // The most basic case.
     testGapClosingFillGeneral(QPoint(52, 84), 1);
 
-    // Progressively better closing.
     testGapClosingFillGeneral(QPoint(103, 94), 1);
     testGapClosingFillGeneral(QPoint(103, 94), 2);
     testGapClosingFillGeneral(QPoint(103, 94), 3);
 
-    // Curved lines, filling into gaps.
     testGapClosingFillGeneral(QPoint(43, 30), 3);
 
-    // No spilling at an extreme gap size.
     testGapClosingFillGeneral(QPoint(32, 28), 32);
 
-    // Getting into a problematic territory (missed pixels).
-    // NOTE: The algorithm WILL miss some currently.
     testGapClosingFillGeneral(QPoint(103, 94), 8);
     testGapClosingFillGeneral(QPoint(93, 79), 18);
 
-    // Fill lines instead of transparent areas.
     testGapClosingFillGeneral(QPoint(146, 96), 1);
 
-    // Expansion cases (filling away from a corner/gap).
     testGapClosingFillGeneral(QPoint(50, 57), 5);
     testGapClosingFillGeneral(QPoint(63, 53), 5);
     testGapClosingFillGeneral(QPoint(63, 53), 19);
 
-    // A problematic expansion case (will not fully expand).
-    // The test will help notice if it got better or worse.
     testGapClosingFillGeneral(QPoint(39, 56), 4);
 
-    // Fill up to the image edges. Ensure no out of bounds access.
     testGapClosingFillGeneral(QPoint(147, 97), 32);
 }
 

@@ -12,7 +12,6 @@
 
 #include "kis_debug.h"
 
-
 void KisBrushHudPropertiesConfigTest::test()
 {
     {
@@ -30,22 +29,10 @@ void KisBrushHudPropertiesConfigTest::test()
         properties2 << "prop6";
         cfg.setSelectedProperties("brush2", properties2);
 
-        // {
-        //     qDebug() << "===========================";
-        //     QString str = cfg.testingGetDocument()->toString(4);
-        //     printf(str.toLatin1());
-        // }
-
         properties1.clear();
         properties1 << "prop7";
         properties1 << "prop8";
         cfg.setSelectedProperties("brush1", properties1);
-
-        // {
-        //     qDebug() << "===========================";
-        //     QString str = cfg.testingGetDocument()->toString(4);
-        //     printf(str.toLatin1());
-        // }
 
         properties1.clear();
         properties1 = cfg.selectedProperties("brush1");
@@ -59,9 +46,6 @@ void KisBrushHudPropertiesConfigTest::test()
         KisBrushHudPropertiesConfig cfg;
         QList<QString> properties1;
         properties1 = cfg.selectedProperties("brush1");
-
-        // qDebug() << "===========================";
-        // qDebug() << ppVar(properties1);
 
         QCOMPARE(properties1.size(), 2);
         QCOMPARE(properties1[0], QString("prop7"));

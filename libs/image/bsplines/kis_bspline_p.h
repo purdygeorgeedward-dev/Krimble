@@ -32,4 +32,4 @@ namespace KisBSplines {
 
 }
 
-#endif /* __KIS_BSPLINE_P_H */
+#endif

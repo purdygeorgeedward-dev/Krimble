@@ -17,7 +17,6 @@
 
 #include <testutil.h>
 
-
 void KisClipboardTest::testRoundTrip()
 {
     const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -50,6 +49,5 @@ void KisClipboardTest::testRoundTrip()
     newDev->setY(dev->y());
     QVERIFY(TestUtil::comparePaintDevices(errorPoint, dev, newDev));
 }
-
 
 SIMPLE_TEST_MAIN(KisClipboardTest)

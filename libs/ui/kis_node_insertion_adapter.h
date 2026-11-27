@@ -12,7 +12,6 @@
 #include "kis_node_manager.h"
 #include "kis_node.h"
 
-
 class KisNodeInsertionAdapter
 {
 public:
@@ -28,4 +27,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_NODE_INSERTION_ADAPTER_H */
+#endif

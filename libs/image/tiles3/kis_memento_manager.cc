@@ -8,9 +8,6 @@
 #include "kis_memento_manager.h"
 #include "kis_memento.h"
 
-
-//#define DEBUG_MM
-
 #ifdef DEBUG_MM
 #define DEBUG_LOG_TILE_ACTION(action, tile, col, row)                   \
     printf("### MementoManager (0x%X): %s "             \
@@ -33,28 +30,6 @@
 #define DEBUG_DUMP_MESSAGE(action)
 #endif
 
-
-/**
- * The class is supposed to store the changes of the paint device
- * it is associated with. The history of changes is presented in form
- * of transactions (revisions). If you purge the history of one
- * transaction (revision) with purgeHistory() we won't be able to undo
- * the changes made by this transactions.
- *
- * The Memento Manager can be in two states:
- *     - Named Transaction is in progress - it means the caller
- *       has explicitly requested creation of a new transaction.
- *       The handle for the transaction is stored on a side of
- *       the caller. And the history will be automatically purged
- *       when the handler dies.
- *     - Anonymous Transaction is in progress - the caller isn't
- *       bothered about transactions at all. We pretend as we do
- *       not support any versioning and do not have any historical
- *       information. The history of such transactions is not purged
- *       automatically, but it is free'd when younger named transaction
- *       is purged.
- */
-
 #define blockRegistration() (m_registrationBlocked = true)
 #define unblockRegistration() (m_registrationBlocked = false)
 #define registrationBlocked() (m_registrationBlocked)
@@ -66,10 +41,6 @@ KisMementoManager::KisMementoManager()
       m_headsHashTable(0),
       m_registrationBlocked(false)
 {
-    /**
-     * Tile change/delete registration is enabled for all
-     * devices by default. It can't be delayed.
-     */
 }
 
 KisMementoManager::KisMementoManager(const KisMementoManager& rhs)
@@ -87,28 +58,8 @@ KisMementoManager::KisMementoManager(const KisMementoManager& rhs)
 
 KisMementoManager::~KisMementoManager()
 {
-    // Nothing to be done here. Happily...
-    // Everything is done by QList and KisSharedPtr...
     DEBUG_LOG_SIMPLE_ACTION("died\n");
 }
-
-/**
- * NOTE: We don't assume that the registerTileChange/Delete
- * can be called once a commit only. Reverse can happen when we
- * do sequential clears of the device. In such a case the tiles
- * will be removed and added several times during a commit.
- *
- * TODO: There is an 'uncomfortable' state for the tile possible
- * 1) Imagine we have a clear device
- * 2) Then we painted something in a tile
- * 3) It registered itself using registerTileChange()
- * 4) Then we called clear() and getMemento() [==commit()]
- * 5) The tile will be registered as deleted and successfully
- *    committed to a revision. That means the states of the memento
- *    manager at stages 1 and 5 do not coincide.
- * This will not lead to any memory leaks or bugs seen, it just
- * not good from a theoretical perspective.
- */
 
 void KisMementoManager::registerTileChange(KisTile *tile)
 {
@@ -167,11 +118,6 @@ void KisMementoManager::commit()
 {
     if (m_index.isEmpty()) {
         if(namedTransactionInProgress()) {
-            //warnTiles << "Named Transaction is empty";
-            /**
-             * We still need to continue commit, because
-             * a named transaction may be reverted by the user
-             */
         }
         else {
             m_currentMemento = 0;
@@ -195,7 +141,6 @@ void KisMementoManager::commit()
         m_headsHashTable.deleteTile(mi->col(), mi->row());
 
         iter.moveCurrentToHashTable(&m_headsHashTable);
-        //iter.next(); // previous line does this for us
     }
 
     KisHistoryItem hItem;
@@ -208,17 +153,11 @@ void KisMementoManager::commit()
 
     DEBUG_DUMP_MESSAGE("COMMIT_DONE");
 
-    // Waking up pooler to prepare copies for us
     KisTileDataStore::instance()->kickPooler();
 }
 
 KisTileSP KisMementoManager::getCommittedTile(qint32 col, qint32 row, bool &existingTile)
 {
-    /**
-     * Our getOldTile mechanism is supposed to return current
-     * tile, if the history is disabled. So we return zero if
-     * no named transaction is in progress.
-     */
     if(!namedTransactionInProgress())
         return KisTileSP();
 
@@ -228,22 +167,8 @@ KisTileSP KisMementoManager::getCommittedTile(qint32 col, qint32 row, bool &exis
 
 KisMementoSP KisMementoManager::getMemento()
 {
-    /**
-     * We do not allow nested transactions
-     */
     KIS_SAFE_ASSERT_RECOVER_NOOP(!namedTransactionInProgress());
 
-    /**
-     * The following assert is useful for testing if some code creates a
-     * transaction on a device with "inconsistent history". We cannot keep
-     * this sanity check enabled all the time, because in some places
-     * (e.g. projection in KisAsyncMerger) such usecase is considered legit.
-     * But in places with "consistent history", e.g. in layer's paint
-     * device, such usage will cause undo corruption.
-     */
-    // KIS_SAFE_ASSERT_RECOVER_NOOP(m_index.isEmpty());
-
-    // Clear redo() information
     m_cancelledRevisions.clear();
 
     commit();
@@ -261,7 +186,6 @@ KisMementoSP KisMementoManager::currentMemento() {
 #define forEachReversed(iter, list) \
         for(iter=list.end(); iter-- != list.begin();)
 
-
 void KisMementoManager::rollback(KisTileHashTable *ht, KisMementoSP memento)
 {
     commit();
@@ -270,8 +194,6 @@ void KisMementoManager::rollback(KisTileHashTable *ht, KisMementoSP memento)
 
     KisHistoryItem changeList = m_revisions.takeLast();
 
-    // SANITY CHECK: the transaction's memento must be in sync with
-    //               the revisions list we have locally
     KIS_SAFE_ASSERT_RECOVER_NOOP(changeList.memento == memento);
 
     KisMementoItemSP mi;
@@ -291,31 +213,15 @@ void KisMementoManager::rollback(KisTileHashTable *ht, KisMementoSP memento)
         m_headsHashTable.deleteTile(parentMI->col(), parentMI->row());
         m_headsHashTable.addTile(parentMI);
 
-        // This is not necessary
-        //mi->setParent(0);
     }
-    /**
-     * NOTE: tricky hack alert.
-     * We have just deleted some tiles from the original hash table.
-     * And they accurately reported to us about their death. Should
-     * have reported... But we have prevented their registration with
-     * explicitly blocking the process. So all the dead tiles are
-     * going to /dev/null :)
-     *
-     * PS: It could cause some race condition... But we insist on
-     * serialization  of rollback()/rollforward() requests. There is
-     * not much sense in calling rollback() concurrently.
-     */
     unblockRegistration();
 
-    // We have just emulated a commit so:
     m_currentMemento = 0;
     KIS_ASSERT(!namedTransactionInProgress());
 
     m_cancelledRevisions.prepend(changeList);
     DEBUG_DUMP_MESSAGE("UNDONE");
 
-    // Waking up pooler to prepare copies for us
     KisTileDataStore::instance()->kickPooler();
 }
 
@@ -327,8 +233,6 @@ void KisMementoManager::rollforward(KisTileHashTable *ht, KisMementoSP memento)
 
     KisHistoryItem changeList = m_cancelledRevisions.takeFirst();
 
-    // SANITY CHECK: the transaction's memento must be in sync with
-    //               the revisions list we have locally
     KIS_SAFE_ASSERT_RECOVER_NOOP(changeList.memento == memento);
 
     KisMementoItemSP mi;
@@ -342,7 +246,6 @@ void KisMementoManager::rollforward(KisTileHashTable *ht, KisMementoSP memento)
 
         m_index.addTile(mi);
     }
-    // see comment in rollback()
 
     m_currentMemento = changeList.memento;
     commit();

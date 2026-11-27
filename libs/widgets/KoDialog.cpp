@@ -71,8 +71,6 @@ void KoDialogPrivate::queuedLayoutUpdate()
 
     Q_Q(KoDialog);
 
-    // Don't lose the focus widget when re-creating the layout.
-    // Testcase: KOrganizer's "Select Categories" dialog
     QPointer<QWidget> focusWidget = mMainWidget ? mMainWidget->focusWidget() : 0;
 
     if (q->layout() && q->layout() != mTopLayout) {
@@ -101,7 +99,7 @@ void KoDialogPrivate::queuedLayoutUpdate()
                 mKrimbleScroll->deleteLater();
             }
             mKrimbleScroll = new KrimbleDialogScroll(q);
-            mKrimbleScroll->setObjectName(QStringLiteral("krimbleDialogScroll"));   // KisApplication.cpp looks for it by this name
+            mKrimbleScroll->setObjectName(QStringLiteral("krimbleDialogScroll"));
             mKrimbleScroll->setWidgetResizable(true);
             mKrimbleScroll->setFrameShape(QFrame::NoFrame);
             mKrimbleScroll->setWidget(mMainWidget);
@@ -184,7 +182,6 @@ void KoDialogPrivate::appendButton(KoDialog::ButtonCode key, const KGuiItem &ite
     QObject::connect(button, &QPushButton::clicked, q, [=] { q->slotButtonClicked(key); });
 
     if (key == mDefaultButton) {
-        // Now that it exists, set it as default
         q->setDefaultButton(mDefaultButton);
     }
 }
@@ -198,7 +195,7 @@ void KoDialogPrivate::init(KoDialog *q)
     q->setButtons(KoDialog::Ok | KoDialog::Cancel);
     q->setDefaultButton(KoDialog::Ok);
 
-    q->setPlainCaption(qApp->applicationDisplayName()); // set appropriate initial window title for case it gets not set later
+    q->setPlainCaption(qApp->applicationDisplayName());
 
     q->setMouseTracking(true);
 }
@@ -251,7 +248,7 @@ void KoDialog::setButtons(ButtonCodes buttonMask)
 
     if (buttonMask == None) {
         d->setupLayout();
-        return; // When we want no button box
+        return;
     }
 
     d->mEscapeButton = (buttonMask & Cancel) ? Cancel : Close;
@@ -315,7 +312,7 @@ void KoDialog::setButtonsOrientation(Qt::Orientation orientation)
         }
 
         if (d->mButtonOrientation == Qt::Vertical) {
-            enableLinkedHelp(false);    // 2000-06-18 Espen: No support for this yet.
+            enableLinkedHelp(false);
         }
     }
 }
@@ -330,7 +327,7 @@ void KoDialog::setDefaultButton(ButtonCode newDefaultButton)
     Q_D(KoDialog);
 
     if (newDefaultButton == None) {
-        newDefaultButton = NoDefault;    // #148969
+        newDefaultButton = NoDefault;
     }
 
     const KoDialog::ButtonCode oldDefault = defaultButton();
@@ -350,11 +347,6 @@ void KoDialog::setDefaultButton(ButtonCode newDefaultButton)
         if (b) {
             b->setDefault(true);
             if (focusWidget() == 0 || oldDefaultHadFocus) {
-                // No widget had focus yet, or the old default button had
-                // -> ok to give focus to the new default button, so that it's
-                // really default (Enter triggers it).
-                // But we don't do this if the kdialog user gave focus to a
-                // specific widget in the dialog.
                 b->setFocus();
             }
         }
@@ -385,7 +377,6 @@ void KoDialog::setMainWidget(QWidget *widget)
     }
     d->mMainWidget = widget;
     if (d->mMainWidget && d->mMainWidget->layout()) {
-        // Avoid double-margin problem
         d->mMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
     }
     d->setupLayout();
@@ -424,9 +415,6 @@ QSize KoDialog::minimumSizeHint() const
     return QDialog::minimumSizeHint() + d->mIncSize;
 }
 
-//
-// Grab QDialogs keypresses if non-modal.
-//
 void KoDialog::keyPressEvent(QKeyEvent *event)
 {
     Q_D(KoDialog);
@@ -457,7 +445,6 @@ void KoDialog::keyPressEvent(QKeyEvent *event)
         return;
     } else if (event->modifiers() == Qt::ControlModifier &&
                (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)) {
-        // accept the dialog when Ctrl-Return is pressed
         QPushButton *button = this->button(Ok);
 
         if (button) {
@@ -643,19 +630,14 @@ QString KoDialog::makeStandardCaption(const QString &userCaption,
     QString caption = qApp->applicationDisplayName();
     QString captionString = userCaption.isEmpty() ? caption : userCaption;
 
-    // If the document is modified, add '[modified]'.
     if (flags & ModifiedCaption) {
         captionString += QString::fromUtf8(" [") + i18n("modified") + QString::fromUtf8("]");
     }
 
     if (!userCaption.isEmpty()) {
-        // Add the application name if:
-        // User asked for it, it's not a duplication  and the app name (caption()) is not empty
         if (flags & AppNameCaption &&
                 !caption.isEmpty() &&
                 !userCaption.endsWith(caption)) {
-            // TODO: check to see if this is a transient/secondary window before trying to add the app name
-            //       on platforms that need this
             captionString += i18nc("Document/application separator in titlebar", " – ") + caption;
         }
     }
@@ -673,7 +655,6 @@ void KoDialog::setCaption(const QString &caption, bool modified)
 {
     CaptionFlags flags = HIGCompliantCaption;
 
-    // ### Qt5 TODO: port to [*], see QWidget::setWindowFilePath
     if (modified) {
         flags |= ModifiedCaption;
     }
@@ -688,7 +669,7 @@ void KoDialog::setPlainCaption(const QString &caption)
     }
 }
 
-void KoDialog::resizeLayout(QWidget *widget, int margin, int spacing)   //static
+void KoDialog::resizeLayout(QWidget *widget, int margin, int spacing)
 {
     if (widget->layout()) {
         resizeLayout(widget->layout(), margin, spacing);
@@ -704,7 +685,7 @@ void KoDialog::resizeLayout(QWidget *widget, int margin, int spacing)   //static
     }
 }
 
-void KoDialog::resizeLayout(QLayout *layout, int margin, int spacing)   //static
+void KoDialog::resizeLayout(QLayout *layout, int margin, int spacing)
 {
     QLayoutItem *child;
     int pos = 0;
@@ -1024,7 +1005,7 @@ void KoDialog::slotButtonClicked(int button)
         break;
     case Close:
         Q_EMIT closeClicked();
-        done(Close); // KDE5: call reject() instead; more QDialog-like.
+        done(Close);
         break;
     case Help:
         Q_EMIT helpClicked();
@@ -1043,7 +1024,6 @@ void KoDialog::slotButtonClicked(int button)
         break;
     }
 
-    // If we're here from the closeEvent, and auto-delete is on, well, auto-delete now.
     if (d->mDeferredDelete) {
         d->mDeferredDelete = false;
         delayedDestruct();
@@ -1116,7 +1096,6 @@ void KoDialog::closeEvent(QCloseEvent *event)
         button->animateClick();
 
         if (testAttribute(Qt::WA_DeleteOnClose)) {
-            // Don't let QWidget::close do a deferred delete just yet, wait for the click first
             d->mDeferredDelete = true;
             setAttribute(Qt::WA_DeleteOnClose, false);
         }

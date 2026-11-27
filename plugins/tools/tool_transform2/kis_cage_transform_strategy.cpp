@@ -14,7 +14,6 @@
 #include "kis_cursor.h"
 #include <kis_cage_transform_worker.h>
 
-
 struct KisCageTransformStrategy::Private
 {
     Private(KisCageTransformStrategy *_q)
@@ -24,7 +23,6 @@ struct KisCageTransformStrategy::Private
 
     KisCageTransformStrategy * const q;
 };
-
 
 KisCageTransformStrategy::KisCageTransformStrategy(const KisCoordinatesConverter *converter,
                                                    KoSnapGuide *snapGuide,

@@ -25,7 +25,6 @@ public:
     };
     Q_DECLARE_FLAGS( SortFlags, SortFlag);
 
-
     KisStopGradientEditor(QWidget *parent);
     KisStopGradientEditor(KoStopGradientSP gradient, QWidget *parent, const char* name, const QString& caption, KoCanvasResourcesInterfaceSP canvasResourcesInterface);
 

@@ -29,7 +29,6 @@
 #include "lazybrush/kis_colorize_mask.h"
 #include "kis_signal_auto_connection.h"
 
-
 struct KisToolLazyBrush::Private
 {
     bool activateMaskMode = false;
@@ -40,7 +39,6 @@ struct KisToolLazyBrush::Private
     KisNodeWSP manuallyActivatedNode;
     KisSignalAutoConnectionsStore toolConnections;
 };
-
 
 KisToolLazyBrush::KisToolLazyBrush(KoCanvasBase * canvas)
     : KisToolFreehand(canvas,
@@ -57,7 +55,6 @@ KisToolLazyBrush::~KisToolLazyBrush()
 
 void KisToolLazyBrush::tryDisableKeyStrokesOnMask()
 {
-    // upgrade to strong pointer
     KisNodeSP manuallyActivatedNode = m_d->manuallyActivatedNode;
 
     if (manuallyActivatedNode) {
@@ -68,7 +65,6 @@ void KisToolLazyBrush::tryDisableKeyStrokesOnMask()
     m_d->manuallyActivatedNode = 0;
 }
 
-
 void KisToolLazyBrush::activate(const QSet<KoShape*> &shapes)
 {
     KisCanvas2 * kiscanvas = dynamic_cast<KisCanvas2*>(canvas());
@@ -76,7 +72,6 @@ void KisToolLazyBrush::activate(const QSet<KoShape*> &shapes)
     m_d->toolConnections.addUniqueConnection(
         kiscanvas->viewManager()->canvasResourceProvider(), SIGNAL(sigNodeChanged(KisNodeSP)),
         this, SLOT(slotCurrentNodeChanged(KisNodeSP)));
-
 
     KisColorizeMask *mask = qobject_cast<KisColorizeMask*>(currentNode().data());
     if (mask) {
@@ -95,7 +90,6 @@ void KisToolLazyBrush::deactivate()
 
 void KisToolLazyBrush::slotCurrentNodeChanged(KisNodeSP node)
 {
-    // upgrade to strong pointer
     KisNodeSP manuallyActivatedNode = m_d->manuallyActivatedNode;
 
     if (node != manuallyActivatedNode) {
@@ -110,7 +104,6 @@ void KisToolLazyBrush::slotCurrentNodeChanged(KisNodeSP node)
 
 void KisToolLazyBrush::resetCursorStyle()
 {
-    // If there's no mask yet, we show the hand cursor
     if (!colorizeMaskActive() && canCreateColorizeMask()) {
         useCursor(KisCursor::handCursor());
         m_d->activateMaskMode = true;
@@ -192,7 +185,6 @@ void KisToolLazyBrush::beginPrimaryAction(KoPointerEvent *event)
         if (!colorizeMaskActive() && canCreateColorizeMask()) {
             tryCreateColorizeMask();
         } else if (shouldActivateKeyStrokes()) {
-            // upgrade to strong pointer
             KisNodeSP manuallyActivatedNode = m_d->manuallyActivatedNode;
             KisNodeSP node = currentNode();
 
@@ -273,7 +265,6 @@ void KisToolLazyBrush::deactivateAlternateAction(KisTool::AlternateAction action
                                                          KisLayerPropertiesIcons::colorizeEditKeyStrokes,
                                                          m_d->oldShowKeyStrokesValue, image());
 
-        // if the values are same, means the property update hasn't finished. So, we should hold on to the lock
         if (m_d->oldShowKeyStrokesValue != showKeyStrokes) {
             m_d->activatedActionLock = false;
         }
@@ -291,7 +282,6 @@ void KisToolLazyBrush::deactivateAlternateAction(KisTool::AlternateAction action
                                                          KisLayerPropertiesIcons::colorizeShowColoring,
                                                          m_d->oldShowColoringValue, image());
 
-        // if the values are same, means the property update hasn't finished. So, we should hold on to the lock
         if (m_d->oldShowColoringValue != colorizeShowColoring) {
             m_d->activatedActionLock = false;
         }
@@ -350,14 +340,6 @@ QWidget * KisToolLazyBrush::createOptionWidget()
     QWidget *optionsWidget = new KisToolLazyBrushOptionsWidget(kiscanvas->viewManager()->canvasResourceProvider(), 0);
     optionsWidget->setObjectName(toolId() + "option widget");
 
-    // // See https://bugs.kde.org/show_bug.cgi?id=316896
-    // QWidget *specialSpacer = new QWidget(optionsWidget);
-    // specialSpacer->setObjectName("SpecialSpacer");
-    // specialSpacer->setFixedSize(0, 0);
-    // optionsWidget->layout()->addWidget(specialSpacer);
-
-
     return optionsWidget;
 }
-
 

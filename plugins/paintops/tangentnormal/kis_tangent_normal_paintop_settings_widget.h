@@ -9,7 +9,6 @@
 
 #include <kis_brush_based_paintop_options_widget.h>
 
-
 class KisTangentNormalPaintOpSettingsWidget : public KisBrushBasedPaintopOptionWidget
 {
     Q_OBJECT
@@ -21,6 +20,4 @@ public:
     KisPropertiesConfigurationSP configuration() const override;
 };
 
-
-
-#endif // KIS_TANGENTNORMAL_PAINTOP_SETTINGS_WIDGET_H_
+#endif

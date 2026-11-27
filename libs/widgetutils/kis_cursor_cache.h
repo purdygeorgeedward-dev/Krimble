@@ -14,9 +14,6 @@
 #include <QPoint>
 #include <QHash>
 
-// KisCursorCache implements a global static database of cursors. This allows
-// Krita to load cursor data only once.
-
 class KisCursorCache: public QObject
 {
     Q_OBJECT
@@ -28,7 +25,6 @@ public:
 
 private:
 
-    // Stores cursor hash
     QHash<QString, QPair<QPoint, QCursor>> cursorHash;
 };
 

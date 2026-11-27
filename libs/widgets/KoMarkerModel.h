@@ -11,7 +11,6 @@
 #include <QAbstractListModel>
 #include <QExplicitlySharedDataPointer>
 
-
 class KoMarker;
 
 class KoMarkerModel : public QAbstractListModel
@@ -25,9 +24,7 @@ public:
 
     int markerIndex(KoMarker *marker) const;
 
-    // returns index of the newly added temporary marker
     int addTemporaryMarker(KoMarker *marker);
-    // removes a temporary marker added by \ref addTemporaryMarker
     void removeTemporaryMarker();
 
     int temporaryMarkerPosition() const;
@@ -41,4 +38,4 @@ private:
     int m_temporaryMarkerPosition;
 };
 
-#endif /* KOMARKERMODEL_H */
+#endif

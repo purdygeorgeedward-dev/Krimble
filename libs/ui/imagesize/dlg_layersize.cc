@@ -17,8 +17,7 @@
 
 #include <kis_document_aware_spin_box_unit_manager.h>
 
-#include <kis_filter_strategy.h>// XXX: I'm really real bad at arithmetic, let alone math. Here
-// be rounding errors. (Boudewijn)
+#include <kis_filter_strategy.h>
 
 const QString DlgLayerSize::PARAM_PREFIX = "layersizedlg";
 
@@ -72,7 +71,7 @@ DlgLayerSize::DlgLayerSize(QWidget *  parent, const char * name,
     m_page->filterCmb->setToolTip(KisFilterStrategyRegistry::instance()->formattedDescriptions());
     m_page->filterCmb->allowAuto(true);
 
-    if (lastUsedFilter) { // Restore or Init..
+    if (lastUsedFilter) {
         m_page->filterCmb->setCurrent(lastUsedFilter->id());
     } else {
         m_page->filterCmb->setCurrent(KisCmbIDList::AutoOptionID);
@@ -150,18 +149,15 @@ KisFilterStrategy *DlgLayerSize::filterType()
         filter = KisFilterStrategyRegistry::instance()->autoFilterStrategy(QSize(m_originalWidth, m_originalHeight), QSize(desiredWidth(), desiredHeight()));
     } else {
         filter = KisFilterStrategyRegistry::instance()->value(filterID.id());
-        lastUsedFilter = filter;  // Save for next time!
+        lastUsedFilter = filter;
     }
 
     return filter;
 }
 
-// SLOTS
-
 void DlgLayerSize::slotWidthChanged(double w)
 {
 
-    //this slot receives values in pt from the unitspinbox, so just use the resolution.
     const double resValue = w*_widthUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
     m_width = qRound(resValue);
 
@@ -178,7 +174,6 @@ void DlgLayerSize::slotWidthChanged(double w)
 void DlgLayerSize::slotHeightChanged(double h)
 {
 
-    //this slot receives values in pt from the unitspinbox, so just use the resolution.
     const double resValue = h*_heightUnitManager->getConversionFactor(KisSpinBoxUnitManager::LENGTH, "px");
     m_height = qRound(resValue);
 
@@ -206,7 +201,6 @@ void DlgLayerSize::slotAspectChanged(bool keep)
     m_keepAspect = keep;
 
     if (keep) {
-        // values may be out of sync, so we need to reset it to defaults
         m_width = m_originalWidth;
         m_height = m_originalHeight;
 

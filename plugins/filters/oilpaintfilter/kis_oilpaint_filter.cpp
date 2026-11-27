@@ -40,7 +40,6 @@
 #include "widgets/kis_multi_integer_filter_widget.h"
 #include <KisGlobalResourcesInterface.h>
 
-
 KisOilPaintFilter::KisOilPaintFilter() : KisFilter(id(), FiltersCategoryStylizeId, i18n("&Oilpaint..."))
 {
     setSupportsPainting(true);
@@ -56,26 +55,11 @@ void KisOilPaintFilter::processImpl(KisPaintDeviceSP device,
 {
     Q_ASSERT(!device.isNull());
 
-    //read the filter configuration values from the KisFilterConfiguration object
     const quint32 brushSize = config ? config->getInt("brushSize", 1) : 1;
     const quint32 smooth = config ? config->getInt("smooth", 30) : 30;
 
     OilPaint(device, device, applyRect, brushSize, smooth, progressUpdater);
 }
-
-// This method have been ported from Pieter Z. Voloshyn algorithm code.
-
-/* Function to apply the OilPaint effect.
- *
- * data             => The image data in RGBA mode.
- * w                => Width of image.
- * h                => Height of image.
- * BrushSize        => Brush size.
- * Smoothness       => Smooth value.
- *
- * Theory           => Using MostFrequentColor function we take the main color in
- *                     a matrix and simply write at the original position.
- */
 
 void KisOilPaintFilter::OilPaint(const KisPaintDeviceSP src, KisPaintDeviceSP dst, const QRect &applyRect,
                                  int BrushSize, int Smoothness, KoUpdater* progressUpdater) const
@@ -88,29 +72,12 @@ void KisOilPaintFilter::OilPaint(const KisPaintDeviceSP src, KisPaintDeviceSP ds
     }
 }
 
-// This method has been ported from Pieter Z. Voloshyn's algorithm code in Digikam.
-
-/* Function to determine the most frequent color in a matrix
- *
- * Bits             => Bits array
- * Width            => Image width
- * Height           => Image height
- * X                => Position horizontal
- * Y                => Position vertical
- * Radius           => Is the radius of the matrix to be analyzed
- * Intensity        => Intensity to calculate
- *
- * Theory           => This function creates a matrix with the analyzed pixel in
- *                     the center of this matrix and find the most frequent color
- */
-
-void KisOilPaintFilter::MostFrequentColor(KisPaintDeviceSP src, quint8* dst, const QRect& /*bounds*/, int X, int Y, int Radius, int Intensity) const
+void KisOilPaintFilter::MostFrequentColor(KisPaintDeviceSP src, quint8* dst, const QRect& , int X, int Y, int Radius, int Intensity) const
 {
     uint I;
 
     double Scale = Intensity / 255.0;
 
-    // Alloc some arrays to be used
     uchar *IntensityCount = new uchar[(Intensity + 1)];
 
     const KoColorSpace* cs = src->colorSpace();
@@ -118,7 +85,6 @@ void KisOilPaintFilter::MostFrequentColor(KisPaintDeviceSP src, quint8* dst, con
     QVector<float> channel(cs->channelCount());
     QVector<float>* AverageChannels = new QVector<float>[(Intensity + 1)];
 
-    // Erase the array
     memset(IntensityCount, 0, (Intensity + 1) * sizeof(uchar));
 
     int startx = X - Radius;
@@ -128,12 +94,10 @@ void KisOilPaintFilter::MostFrequentColor(KisPaintDeviceSP src, quint8* dst, con
 
     qreal middlePointAlpha = 1;
     {
-        // if the current pixel is transparent, the result must be transparent, too.
         KisSequentialConstIterator middlePointIt(src, QRect(X, Y, 1, 1));
         middlePointIt.nextPixel();
         middlePointAlpha = cs->opacityF(middlePointIt.oldRawData());
     }
-
 
     KisSequentialConstIterator srcIt(src, QRect(startx, starty, width, height));
     while (middlePointAlpha > 0 && srcIt.nextPixel()) {
@@ -141,7 +105,6 @@ void KisOilPaintFilter::MostFrequentColor(KisPaintDeviceSP src, quint8* dst, con
         cs->normalisedChannelsValue(srcIt.oldRawData(), channel);
 
         if (cs->opacityU8(srcIt.oldRawData()) == 0) {
-            // if the pixel is transparent, it's not going to provide any useful information
             continue;
         }
 
@@ -180,24 +143,22 @@ void KisOilPaintFilter::MostFrequentColor(KisPaintDeviceSP src, quint8* dst, con
         cs->setOpacity(dst, OPACITY_OPAQUE_U8, middlePointAlpha);
     }
 
-
-    delete [] IntensityCount;        // free all the arrays
+    delete [] IntensityCount;
     delete [] AverageChannels;
 }
 
-QRect KisOilPaintFilter::neededRect(const QRect & rect, const KisFilterConfigurationSP _config, int /*lod*/) const
+QRect KisOilPaintFilter::neededRect(const QRect & rect, const KisFilterConfigurationSP _config, int ) const
 {
     const quint32 brushSize = _config ? _config->getInt("brushSize", 1) : 1;
     return rect.adjusted(-brushSize * 2, -brushSize * 2, brushSize * 2, brushSize * 2);
 }
 
-QRect KisOilPaintFilter::changedRect(const QRect & rect, const KisFilterConfigurationSP _config, int /*lod*/) const
+QRect KisOilPaintFilter::changedRect(const QRect & rect, const KisFilterConfigurationSP _config, int ) const
 {
     const quint32 brushSize = _config ? _config->getInt("brushSize", 1) : 1;
 
     return rect.adjusted( -brushSize*2, -brushSize*2, brushSize*2, brushSize*2);
 }
-
 
 KisConfigWidget * KisOilPaintFilter::createConfigurationWidget(QWidget* parent, const KisPaintDeviceSP, bool) const
 {

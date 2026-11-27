@@ -44,4 +44,4 @@ struct Q_DECL_HIDDEN KisCurveRectangleMaskGenerator::Private
     inline quint8 value(qreal xr, qreal yr) const;
 };
 
-#endif // KIS_CURVE_RECT_MASK_GENERATOR_P_H
+#endif

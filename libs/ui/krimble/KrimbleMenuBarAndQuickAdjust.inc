@@ -11,7 +11,7 @@ static QPixmap krimbleQuickAdjustIcon(int which, int px)
     p.setPen(QPen(ink, 2));
     p.setBrush(Qt::NoBrush);
     switch (which) {
-    case 0: {   // Brightness: a sun
+    case 0: {
         const qreal core = r.width() * 0.22;
         p.drawEllipse(c, core, core);
         for (int k = 0; k < 8; ++k) {
@@ -20,32 +20,32 @@ static QPixmap krimbleQuickAdjustIcon(int which, int px)
             p.drawLine(c + dir * (core + 3), c + dir * (r.width() * 0.46));
         }
         break; }
-    case 1:     // Contrast: a circle, the left half filled
+    case 1:
         p.drawEllipse(r);
         p.setBrush(ink);
         p.drawPie(r, 90 * 16, 180 * 16);
         break;
-    case 2: {   // Saturation: three overlapping drops of color
+    case 2: {
         const qreal d = r.width() * 0.58;
         p.setPen(Qt::NoPen);
         const QColor cols[3] = { QColor(40, 190, 255, 215), QColor(255, 90, 170, 215), QColor(255, 200, 40, 215) };
         const QPointF pts[3] = { QPointF(r.left() + d / 2, r.top() + d / 2), QPointF(r.right() - d / 2, r.top() + d / 2), QPointF(c.x(), r.bottom() - d / 2) };
         for (int k = 0; k < 3; ++k) { p.setBrush(cols[k]); p.drawEllipse(pts[k], d / 2, d / 2); }
         break; }
-    case 3: {   // Hue: a ring of all the colors
+    case 3: {
         QConicalGradient g(c, 0);
         for (int k = 0; k <= 6; ++k) g.setColorAt(k / 6.0, QColor::fromHsv((k * 60) % 360, 255, 255));
         const qreal w = r.width() * 0.22;
         p.setPen(QPen(QBrush(g), w));
         p.drawEllipse(r.adjusted(w / 2, w / 2, -w / 2, -w / 2));
         break; }
-    case 4: {   // Lightness: a square, the left half light
+    case 4: {
         const QRectF sq = r.adjusted(2, 2, -2, -2);
         p.drawRoundedRect(sq, 3, 3);
         p.setBrush(ink);
         p.drawRect(QRectF(sq.left(), sq.top(), sq.width() / 2, sq.height()));
         break; }
-    case 5: {   // Vibrance: a four-point sparkle
+    case 5: {
         const qreal R = r.width() * 0.5, q = r.width() * 0.14;
         QPainterPath path;
         path.moveTo(c.x(), c.y() - R); path.lineTo(c.x() + q, c.y() - q); path.lineTo(c.x() + R, c.y());
@@ -59,7 +59,6 @@ static QPixmap krimbleQuickAdjustIcon(int which, int px)
     return pm;
 }
 
-// the Preview switch of the drawing: a pill that says ON or OFF, with a round knob, and a blue glow when it is on
 class KrimbleToggleSwitch : public QAbstractButton
 {
 public:
@@ -139,13 +138,11 @@ protected:
         QPainterPath quickPath, adjustPath;
         quickPath.addText(x, y, f, quick);
         adjustPath.addText(x + quickWidth, y, f, adjust);
-        // glow behind the letters
         p.setBrush(Qt::NoBrush);
         p.setPen(QPen(QColor(56, 198, 255, 80), 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         p.drawPath(quickPath);
         p.setPen(QPen(QColor(253, 96, 1, 90), 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         p.drawPath(adjustPath);
-        // the letters
         QLinearGradient quickFill(0, y - fm.ascent(), 0, y + fm.descent());
         quickFill.setColorAt(0.0, QColor(0xff, 0xff, 0xff));
         quickFill.setColorAt(1.0, QColor(0xb4, 0xc2, 0xff));
@@ -158,7 +155,6 @@ protected:
         adjustFill.setColorAt(1.0, QColor(0xc4, 0x4a, 0x00));
         p.setBrush(adjustFill);
         p.drawPath(adjustPath);
-        // the slider line under the word, with its knob
         const qreal lineY = y + fm.descent() + 7.0;
         p.setPen(QPen(QColor(0x53, 0x5c, 0x80), 3, Qt::SolidLine, Qt::RoundCap));
         p.drawLine(QPointF(x, lineY), QPointF(x + textWidth, lineY));
@@ -189,7 +185,6 @@ public:
 protected:
     void resizeEvent(QResizeEvent *) override
     {
-        // the height follows the width, so the logo keeps its shape whatever layout it sits in
         const int h = heightForWidth(width());
         if (h > 0 && (height() != h || minimumHeight() != h)) setFixedHeight(h);
     }
@@ -252,8 +247,6 @@ public:
         }
     }
 
-    // Qt lays the menus out as if the button were its own 16 px (it ignores a fixed size), so with a 28 px button "File" would sit under the K. Tested in real Qt: a small
-    // empty item in front of the first menu pushes all the menus to the right (File starts 13 px later). If the menu bar is rebuilt and the item is lost, it is put back.
     static void ensureSpacer(QMenuBar *bar)
     {
         if (!bar) return;
@@ -262,8 +255,7 @@ public:
             spacer = new QWidgetAction(bar);
             spacer->setObjectName(QStringLiteral("krimbleKSpacer"));
             QWidget *gap = new QWidget(bar);
-            // gap->setFixedSize(10, 28);
-            gap->setFixedSize(4, 22);   // 4 px: the 22 px button leaves room for Qt's own 16 px reservation plus this small gap
+            gap->setFixedSize(4, 22);
             gap->setAttribute(Qt::WA_TransparentForMouseEvents, true);
             spacer->setDefaultWidget(gap);
         }
@@ -280,36 +272,8 @@ public:
         const int krimbleBarExtra = 3;
         if (bar->minimumHeight() != 0) bar->setMinimumHeight(0);
         if (bar->property("krimbleBarExtra").toInt() != krimbleBarExtra) bar->setProperty("krimbleBarExtra", krimbleBarExtra);
-        {
-            const QFontMetrics holderMetrics(bar->font());
-            const int holderWidth = 2 + qMin(bar->height() - 4, qMax(14, holderMetrics.height())) + 8;
-            QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner);
-            if (!corner) {
-                corner = new KrimbleKHolder(bar);
-                bar->setCornerWidget(corner, Qt::TopLeftCorner);
-            }
-            if (corner->objectName() == QLatin1String("krimbleKHolder")) {
-                if (corner->width() != holderWidth || corner->minimumWidth() != holderWidth) corner->setFixedWidth(holderWidth);
-                // shown unless Qt has put it aside for an image window's own button (then it is not the bar's corner widget and this code does not see it)
-                if (!corner->isVisible() && bar->isVisible()) corner->show();
-            }
-        }
-        {
-            const QFontMetrics krimbleKMetrics(bar->font());
-            const int krimbleKRoom = 2 + qMin(bar->height() - 4, qMax(14, krimbleKMetrics.height())) + 8;
-            QAction *krimbleFirst = nullptr;
-            Q_FOREACH (QAction *a, bar->actions()) {
-                if (a->isVisible() && a->objectName() != QLatin1String("krimbleKSpacer") && !qobject_cast<QWidgetAction*>(a)) { krimbleFirst = a; break; }
-            }
-            if (krimbleFirst && bar->isVisible()) {
-                const int have = bar->actionGeometry(krimbleFirst).left();
-                const int cur = bar->property("krimblePadLeft").toInt();
-                const int want = qBound(0, cur + krimbleKRoom - have, krimbleKRoom);
-                if (have > 0 && want != cur) {
-                    bar->setProperty("krimblePadLeft", want);
-                    bar->setStyleSheet(QStringLiteral("QMenuBar { padding-left: %1px; }").arg(want));
-                }
-            }
+        if (QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner)) {
+            if (corner->isVisible()) corner->hide();
         }
         if (QWidget *buttons = bar->cornerWidget(Qt::TopRightCorner)) {
             if (buttons->isVisible() && QByteArray(buttons->metaObject()->className()).endsWith("ControllerWidget")) {
@@ -317,30 +281,31 @@ public:
                 if (buttons->y() != y) buttons->move(buttons->x(), y);
             }
         }
-        QWidget *label = bar->cornerWidget(Qt::TopLeftCorner);
-        const bool krimbleHaveLabel = label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel") && label->isVisible();
-        const QPoint target(1, krimbleHaveLabel ? qMax(0, (bar->height() - krimbleBarExtra - label->height()) / 2) : 0);
-        if (krimbleHaveLabel && label->pos() != target) label->move(target);
-        QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        if (QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"))) {
+            spacer->setObjectName(QString());
+            bar->removeAction(spacer);
+            spacer->deleteLater();
+        }
+        const int krimbleKSize = qMin(bar->height() - 4, qMax(14, QFontMetrics(bar->font()).height()));
         QAction *first = nullptr;
         Q_FOREACH (QAction *entry, bar->actions()) {
-            if (entry == spacer || !entry->isVisible() || !entry->menu()) continue;
+            if (!entry->isVisible() || !entry->menu()) continue;
             first = entry;
             break;
         }
-        if (!first) return;
-        const int krimbleKSize = qMin(bar->height() - 4, qMax(14, QFontMetrics(bar->font()).height()));
-        const int deficit = (2 + krimbleKSize + 8) - bar->actionGeometry(first).x();
-        if (deficit <= 0) return;
-        if (!spacer) {
-            ensureSpacer(bar);
-            spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        if (!first || !bar->isVisible()) return;
+        const QRect item = bar->actionGeometry(first);
+        if (item.width() <= 0) return;
+        QString title = first->text();
+        title.remove(QLatin1Char('&'));
+        const int textInset = qMax(0, (item.width() - QFontMetrics(bar->font()).horizontalAdvance(title)) / 2);
+        const int textStart = 2 + krimbleKSize + qRound(70.0 / qMax<qreal>(1.0, bar->devicePixelRatioF()));
+        const int cur = bar->property("krimblePadLeft").toInt();
+        const int want = qBound(0, cur + (textStart - textInset) - item.left(), 200);
+        if (want != cur) {
+            bar->setProperty("krimblePadLeft", want);
+            bar->setStyleSheet(QStringLiteral("QMenuBar { padding-left: %1px; }").arg(want));
         }
-        QWidget *gap = spacer ? spacer->defaultWidget() : nullptr;
-        if (!gap || gap->width() >= 90) return;
-        gap->setFixedSize(qMin(90, gap->width() + deficit), gap->height());
-        spacer->setData(gap->width());
-        bar->update();
     }
 
     static void schedulePlaceK(QMenuBar *bar)
@@ -367,20 +332,20 @@ protected:
                 }
             }
         } else if ((event->type() == QEvent::LayoutRequest || event->type() == QEvent::Resize || event->type() == QEvent::Show) && qobject_cast<QMenuBar *>(watched)) {
-            schedulePlaceK(qobject_cast<QMenuBar *>(watched));   // 2026-11-11: the K in the corner, the menus clear of it
+            schedulePlaceK(qobject_cast<QMenuBar *>(watched));
         } else if ((event->type() == QEvent::Move || event->type() == QEvent::Show) && qobject_cast<QWidget *>(watched)
                    && (QByteArray(watched->metaObject()->className()).endsWith("ControlLabel") || QByteArray(watched->metaObject()->className()).endsWith("ControllerWidget"))) {
-            schedulePlaceK(qobject_cast<QMenuBar *>(static_cast<QWidget *>(watched)->parentWidget()));   // Qt moved the button: put it back in the corner
+            schedulePlaceK(qobject_cast<QMenuBar *>(static_cast<QWidget *>(watched)->parentWidget()));
         } else if ((event->type() == QEvent::ActionAdded || event->type() == QEvent::ActionRemoved) && qobject_cast<QMenuBar *>(watched)) {
             QMenuBar *bar = qobject_cast<QMenuBar *>(watched);
-            QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::hideSettingsMenu(bar); });   // 2026-11-07: no Settings menu, also after the menu bar is rebuilt
+            QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::hideSettingsMenu(bar); });
             schedulePlaceK(bar);
             QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
             const QList<QAction *> all = bar->actions();
             if (spacer && (all.isEmpty() || all.first() != spacer))
-                QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::ensureSpacer(bar); });   // the menu bar was rebuilt: put the spacer back in front
+                QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::ensureSpacer(bar); });
         } else if (event->type() == QEvent::Paint && qobject_cast<QMenuBar *>(watched)) {
-            auto drawK = [watched]() {   // after the painting of the bar when the bar is painted (the Painted theme), or at once
+            auto drawK = [watched]() {
                 QWidget *kBar = static_cast<QWidget *>(watched);
                 const QFontMetrics kMetrics(kBar->font());
                 const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
@@ -388,27 +353,17 @@ protected:
                 kPainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
                 qApp->windowIcon().paint(&kPainter, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));
             };
-            if (!qApp->property("krimblePaintedTheme").toBool()) {
+            if (!qApp->property("krimblePaintedTheme").toBool() || qApp->property("krimbleCyberTheme").toBool()) {
                 drawK();
                 return false;
             }
             QWidget *bar = static_cast<QWidget *>(watched);
             QPainter painter(bar);
             const QRectF r(bar->rect());
-            QLinearGradient across(r.left(), 0, r.right(), 0);
-            across.setColorAt(0.0, QColor("#1c2346"));
-            across.setColorAt(0.5, QColor("#394585"));
-            across.setColorAt(1.0, QColor("#1c2346"));
-            painter.fillRect(r, across);
-            painter.setPen(QColor(150, 165, 225, 120));
-            painter.drawLine(0, 0, bar->width(), 0);
-            painter.setPen(QColor(62, 74, 128, 200));
-            painter.drawLine(0, bar->height() - 2, bar->width(), bar->height() - 2);
-            painter.setPen(QColor(8, 11, 28, 255));
-            painter.drawLine(0, bar->height() - 1, bar->width(), bar->height() - 1);
+            painter.fillRect(r, QColor("#2a3466"));
             painter.end();
             drawK();
-            return false;   // the bar then draws its menu names on top as usual
+            return false;
         } else if (event->type() == QEvent::Paint) {
             QWidget *label = qobject_cast<QWidget *>(watched);
             if (label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel")) {
@@ -462,7 +417,6 @@ public:
             row->setVerticalSpacing(0);
             QLabel *rowIcon = new QLabel(content);
             {
-                // the six pictures cut out of George's picture (krita/pics/svg/dark_krimble-quickadjust-icon-N.png), 38 logical px, sharp at the screen's resolution
                 const qreal ratio = content->devicePixelRatioF();
                 QPixmap big(QStringLiteral(":/dark_krimble-quickadjust-icon-%1.png").arg(i));
                 QPixmap sharp = big.scaled(qRound(20 * ratio), qRound(20 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -481,16 +435,11 @@ public:
             m_numbers[i]->setAlignment(Qt::AlignCenter);
             m_numbers[i]->setStyleSheet(QStringLiteral(
                 "QSpinBox { font-weight: bold; color: #ffffff; padding-right: 17px; padding-left: 0px; }"
-                // "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
-                // "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
-                // 
                 "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 16px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
                 "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 16px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
                 "QSpinBox::up-arrow { image: url(:/dark_krimble-quickadjust-arrow-up.png); width: 9px; height: 7px; }"
                 "QSpinBox::down-arrow { image: url(:/dark_krimble-quickadjust-arrow-down.png); width: 9px; height: 7px; }"));
-            // row->addWidget(m_numbers[i], 1, 1, Qt::AlignLeft | Qt::AlignTop);
             row->addWidget(m_numbers[i], 0, 3, Qt::AlignRight | Qt::AlignVCenter);
-            // layout->addLayout(row);
             layout->addWidget(frame);
             m_sliders[i] = new QSlider(Qt::Horizontal, content);
             m_sliders[i]->setRange(def(i).min, def(i).max);
@@ -500,14 +449,6 @@ public:
             const QString thinHandle = QStringLiteral(
                 "QSlider::handle:horizontal { width: 12px; height: 12px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }");
             if (i != Hue) {
-                // m_sliders[i]->setStyleSheet(QStringLiteral(
-                //     "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
-                //     "QSlider::sub-page:horizontal { height: 4px; border: 1px solid #146a9f; border-radius: 3px; background: #1d7cb2; }")
-                //     + thinHandle);
-                // m_sliders[i]->setStyleSheet(QStringLiteral(
-                //     "QSlider::groove:horizontal { height: 2px; border: none; border-radius: 1px; background: #6f789c; }"
-                //     "QSlider::sub-page:horizontal { height: 2px; border: none; border-radius: 1px; background: #2aa6e8; }")
-                //     + thinHandle);
                 m_sliders[i]->setStyleSheet(QStringLiteral(
                     "QSlider::groove:horizontal { height: 3px; border: none; border-radius: 1px;"
                     " background: #f4f5fb; }"
@@ -542,8 +483,6 @@ public:
                         connect(view->canvasResourceProvider(), &KisCanvasResourceProvider::sigFGColorChanged, this, [updateHueLine](const KoColor &) { updateHueLine(); });
                 }
                 if (false) m_sliders[i]->setStyleSheet(QStringLiteral(
-                    // "QSlider::groove:horizontal { height: 9px; border: 1px solid #535c80; border-radius: 4px;"
-                    // "QSlider::groove:horizontal { height: 5px; border: 1px solid #535c80; border-radius: 4px;"
                     "QSlider::groove:horizontal { height: 3px; border: none; border-radius: 1px;"
                     " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #ff00c8, stop:0.2 #4a3cff, stop:0.4 #00c8ff,"
                     " stop:0.6 #1fdc3f, stop:0.8 #ffe600, stop:1 #ff2a00); }"
@@ -663,7 +602,7 @@ private:
         if (!view) return;
         KisImageSP image = view->image();
         if (!image) return;
-        if (m_image.data() != image.data()) {      // another picture: forget the layers of the old one
+        if (m_image.data() != image.data()) {
             m_bcLayer = KisNodeWSP();
             m_hsvLayer = KisNodeWSP();
             m_vibLayer = KisNodeWSP();
@@ -722,7 +661,6 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         return;
     }
     QDialog *dialog = new QDialog(win);
-    dialog->setProperty("krimbleSmallGrip", true);
     {
         QFont smaller = dialog->font();
         dialog->setFont(smaller);
@@ -745,7 +683,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         QHBoxLayout *logoRow = new QHBoxLayout;
         {
             const qreal bannerDpr = qMax<qreal>(1.0, dialog->devicePixelRatioF());
-            logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, qRound(520 / bannerDpr)), 1);
+            logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog, qRound(360 / bannerDpr)), 1);
             logoRow->addStretch(0);
         }
         layout->addLayout(logoRow);
@@ -774,11 +712,6 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         if (QWidget *pl = adjust->previewLabel()) bottom->addWidget(pl);
         if (QAbstractButton *ps = adjust->previewSwitch()) bottom->addWidget(ps);
         bottom->addStretch(1);
-        // The divider between Preview and Cancel is not used now that Preview has its own line.
-        // QFrame *divider = new QFrame(dialog);
-        // divider->setFixedSize(1, 36);
-        // divider->setStyleSheet(QStringLiteral("background: #f0f1fa; border: none;"));
-        // bottom->addWidget(divider);
         QPushButton *cancelRow = new QPushButton(i18n("Cancel"), dialog);
         QObject::connect(cancelRow, &QPushButton::clicked, buttons, &QDialogButtonBox::rejected);
         bottom->addWidget(cancelRow);
@@ -801,7 +734,6 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         adjust->removeCreatedLayers();
         dialog->reject();
     });
-    // closing the window another way (Android's back button) counts as Cancel
     QObject::connect(dialog, &QDialog::rejected, dialog, [adjust]() { adjust->removeCreatedLayers(); });
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
@@ -815,8 +747,6 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     dialog->show();
 }
 
-// Opens (or shows and hides) the Quick Adjust panel. It starts floating, 62% of the screen wide, so it never has to fit next to the
-// toolbox, canvas and panels.
 static void krimbleToggleQuickAdjust(KisMainWindow *win)
 {
     QDockWidget *dock = win->findChild<QDockWidget*>(QStringLiteral("KrimbleQuickAdjust"));

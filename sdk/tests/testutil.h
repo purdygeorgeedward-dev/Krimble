@@ -37,10 +37,6 @@
 
 #include "qimage_test_util.h"
 
-/**
- * Compare values and return false on failure
- * (normal QCOMPARE returns void)
- */
 #define KIS_COMPARE_RF(expr, ref) \
     if ((expr) != (ref)) { \
         qDebug() << "Compared values are not the same at line" << __LINE__; \
@@ -49,21 +45,12 @@
         return false; \
     }
 
-/**
- * Compare two float numbers by rounding them up to \p prec
- * decimals after the point.
- */
 #define KIS_COMPARE_FLT(actual, expected, prec) \
 do {\
         const qreal multiplier = pow(10, prec); \
         if (!QTest::qCompare(qRound(actual * multiplier) / multiplier, qRound(expected * multiplier) / multiplier, #actual, #expected, __FILE__, __LINE__))\
         return;\
 } while (false)
-
-
-/**
- * Routines that are useful for writing efficient tests
- */
 
 namespace TestUtil
 {
@@ -127,7 +114,6 @@ public:
     QString format() { return m_format; }
     QString autoNestedName() { return m_autoNestedName; }
 
-
 private:
     int m_min;
     int m_max;
@@ -138,8 +124,6 @@ private:
 
 inline bool comparePaintDevices(QPoint & pt, const KisPaintDeviceSP dev1, const KisPaintDeviceSP dev2)
 {
-    //     QTime t;
-    //     t.start();
 
     QRect rc1 = dev1->exactBounds();
     QRect rc2 = dev2->exactBounds();
@@ -164,7 +148,6 @@ inline bool comparePaintDevices(QPoint & pt, const KisPaintDeviceSP dev1, const 
         iter1->nextRow();
         iter2->nextRow();
     }
-    //     qDebug() << "comparePaintDevices time elapsed:" << t.elapsed();
     return true;
 }
 
@@ -226,7 +209,6 @@ struct ReferenceImageChecker
         {
         }
 
-
     void setMaxFailingPixels(int value) {
         m_maxFailingPixels = value;
     }
@@ -241,7 +223,6 @@ struct ReferenceImageChecker
 
     inline bool checkDevice(KisPaintDeviceSP device, KisImageSP image, const QString &caseName) {
         bool result = false;
-
 
         if (m_storageType == ExternalStorage) {
             result = checkQImageExternal(device->convertToQImage(0, image->bounds()),
@@ -276,7 +257,6 @@ private:
     int m_maxFailingPixels;
     int m_fuzzy;
 };
-
 
 #endif
 
@@ -398,12 +378,6 @@ struct MaskParent
         qApp->processEvents();
         image->waitForDone();
         KisLayerUtils::forceAllDelayedNodesUpdate(image->root());
-        /**
-         * Shape updates have two channels of compression, 100ms each.
-         * One in KoShapeManager, the other one in KisShapeLayerCanvas.
-         * Therefore we should wait for a decent amount of time for all
-         * of them to land.
-         */
 
         do {
             QTest::qWait(500);

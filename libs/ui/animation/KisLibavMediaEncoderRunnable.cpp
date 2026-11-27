@@ -29,15 +29,11 @@ extern "C" {
 
 namespace KisLibav
 {
-// Same as IO_BUFFER_SIZE in ffmpeg's avio.c.
 static constexpr int BUFFER_SIZE = 32768;
 
-// GIF palette sizes, always 16x16 images in BGRA format.
 static constexpr int GIF_PALETTE_DIMENSION = 16;
 static constexpr int GIF_PALETTE_BYTES = 1024;
 
-// FFMPEG API breakage. They added constness to a callback and changed
-// their mind on which macro you use to check for it or something.
 #if defined(ff_const59)
 using WriteAvioPacketBuf = ff_const59 uint8_t *;
 #elif FF_API_AVIO_WRITE_NONCONST
@@ -45,7 +41,7 @@ using WriteAvioPacketBuf = uint8_t *;
 #else
 using WriteAvioPacketBuf = const uint8_t *;
 #endif
-} // namespace KisLibav
+}
 
 class KisLibavMediaEncoderRunnable::Format : public KisMediaEncoderFormat
 {
@@ -477,8 +473,6 @@ public:
 
             QVector<AVPixelFormat> pixFmts = format.filterPixelFormats();
 #if LIBAVUTIL_VERSION_MAJOR >= 60
-            // Option int lists and "pix_fmt" got deprecated and replaced with array
-            // options and "pixel_formats".
             unsigned int pixFmtsCount = 0;
             for (AVPixelFormat pixFmt : pixFmts) {
                 if (pixFmt == AV_PIX_FMT_NONE) {
@@ -675,11 +669,10 @@ public:
                 return EncodeResult::Cancelled;
             }
 
-            // Grab the next frame from disk.
             QImage inputImage;
             AVPixelFormat inputPixelFormat;
             if (!inputFrame.readImage(inputImage) || !convertFrame(inputImage, inputPixelFormat)) {
-                continue; // Keep going, some frames may be corrupted.
+                continue;
             }
 
             int inputWidth = inputImage.width();
@@ -754,7 +747,6 @@ public:
         avio_flush(m_formatContext->pb);
         avio_context_free(&m_formatContext->pb);
 
-        // QIODevice doesn't have a flush function, so we gotta go via a cast.
         QFile *outputFile = qobject_cast<QFile *>(output.get());
         if (outputFile && !outputFile->flush()) {
             setInternalErrorMessage(QStringLiteral("failed to flush output file '%1': %2")
@@ -941,8 +933,6 @@ KisMediaEncoderRunnable::EncodeResult KisLibavMediaEncoderRunnable::encode(QStri
     QByteArray paletteData;
 
     if (format->formatId() == FORMAT_GIF) {
-        // GIF needs to generate a palette, so we must do two rendering runs.
-        // Setting the multiplier here halves the speed of the progress bar.
         setOutputFrameNoMultiplier(0.5);
 
         Format paletteFormat(FORMAT_GIF_PALETTE);
@@ -953,7 +943,7 @@ KisMediaEncoderRunnable::EncodeResult KisLibavMediaEncoderRunnable::encode(QStri
         }
 
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!paletteData.isEmpty(), EncodeResult::Failed);
-        rewindFrames(); // Ready the frame iterator for another round.
+        rewindFrames();
     }
 
     return Context(this, outErrorMessage).encode(settings(), *format, paletteData, false);

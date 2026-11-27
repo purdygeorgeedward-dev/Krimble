@@ -45,4 +45,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSTROKEEFFICIENCYMEASURER_H
+#endif

@@ -18,4 +18,4 @@ public:
     QString maximumLabel(int length)override;
 };
 
-#endif // KISDYNAMICSENSORFACTORYTIME_H
+#endif

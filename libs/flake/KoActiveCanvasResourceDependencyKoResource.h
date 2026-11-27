@@ -9,10 +9,6 @@
 #include <KoActiveCanvasResourceDependency.h>
 #include <QVariant>
 
-/**
- * A canvas resource dependency for KoResource-based canvas resources. It relies
- * on the presence of KoResource::requiredCanvasResources().
- */
 template <typename ResourceType>
 class KoActiveCanvasResourceDependencyKoResource : public KoActiveCanvasResourceDependency
 {
@@ -40,4 +36,4 @@ public:
     }
 };
 
-#endif // KOACTIVECANVASRESOURCEDEPENDENCYKORESOURCE_H
+#endif

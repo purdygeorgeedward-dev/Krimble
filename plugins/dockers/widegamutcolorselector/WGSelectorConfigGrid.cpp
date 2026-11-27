@@ -20,7 +20,6 @@
 #include <QTimer>
 #include <QToolButton>
 
-
 class SelectorConfigAction: public QAction
 {
 public:
@@ -101,8 +100,6 @@ void WGSelectorConfigGrid::setColorModel(KisVisualColorModel::ColorModel model)
 void WGSelectorConfigGrid::setConfigurations(const QVector<KisColorSelectorConfiguration> &configurations)
 {
     clear();
-    // exclusive action groups have no nice way to set none as checked, and
-    // ExclusiveOptional is not what we want either, so use a dummy action
     m_dummyAction = new QAction("dummy", m_actionGroup);
     m_dummyAction->setCheckable(true);
     m_dummyAction->setChecked(true);
@@ -111,7 +108,6 @@ void WGSelectorConfigGrid::setConfigurations(const QVector<KisColorSelectorConfi
     for (int i = 0; i < configurations.size(); i++) {
         const KisColorSelectorConfiguration &config = configurations.at(i);
         SelectorConfigAction *action = new SelectorConfigAction(config, m_actionGroup);
-        //action->setText(QString("TBD %1").arg(i));
         action->setIcon(generateIcon(config, devicePixelRatioF(), true));
 
         QToolButton *button = new QToolButton(this);
@@ -152,7 +148,6 @@ QIcon WGSelectorConfigGrid::generateIcon(const KisColorSelectorConfiguration &co
         return icon;
     }
 
-    // highlight bar for on-icon
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
     QBrush highlight(palette().brush(QPalette::Active, QPalette::Highlight));
@@ -181,8 +176,6 @@ bool WGSelectorConfigGrid::event(QEvent *event)
 {
     bool handled = QWidget::event(event);
     if (event->type() == QEvent::PaletteChange) {
-        // For some reason, Qt doesn't like if we recreate the icons from this
-        // even handler and randomly crashes somewhere after this function returns
         QTimer::singleShot(0, this, &WGSelectorConfigGrid::updateIcons);
         event->accept();
         handled = true;
@@ -192,9 +185,6 @@ bool WGSelectorConfigGrid::event(QEvent *event)
 
 void WGSelectorConfigGrid::slotActionTriggered(QAction *action)
 {
-    // Unfortunately, exclusive QActionGroups don't filter out attempts to toggle
-    // an action that is already checked, so need to check ourselves if checked
-    // action really changed. Checking the hidden dummy also is a silent operation.
     if (action == m_currentAction) {
         return;
     }

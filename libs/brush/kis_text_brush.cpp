@@ -21,8 +21,7 @@
 #include <QApplication>
 #include <QWidget>
 #include <QThread>
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
-
+#endif
 
 class KisTextBrushesPipe : public KisBrushesPipe<KisGbrBrush>
 {
@@ -33,7 +32,7 @@ public:
     }
 
     KisTextBrushesPipe(const KisTextBrushesPipe &rhs)
-        : KisBrushesPipe<KisGbrBrush>(), // no copy here!
+        : KisBrushesPipe<KisGbrBrush>(),
           m_text(rhs.m_text),
           m_charIndex(rhs.m_charIndex),
           m_currentBrushIndex(rhs.m_currentBrushIndex)
@@ -60,12 +59,11 @@ public:
 
             const QChar letter = m_text.at(i);
 
-            // skip letters that are already present in the brushes pipe
             if (m_brushesMap.contains(letter)) continue;
 
             QImage image = renderChar(letter, font);
             KisGbrBrushSP brush(new KisGbrBrush(image, letter));
-            brush->setSpacing(0.1); // support for letter spacing?
+            brush->setSpacing(0.1);
             brush->makeMaskImage(false);
 
             m_brushesMap.insert(letter, brush);
@@ -84,13 +82,13 @@ public:
                            << "versions of X11/Qt!";
             }
         }
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
         QFontMetrics metric(font);
         QRect rect = metric.boundingRect(text);
 
         if (rect.isEmpty()) {
-            rect = QRect(0, 0, 1, 1); // paint at least something
+            rect = QRect(0, 0, 1, 1);
         }
 
         QRect paintingRect = rect.translated(-rect.x(), -rect.y());
@@ -165,7 +163,6 @@ private:
     int m_charIndex;
     int m_currentBrushIndex;
 };
-
 
 KisTextBrush::KisTextBrush()
     : m_brushesPipe(new KisTextBrushesPipe())
@@ -256,7 +253,7 @@ void KisTextBrush::generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst
     if (brushType() == MASK) {
         KisBrush::generateMaskAndApplyMaskOrCreateDab(dst, coloringInformation, shape, info, subPixelX, subPixelY, softnessFactor, lightnessStrength);
     }
-    else { /* if (brushType() == PIPE_MASK)*/
+    else {
         m_brushesPipe->generateMaskAndApplyMaskOrCreateDab(dst, coloringInformation, shape, info, subPixelX, subPixelY, softnessFactor, lightnessStrength);
     }
 }
@@ -269,7 +266,7 @@ KisFixedPaintDeviceSP KisTextBrush::paintDevice(const KoColorSpace * colorSpace,
     if (brushType() == MASK) {
         return KisBrush::paintDevice(colorSpace, shape, info, subPixelX, subPixelY);
     }
-    else { /* if (brushType() == PIPE_MASK)*/
+    else {
         return m_brushesPipe->paintDevice(colorSpace, shape, info, subPixelX, subPixelY);
     }
 }
@@ -295,13 +292,12 @@ void KisTextBrush::updateBrush()
     if (brushType() == PIPE_MASK) {
         m_brushesPipe->setText(m_text, m_font);
         if (m_text.isEmpty()) {
-            // Dummy brushtip to avoid a crash...
             setBrushTipImage(KisTextBrushesPipe::renderChar(m_text, m_font));
             return;
         }
         setBrushTipImage(m_brushesPipe->firstBrush()->brushTipImage());
     }
-    else { /* if (brushType() == MASK)*/
+    else {
         setBrushTipImage(KisTextBrushesPipe::renderChar(m_text, m_font));
     }
 

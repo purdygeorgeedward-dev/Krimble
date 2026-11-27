@@ -35,7 +35,7 @@ public:
     QDockWidget* createDockWidget() override
     {
         StoryboardDockerDock * dockWidget = new StoryboardDockerDock();
-        
+
         dockWidget->setObjectName(id());
 
         return dockWidget;
@@ -47,9 +47,7 @@ public:
     }
 private:
 
-
 };
-
 
 StoryboardDockerPlugin::StoryboardDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

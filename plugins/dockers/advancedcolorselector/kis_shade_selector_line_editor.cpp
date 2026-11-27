@@ -40,7 +40,6 @@ KisShadeSelectorLineEditor::KisShadeSelectorLineEditor(QWidget* parent, KisShade
     m_valueShift = new KisDoubleParseSpinBox();
     lineTwo->addWidget(m_valueShift);
 
-
     m_hueDelta->setRange(-1, 1);
     m_saturationDelta->setRange(-1, 1);
     m_valueDelta->setRange(-1, 1);
@@ -97,7 +96,7 @@ void KisShadeSelectorLineEditor::fromString(const QString &string)
     m_hueDelta->setValue(strili.at(1).toDouble());
     m_saturationDelta->setValue(strili.at(2).toDouble());
     m_valueDelta->setValue(strili.at(3).toDouble());
-    if(strili.size()==4) return;            // don't crash, if reading old config files.
+    if(strili.size()==4) return;
     m_hueShift->setValue(strili.at(4).toDouble());
     m_saturationShift->setValue(strili.at(5).toDouble());
     m_valueShift->setValue(strili.at(6).toDouble());

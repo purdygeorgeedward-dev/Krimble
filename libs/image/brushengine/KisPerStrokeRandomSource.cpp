@@ -55,7 +55,6 @@ KisPerStrokeRandomSource::~KisPerStrokeRandomSource()
 {
 }
 
-
 qint64 KisPerStrokeRandomSource::Private::fetchInt(const QString &key)
 {
     QMutexLocker l(&mutex);

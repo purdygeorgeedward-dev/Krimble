@@ -64,19 +64,11 @@ public:
     }
 
 protected:
-    /**
-     * The order in which channels() returns is not the same as the internal representation,
-     * that of the pixel internally. This method converts external usage to internal usage.
-     * This method uses some basic assumptions about the layout of the pixel, so _extremely_
-     * exotic spaces might want to override this (see makeExternalToInternal source for
-     * those assumptions)
-     **/
     virtual int externalToInternal(int ext) {
-        if (channels().count() > 0 && m_external.count() == 0) // Set up the translation table
+        if (channels().count() > 0 && m_external.count() == 0)
             makeExternalToInternal();
         return m_external.at(ext);
     }
-    // not virtual since that is useless: we call it from constructor
     void makeExternalToInternal();
     typedef QVector<quint32> vBins;
     QVector<vBins> m_bins;
@@ -121,7 +113,6 @@ public:
     qreal maximalZoom() const override;
 };
 
-
 #ifdef HAVE_OPENEXR
 class KRITAPIGMENT_EXPORT KoBasicF16HalfHistogramProducer : public KoBasicHistogramProducer
 {
@@ -134,12 +125,6 @@ public:
 };
 #endif
 
-/**
- * Parametrized on a specific KoHistogramProducer. Its generated producers
- * will have the same KoID as the factory's. This is acceptable because we can't mix
- * Factories with Producers in the code because they are incompatible types, and
- * in the GUI we actually only need a producer's name, not a factory's.
- */
 template<class T> class KoBasicHistogramProducerFactory : public KoHistogramProducerFactory
 {
 public:
@@ -170,12 +155,6 @@ protected:
     QString m_modelId, m_depthId;
 };
 
-/**
- * This is a Producer (with associated factory) that converts the pixels of the colorspace
- * to RGB8 with toQColor, and then does its counting on RGB. This is NOT registered with the
- * Registry, because it isCompatibleWith all colorspaces, and should only be used in extreme
- * cases (like no other producer being available
- **/
 class KRITAPIGMENT_EXPORT KoGenericRGBHistogramProducer : public KoBasicHistogramProducer
 {
 public:
@@ -189,7 +168,6 @@ protected:
     QList<KoChannelInfo *> m_channelsList;
 };
 
-/** KoGenericRGBHistogramProducer his special Factory that isCompatibleWith everything. */
 class  KRITAPIGMENT_EXPORT KoGenericRGBHistogramProducerFactory : public KoHistogramProducerFactory
 {
 public:
@@ -211,12 +189,6 @@ public:
     }
 };
 
-
-/**
- * This is a Producer (with associated factory) that converts the pixels of the colorspace
- * to L*a*b*, and then does its counting.
- * It isCompatibleWith all colorspaces
- **/
 class  KRITAPIGMENT_EXPORT KoGenericLabHistogramProducer : public KoBasicHistogramProducer
 {
 public:
@@ -230,8 +202,7 @@ protected:
     QList<KoChannelInfo *> m_channelsList;
 };
 
-/** KoGenericLabHistogramProducer his special Factory that isCompatibleWith everything. */
-class /*KRITAPIGMENT_EXPORT*/ KoGenericLabHistogramProducerFactory : public KoHistogramProducerFactory
+class KoGenericLabHistogramProducerFactory : public KoHistogramProducerFactory
 {
 public:
     KoGenericLabHistogramProducerFactory();
@@ -251,5 +222,4 @@ public:
     }
 };
 
-
-#endif // _Ko_BASIC_HISTOGRAM_PRODUCERS_
+#endif

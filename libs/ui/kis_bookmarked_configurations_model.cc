@@ -19,7 +19,6 @@ struct KisBookmarkedConfigurationsModel::Private {
     QList<QString> configsKey;
 };
 
-
 KisBookmarkedConfigurationsModel::KisBookmarkedConfigurationsModel(KisBookmarkedConfigurationManager* bm) : d(new Private)
 {
     d->bookmarkManager = bm;

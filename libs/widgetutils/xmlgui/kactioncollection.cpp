@@ -65,8 +65,6 @@ public:
     QString m_componentName;
     QString m_componentDisplayName;
 
-    //! Remove a action from our internal bookkeeping. Returns 0 if the
-    //! action doesn't belong to us.
     QAction *unlistAction(QObject *);
 
     QMap<QString, QAction *> actionByName;
@@ -114,7 +112,6 @@ KisKActionCollection::~KisKActionCollection()
     delete d;
 }
 
-
 QList<KisKActionCategory *> KisKActionCollection::categories() const
 {
     return this->findChildren<KisKActionCategory *>();
@@ -133,7 +130,6 @@ KisKActionCategory *KisKActionCollection::getCategory(const QString &name) {
     }
     return category;
 }
-
 
 void KisKActionCollection::clear()
 {
@@ -155,7 +151,6 @@ QAction *KisKActionCollection::action(const QString &name) const
 
 QAction *KisKActionCollection::action(int index) const
 {
-    // ### investigate if any apps use this at all
     return actions().value(index);
 }
 
@@ -172,12 +167,6 @@ bool KisKActionCollection::isEmpty() const
 void KisKActionCollection::setComponentName(const QString &cName)
 {
     if (count() > 0) {
-        // Its component name is part of an action's signature in the context of
-        // global shortcuts and the semantics of changing an existing action's
-        // signature are, as it seems, impossible to get right.
-        // As of now this only matters for global shortcuts. We could
-        // thus relax the requirement and only refuse to change the component data
-        // if we have actions with global shortcuts in this collection.
         qWarning() << "this does not work on a KisKActionCollection containing actions!";
     }
 
@@ -254,48 +243,35 @@ QAction *KisKActionCollection::addAction(const QString &name, QAction *action)
     QString indexName = name;
 
     if (indexName.isEmpty()) {
-        // No name provided. Use the objectName.
         indexName = objectName;
 
     } else {
-        // Set the new name
         action->setObjectName(indexName);
     }
 
-    // No name provided and the action had no name. Make one up. This will not
-    // work when trying to save shortcuts.
     if (indexName.isEmpty()) {
         QTextStream(&indexName) << (void *)action;
 
         action->setObjectName(indexName);
     }
 
-    // From now on the objectName has to have a value. Else we cannot safely
-    // remove actions.
     Q_ASSERT(!action->objectName().isEmpty());
 
-    // look if we already have THIS action under THIS name ;)
     if (d->actionByName.value(indexName, 0) == action) {
-        // This is not a multi map!
         Q_ASSERT(d->actionByName.count(indexName) == 1);
         return action;
     }
 
-    // Check if we have another action under this name
     if (QAction *oldAction = d->actionByName.value(indexName)) {
         takeAction(oldAction);
     }
 
-    // Check if we have this action under a different name.
-    // Not using takeAction because we don't want to remove it from categories,
-    // and because it has the new name already.
     const int oldIndex = d->actions.indexOf(action);
     if (oldIndex != -1) {
         d->actionByName.remove(d->actionByName.key(action));
         d->actions.removeAt(oldIndex);
     }
 
-    // Add action to our lists.
     d->actionByName.insert(indexName, action);
     d->actions.append(action);
 
@@ -337,7 +313,6 @@ QAction *KisKActionCollection::takeAction(QAction *action)
         return 0;
     }
 
-    // Remove the action from all widgets
     Q_FOREACH (QWidget *widget, d->associatedWidgets) {
         widget->removeAction(action);
     }
@@ -356,15 +331,9 @@ QAction *KisKActionCollection::addAction(KStandardAction::StandardAction actionT
 QAction *KisKActionCollection::addAction(KStandardAction::StandardAction actionType, const QString &name,
                                       const QObject *receiver, const char *member)
 {
-    // pass 0 as parent, because if the parent is a KisKActionCollection KStandardAction::create automatically
-    // adds the action to it under the default name. We would trigger the
-    // warning about renaming the action then.
     QAction *action = KStandardAction::create(actionType, receiver, member, 0);
-    // Give it a parent for gc.
     action->setParent(this);
-    // Remove the name to get rid of the "rename action" warning above
     action->setObjectName(name);
-    // And now add it with the desired name.
     return addAction(name, action);
 }
 
@@ -401,7 +370,6 @@ void KisKActionCollection::setDefaultShortcuts(QAction *action, const QList<QKey
 
 bool KisKActionCollection::isShortcutsConfigurable(QAction *action) const
 {
-    // Considered as true by default
     const QVariant value = action->property("isShortcutConfigurable");
     return value.isValid() ? value.toBool() : true;
 }
@@ -431,7 +399,6 @@ void KisKActionCollection::updateShortcuts()
     }
 }
 
-
 void KisKActionCollection::readSettings()
 {
     auto ar = KisActionRegistry::instance();
@@ -451,29 +418,21 @@ void KisKActionCollection::readSettings()
     }
 }
 
-
 bool KisKActionCollectionPrivate::writeKisKXMLGUIConfigFile()
 {
     const KisKXMLGUIClient *kxmlguiClient = q->parentGUIClient();
-    // return false if there is no KisKXMLGUIClient
     if (!kxmlguiClient || kxmlguiClient->xmlFile().isEmpty()) {
         return false;
     }
 
-
     QString attrShortcut = QStringLiteral("shortcut");
 
-    // Read XML file
     QString sXml(KisKXMLGUIFactory::readConfigFile(kxmlguiClient->xmlFile(), q->componentName()));
     QDomDocument doc;
     doc.setContent(sXml);
 
-    // Process XML data
-
-    // Get hold of ActionProperties tag
     QDomElement elem = KisKXMLGUIFactory::actionPropertiesElement(doc);
 
-    // now, iterate through our actions
     for (QMap<QString, QAction *>::ConstIterator it = actionByName.constBegin();
             it != actionByName.constEnd(); ++it) {
         QAction *action = it.value();
@@ -483,8 +442,6 @@ bool KisKActionCollectionPrivate::writeKisKXMLGUIConfigFile()
 
         QString actionName = it.key();
 
-        // If the action name starts with unnamed- spit out a warning and ignore
-        // it. That name will change at will and will break loading writing
         if (actionName.startsWith(QLatin1String("unnamed-"))) {
             qCritical() << "Skipped writing shortcut for action " << actionName << "(" << action->text() << ")!";
             continue;
@@ -492,8 +449,6 @@ bool KisKActionCollectionPrivate::writeKisKXMLGUIConfigFile()
 
         bool bSameAsDefault = (action->shortcuts() == q->defaultShortcuts(action));
 
-        // now see if this element already exists
-        // and create it if necessary (unless bSameAsDefault)
         QDomElement act_elem = KisKXMLGUIFactory::findActionByName(elem, actionName, !bSameAsDefault);
         if (act_elem.isNull()) {
             continue;
@@ -509,7 +464,6 @@ bool KisKActionCollectionPrivate::writeKisKXMLGUIConfigFile()
         }
     }
 
-    // Write back to XML file
     KisKXMLGUIFactory::saveConfigFile(doc, kxmlguiClient->localXMLFile(), q->componentName());
     return true;
 }
@@ -518,13 +472,9 @@ void KisKActionCollection::writeSettings(KConfigGroup *config,
                                       bool writeScheme,
                                       QAction *oneAction) const
 {
-    // If the caller didn't provide a config group we try to save the KisKXMLGUI
-    // Configuration file. (This will work if the parentGUI was set and has a
-    // valid configuration file.)
     if (config == 0 && d->writeKisKXMLGUIConfigFile()) {
         return;
     }
-
 
     KConfigGroup cg(KSharedConfig::openConfig(), configGroup());
     if (!config) {
@@ -548,33 +498,25 @@ void KisKActionCollection::writeSettings(KConfigGroup *config,
 
         QString actionName = it.key();
 
-        // If the action name starts with unnamed- spit out a warning and ignore
-        // it. That name will change at will and will break loading writing
         if (actionName.startsWith(QLatin1String("unnamed-"))) {
             qCritical() << "Skipped saving shortcut for action without name " \
                         << action->text() << "!";
             continue;
         }
 
-        // Write the shortcut
         if (isShortcutsConfigurable(action)) {
             bool bConfigHasAction = !config->readEntry(actionName, QString()).isEmpty();
             bool bSameAsDefault = (action->shortcuts() == defaultShortcuts(action));
-            // If the current shortcut differs from the default, we want to write.
 
             KConfigGroup::WriteConfigFlags flags = KConfigGroup::Persistent;
 
             if (writeScheme || !bSameAsDefault) {
-                // We are instructed to write all shortcuts or the shortcut is
-                // not set to its default value. Write it
                 QString s = QKeySequence::listToString(action->shortcuts());
                 if (s.isEmpty()) {
                     s = QStringLiteral("none");
                 }
                 config->writeEntry(actionName, s, flags);
             } else if (bConfigHasAction) {
-                // This key is the same as default but exists in config file.
-                // Remove it.
                 config->deleteEntry(actionName, flags);
             }
         }
@@ -673,12 +615,7 @@ void KisKActionCollection::removeAssociatedWidget(QWidget *widget)
 
 QAction *KisKActionCollectionPrivate::unlistAction(QObject *action)
 {
-    // ATTENTION:
-    //   This method is called with an QObject formerly known as a QAction
-    //   during _k_actionDestroyed(). So don't do fancy stuff here that needs a
-    //   real QAction!
 
-    // Get the index for the action
     const auto indexOf = [&](const QObject *action, int from = 0) -> int {
         for (int i = from; i < actions.size(); i++) {
             if (actions[i] == action) {
@@ -690,25 +627,18 @@ QAction *KisKActionCollectionPrivate::unlistAction(QObject *action)
 
     int index = indexOf(action);
 
-    // Action not found.
     if (index == -1) {
         return 0;
     }
 
-    // An action collection can't have the same action twice.
     Q_ASSERT(indexOf(action, index + 1) == -1);
 
-    // Get the actions name
     const QString name = action->objectName();
 
-    // Remove the action
     actionByName.remove(name);
-    // Retrieve the typed QObject* pointer
-    // ATTENTION: THIS ACTION IS PARTIALLY DESTROYED!
     QAction *tmp = actions.at(index);
     actions.removeAt(index);
 
-    // Remove the action from the categories. Should be only one
     QList<KisKActionCategory *> categories = q->findChildren<KisKActionCategory *>();
     Q_FOREACH (KisKActionCategory *category, categories) {
         category->unlistAction(tmp);

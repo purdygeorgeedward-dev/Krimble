@@ -30,7 +30,6 @@ bool KisBackup::simpleBackupFile(const QString &qFilename, const QString &backup
         backupFileName = backupDir + QLatin1Char('/') + fileInfo.fileName() + backupExtension;
     }
 
-    //    qCDebug(KCOREADDONS_DEBUG) << "KisBackup copying " << qFilename << " to " << backupFileName;
     QFile::remove(backupFileName);
     return QFile::copy(qFilename, backupFileName);
 }
@@ -39,7 +38,6 @@ bool KisBackup::numberedBackupFile(const QString &qFilename, const QString &back
 {
     QFileInfo fileInfo(qFilename);
 
-    // The backup file name template.
     QString sTemplate;
 
     if (backupDir.isEmpty()) {
@@ -47,8 +45,6 @@ bool KisBackup::numberedBackupFile(const QString &qFilename, const QString &back
     } else {
         sTemplate = backupDir + QLatin1Char('/') + fileInfo.fileName() + QLatin1String(".%1") + backupExtension;
     }
-    // First, search backupDir for numbered backup files to remove.
-    // Remove all with number 'maxBackups' and greater.
     QDir d = backupDir.isEmpty() ? fileInfo.dir() : backupDir;
     d.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
 
@@ -64,12 +60,10 @@ bool KisBackup::numberedBackupFile(const QString &qFilename, const QString &back
     const QFileInfoList infoList = d.entryInfoList();
     for (const QFileInfo &fi : infoList) {
         if (fi.fileName().endsWith(backupExtension)) {
-            // sTemp holds the file name, without the ending backupExtension
             QString sTemp = fi.fileName();
 
             sTemp.truncate(fi.fileName().length() - backupExtension.length());
 
-            // compute the backup number
             int idex = sTemp.lastIndexOf(QLatin1Char('.'));
             if (idex > 0) {
                 bool ok;
@@ -89,18 +83,14 @@ bool KisBackup::numberedBackupFile(const QString &qFilename, const QString &back
         }
     }
 
-    // Next, rename max-1 to max, max-2 to max-1, etc.
     QString to = sTemplate.arg(maxBackupFound + 1);
 
     for (int i = maxBackupFound; i > 0; i--) {
         QString from = sTemplate.arg(i);
-        //        qCDebug(KCOREADDONS_DEBUG) << "KisBackup renaming " << from << " to " << to;
         QFile::rename(from, to);
         to = from;
     }
 
-    // Finally create most recent backup by copying the file to backup number 1.
-    //    qCDebug(KCOREADDONS_DEBUG) << "KisBackup copying " << qFilename << " to " << sTemplate.arg(1);
     bool r = QFile::copy(qFilename, sTemplate.arg(1));
     return r;
 }

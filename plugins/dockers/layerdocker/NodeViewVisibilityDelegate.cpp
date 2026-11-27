@@ -8,7 +8,6 @@
 
 #include "kis_node_view_color_scheme.h"
 
-
 NodeViewVisibilityDelegate::NodeViewVisibilityDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
 {

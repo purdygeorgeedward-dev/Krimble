@@ -17,7 +17,6 @@
 
 #include "kis_image.h"
 
-
 struct KisNodeFilterProxyModel::Private
 {
     Private()
@@ -74,8 +73,6 @@ bool KisNodeFilterProxyModel::Private::checkIndexAllowedRecursively(QModelIndex 
     KisNodeSP node = nodeModel->nodeFromIndex(srcIndex);
     const bool nodeTextFilterMatch = (!activeTextFilter || node->name().contains(activeTextFilter.get(), Qt::CaseInsensitive));
 
-    // directParentTextFilterMatch -- There's an argument to be made that searching for a parent name should show
-    // all of the direct children of said text-search. For now, it will remain unused.
     const bool directParentTextFilterMatch =  (!activeTextFilter || (node->parent() && node->parent()->name().contains(activeTextFilter.get(), Qt::CaseInsensitive)));
     Q_UNUSED(directParentTextFilterMatch);
 
@@ -143,11 +140,7 @@ void KisNodeFilterProxyModel::setTextFilter(const QString &text)
 
 void KisNodeFilterProxyModel::setActiveNode(KisNodeSP node)
 {
-    // NOTE: the current node might change due to beginRemoveRows, in such case
-    //       we must ensure we don't trigger recursive model invalidation.
 
-    // the new node may temporary become null when the last layer
-    // of the document in removed
     m_d->pendingActiveNode = node;
     m_d->activeNodeCompressor.start();
 }
@@ -156,14 +149,6 @@ void KisNodeFilterProxyModel::slotUpdateCurrentNodeFilter()
 {
     m_d->activeNode = m_d->pendingActiveNode;
 
-    /**
-     * During the filter update the model might Q_EMIT "current changed" signals,
-     * which (in their turn) will issue setData(..., KisNodeModel::ActiveRole)
-     * call, leading to a double recursion. Which, obviously, crashes Krita.
-     *
-     * Right now, just blocking the KisNodeModel::ActiveRole call is the
-     * most obvious solution for the problem.
-     */
     m_d->isUpdatingFilter = true;
     invalidateFilter();
     m_d->isUpdatingFilter = false;

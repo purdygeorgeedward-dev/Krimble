@@ -44,7 +44,7 @@ bool PSDImageData::read(QIODevice &io, KisPaintDeviceSP dev)
 
     switch (m_compression) {
 
-    case 0: // Uncompressed
+    case 0:
 
         for (int channel = 0; channel < m_header->nChannels; channel++) {
             m_channelOffsets << 0;
@@ -60,11 +60,10 @@ bool PSDImageData::read(QIODevice &io, KisPaintDeviceSP dev)
 
         break;
 
-    case 1: // RLE
+    case 1:
     {
         quint32 rlelength = 0;
 
-        // The start of the actual channel data is _after_ the RLE rowlengths block
         if (m_header->version == 1) {
             start += quint64(m_header->nChannels) * m_header->height * 2;
         }
@@ -81,7 +80,7 @@ bool PSDImageData::read(QIODevice &io, KisPaintDeviceSP dev)
             channelInfo.compressionType = psd_compression_type::RLE;
             for (quint32 row = 0; row < m_header->height; row++ ) {
                 if (m_header->version == 1) {
-                    quint16 rlelength16 = 0; // use temporary variable to not cast pointers and not rely on endianness
+                    quint16 rlelength16 = 0;
                     psdread(io, rlelength16);
                     rlelength = rlelength16;
                 }
@@ -98,8 +97,8 @@ bool PSDImageData::read(QIODevice &io, KisPaintDeviceSP dev)
 
         break;
     }
-    case 2: // ZIP without prediction
-    case 3: // ZIP with prediction
+    case 2:
+    case 3:
     default:
         break;
     }
@@ -135,8 +134,6 @@ bool PSDImageData::write(QIODevice &io, KisPaintDeviceSP dev, bool hasAlpha, psd
 {
     psdwrite(io, static_cast<quint16>(compressionType));
 
-    // now write all the channels in display order
-    // fill in the channel chooser, in the display order, but store the pixel index as well.
     QRect rc(0, 0, m_header->width, m_header->height);
 
     const int channelSize = m_header->channelDepth / 8;

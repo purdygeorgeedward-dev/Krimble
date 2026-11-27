@@ -6,15 +6,12 @@
  */
 
 #include "kis_png_converter.h"
-// A big thank to Glenn Randers-Pehrson for his wonderful
-// documentation of libpng available at
-// http://www.libpng.org/pub/png/libpng-1.2.5-manual.html
 
-#ifndef PNG_MAX_UINT // Removed in libpng 1.4
+#ifndef PNG_MAX_UINT
 #define PNG_MAX_UINT PNG_UINT_31_MAX
 #endif
 
-#include <KoConfig.h> // WORDS_BIGENDIAN
+#include <KoConfig.h>
 #include <KoStore.h>
 #include <KoStoreDevice.h>
 
@@ -103,7 +100,6 @@ QPair<QString, QString> getColorSpaceForColorType(int color_type, int color_nb_b
     }
     return r;
 }
-
 
 void fillText(png_text* p_text, const char* key, QString& text)
 {
@@ -206,10 +202,8 @@ QByteArray png_read_raw_profile(png_textp text)
     };
 
     png_charp sp = text[0].text + 1;
-    /* look for newline */
     while (*sp != '\n')
         sp++;
-    /* look for length */
     while (*sp == '\0' || *sp == ' ' || *sp == '\n')
         sp++;
     png_uint_32 length = (png_uint_32) atol(sp);
@@ -219,7 +213,6 @@ QByteArray png_read_raw_profile(png_textp text)
         return profile;
     }
     profile.resize(length);
-    /* copy profile, skipping white space and column 1 "=" signs */
     unsigned char *dp = (unsigned char*)profile.data();
     png_uint_32 nibbles = length * 2;
     for (png_uint_32 i = 0; i < nibbles; i++) {
@@ -258,20 +251,15 @@ void decode_meta_data(png_textp text, KisMetaData::Store* store, QString type, i
 }
 
 extern "C" {
-static void kis_png_warning(png_structp /*png_ptr*/, png_const_charp message)
+static void kis_png_warning(png_structp , png_const_charp message)
 {
     qWarning("libpng warning: %s", message);
 }
 
 }
 
-
-
-
 KisPNGConverter::KisPNGConverter(KisDocument *doc, bool batchMode)
 {
-    //     Q_ASSERT(doc);
-    //     Q_ASSERT(adapter);
 
     m_doc = doc;
     m_stop = false;
@@ -376,7 +364,6 @@ private:
     int y;
 };
 
-
 static
 void _read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 {
@@ -426,7 +413,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
         return (ImportExportCodes::FileFormatIncorrect);
     }
 
-    // Initialize the internal structures
     png_structp png_ptr =  png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 
     if (!png_ptr) {
@@ -434,7 +420,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
     }
 
 #ifdef PNG_SET_USER_LIMITS_SUPPORTED
-      /* Remove the user limits, if any */
       png_set_user_limits(png_ptr, 0x7fffffff, 0x7fffffff);
       png_set_chunk_cache_max(png_ptr, 0);
       png_set_chunk_malloc_max(png_ptr, 0);
@@ -459,23 +444,19 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
         return (ImportExportCodes::Failure);
     }
 
-    // Catch errors
     if (setjmp(png_jmpbuf(png_ptr))) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         iod->close();
         return (ImportExportCodes::Failure);
     }
 
-    // Initialize the special
     png_set_read_fn(png_ptr, iod, _read_fn);
 
 #if defined(PNG_SKIP_sRGB_CHECK_PROFILE) && defined(PNG_SET_OPTION_SUPPORTED)
     png_set_option(png_ptr, PNG_SKIP_sRGB_CHECK_PROFILE, PNG_OPTION_ON);
 #endif
 
-    // read all PNG info up to image data
     png_read_info(png_ptr, info_ptr);
-
 
     if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY && png_get_bit_depth(png_ptr, info_ptr) < 8) {
         png_set_expand(png_ptr);
@@ -485,25 +466,21 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
         png_set_packing(png_ptr);
     }
 
-
     if (png_get_color_type(png_ptr, info_ptr) != PNG_COLOR_TYPE_PALETTE &&
             (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))) {
         png_set_expand(png_ptr);
     }
     png_read_update_info(png_ptr, info_ptr);
 
-    // Read information about the png
     png_uint_32 width, height;
     int color_nb_bits, color_type, interlace_type;
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &color_nb_bits, &color_type, &interlace_type, 0, 0);
     dbgFile << "width = " << width << " height = " << height << " color_nb_bits = " << color_nb_bits << " color_type = " << color_type << " interlace_type = " << interlace_type << Qt::endl;
-    // swap byte order on little endian machines.
 #ifndef WORDS_BIGENDIAN
     if (color_nb_bits > 8)
         png_set_swap(png_ptr);
 #endif
 
-    // Determine the colorspace
     QPair<QString, QString> csName = getColorSpaceForColorType(color_type, color_nb_bits);
     if (csName.first.isEmpty()) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
@@ -512,7 +489,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
     }
     bool hasalpha = (color_type == PNG_COLOR_TYPE_RGB_ALPHA || color_type == PNG_COLOR_TYPE_GRAY_ALPHA);
 
-    // Read image profile
     png_charp profile_name;
 #if PNG_LIBPNG_VER_MAJOR >= 1 && PNG_LIBPNG_VER_MINOR >= 5
     png_bytep profile_data;
@@ -522,9 +498,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
     int compression_type;
     png_uint_32 proflen;
 
-    // Get the various optional chunks
-
-    // https://www.w3.org/TR/PNG/#11cHRM
 #if defined(PNG_cHRM_SUPPORTED)
     double whitePointX, whitePointY;
     double redX, redY;
@@ -534,14 +507,12 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
     dbgFile << "cHRM:" << whitePointX << whitePointY << redX << redY << greenX << greenY << blueX << blueY;
 #endif
 
-    // https://www.w3.org/TR/PNG/#11gAMA
 #if defined(PNG_GAMMA_SUPPORTED)
     double gamma;
     png_get_gAMA(png_ptr, info_ptr, &gamma);
     dbgFile << "gAMA" << gamma;
 #endif
 
-    // https://www.w3.org/TR/PNG/#11sRGB
 #if defined(PNG_sRGB_SUPPORTED)
     int sRGBIntent;
     png_get_sRGB(png_ptr, info_ptr, &sRGBIntent);
@@ -579,7 +550,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
         loadedImageIsHDR = strcmp(profile_name, "ITUR_2100_PQ_FULL") == 0;
     }
     else if (color_nb_bits == 16 && !fromBlender && !qAppName().toLower().contains("test") && !m_batchMode) {
-        // Ask the user which color profile to use
         KisConfig cfg(true);
         quint32 behaviour = cfg.pasteBehaviour();
         if (behaviour == KisClipboard::PASTE_ASK) {
@@ -599,15 +569,13 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
     const QString colorSpaceId =
         KoColorSpaceRegistry::instance()->colorSpaceId(csName.first, csName.second);
 
-    // Check that the profile is used by the color space
     if (profile
-        && (!KoColorSpaceRegistry::instance()->profileIsCompatible(profile, colorSpaceId) 
+        && (!KoColorSpaceRegistry::instance()->profileIsCompatible(profile, colorSpaceId)
         ||  !(profile->isSuitableForOutput() || profile->isSuitableForInput()))) {
         warnFile << "The profile " << profile->name() << " is not compatible with the color space model " << csName.first << " " << csName.second;
         profile = 0;
     }
 
-    // Retrieve a pointer to the colorspace
     KoColorConversionTransformation* transform = 0;
     const KoColorSpace* cs = 0;
 
@@ -628,11 +596,9 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
         cs = KoColorSpaceRegistry::instance()->colorSpace(csName.first, csName.second, profile);
     }
     else {
-        // Loading a backup colorspace
         cs = KoColorSpaceRegistry::instance()->colorSpace(csName.first, csName.second, "");
     }
 
-    // Create the cmsTransform if needed
     if (profile  && !profile->isSuitableForWorkspace() && profile->isSuitableForInput()) {
       transform = KoColorSpaceRegistry::instance()->colorSpace(csName.first, csName.second, profile)->createColorConverter(cs, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags());
     }
@@ -642,19 +608,17 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
         return ImportExportCodes::FormatColorSpaceUnsupported;
     }
 
-    // Creating the KisImageSP
     if (m_image == 0) {
         KisUndoStore *store = m_doc ? m_doc->createUndoStore() : new KisSurrogateUndoStore();
         m_image = new KisImage(store, width, height, cs, "built image");
     }
 
-    // Read resolution
     int unit_type;
     png_uint_32 x_resolution = 0, y_resolution = 0;
 
     png_get_pHYs(png_ptr, info_ptr, &x_resolution, &y_resolution, &unit_type);
     if (x_resolution > 0 && y_resolution > 0 && unit_type == PNG_RESOLUTION_METER) {
-        m_image->setResolution((double) POINT_TO_CM(x_resolution) / 100.0, (double) POINT_TO_CM(y_resolution) / 100.0); // It is the "invert" macro because we convert from point-per-inch to points
+        m_image->setResolution((double) POINT_TO_CM(x_resolution) / 100.0, (double) POINT_TO_CM(y_resolution) / 100.0);
     } else if (unit_type == PNG_RESOLUTION_UNKNOWN) {
         m_image->setResolution(100.0, 100.0);
     }
@@ -662,7 +626,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
     double coeff = quint8_MAX / (double)(pow((double)2, color_nb_bits) - 1);
     KisPaintLayerSP layer = new KisPaintLayer(m_image.data(), m_image -> nextLayerName(), UCHAR_MAX);
 
-    // Read comments/texts...
     png_get_text(png_ptr, info_ptr, &text_ptr, &num_comments);
     if (m_doc) {
         KoDocumentInfo * info = m_doc->documentInfo();
@@ -691,7 +654,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
             }
         }
     }
-    // Read image data
     QScopedPointer<KisPNGReaderAbstract> reader;
     try {
         if (interlace_type == PNG_INTERLACE_ADAM7) {
@@ -700,22 +662,17 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
             reader.reset(new KisPNGReaderLineByLine(png_ptr, info_ptr, width, height));
         }
     } catch (const std::bad_alloc& e) {
-        // new png_byte[] may raise such an exception if the image
-        // is invalid / to large.
         dbgFile << "bad alloc: " << e.what();
-        // Free only the already allocated png_byte instances.
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         return (ImportExportCodes::Failure);
     }
 
-    // Read the palette if the file is indexed
     png_colorp palette ;
     int num_palette;
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
         png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
     }
 
-    // Read the transparency palette
     quint8 palette_alpha[256];
     memset(palette_alpha, 255, 256);
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
@@ -762,7 +719,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
                     if (transform) transform->transformInPlace(d, d, 1);
                 } while (it->nextPixel());
             }
-            // FIXME:should be able to read 1 and 4 bits depth and scale them to 8 bits"
             break;
         case PNG_COLOR_TYPE_RGB:
         case PNG_COLOR_TYPE_RGB_ALPHA:
@@ -817,7 +773,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(QIODevice* iod)
     png_read_end(png_ptr, end_info);
     iod->close();
 
-    // Freeing memory
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
     return ImportExportCodes::OK;
 
@@ -839,7 +794,6 @@ KisImportExportErrorCode KisPNGConverter::buildImage(const QString &filename)
     return (ImportExportCodes::FileNotExist);
 
 }
-
 
 KisImageSP KisPNGConverter::image()
 {
@@ -892,11 +846,9 @@ bool KisPNGConverter::saveDeviceToStore(const QString &filename, const QRect &im
 
 }
 
-
 KisImportExportErrorCode KisPNGConverter::buildFile(const QString &filename, const QRect &imageRect, const qreal xRes, const qreal yRes, KisPaintDeviceSP device, vKisAnnotationSP_it annotationsStart, vKisAnnotationSP_it annotationsEnd, KisPNGOptions options, KisMetaData::Store* metaData)
 {
     dbgFile << "Start writing PNG File " << filename;
-    // Open a QIODevice for writing
     QFile fp (filename);
     if (!fp.open(QIODevice::WriteOnly)) {
         dbgFile << "Failed to open PNG File for writing";
@@ -971,14 +923,12 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
         options.tryToSaveAsIndexed = false;
     }
 
-    // Initialize structures
     png_structp png_ptr =  png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if (!png_ptr) {
         return (ImportExportCodes::Failure);
     }
 
 #ifdef PNG_SET_USER_LIMITS_SUPPORTED
-      /* Remove the user limits, if any */
       png_set_user_limits(png_ptr, 0x7fffffff, 0x7fffffff);
       png_set_chunk_cache_max(png_ptr, 0);
       png_set_chunk_malloc_max(png_ptr, 0);
@@ -993,7 +943,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
     png_set_option(png_ptr, PNG_SKIP_sRGB_CHECK_PROFILE, PNG_OPTION_ON);
 #endif
 
-
 #ifdef PNG_READ_CHECK_FOR_INVALID_INDEX_SUPPORTED
     png_set_check_for_invalid_index(png_ptr, 0);
 #endif
@@ -1004,23 +953,15 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
         return (ImportExportCodes::Failure);
     }
 
-    // If an error occurs during writing, libpng will jump here
     if (setjmp(png_jmpbuf(png_ptr))) {
         png_destroy_write_struct(&png_ptr, &info_ptr);
         return (ImportExportCodes::Failure);
     }
-    // Initialize the writing
-    //     png_init_io(png_ptr, fp);
-    // Setup the progress function
-    // XXX: Implement progress updating -- png_set_write_status_fn(png_ptr, progress);"
-    //     setProgressTotalSteps(100/*height*/);
 
-    /* set the zlib compression level */
     png_set_compression_level(png_ptr, options.compression);
 
     png_set_write_fn(png_ptr, (void*)iodevice, _write_fn, _flush_fn);
 
-    /* set other zlib parameters */
     png_set_compression_mem_level(png_ptr, 8);
     png_set_compression_strategy(png_ptr, Z_DEFAULT_STRATEGY);
     png_set_compression_window_bits(png_ptr, 15);
@@ -1032,10 +973,9 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
 
     Q_ASSERT(color_type > -1);
 
-    // Try to compute a table of color if the colorspace is RGB8f
     QScopedArrayPointer<png_color> palette;
     int num_palette = 0;
-    if (!options.alpha && options.tryToSaveAsIndexed && KoID(device->colorSpace()->id()) == KoID("RGBA")) { // png doesn't handle indexed images and alpha, and only have indexed for RGB8
+    if (!options.alpha && options.tryToSaveAsIndexed && KoID(device->colorSpace()->id()) == KoID("RGBA")) {
         palette.reset(new png_color[255]);
 
         KisSequentialIterator it(device, imageRect);
@@ -1092,34 +1032,11 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
                  color_type, interlace_type,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-    // set sRGB only if the profile is sRGB  -- http://www.w3.org/TR/PNG/#11sRGB says sRGB and iCCP should not both be present
-
     const bool sRGB = *device->colorSpace()->profile() == *KoColorSpaceRegistry::instance()->p709SRGBProfile();
-    /*
-     * This automatically writes the correct gamma and chroma chunks along with the sRGB chunk, but firefox's
-     * color management is bugged, so once you give it any incentive to start color managing an sRGB image it
-     * will turn, for example, a nice desaturated rusty red into bright poppy red. So this is disabled for now.
-     */
-    /*if (!options.saveSRGBProfile && sRGB) {
-        png_set_sRGB_gAMA_and_cHRM(png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
-    }*/
-
-
-    /** TODO: Firefox still opens the image incorrectly if there is gAMA+cHRM tags
-     * present. According to the standard it should use iCCP tag with higher priority,
-     * but it doesn't:
-     *
-     * "When the iCCP chunk is present, PNG decoders that recognize it and are capable
-     *  of color management [ICC] shall ignore the gAMA and cHRM chunks and use
-     *  the iCCP chunk instead and interpret it according to [ICC-1] and [ICC-1A]"
-     */
 
 #if 0
     if (options.saveAsHDR) {
-        // https://www.w3.org/TR/PNG/#11gAMA
 #if defined(PNG_GAMMA_SUPPORTED)
-        // the values are set in accordance of HDR-PNG standard:
-        // https://www.w3.org/TR/png-hdr-pq/
 
         png_set_gAMA_fixed(png_ptr, info_ptr, 15000);
         dbgFile << "gAMA" << "(Rec 2100)";
@@ -1127,25 +1044,21 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
 
 #if defined PNG_cHRM_SUPPORTED
         png_set_cHRM_fixed(png_ptr, info_ptr,
-                           31270, 32900, // white point
-                           70800, 29200, // red
-                           17000, 79700, // green
-                           13100, 4600 // blue
+                           31270, 32900,
+                           70800, 29200,
+                           17000, 79700,
+                           13100, 4600
                            );
         dbgFile << "cHRM" << "(Rec 2100)";
 #endif
     }
 #endif
 
-
-    // we should ensure we don't access non-existing palette object
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(palette || color_type != PNG_COLOR_TYPE_PALETTE, ImportExportCodes::Failure);
 
-    // set the palette
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
         png_set_PLTE(png_ptr, info_ptr, palette.data(), num_palette);
     }
-    // Save annotation
     vKisAnnotationSP_it it = annotationsStart;
     while (it != annotationsEnd) {
         if (!(*it) || (*it)->type().isEmpty()) {
@@ -1156,9 +1069,7 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
 
         dbgFile << "Trying to store annotation of type " << (*it) -> type() << " of size " << (*it) -> annotation() . size();
 
-        if ((*it) -> type().startsWith(QString("krita_attribute:"))) { //
-            // Attribute
-            // XXX: it should be possible to save krita_attributes in the \"CHUNKs\""
+        if ((*it) -> type().startsWith(QString("krita_attribute:"))) {
             dbgFile << "cannot save this annotation : " << (*it) -> type();
         } else if ((*it)->type() == "kpp_version" || (*it)->type() == "kpp_preset" ) {
             dbgFile << "Saving preset information " << (*it)->description();
@@ -1176,7 +1087,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
         it++;
     }
 
-    // Save the color profile
     const KoColorProfile* colorProfile = device->colorSpace()->profile();
     QByteArray colorProfileData = colorProfile->rawData();
     if (!sRGB || options.saveSRGBProfile) {
@@ -1185,7 +1095,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
         const char *typeString = !options.saveAsHDR ? "icc" : "ITUR_2100_PQ_FULL";
         png_set_iCCP(png_ptr, info_ptr, (png_const_charp)typeString, PNG_COMPRESSION_TYPE_BASE, (png_const_bytep)colorProfileData.constData(), colorProfileData . size());
 #else
-        // older version of libpng has a problem with constness on the parameters
         char typeStringICC[] = "icc";
         char typeStringHDR[] = "ITUR_2100_PQ_FULL";
         char *typeString = !options.saveAsHDR ? typeStringICC : typeStringHDR;
@@ -1193,8 +1102,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
 #endif
     }
 
-    // save comments from the document information
-    // warning: according to the official png spec, the keys need to be capitalized!
     if (m_doc) {
         png_text texts[4];
         int nbtexts = 0;
@@ -1238,9 +1145,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
         png_set_text(png_ptr, info_ptr, texts, nbtexts);
     }
 
-    // Save metadata following imagemagick way
-
-    // Save exif
     if (metaData && !metaData->empty()) {
         if (options.exif) {
             dbgFile << "Trying to save exif information";
@@ -1252,7 +1156,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
             exifIO->saveTo(metaData, &buffer, KisMetaData::IOBackend::JpegHeader);
             writeRawProfile(png_ptr, info_ptr, "exif", buffer.data());
         }
-        // Save IPTC
         if (options.iptc) {
             dbgFile << "Trying to save iptc information";
             KisMetaData::IOBackend *iptcIO = KisMetadataBackendRegistry::instance()->value("iptc");
@@ -1264,7 +1167,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
             dbgFile << "IPTC information size is" << buffer.data().size();
             writeRawProfile(png_ptr, info_ptr, "iptc", buffer.data());
         }
-        // Save XMP
         if (options.xmp) {
             dbgFile << "Trying to save XMP information";
             KisMetaData::IOBackend *xmpIO = KisMetadataBackendRegistry::instance()->value("xmp");
@@ -1277,25 +1179,19 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
             writeRawProfile(png_ptr, info_ptr, "xmp", buffer.data());
         }
     }
-#if 0 // Unimplemented?
-    // Save resolution
+#if 0
     int unit_type;
     png_uint_32 x_resolution, y_resolution;
 #endif
-    png_set_pHYs(png_ptr, info_ptr, CM_TO_POINT(xRes) * 100.0, CM_TO_POINT(yRes) * 100.0, PNG_RESOLUTION_METER); // It is the "invert" macro because we convert from point-per-inch to points
+    png_set_pHYs(png_ptr, info_ptr, CM_TO_POINT(xRes) * 100.0, CM_TO_POINT(yRes) * 100.0, PNG_RESOLUTION_METER);
 
-    // Save the information to the file
     png_write_info(png_ptr, info_ptr);
     png_write_flush(png_ptr);
 
-    // swap byteorder on little endian machines.
 #ifndef WORDS_BIGENDIAN
     if (color_nb_bits > 8)
         png_set_swap(png_ptr);
 #endif
-
-    // Write the PNG
-    //     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, 0);
 
     struct RowPointersStruct {
         RowPointersStruct(const QSize &size, int pixelSize)
@@ -1319,8 +1215,6 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
         png_byte** rows = 0;
     };
 
-
-    // Fill the data structure
     RowPointersStruct rowPointers(imageRect.size(), device->pixelSize());
 
     int row = 0;
@@ -1392,14 +1286,11 @@ KisImportExportErrorCode KisPNGConverter::buildFile(QIODevice* iodevice, const Q
 
     png_write_image(png_ptr, rowPointers.rows);
 
-    // Writing is over
     png_write_end(png_ptr, info_ptr);
 
-    // Free memory
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return ImportExportCodes::OK;
 }
-
 
 void KisPNGConverter::cancel()
 {
@@ -1409,12 +1300,10 @@ void KisPNGConverter::cancel()
 void KisPNGConverter::progress(png_structp png_ptr, png_uint_32 row_number, int pass)
 {
     if (png_ptr == 0 || row_number > PNG_MAX_UINT || pass > 7) return;
-    //     setProgress(row_number);
 }
 
 bool KisPNGConverter::isColorSpaceSupported(const KoColorSpace *cs)
 {
     return colorSpaceIdSupported(cs->id());
 }
-
 

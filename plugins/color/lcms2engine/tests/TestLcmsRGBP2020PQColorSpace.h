@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testHDRClippingRec709ToRec2020();
 };
 
-#endif // TESTLCMSRGBP2020PQCOLORSPACE_H
+#endif

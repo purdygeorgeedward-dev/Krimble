@@ -12,9 +12,6 @@
 #include <kritaui_export.h>
 #include <QStyledItemDelegate>
 
-/**
- * This delegate draw categories using information from a QSortFilterProxyModel.
- */
 class KRITAUI_EXPORT KisCategorizedItemDelegate: public QStyledItemDelegate
 {
 public:
@@ -27,4 +24,4 @@ private:
     mutable qint32 m_minimumItemHeight;
 };
 
-#endif // _KIS_CATEGORIZED_ITEM_DELEGATE_H_
+#endif

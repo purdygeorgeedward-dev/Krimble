@@ -10,7 +10,6 @@
 #include "kis_paintop_settings.h"
 #include "kritaimage_export.h"
 
-
 class KRITAIMAGE_EXPORT KisNoSizePaintOpSettings : public KisPaintOpSettings
 {
 public:
@@ -23,4 +22,4 @@ public:
     qreal paintOpAngle() const override;
 };
 
-#endif // KISNOSIZEPAINTOPSETTINGS_H
+#endif

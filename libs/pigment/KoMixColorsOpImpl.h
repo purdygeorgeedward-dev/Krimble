@@ -17,8 +17,6 @@
 #include "kis_debug.h"
 #include "kis_global.h"
 
-//#define SANITY_CHECKS
-
 template <typename T>
 static inline T safeDivideWithRound(T dividend,
                                     std::enable_if_t<!std::numeric_limits<T>::is_integer, T> divisor) {
@@ -30,8 +28,6 @@ static inline T safeDivideWithRound(T dividend,
                                     std::enable_if_t<std::numeric_limits<T>::is_integer, T> divisor) {
     return (dividend + divisor / 2) / divisor;
 }
-
-
 
 template<class _CSTrait>
 class KoMixColorsOpImpl : public KoMixColorsOp
@@ -218,11 +214,6 @@ private:
 
             channels_type* dstColor = _CSTrait::nativeArray(dst);
 
-            /**
-             * FIXME: The following code relies on the unit value for floating point spaces being 1.0
-             * We should be using the division functions in KoColorSpaceMaths for this, but right now
-             * it is not clear how to call these functions.
-             **/
             if (totalAlpha > 0) {
 
                 for (int i = 0; i < (int)_CSTrait::channels_nb; i++) {
@@ -258,7 +249,6 @@ private:
 
         template<class AbstractSource, class WeightsWrapper>
         void accumulateColors(AbstractSource source, WeightsWrapper weightsWrapper, int nColors) {
-            // Compute the total for each channel by summing each colors multiplied by the weightlabcache
 
 #ifdef SANITY_CHECKS
             m_numPixels += nColors;

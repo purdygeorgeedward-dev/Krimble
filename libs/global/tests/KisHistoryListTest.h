@@ -19,4 +19,4 @@ private Q_SLOTS:
     void testSortedList();
 };
 
-#endif // KISHISTORYLISTTEST_H
+#endif

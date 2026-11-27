@@ -24,18 +24,18 @@ public:
 
     LAGER_QT_CURSOR(bool, enabled);
     LAGER_QT_CURSOR(bool, randomSize);
-    
+
     LAGER_QT_CURSOR(bool, fixedRotation);
     LAGER_QT_CURSOR(bool, randomRotation);
-    
+
     LAGER_QT_CURSOR(bool, followCursor);
     LAGER_QT_CURSOR(bool, followDrawingAngle);
-    
+
     LAGER_QT_CURSOR(qreal, fixedAngle);
     LAGER_QT_CURSOR(qreal, randomRotationWeight);
-    
+
     LAGER_QT_CURSOR(qreal, followCursorWeight);
     LAGER_QT_CURSOR(qreal, followDrawingAngleWeight);
 };
 
-#endif // KIS_SPRAY_SHAPE_DYNAMICS_OPTION_MODEL_H
+#endif

@@ -20,7 +20,6 @@
 #include <KisAndroidUtils.h>
 #endif
 
-
 struct KisAsyncAnimationFramesSavingRenderer::Private
 {
     Private(KisImageSP image, const KisTimeSpan &_range, int _sequenceNumberingOffset, bool _onlyNeedsUniqueFrames, KisPropertiesConfigurationSP _exportConfiguration)
@@ -82,9 +81,6 @@ KisAsyncAnimationFramesSavingRenderer::KisAsyncAnimationFramesSavingRenderer(Kis
     connect(this, SIGNAL(sigCancelRegenerationInternal(int, KisAsyncAnimationRendererBase::CancelReason)), SLOT(notifyFrameCancelled(int, KisAsyncAnimationRendererBase::CancelReason)));
 }
 
-
-
-
 KisAsyncAnimationFramesSavingRenderer::~KisAsyncAnimationFramesSavingRenderer()
 {
 }
@@ -110,7 +106,6 @@ void KisAsyncAnimationFramesSavingRenderer::frameCompletedCallback(int frame, co
         status = ImportExportCodes::InternalError;
     }
 
-    //Get all identical frames to this one and either copy or symlink based on settings.
     if (status.isOk()) {
         KisTimeSpan identicals = KisTimeSpan::calculateIdenticalFramesRecursive(image->root(), frame);
         identicals &= m_d->range;
@@ -139,15 +134,6 @@ void KisAsyncAnimationFramesSavingRenderer::frameCompletedCallback(int frame, co
                     break;
                 }
 
-                /*  This would be nice to do but sym-linking on windows isn't possible without
-                 *  way more other work to be done. This works on linux though!
-                 *
-                 *  if (m_d->linkRedundantFrames) {
-                 *      QFile::link(filename, identicalFrameName);
-                 *  } else {
-                 *      QFile::copy(filename, identicalFrameName);
-                 *  }
-                 */
             }
         }
     }

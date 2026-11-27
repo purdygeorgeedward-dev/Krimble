@@ -43,7 +43,6 @@ void rmTestDb() {
     dbLocation.rmpath(dbLocation.path());
 }
 
-
 class KisDummyResourceLoader : public KisResourceLoaderBase {
 public:
     KisDummyResourceLoader(const QString &id, const QString &folder, const QString &name, const QStringList &mimetypes)
@@ -104,7 +103,6 @@ bool cleanDstLocation(const QString &dstLocation)
                 iter.next();
                 QFile f(iter.filePath());
                 f.remove();
-                //qDebug() << (r ? "Removed" : "Failed to remove") << iter.filePath();
             }
         }
         {
@@ -112,7 +110,6 @@ bool cleanDstLocation(const QString &dstLocation)
             while (iter.hasNext()) {
                 iter.next();
                 QDir(iter.filePath()).rmdir(iter.filePath());
-                //qDebug() << (r ? "Removed" : "Failed to remove") << iter.filePath();
             }
         }
 
@@ -152,15 +149,15 @@ void testVersionedStorage(KisStoragePlugin &storage, const QString &resourceType
     };
 
     KoResourceSP res1 = storage.resource(resourceUrl);
-    QCOMPARE(res1->filename(), fileInfo.fileName()); // filenames are not URLs
-    QCOMPARE(res1->version(), -1); // storages don't work with versions
+    QCOMPARE(res1->filename(), fileInfo.fileName());
+    QCOMPARE(res1->version(), -1);
     QCOMPARE(res1->valid(), true);
 
     const QString originalSomething = res1.dynamicCast<DummyResource>()->something();
 
     KoResourceSP res2 = storage.resource(resourceUrl);
     QCOMPARE(res2->filename(), fileInfo.fileName());
-    QCOMPARE(res2->version(), -1); // storages don't work with versions
+    QCOMPARE(res2->version(), -1);
     QCOMPARE(res2->valid(), true);
 
     QVERIFY(res1 != res2);
@@ -171,7 +168,7 @@ void testVersionedStorage(KisStoragePlugin &storage, const QString &resourceType
 
     KoResourceSP res3 = storage.resource(resourceUrl);
     QCOMPARE(res3->filename(), fileInfo.fileName());
-    QCOMPARE(res3->version(), -1); // storages don't work with versions
+    QCOMPARE(res3->version(), -1);
     QCOMPARE(res3->valid(), true);
     QCOMPARE(res3.dynamicCast<DummyResource>()->something(), originalSomething);
 
@@ -179,13 +176,13 @@ void testVersionedStorage(KisStoragePlugin &storage, const QString &resourceType
 
     storage.saveAsNewVersion(resourceType, res2);
     QCOMPARE(res2->filename(), versionedName);
-    QCOMPARE(res2->version(), -1); // storages don't work with versions
+    QCOMPARE(res2->version(), -1);
     QCOMPARE(res2->valid(), true);
     verifyFileExists(res2);
 
     KoResourceSP res4 = storage.resource(resourceType + "/" + versionedName);
     QCOMPARE(res4->filename(), versionedName);
-    QCOMPARE(res4->version(), -1); // storages don't work with versions
+    QCOMPARE(res4->version(), -1);
     QCOMPARE(res4->valid(), true);
     QCOMPARE(res4.dynamicCast<DummyResource>()->something(), "It's changed");
     verifyFileExists(res4);
@@ -200,7 +197,7 @@ void testVersionedStorage(KisStoragePlugin &storage, const QString &resourceType
 
     storage.saveAsNewVersion(resourceType, res4);
     QCOMPARE(res4->filename(), versionedName2);
-    QCOMPARE(res4->version(), -1); // storages don't work with versions
+    QCOMPARE(res4->version(), -1);
     QCOMPARE(res4->valid(), true);
     verifyFileExists(res4);
 }
@@ -216,14 +213,9 @@ void testVersionedStorageIterator(KisStoragePlugin &storage, const QString &reso
     while (iter->hasNext()) {
         iter->next();
 
-        //qDebug() << iter->url() << ppVar(iter->guessedVersion()) << ppVar(iter->lastModified());
-
         if (iter->url().contains(basename)) {
 
-            // because of versioning, the URL should have been changed
             QVERIFY(iter->url() != resourceUrl);
-
-            //qDebug() << iter->url() << ppVar(iter->guessedVersion()) << ppVar(iter->lastModified());
 
             count++;
 
@@ -278,7 +270,6 @@ bool recreateDatabaseForATest(KisResourceLocator *locator, const QString &srcLoc
         try {
             KisResourceModelProvider::testingCloseAllQueries();
 
-            // foreign keys should be disabled outside the transaction's scope!
             KisResourceCacheDb::setForeignKeysStateImpl(false);
 
             KisDatabaseTransactionLock transactionLock(QSqlDatabase::database());
@@ -286,12 +277,10 @@ bool recreateDatabaseForATest(KisResourceLocator *locator, const QString &srcLoc
             Q_FOREACH (const QString &dbResourceType, QStringList({"table", "index", "trigger", "view"})) {
                 auto resources = listDbResources(dbResourceType);
                 Q_FOREACH (const auto &resource, resources) {
-                    // qDebug() << "dropping" << ppVar(dbResourceType) << ppVar(resource);
                     dropDbResource(dbResourceType, resource);
                 }
             }
 
-            // defuse the lock and save the results
             transactionLock.commit();
 
             KisResourceCacheDb::setForeignKeysStateImpl(true);
@@ -308,7 +297,6 @@ bool recreateDatabaseForATest(KisResourceLocator *locator, const QString &srcLoc
 
     ResourceTestHelper::cleanDstLocation(dstLocation);
 
-    // Reinitialize the database from scratch
     KisResourceCacheDb::initialize(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 
     KisResourceLocator::LocatorError r = locator->initialize(srcLocation);
@@ -326,4 +314,4 @@ bool recreateDatabaseForATest(KisResourceLocator *locator, const QString &srcLoc
 
 }
 
-#endif // RESOURCETESTHELPER_H
+#endif

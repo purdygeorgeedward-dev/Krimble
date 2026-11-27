@@ -35,7 +35,6 @@ bool KisWaylandRegistry::globalExists(const QString& interface)
         return true;
     }
 
-    //Check if the interface is explicitly disabled
     static QStringList interfaceBlacklist = qEnvironmentVariable("QT_WAYLAND_DISABLED_INTERFACES").split(u',');
 
     if (interfaceBlacklist.contains(interface)) {
@@ -66,7 +65,6 @@ KisWaylandRegistry* KisWaylandRegistry::getOrCreate()
         auto regisry = ::wl_display_get_registry(display);
         registry->init(regisry);
 
-        //Wait for the compositor to populate the registry
         ::wl_display_roundtrip(display);
     }
 

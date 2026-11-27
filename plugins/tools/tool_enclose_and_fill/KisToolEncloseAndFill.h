@@ -162,7 +162,7 @@ private:
     QCheckBox *m_checkBoxUseActiveLayer {nullptr};
 
     KConfigGroup m_configGroup;
-    
+
     bool m_alternateActionStarted {false};
 
     bool wantsAutoScroll() const override { return false; }

@@ -40,8 +40,8 @@ protected Q_SLOTS:
     void slotScrollerStateChange(QScroller::State state);
 
 private:
-    void updateRows(int begin, int end);    
+    void updateRows(int begin, int end);
     bool isCompositeBoxControl = false;
 };
 
-#endif // KIS_CATEGORIZED_LIST_VIEW_H_
+#endif

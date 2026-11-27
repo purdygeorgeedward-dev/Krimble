@@ -58,5 +58,5 @@ private Q_SLOTS:
     void benchmarkOverlappedKisRegion();
 };
 
-#endif /* KIS_TILED_DATA_MANAGER_TEST_H */
+#endif
 

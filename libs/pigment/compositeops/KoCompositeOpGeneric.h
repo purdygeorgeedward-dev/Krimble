@@ -11,11 +11,6 @@
 
 namespace detail {
 
-/**
- * A special class to convert old-style composite function into a functor
- * with clamping properties
- */
-
 template <class Traits,
           typename Traits::channels_type compositeFunc(typename Traits::channels_type, typename Traits::channels_type)>
 struct CompositeFunctionWrapper : KoCompositeOpGenericFunctorBase<typename Traits::channels_type>
@@ -40,13 +35,6 @@ struct CompositeFunctionWrapperHSL : KoCompositeOpGenericFunctorBase<typename Tr
 
 }
 
-/**
- * Generic CompositeOp for separable channel compositing functions
- * 
- * A template to generate a KoCompositeOp class by just specifying a
- * blending/compositing function. This template works with compositing functions
- * for separable channels (means each channel of a pixel can be processed separately)
- */
 template<
     class Traits,
     typename CompositeOpFunctor,
@@ -56,10 +44,10 @@ class KoCompositeOpGenericSCFunctor: public KoCompositeOpBase< Traits, KoComposi
 {
     typedef KoCompositeOpBase< Traits, KoCompositeOpGenericSCFunctor<Traits,CompositeOpFunctor,BlendingPolicy> > base_class;
     typedef typename Traits::channels_type                                            channels_type;
-    
+
     static const qint32 channels_nb = Traits::channels_nb;
     static const qint32 alpha_pos   = Traits::alpha_pos;
-    
+
 public:
     KoCompositeOpGenericSCFunctor(const KoColorSpace* cs, const QString& id, const QString& category)
         : base_class(cs, id, category) { }
@@ -70,7 +58,7 @@ public:
                                                      channels_type*       dst, channels_type dstAlpha, channels_type maskAlpha,
                                                      channels_type opacity, const QBitArray& channelFlags) {
         using namespace Arithmetic;
-        
+
         srcAlpha = mul(srcAlpha, maskAlpha, opacity);
 
         if (isZeroValueFuzzy(srcAlpha)) {
@@ -97,7 +85,7 @@ public:
                     }
                 }
             }
-            
+
             return dstAlpha;
         } else if (isZeroValueFuzzy(dstAlpha)) {
             for(qint32 i=0; i <channels_nb; i++) {
@@ -171,7 +159,7 @@ public:
                     }
                 }
             }
-            
+
             return newDstAlpha;
         }
     }
@@ -190,27 +178,20 @@ public:
     using base_class::base_class;
 };
 
-/**
- * Generic CompositeOp for nonseparable/HSL channel compositing functions
- * 
- * A template to generate a KoCompositeOp class by just specifying a
- * blending/compositing function. This template works with compositing functions
- * for RGB channels only (the channels can not be processed separately)
- */
 template<class Traits, typename CompositeOpFunctor>
 class KoCompositeOpGenericHSLFunctor: public KoCompositeOpBase< Traits, KoCompositeOpGenericHSLFunctor<Traits,CompositeOpFunctor> >
 {
     typedef KoCompositeOpBase< Traits, KoCompositeOpGenericHSLFunctor<Traits,CompositeOpFunctor>> base_class;
     typedef typename Traits::channels_type channels_type;
-    
+
     static const qint32 red_pos   = Traits::red_pos;
     static const qint32 green_pos = Traits::green_pos;
     static const qint32 blue_pos  = Traits::blue_pos;
-    
+
 public:
     KoCompositeOpGenericHSLFunctor(const KoColorSpace* cs, const QString& id, const QString& category)
         : base_class(cs, id, category) { }
-    
+
 public:
     template<bool alphaLocked, bool allChannelFlags>
     inline static channels_type composeColorChannels(const channels_type* src, channels_type srcAlpha,
@@ -273,7 +254,6 @@ public:
     }
 };
 
-
 template<class Traits, void compositeFunc(float, float, float, float&, float&, float&)>
 class KoCompositeOpGenericHSL : public KoCompositeOpGenericHSLFunctor<Traits, detail::CompositeFunctionWrapperHSL<Traits, compositeFunc>>
 {
@@ -283,17 +263,6 @@ public:
     using base_class::base_class;
 };
 
-/**
- * Generic CompositeOp for separable channel + alpha compositing functions
- *
- * A template to generate a KoCompositeOp class by just specifying a
- * blending/compositing function. This template works with compositing functions
- * for separable channels (means each channel of a pixel can be processed separately)
- * with taking alpha into consideration.
- * Note that because of special treating of alpha, any composite op function
- * needs to make alpha blending itself - the value of color that is written onto the projection
- * is the same that the composite function gives (compare with KoCompositeOpGenericHSL and KoCompositeOpGenericSC).
- */
 template<class Traits, void compositeFunc(float, float, float&, float&), typename BlendingPolicy>
 class KoCompositeOpGenericSCAlpha: public KoCompositeOpBase< Traits, KoCompositeOpGenericSCAlpha<Traits,compositeFunc,BlendingPolicy> >
 {
@@ -352,6 +321,4 @@ public:
     }
 };
 
-
-
-#endif // _KOCOMPOSITEOP_GENERIC_H_
+#endif

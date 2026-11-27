@@ -10,7 +10,6 @@
 #include <KisLager.h>
 #include <KisStandardOptionData.h>
 
-
 struct KisLightnessStrengthOptionWidget::Private
 {
     Private(lager::reader<bool> lightnessModeEnabled)

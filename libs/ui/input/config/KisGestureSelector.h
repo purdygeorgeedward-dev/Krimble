@@ -19,5 +19,4 @@ public:
     KisShortcutConfiguration::GestureAction gesture();
 };
 
-
-#endif // __KISGESTURESELECTOR_H_
+#endif

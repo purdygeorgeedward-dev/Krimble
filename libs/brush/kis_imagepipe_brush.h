@@ -16,10 +16,6 @@
 
 class KisPipeBrushParasite;
 
-/**
- * Velocity won't be supported, atm Tilt isn't either,
- * but have chances of implementation
- */
 namespace KisParasite
 {
 enum SelectionMode {
@@ -39,17 +35,12 @@ class BRUSH_EXPORT KisImagePipeBrush : public KisGbrBrush
 
 public:
     KisImagePipeBrush(const QString& filename);
-    /**
-     * Specialized constructor that makes a new pipe brush from a sequence of samesize
-     * devices. The fact that it's a vector of a vector, is to support multidimensional
-     * brushes (not yet supported!) */
     KisImagePipeBrush(const QString& name, int w, int h,
                       QVector< QVector<KisPaintDevice*> > devices,
                       QVector<KisParasite::SelectionMode> modes);
 
     ~KisImagePipeBrush() override;
 
-    /// Will call KisBrush's saveToDevice as well
     KisImagePipeBrush(const KisImagePipeBrush& rhs);
 
     KisImagePipeBrush &operator=(const KisImagePipeBrush &rhs) = delete;
@@ -59,9 +50,6 @@ public:
     bool loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourcesInterface) override;
     bool saveToDevice(QIODevice* dev) const override;
 
-    /**
-     * @return the next image in the pipe.
-    */
     KisFixedPaintDeviceSP paintDevice(const KoColorSpace * colorSpace,
             KisDabShape const&,
             const KisPaintInformation& info,
@@ -72,14 +60,13 @@ public:
     void setContrastAdjustment(qreal value) override;
     void setAutoAdjustMidPoint(bool value) override;
 
-    QString parasiteSelection(); // returns random, constant, etc
+    QString parasiteSelection();
 
     KisOptimizedBrushOutline outline(bool forcePreciseOutline = false) const override;
 
     bool canPaintFor(const KisPaintInformation& info) override;
 
     void makeMaskImage(bool preserveAlpha) override;
-
 
     QString defaultFileExtension() const override;
     void setAngle(qreal _angle) override;
@@ -96,7 +83,7 @@ public:
     void generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst, KisBrush::ColoringInformation* coloringInformation,
             KisDabShape const&,
             const KisPaintInformation& info,
-            double subPixelX = 0, double subPixelY = 0, 
+            double subPixelX = 0, double subPixelY = 0,
             qreal softnessFactor = DEFAULT_SOFTNESS_FACTOR, qreal lightnessStrength = DEFAULT_LIGHTNESS_STRENGTH) const override;
 
     void notifyBrushIsGoingToBeClonedForStroke() override;
@@ -113,7 +100,6 @@ public:
 protected:
     virtual void setBrushApplication(enumBrushApplication brushApplication) override;
     virtual void setGradient(KoAbstractGradientSP gradient) override;
-    /// Will call KisBrush's saveToDevice as well
 
 private:
     friend class KisImagePipeBrushTest;
@@ -123,7 +109,7 @@ private:
 
     bool initFromData(const QByteArray &data);
 
-    QString parasiteSelectionString; // incremental, random, etc.
+    QString parasiteSelectionString;
 
 private:
     struct Private;
@@ -132,4 +118,4 @@ private:
 
 typedef QSharedPointer<KisImagePipeBrush> KisImagePipeBrushSP;
 
-#endif // KIS_IMAGEPIPE_BRUSH_
+#endif

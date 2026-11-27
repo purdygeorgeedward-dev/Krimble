@@ -106,7 +106,7 @@ MyPaintBrush* KisMyPaintPaintOpPreset::brush() {
 bool KisMyPaintPaintOpPreset::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourcesInterface)
 {
     if (!dev->isSequential())
-        dev->seek(0); // ensure we do read *all* the bytes
+        dev->seek(0);
 
     std::array<png_byte, 8> signature;
     dev->peek(reinterpret_cast<char*>(signature.data()), 8);
@@ -116,10 +116,8 @@ bool KisMyPaintPaintOpPreset::loadFromDevice(QIODevice *dev, KisResourcesInterfa
 #else
     if (png_sig_cmp(signature.data(), 0, 8) == 0) {
 #endif
-        // this is a koresource
         if (KisPaintOpPreset::loadFromDevice(dev, resourcesInterface)) {
             apply(settings());
-            // correct filename
             const QString f = filename();
             if (f.endsWith(".myb", Qt::CaseInsensitive)) {
                 setFilename(QFileInfo(f).completeBaseName().append(KisPaintOpPreset::defaultFileExtension()));
@@ -130,12 +128,9 @@ bool KisMyPaintPaintOpPreset::loadFromDevice(QIODevice *dev, KisResourcesInterfa
             return false;
         }
     }
-    
+
     const QByteArray ba(dev->readAll());
     d->json = ba;
-    // mypaint can handle invalid json files too, so this is the only way to find out if it was correct mypaint file or not...
-    // if the json is incorrect, the brush will get the default mypaint brush settings
-    // which looks like a round brush with low opacity and high spacing
     bool success = mypaint_brush_from_string(d->brush, ba);
     const float isEraser = mypaint_brush_get_base_value(d->brush, MYPAINT_BRUSH_SETTING_ERASER);
 
@@ -145,16 +140,9 @@ bool KisMyPaintPaintOpPreset::loadFromDevice(QIODevice *dev, KisResourcesInterfa
     s->setProperty(MYPAINT_JSON, this->getJsonData());
     s->setProperty("EraserMode", qRound(isEraser));
 
-
     {
-        /**
-         * See a comment in `namespace deprecated_remove_after_krita6` in
-         * MyPaintStandardOptionData.cpp
-         */
 
         auto recoverDeprecatedProperty = [] (auto data, KisPaintOpSettingsSP settings) {
-            /// we just round-trip the save operation to save the property
-            /// out to the json object
 
             data.read(settings.data());
             data.write(settings.data());
@@ -164,7 +152,6 @@ bool KisMyPaintPaintOpPreset::loadFromDevice(QIODevice *dev, KisResourcesInterfa
         recoverDeprecatedProperty(MyPaintOpacityData(), s);
         recoverDeprecatedProperty(MyPaintHardnessData(), s);
     }
-
 
     if (!metadata().contains("paintopid")) {
         addMetaData("paintopid", "mypaintbrush");

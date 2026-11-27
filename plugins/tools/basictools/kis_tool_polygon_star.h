@@ -33,20 +33,19 @@ public:
     bool supportsPaintingAssistants() const override { return true; }
 
     struct Settings {
-        int sides = 6;             // 3 to 24 (a hexagon by default)
-        bool star = false;         // a star: 2 x sides points, every second one on the inner radius
-        int innerPercent = 50;     // the inner radius of a star, % of the outer
-        bool flatTop = false;      // flat top (an edge on top) or pointed top (a corner on top)
-        bool snap = false;         // snap to the hex grid
-        bool locked = false;       // the shared hex lock: no rotation, no scaling, the size and the grid are fixed
-        qreal gridSize = 100.0;    // the hex grid (View > Show > Hex Size): center to corner, image pixels
-        bool gridFlat = false;     // the hex grid's orientation
+        int sides = 6;
+        bool star = false;
+        int innerPercent = 50;
+        bool flatTop = false;
+        bool snap = false;
+        bool locked = false;
+        qreal gridSize = 100.0;
+        bool gridFlat = false;
         bool fixedSize() const { return snap || locked; }
         bool effectiveFlat() const { return snap && sides == 6 && !star ? gridFlat : flatTop; }
     };
     static Settings readSettings();
 
-    /// the shape fitted into the box, in the box's coordinates (a regular polygon or a star)
     static QPolygonF shapeInRect(const QRectF &rect, const Settings &s);
 
 protected Q_SLOTS:
@@ -83,4 +82,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_POLYGON_STAR_H_
+#endif

@@ -10,7 +10,6 @@
 #include <QWidget>
 #include "kritaresourcewidgets_export.h"
 
-
 class KRITARESOURCEWIDGETS_EXPORT KisTagLabel : public QWidget
 {
     Q_OBJECT
@@ -29,4 +28,4 @@ private:
     QString m_string;
 };
 
-#endif // KISTAGLABEL_H
+#endif

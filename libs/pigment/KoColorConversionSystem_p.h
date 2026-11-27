@@ -153,8 +153,8 @@ struct KoColorConversionSystem::Vertex {
 
 private:
 
-    KoColorConversionTransformationFactory* factoryFromSrc; // Factory provided by the destination node
-    KoColorConversionTransformationFactory* factoryFromDst; // Factory provided by the destination node
+    KoColorConversionTransformationFactory* factoryFromSrc;
+    KoColorConversionTransformationFactory* factoryFromDst;
 
 };
 
@@ -183,7 +183,6 @@ QDebug operator<<(QDebug dbg, const KoColorConversionSystem::NodeKey &key)
     return dbg.space();
 }
 
-
 inline KoColorConversionSystem::NodeKey KoColorConversionSystem::Node::key() const
 {
     return NodeKey(modelId, depthId, profileName);
@@ -205,7 +204,6 @@ struct KoColorConversionSystem::Path {
     bool operator==(const Path &other) const {
         return other.vertexes == vertexes;
     }
-
 
     const Node* startNode() const {
         return vertexes.size() > 0 ?
@@ -253,13 +251,12 @@ struct KoColorConversionSystem::Path {
         return (minimalCaps & commonNodeCapabilities) ^ minimalCaps;
     }
 
-    // Compress path to hide the Engine node and correctly select the factory
     typedef QPair<Node*, const KoColorConversionTransformationAbstractFactory* > node2factory;
     QList< node2factory > compressedPath() const {
         QList< node2factory > nodes;
         nodes.push_back(node2factory(vertexes.first()->srcNode , vertexes.first()->factory()));
         const KoColorConversionTransformationAbstractFactory* previousFactory = 0;
-        Q_FOREACH (Vertex* vertex, vertexes) { // Unless the node is the icc node, add it to the path
+        Q_FOREACH (Vertex* vertex, vertexes) {
             Node* n = vertex->dstNode;
             if (n->isEngine) {
                 previousFactory = n->engine;
@@ -295,7 +292,6 @@ struct KoColorConversionSystem::Path {
 };
 Q_DECLARE_TYPEINFO(KoColorConversionSystem::Path, Q_MOVABLE_TYPE);
 
-
 inline QDebug operator<<(QDebug dbg, const KoColorConversionSystem::Path &path)
 {
     bool havePrintedFirst = false;
@@ -312,9 +308,7 @@ inline QDebug operator<<(QDebug dbg, const KoColorConversionSystem::Path &path)
     return dbg.space();
 }
 
-
 typedef QHash<KoColorConversionSystem::Node*, KoColorConversionSystem::Path > Node2PathHash;
-
 
 uint qHash(const KoColorConversionSystem::NodeKey &key)
 {
@@ -336,17 +330,12 @@ struct PathQualityChecker {
         : referenceDepth(_referenceDepth)
     {}
 
-    /// @return true if the path maximize all the criteria (except length)
     inline bool isGoodPath(const KoColorConversionSystem::Path & path) const {
         return path.unsupportedCapabilities() == None &&
             path.referenceDepth >= referenceDepth;
     }
 
-    /**
-     * Compare two paths.
-     */
     inline bool lessWorseThan(const KoColorConversionSystem::Path &path1, const KoColorConversionSystem::Path &path2) const {
-        // There is no point in comparing two paths which doesn't start from the same node or doesn't end at the same node
 
         NodeCapabilities unsupported1 = path1.unsupportedCapabilities();
         NodeCapabilities unsupported2 = path2.unsupportedCapabilities();
@@ -364,7 +353,7 @@ struct PathQualityChecker {
         }
 
         if (path1.referenceDepth == path2.referenceDepth) {
-            return path1.cost < path2.cost; // if they have the same cost, well anyway you have to choose one, and there is no point in keeping one and not the other
+            return path1.cost < path2.cost;
         }
         return path1.referenceDepth > path2.referenceDepth;
     }

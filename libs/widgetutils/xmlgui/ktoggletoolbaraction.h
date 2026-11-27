@@ -20,59 +20,19 @@
 
 class KisToolBar;
 
-/**
- * An action that takes care of everything associated with
- * showing or hiding a toolbar by a menu action. It will
- * show or hide the toolbar with the given name when
- * activated, and check or uncheck itself if the toolbar
- * is manually shown or hidden.
- *
- * If you need to perform some additional action when the
- * toolbar is shown or hidden, connect to the toggled(bool)
- * signal. It will be emitted after the toolbar's
- * visibility has changed, whenever it changes.
- */
 class KRITAWIDGETUTILS_EXPORT KToggleToolBarAction : public KToggleAction
 {
     Q_OBJECT
 
 public:
-    /**
-     * Create a KisKToggleToolbarAction that manages the toolbar
-     * named @p toolBarName. This can be either the name of a
-     * toolbar in an xml ui file, or a toolbar programmatically
-     * created with that name.
-     *
-     * @param toolBarName The toolbar name.
-     * @param text The toolbar hint text.
-     * @param parent The action's parent object.
-     */
     KToggleToolBarAction(const char *toolBarName, const QString &text, QObject *parent);
 
-    /**
-     * Create a KisKToggleToolbarAction that manages the @p toolBar.
-     * This can be either the name of a toolbar in an xml ui file,
-     * or a toolbar programmatically created with that name.
-     *
-     * @param toolBar the toolbar to be managed
-     * @param text The action's text
-     * @param parent The action's parent object.
-     */
     KToggleToolBarAction(KisToolBar *toolBar, const QString &text, QObject *parent);
 
-    /**
-     * Destroys toggle toolbar action.
-     */
     ~KToggleToolBarAction() override;
 
-    /**
-     * Returns a pointer to the tool bar it manages.
-     */
     KisToolBar *toolBar();
 
-    /**
-     * Reimplemented from @see QObject.
-     */
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private Q_SLOTS:

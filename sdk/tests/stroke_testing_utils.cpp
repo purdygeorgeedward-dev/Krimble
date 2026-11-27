@@ -26,7 +26,6 @@
 #include <testutil.h>
 #include <KisGlobalResourcesInterface.h>
 
-
 KisImageSP utils::createImage(KisUndoStore *undoStore, const QSize &imageSize) {
     QRect imageRect(0,0,imageSize.width(),imageSize.height());
 
@@ -162,14 +161,10 @@ void utils::StrokeTester::test()
     testOneStroke(true, false, false);
     testOneStroke(true, true, false);
 
-    // The same but with updates (compare against projection)
-
     testOneStroke(false, false, false, true);
     testOneStroke(false, true, false, true);
     testOneStroke(true, false, false, true);
     testOneStroke(true, true, false, true);
-
-    // The same, but with an external layer
 
     testOneStroke(false, false, true);
     testOneStroke(false, true, true);
@@ -179,7 +174,6 @@ void utils::StrokeTester::test()
 
 void utils::StrokeTester::benchmark()
 {
-    // not cancelled, indirect painting, internal, no updates, no qimage
     doStroke(false, false, false, false);
 }
 
@@ -193,8 +187,6 @@ void utils::StrokeTester::testOneStroke(bool cancelled,
                                         bool externalLayer,
                                         bool testUpdates)
 {
-    // TODO: indirectPainting option is not used anymore! The real value is
-    //       taken from the preset!
 
     QString testName = formatTestName(m_name,
                                       cancelled,

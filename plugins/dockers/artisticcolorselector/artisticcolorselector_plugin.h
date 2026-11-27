@@ -17,4 +17,4 @@ public:
     ArtisticColorSelectorPlugin(QObject *parent, const QVariantList &);
 };
 
-#endif // H_ARTISTIC_COLOR_SELECTOR_PLUGIN_H
+#endif

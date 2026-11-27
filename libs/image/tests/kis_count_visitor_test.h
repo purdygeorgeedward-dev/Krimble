@@ -21,7 +21,6 @@ public:
     }
 };
 
-
 class TestNodeA : public TestUtil::DefaultNode
 {
     Q_OBJECT
@@ -48,7 +47,6 @@ public:
         return new TestNodeC(*this);
     }
 };
-
 
 class KisCountVisitorTest : public QObject
 {

@@ -16,8 +16,7 @@
 #include <KoConfig.h>
 #ifdef HAVE_OPENEXR
 #include <half.h>
-#endif /* HAVE_OPENEXR */
-
+#endif
 
 namespace {
 
@@ -100,7 +99,6 @@ KisMaskingBrushCompositeOpBase *createTypedOp(const QString &id, int pixelSize, 
         result = new KisMaskingBrushCompositeOp<channel_type, KIS_MASKING_BRUSH_COMPOSITE_SUBTRACT,
                                                 mask_is_alpha, true, use_soft_texturing>
                                                (pixelSize, alphaOffset, strength);
-    // Special modes that useful when used with strength
     } else if (id == "height") {
         result = new KisMaskingBrushCompositeOp<channel_type, KIS_MASKING_BRUSH_COMPOSITE_HEIGHT,
                                                 mask_is_alpha, true, use_soft_texturing>
@@ -148,7 +146,7 @@ KisMaskingBrushCompositeOpBase *createImpl(const QString &id, KoChannelInfo::enu
     case KoChannelInfo::FLOAT16:
         result = createTypedOp<half, mask_is_alpha>(id, pixelSize, alphaOffset);
         break;
-#endif /* HAVE_OPENEXR */
+#endif
 
     case KoChannelInfo::FLOAT32:
         result = createTypedOp<float, mask_is_alpha>(id, pixelSize, alphaOffset);
@@ -156,10 +154,6 @@ KisMaskingBrushCompositeOpBase *createImpl(const QString &id, KoChannelInfo::enu
     case KoChannelInfo::FLOAT64:
         result = createTypedOp<double, mask_is_alpha>(id, pixelSize, alphaOffset);
         break;
-//    NOTE: we have no color space like that, so it is not supported!
-//    case KoChannelInfo::INT8:
-//        result = createTypedOp<qint8>(id, pixelSize, alphaOffset);
-//        break;
     case KoChannelInfo::INT16:
         result = createTypedOp<qint16, mask_is_alpha>(id, pixelSize, alphaOffset);
         break;
@@ -190,7 +184,7 @@ KisMaskingBrushCompositeOpBase *createImpl(const QString &id, KoChannelInfo::enu
     case KoChannelInfo::FLOAT16:
         result = createTypedOp<half, mask_is_alpha, use_soft_texturing>(id, pixelSize, alphaOffset, strength);
         break;
-#endif /* HAVE_OPENEXR */
+#endif
 
     case KoChannelInfo::FLOAT32:
         result = createTypedOp<float, mask_is_alpha, use_soft_texturing>(id, pixelSize, alphaOffset, strength);

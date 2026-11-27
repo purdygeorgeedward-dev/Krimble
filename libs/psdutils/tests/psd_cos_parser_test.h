@@ -20,4 +20,4 @@ private Q_SLOTS:
     void test_parse_cos_struct();
 };
 
-#endif // PSD_COS_PARSER_TEST_H
+#endif

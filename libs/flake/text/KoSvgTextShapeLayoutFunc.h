@@ -45,6 +45,6 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
                                   QVector<CharacterResult> &result,
                                   QList<QPainterPath> shapes, QPointF &startPos, const KoSvgText::ResolutionHandler &resHandler);
 
-} // namespace KoSvgTextShapeLayoutFunc
+}
 
-#endif // KO_SVG_TEXT_SHAPE_LAYOUT_FUNC_H
+#endif

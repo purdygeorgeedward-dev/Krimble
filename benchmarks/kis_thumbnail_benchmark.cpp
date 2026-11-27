@@ -23,8 +23,6 @@
 #include "kis_sequential_iterator.h"
 #include "kis_transform_worker.h"
 
-
-
 #include <cmath>
 
 #define SAVE_OUTPUT
@@ -74,7 +72,6 @@ void KisThumbnailBenchmark::benchmarkCreateThumbnail()
 
     QBENCHMARK{
         image = m_dev->createThumbnailUncached(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, QRect() );
-        //m_dev->setDirty();
     }
 
     image.save("createThumbnail.png");
@@ -88,7 +85,6 @@ void KisThumbnailBenchmark::benchmarkCreateThumbnailCached()
         image = m_dev->createThumbnail(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, KisThumbnailBoundsMode::Coarse, 2. );
     }
 }
-
 
 void KisThumbnailBenchmark::benchmarkCreateThumbnailHiQ()
 {
@@ -144,6 +140,5 @@ void KisThumbnailBenchmark::benchmarkCreateThumbnailHiQcreateThumbOversample4x()
 
     image.save("createThumbnailHiQcreateThumbOversample4x.png");
 }
-
 
 SIMPLE_TEST_MAIN(KisThumbnailBenchmark)

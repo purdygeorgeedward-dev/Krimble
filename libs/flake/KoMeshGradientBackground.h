@@ -15,7 +15,6 @@ public:
     KoMeshGradientBackground(const SvgMeshGradient *gradient, const QTransform &matrix = QTransform());
     ~KoMeshGradientBackground();
 
-    // Work around MSVC inability to generate copy ops with QSharedDataPointer.
     KoMeshGradientBackground(const KoMeshGradientBackground &);
     KoMeshGradientBackground& operator=(const KoMeshGradientBackground &);
 
@@ -31,5 +30,4 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-
-#endif // KOMESHGRADIENTBACKGROUND_H
+#endif

@@ -10,7 +10,6 @@
 
 #include "kis_filter_strategy.h"
 
-//#define DEBUG_ENABLED
 #define SANITY_CHECKS_ENABLED
 #include "kis_filter_weights_buffer.h"
 
@@ -39,7 +38,6 @@ void checkWeightsBuffer(KisFilterStrategy *filter, qreal scale)
 
         int span = w1->span;
 
-        // Check for symmetry around center offset
         for (int i = 0; i < span; i++) {
             int idx2 = span - i - 1;
 
@@ -52,12 +50,12 @@ void checkWeightsBuffer(KisFilterStrategy *filter, qreal scale)
                 dbgKrita << "*******";
                 dbgKrita << "Weight" << fp1 << "|" << i << ":" << v1;
                 dbgKrita << "Weight" << fp2 << "|" << idx2 << ":" << v2;
-#endif /* DEBUG_ENABLED */
+#endif
 
                 if (!(span & 0x1) && (qAbs(v1 - v2) <= (0.5 * span))) {
 #ifdef DEBUG_ENABLED
                     dbgKrita << "Symmetry is wrong due to evenly-sized kernel or rounding. It's ok. Accepting.";
-#endif /* DEBUG_ENABLED */
+#endif
                 } else {
                     QFAIL("Wrong weight symmetry");
                 }
@@ -79,7 +77,6 @@ void checkOneFilter(KisFilterStrategy *filter)
     delete filter;
     checkForAsymmetricZeros = false;
 }
-
 
 void KisFilterWeightsBufferTest::testTriangle()
 {
@@ -122,7 +119,5 @@ void KisFilterWeightsBufferTest::testMitchell()
     checkForAsymmetricZeros = true;
     checkOneFilter(new KisMitchellFilterStrategy());
 }
-
-
 
 SIMPLE_TEST_MAIN(KisFilterWeightsBufferTest)

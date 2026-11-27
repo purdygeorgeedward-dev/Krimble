@@ -7,7 +7,6 @@
 
 #include "kis_filter_manager.h"
 
-
 #include <QHash>
 #include <KisSignalMapper.h>
 
@@ -18,7 +17,6 @@
 #include <KoID.h>
 #include <KisMainWindow.h>
 
-// krita/image
 #include <filter/kis_filter.h>
 #include <filter/kis_filter_registry.h>
 #include <filter/kis_filter_configuration.h>
@@ -30,7 +28,6 @@
 #include <kis_image_config.h>
 #include <KisAnimAutoKey.h>
 
-// krita/ui
 #include "KisViewManager.h"
 #include "kis_canvas2.h"
 #include <kis_bookmarked_configuration_manager.h>
@@ -64,10 +61,6 @@ struct KisFilterManager::Private {
 
     KisSignalMapper actionsMapper;
 
-    /*!
-     * \brief The filter dialog shown to the user
-     * \note parent QWidget is set to mainwindow, so we delegate deletion of this widget to Qt (we don't `delete` it ourselves)
-     */
     KisDlgFilter *filterDialog = nullptr;
 };
 
@@ -86,13 +79,11 @@ void KisFilterManager::setView(QPointer<KisView>imageView)
     Q_UNUSED(imageView);
 }
 
-
 void KisFilterManager::setup(KisKActionCollection * ac, KisActionManager *actionManager)
 {
     d->actionCollection = ac;
     d->actionManager = actionManager;
 
-    // Setup reapply action
     d->reapplyAction = d->actionManager->createAction("filter_apply_again");
     d->reapplyAction->setActivationFlags(KisAction::ACTIVE_DEVICE);
     d->reapplyAction->setEnabled(false);
@@ -106,7 +97,6 @@ void KisFilterManager::setup(KisKActionCollection * ac, KisActionManager *action
 
     connect(&d->actionsMapper, SIGNAL(mapped(QString)), SLOT(showFilterDialog(QString)));
 
-    // Setup list of filters
     QStringList keys = KisFilterRegistry::instance()->keys();
     keys.sort();
     Q_FOREACH (const QString &filterName, keys) {
@@ -210,10 +200,6 @@ void KisFilterManager::showFilterDialog(const QString &filterId, KisFilterConfig
             SLOT(slotStrokeEndRequested()),
             Qt::UniqueConnection);
 
-    /**
-     * The UI should show only after every running stroke is finished,
-     * so a virtual barrier is added here.
-     */
     if (!d->view->blockUntilOperationsFinished(d->view->image())) {
         return;
     }
@@ -230,7 +216,6 @@ void KisFilterManager::showFilterDialog(const QString &filterId, KisFilterConfig
     KisFilterSP filter = KisFilterRegistry::instance()->value(filterId);
 
     if (dev->colorSpace()->willDegrade(filter->colorSpaceIndependence())) {
-        // Warning bells!
         if (filter->colorSpaceIndependence() == TO_LAB16) {
             if (QMessageBox::warning(d->view->mainWindow(),
                                      i18nc("@title:window", "Krita"),
@@ -253,7 +238,7 @@ void KisFilterManager::showFilterDialog(const QString &filterId, KisFilterConfig
     if (filter->showConfigurationWidget()) {
         if (!d->filterDialog) {
             d->filterDialog = new KisDlgFilter(d->view , d->view->activeNode(), this, d->view->mainWindow());
-            d->filterDialog->setAttribute(Qt::WA_DeleteOnClose); // make sure that the dialog is deleted when calling `done()`
+            d->filterDialog->setAttribute(Qt::WA_DeleteOnClose);
             connect(d->filterDialog, SIGNAL(finished(int)),
                     this, SLOT(filterDialogHasFinished(int)));
         }
@@ -287,8 +272,6 @@ void KisFilterManager::apply(KisFilterConfigurationSP _filterConfig)
     }
 
     if (!d->externalCancelUpdatesStorage) {
-        // Lazily initialize the cancel updates storage, just in case
-        // if the stroke has been cancelled in the meantime.
 
         d->externalCancelUpdatesStorage.reset(new KisFilterStrokeStrategy::ExternalCancelUpdatesStorage());
     }
@@ -313,7 +296,6 @@ void KisFilterManager::apply(KisFilterConfigurationSP _filterConfig)
     d->currentStrokeId =
         image->startStroke(strategy);
 
-    // Apply filter preview to active, visible frame only.
     KisImageConfig imgConf(true);
     image->addJob(d->currentStrokeId, new KisFilterStrokeStrategy::FilterJobData());
 
@@ -331,12 +313,11 @@ void KisFilterManager::finish()
 {
     Q_ASSERT(d->currentStrokeId);
 
-    if (d->filterAllSelectedFrames) {   // Apply filter to the other selected frames...
+    if (d->filterAllSelectedFrames) {
         KisImageSP image = d->view->image();
         KisPaintDeviceSP paintDevice = d->view->activeNode()->paintDevice();
         KisNodeSP node = d->view->activeNode();
 
-        // Filter selected times to only those with keyframes...
         QSet<int> selectedTimes = image->animationInterface()->activeLayerSelectedTimes();
         selectedTimes = KisLayerUtils::filterTimesForOnlyRasterKeyedTimes(node, selectedTimes);
         QSet<int> uniqueFrames = KisLayerUtils::fetchUniqueFrameTimes(node, selectedTimes, true);
@@ -366,7 +347,6 @@ void KisFilterManager::cancelRunningStroke()
 {
     Q_ASSERT(d->currentStrokeId);
 
-    // we should to notify the stroke that it should do the updates itself.
     d->externalCancelUpdatesStorage->shouldIssueCancellationUpdates.ref();
     d->view->image()->cancelStroke(d->currentStrokeId);
 
@@ -418,6 +398,5 @@ void KisFilterManager::slotStrokeCancelRequested()
 }
 void KisFilterManager::filterDialogHasFinished(int)
 {
-    // as far as we are concerned, filterDialog has been deleted
     d->filterDialog = nullptr;
 }

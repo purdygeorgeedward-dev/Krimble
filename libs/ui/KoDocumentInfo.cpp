@@ -23,7 +23,6 @@
 
 #include <KritaVersionWrapper.h>
 
-
 KoDocumentInfo::KoDocumentInfo(QObject *parent) : QObject(parent)
 {
     m_aboutTags << "title" << "description" << "subject" << "abstract"
@@ -68,7 +67,6 @@ bool KoDocumentInfo::load(const QDomDocument &doc)
     return true;
 }
 
-
 QDomDocument KoDocumentInfo::save(QDomDocument &doc)
 {
     updateParametersAndBumpNumCycles();
@@ -80,7 +78,6 @@ QDomDocument KoDocumentInfo::save(QDomDocument &doc)
     s = saveAuthorInfo(doc);
     if (!s.isNull())
         doc.documentElement().appendChild(s);
-
 
     if (doc.documentElement().isNull())
         return QDomDocument();
@@ -141,7 +138,6 @@ QString KoDocumentInfo::aboutInfo(const QString &info) const
     return m_aboutInfo[info];
 }
 
-
 bool KoDocumentInfo::loadAuthorInfo(const QDomElement &root)
 {
     m_contact.clear();
@@ -191,7 +187,6 @@ QDomElement KoDocumentInfo::saveAuthorInfo(QDomDocument &doc)
 
     return e;
 }
-
 
 bool KoDocumentInfo::loadAboutInfo(const QDomElement &root)
 {
@@ -256,7 +251,6 @@ void KoDocumentInfo::updateParameters()
     QDir dir(authorInfo);
     QStringList filters = QStringList() << "*.authorinfo";
 
-    //Anon case
     setActiveAuthorInfo("creator", QString());
     setActiveAuthorInfo("initial", "");
     setActiveAuthorInfo("author-title", "");
@@ -309,7 +303,6 @@ void KoDocumentInfo::updateParameters()
         }
     }
 
-    //allow author info set programmatically to override info from author profile
     Q_FOREACH (const QString &tag, m_authorTags) {
         if (m_authorInfoOverride.contains(tag)) {
             setActiveAuthorInfo(tag, m_authorInfoOverride.value(tag));

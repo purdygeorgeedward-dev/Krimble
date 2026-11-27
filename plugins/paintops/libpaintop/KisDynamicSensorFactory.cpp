@@ -5,7 +5,6 @@
  */
 #include "KisDynamicSensorFactory.h"
 
-
 KisDynamicSensorFactory::~KisDynamicSensorFactory()
 {
 

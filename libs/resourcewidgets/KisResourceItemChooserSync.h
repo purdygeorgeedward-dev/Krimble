@@ -14,11 +14,6 @@
 
 #include "kritaresourcewidgets_export.h"
 
-/**
- * KisResourceItemChooserSync is a singleton that syncs the size of entries in the
- * resource item choosers between different choosers
- * To use the syncing it has to be turned on in the KisResourceItemChooser
- */
 class KRITARESOURCEWIDGETS_EXPORT KisResourceItemChooserSync : public QObject
 {
     Q_OBJECT
@@ -27,19 +22,13 @@ public:
     ~KisResourceItemChooserSync() override;
     static KisResourceItemChooserSync* instance();
 
-    /// Gets the base length
-    /// @returns the base length of items
     int baseLength();
 
-    /// Set the base length 
-    /// @param length base length for the items, will be clamped if outside range
     void setBaseLength(int length);
-    
+
 Q_SIGNALS:
-    /// Signal is emitted when the base length is changed and will trigger and update in
-    /// the resource item choosers
     void baseLengthChanged(int length);
-    
+
 private:
 
     KisResourceItemChooserSync(const KisResourceItemChooserSync&);
@@ -50,4 +39,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // KISRESOURCEITEMCHOOSERSYNC_H
+#endif

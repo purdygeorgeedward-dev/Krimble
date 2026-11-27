@@ -26,4 +26,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSPACINGOPTIONWIDGET_H
+#endif

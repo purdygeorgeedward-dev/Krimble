@@ -1,22 +1,8 @@
-/////////////////////////////////////////////////////////////////////////////
-//  einspline:  a library for creating and evaluating B-splines            //
 //  Copyright (C) 2007 Kenneth P. Esler, Jr.                               //
-//                                                                         //
-//  This program is free software; you can redistribute it and/or modify   //
 //  it under the terms of the GNU General Public License as published by   //
 //  the Free Software Foundation; either version 2 of the License, or      //
-//  (at your option) any later version.                                    //
-//                                                                         //
-//  This program is distributed in the hope that it will be useful,        //
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of         //
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          //
 //  GNU General Public License for more details.                           //
-//                                                                         //
 //  You should have received a copy of the GNU General Public License      //
-//  along with this program; if not, write to the Free Software            //
-//  Foundation, Inc., 51 Franklin Street, Fifth Floor,                     //
-//  Boston, MA  02110-1301  USA                                            //
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef NUBSPLINE_EVAL_STD_S_H
 #define NUBSPLINE_EVAL_STD_S_H
@@ -25,13 +11,8 @@
 #include <stdio.h>
 #include "nubspline_structs.h"
 
-/************************************************************/
-/* 1D single-precision, real evaulation functions           */
-/************************************************************/
-
-/* Value only */
 inline void
-eval_NUBspline_1d_s (NUBspline_1d_s * restrict spline, 
+eval_NUBspline_1d_s (NUBspline_1d_s * restrict spline,
 		     double x, float* restrict val)
 {
   float bfuncs[4];
@@ -41,9 +22,8 @@ eval_NUBspline_1d_s (NUBspline_1d_s * restrict spline,
 	  coefs[i+2]*bfuncs[2] +coefs[i+3]*bfuncs[3]);
 }
 
-/* Value and first derivative */
 inline void
-eval_NUBspline_1d_s_vg (NUBspline_1d_s * restrict spline, double x, 
+eval_NUBspline_1d_s_vg (NUBspline_1d_s * restrict spline, double x,
 			float* restrict val, float* restrict grad)
 {
   float bfuncs[4], dbfuncs[4];
@@ -55,9 +35,8 @@ eval_NUBspline_1d_s_vg (NUBspline_1d_s * restrict spline, double x,
 	   coefs[i+2]*dbfuncs[2] + coefs[i+3]*dbfuncs[3]);
 }
 
-/* Value, first derivative, and second derivative */
 inline void
-eval_NUBspline_1d_s_vgl (NUBspline_1d_s * restrict spline, double x, 
+eval_NUBspline_1d_s_vgl (NUBspline_1d_s * restrict spline, double x,
 			float* restrict val, float* restrict grad,
 			float* restrict lapl)
 {
@@ -74,26 +53,21 @@ eval_NUBspline_1d_s_vgl (NUBspline_1d_s * restrict spline, double x,
 }
 
 inline void
-eval_NUBspline_1d_s_vgh (NUBspline_1d_s * restrict spline, double x, 
+eval_NUBspline_1d_s_vgh (NUBspline_1d_s * restrict spline, double x,
 			float* restrict val, float* restrict grad,
 			float* restrict hess)
 {
   eval_NUBspline_1d_s_vgl (spline, x, val, grad, hess);
 }
 
-/************************************************************/
-/* 2D single-precision, real evaulation functions           */
-/************************************************************/
-
-/* Value only */
 inline void
-eval_NUBspline_2d_s (NUBspline_2d_s * restrict spline, 
+eval_NUBspline_2d_s (NUBspline_2d_s * restrict spline,
 		    double x, double y, float* restrict val)
 {
   float a[4], b[4];
   int ix = get_NUBasis_funcs_s (spline->x_basis, x, a);
   int iy = get_NUBasis_funcs_s (spline->y_basis, y, b);
-  
+
   float* restrict coefs = spline->coefs;
 
   int xs = spline->x_stride;
@@ -106,17 +80,15 @@ eval_NUBspline_2d_s (NUBspline_2d_s * restrict spline,
 
 }
 
-
-/* Value and gradient */
 inline void
-eval_NUBspline_2d_s_vg (NUBspline_2d_s * restrict spline, 
-		       double x, double y, 
+eval_NUBspline_2d_s_vg (NUBspline_2d_s * restrict spline,
+		       double x, double y,
 		       float* restrict val, float* restrict grad)
 {
   float a[4], b[4], da[4], db[4];
   int ix = get_NUBasis_dfuncs_s (spline->x_basis, x, a, da);
   int iy = get_NUBasis_dfuncs_s (spline->y_basis, y, b, db);
-  
+
   float* restrict coefs = spline->coefs;
 
   int xs = spline->x_stride;
@@ -136,16 +108,15 @@ eval_NUBspline_2d_s_vg (NUBspline_2d_s * restrict spline,
 #undef C
 }
 
-/* Value, gradient, and laplacian */
 inline void
-eval_NUBspline_2d_s_vgl (NUBspline_2d_s * restrict spline, 
-			double x, double y, float* restrict val, 
+eval_NUBspline_2d_s_vgl (NUBspline_2d_s * restrict spline,
+			double x, double y, float* restrict val,
 			float* restrict grad, float* restrict lapl)
 {
   float a[4], b[4], da[4], db[4], d2a[4], d2b[4], bc[4];
   int ix = get_NUBasis_d2funcs_s (spline->x_basis, x, a, da, d2a);
   int iy = get_NUBasis_d2funcs_s (spline->y_basis, y, b, db, d2b);
-  
+
   float* restrict coefs = spline->coefs;
 
   int xs = spline->x_stride;
@@ -165,20 +136,19 @@ eval_NUBspline_2d_s_vgl (NUBspline_2d_s * restrict spline,
 	     a[1]*(C(1,0)*d2b[0]+C(1,1)*d2b[1]+C(1,2)*d2b[2]+C(1,3)*d2b[3])+
 	     a[2]*(C(2,0)*d2b[0]+C(2,1)*d2b[1]+C(2,2)*d2b[2]+C(2,3)*d2b[3])+
 	     a[3]*(C(3,0)*d2b[0]+C(3,1)*d2b[1]+C(3,2)*d2b[2]+C(3,3)*d2b[3]));
-  
+
 #undef C
 }
 
-/* Value, gradient, and Hessian */
 inline void
-eval_NUBspline_2d_s_vgh (NUBspline_2d_s * restrict spline, 
-			double x, double y, float* restrict val, 
+eval_NUBspline_2d_s_vgh (NUBspline_2d_s * restrict spline,
+			double x, double y, float* restrict val,
 			float* restrict grad, float* restrict hess)
 {
   float a[4], b[4], da[4], db[4], d2a[4], d2b[4], bc[4];
   int ix = get_NUBasis_d2funcs_s (spline->x_basis, x, a, da, d2a);
   int iy = get_NUBasis_d2funcs_s (spline->y_basis, y, b, db, d2b);
-  
+
   float* restrict coefs = spline->coefs;
 
   int xs = spline->x_stride;
@@ -203,18 +173,12 @@ eval_NUBspline_2d_s_vgh (NUBspline_2d_s * restrict spline,
 	     a[2]*(C(2,0)*d2b[0]+C(2,1)*d2b[1]+C(2,2)*d2b[2]+C(2,3)*d2b[3])+
 	     a[3]*(C(3,0)*d2b[0]+C(3,1)*d2b[1]+C(3,2)*d2b[2]+C(3,3)*d2b[3]));
   hess[2] = hess[1];
-  
+
 #undef C
 }
 
-
-/************************************************************/
-/* 3D single-precision, real evaulation functions           */
-/************************************************************/
-
-/* Value only */
 inline void
-eval_NUBspline_3d_s (NUBspline_3d_s * restrict spline, 
+eval_NUBspline_3d_s (NUBspline_3d_s * restrict spline,
 		    double x, double y, double z,
 		    float* restrict val)
 {
@@ -224,7 +188,7 @@ eval_NUBspline_3d_s (NUBspline_3d_s * restrict spline,
   int iy = get_NUBasis_funcs_s (spline->y_basis, y, b);
   int iz = get_NUBasis_funcs_s (spline->z_basis, z, c);
   float* restrict coefs = spline->coefs;
-  
+
   int xs = spline->x_stride;
   int ys = spline->y_stride;
 #define P(i,j,k) coefs[(ix+(i))*xs+(iy+(j))*ys+(iz+(k))]
@@ -248,19 +212,18 @@ eval_NUBspline_3d_s (NUBspline_3d_s * restrict spline,
 
 }
 
-/* Value and gradient */
 inline void
-eval_NUBspline_3d_s_vg (NUBspline_3d_s * restrict spline, 
+eval_NUBspline_3d_s_vg (NUBspline_3d_s * restrict spline,
 			double x, double y, double z,
 			float* restrict val, float* restrict grad)
 {
-  float a[4], b[4], c[4], da[4], db[4], dc[4], 
+  float a[4], b[4], c[4], da[4], db[4], dc[4],
     cP[16], bcP[4], dbcP[4];
   int ix = get_NUBasis_dfuncs_s (spline->x_basis, x, a, da);
   int iy = get_NUBasis_dfuncs_s (spline->y_basis, y, b, db);
   int iz = get_NUBasis_dfuncs_s (spline->z_basis, z, c, dc);
   float* restrict coefs = spline->coefs;
-  
+
   int xs = spline->x_stride;
   int ys = spline->y_stride;
 #define P(i,j,k) coefs[(ix+(i))*xs+(iy+(j))*ys+(iz+(k))]
@@ -294,7 +257,7 @@ eval_NUBspline_3d_s_vg (NUBspline_3d_s * restrict spline,
   *val    = ( a[0]*bcP[0] +  a[1]*bcP[1] +  a[2]*bcP[2] +  a[3]*bcP[3]);
   grad[0] = (da[0]*bcP[0] + da[1]*bcP[1] + da[2]*bcP[2] + da[3]*bcP[3]);
   grad[1] = (a[0]*dbcP[0] + a[1]*dbcP[1] + a[2]*dbcP[2] + a[3]*dbcP[3]);
-  grad[2] = 
+  grad[2] =
     (a[0]*(b[0]*(P(0,0,0)*dc[0]+P(0,0,1)*dc[1]+P(0,0,2)*dc[2]+P(0,0,3)*dc[3])+
 	   b[1]*(P(0,1,0)*dc[0]+P(0,1,1)*dc[1]+P(0,1,2)*dc[2]+P(0,1,3)*dc[3])+
 	   b[2]*(P(0,2,0)*dc[0]+P(0,2,1)*dc[1]+P(0,2,2)*dc[2]+P(0,2,3)*dc[3])+
@@ -315,15 +278,12 @@ eval_NUBspline_3d_s_vg (NUBspline_3d_s * restrict spline,
 
 }
 
-
-
-/* Value, gradient, and laplacian */
 inline void
-eval_NUBspline_3d_s_vgl (NUBspline_3d_s * restrict spline, 
+eval_NUBspline_3d_s_vgl (NUBspline_3d_s * restrict spline,
 			double x, double y, double z,
 			float* restrict val, float* restrict grad, float* restrict lapl)
 {
-  float a[4], b[4], c[4], da[4], db[4], dc[4], 
+  float a[4], b[4], c[4], da[4], db[4], dc[4],
     d2a[4], d2b[4], d2c[4], cP[16], dcP[16], bcP[4], dbcP[4], d2bcP[4], bdcP[4];
 
   int ix = get_NUBasis_d2funcs_s (spline->x_basis, x, a, da, d2a);
@@ -388,20 +348,19 @@ eval_NUBspline_3d_s_vgl (NUBspline_3d_s * restrict spline,
   d2bcP[2] = ( d2b[0]*cP[ 8] + d2b[1]*cP[ 9] + d2b[2]*cP[10] + d2b[3]*cP[11]);
   d2bcP[3] = ( d2b[0]*cP[12] + d2b[1]*cP[13] + d2b[2]*cP[14] + d2b[3]*cP[15]);
 
-
-  *val    = 
+  *val    =
     ( a[0]*bcP[0] +  a[1]*bcP[1] +  a[2]*bcP[2] +  a[3]*bcP[3]);
 
-  grad[0] = 
+  grad[0] =
     (da[0]*bcP[0] + da[1]*bcP[1] + da[2]*bcP[2] + da[3]*bcP[3]);
-  grad[1] = 
+  grad[1] =
     (a[0]*dbcP[0] + a[1]*dbcP[1] + a[2]*dbcP[2] + a[3]*dbcP[3]);
-  grad[2] = 
+  grad[2] =
     (a[0]*bdcP[0] + a[1]*bdcP[1] + a[2]*bdcP[2] + a[3]*bdcP[3]);
 
   *lapl = (d2a[0]*bcP[0] + d2a[1]*bcP[1] + d2a[2]*bcP[2] + d2a[3]*bcP[3])
     +     (a[0]*d2bcP[0] + a[1]*d2bcP[1] + a[2]*d2bcP[2] + a[3]*d2bcP[3]) +
-    (a[0]*(b[0]*(P(0,0,0)*d2c[0]+P(0,0,1)*d2c[1]+P(0,0,2)*d2c[2]+P(0,0,3)*d2c[3])+    
+    (a[0]*(b[0]*(P(0,0,0)*d2c[0]+P(0,0,1)*d2c[1]+P(0,0,2)*d2c[2]+P(0,0,3)*d2c[3])+
 	   b[1]*(P(0,1,0)*d2c[0]+P(0,1,1)*d2c[1]+P(0,1,2)*d2c[2]+P(0,1,3)*d2c[3])+
 	   b[2]*(P(0,2,0)*d2c[0]+P(0,2,1)*d2c[1]+P(0,2,2)*d2c[2]+P(0,2,3)*d2c[3])+
 	   b[3]*(P(0,3,0)*d2c[0]+P(0,3,1)*d2c[1]+P(0,3,2)*d2c[2]+P(0,3,3)*d2c[3]))+
@@ -421,17 +380,12 @@ eval_NUBspline_3d_s_vgl (NUBspline_3d_s * restrict spline,
 
 }
 
-
-
-
-
-/* Value, gradient, and Hessian */
 inline void
-eval_NUBspline_3d_s_vgh (NUBspline_3d_s * restrict spline, 
+eval_NUBspline_3d_s_vgh (NUBspline_3d_s * restrict spline,
 			 double x, double y, double z,
 			 float* restrict val, float* restrict grad, float* restrict hess)
 {
-  float a[4], b[4], c[4], da[4], db[4], dc[4], 
+  float a[4], b[4], c[4], da[4], db[4], dc[4],
     d2a[4], d2b[4], d2c[4], cP[16], dcP[16], d2cP[16], bcP[4], dbcP[4],
     d2bcP[4], dbdcP[4], bd2cP[4], bdcP[4];
   int ix = get_NUBasis_d2funcs_s (spline->x_basis, x, a, da, d2a);
@@ -517,7 +471,7 @@ eval_NUBspline_3d_s_vgh (NUBspline_3d_s * restrict spline,
   d2bcP[1] = ( d2b[0]*cP[ 4] + d2b[1]*cP[ 5] + d2b[2]*cP[ 6] + d2b[3]*cP[ 7]);
   d2bcP[2] = ( d2b[0]*cP[ 8] + d2b[1]*cP[ 9] + d2b[2]*cP[10] + d2b[3]*cP[11]);
   d2bcP[3] = ( d2b[0]*cP[12] + d2b[1]*cP[13] + d2b[2]*cP[14] + d2b[3]*cP[15]);
-  
+
   dbdcP[0] = ( db[0]*dcP[ 0] + db[1]*dcP[ 1] + db[2]*dcP[ 2] + db[3]*dcP[ 3]);
   dbdcP[1] = ( db[0]*dcP[ 4] + db[1]*dcP[ 5] + db[2]*dcP[ 6] + db[3]*dcP[ 7]);
   dbdcP[2] = ( db[0]*dcP[ 8] + db[1]*dcP[ 9] + db[2]*dcP[10] + db[3]*dcP[11]);
@@ -527,20 +481,14 @@ eval_NUBspline_3d_s_vgh (NUBspline_3d_s * restrict spline,
   grad[0] = (da[0] *bcP[0] + da[1]*bcP[1] + da[2]*bcP[2] + da[3]*bcP[3]);
   grad[1] = (a[0]*dbcP[0] + a[1]*dbcP[1] + a[2]*dbcP[2] + a[3]*dbcP[3]);
   grad[2] = (a[0]*bdcP[0] + a[1]*bdcP[1] + a[2]*bdcP[2] + a[3]*bdcP[3]);
-  // d2x
   hess[0] = (d2a[0]*bcP[0] + d2a[1]*bcP[1] + d2a[2]*bcP[2] + d2a[3]*bcP[3]);
-  // dx dy
   hess[1] = (da[0]*dbcP[0] + da[1]*dbcP[1] + da[1]*dbcP[1] + da[1]*dbcP[1]);
   hess[3] = hess[1];
-  // dx dz;
   hess[2] = (da[0]*bdcP[0] + da[1]*bdcP[1] + da[1]*bdcP[1] + da[1]*bdcP[1]);
   hess[6] = hess[2];
-  // d2y
   hess[4] = (a[0]*d2bcP[0] + a[1]*d2bcP[1] + a[2]*d2bcP[2] + a[3]*d2bcP[3]);
-  // dy dz
   hess[5] = (a[0]*dbdcP[0] + a[1]*dbdcP[1] + a[2]*dbdcP[2] + a[3]*dbdcP[3]);
   hess[7] = hess[5];
-  // d2z
   hess[8] = (a[0]*bd2cP[0] + a[1]*bd2cP[1] + a[2]*bd2cP[2] + a[3]*bd2cP[3]);
 #undef P
 

@@ -12,7 +12,6 @@
 
 Q_GLOBAL_STATIC(KisTransformMaskParamsFactoryRegistry, s_instance)
 
-
 KisTransformMaskParamsFactoryRegistry::KisTransformMaskParamsFactoryRegistry()
 {
 }

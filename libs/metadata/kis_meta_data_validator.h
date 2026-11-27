@@ -15,9 +15,6 @@
 namespace KisMetaData
 {
 class Store;
-/**
- * This class contains information on the validation results of a \ref KisMetaData::Store .
- */
 class KRITAMETADATA_EXPORT Validator
 {
 public:
@@ -44,17 +41,11 @@ public:
         Private* const d;
     };
 public:
-    /**
-     * Validate a store. This constructor will call the \ref revalidate function.
-     */
     Validator(const Store*);
     ~Validator();
     int countInvalidEntries() const;
     int countValidEntries() const;
     const QMap<QString, Reason>& invalidEntries() const;
-    /**
-     * Call this function to revalidate the store.
-     */
     void revalidate();
 private:
     struct Private;

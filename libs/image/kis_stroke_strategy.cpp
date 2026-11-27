@@ -9,7 +9,6 @@
 #include "kis_stroke_job_strategy.h"
 #include "KisStrokesQueueMutatedJobInterface.h"
 
-
 KisStrokeStrategy::KisStrokeStrategy(const QLatin1String &id, const KUndo2MagicString &name)
     : m_exclusive(false),
       m_supportsWrapAroundMode(false),
@@ -129,7 +128,6 @@ KisStrokeStrategy* KisStrokeStrategy::createLodClone(int levelOfDetail)
 
 void KisStrokeStrategy::tryCancelCurrentStrokeJobAsync()
 {
-    // noop
 }
 
 bool KisStrokeStrategy::isExclusive() const

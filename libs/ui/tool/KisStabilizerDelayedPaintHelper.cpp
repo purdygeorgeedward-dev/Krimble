@@ -35,7 +35,6 @@ void KisStabilizerDelayedPaintHelper::update(const QVector<KisPaintInformation> 
     int now = m_elapsedTimer.elapsed();
     int delayedPaintInterval = m_elapsedTimer.elapsed() - m_lastPendingTime;
     for (int i = 0; i < newPaintInfos.size(); i++) {
-        // TODO: Risk of overflowing?
         int offsetTime = (delayedPaintInterval * i) / newPaintInfos.size();
         m_paintQueue.enqueue(TimedPaintInfo(now + offsetTime, newPaintInfos[i]));
     }
@@ -43,13 +42,11 @@ void KisStabilizerDelayedPaintHelper::update(const QVector<KisPaintInformation> 
 }
 
 void KisStabilizerDelayedPaintHelper::paintSome() {
-    // This function is also called from KisToolFreehandHelper::paint
     m_lastPaintTime = m_elapsedTimer.elapsed();
     if (m_paintQueue.isEmpty()) {
         return;
     }
     int now = m_lastPaintTime;
-    // Always keep one in the queue since painting requires two points
     while (m_paintQueue.size() > 1 && m_paintQueue.head().elapsedTime <= now) {
         const TimedPaintInfo dequeued = m_paintQueue.dequeue();
         m_paintLine(dequeued.paintInfo, m_paintQueue.head().paintInfo);
@@ -80,6 +77,5 @@ void KisStabilizerDelayedPaintHelper::stabilizerDelayedPaintTimer() {
         return;
     }
     paintSome();
-    // Explicitly update the outline because this is outside the pointer event
     m_requestUpdateOutline();
 }

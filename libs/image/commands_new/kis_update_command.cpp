@@ -9,7 +9,6 @@
 #include "kis_image_interfaces.h"
 #include "kis_node.h"
 
-
 KisUpdateCommand::KisUpdateCommand(KisNodeSP node, QRect dirtyRect,
                                    KisUpdatesFacade *updatesFacade,
                                    bool needsFullRefresh)

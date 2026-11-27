@@ -79,7 +79,6 @@ void TextPropertiesCanvasObserver::setViewManager(KisViewManager *kisview)
         connect(d->provider, SIGNAL(sigCharacterPropertiesChanged()),
                 this, SLOT(slotCanvasCharacterPropertiesChanged()));
 
-        // This initializes the docker to an empty entry;
         KoSvgTextPropertyData textData;
         textData.inheritedProperties = KoSvgTextProperties();
         textData.enabled = true;
@@ -91,7 +90,6 @@ void TextPropertiesCanvasObserver::setViewManager(KisViewManager *kisview)
 
 void TextPropertiesCanvasObserver::setCanvas(KoCanvasBase *canvas)
 {
-    //setEnabled(true);
 
     if (m_canvas == canvas) {
         return;

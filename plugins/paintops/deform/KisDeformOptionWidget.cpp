@@ -14,7 +14,6 @@
 
 namespace {
 
-
 class KisDeformOptionsWidget: public QWidget, public Ui::WdgDeformOptions
 {
 public:
@@ -27,9 +26,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisDeformOptionWidget::Private
 {
@@ -40,7 +37,6 @@ struct KisDeformOptionWidget::Private
 
     KisDeformOptionModel model;
 };
-
 
 KisDeformOptionWidget::KisDeformOptionWidget(lager::cursor<KisDeformOptionData> optionData)
     : KisPaintOpOption(i18n("Deform Options"), KisPaintOpOption::COLOR, true)

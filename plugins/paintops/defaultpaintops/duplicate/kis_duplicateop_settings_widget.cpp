@@ -53,7 +53,7 @@ KisDuplicateOpSettingsWidget::~KisDuplicateOpSettingsWidget()
 KisPropertiesConfigurationSP KisDuplicateOpSettingsWidget::configuration() const
 {
     KisDuplicateOpSettings *config = new KisDuplicateOpSettings(resourcesInterface());
-    config->setProperty("paintop", "duplicate"); // XXX: make this a const id string
+    config->setProperty("paintop", "duplicate");
     writeConfiguration(config);
     return config;
 }

@@ -6,13 +6,11 @@
 #ifndef KIS_TILED_RANDOM_ACCESSOR_H
 #define KIS_TILED_RANDOM_ACCESSOR_H
 
-
 #include <kis_shared.h>
 
 #include "kis_tiled_data_manager.h"
 #include "kis_random_accessor_ng.h"
 #include "kis_iterator_complete_listener.h"
-
 
 class KisRandomAccessor2 : public KisRandomAccessorNG
 {
@@ -31,7 +29,6 @@ public:
     KisRandomAccessor2(const KisTiledRandomAccessor& lhs);
     ~KisRandomAccessor2() override;
 
-
 private:
     inline void lockTile(KisTileSP &tile) {
         if (m_writable)
@@ -41,7 +38,6 @@ private:
     }
 
     inline void lockOldTile(KisTileSP &tile) {
-        // Doesn't depend on access type
         tile->lockForRead();
     }
 
@@ -67,7 +63,6 @@ private:
     KisTileInfo* fetchTileData(qint32 col, qint32 row);
 
 public:
-    /// Move to a given x,y position, fetch tiles and data
     void moveTo(qint32 x, qint32 y) override;
     quint8* rawData() override;
     const quint8* oldRawData() const override;
@@ -89,7 +84,7 @@ private:
     int m_lastX, m_lastY;
     qint32 m_offsetX, m_offsetY;
     KisIteratorCompleteListener *m_completeListener;
-    static const quint32 CACHESIZE; // Define the number of tiles we keep in cache
+    static const quint32 CACHESIZE;
 
 };
 

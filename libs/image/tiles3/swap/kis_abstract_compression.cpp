@@ -38,13 +38,6 @@ void KisAbstractCompression::linearizeColors(quint8 *input, quint8 *output,
 void KisAbstractCompression::delinearizeColors(quint8 *input, quint8 *output,
                                                qint32 dataSize, qint32 pixelSize)
 {
-    /**
-     * In the beginning, i wrote "delinearization" in a way,
-     * that looks like a "linearization", but it turned to be quite
-     * inefficient. It seems like reading from random positions is
-     * much faster than writing to random areas. So this version is
-     * 13% faster.
-     */
 
     quint8 *outputByte = output;
     quint8 *lastByte = output + dataSize -1;

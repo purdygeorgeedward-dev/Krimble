@@ -25,7 +25,6 @@ class KoCanvasBase;
 class KisPaintingInformationBuilder;
 class KisToolFreehandHelper;
 
-
 class KRITAUI_EXPORT KisToolFreehand : public KisToolPaint
 {
 
@@ -37,7 +36,6 @@ public:
     ~KisToolFreehand() override;
     int flags() const override;
     void mouseMoveEvent(KoPointerEvent *event) override;
-    
 
 public Q_SLOTS:
     void activate(const QSet<KoShape*> &shapes) override;
@@ -60,17 +58,13 @@ protected:
 
     bool wantsAutoScroll() const override;
 
-
     virtual void initStroke(KoPointerEvent *event);
     virtual void doStroke(KoPointerEvent *event);
     virtual void endStroke();
 
-
-
     KisOptimizedBrushOutline getOutlinePath(const QPointF &documentPos,
                                             const KoPointerEvent *event,
                                             KisPaintOpSettings::OutlineMode outlineMode) override;
-
 
     KisPaintingInformationBuilder* paintingInformationBuilder() const;
     void resetHelper(KisToolFreehandHelper *helper);
@@ -89,16 +83,8 @@ protected Q_SLOTS:
 private:
     friend class KisToolFreehandPaintingInformationBuilder;
 
-    /**
-     * Adjusts a coordinates according to a KisPaintingAssistant,
-     * if available.
-     */
     QPointF adjustPosition(const QPointF& point, const QPointF& strokeBegin);
 
-    /**
-     * Calculates a coefficient for KisPaintInformation
-     * according to perspective grid values
-     */
     qreal calculatePerspective(const QPointF &documentPoint);
 
 private Q_SLOTS:
@@ -128,6 +114,4 @@ private:
     std::optional<KoPointerEventWrapper> m_beginAlternateActionEvent;
 };
 
-
-
-#endif // KIS_TOOL_FREEHAND_H_
+#endif

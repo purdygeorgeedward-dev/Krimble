@@ -10,7 +10,6 @@
 #include "kis_command_ids.h"
 #include <KoShapeBulkActionLock.h>
 
-
 struct Q_DECL_HIDDEN KoShapeResizeCommand::Private
 {
     QList<KoShape *> shapes;
@@ -24,7 +23,6 @@ struct Q_DECL_HIDDEN KoShapeResizeCommand::Private
     QList<QSizeF> oldSizes;
     QList<QTransform> oldTransforms;
 };
-
 
 KoShapeResizeCommand::KoShapeResizeCommand(const QList<KoShape*> &shapes,
                                            qreal scaleX, qreal scaleY,
@@ -112,7 +110,6 @@ bool KoShapeResizeCommand::mergeWith(const KUndo2Command *command)
         return false;
     }
 
-    // check if the significant orientations coincide
     if (m_d->useGlobalMode && !m_d->usePostScaling) {
         Qt::Orientation our = KoFlake::significantScaleOrientation(m_d->scaleX, m_d->scaleY);
         Qt::Orientation their = KoFlake::significantScaleOrientation(other->m_d->scaleX, other->m_d->scaleY);

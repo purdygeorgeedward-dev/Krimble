@@ -16,7 +16,6 @@
 #define PREVIEW_WIDTH 2048
 #define PREVIEW_HEIGHT 1
 
-
 struct Q_DECL_HIDDEN KoAbstractGradient::Private {
     const KoColorSpace* colorSpace;
     QGradient::Spread spread;
@@ -114,7 +113,6 @@ QImage KoAbstractGradient::generatePreview(int width, int height) const
 
     KoColor c;
     QColor color;
-    // first create a reference line
     for (int x = 0; x < image.width(); ++x) {
 
         qreal t = static_cast<qreal>(x) / (image.width() - 1);
@@ -126,7 +124,6 @@ QImage KoAbstractGradient::generatePreview(int width, int height) const
 
     int bytesPerLine = image.bytesPerLine();
 
-    // now copy lines accordingly
     for (int y = 1; y < image.height(); ++y) {
         QRgb * line = reinterpret_cast<QRgb*>(image.scanLine(y));
 

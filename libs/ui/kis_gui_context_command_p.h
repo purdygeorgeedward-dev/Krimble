@@ -20,5 +20,4 @@ public Q_SLOTS:
     void executeCommand(KUndo2Command *command, bool undo);
 };
 
-
-#endif /* __KIS_GUI_CONTEXT_COMMAND_P_H */
+#endif

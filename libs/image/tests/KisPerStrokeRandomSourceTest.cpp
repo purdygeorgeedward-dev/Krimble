@@ -14,9 +14,6 @@ void KisPerStrokeRandomSourceTest::testIndependent()
 {
     bool sourcesDiffer = false;
 
-    /**
-     * Theoretically, the we can get two equal 1000-pcs sequences, but it is highly improbable
-     */
     for (int i = 0; i < 1000; i++) {
         KisPerStrokeRandomSource s1;
         KisPerStrokeRandomSource s2;
@@ -51,9 +48,6 @@ void KisPerStrokeRandomSourceTest::testDifferentKeys()
 {
     bool sourcesDiffer = false;
 
-    /**
-     * Theoretically, the we can get two equal 1000-pcs sequences, but it is highly improbable
-     */
     for (int i = 0; i < 1000; i++) {
         KisPerStrokeRandomSource s1;
         KisPerStrokeRandomSource s2(s1);

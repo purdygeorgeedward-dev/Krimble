@@ -43,7 +43,6 @@ KisPropagateColorsConfigWidget::KisPropagateColorsConfigWidget(QWidget *parent)
     : KisConfigWidget(parent)
     , m_d(new Private)
 {
-    // Create widgets
     KisOptionButtonStrip *optionButtonStripDistanceMetric = new KisOptionButtonStrip;
     m_d->buttonDistanceMetricChessboard = optionButtonStripDistanceMetric->addButton(
         i18nc("Expansion pattern button in propagate colors filter", "Rectangle")
@@ -84,7 +83,6 @@ KisPropagateColorsConfigWidget::KisPropagateColorsConfigWidget(QWidget *parent)
     );
     m_d->buttonAlphaChannelModeExpand->setChecked(true);
 
-    // Set tooltips
     m_d->buttonDistanceMetricChessboard->setToolTip(i18n("Expand the colors in a rectangular-like way"));
     m_d->buttonDistanceMetricCityBlock->setToolTip(i18n("Expand the colors in a diamond-like way"));
     m_d->buttonDistanceMetricEuclidean->setToolTip(i18n("Expand the colors in a octagonal-like way"));
@@ -96,7 +94,6 @@ KisPropagateColorsConfigWidget::KisPropagateColorsConfigWidget(QWidget *parent)
     m_d->buttonAlphaChannelModeExpand->setToolTip(i18n("Expand the alpha channel as well as the color"));
     m_d->buttonAlphaChannelModePreserve->setToolTip(i18n("Expand only the color, leaving the alpha channel untouched"));
 
-    // Construct the option widget
     m_d->optionWidget = new KisOptionCollectionWidget;
     m_d->optionWidget->setWidgetsMargin(0);
 

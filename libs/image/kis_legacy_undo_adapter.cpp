@@ -8,7 +8,6 @@
 
 #include "kis_image.h"
 
-
 KisLegacyUndoAdapter::KisLegacyUndoAdapter(KisUndoStore *undoStore,
                                            KisImageWSP image)
     : KisUndoAdapter(undoStore, image.data()),

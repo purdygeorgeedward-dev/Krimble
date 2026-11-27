@@ -82,7 +82,6 @@ KoColor parseColorObject(QDomElement parent, QString classID)
     } else if (classID == "Grsc") {
         root = doc.createElement("Gray");
     } else {
-        // Can be 'UnsC', or something else.
         warnKrita << "Unknown color type:" << ppVar(classID);
         return error;
     }
@@ -96,8 +95,6 @@ KoColor parseColorObject(QDomElement parent, QString classID)
 
         if (type == "Double" || type == "UnitFloat") {
             if (classID == "RGBC") {
-                // For RGBC we'll just directly write to the KoColor data, to have as
-                // few rounding errors possible.
                 double value = KisDomUtils::toDouble(childEl.attribute("value", "0"));
 
                 if (key == "Rd  ") {
@@ -112,7 +109,6 @@ KoColor parseColorObject(QDomElement parent, QString classID)
                 }
             } else if (classID == "CMYC") {
                 double value = KisDomUtils::toDouble(childEl.attribute("value", "0")) * 0.01;
-                // CMYK is stored in percentages...
                 if (key == "Cyn ") {
                     root.setAttribute("c", value);
                 } else if (key == "Mgnt") {
@@ -137,7 +133,6 @@ KoColor parseColorObject(QDomElement parent, QString classID)
                     return error;
                 }
             } else if (classID == "Grsc") {
-                // Unsure that grey is stored as a percentage, might also be 255.
                 double value = KisDomUtils::toDouble(childEl.attribute("value", "0")) * 0.01;
                 if (key == "Gry ") {
                     root.setAttribute("g", value);
@@ -216,7 +211,6 @@ void parseColorStopsList(QDomElement parent,
         QString classId = childEl.attribute("classId", "");
 
         if (type == "Descriptor" && classId == "Clrt") {
-            // sorry for naming...
             QDomNode child = childEl.firstChild();
             while (!child.isNull()) {
                 QDomElement childEl = child.toElement();
@@ -274,7 +268,6 @@ void parseTransparencyStopsList(QDomElement parent, QVector<qreal> &startLocatio
         QString classId = childEl.attribute("classId", "");
 
         if (type == "Descriptor" && classId == "TrnS") {
-            // sorry for naming again...
             QDomNode child = childEl.firstChild();
             while (!child.isNull()) {
                 QDomElement childEl = child.toElement();
@@ -320,13 +313,10 @@ bool tryParseDescriptor(const QDomElement &el, const QString &path, const QStrin
 
     if (classId == "null") {
         catcher.newStyleStarted();
-        // here we just notify that a new style is started, we haven't
-        // processed the whole block yet, so return false.
         retval = false;
     } else if (el.attribute("key", " ") == "Clr ") {
         catcher.addColor(path, parseColorObject(el, classId));
     } else if (el.attribute("key", " ") == "hglC" || el.attribute("key", " ") == "sdwC") {
-        // like Clr, but /ebbl/ likes to do everything differently - see bug 464218
         catcher.addColor(path, parseColorObject(el, classId));
     } else if (classId == "ShpC") {
         CurveObjectCatcher curveCatcher;
@@ -467,7 +457,7 @@ bool tryParseDescriptor(const QDomElement &el, const QString &path, const QStrin
             warnKrita << "WARNING: failed to load KisPattern XML section!" << ppVar(patternUuid);
         }
 
-    } else if (classId == "Ptrn") { // reference to an existing pattern
+    } else if (classId == "Ptrn") {
         QString patternUuid;
         QString patternName;
 
@@ -566,16 +556,6 @@ bool tryParseDescriptor(const QDomElement &el, const QString &path, const QStrin
             transpMiddleOffsets.append(0.5);
         }
 
-        /**
-         * Filenames in Krita cannot have slashes inside, but some of the
-         * styles saved in 4.x days could have that. Here we just forcefully
-         * crop the directory part of the gradient to make sure that it fits
-         * the new policy.
-         *
-         * Since ASL doesn't use this name as any linkage (actually, gradients
-         * are always embedded into the style) so we don't really care about
-         * the contents of the filename field. It should just be somewhat unique.
-         */
         const QString fileName = QFileInfo(gradientName).fileName() + ".ggr";
         QSharedPointer<KoSegmentGradient> gradient(new KoSegmentGradient(fileName));
         Q_UNUSED(gradientSmoothness);
@@ -621,7 +601,6 @@ bool tryParseDescriptor(const QDomElement &el, const QString &path, const QStrin
             QString key = childEl.attribute("key", "");
             double value = KisDomUtils::toDouble(childEl.attribute("value"));
 
-
             if (type == "Double") {
                 if (key == "xx") {
                     xx = value;
@@ -652,7 +631,6 @@ bool tryParseDescriptor(const QDomElement &el, const QString &path, const QStrin
             QString type = childEl.attribute("type", "<unknown>");
             QString key = childEl.attribute("key", "");
             double value = KisDomUtils::toDouble(childEl.attribute("value"));
-
 
             if (type == "Double") {
                 if (key == "Top ") {
@@ -685,7 +663,6 @@ bool tryParseDescriptor(const QDomElement &el, const QString &path, const QStrin
             QString key = childEl.attribute("key", "");
             unit = childEl.attribute("unit", unit);
             double value = KisDomUtils::toDouble(childEl.attribute("value"));
-
 
             if (type == "UnitFloat") {
                 if (key == "Top ") {
@@ -783,7 +760,7 @@ void parseElement(const QDomElement &el, const QString &parentPath, KisAslObject
     }
 }
 
-} // namespace
+}
 
 void KisAslXmlParser::parseXML(const QDomDocument &doc, KisAslObjectCatcher &catcher)
 {

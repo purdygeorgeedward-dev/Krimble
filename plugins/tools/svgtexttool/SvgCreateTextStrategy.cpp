@@ -93,13 +93,11 @@ KUndo2Command *SvgCreateTextStrategy::createCommand()
         val.customValue = writingMode == KoSvgText::HorizontalTB? rectangle.width(): rectangle.height();
         properties.setProperty(KoSvgTextProperties::InlineSizeId, QVariant::fromValue(val));
     } else {
-        // We explicitely remove the inline size, because it could've been inside the properties by a different method.
         properties.removeProperty(KoSvgTextProperties::InlineSizeId);
     }
     if (writingMode != KoSvgText::HorizontalTB) {
         properties.setProperty(KoSvgTextProperties::TextOrientationId, KoSvgText::OrientationUpright);
     }
-    // Ensure white space is set to pre-wrap if unspecified.
     if (!properties.hasProperty(KoSvgTextProperties::TextCollapseId)) {
         properties.setProperty(KoSvgTextProperties::TextCollapseId, KoSvgText::Preserve);
     }
@@ -108,7 +106,7 @@ KUndo2Command *SvgCreateTextStrategy::createCommand()
     }
 
     KoShapeFactoryBase *factory = KoShapeRegistry::instance()->value("KoSvgTextShapeID");
-    KoProperties *params = new KoProperties();//Fill these with "svgText", "defs" and "shapeRect"
+    KoProperties *params = new KoProperties();
     params->setProperty("defs", QVariant(tool->generateDefs(properties)));
 
     QPointF origin = rectangle.topLeft();
@@ -146,7 +144,6 @@ KUndo2Command *SvgCreateTextStrategy::createCommand()
 
     KoSvgTextShape *textShape = dynamic_cast<KoSvgTextShape *>(factory->createShape( params, tool->canvas()->shapeController()->resourceManager()));
 
-    /// Properties don't write their fills/strokes to svg, so we need to set those manually.
     if (properties.hasProperty(KoSvgTextProperties::FillId)) {
         textShape->setBackground(properties.background());
     }

@@ -77,14 +77,13 @@ void KisAssistantTool::activate(const QSet<KoShape*> &shapes)
     m_internalMode = MODE_CREATION;
     m_canvas->paintingAssistantsDecoration()->setHandleSize(m_handleSize);
 
-
     if (m_optionsWidget) {
         m_canvas->paintingAssistantsDecoration()->deselectAssistant();
         updateToolOptionsUI();
     }
-    
+
     m_canvas->updateCanvas();
-    
+
 }
 
 void KisAssistantTool::deactivate()
@@ -121,24 +120,16 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
     m_handleDrag = 0;
     double minDist = m_handleMaxDist;
 
+    QPointF mousePos = m_canvas->viewConverter()->documentToView(canvasDecoration->snapToGuide(event, QPointF(), false));
 
-    QPointF mousePos = m_canvas->viewConverter()->documentToView(canvasDecoration->snapToGuide(event, QPointF(), false));//m_canvas->viewConverter()->documentToView(event->point);
-
-    // syncs the assistant handles to the handles reference we store in this tool
-    // they can get out of sync with the way the actions and paintevents occur
-    // we probably need to stop storing a reference in m_handles and call the assistants directly
     m_handles = m_canvas->paintingAssistantsDecoration()->handles();
-
 
     Q_FOREACH (KisPaintingAssistantSP assistant, m_canvas->paintingAssistantsDecoration()->assistants()) {
 
         if (assistant->isLocked()) {
-            continue; // let's not modify an assistant that is locked
+            continue;
         }
 
-
-        // find out which handle on all assistants is closest to the mouse position
-        // vanishing points have "side handles", so make sure to include that
         {
             QList<KisPaintingAssistantHandleSP> allAssistantHandles;
             allAssistantHandles.append(assistant->handles());
@@ -151,18 +142,13 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                     minDist = dist;
                     m_handleDrag = handle;
 
-                    assistantSelected(assistant); // whatever handle is the closest contains the selected assistant
+                    assistantSelected(assistant);
                     m_canvas->paintingAssistantsDecoration()->raiseAssistant(assistant);
                 }
             }
         }
 
-
-
-
         if(m_handleDrag && assistant->id() == "perspective") {
-            // Look for the handle which was pressed
-
 
             if (m_handleDrag == assistant->topLeft()) {
                 double dist = KisPaintingAssistant::norm2(mousePos - m_canvas->viewConverter()->documentToView(*m_handleDrag));
@@ -205,7 +191,7 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                 m_newAssistant->addHandle(assistant->bottomLeft(), HandleType::NORMAL);
                 m_dragEnd = event->point;
                 m_handleDrag = 0;
-                m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+                m_canvas->updateCanvas();
                 return;
             } else if (m_handleDrag == assistant->rightMiddle()) {
                 m_dragStart = QPointF((assistant->topRight().data()->x()+assistant->bottomRight().data()->x())*0.5,
@@ -220,7 +206,7 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                 m_newAssistant->addHandle(assistant->bottomRight(), HandleType::NORMAL);
                 m_dragEnd = event->point;
                 m_handleDrag = 0;
-                m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+                m_canvas->updateCanvas();
                 return;
             } else if (m_handleDrag == assistant->topMiddle()) {
                 m_dragStart = QPointF((assistant->topLeft().data()->x()+assistant->topRight().data()->x())*0.5,
@@ -235,7 +221,7 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                 m_newAssistant->addHandle(assistant->topLeft(), HandleType::NORMAL);
                 m_dragEnd = event->point;
                 m_handleDrag = 0;
-                m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+                m_canvas->updateCanvas();
                 return;
             } else if (m_handleDrag == assistant->bottomMiddle()) {
                 m_dragStart = QPointF((assistant->bottomLeft().data()->x()+assistant->bottomRight().data()->x())*0.5,
@@ -250,7 +236,7 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                 m_newAssistant->addHandle(m_selectedNode1, HandleType::NORMAL);
                 m_dragEnd = event->point;
                 m_handleDrag = 0;
-                m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+                m_canvas->updateCanvas();
                 return;
             }
             m_snapIsRadial = false;
@@ -289,10 +275,6 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
             }
         } else if (m_handleDrag && assistant->handles().size()>2 && assistant->id() == "two point") {
 
-            // If the user left the assistant's handles in an invalid
-            // state (ie 3rd handle isn't between the 1st and 2nd
-            // handle), then compute a sensible value for m_dragStart
-            // that respects it
             QList<KisPaintingAssistantHandleSP> handles = assistant->handles();
 
             const QPointF p1 = *assistant->handles()[0];
@@ -304,7 +286,6 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
             QTransform inv = t.inverted();
             if (t.map(p1).x() * t.map(p2).x() > 0) {
 
-                // We only care about m_dragStart if user is dragging a VP
                 if (m_handleDrag == assistant->handles()[0]) {
                     const QPointF safe_start = QPointF(-1.0*t.map(p1).x(),t.map(p1).y());
                     m_dragStart = inv.map(safe_start);
@@ -329,60 +310,39 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
     m_currentAdjustment = QPointF();
 
     if (m_handleDrag) {
-        // TODO: Shift-press should now be handled using the alternate actions
-        // if (event->modifiers() & Qt::ShiftModifier) {
-        //     m_handleDrag->uncache();
-        //     m_handleDrag = m_handleDrag->split()[0];
-        //     m_handles = m_canvas->view()->paintingAssistantsDecoration()->handles();
-        // }
-        m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+        m_canvas->updateCanvas();
         return;
     }
 
     m_assistantDrag.clear();
-    
-    // list will contain the assistants whose control widgets are affected by the click event...
+
     QList<KisPaintingAssistantSP> assistantsPressed;
 
-    // data for calculating mouse intersection with control widget.
     AssistantEditorData &globalEditorWidgetData = m_canvas->paintingAssistantsDecoration()->globalEditorWidgetData;
     const KisCoordinatesConverter *converter = m_canvas->coordinatesConverter();
     QTransform initialTransform = converter->documentToWidgetTransform();
-    // for UI control widget options with move, show, and delete -- disregard document transforms like rotating and mirroring.
-    // otherwise the UI controls get awkward to use when they are at 45 degree angles or the order of controls gets flipped backwards
     QPointF uiMousePosition = initialTransform.map(canvasDecoration->snapToGuide(event, QPointF(), false));
-    
-    // find control widgets pressed...
+
     Q_FOREACH (KisPaintingAssistantSP assistant, m_canvas->paintingAssistantsDecoration()->assistants()) {
-        
+
         QPointF actionsPosition = initialTransform.map(assistant->viewportConstrainedEditorPosition(converter, globalEditorWidgetData.boundingSize));
-                
-        // first we must find if the click event intersects any assistant control widget rectangles.
-        // as it is possible for control widgets to overlap, we must then determine which control widget is actually being clicked based on the 
-        // order of the assistants, which represent the z position hierarchy of their respective control widgets.
-      
-        // calculate widget rect bound
+
         QPointF actionsBGRectangle(actionsPosition + QPointF(globalEditorWidgetData.widgetOffset,globalEditorWidgetData.widgetOffset));
         QRectF editorWidget = QRectF(actionsBGRectangle.x(), actionsBGRectangle.y(), globalEditorWidgetData.boundingSize.width(), globalEditorWidgetData.boundingSize.height());
-        // add all assistants that intersect the mouse to a list.
         if (editorWidget.contains(uiMousePosition)) {
             assistantsPressed.push_back(assistant);
         }
-     
+
     }
-    
-    // get assistant pressed...
+
     if (!assistantsPressed.isEmpty()) {
-        // get closest assistant
         KisPaintingAssistantSP assistant = assistantsPressed.last();
-        // move assistant to front of assistants list.
         m_canvas->paintingAssistantsDecoration()->raiseAssistant(assistant);
 
         assistantSelected(assistant);
 
         QPointF actionsPosition = initialTransform.map(assistant->viewportConstrainedEditorPosition(converter, globalEditorWidgetData.boundingSize));
 
-        // loop through all activated buttons and see if any are being clicked
         if(globalEditorWidgetData.moveButtonActivated) {
             QPointF iconMovePosition(actionsPosition + globalEditorWidgetData.moveIconPosition);
             QRectF moveRect(iconMovePosition, QSizeF(globalEditorWidgetData.buttonSize, globalEditorWidgetData.buttonSize));
@@ -392,7 +352,7 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                 m_cursorStart = event->point;
                 m_internalMode = MODE_EDITING;
 
-                assistantSelected(assistant); // whatever handle is the closest contains the selected assistant
+                assistantSelected(assistant);
 
                 return;
             }
@@ -402,10 +362,10 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
             QRectF visibleRect(iconSnapPosition, QSizeF(globalEditorWidgetData.buttonSize, globalEditorWidgetData.buttonSize));
             if (visibleRect.contains(uiMousePosition)) {
                 newAssistantAllowed = false;
-                assistant->setSnappingActive(!assistant->isSnappingActive()); // toggle
-                assistant->uncache();//this updates the cache of the assistant, very important.
+                assistant->setSnappingActive(!assistant->isSnappingActive());
+                assistant->uncache();
 
-                assistantSelected(assistant); // whatever handle is the closest contains the selected assistant
+                assistantSelected(assistant);
             }
         }
         if(globalEditorWidgetData.lockButtonActivated) {
@@ -414,7 +374,7 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
             if (lockRect.contains(uiMousePosition)) {
 
                 assistant->setLocked(!assistant->isLocked());
-                assistantSelected(assistant); // whatever handle is the closest contains the selected assistant
+                assistantSelected(assistant);
                 m_internalMode = MODE_EDITING;
 
                 return;
@@ -423,14 +383,12 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
         if(globalEditorWidgetData.duplicateButtonActivated) {
             QPointF iconDuplicatePosition(actionsPosition + globalEditorWidgetData.duplicateIconPosition);
             QRectF duplicateRect(iconDuplicatePosition,QSizeF(globalEditorWidgetData.buttonSize,globalEditorWidgetData.buttonSize));
-            
+
             if (duplicateRect.contains(uiMousePosition)) {
-                //create new assistant from old one
                 QMap<KisPaintingAssistantHandleSP, KisPaintingAssistantHandleSP> handleMap;
                 m_newAssistant = assistant->clone(handleMap);
                 m_newAssistant->copySharedData(assistant);
                 m_newAssistant->setDuplicating(true);
-                //add assistant to global list and register UNDO/REDO object
                 m_canvas->paintingAssistantsDecoration()->addAssistant(m_newAssistant);
                 QList<KisPaintingAssistantSP> assistants = m_canvas->paintingAssistantsDecoration()->assistants();
                 KUndo2Command *addAssistantCmd = new EditAssistantsCommand(m_canvas, m_origAssistantList, KisPaintingAssistant::cloneAssistantList(assistants), EditAssistantsCommand::ADD, assistants.indexOf(m_newAssistant));
@@ -439,8 +397,7 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                 m_handles = m_canvas->paintingAssistantsDecoration()->handles();
                 m_canvas->paintingAssistantsDecoration()->setSelectedAssistant(m_newAssistant);
                 assistantDuplicatingFlag = true;
-                
-                // if assistant is locked simply move the control widget, not the entire assistant
+
                 if(assistant->isLocked()) {
                     newAssistantAllowed = false;
                     m_internalMode = MODE_DRAGGING_EDITOR_WIDGET;
@@ -455,8 +412,8 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
                     m_dragStart = event->point;
                     m_dragEnd = event->point;
                 }
-                
-                updateToolOptionsUI(); 
+
+                updateToolOptionsUI();
                 m_canvas->updateCanvas();
                 return;
             }
@@ -475,20 +432,18 @@ void KisAssistantTool::beginActionImpl(KoPointerEvent *event)
             }
 
         }
-        // if user clicking control widget background.
         if((QRectF(actionsPosition + QPointF(10, 10), globalEditorWidgetData.boundingSize).adjusted(-2, -2, 2, 2).contains(uiMousePosition))) {
             newAssistantAllowed = false;
             m_internalMode = MODE_DRAGGING_EDITOR_WIDGET;
             assistantSelected(assistant);
             m_dragStart = event->point;
             m_dragEnd = event->point;
-            
-        } 
 
+        }
 
     }
 
-    if (newAssistantAllowed==true) {//don't make a new assistant when I'm just toggling visibility//
+    if (newAssistantAllowed==true) {
         QString key = m_options.availableAssistantsComboBox->model()->index( m_options.availableAssistantsComboBox->currentIndex(), 0 ).data(Qt::UserRole).toString();
         KConfigGroup cfg = KSharedConfig::openConfig()->group(toolId());
         cfg.writeEntry("AssistantType", key);
@@ -534,7 +489,6 @@ void KisAssistantTool::continueActionImpl(KoPointerEvent *event)
             Q_FOREACH (const KisPaintingAssistantHandleSP handle, m_handles) {
                 if (handle == m_handleDrag)
                     continue;
-
 
                 double dist = KisPaintingAssistant::norm2(mousePos - m_canvas->viewConverter()->documentToView(*handle));
                 if (dist < minDist) {
@@ -583,15 +537,13 @@ void KisAssistantTool::continueActionImpl(KoPointerEvent *event)
                 if (m_highlightedNode == m_selectedNode1 || m_highlightedNode == m_selectedNode2) {
                     m_highlightedNode = 0;
                 } else {
-                    m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+                    m_canvas->updateCanvas();
                     break;
                 }
             }
         }
 
-        //this following bit sets the translations for the vanishing-point handles.
         if(m_handleDrag && assistant->id() == "vanishing point" && assistant->sideHandles().size()==4) {
-            //for inner handles, the outer handle gets translated.
             if (m_handleDrag == assistant->sideHandles()[0]) {
                 QLineF perspectiveline = QLineF(*assistant->handles()[0],
                                                 *assistant->sideHandles()[0]);
@@ -618,7 +570,7 @@ void KisAssistantTool::continueActionImpl(KoPointerEvent *event)
                 length += perspectiveline.length();
                 perspectiveline.setLength(length);
                 *assistant->sideHandles()[3] = perspectiveline.p2();
-            } // for outer handles, only the vanishing point is translated, but only if there's an intersection.
+            }
             else if (m_handleDrag == assistant->sideHandles()[1]|| m_handleDrag == assistant->sideHandles()[3]){
                 QPointF vanishingpoint(0,0);
                 QLineF perspectiveline = QLineF(*assistant->sideHandles()[0], *assistant->sideHandles()[1]);
@@ -627,7 +579,7 @@ void KisAssistantTool::continueActionImpl(KoPointerEvent *event)
                 if (QLineF(perspectiveline2).intersects(QLineF(perspectiveline), &vanishingpoint) != QLineF::NoIntersection){
                     *assistant->handles()[0] = vanishingpoint;
                 }
-            }// and for the vanishing point itself, only the outer handles get translated.
+            }
             else if (m_handleDrag == assistant->handles()[0]){
                 QLineF perspectiveline = QLineF(*assistant->handles()[0], *assistant->sideHandles()[0]);
                 QLineF perspectiveline2 = QLineF(*assistant->handles()[0], *assistant->sideHandles()[2]);
@@ -704,55 +656,45 @@ void KisAssistantTool::continueActionImpl(KoPointerEvent *event)
                 *side_hndl[7] = perspective_line_b2.p2();
             }
         }
-        // The following section handles rulers that have been set to a
-        // constant length
         if (m_handleDrag && (assistant->id() == "ruler" || assistant->id() == "infinite ruler")
             && qSharedPointerCast<RulerAssistant>(assistant)->hasFixedLength()
             && assistant->isAssistantComplete()) {
-            
+
             QSharedPointer<RulerAssistant> ruler = qSharedPointerCast<RulerAssistant>(assistant);
-          
+
             if (m_handleDrag == ruler->handles()[0]) {
-                // Dragging handle 1 moves the ruler
                 *ruler->handles()[1] += *ruler->handles()[0] - m_previousHandlePos;
             }
             else if (m_handleDrag == ruler->handles()[1]) {
-                // Dragging handle 2 only allows rotation
                 QPointF center = *ruler->handles()[0];
                 QPointF handle = *ruler->handles()[1];
-                
+
                 QPointF direction = handle - center;
                 qreal distance = sqrt(KisPaintingAssistant::norm2(direction));
                 QPointF delta = direction / distance * ruler->fixedLength();
-                
+
                 *ruler->handles()[1] = center + delta;
             }
         }
     }
     if (wasHighlightedNode && !m_highlightedNode) {
-        m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+        m_canvas->updateCanvas();
     }
 }
 
 void KisAssistantTool::endActionImpl(KoPointerEvent *event)
 {
     setMode(KisTool::HOVER_MODE);
-    // release duplication button flag
     if(assistantDuplicatingFlag) {
         KisPaintingAssistantSP selectedAssistant = m_canvas->paintingAssistantsDecoration()->selectedAssistant();
         selectedAssistant->setDuplicating(false);
         assistantDuplicatingFlag = false;
-            
-        // offset control widget if user simple click-releases duplication button
+
         if (m_dragEnd == m_dragStart) {
-            // calculate offset independent from canvas resolution and zoom
             const KisCoordinatesConverter *converter = m_canvas->coordinatesConverter();
-            // create offset unit, considering canvas resolution
             const int offset = 20;
             const float offsetUnit = offset / m_canvas->image()->xRes();
-            // use unit to calculate final offset, considering canvas zoom
             QPointF widgetDuplicationOffset = QPointF(offsetUnit / converter->effectiveZoom(),offsetUnit / converter->effectiveZoom());
-            // apply offset to control widget
             QPointF currentOffset = selectedAssistant->editorWidgetOffset();
             selectedAssistant->setEditorWidgetOffset(currentOffset + widgetDuplicationOffset);
         }
@@ -785,22 +727,18 @@ void KisAssistantTool::endActionImpl(KoPointerEvent *event)
         event->ignore();
     }
 
-    m_canvas->updateCanvas(); // TODO update only the relevant part of the canvas
+    m_canvas->updateCanvas();
 }
 
 void KisAssistantTool::addAssistant()
 {
     m_canvas->paintingAssistantsDecoration()->addAssistant(m_newAssistant);
 
-    // generate the side handles for the Two Point assistant
     if (m_newAssistant->id() == "two point"){
         QList<KisPaintingAssistantHandleSP> handles = m_newAssistant->handles();
         QSharedPointer<TwoPointAssistant> assis = qSharedPointerCast<TwoPointAssistant>(m_newAssistant);
 
         if (*handles[0] == *handles[1] || *handles[1] == *handles[2]) {
-            // Place handles in sensible default position if any of
-            // them are overlapping (maybe because user
-            // double-clicked)
             const QTransform transform = m_canvas->coordinatesConverter()->documentToWidgetTransform();
             const QTransform inverted = transform.inverted();
             const int size = inverted.map(QPointF(m_canvas->canvasWidget()->width(),0)).x();
@@ -817,8 +755,6 @@ void KisAssistantTool::addAssistant()
         QTransform inv = t.inverted();
 
         if (t.map(p1).x() * t.map(p2).x() > 0) {
-            // Put third handle between first and second if user
-            // placed it outside of them, then re-define the transform
             const QLineF horizon = QLineF(t.map(p1),t.map(p2));
             const QPointF origin = QPointF(horizon.center().x(),0);
             *handles[2] = inv.map(origin);
@@ -838,14 +774,13 @@ void KisAssistantTool::addAssistant()
         }
     }
 
-
     QList<KisPaintingAssistantSP> assistants = m_canvas->paintingAssistantsDecoration()->assistants();
     KUndo2Command *addAssistantCmd = new EditAssistantsCommand(m_canvas, m_origAssistantList, KisPaintingAssistant::cloneAssistantList(assistants), EditAssistantsCommand::ADD, assistants.indexOf(m_newAssistant));
     m_canvas->viewManager()->undoAdapter()->addCommand(addAssistantCmd);
 
     m_handles = m_canvas->paintingAssistantsDecoration()->handles();
     m_canvas->paintingAssistantsDecoration()->setSelectedAssistant(m_newAssistant);
-    updateToolOptionsUI(); // vanishing point assistant will get an extra option
+    updateToolOptionsUI();
 
     m_newAssistant.clear();
 }
@@ -854,7 +789,7 @@ void KisAssistantTool::updateEditorWidgetData()
 {
 
     AssistantEditorData &globalEditorWidgetData = m_canvas->paintingAssistantsDecoration()->globalEditorWidgetData;
-    if( !globalEditorWidgetData.moveButtonActivated && !globalEditorWidgetData.snapButtonActivated && !globalEditorWidgetData.lockButtonActivated && 
+    if( !globalEditorWidgetData.moveButtonActivated && !globalEditorWidgetData.snapButtonActivated && !globalEditorWidgetData.lockButtonActivated &&
         !globalEditorWidgetData.duplicateButtonActivated && !globalEditorWidgetData.deleteButtonActivated) {
         globalEditorWidgetData.widgetActivated = false;
     } else globalEditorWidgetData.widgetActivated = true;
@@ -865,9 +800,8 @@ void KisAssistantTool::updateEditorWidgetData()
     int positionX = 15;
     int positionY = 15;
 
-    //loop through all buttons and calculate positions
     if(globalEditorWidgetData.moveButtonActivated) {
-        
+
         buttonCount++;
         horizontalButtonCount++;
         if(horizontalButtonCount > horizontalButtonLimit)
@@ -876,8 +810,6 @@ void KisAssistantTool::updateEditorWidgetData()
             positionX = 15;
             positionY += globalEditorWidgetData.buttonSize + globalEditorWidgetData.buttonPadding;
         }
-        //the size icon is a little smaller than the others visually, so the icon is scaled
-        //and the positioin is adjusted by -5 to compinsate
         globalEditorWidgetData.moveIconPosition.setX(positionX-5);
         globalEditorWidgetData.moveIconPosition.setY(positionY-5);
         positionX += globalEditorWidgetData.buttonSize + globalEditorWidgetData.buttonPadding;
@@ -934,7 +866,7 @@ void KisAssistantTool::updateEditorWidgetData()
         globalEditorWidgetData.deleteIconPosition.setY(positionY);
         positionX += globalEditorWidgetData.buttonSize + globalEditorWidgetData.buttonPadding;
     }
-    
+
     int buttonSection = globalEditorWidgetData.buttonSize+globalEditorWidgetData.buttonPadding;
     int boundingWidgetWidth = (buttonCount < horizontalButtonLimit) ? buttonCount*buttonSection:horizontalButtonLimit*buttonSection;
     boundingWidgetWidth += 5;
@@ -948,8 +880,7 @@ void KisAssistantTool::updateEditorWidgetData()
     int boundingWidgetHeight = buttonToWidthRatio*buttonSection;
     boundingWidgetHeight += 5;
     globalEditorWidgetData.boundingSize.setHeight(boundingWidgetHeight);
-    
-    
+
     m_canvas->updateCanvasDecorations();
 }
 
@@ -1009,14 +940,11 @@ void KisAssistantTool::updateToolOptionsUI()
          m_options.subdivisionsSpinbox->setVisible(isRulerAssistant || isPerspectiveAssistant);
          m_options.minorSubdivisionsSpinbox->setVisible(isRulerAssistant);
          m_options.fixedLengthCheckbox->setVisible(isRulerAssistant);
-         // show checkboxes for controlling which control widget buttons are visible
          m_options.showMove->setVisible(true);
          m_options.showSnap->setVisible(true);
          m_options.showLock->setVisible(true);
          m_options.showDuplicate->setVisible(true);
          m_options.showDelete->setVisible(true);
-         
-         
 
          if (isVanishingPointAssistant) {
              QSharedPointer <VanishingPointAssistant> assis = qSharedPointerCast<VanishingPointAssistant>(m_selectedAssistant);
@@ -1034,11 +962,10 @@ void KisAssistantTool::updateToolOptionsUI()
              m_options.subdivisionsSpinbox->setValue(assis->subdivisions());
              m_options.minorSubdivisionsSpinbox->setValue(assis->minorSubdivisions());
              m_options.fixedLengthCheckbox->setChecked(assis->hasFixedLength());
-             
+
              m_options.fixedLengthSpinbox->setVisible(assis->hasFixedLength());
              m_options.fixedLengthUnit->setVisible(assis->hasFixedLength());
              {
-                // Block valueChanged signals during unit switch
                 QSignalBlocker b(m_options.fixedLengthSpinbox);
                 m_unitManager->setApparentUnitFromSymbol(assis->fixedLengthUnit());
                 m_options.fixedLengthUnit->setCurrentIndex(m_unitManager->getApparentUnitId());
@@ -1049,19 +976,17 @@ void KisAssistantTool::updateToolOptionsUI()
              m_options.fixedLengthSpinbox->setVisible(false);
              m_options.fixedLengthUnit->setVisible(false);
          }
-         
+
          if (isPerspectiveAssistant) {
              QSharedPointer <PerspectiveAssistant> assis = qSharedPointerCast<PerspectiveAssistant>(m_selectedAssistant);
              m_options.subdivisionsSpinbox->setValue(assis->subdivisions());
          }
-         
-         // load custom color settings from assistant (this happens when changing assistant
+
          m_options.useCustomAssistantColor->setChecked(m_selectedAssistant->useCustomColor());
          m_options.customAssistantColorButton->setColor(m_selectedAssistant->assistantCustomColor());
 
-
          double opacity = (double)m_selectedAssistant->assistantCustomColor().alpha()/(double)255.00 * (double)100.00 ;
-         opacity = ceil(opacity); // helps keep the 0-100% slider from shifting
+         opacity = ceil(opacity);
 
          m_options.customColorOpacitySlider->blockSignals(true);
          m_options.customColorOpacitySlider->setValue((double)opacity);
@@ -1078,15 +1003,12 @@ void KisAssistantTool::updateToolOptionsUI()
          m_options.fixedLengthUnit->setVisible(false);
      }
 
-     // show/hide elements if an assistant is selected or not
       m_options.useCustomAssistantColor->setVisible(hasActiveAssistant);
 
-      // hide custom color options if use custom color is not selected
       bool showCustomColorSettings = m_options.useCustomAssistantColor->isChecked() && hasActiveAssistant;
       m_options.customColorOpacitySlider->setVisible(showCustomColorSettings);
       m_options.customAssistantColorButton->setVisible(showCustomColorSettings);
-      
-      // disable global color settings if we are using the custom color
+
       m_options.assistantsGlobalOpacitySlider->setEnabled(!showCustomColorSettings);
       m_options.assistantsColor->setEnabled(!showCustomColorSettings);
       m_options.globalColorLabel->setEnabled(!showCustomColorSettings);
@@ -1102,7 +1024,6 @@ void KisAssistantTool::slotChangeVanishingPointAngle(double value)
         return;
     }
 
-    // get the selected assistant and change the angle value
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isVanishingPointAssistant = m_selectedAssistant->id() == "vanishing point";
@@ -1122,7 +1043,6 @@ void KisAssistantTool::slotChangeTwoPointDensity(double value)
         return;
     }
 
-    // get the selected assistant and change the angle value
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isTwoPointAssistant = m_selectedAssistant->id() == "two point";
@@ -1142,7 +1062,6 @@ void KisAssistantTool::slotChangeTwoPointUseVertical(int value)
         return;
     }
 
-    // get the selected assistant and change the angle value
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isTwoPointAssistant = m_selectedAssistant->id() == "two point";
@@ -1160,27 +1079,26 @@ void KisAssistantTool::slotChangeSubdivisions(int value) {
     if (m_canvas->paintingAssistantsDecoration()->assistants().length() == 0) {
         return;
     }
-    
-    // get the selected assistant and change the angle value
+
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isRulerAssistant = m_selectedAssistant->id() == "ruler"
                              || m_selectedAssistant->id() == "infinite ruler";
         bool isPerspectiveAssistant = m_selectedAssistant->id() == "perspective";
-        
+
         if (isRulerAssistant) {
             QSharedPointer <RulerAssistant> assis = qSharedPointerCast<RulerAssistant>(m_selectedAssistant);
             assis->setSubdivisions(value);
-            
+
             m_options.minorSubdivisionsSpinbox->setEnabled(value > 0);
         }
-        
+
         else if (isPerspectiveAssistant) {
             QSharedPointer <PerspectiveAssistant> assis = qSharedPointerCast<PerspectiveAssistant>(m_selectedAssistant);
             assis->setSubdivisions(value);
         }
     }
-    
+
     m_canvas->updateCanvasDecorations();
 }
 
@@ -1188,19 +1106,18 @@ void KisAssistantTool::slotChangeMinorSubdivisions(int value) {
     if (m_canvas->paintingAssistantsDecoration()->assistants().length() == 0) {
         return;
     }
-    
-    // get the selected assistant and change the angle value
+
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isRulerAssistant = m_selectedAssistant->id() == "ruler"
                              || m_selectedAssistant->id() == "infinite ruler";
-        
+
         if (isRulerAssistant) {
             QSharedPointer <RulerAssistant> assis = qSharedPointerCast<RulerAssistant>(m_selectedAssistant);
             assis->setMinorSubdivisions(value);
         }
     }
-    
+
     m_canvas->updateCanvasDecorations();
 }
 
@@ -1208,60 +1125,53 @@ void KisAssistantTool::slotEnableFixedLength(int enabled) {
     if (m_canvas->paintingAssistantsDecoration()->assistants().length() == 0) {
         return;
     }
-    
-    // get the selected assistant and change the angle value
+
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isRulerAssistant = m_selectedAssistant->id() == "ruler"
                              || m_selectedAssistant->id() == "infinite ruler";
-        
+
         if (isRulerAssistant) {
             QSharedPointer <RulerAssistant> assis = qSharedPointerCast<RulerAssistant>(m_selectedAssistant);
-            
+
             m_options.fixedLengthSpinbox->setVisible(enabled);
             m_options.fixedLengthUnit->setVisible(enabled);
-            
+
             if (enabled && !assis->hasFixedLength() && assis->handles().size() >= 2) {
-                // When enabling, set the length to the current length.
                 QPointF a = *assis->handles()[0];
                 QPointF b = *assis->handles()[1];
                 qreal length = sqrt(KisPaintingAssistant::norm2(b - a));
                 assis->setFixedLength(length);
                 m_options.fixedLengthSpinbox->changeValue(length);
             }
-  
+
             assis->enableFixedLength(enabled);
         }
     }
-    
+
     m_canvas->updateCanvasDecorations();
 }
 
 void KisAssistantTool::slotChangeFixedLength(double) {
-    // This slot should only be called when the user actually changes the
-    // value, not when it is changed through unit conversions. Use
-    // QSignalBlocker on the spin box when converting units to achieve this.
-  
+
     if (m_canvas->paintingAssistantsDecoration()->assistants().length() == 0) {
         return;
     }
-    
-    // get the selected assistant and change the angle value
+
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isRulerAssistant = m_selectedAssistant->id() == "ruler"
                              || m_selectedAssistant->id() == "infinite ruler";
-        
+
         if (isRulerAssistant) {
             QSharedPointer <RulerAssistant> assis = qSharedPointerCast<RulerAssistant>(m_selectedAssistant);
-            // Stores the newly entered data (length & unit) in the assistant
             assis->setFixedLengthUnit(m_unitManager->getApparentUnitSymbol());
             assis->setFixedLength(m_options.fixedLengthSpinbox->value());
             assis->ensureLength();
             m_options.fixedLengthSpinbox->setPrefix("");
         }
     }
-    
+
     m_canvas->updateCanvasDecorations();
 }
 
@@ -1269,41 +1179,32 @@ void KisAssistantTool::slotChangeFixedLengthUnit(int index) {
     if (m_canvas->paintingAssistantsDecoration()->assistants().length() == 0) {
         return;
     }
-  
-    // get the selected assistant and change the angle value
+
     KisPaintingAssistantSP m_selectedAssistant =
             m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         bool isRulerAssistant = m_selectedAssistant->id() == "ruler" ||
                                 m_selectedAssistant->id() == "infinite ruler";
-  
+
         if (isRulerAssistant) {
             QSharedPointer<RulerAssistant> assis = qSharedPointerCast<RulerAssistant>(m_selectedAssistant);
-            
-            // Saving and restoring the actual length manually, since the
-            // unit manager rounds without warning during conversion
+
             qreal current_length = assis->fixedLength();
             {
-                // Block signals from the spinbox while changing the unit to
-                // avoid edits via valueChanged() in the meantime
                 QSignalBlocker b(m_options.fixedLengthSpinbox);
                 m_unitManager->selectApparentUnitFromIndex(index);
                 m_options.fixedLengthSpinbox->changeValue(current_length);
             }
-            
+
             QString unit = m_unitManager->getApparentUnitSymbol();
-            
+
             if (unit == assis->fixedLengthUnit()) {
-                // If the previous unit is selected, show no prefix: perfect match
                 m_options.fixedLengthSpinbox->setPrefix("");
             }
             else {
                 if (abs(m_options.fixedLengthSpinbox->value() - current_length) > 1e-3) {
-                    // If the units don't match, show the approximate symbol as prefix
                     m_options.fixedLengthSpinbox->setPrefix(u8"\u2248");
                 } else {
-                    // If the units don't match but converted perfectly
-                    // (close enough: +- 0.001 pt), show equals instead
                     m_options.fixedLengthSpinbox->setPrefix("=");
                 }
             }
@@ -1329,7 +1230,6 @@ void KisAssistantTool::mouseMoveEvent(KoPointerEvent *event)
         m_selectedNode2.data()->operator = (QPointF(m_selectedNode2.data()->x(),m_selectedNode2.data()->y()) + translate);
     } else if (mode() == KisTool::HOVER_MODE) {
 
-        // find a handle underneath...
         double minDist = m_handleMaxDist;
 
         QPointF mousePos = m_canvas->viewConverter()->documentToView(event->point);
@@ -1353,14 +1253,9 @@ void KisAssistantTool::mouseMoveEvent(KoPointerEvent *event)
     m_canvas->updateCanvasDecorations();
 }
 
-
 void KisAssistantTool::keyPressEvent(QKeyEvent *event)
 {
-    // When the user is in the middle of creating a new
-    // assistant the escape key can be used to cancel this process.
     if (event->key()==Qt::Key_Escape && (m_newAssistant)) {
-        // Clear shared pointer to the assistant being created so
-        // it gets cleaned-up
         m_newAssistant.clear();
         m_canvas->updateCanvas();
         event->accept();
@@ -1373,7 +1268,6 @@ void KisAssistantTool::paint(QPainter& _gc, const KoViewConverter &_converter)
 {
     QRectF canvasSize = QRectF(QPointF(0, 0), QSizeF(m_canvas->image()->size()));
 
-    // show special display while a new assistant is in the process of being created
     if (m_newAssistant) {
 
         QColor assistantColor = m_canvas->displayRendererInterface()->convertColorToDisplayColorSpace(KoColor(m_newAssistant->effectiveAssistantColor(), KoColorSpaceRegistry::instance()->rgb8()));
@@ -1392,7 +1286,6 @@ void KisAssistantTool::paint(QPainter& _gc, const KoViewConverter &_converter)
         }
     }
 
-
     Q_FOREACH (KisPaintingAssistantSP assistant, m_canvas->paintingAssistantsDecoration()->assistants()) {
 
         QColor assistantColor = m_canvas->displayRendererInterface()->convertColorToDisplayColorSpace(KoColor(assistant->effectiveAssistantColor(), KoColorSpaceRegistry::instance()->rgb8()));
@@ -1402,7 +1295,6 @@ void KisAssistantTool::paint(QPainter& _gc, const KoViewConverter &_converter)
             QRectF ellipse(_converter.documentToView(*handle) -  QPointF(m_handleSize * 0.5, m_handleSize * 0.5),
                            QSizeF(m_handleSize, m_handleSize));
 
-            // render handles differently if it is the one being dragged.
             if (handle == m_handleDrag || handle == m_handleCombine || (handle == m_handleHover && !handle->chiefAssistant()->isLocked())) {
                 QPen stroke(assistantColor, 4);
                 _gc.save();
@@ -1452,7 +1344,6 @@ void KisAssistantTool::loadAssistants()
 
     m_origAssistantList = KisPaintingAssistant::cloneAssistantList(m_canvas->paintingAssistantsDecoration()->assistants());
 
-
     while (!xml.atEnd()) {
         switch (xml.readNext()) {
         case QXmlStreamReader::StartElement:
@@ -1469,8 +1360,6 @@ void KisAssistantTool::loadAssistants()
                             strX = xml.attributes().value("x").toString(),
                             strY = xml.attributes().value("y").toString();
 
-
-
                     if (!strId.isEmpty() && !strX.isEmpty() && !strY.isEmpty()) {
                         int id = strId.toInt();
                         double x = strX.toDouble(),
@@ -1484,10 +1373,8 @@ void KisAssistantTool::loadAssistants()
                         errors = true;
                     }
                 }
-            // for vanishing point assistant
             } else if (xml.name() == "sidehandle"){
 
-              // read in sidehandles
               if (!xml.attributes().value("id").isEmpty()) {
                   QString strId = xml.attributes().value("id").toString(),
                           strX = xml.attributes().value("x").toString(),
@@ -1500,7 +1387,6 @@ void KisAssistantTool::loadAssistants()
                           sideHandleMap.insert(id, new KisPaintingAssistantHandle(x,y));
                       }}
               }
-              // addHandle to assistant
               if (!xml.attributes().value("ref").isEmpty() && assistant) {
                   KisPaintingAssistantHandleSP handle = sideHandleMap.value(xml.attributes().value("ref").toString().toInt());
                   if (handle) {
@@ -1522,7 +1408,6 @@ void KisAssistantTool::loadAssistants()
                 }
 
                 if (assistant) {
-                    // load custom shared assistant properties
                     if (xml.attributes().hasAttribute("useCustomColor")) {
                         auto useCustomColor = xml.attributes().value("useCustomColor");
 
@@ -1545,14 +1430,12 @@ void KisAssistantTool::loadAssistants()
                 assistant->loadCustomXml(&xml);
             }
 
-
            break;
         case QXmlStreamReader::EndElement:
             if (xml.name() == "assistant") {
                 if (assistant) {
                     if (assistant->handles().size() == assistant->numHandles()) {
                         if (assistant->id() == "vanishing point" && sideHandleMap.empty()){
-                        // Create side handles if the saved vp assistant doesn't have any.
                             QPointF pos = *assistant->handles()[0];
                             assistant->addHandle(new KisPaintingAssistantHandle(pos+QPointF(-70,0)), HandleType::SIDE);
                             assistant->addHandle(new KisPaintingAssistantHandle(pos+QPointF(-140,0)), HandleType::SIDE);
@@ -1602,8 +1485,7 @@ void KisAssistantTool::saveAssistants()
     xml.writeStartElement("paintingassistant");
     xml.writeAttribute("color",
                        KisDomUtils::qColorToQString(
-                           m_canvas->paintingAssistantsDecoration()->globalAssistantsColor())); // global color if no custom color used
-
+                           m_canvas->paintingAssistantsDecoration()->globalAssistantsColor()));
 
     xml.writeStartElement("handles");
     QMap<KisPaintingAssistantHandleSP, int> handleMap;
@@ -1611,7 +1493,6 @@ void KisAssistantTool::saveAssistants()
         int id = handleMap.size();
         handleMap.insert(handle, id);
         xml.writeStartElement("handle");
-        //xml.writeAttribute("type", handle->handleType());
         xml.writeAttribute("id", QString::number(id));
         xml.writeAttribute("x", QString::number(double(handle->x()), 'f', 3));
         xml.writeAttribute("y", QString::number(double(handle->y()), 'f', 3));
@@ -1633,19 +1514,14 @@ void KisAssistantTool::saveAssistants()
     }
     xml.writeStartElement("assistants");
 
-
     Q_FOREACH (const KisPaintingAssistantSP assistant, m_canvas->paintingAssistantsDecoration()->assistants()) {
         xml.writeStartElement("assistant");
         xml.writeAttribute("type", assistant->id());
         xml.writeAttribute("useCustomColor", QString::number(assistant->useCustomColor()));
         xml.writeAttribute("customColor",  KisDomUtils::qColorToQString(assistant->assistantCustomColor()));
 
-
-
-        // custom assistant properties like angle density on vanishing point
         assistant->saveCustomXml(&xml);
 
-        // handle information
         xml.writeStartElement("handles");
         Q_FOREACH (const KisPaintingAssistantHandleSP handle, assistant->handles()) {
             xml.writeStartElement("handle");
@@ -1691,7 +1567,6 @@ QWidget *KisAssistantTool::createOptionWidget()
 
         KConfigGroup cfg = KSharedConfig::openConfig()->group(toolId());
 
-        // See https://bugs.kde.org/show_bug.cgi?id=316896
         QWidget *specialSpacer = new QWidget(m_optionsWidget);
         specialSpacer->setObjectName("SpecialSpacer");
         specialSpacer->setFixedSize(0, 0);
@@ -1738,20 +1613,18 @@ QWidget *KisAssistantTool::createOptionWidget()
         connect(m_options.vanishingPointAngleSpinbox, SIGNAL(valueChanged(double)), this, SLOT(slotChangeVanishingPointAngle(double)));
         connect(m_options.twoPointDensitySpinbox, SIGNAL(valueChanged(double)), this, SLOT(slotChangeTwoPointDensity(double)));
         connect(m_options.twoPointUseVerticalCheckbox, SIGNAL(stateChanged(int)), this, SLOT(slotChangeTwoPointUseVertical(int)));
-        
+
         connect(m_options.subdivisionsSpinbox, SIGNAL(valueChanged(int)), this, SLOT(slotChangeSubdivisions(int)));
         connect(m_options.minorSubdivisionsSpinbox, SIGNAL(valueChanged(int)), this, SLOT(slotChangeMinorSubdivisions(int)));
         connect(m_options.fixedLengthCheckbox, SIGNAL(stateChanged(int)), this, SLOT(slotEnableFixedLength(int)));
         connect(m_options.fixedLengthSpinbox, SIGNAL(valueChangedPt(double)), this, SLOT(slotChangeFixedLength(double)));
-        
-        //update EditorWidgetData when checkbox clicked
+
         connect(m_options.showMove, SIGNAL(stateChanged(int)), this, SLOT(slotToggleMoveButton(int)));
         connect(m_options.showSnap, SIGNAL(stateChanged(int)), this, SLOT(slotToggleSnapButton(int)));
         connect(m_options.showLock, SIGNAL(stateChanged(int)), this, SLOT(slotToggleLockButton(int)));
         connect(m_options.showDuplicate, SIGNAL(stateChanged(int)), this, SLOT(slotToggleDuplicateButton(int)));
         connect(m_options.showDelete, SIGNAL(stateChanged(int)), this, SLOT(slotToggleDeleteButton(int)));
-        
-        // initialize UI elements with existing data if possible
+
         if (m_canvas && m_canvas->paintingAssistantsDecoration()) {
             const QColor color = m_canvas->paintingAssistantsDecoration()->globalAssistantsColor();
 
@@ -1763,16 +1636,14 @@ QWidget *KisAssistantTool::createOptionWidget()
             m_options.assistantsGlobalOpacitySlider->setValue(color.alphaF() * 100.0);
 
         } else {
-            m_options.assistantsColor->setColor(QColor(176, 176, 176, 255)); // grey default for all assistants
-            m_options.assistantsGlobalOpacitySlider->setValue(100); // 100%
+            m_options.assistantsColor->setColor(QColor(176, 176, 176, 255));
+            m_options.assistantsGlobalOpacitySlider->setValue(100);
         }
 
         m_options.assistantsGlobalOpacitySlider->setPrefix(i18n("Opacity: "));
         m_options.assistantsGlobalOpacitySlider->setSuffix(" %");
 
-
-        // custom color of selected assistant
-        m_options.customColorOpacitySlider->setValue(100); // 100%
+        m_options.customColorOpacitySlider->setValue(100);
         m_options.customColorOpacitySlider->setPrefix(i18n("Opacity: "));
         m_options.customColorOpacitySlider->setSuffix(" %");
 
@@ -1788,14 +1659,14 @@ QWidget *KisAssistantTool::createOptionWidget()
         m_options.vanishingPointAngleSpinbox->setSuffix(QStringLiteral("°"));
         m_options.vanishingPointAngleSpinbox->setRange(1.0, 180.0);
         m_options.vanishingPointAngleSpinbox->setSingleStep(1.0);
-        
+
         m_options.subdivisionsSpinbox->setPrefix(i18n("Subdivisions: "));
         m_options.subdivisionsSpinbox->setRange(0, 100);
         m_options.subdivisionsSpinbox->setSoftRange(0, 20);
-        
+
         m_options.minorSubdivisionsSpinbox->setPrefix(i18n("Minor Subdivisions: "));
         m_options.minorSubdivisionsSpinbox->setRange(1, 5);
-        
+
         m_unitManager->setUnitDimension(KisSpinBoxUnitManager::LENGTH);
         m_options.fixedLengthSpinbox->setUnitManager(m_unitManager);
         m_options.fixedLengthSpinbox->setDisplayUnit(false);
@@ -1804,7 +1675,7 @@ QWidget *KisAssistantTool::createOptionWidget()
         m_unitManager->setApparentUnitFromSymbol("px");
         connect(m_options.fixedLengthUnit, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChangeFixedLengthUnit(int)));
         connect(m_unitManager, SIGNAL(unitChanged(int)), m_options.fixedLengthUnit, SLOT(setCurrentIndex(int)));
-        
+
         m_options.vanishingPointAngleSpinbox->setVisible(false);
         m_options.twoPointDensitySpinbox->setVisible(false);
         m_options.subdivisionsSpinbox->setVisible(false);
@@ -1812,17 +1683,13 @@ QWidget *KisAssistantTool::createOptionWidget()
         m_options.fixedLengthCheckbox->setVisible(false);
         m_options.fixedLengthSpinbox->setVisible(false);
         m_options.fixedLengthUnit->setVisible(false);
-        
 
         m_options.localAssistantCheckbox->setChecked(cfg.readEntry("LimitAssistantToArea", false));
 
         connect(m_options.localAssistantCheckbox, SIGNAL(stateChanged(int)), SLOT(slotLocalAssistantCheckboxChanged()));
 
-        // show panel for docker tool option visibility
         connect(m_options.showDockerOptionsButton, SIGNAL(clicked()), this, SLOT(slotToggleDockToolOptionsVisible()));
-        // set control widget buttons on first startup.
         AssistantEditorData &globalEditorWidgetData = m_canvas->paintingAssistantsDecoration()->globalEditorWidgetData;
-
 
         if (globalEditorWidgetData.moveButtonActivated) {
             m_options.showMove->setChecked(true);
@@ -1848,7 +1715,6 @@ QWidget *KisAssistantTool::createOptionWidget()
 
 void KisAssistantTool::slotGlobalAssistantsColorChanged(const QColor& setColor)
 {
-    // color and alpha are stored separately, so we need to merge the values before sending it on
     int oldAlpha = m_canvas->paintingAssistantsDecoration()->globalAssistantsColor().alpha();
 
     QColor newColor = setColor;
@@ -1873,12 +1739,10 @@ void KisAssistantTool::slotGlobalAssistantOpacityChanged()
 
 void KisAssistantTool::slotUpdateCustomColor()
 {
-    // get the selected assistant and change the angle value
     KisPaintingAssistantSP m_selectedAssistant =  m_canvas->paintingAssistantsDecoration()->selectedAssistant();
     if (m_selectedAssistant) {
         m_selectedAssistant->setUseCustomColor(m_options.useCustomAssistantColor->isChecked());
 
-        // changing color doesn't keep alpha, so update that before we send it on
         QColor newColor = m_options.customAssistantColorButton->color();
         newColor.setAlpha(m_selectedAssistant->assistantCustomColor().alpha());
 
@@ -1901,7 +1765,6 @@ void KisAssistantTool::slotCustomOpacityChanged()
         m_selectedAssistant->uncache();
     }
 
-    // this forces the canvas to refresh to see the changes immediately
     m_canvas->paintingAssistantsDecoration()->uncache();
     m_canvas->updateCanvasDecorations();
 }
@@ -1927,9 +1790,9 @@ void KisAssistantTool::slotToggleDockToolOptionsVisible(){
     else{
         m_options.showDockerOptionsButton->setIcon(KisIconUtils::loadIcon("arrow-right"));
     }
-    
+
     m_options.showDockerOptionsButton->setIconSize(QSize(16, 16));
-   
+
 }
 void KisAssistantTool::slotToggleMoveButton(int index)
 {
@@ -2008,9 +1871,6 @@ bool KisAssistantTool::snap(KoPointerEvent *event)
 
         if (selectedAssistant->id() == "two point" && m_handleDrag != handles[2] &&
             event->modifiers() != Qt::ShiftModifier) {
-            // Snapping interactions that are specific to the two point assistant.
-            // Skip this code block when only Shift is pressed, as
-            // Shift means we only need closest-axis snapping.
 
             QSharedPointer<TwoPointAssistant> assis = qSharedPointerCast<TwoPointAssistant>(selectedAssistant);
             KisPaintingAssistantHandleSP handleOpp = m_handleDrag == handles[0] ? handles[1] : handles[0];
@@ -2020,9 +1880,6 @@ bool KisAssistantTool::snap(KoPointerEvent *event)
             const QTransform t = assis->localTransform(prevPoint,*handleOpp,*handles[2],&size);
             const QTransform inv = t.inverted();
 
-            // Exact alignment matters here, so fudge horizon line
-            // to be perfectly horizontal instead of trusting the
-            // QTransform calculation to do it
             const QLineF horizon = QLineF(t.map(prevPoint), QPointF(t.map(*handleOpp).x(),t.map(prevPoint).y()));
             const QPointF sp = QPointF(0,horizon.p1().y()+size);
 
@@ -2050,11 +1907,7 @@ bool KisAssistantTool::snap(KoPointerEvent *event)
                 sp_to_opp_vp = QLineF(sp,QPointF(t.map(prevPoint).x(),horizon.p1().y())).normalVector();
             }
 
-            // The snapping modes must be robust against falling into
-            // invalid configurations, so test if the new snap points
-            // actually do make sense
             const bool no_intersection =
-                // NB: opp_snap_point is initialized here
                 sp_to_opp_vp.intersects(horizon, &opp_snap_point) == QLineF::NoIntersection;
             const bool origin_is_between =
                 (snap_point.x() < 0 && opp_snap_point.x() > 0) ||
@@ -2065,12 +1918,9 @@ bool KisAssistantTool::snap(KoPointerEvent *event)
             const bool overlapping_snap_points =
                 qFuzzyCompare(opp_snap_point.x(),snap_point.x());
 
-            // Revert to original state if new points are invalid
             if (!origin_is_between || no_intersection || null_opp_point || overlapping_snap_points) {
                 *m_handleDrag = m_dragStart;
                 QPointF oppStart;
-                // Use different recovery method for different
-                // snapping modes
                 if (preserve_distortion_snap) {
                     sp_to_opp_vp = QLineF(sp, t.map(m_dragStart)).normalVector();
                     sp_to_opp_vp.intersects(horizon, &oppStart);
@@ -2086,9 +1936,8 @@ bool KisAssistantTool::snap(KoPointerEvent *event)
                 }
                 sp_to_opp_vp.intersects(horizon, &oppStart);
                 *handleOpp=inv.map(oppStart);
-                m_currentAdjustment = QPointF(0,0); // clear
+                m_currentAdjustment = QPointF(0,0);
             } else {
-                // otherwise use the new configuration if it's valid
                 *m_handleDrag = inv.map(snap_point);
                 *handleOpp = inv.map(opp_snap_point);
                 m_currentAdjustment = *m_handleDrag;
@@ -2105,7 +1954,6 @@ bool KisAssistantTool::snap(KoPointerEvent *event)
         if (m_newAssistant && m_internalMode == MODE_CREATION) {
             QList<KisPaintingAssistantHandleSP> handles = m_newAssistant->handles();
             KisPaintingAssistantHandleSP handle_snap = handles.back();
-            // for any assistant, snap 2nd handle to x or y axis relative to first handle
             if (handles.size() == 2) {
                 QPointF snap_point = snapToClosestNiceAngle(event->point, (QPointF)(*handles[0]));
                 *handle_snap =  snap_point;

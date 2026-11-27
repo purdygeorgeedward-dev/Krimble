@@ -19,17 +19,6 @@ class QIODevice;
 class KisTag;
 typedef QSharedPointer<KisTag> KisTagSP;
 
-
-/**
- * @brief The KisTag loads a tag from a .tag file.
- * A .tag file is a .desktop file. The following fields
- * are important:
- *
- * name: the name of the tag, which can be translated
- * comment: a tooltip for the tag, which can be translated
- * url: the untranslated name of the tag
- *
- */
 class KRITARESOURCES_EXPORT KisTag
 {
 public:
@@ -49,17 +38,14 @@ public:
     QString filename();
     void setFilename(const QString &fileName);
 
-    /// The unique identifier for the tag. Since tag urls are compared COLLATE NOCASE, tag urls must be ASCII only.
     QString url() const;
     void setUrl(const QString &url);
 
-    /// The translated names of the tag
     QString name(bool translated = true) const;
     void setName(const QString &name);
     QMap<QString, QString> names() const;
     void setNames(const QMap<QString, QString> &names);
 
-    /// The translated tooltips for the tag
     QString comment(bool translated = true) const;
     void setComment(const QString comment);
     QMap<QString, QString> comments() const;
@@ -108,7 +94,6 @@ private:
     QScopedPointer<Private> d;
 };
 
-
 inline QDebug operator<<(QDebug dbg, const KisTagSP tag)
 {
     if (tag) {
@@ -125,4 +110,4 @@ inline QDebug operator<<(QDebug dbg, const KisTagSP tag)
 
 Q_DECLARE_METATYPE(QSharedPointer<KisTag>)
 
-#endif // KISTAGLOADER_H
+#endif

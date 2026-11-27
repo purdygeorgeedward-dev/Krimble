@@ -26,7 +26,6 @@
 #include "KoCanvasResourceProvider.h"
 #include "kis_tool_utils.h"
 
-
 struct KisLiquifyTransformStrategy::Private
 {
     Private(KisLiquifyTransformStrategy *_q,
@@ -48,13 +47,9 @@ struct KisLiquifyTransformStrategy::Private
 
     KisLiquifyTransformStrategy * const q;
 
-    /// standard members ///
-
     const KisCoordinatesConverter *converter;
 
-    //////
     ToolTransformArgs &currentArgs;
-    //////
     TransformTransactionProperties &transaction;
 
     QTransform paintingTransform;
@@ -62,16 +57,12 @@ struct KisLiquifyTransformStrategy::Private
 
     QTransform handlesTransform;
 
-    /// custom members ///
-
     QImage transformedImage;
 
-    // size-gesture-related
     QPointF lastMouseWidgetPos;
     QPointF startResizeImagePos;
     QPoint startResizeGlobalCursorPos;
 
-    // for increase/decrease brush size
     QPointF lastDocPos;
     KisToolUtils::StandardBrushSizes standardBrushSizes{int(KisLiquifyProperties::minSize()),
                                                         int(KisLiquifyProperties::maxSize())};
@@ -117,7 +108,6 @@ QCursor KisLiquifyTransformStrategy::getCurrentCursor() const
 void KisLiquifyTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererInterface *displayRendererInterface)
 {
     Q_UNUSED(displayRendererInterface)
-    // Draw preview image
 
     if (m_d->recalculateOnNextRedraw) {
         m_d->recalculateTransformations();
@@ -160,7 +150,6 @@ void KisLiquifyTransformStrategy::continuePrimaryAction(KoPointerEvent *event)
     m_d->lastDocPos = event->point;
     m_d->helper.continuePaint(event);
 
-    // the updates should be compressed
     m_d->recalculateOnNextRedraw = true;
     Q_EMIT requestCanvasUpdate();
 }

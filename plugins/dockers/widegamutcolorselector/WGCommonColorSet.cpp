@@ -57,7 +57,6 @@ void WGCommonColorSet::slotUpdateColors()
     }
 
     if(!m_idle) {
-        // Previous computation is still running, try again later
         m_updateTimer.start();
         return;
     }

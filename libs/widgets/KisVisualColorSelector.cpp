@@ -15,7 +15,6 @@
 
 #include "KoColorDisplayRendererInterface.h"
 #include <KoColorModelStandardIds.h>
-//#include <QPointer>
 #include "kis_signal_compressor.h"
 #include "kis_debug.h"
 
@@ -62,7 +61,7 @@ KisVisualColorSelector::KisVisualColorSelector(QWidget *parent, KisVisualColorMo
         m_d->selectorModel->slotLoadACSConfig();
     }
 
-    m_d->updateTimer = new KisSignalCompressor(100 /* ms */, KisSignalCompressor::POSTPONE);
+    m_d->updateTimer = new KisSignalCompressor(100 , KisSignalCompressor::POSTPONE);
     connect(m_d->updateTimer, SIGNAL(timeout()), SLOT(slotReloadConfiguration()), Qt::UniqueConnection);
 }
 
@@ -88,7 +87,6 @@ void KisVisualColorSelector::setSelectorModel(KisVisualColorModelSP model)
                           SLOT(slotChannelValuesChanged(QVector4D,quint32)));
     connect(model.data(), SIGNAL(sigColorModelChanged()), SLOT(slotColorModelChanged()));
     connect(model.data(), SIGNAL(sigColorSpaceChanged()), SLOT(slotColorSpaceChanged()));
-    // to keep the KisColorSelectorInterface API functional:
     connect(model.data(), SIGNAL(sigNewColor(KoColor)), this, SIGNAL(sigNewColor(KoColor)));
     m_d->selectorModel = model;
     m_d->initialized = false;
@@ -119,8 +117,6 @@ void KisVisualColorSelector::setConfiguration(const KisColorSelectorConfiguratio
 {
     m_d->useACSConfig = !config;
     if (config) {
-        // applies immediately, while signalled rebuilds from krita configuration changes
-        // are queued, so make sure we cancel queued updates
         m_d->updateTimer->stop();
         KisColorSelectorConfiguration configNew = validatedConfiguration(*config);
         if (configNew != m_d->acs_config) {
@@ -240,9 +236,6 @@ void KisVisualColorSelector::slotSetColorSpace(const KoColorSpace *cs)
 void KisVisualColorSelector::slotConfigurationChanged()
 {
     if (m_d->updateTimer && m_d->useACSConfig) {
-        // NOTE: this timer is because notifyConfigChanged() is only called
-        // via KisConfig::setCustomColorSelectorColorSpace(), but at this point
-        // Advanced Color Selector has not written the relevant config values yet.
         m_d->initialized = false;
         m_d->updateTimer->start();
     }
@@ -259,8 +252,6 @@ void KisVisualColorSelector::setDisplayRenderer(const KoColorDisplayRendererInte
 
 void KisVisualColorSelector::slotGamutMaskChanged(KoGamutMaskSP mask)
 {
-    // Note: KisCanvasResourceProvider currently does not distinguish
-    // between activating, switching and property changes of a gamut mask
     m_d->gamutMask = mask;
     for (KisVisualColorSelectorShape *shape : std::as_const(m_d->widgetlist)) {
         shape->updateGamutMask();
@@ -277,7 +268,6 @@ void KisVisualColorSelector::slotGamutMaskUnset()
 
 void KisVisualColorSelector::slotGamutMaskPreviewUpdate()
 {
-    // Shapes currently always requests preview shapes if available, so more of the same...
     for (KisVisualColorSelectorShape *shape : std::as_const(m_d->widgetlist)) {
         shape->updateGamutMask();
     }
@@ -285,7 +275,6 @@ void KisVisualColorSelector::slotGamutMaskPreviewUpdate()
 
 void KisVisualColorSelector::slotChannelValuesChanged(const QVector4D &values, quint32 channelFlags)
 {
-    // about to (re-)build selector, values will be fetched when done
     if (!m_d->initialized) {
         return;
     }
@@ -297,8 +286,6 @@ void KisVisualColorSelector::slotChannelValuesChanged(const QVector4D &values, q
 
 void KisVisualColorSelector::slotColorModelChanged()
 {
-    // TODO: triangle <=> diamond switch only happens on HSV <=> non-HSV, but
-    // the previous color model is not accessible right now
     if (!m_d->initialized || m_d->selectorModel->colorChannelCount() != m_d->colorChannelCount
             || m_d->acs_config.mainType == KisColorSelectorConfiguration::Triangle) {
         m_d->initialized = false;
@@ -338,7 +325,6 @@ void KisVisualColorSelector::slotDisplayConfigurationChanged()
     if (m_d->autoAdjustExposure && m_d->selectorModel && m_d->selectorModel->supportsExposure()) {
         m_d->selectorModel->setMaxChannelValues(calculateMaxChannelValues());
     }
-    // TODO: can we be smarter about forced updates?
     for (KisVisualColorSelectorShape *shape : std::as_const(m_d->widgetlist)) {
         shape->forceImageUpdate();
         shape->update();
@@ -349,7 +335,6 @@ void KisVisualColorSelector::slotReloadConfiguration()
 {
     if (m_d->useACSConfig) {
         loadACSConfig();
-        // this may trigger slotColorModelChanged() so check afterwards if we already rebuild
         m_d->selectorModel->slotLoadACSConfig();
         if (!m_d->initialized) {
             rebuildSelector();
@@ -369,8 +354,6 @@ void KisVisualColorSelector::rebuildSelector()
     m_d->colorChannelCount = m_d->selectorModel->colorChannelCount();
 
     bool supportsGamutMask = false;
-
-    //recreate all the widgets.
 
     if (m_d->colorChannelCount == 1) {
 
@@ -448,8 +431,6 @@ void KisVisualColorSelector::rebuildSelector()
                                                        channel1, channel1,
                                                        20, KisVisualEllipticalSelectorShape::borderMirrored);
         } else {
-            // Accessing bar below would crash since it's not initialized.
-            // Hopefully this can never happen.
             warnUI << "Invalid subType, cannot initialize KisVisualColorSelectorShape";
             Q_ASSERT_X(false, "", "Invalid subType, cannot initialize KisVisualColorSelectorShape");
             return;
@@ -492,16 +473,13 @@ void KisVisualColorSelector::rebuildSelector()
     }
 
     m_d->initialized = true;
-    // make sure we call "our" resize function
     KisVisualColorSelector::resizeEvent(0);
 
     for (KisVisualColorSelectorShape *shape : std::as_const(m_d->widgetlist)) {
         shape->setAcceptTabletEvents(m_d->acceptTabletEvents);
-        // if this widget is currently visible, new children are hidden by default
         shape->show();
     }
 
-    // finally update widgets with new channel values
     slotChannelValuesChanged(m_d->selectorModel->channelValues(), (1u << m_d->colorChannelCount) - 1);
     emit sigGamutMaskSupportChanged(supportsGamutMask);
 }
@@ -513,7 +491,6 @@ void KisVisualColorSelector::resizeEvent(QResizeEvent *)
         return;
     }
     int sizeValue = qMin(width(), height());
-    // due to masking/antialiasing, the visible width is ~4 pixels less, so add them here
     const int margin = 4;
     const qreal sliderRatio = 0.09;
     int borderWidth = qMax(int(sizeValue * sliderRatio), m_d->minimumSliderWidth) + margin;
@@ -534,7 +511,6 @@ void KisVisualColorSelector::resizeEvent(QResizeEvent *)
                 slider->setGeometry(0, y, width(), sliderWidth);
             }
             else {
-                // vertical slider
                 int sliderWidth = qMax(height()/10, m_d->minimumSliderWidth);
                 sliderWidth = qMin(sliderWidth, width());
                 int x = (width() - sliderWidth)/2;
@@ -545,16 +521,13 @@ void KisVisualColorSelector::resizeEvent(QResizeEvent *)
     }
     else if (m_d->colorChannelCount == 3) {
         m_d->widgetlist.at(0)->setBorderWidth(borderWidth);
-        // Ring
         if (m_d->acs_config.subType == KisColorSelectorConfiguration::Ring ||
             (m_d->acs_config.subType == KisColorSelectorConfiguration::Slider && m_d->circular)) {
 
             m_d->widgetlist.at(0)->setGeometry((width() - sizeValue)/2, (height() - sizeValue)/2,
                                                sizeValue, sizeValue);
         }
-        // Slider Bar
         else if (m_d->acs_config.subType == KisColorSelectorConfiguration::Slider) {
-            // limit stretch; only vertical slider currently
             if (useHorizontalSlider()) {
                 newrect.setWidth(qMin(newrect.width(), qRound((newrect.height() - borderWidth) * m_d->stretchLimit)));
                 newrect.setHeight(qMin(newrect.height(), qRound(sizeValue * m_d->stretchLimit + borderWidth)));
@@ -583,7 +556,6 @@ void KisVisualColorSelector::resizeEvent(QResizeEvent *)
         else if (m_d->acs_config.mainType == KisColorSelectorConfiguration::Wheel) {
             m_d->widgetlist.at(1)->setGeometry(m_d->widgetlist.at(0)->getSpaceForCircle(newrect));
         }
-        // center horizontally
         QRect boundRect(m_d->widgetlist.at(0)->geometry() | m_d->widgetlist.at(1)->geometry());
         int offset = (width() - boundRect.width()) / 2 - boundRect.left();
         m_d->widgetlist.at(0)->move(m_d->widgetlist.at(0)->pos() + QPoint(offset, 0));
@@ -622,7 +594,6 @@ void KisVisualColorSelector::switchDisplayRenderer(const KoColorDisplayRendererI
 
 QVector4D KisVisualColorSelector::calculateMaxChannelValues()
 {
-    // Note: This calculation only makes sense for HDR color spaces
     QVector4D maxChannelValues = QVector4D(1, 1, 1, 1);
     const QList<KoChannelInfo *> channels = m_d->selectorModel->colorSpace()->channels();
 
@@ -676,7 +647,6 @@ KisColorSelectorConfiguration KisVisualColorSelector::validatedConfiguration(con
     case KisColorSelectorConfiguration::hsvS:
     case KisColorSelectorConfiguration::V:
         break;
-    // translate to HSV
     case KisColorSelectorConfiguration::hsyS:
     case KisColorSelectorConfiguration::hsiS:
     case KisColorSelectorConfiguration::hslS:
@@ -697,7 +667,6 @@ KisColorSelectorConfiguration KisVisualColorSelector::validatedConfiguration(con
     case KisColorSelectorConfiguration::hsvSH:
     case KisColorSelectorConfiguration::VH:
         break;
-    // translate to HSV
     case KisColorSelectorConfiguration::SL:
     case KisColorSelectorConfiguration::SV2:
     case KisColorSelectorConfiguration::SI:

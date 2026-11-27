@@ -22,4 +22,4 @@ private Q_SLOTS:
     void testIncrementalAverage();
 };
 
-#endif /* __KIS_INPUT_MANAGER_TEST_H */
+#endif

@@ -14,19 +14,11 @@
 class KoColorSpace;
 class KoColorTransformationFactory;
 
-/**
- * This class list the available transformation. The only reason to use directly
- * that class is for adding new factory use the static method
- * KoColorTransformationFactoryRegistry::add.
- */
 class KRITAPIGMENT_EXPORT KoColorTransformationFactoryRegistry : private KoGenericRegistry<KoColorTransformationFactory*>
 {
     friend class KoColorSpace;
 public:
     ~KoColorTransformationFactoryRegistry() override;
-    /**
-     * Add a KoColorTransformationFactory to the registry.
-     */
     static void addColorTransformationFactory(KoColorTransformationFactory* factory);
     static void removeColorTransformationFactory(KoColorTransformationFactory* factory);
 private:

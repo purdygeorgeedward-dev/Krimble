@@ -34,10 +34,6 @@
 #include "krimble_inpaint.h"
 #include "krimble_fill.h"
 
-// Declared in kis_inpaint.cpp -- compiled into this plugin module
-// separately from kritatoolSmartPatch's own copy (see CMakeLists.txt);
-// each is an independent shared library, so this is a normal, safe
-// duplication, not an ODR violation.
 QRect patchImage(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, int radius, int accuracy, KisSelectionSP selection);
 
 namespace {
@@ -67,7 +63,7 @@ bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev
     for (int y = 0; y < h; ++y) std::memcpy(&pixels[size_t(y) * w * 4], img.constScanLine(y), size_t(w) * 4);
 
     std::vector<uint8_t> maskBytes(size_t(w) * h);
-    maskDev->readBytes(maskBytes.data(), roi);                            // the selection is an 8-bit alpha device: one byte per pixel
+    maskDev->readBytes(maskBytes.data(), roi);
     std::vector<uint8_t> hole(size_t(w) * h);
     size_t holeCount = 0;
     for (size_t i = 0; i < hole.size(); ++i) { hole[i] = maskBytes[i] > 127 ? 1 : 0; holeCount += hole[i]; }
@@ -77,7 +73,6 @@ bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev
     KrimbleInpaint::Options options;
     if (!KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data())) return false;
 
-    // the result, in the colour space of the layer, and only the replaced pixels copied
     QImage out(w, h, QImage::Format_ARGB32);
     for (int y = 0; y < h; ++y) std::memcpy(out.scanLine(y), &pixels[size_t(y) * w * 4], size_t(w) * 4);
     KisPaintDeviceSP result = new KisPaintDevice(imageDev->colorSpace());
@@ -151,7 +146,6 @@ void ContentAwareFillPlugin::slotContentAwareFill()
 
     KisCursorOverrideLock cursorLock(Qt::WaitCursor);
 
-    // if (!viewManager()->blockUntilOperationsFinished(image)) return;
     if (!viewManager()->blockUntilOperationsFinished(image)) {
         viewManager()->showFloatingMessage(i18n("Content-Aware Fill: the picture is busy, try again"), QIcon());
         return;
@@ -161,8 +155,8 @@ void ContentAwareFillPlugin::slotContentAwareFill()
 
     KisPaintDeviceSP maskDev = selection->pixelSelection();
 
-    const int patchRadius = 4; // matches the Healing Brush tool's own default
-    const int accuracy = 50;   // matches the Healing Brush tool's own default
+    const int patchRadius = 4;
+    const int accuracy = 50;
 
     KisProcessingApplicator applicator(image, node, KisProcessingApplicator::NONE,
                                         KisImageSignalVector(), kundo2_i18n("Content-Aware Fill"));

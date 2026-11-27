@@ -65,7 +65,6 @@ void TestDocument::testSetColorProfile()
     Q_FOREACH(const QString &profileName, profiles) {
         const KoColorProfile *profile = KoColorSpaceRegistry::instance()->profileByName(profileName);
 
-        // skip input-only profiles (e.g. for scanners)
         if (!profile->isSuitableForOutput()) continue;
 
         d.setColorProfile(profileName);
@@ -121,8 +120,6 @@ void TestDocument::testThumbnail()
     thumb.save("thumb.png");
     QVERIFY(thumb.width() == 10);
     QVERIFY(thumb.height() == 10);
-    // Our thumbnail calculator in KisPaintDevice cannot make a filled 10x10 thumbnail from a 100x100 device,
-    // it makes it 10x10 empty, then puts 8x8 pixels in there... Not a bug in the Node class
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             QVERIFY(thumb.pixelColor(i, j) == QColor(Qt::red));
@@ -350,8 +347,6 @@ void TestDocument::testCreateColorizeMask()
 
     KisPart::instance()->removeDocument(kisdoc.data(), false);
 }
-
-
 
 void TestDocument::testAnnotations()
 {

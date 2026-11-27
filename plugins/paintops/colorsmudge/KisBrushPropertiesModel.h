@@ -27,4 +27,4 @@ private:
 
     enumBrushApplication calcBrushApplication(const KisBrushModel::BrushData &data);
 };
-#endif // KISBRUSHPROPERTIESMODEL_H
+#endif

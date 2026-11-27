@@ -93,7 +93,6 @@ KisImportExportErrorCode KisWebPImport::convert(KisDocument *document,
                     Integer8BitsColorDepthID.id(),
                     profile);
 
-                // Assign as non-RGBA color space to convert it back later
                 if (!imageColorSpace) {
                     const QString colId = profile->colorModelID();
                     const KoColorProfile *cProfile =
@@ -212,8 +211,6 @@ KisImportExportErrorCode KisWebPImport::convert(KisDocument *document,
                     }
                 }
 
-                // Doesn't make sense to ask for options for each individual
-                // frame. See jxl plugin for a similar approach.
                 config.output.colorspace = MODE_BGRA;
                 config.options.use_threads = 1;
 
@@ -244,10 +241,6 @@ KisImportExportErrorCode KisWebPImport::convert(KisDocument *document,
                     }
                 }
 
-                // Check for "we're initializing the first frame".
-                // This code had previously "config.input.has_animation",
-                // this is incorrect when using the demuxer because
-                // each frame is yielded through GetFrame().
                 if (iter.num_frames > 0 && iter.frame_num == 1) {
                     dbgFile << "Animation detected, estimated framerate:"
                             << static_cast<double>(1000) / iter.duration;

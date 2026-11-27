@@ -54,10 +54,6 @@ public:
 
 private:
 
-    /**
-     * A simple base for type-erasure wrapper for mutex-like
-     * objects.
-     */
     struct MutexLikeBase
     {
         virtual ~MutexLikeBase() = default;
@@ -66,9 +62,6 @@ private:
         virtual bool try_lock() = 0;
     };
 
-    /**
-     * A type-erasure wrapper for mutex-like objects
-     */
     template <typename T>
     struct MutexLike : MutexLikeBase
     {
@@ -94,4 +87,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_ASYNC_ACTION_FEEDBACK_H */
+#endif

@@ -234,12 +234,6 @@ void KisHalftoneFilterConfiguration::setProperty(const QString &name, const QVar
 {
     KisFilterConfiguration::setProperty(name, value);
 
-    // The generator configurations are cached, so we need to check if the
-    // property name of a property being set represents a property of a
-    // generator configuration, and in that case we must remove the cache entry
-    // that property belongs to, so that the configuration can be regenerated
-    // later. This is an issue mainly when setting the properties directly
-    // (through python for example) instead of using the high level methods.
     const QStringList nameParts = name.split('_');
     if (nameParts.size() < 3) {
         return;

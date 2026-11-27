@@ -35,7 +35,6 @@ KisDlgFileLayer::KisDlgFileLayer(const QString &basePath, const QString & name, 
     dlgWidget.wdgUrlRequester->setMimeTypeFilters(mimes);
     setMainWidget(page);
 
-    //dlgWidget.wdgUrlRequester->setBasePath(m_basePath);
     dlgWidget.wdgUrlRequester->setStartDir(m_basePath);
 
     dlgWidget.txtLayerName->setText(name);

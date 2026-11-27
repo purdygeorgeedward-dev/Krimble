@@ -14,7 +14,6 @@
 #include "kis_selection.h"
 #include <KisGlobalResourcesInterface.h>
 
-
 class KisBaseProcessorConfigurationFactory : public KisSerializableConfigurationFactory
 {
 public:
@@ -46,8 +45,8 @@ struct Q_DECL_HIDDEN KisBaseProcessor::Private {
     KisBookmarkedConfigurationManager* bookmarkManager;
 
     KoID id;
-    KoID category; // The category in the filter menu this filter fits
-    QString entry; // the i18n'ed accelerated menu text
+    KoID category;
+    QString entry;
     QKeySequence shortcut;
     bool supportsPainting;
     bool supportsAdjustmentLayers;

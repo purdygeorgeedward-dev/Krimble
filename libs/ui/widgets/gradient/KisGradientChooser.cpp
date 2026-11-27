@@ -170,16 +170,13 @@ KisGradientChooser::KisGradientChooser(QWidget *parent, const char *name, bool u
 
     m_d->q = this;
 
-    // Name label
     m_d->labelName = new KSqueezedTextLabel;
     m_d->labelName->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 
-    // Resource Item Chooser
     m_d->itemChooser = new KisResourceItemChooser(ResourceType::Gradients, false, this);
     m_d->itemChooser->showTaggingBar(true);
     m_d->itemChooser->showViewModeBtn(true);
 
-    // View menu
     QActionGroup *actionGroupViewMode = new QActionGroup(this);
     m_d->actionViewModeIcon = new QAction(this);
     m_d->actionViewModeIcon->setCheckable(true);
@@ -238,8 +235,6 @@ KisGradientChooser::KisGradientChooser(QWidget *parent, const char *name, bool u
     KisPopupButton *toolButtonItemChooserViewMode = m_d->itemChooser->viewModeButton();
     toolButtonItemChooserViewMode->setPopupWidget(menu);
 
-
-    // Edit widgets
     QHBoxLayout* layoutEditWidgets = new QHBoxLayout;
     layoutEditWidgets->setContentsMargins(0, 0, 0, 0);
     m_d->containerEditWidgets = new QWidget(this);
@@ -267,7 +262,6 @@ KisGradientChooser::KisGradientChooser(QWidget *parent, const char *name, bool u
 
     m_d->containerEditWidgets->setLayout(layoutEditWidgets);
 
-    // Layout
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setObjectName("main layout");
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -276,7 +270,6 @@ KisGradientChooser::KisGradientChooser(QWidget *parent, const char *name, bool u
     mainLayout->addWidget(m_d->containerEditWidgets);
     setLayout(mainLayout);
 
-    // Resource item chooser connections
     connect(m_d->itemChooser, SIGNAL(resourceSelected(KoResourceSP)),
             m_d.data(), SLOT(update(KoResourceSP)));
     connect(m_d->itemChooser, SIGNAL(resourceSelected(KoResourceSP)),
@@ -284,14 +277,12 @@ KisGradientChooser::KisGradientChooser(QWidget *parent, const char *name, bool u
     connect(m_d->itemChooser, SIGNAL(resourceClicked(KoResourceSP)),
             this, SIGNAL(resourceClicked(KoResourceSP)));
 
-    // View menu
     connect(actionGroupViewMode, SIGNAL(triggered(QAction*)),
             m_d.data(), SLOT(on_actionGroupViewMode_triggered(QAction*)));
     connect(actionGroupItemSize, SIGNAL(triggered(QAction*)),
             m_d.data(), SLOT(on_actionGroupItemSize_triggered(QAction*)));
     connect(m_d->sliderItemSizeCustom, SIGNAL(valueChanged(int)),
             m_d.data(), SLOT(on_sliderItemSizeCustom_valueChanged(int)));
-    // Edit widgets
     connect(m_d->buttonAddGradient, SIGNAL(clicked()), m_d.data(), SLOT(addStopGradient()));
     connect(addStopGradient, SIGNAL(triggered(bool)), m_d.data(), SLOT(addStopGradient()));
     connect(addSegmentedGradient, SIGNAL(triggered(bool)), m_d.data(), SLOT(addSegmentedGradient()));
@@ -466,7 +457,6 @@ void KisGradientChooser::setEditOptionsVisible(bool newEditOptionsVisible)
     m_d->containerEditWidgets->setVisible(newEditOptionsVisible);
 }
 
-
 void KisGradientChooser::slotUpdateIcons()
 {
     if (m_d->buttonAddGradient && m_d->buttonEditGradient) {
@@ -516,7 +506,6 @@ void KisGradientChooser::Private::addGradient(KoAbstractGradientSP gradient, boo
 
     gradient->updateVariableColors(canvasResourcesInterface);
 
-    // so we don't affect the original gradient, if we cancel
     KoAbstractGradientSP newGradient = gradient->clone().dynamicCast<KoAbstractGradient>();
     KisCustomGradientDialog dialog(newGradient, q, "KisCustomGradientDialog", canvasResourcesInterface);
 
@@ -534,25 +523,20 @@ void KisGradientChooser::Private::addGradient(KoAbstractGradientSP gradient, boo
             buf.close();
         };
 
-        // we save the state, in case user cancels overwrite operation
         KoAbstractGradientSP originalGradient = gradient->clone().dynamicCast<KoAbstractGradient>();
 
-        // apply the changes to the "current" gradient -- without this gradient won't update until clicked away
         copyGradientResource(gradient, newGradient);
         gradient->setFilename(gradient->name().split(" ").join("_") + gradient->defaultFileExtension());
         gradient->setValid(true);
         gradient->updatePreview();
 
-        // if we're editing the gradient we can overwrite it right away
         if (editGradient) {
             if (!KisResourceUserOperations::updateResourceWithUserInput(q, gradient)) {
-                // restore the original state, if user pressed cancel above
                 copyGradientResource(gradient, originalGradient);
                 return;
             }
         } else {
             if (!KisResourceUserOperations::addResourceWithUserInput(q, gradient)) {
-                // restore the original state, if user pressed cancel above
                 copyGradientResource(gradient, originalGradient);
                 return;
             }

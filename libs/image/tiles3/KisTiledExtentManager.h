@@ -13,7 +13,6 @@
 #include <QRect>
 #include "kritaimage_export.h"
 
-
 class KRITAIMAGE_EXPORT KisTiledExtentManager
 {
     static const qint32 InitialBufferSize = 256;
@@ -72,4 +71,4 @@ private:
     Data m_rowsData;
 };
 
-#endif // KISTILEDEXTENTMANAGER_H
+#endif

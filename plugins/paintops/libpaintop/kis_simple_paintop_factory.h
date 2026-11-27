@@ -25,7 +25,6 @@ struct has_preinitialize_statically : std::false_type { };
 template< class T >
 struct has_preinitialize_statically<T, std::void_t<decltype(std::declval<T>().preinitializeOpStatically(KisPaintOpSettingsSP()))>> : std::true_type { };
 
-
 template <typename T>
 void preinitializeOpStatically(const KisPaintOpSettingsSP settings, typename std::enable_if_t<has_preinitialize_statically<T>::value> * = 0)
 {
@@ -36,12 +35,11 @@ template <typename T>
 void preinitializeOpStatically(const KisPaintOpSettingsSP settings, typename std::enable_if_t<!has_preinitialize_statically<T>::value> * = 0)
 {
     Q_UNUSED(settings);
-    // noop
 }
 
 }
 
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
 namespace detail {
 
@@ -66,10 +64,8 @@ QList<KoResourceLoadResult> prepareLinkedResources(const KisPaintOpSettingsSP se
 {
     Q_UNUSED(settings);
     Q_UNUSED(resourcesInterface);
-    // noop
     return {};
 }
-
 
 template< class, class = std::void_t<> >
 struct has_prepare_embedded_resources : std::false_type { };
@@ -92,7 +88,6 @@ QList<KoResourceLoadResult> prepareEmbeddedResources(const KisPaintOpSettingsSP 
 {
     Q_UNUSED(settings);
     Q_UNUSED(resourcesInterface);
-    // noop
     return {};
 }
 
@@ -115,7 +110,6 @@ KisInterstrokeDataFactory* createInterstrokeDataFactory(const KisPaintOpSettings
 {
     Q_UNUSED(settings);
     Q_UNUSED(resourcesInterface);
-    // noop
     return 0;
 }
 
@@ -142,7 +136,6 @@ template <typename T>
 KisPaintOpConfigWidget* createConfigWidget(QWidget* parent, KisResourcesInterfaceSP resourcesInterface, KoCanvasResourcesInterfaceSP canvasResourcesInterface,
                                            std::enable_if_t<!supports_extended_initilization<T>::value> * = 0)
 {
-    // TODO: remove this constructor and pass everything into the constructor
     T* widget = new T(parent);
     widget->setResourcesInterface(resourcesInterface);
     widget->setCanvasResourcesInterface(canvasResourcesInterface);
@@ -151,9 +144,6 @@ KisPaintOpConfigWidget* createConfigWidget(QWidget* parent, KisResourcesInterfac
 
 }
 
-/**
- * Base template class for simple paintop factories
- */
 template <class Op, class OpSettings, class OpSettingsWidget> class KisSimplePaintOpFactory  : public KisPaintOpFactory
 {
 
@@ -181,7 +171,7 @@ public:
     void preinitializePaintOpIfNeeded(const KisPaintOpSettingsSP settings) override {
         detail::preinitializeOpStatically<Op>(settings);
     }
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
     KisPaintOp *createOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP node, KisImageSP image) override {
         KisPaintOp * op = new Op(settings, painter, node, image);
@@ -240,4 +230,4 @@ private:
     bool m_lodSizeThresholdSupported;
 };
 
-#endif // KIS_SIMPLE_PAINTOP_FACTORY_H
+#endif

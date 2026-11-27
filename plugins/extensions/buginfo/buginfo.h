@@ -38,4 +38,4 @@ public Q_SLOTS:
 #endif
 };
 
-#endif // BUGINFO_H
+#endif

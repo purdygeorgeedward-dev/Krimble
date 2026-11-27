@@ -40,16 +40,11 @@
 #include "KisViewManager.h"
 #include "kis_canvas_resource_provider.h"
 
-#define MAXIMUM_SMOOTHNESS_DISTANCE 1000.0 // 0..1000.0 == weight in gui
+#define MAXIMUM_SMOOTHNESS_DISTANCE 1000.0
 #define MAXIMUM_MAGNETISM 1000
-
 
 void KisToolBrush::addSmoothingAction(int enumId, const QString &id)
 {
-    /**
-     * KisToolBrush is the base of several tools, but the actions
-     * should be unique, so let's be careful with them
-     */
     QAction *a = action(id);
     connect(a, SIGNAL(triggered()), &m_signalMapper, SLOT(map()));
     m_signalMapper.setMapping(a, enumId);
@@ -79,7 +74,7 @@ KisToolBrush::~KisToolBrush()
 void KisToolBrush::activate(const QSet<KoShape*> &shapes)
 {
     const QString krimbleToolName = objectName();
-    if (krimbleToolName.endsWith(QLatin1String("KisToolSmudge")) || krimbleToolName.endsWith(QLatin1String("KisToolSoften")) || krimbleToolName.endsWith(QLatin1String("KisToolSharpen")) || krimbleToolName.endsWith(QLatin1String("KisToolHeal"))   /* Krimble 2026-11-13 (task 77) */
+    if (krimbleToolName.endsWith(QLatin1String("KisToolSmudge")) || krimbleToolName.endsWith(QLatin1String("KisToolSoften")) || krimbleToolName.endsWith(QLatin1String("KisToolSharpen")) || krimbleToolName.endsWith(QLatin1String("KisToolHeal"))
         || krimbleToolName.endsWith(QLatin1String("KisToolDodge")) || krimbleToolName.endsWith(QLatin1String("KisToolBurn"))) {
         KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
         if (retouchCanvas && retouchCanvas->viewManager()) {
@@ -106,7 +101,7 @@ void KisToolBrush::activate(const QSet<KoShape*> &shapes)
     connect(&m_signalMapper, SIGNAL(mapped(int)), SLOT(slotSetSmoothingType(int)), Qt::UniqueConnection);
 
     m_configGroup = KSharedConfig::openConfig()->group(toolId());
-    optionWidgets(); // Ensure m_chkAssistant is initialized.
+    optionWidgets();
     QAction *toggleaction = action("toggle_assistant");
     connect(toggleaction, SIGNAL(triggered(bool)), m_chkAssistant, SLOT(toggle()), Qt::UniqueConnection);
 }
@@ -158,10 +153,6 @@ qreal KisToolBrush::smoothnessFactor() const
 
 void KisToolBrush::slotSetSmoothingType(int index)
 {
-    /**
-     * The slot can also be called from smoothing-type-switching
-     * action that would mean the combo box will not be synchronized
-     */
     if (m_cmbSmoothingType->currentIndex() != index) {
         m_cmbSmoothingType->setCurrentIndex(index);
     }
@@ -222,7 +213,6 @@ void KisToolBrush::slotSetSmoothingType(int index)
         showControl(m_chkFinishStabilizedCurve, true);
         showControl(m_chkStabilizeSensors, true);
 
-        // scalable distance option is disabled due to bug 421314
         showControl(m_chkUseScalableDistance, false);
         break;
     case KisSmoothingOptions::PIXEL_PERFECT:
@@ -254,40 +244,36 @@ void KisToolBrush::updateSmoothnessDistanceLabel()
         m_lblSmoothnessDistanceMin->setText(i18n("Sample Count at Max Speed:"));
         m_sliderSmoothnessDistanceMin->setRange(3.0, MAXIMUM_SMOOTHNESS_DISTANCE, 0);
         m_sliderSmoothnessDistanceMin->setSingleStep(1);
-        m_sliderSmoothnessDistanceMin->setExponentRatio(3.0); // help pick smaller values
+        m_sliderSmoothnessDistanceMin->setExponentRatio(3.0);
 
         if (!qFuzzyCompare(m_sliderSmoothnessDistanceMin->value(), oldValueMin)) {
-            // the slider will emit the change signal automatically
             m_sliderSmoothnessDistanceMin->setValue(qRound(oldValueMin));
         }
 
         m_lblSmoothnessDistanceMax->setText(i18n("Sample Count at Min Speed:"));
         m_sliderSmoothnessDistanceMax->setRange(3.0, MAXIMUM_SMOOTHNESS_DISTANCE, 0);
         m_sliderSmoothnessDistanceMax->setSingleStep(1);
-        m_sliderSmoothnessDistanceMax->setExponentRatio(3.0); // help pick smaller values
+        m_sliderSmoothnessDistanceMax->setExponentRatio(3.0);
 
         if (!qFuzzyCompare(m_sliderSmoothnessDistanceMax->value(), oldValueMax)) {
-            // the slider will emit the change signal automatically
             m_sliderSmoothnessDistanceMax->setValue(qRound(oldValueMax));
         }
     } else {
         m_lblSmoothnessDistanceMin->setText(i18n("Distance at Max Speed:"));
         m_sliderSmoothnessDistanceMin->setRange(3.0, MAXIMUM_SMOOTHNESS_DISTANCE, 1);
         m_sliderSmoothnessDistanceMin->setSingleStep(1);
-        m_sliderSmoothnessDistanceMin->setExponentRatio(3.0); // help pick smaller values
+        m_sliderSmoothnessDistanceMin->setExponentRatio(3.0);
 
         if (!qFuzzyCompare(m_sliderSmoothnessDistanceMin->value(), oldValueMin)) {
-            // the slider will emit the change signal automatically
             m_sliderSmoothnessDistanceMin->setValue(oldValueMin);
         }
 
         m_lblSmoothnessDistanceMax->setText(i18n("Distance at Min Speed:"));
         m_sliderSmoothnessDistanceMax->setRange(3.0, MAXIMUM_SMOOTHNESS_DISTANCE, 1);
         m_sliderSmoothnessDistanceMax->setSingleStep(1);
-        m_sliderSmoothnessDistanceMax->setExponentRatio(3.0); // help pick smaller values
+        m_sliderSmoothnessDistanceMax->setExponentRatio(3.0);
 
         if (!qFuzzyCompare(m_sliderSmoothnessDistanceMax->value(), oldValueMax)) {
-            // the slider will emit the change signal automatically
             m_sliderSmoothnessDistanceMax->setValue(oldValueMax);
         }
     }
@@ -316,7 +302,6 @@ void KisToolBrush::slotSetTailAggressiveness(qreal argh_rhhrr)
     Q_EMIT smoothnessFactorChanged();
 }
 
-// used with weighted smoothing
 void KisToolBrush::setSmoothPressure(bool value)
 {
     smoothingOptions()->setSmoothPressure(value);
@@ -332,7 +317,6 @@ bool KisToolBrush::useScalableDistance() const
     return smoothingOptions()->useScalableDistance();
 }
 
-// used with weighted smoothing
 void KisToolBrush::setUseScalableDistance(bool value)
 {
     smoothingOptions()->setUseScalableDistance(value);
@@ -345,9 +329,6 @@ void KisToolBrush::resetCursorStyle()
     KisConfig cfg(true);
     CursorStyle cursorStyle = cfg.newCursorStyle();
 
-    // When the stabilizer is in use, we avoid using the brush outline cursor,
-    // because it would hide the real position of the cursor to the user,
-    // yielding unexpected results.
     if (smoothingOptions()->smoothingType() == KisSmoothingOptions::STABILIZER &&
             smoothingOptions()->useDelayDistance() &&
             cursorStyle == CURSOR_STYLE_NO_CURSOR) {
@@ -360,7 +341,6 @@ void KisToolBrush::resetCursorStyle()
     overrideCursorIfNotEditable();
 }
 
-// stabilizer brush settings
 bool KisToolBrush::useDelayDistance() const
 {
     return smoothingOptions()->useDelayDistance();
@@ -441,13 +421,11 @@ QWidget * KisToolBrush::createOptionWidget()
     QWidget *optionsWidget = KisToolFreehand::createOptionWidget();
     optionsWidget->setObjectName(toolId() + "option widget");
 
-    // See https://bugs.kde.org/show_bug.cgi?id=316896
     QWidget *specialSpacer = new QWidget(optionsWidget);
     specialSpacer->setObjectName("SpecialSpacer");
     specialSpacer->setFixedSize(0, 0);
     optionsWidget->layout()->addWidget(specialSpacer);
 
-    // Line smoothing configuration
     m_cmbSmoothingType = new QComboBox(optionsWidget);
     m_cmbSmoothingType->addItems(QStringList()
                                  << i18nc("@item:inlistbox Brush Smoothing", "None")
@@ -458,7 +436,6 @@ QWidget * KisToolBrush::createOptionWidget()
     connect(m_cmbSmoothingType, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetSmoothingType(int)));
     addOptionWidgetOption(m_cmbSmoothingType, new QLabel(i18n("Brush Smoothing:"), optionsWidget));
 
-    // Smoothness Distance
     m_sliderSmoothnessDistanceMin = new KisDoubleSliderSpinBox(optionsWidget);
     m_sliderSmoothnessDistanceMin->setEnabled(true);
     m_lblSmoothnessDistanceMin = new QLabel(optionsWidget);
@@ -468,18 +445,14 @@ QWidget * KisToolBrush::createOptionWidget()
     m_lblSmoothnessDistanceMax = new QLabel(optionsWidget);
 
     updateSmoothnessDistanceLabel();
-    // make sure that initialization of the value happens **after** we
-    // have configured the slider's range in updateSmoothnessDistanceLabel()
     m_sliderSmoothnessDistanceMin->setValue(smoothingOptions()->smoothnessDistanceMin());
     m_sliderSmoothnessDistanceMax->setValue(smoothingOptions()->smoothnessDistanceMax());
 
-    // Create KoAspectButton
     m_distanceAspectButton = new KoAspectButton(optionsWidget);
     m_distanceAspectButton->setKeepAspectRatio(smoothingOptions()->smoothnessDistanceKeepAspectRatio());
     m_distanceAspectButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_distanceAspectButton->setMinimumSize(QSize(24, 24));
 
-    // Add distanceLabels
     QWidget* distanceLabelWidget = new QWidget(optionsWidget);
     QVBoxLayout* distanceLabelLayout = new QVBoxLayout(distanceLabelWidget);
     distanceLabelLayout->setContentsMargins(0,0,0,0);
@@ -487,7 +460,6 @@ QWidget * KisToolBrush::createOptionWidget()
     distanceLabelLayout->addWidget(m_lblSmoothnessDistanceMin);
     distanceLabelLayout->addWidget(m_lblSmoothnessDistanceMax);
 
-    // Add distanceSliders
     QWidget* distanceSliderWidget = new QWidget(optionsWidget);
     QGridLayout* distanceSliderLayout = new QGridLayout(distanceSliderWidget);
     distanceSliderLayout->setContentsMargins(0,0,0,0);
@@ -510,13 +482,11 @@ QWidget * KisToolBrush::createOptionWidget()
         slotSetSmoothnessDistanceMax(m_sliderSmoothnessDistanceMax->value());
     });
 
-    // Finish stabilizer curve
     m_chkFinishStabilizedCurve = new QCheckBox(optionsWidget);
     connect(m_chkFinishStabilizedCurve, SIGNAL(toggled(bool)), this, SLOT(setFinishStabilizedCurve(bool)));
     m_chkFinishStabilizedCurve->setChecked(smoothingOptions()->finishStabilizedCurve());
     m_chkFinishStabilizedCurve->setMinimumHeight(m_cmbSmoothingType->sizeHint().height()-3);
 
-    // Delay Distance for Stabilizer
     QWidget* delayWidget = new QWidget(optionsWidget);
     QHBoxLayout* delayLayout = new QHBoxLayout(delayWidget);
     delayLayout->setContentsMargins(0,0,0,0);
@@ -532,7 +502,7 @@ QWidget * KisToolBrush::createOptionWidget()
     m_sliderDelayDistance = new KisDoubleSliderSpinBox(optionsWidget);
     m_sliderDelayDistance->setToolTip(i18n("Radius where the brush is blocked"));
     m_sliderDelayDistance->setRange(0, 500);
-    m_sliderDelayDistance->setExponentRatio(3.0); // help pick smaller values
+    m_sliderDelayDistance->setExponentRatio(3.0);
     m_sliderDelayDistance->setSuffix(i18n(" px"));
     connect(m_sliderDelayDistance, SIGNAL(valueChanged(qreal)), SLOT(setDelayDistance(qreal)));
 
@@ -541,10 +511,8 @@ QWidget * KisToolBrush::createOptionWidget()
 
     m_sliderDelayDistance->setValue(smoothingOptions()->delayDistance());
     m_chkDelayDistance->setChecked(smoothingOptions()->useDelayDistance());
-    // if the state is not flipped, then the previous line doesn't generate any signals
     setUseDelayDistance(m_chkDelayDistance->isChecked());
 
-    // Stabilize sensors
     m_chkStabilizeSensors = new QCheckBox(optionsWidget);
     connect(m_chkStabilizeSensors, SIGNAL(toggled(bool)), this, SLOT(setStabilizeSensors(bool)));
     m_chkStabilizeSensors->setChecked(smoothingOptions()->stabilizeSensors());
@@ -576,13 +544,11 @@ QWidget * KisToolBrush::createOptionWidget()
     connect(m_chkUseScalableDistance, SIGNAL(toggled(bool)), this, SLOT(setUseScalableDistance(bool)));
     addOptionWidgetOption(m_chkUseScalableDistance, new QLabel(QString("%1:").arg(i18n("Scalable Distance")), optionsWidget));
 
-    // add a line spacer so we know that the next set of options are for different settings
     QFrame* line = new QFrame(optionsWidget);
     line->setObjectName(QString::fromUtf8("line"));
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
     addOptionWidgetOption(line);
 
-    // Drawing assistant configuration
     QWidget* assistantWidget = new QWidget(optionsWidget);
     QGridLayout* assistantLayout = new QGridLayout(assistantWidget);
     assistantLayout->setContentsMargins(10,0,0,0);
@@ -609,7 +575,7 @@ QWidget * KisToolBrush::createOptionWidget()
 
     m_chkOnlyOneAssistant = new QCheckBox(optionsWidget);
     m_chkOnlyOneAssistant->setToolTip(i18nc("@info:tooltip","Make it only snap to a single assistant line, prevents snapping mess while using the infinite assistants."));
-    m_chkOnlyOneAssistant->setCheckState(Qt::Checked); // turn on by default.
+    m_chkOnlyOneAssistant->setCheckState(Qt::Checked);
     connect(m_chkOnlyOneAssistant, SIGNAL(toggled(bool)), this, SLOT(setOnlyOneAssistantSnap(bool)));
     addOptionWidgetOption(m_chkOnlyOneAssistant, snapSingleLabel);
 
@@ -617,24 +583,15 @@ QWidget * KisToolBrush::createOptionWidget()
 
     m_chkSnapEraser = new QCheckBox(optionsWidget);
     m_chkSnapEraser->setToolTip(i18nc("@info:tooltip","Enable snapping when using erasers"));
-    m_chkSnapEraser->setCheckState(Qt::Unchecked); // turn off by default.
+    m_chkSnapEraser->setCheckState(Qt::Unchecked);
     connect(m_chkSnapEraser, SIGNAL(toggled(bool)), this, SLOT(setSnapEraser(bool)));
     addOptionWidgetOption(m_chkSnapEraser, snapEraserLabel);
 
-    // set the assistant snapping options to hidden by default and toggle their visibility based off snapping checkbox
-    m_sliderMagnetism->setVisible(false);
-    m_chkOnlyOneAssistant->setVisible(false);
-    m_chkSnapEraser->setVisible(false);
-    magnetismLabel->setVisible(false);
-    snapSingleLabel->setVisible(false);
-    snapEraserLabel->setVisible(false);
-
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), m_sliderMagnetism, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), m_chkOnlyOneAssistant, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), m_chkSnapEraser, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), magnetismLabel, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), snapSingleLabel, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), snapEraserLabel, SLOT(setVisible(bool)));
+    const bool krimbleSnapOn = m_chkAssistant->isChecked();
+    Q_FOREACH (QWidget *row, QList<QWidget *>() << m_sliderMagnetism << m_chkOnlyOneAssistant << m_chkSnapEraser << magnetismLabel << snapSingleLabel << snapEraserLabel) {
+        row->setEnabled(krimbleSnapOn);
+        connect(m_chkAssistant, SIGNAL(toggled(bool)), row, SLOT(setEnabled(bool)));
+    }
 
     KisConfig cfg(true);
 

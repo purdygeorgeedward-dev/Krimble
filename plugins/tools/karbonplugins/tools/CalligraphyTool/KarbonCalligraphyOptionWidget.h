@@ -23,14 +23,9 @@ public:
     explicit KarbonCalligraphyOptionWidget();
     ~KarbonCalligraphyOptionWidget() override;
 
-    // emits all signals with the appropriate values
-    // called once the signals are connected inside KarbonCalligraphyTool
-    // to make sure all parameters are uptodate
     void emitAll();
 
 Q_SIGNALS:
-    // all the following signals Q_EMIT user friendly values, not the internal
-    // values which are instead computed directly by KarbonCalligraphyTool
     void usePathChanged(bool);
     void usePressureChanged(bool);
     void useAngleChanged(bool);
@@ -43,7 +38,6 @@ Q_SIGNALS:
     void dragChanged(double);
 
 public Q_SLOTS:
-    // needed for the shortcuts
     void increaseWidth();
     void decreaseWidth();
     void increaseAngle();
@@ -61,11 +55,9 @@ private Q_SLOTS:
     void on_m_angleBox_angleChanged(qreal angle);
 
 private:
-    // TODO: maybe make it a hash?? <QString, QVariant>
-    //       is it needed al all??
     struct Profile {
         QString name;
-        int index; // index in the config file
+        int index;
         bool usePath;
         bool usePressure;
         bool useAngle;
@@ -78,32 +70,18 @@ private:
         qreal drag;
     };
 
-    // convenience functions:
-
-    // connects signals and slots
     void createConnections();
 
-    // if they aren't already added adds the default profiles
-    // called by the ctor
     void addDefaultProfiles();
 
-    // load the profiles from the configuration file
     void loadProfiles();
 
-    // loads the profile set as current profile in the configuration file
     void loadCurrentProfile();
 
-    // save a new profile using the values of the input boxes
-    // if a profile with the same name already exists it will be overwritten
     void saveProfile(const QString &name);
 
-    // removes the profile from the configuration file, from profiles
-    // and from the combobox.
-    // if the profile doesn't exist the function does nothing
     void removeProfile(const QString &name);
 
-    // returns the position inside profiles of a certain profile
-    // returns -1 if the profile is not found
     int profilePosition(const QString &profileName);
 
 private:
@@ -125,8 +103,7 @@ private:
     QToolButton *m_saveButton;
     QToolButton *m_removeButton;
 
-    // when true updateCurrentProfile() doesn't do anything
     bool m_changingProfile;
 };
 
-#endif // KARBONCALLIGRAPHYOPTIONWIDGET_H
+#endif

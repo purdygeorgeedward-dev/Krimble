@@ -10,7 +10,6 @@
 #include <KoSnapGuide.h>
 #include "kis_coordinates_converter.h"
 
-
 struct KisSimplifiedActionPolicyStrategy::Private
 {
     Private(const KisCoordinatesConverter *_converter, KoSnapGuide *_snapGuide)
@@ -30,7 +29,6 @@ struct KisSimplifiedActionPolicyStrategy::Private
     QPointF dragOffset;
     QPointF lastImagePos;
 };
-
 
 KisSimplifiedActionPolicyStrategy::KisSimplifiedActionPolicyStrategy(const KisCoordinatesConverter *_converter, KoSnapGuide *_snapGuide)
     : m_d(new Private(_converter, _snapGuide))
@@ -68,13 +66,6 @@ bool KisSimplifiedActionPolicyStrategy::beginPrimaryAction(KoPointerEvent *event
     const QPointF rawImagePoint = m_d->converter->documentToImage(event->point);
     const QPointF snappedImagePoint = handleSnapPoint(rawImagePoint);
 
-    /**
-     * Note: Snapping with Offset is not yet used in the transform
-     *       strategies.  When the user starts an action, we just move
-     *       the handle to the mouse position, even if it was
-     *       positioned with an offset.  That is not what we do in
-     *       Crop Tool.
-     */
     if (m_d->snapGuide && rawImagePoint != snappedImagePoint) {
         QPointF imageOffset = snappedImagePoint - rawImagePoint;
         m_d->dragOffset = m_d->converter->imageToDocument(imageOffset);
@@ -92,18 +83,6 @@ bool KisSimplifiedActionPolicyStrategy::beginPrimaryAction(KoPointerEvent *event
 
 void KisSimplifiedActionPolicyStrategy::continuePrimaryAction(KoPointerEvent *event)
 {
-    /**
-     * HACK ALERT!
-     *
-     * Here we explicitly check for Shift key pressed! The choice of
-     * the stroke type is usually done before the tablet press, but
-     * for some actions like constrain proportions we should be able
-     * to activate it even after the stroke has been started. For now,
-     * KisShortcutMatcher does not support it, so just hardcode this
-     * special case.
-     *
-     * See bug 340496
-     */
     const bool shiftIsActive = event->modifiers() & Qt::ShiftModifier;
     const bool altIsActive = event->modifiers() & Qt::AltModifier;
 

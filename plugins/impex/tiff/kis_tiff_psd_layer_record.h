@@ -64,4 +64,4 @@ private:
     bool writeImpl(QIODevice &device, KisNodeSP rootLayer, psd_compression_type compressionType);
 };
 
-#endif // _KIS_TIFF_PSD_LAYER_RECORD_H
+#endif

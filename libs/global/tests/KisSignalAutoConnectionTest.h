@@ -46,4 +46,4 @@ public:
     int m_number;
 };
 
-#endif // KIS_SIGNAL_AUTO_CONNECTION_TEST_H_
+#endif

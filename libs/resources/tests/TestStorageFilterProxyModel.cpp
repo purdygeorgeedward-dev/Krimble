@@ -27,11 +27,9 @@
 
 #include <KisStorageFilterProxyModel.h>
 
-
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
-
 
 void TestStorageFilterProxyModel::initTestCase()
 {
@@ -69,7 +67,6 @@ void TestStorageFilterProxyModel::testWithTagModelTester()
     Q_UNUSED(tester);
 }
 
-
 void TestStorageFilterProxyModel::testFilterByName()
 {
     QScopedPointer<KisStorageFilterProxyModel> proxyModel(new KisStorageFilterProxyModel());
@@ -99,13 +96,11 @@ void TestStorageFilterProxyModel::testFilterByActive()
     proxyModel->setFilter(KisStorageFilterProxyModel::ByStorageType, true);
 }
 
-
 void TestStorageFilterProxyModel::cleanupTestCase()
 {
     ResourceTestHelper::rmTestDb();
     ResourceTestHelper::cleanDstLocation(m_dstLocation);
 }
-
 
 SIMPLE_TEST_MAIN(TestStorageFilterProxyModel)
 

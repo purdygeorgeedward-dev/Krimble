@@ -12,22 +12,11 @@
 #include "kis_node_filter_interface.h"
 #include "kis_filter_configuration.h"
 
-
-/**
-   An filter mask is a single channel mask that applies a particular
-   filter to the layer the mask belongs to. It differs from an
-   adjustment layer in that it only works on its parent layer, while
-   adjustment layers work on all layers below it in its layer group.
-*/
-
 class KRITAIMAGE_EXPORT KisFilterMask : public KisEffectMask, public KisNodeFilterInterface
 {
     Q_OBJECT
 
 public:
-    /**
-     * Create an empty filter mask.
-     */
     KisFilterMask(KisImageWSP image, const QString &name = QString());
 
     KisFilterMask(const KisFilterMask& rhs);
@@ -65,4 +54,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif //_KIS_FILTER_MASK_
+#endif

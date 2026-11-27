@@ -17,7 +17,6 @@
 #include <kis_types.h>
 #include <KoToolRegistry.h>
 
-
 #include "kis_tool_transform.h"
 #include "kis_transform_mask_params_factory_registry.h"
 #include "kis_transform_mask_adapter.h"
@@ -32,9 +31,7 @@ KisAnimatedTransformParamsHolderInterfaceSP createAnimatedParamsHolder(KisDefaul
     return toQShared(new KisAnimatedTransformMaskParamsHolder(defaultBounds));
 }
 
-} // namespace
-
-
+}
 
 ToolTransform::ToolTransform(QObject *parent, const QVariantList &)
         : QObject(parent)

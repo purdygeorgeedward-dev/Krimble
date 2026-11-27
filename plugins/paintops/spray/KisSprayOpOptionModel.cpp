@@ -7,7 +7,6 @@
 
 #include <KisLager.h>
 
-
 namespace {
 
 auto angularDistributionTypeToInt = lager::lenses::getset(
@@ -15,7 +14,7 @@ auto angularDistributionTypeToInt = lager::lenses::getset(
 {
 	if (source == KisSprayOpOptionData::ParticleDistribution_Uniform) {
 		return 0;
-	} else { // source == KisSprayOpOptionData::ParticleDistribution_CurveBased
+	} else {
 		return 1;
 	}
 },
@@ -23,7 +22,7 @@ auto angularDistributionTypeToInt = lager::lenses::getset(
 {
 	if (currentValue == 0) {
 		dst = KisSprayOpOptionData::ParticleDistribution_Uniform;
-	} else { // == 1
+	} else {
 		dst = KisSprayOpOptionData::ParticleDistribution_CurveBased;
 	}
 
@@ -32,7 +31,6 @@ auto angularDistributionTypeToInt = lager::lenses::getset(
 );
 
 }
-
 
 KisSprayOpOptionModel::KisSprayOpOptionModel(lager::cursor<KisSprayOpOptionData> _optionData)
     : optionData(_optionData)
@@ -47,7 +45,7 @@ KisSprayOpOptionModel::KisSprayOpOptionModel(lager::cursor<KisSprayOpOptionData>
     , LAGER_QT(isNumParticlesVisible) {LAGER_QT(useDensity).map(std::logical_not<>{})}
     , LAGER_QT(particleCount) {_optionData[&KisSprayOpOptionData::particleCount].zoom(kislager::lenses::do_static_cast<quint16, int>)}
     , LAGER_QT(coverage) {_optionData[&KisSprayOpOptionData::coverage]}
-    
+
     , LAGER_QT(angularDistributionType) {_optionData[&KisSprayOpOptionData::angularDistributionType]
 		.zoom(angularDistributionTypeToInt)}
     , LAGER_QT(angularDistributionCurve) {_optionData[&KisSprayOpOptionData::angularDistributionCurve]}
@@ -59,6 +57,6 @@ KisSprayOpOptionModel::KisSprayOpOptionModel(lager::cursor<KisSprayOpOptionData>
     , LAGER_QT(radialDistributionCurve) {_optionData[&KisSprayOpOptionData::radialDistributionCurve]}
     , LAGER_QT(radialDistributionCurveRepeat) {_optionData[&KisSprayOpOptionData::radialDistributionCurveRepeat]}
     , LAGER_QT(radialDistributionCenterBiased) {_optionData[&KisSprayOpOptionData::radialDistributionCenterBiased]}
-    
+
 {
 }

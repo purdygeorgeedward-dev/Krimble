@@ -47,10 +47,8 @@ void SvgTextTypeSettingStrategy::handleMouseMove(const QPointF &mouseLocation, Q
         m_currentDelta = m_dragCurrent - m_dragStart;
     }
 
-
     if (m_editingType != int(SvgTextCursor::NoHandle)) {
         SvgTextShapeManagerBlocker blocker(tool()->canvas()->shapeManager());
-        // TODO: replace with KoShapeBulkActionLock (recursive locking is not supported right now)
         QRectF updateRect = m_shape->boundingRect();
         if (m_previousCmd) {
             m_previousCmd->undo();
@@ -95,7 +93,6 @@ KUndo2Command *SvgTextTypeSettingStrategy::createCommand()
         KoSvgTextProperties props;
         KoSvgTextProperties oldProps = m_shape->propertiesForPos(closestPos, true);
 
-        /// Used to synchronise the offsets when changing fontsize...
         QVector<QPointF> newPositions;
         QVector<qreal> newRotations;
 
@@ -107,8 +104,6 @@ KUndo2Command *SvgTextTypeSettingStrategy::createCommand()
             props.setFontSize(length);
 
             if ((m_shape->textType() == KoSvgTextShape::PreformattedText || m_shape->textType() == KoSvgTextShape::PrePositionedText) && m_cursorPos != m_cursorAnchor) {
-                // When we change font size on a selection, we need to correct the offset for the scaled advances.
-                // Technically, we need to test against the laid out text to get the correct advance, but that's really complicated...
                 QPointF diff = QPointF();
 
                 Q_FOREACH(const KoSvgTextCharacterInfo originalInfo, originalTf) {

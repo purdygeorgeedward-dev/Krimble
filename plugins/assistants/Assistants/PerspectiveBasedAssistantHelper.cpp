@@ -22,8 +22,6 @@
 
 #include <functional>
 
-
-
 bool PerspectiveBasedAssistantHelper::getTetragon(const QList<KisPaintingAssistantHandleSP>& handles, bool isAssistantComplete, QPolygonF& outPolygon)
 {
     outPolygon.clear();
@@ -46,25 +44,19 @@ bool PerspectiveBasedAssistantHelper::getTetragon(const QList<KisPaintingAssista
     }
 
     if (sum == 0) {
-        // complex (crossed)
         for (int i = 0; i < 4; ++i) {
             int j = (i == 3) ? 0 : (i + 1);
             if (signs[i] * signs[j] == -1) {
-                // opposite signs: uncross
                 std::swap(outPolygon[i], outPolygon[j]);
                 return true;
             }
         }
-        // okay, maybe it's just a line
         return false;
     } else if (sum != 4 && sum != -4) {
-        // concave, or a triangle
         if (sum == 2 || sum == -2) {
-            // concave, let's return a triangle instead
             for (int i = 0; i < 4; ++i) {
                 int j = (i == 3) ? 0 : (i + 1);
                 if (signs[i] != KisAlgebra2D::signZZ(sum)) {
-                    // wrong sign: drop the inside node
                     outPolygon.remove(j);
                     return false;
                 }
@@ -72,7 +64,6 @@ bool PerspectiveBasedAssistantHelper::getTetragon(const QList<KisPaintingAssista
         }
         return false;
     }
-    // convex
     return true;
 }
 
@@ -88,15 +79,6 @@ QPolygonF PerspectiveBasedAssistantHelper::getAllConnectedTetragon(const QList<K
 
 qreal PerspectiveBasedAssistantHelper::localScale(const QTransform &transform, QPointF pt)
 {
-    //    const qreal epsilon = 1e-5, epsilonSquared = epsilon * epsilon;
-    //    qreal xSizeSquared = lengthSquared(transform.map(pt + QPointF(epsilon, 0.0)) - orig) / epsilonSquared;
-    //    qreal ySizeSquared = lengthSquared(transform.map(pt + QPointF(0.0, epsilon)) - orig) / epsilonSquared;
-    //    xSizeSquared /= lengthSquared(transform.map(QPointF(0.0, pt.y())) - transform.map(QPointF(1.0, pt.y())));
-    //    ySizeSquared /= lengthSquared(transform.map(QPointF(pt.x(), 0.0)) - transform.map(QPointF(pt.x(), 1.0)));
-    //  when taking the limit epsilon->0:
-    //  xSizeSquared=((m23*y+m33)^2*(m23*y+m33+m13)^2)/(m23*y+m13*x+m33)^4
-    //  ySizeSquared=((m23*y+m33)^2*(m23*y+m33+m13)^2)/(m23*y+m13*x+m33)^4
-    //  xSize*ySize=(abs(m13*x+m33)*abs(m13*x+m33+m23)*abs(m23*y+m33)*abs(m23*y+m33+m13))/(m23*y+m13*x+m33)^4
     const qreal x = transform.m13() * pt.x(),
             y = transform.m23() * pt.y(),
             a = x + transform.m33(),
@@ -121,7 +103,6 @@ qreal PerspectiveBasedAssistantHelper::inverseMaxLocalScale(const QTransform &tr
 
 qreal PerspectiveBasedAssistantHelper::distanceInGrid(const QList<KisPaintingAssistantHandleSP>& handles, bool isAssistantComplete, const QPointF &point)
 {
-    // TODO: make it not calculate the poly max distance over and over
     qreal defaultValue = 1;
     int vertexCount = 4;
 
@@ -135,14 +116,10 @@ qreal PerspectiveBasedAssistantHelper::distanceInGrid(const QList<KisPaintingAss
 
     PerspectiveBasedAssistantHelper::getVanishingPointsOptional(poly, vp1, vp2);
     if (!vp1 && !vp2) {
-        return defaultValue; // possibly wrong shape
+        return defaultValue;
     } else if (!vp1 || !vp2) {
-        // result should be:
-        // dist from horizon / max dist from horizon
-        // horizon is parallel to the parallel sides of the tetragon (two must be parallel if there is only one vp)
         QLineF horizon;
         if (vp1) {
-            // that means the 0-1 line is the horizon parallel line
             horizon = QLineF(vp1.get(), vp1.get() + poly[1] - poly[0]);
         } else {
             horizon = QLineF(vp2.get(), vp2.get() + poly[2] - poly[1]);
@@ -161,8 +138,6 @@ qreal PerspectiveBasedAssistantHelper::distanceInGrid(const QList<KisPaintingAss
         }
         return dist/distMax;
     } else if (vp1 && vp2) {
-        // should be:
-        // dist from vp-line / max dist from vp-line
         QLineF horizon = QLineF(vp1.get(), vp2.get());
 
         qreal dist = kisDistanceToLine(point, horizon);
@@ -191,16 +166,11 @@ qreal PerspectiveBasedAssistantHelper::distanceInGrid(const PerspectiveBasedAssi
     }
 
     if (!cache.vanishingPoint1 && !cache.vanishingPoint2) {
-        return defaultValue; // possibly wrong shape
+        return defaultValue;
     } else if (!cache.vanishingPoint1 || !cache.vanishingPoint2) {
-        // result should be:
-        // dist from horizon / max dist from horizon
-        // horizon is parallel to the parallel sides of the tetragon (two must be parallel if there is only one vp)
         qreal dist = kisDistanceToLine(point, cache.horizon);
         return dist/cache.maxDistanceFromPoint;
     } else if (cache.vanishingPoint1 && cache.vanishingPoint2) {
-        // should be:
-        // dist from vp-line / max dist from vp-line
         qreal dist = kisDistanceToLine(point, cache.horizon);
         return dist/cache.maxDistanceFromPoint;
     }
@@ -230,9 +200,8 @@ void PerspectiveBasedAssistantHelper::updateCacheData(PerspectiveBasedAssistantH
         cache.horizon = QLineF(cache.vanishingPoint1.get(), cache.vanishingPoint2.get());
     } else if (cache.type == CacheData::OneVp) {
         if (cache.vanishingPoint1) {
-            // that means the 0-1 line is the horizon parallel line
             cache.horizon = QLineF(cache.vanishingPoint1.get(), cache.vanishingPoint1.get() + cache.polygon[1] - cache.polygon[0]);
-        } else { // the other vp
+        } else {
             cache.horizon = QLineF(cache.vanishingPoint2.get(), cache.vanishingPoint2.get() + cache.polygon[2] - cache.polygon[1]);
         }
     }
@@ -255,12 +224,11 @@ bool PerspectiveBasedAssistantHelper::getVanishingPointsOptional(const QPolygonF
     vp1 = boost::none;
     vp2 = boost::none;
 
-    if (poly.size() < 4) { // four points are required for a tetragon
+    if (poly.size() < 4) {
         return false;
     }
 
     QPointF intersection(0, 0);
-    // note: in code it seems like vp1 and vp2 are swapped, but it's all correct if you read carefully
 
     if (fmod(QLineF(poly[0], poly[1]).angle(), 180.0)>=fmod(QLineF(poly[2], poly[3]).angle(), 180.0)+2.0
             || fmod(QLineF(poly[0], poly[1]).angle(), 180.0)<=fmod(QLineF(poly[2], poly[3]).angle(), 180.0)-2.0) {
@@ -283,5 +251,4 @@ qreal PerspectiveBasedAssistantHelper::pdot(const QPointF &a, const QPointF &b)
 {
     return a.x() * b.y() - a.y() * b.x();
 }
-
 

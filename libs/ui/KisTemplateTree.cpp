@@ -14,7 +14,6 @@
 #include <kconfig.h>
 #include <kis_debug.h>
 
-
 #include <KoResourcePaths.h>
 #include <klocalizedstring.h>
 #include <kconfiggroup.h>
@@ -59,8 +58,6 @@ void KisTemplateTree::writeTemplateTree()
     QString localDir = KoResourcePaths::saveLocation("templates");
 
     Q_FOREACH (KisTemplateGroup *group, m_groups) {
-        //dbgUI <<"---------------------------------";
-        //dbgUI <<"group:" << group->name();
 
         bool touched = false;
         QList<KisTemplate*> templates = group->templates();
@@ -69,20 +66,14 @@ void KisTemplateTree::writeTemplateTree()
             touched = (*it)->touched();
 
         if (group->touched() || touched) {
-            //dbgUI <<"touched";
             if (!group->isHidden()) {
-                //dbgUI <<"not hidden";
                 QDir path;
-                path.mkpath(localDir + group->name()); // create the local group dir
+                path.mkpath(localDir + group->name());
             } else {
-                //dbgUI <<"hidden";
                 if (group->dirs().count() == 1 && group->dirs().contains(localDir)) {
-                    //dbgUI <<"local only";
                     QFile f(group->dirs().first());
                     f.remove();
-                    //dbgUI <<"removing:" << group->dirs().first();
                 } else {
-                    //dbgUI <<"global";
                     QDir path;
                     path.mkpath(localDir + group->name());
                 }
@@ -90,11 +81,9 @@ void KisTemplateTree::writeTemplateTree()
         }
         Q_FOREACH (KisTemplate *t, templates) {
             if (t->touched()) {
-                //dbgUI <<"++template:" << t->name();
                 writeTemplate(t, group, localDir);
             }
             if (t->isHidden() && t->touched()) {
-                //dbgUI <<"+++ delete local template ##############";
                 writeTemplate(t, group, localDir);
                 QFile::remove(t->file());
                 QFile::remove(t->picture());
@@ -112,7 +101,7 @@ bool KisTemplateTree::add(KisTemplateGroup *g)
         return true;
     }
 
-    group->addDir(g->dirs().first()); // "...there can be only one..." (Queen)
+    group->addDir(g->dirs().first());
     delete g;
     g = 0;
     return false;
@@ -141,13 +130,11 @@ void KisTemplateTree::readGroups()
     QStringList dirs = KoResourcePaths::findDirs("templates");
 
     Q_FOREACH (const QString & dirName, dirs) {
-        if (!dirName.contains("templates")) continue; // Hack around broken KoResourcePaths
+        if (!dirName.contains("templates")) continue;
         QDir dir(dirName);
-        // avoid the annoying warning
         if (!dir.exists())
             continue;
         QStringList templateDirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
 
         Q_FOREACH (const QString & templateDirName, templateDirs) {
             QDir templateDir(dirName + "/" + templateDirName);
@@ -188,7 +175,6 @@ void KisTemplateTree::readTemplates()
             QStringList files = d.entryList(QDir::Files | QDir::Readable, QDir::Name);
             for (int i = 0; i < files.count(); ++i) {
                 QString filePath = *it + files[i];
-                //dbgUI <<"filePath:" << filePath;
                 QString icon;
                 QString text;
                 QString description;
@@ -198,8 +184,6 @@ void KisTemplateTree::readTemplates()
                 bool defaultTemplate = false;
                 QString templatePath;
                 QString measureSystem;
-                // If a desktop file, then read the name from it.
-                // Otherwise (or if no name in it?) use file name
                 if (KDesktopFile::isDesktopFile(filePath)) {
                     KConfig _config(filePath, KConfig::SimpleConfig);
                     _config.setLocale(currentLocale());
@@ -208,51 +192,37 @@ void KisTemplateTree::readTemplates()
                         text = config.readEntry("Name");
                         fileName = filePath;
                         description = config.readEntry("Comment");
-                        //dbgUI <<"name:" << text;
                         icon = config.readEntry("Icon");
-                        if (icon[0] != '/' && // allow absolute paths for icons
-                                QFile::exists(*it + icon)) // allow icons from icontheme
+                        if (icon[0] != '/' &&
+                                QFile::exists(*it + icon))
                             icon = *it + icon;
-                        //dbgUI <<"icon2:" << icon;
                         hidden = config.readEntry("X-KDE-Hidden", false);
                         defaultTemplate = config.readEntry("X-KDE-DefaultTemplate", false);
                         measureSystem = config.readEntry("X-KDE-MeasureSystem").toLower();
 
-                        // Don't add a template that is for the wrong measure system
                         if (measureSystem == dontShow)
                             continue;
 
-                        //dbgUI <<"hidden:" << hidden_str;
                         templatePath = config.readPathEntry("URL", QString());
-                        //dbgUI <<"Link to :" << templatePath;
                         if (templatePath[0] != '/') {
-                            if (templatePath.left(6) == "file:/") // I doubt this will happen
+                            if (templatePath.left(6) == "file:/")
                                 templatePath = templatePath.right(templatePath.length() - 6);
-                            //else
-                            //  dbgUI <<"dirname=" << *it;
                             templatePath = *it + templatePath;
-                            //dbgUI <<"templatePath:" << templatePath;
                         }
                     } else
-                        continue; // Invalid
+                        continue;
                 }
-                // The else if and the else branch are here for compat. with the old system
                 else if (files[i].right(4) != ".png")
-                    // Ignore everything that is not a PNG file
                     continue;
                 else {
-                    // Found a PNG file - the template must be here in the same dir.
                     icon = filePath;
                     QFileInfo fi(filePath);
                     text = fi.completeBaseName();
-                    templatePath = filePath; // Note that we store the .png file as the template !
-                    // That's the way it's always been done. Then the app replaces the extension...
+                    templatePath = filePath;
                 }
                 KisTemplate *t = new KisTemplate(text, description, templatePath, icon, fileName,
                                                measureSystem, hidden);
-                group->add(t, false, false); // false -> we aren't a "user", false -> don't
-                // "touch" the group to avoid useless
-                // creation of dirs in .kde/blah/...
+                group->add(t, false, false);
                 if (defaultTemplate)
                     m_defaultTemplate = t;
             }
@@ -266,14 +236,12 @@ void KisTemplateTree::writeTemplate(KisTemplate *t, KisTemplateGroup *group,
     QString fileName;
     if (t->isHidden()) {
         fileName = t->fileName();
-        // try to remove the file
         if (QFile::remove(fileName) || !QFile::exists(fileName)) {
             QFile::remove(t->name());
             QFile::remove(t->picture());
             return;
         }
     }
-    // be sure that the template's file name is unique so we don't overwrite another
     QString const path = localDir + group->name() + '/';
     QString const name = KisTemplates::trimmed(t->name());
     fileName = path + name + ".desktop";

@@ -29,62 +29,43 @@ KUndo2Command *KoPathPointRemoveCommand::createCommand(
     KoShapeController *shapeController,
     KUndo2Command *parent)
 {
-    /*
-     * We want to decide if we have to:
-     * 1. delete only some points of a path or
-     * 2. delete one or more complete subpath or
-     * 3. delete a complete path
-     */
 
     QList<KoPathPointData> sortedPointData(pointDataList);
     std::sort(sortedPointData.begin(), sortedPointData.end());
 
     KoPathPointData last(0, KoPathPointIndex(-1, -1));
-    // add last at the end so that the point date before last will also be put in
-    // the right places.
     sortedPointData.append(last);
 
-    QList<KoPathPointData> pointsOfSubpath; // points of current subpath
-    QList<KoPathPointData> subpathsOfPath;  // subpaths of current path
-    QList<KoPathPointData> pointsToDelete;  // single points to delete
-    QList<KoPathPointData> subpathToDelete; // single subpaths to delete
-    QList<KoShape*> shapesToDelete;         // single paths to delete
+    QList<KoPathPointData> pointsOfSubpath;
+    QList<KoPathPointData> subpathsOfPath;
+    QList<KoPathPointData> pointsToDelete;
+    QList<KoPathPointData> subpathToDelete;
+    QList<KoShape*> shapesToDelete;
 
     last = sortedPointData.first();
 
     QList<KoPathPointData>::const_iterator it(sortedPointData.constBegin());
     for (; it != sortedPointData.constEnd(); ++it) {
-        // check if we have come to the next subpath of the same or another path
         if (last.pathShape != it->pathShape || last.pointIndex.first != it->pointIndex.first) {
-            // check if all points of the last subpath should be deleted
             if (last.pathShape->subpathPointCount(last.pointIndex.first) == pointsOfSubpath.size()) {
-                // all points of subpath to be deleted -> mark subpath as to be deleted
                 subpathsOfPath.append(pointsOfSubpath.first());
             } else {
-                // not all points of subpath to be deleted -> add them to the delete point list
                 pointsToDelete += pointsOfSubpath;
             }
-            // clear the suboath point list
             pointsOfSubpath.clear();
         }
 
-        // check if we have come to the next shape
         if (last.pathShape != it->pathShape) {
-            // check if all subpath of the shape should be deleted
             if (last.pathShape->subpathCount() == subpathsOfPath.size()) {
-                // all subpaths of path to be deleted -> add shape to delete shape list
                 shapesToDelete.append(last.pathShape);
             } else {
-                // not all subpaths of path to be deleted -> add them to delete subpath list
                 subpathToDelete += subpathsOfPath;
             }
             subpathsOfPath.clear();
         }
         if (! it->pathShape)
             continue;
-        // keep reference to last point
         last = *it;
-        // add this point to the current subpath point list
         pointsOfSubpath.append(*it);
     }
 
@@ -94,7 +75,6 @@ KUndo2Command *KoPathPointRemoveCommand::createCommand(
         new KoPathPointRemoveCommand(pointsToDelete, cmd);
     }
 
-    //Reverse sort the subpath list to account for shifting indices of the subpaths
     std::sort(subpathToDelete.begin(), subpathToDelete.end(), std::greater<>{});
 
     Q_FOREACH (const KoPathPointData & pd, subpathToDelete) {

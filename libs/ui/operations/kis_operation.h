@@ -33,4 +33,4 @@ private:
     const QString m_id;
 };
 
-#endif /* __KIS_OPERATION_H */
+#endif

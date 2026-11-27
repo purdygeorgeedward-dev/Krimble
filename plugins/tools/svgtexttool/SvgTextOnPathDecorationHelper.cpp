@@ -108,7 +108,6 @@ void SvgTextOnPathDecorationHelper::paint(QPainter *p, const KoViewConverter &co
 
     helper.drawConnectionLine(line);
     helper.drawHandleCircle(line.p2());
-    //qDebug() << line.p2();
     p->restore();
 }
 
@@ -129,7 +128,6 @@ QRectF SvgTextOnPathDecorationHelper::decorationRect(const QTransform documentTo
     QPointF handle(d->handleRadius, d->handleRadius);
     r |= QRectF(line.p2() - handle, line.p2() + handle);
 
-    //qDebug() << "decor rect" << r << line.p2();
     return r;
 }
 

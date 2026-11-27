@@ -24,10 +24,10 @@ public:
 
     void writeOptionSetting(KisPropertiesConfigurationSP setting) const override;
     void readOptionSetting(const KisPropertiesConfigurationSP setting) override;
-    
+
 private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_SPRAY_SHAPE_OPTION_WIDGET_H
+#endif

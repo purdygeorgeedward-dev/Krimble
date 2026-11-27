@@ -15,52 +15,22 @@
 
 class QTimer;
 
-/**
- * Sets a timer to delay or throttle activation of a Qt slot. One example of
- * where this is used is to limit the amount of expensive redraw activity on the
- * canvas.
- *
- * There are four behaviors to choose from.
- *
- * POSTPONE resets the timer after each call. Therefore if the calls are made
- * quickly enough, the timer will never be activated.
- *
- * FIRST_ACTIVE_POSTPONE_NEXT emits the first signal and postpones all
- * the other actions like in POSTPONE. This mode is
- * used e.g. in move/remove layer functionality. If you remove a
- * single layer, you'll see the result immediately. But if you want to
- * remove multiple layers, you should wait until all the actions are
- * finished.
- *
- * FIRST_ACTIVE emits the timeout() event immediately and sets a timer of
- * duration \p delay. If the compressor is triggered during this time, it will
- * wait until the end of the delay period to fire the signal. Further events are
- * ignored until the timer elapses. Think of it as a queue with size 1, and
- * where the leading element is popped every \p delay ms.
- *
- * FIRST_INACTIVE emits the timeout() event at the end of a timer of duration \p
- * delay ms. The compressor becomes inactive and all events are ignored until
- * the timer has elapsed.
- *
- * The current implementation allows the timeout() to be delayed by up to 2 times
- * \p delay in certain situations (for details see cpp file).
- */
 class KRITAGLOBAL_EXPORT KisSignalCompressor : public QObject
 {
     Q_OBJECT
 
 public:
     enum Mode {
-        POSTPONE, /* Calling start() resets the timer to \p delay ms */
-        FIRST_ACTIVE_POSTPONE_NEXT, /* emits the first signal and postpones all the next ones */
-        FIRST_ACTIVE, /* Emit timeout() signal immediately. Throttle further timeout() to rate of one per \p delay ms */
-        FIRST_INACTIVE, /* Set a timer \p delay ms, Q_EMIT timeout() when it elapses. Ignore all events meanwhile. */
-        UNDEFINED /* KisSignalCompressor is created without an explicit mode */
+        POSTPONE,
+        FIRST_ACTIVE_POSTPONE_NEXT,
+        FIRST_ACTIVE,
+        FIRST_INACTIVE,
+        UNDEFINED
     };
 
     enum SlowHandlerMode {
-        PRECISE_INTERVAL, /* Interval of timeout is forced to \p delay ms, whatever time the handler of timeout() takes */
-        ADDITIVE_INTERVAL /* When the handler of timeout() is slow, the timeout delay is increased to the (delay + handler_time) */
+        PRECISE_INTERVAL,
+        ADDITIVE_INTERVAL
     };
 
 public:
@@ -102,4 +72,4 @@ private:
     int m_sanityIsStarting = 0;
 };
 
-#endif /* __KIS_SIGNAL_COMPRESSOR_H */
+#endif

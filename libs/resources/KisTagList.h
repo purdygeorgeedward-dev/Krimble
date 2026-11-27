@@ -12,7 +12,5 @@ class KisTagList : public QList<KisTagSP>
 {
     KisTagList();
 
-
-
 }
 

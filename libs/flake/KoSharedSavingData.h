@@ -9,11 +9,6 @@
 
 #include "kritaflake_export.h"
 
-/**
- * The KoSharedSavingData class is used to share data between shapes during saving.
- * These data can be added to the KoShapeSavingContext using KoShapeSavingContext::addSharedData().
- * A different shape can then get the data from the context using KoShapeSavingContext::sharedData().
- */
 class KRITAFLAKE_EXPORT KoSharedSavingData
 {
 public:
@@ -21,4 +16,4 @@ public:
     virtual ~KoSharedSavingData();
 };
 
-#endif /* KOSHAREDSAVINGDATA_H */
+#endif

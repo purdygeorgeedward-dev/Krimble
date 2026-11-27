@@ -12,4 +12,3 @@ const QLoggingCategory &STORE_LOG() \
     return category;
 }
 
-

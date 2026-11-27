@@ -14,7 +14,6 @@
 #include "kis_algebra_2d.h"
 #include "kis_sequential_iterator.h"
 
-
 struct KisMarkerPainter::Private
 {
     Private(KisPaintDeviceSP _device, const KoColor &_color) : device(_device), color(_color) {}
@@ -31,8 +30,6 @@ KisMarkerPainter::KisMarkerPainter(KisPaintDeviceSP device, const KoColor &color
 KisMarkerPainter::~KisMarkerPainter()
 {
 }
-
-
 
 bool KisMarkerPainter::isNumberInValidRange(qint32 number)
 {
@@ -86,9 +83,6 @@ void KisMarkerPainter::fillHalfBrushDiff(const QPointF &p1, const QPointF &p2, c
         qreal value3 = outer.fadeSq(pt);
         if (value3 > 1.0) continue;
 
-        // qreal fadePos =
-        //     value1 < 0 || value2 < 0 ?
-        //     qMax(-value1, -value2) : value3;
         qreal fadePos = value3;
 
         const quint8 srcAlpha = fadePos > 0 ? quint8((1.0 - fadePos) * 255.0) : 255;

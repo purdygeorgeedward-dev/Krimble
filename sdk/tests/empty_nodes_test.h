@@ -44,7 +44,6 @@ protected:
         gc.bitBlt(rc.topLeft(), dev, rc);
     }
 
-
     void initBase() {
         m_image = new KisImage(new KisSurrogateUndoStore(), 512, 512, KoColorSpaceRegistry::instance()->rgb8(), "test");
         m_layer1 = new KisPaintLayer(m_image, "layer1", OPACITY_OPAQUE_U8);
@@ -68,18 +67,6 @@ protected:
         m_sel3 = 0;
         m_image = 0;
     }
-
-    /**
-     * root
-     *   sel1
-     *   layer1
-     *   layer2
-     *   sel2
-     *   layer3
-     *     mask1
-     *     sel3
-     *   layer4
-     */
 
     void constructImage() {
         m_image->addNode(m_layer1);
@@ -120,4 +107,4 @@ protected:
 
 }
 
-#endif /* __EMPTY_NODES_TEST_H */
+#endif

@@ -23,7 +23,6 @@
 
 #include <KisRollingMeanAccumulatorWrapper.h>
 
-
 class KisPainter;
 class KisColorSource;
 class KisDabRenderingExecutor;
@@ -40,7 +39,6 @@ public:
 
     void paintLine(const KisPaintInformation &pi1, const KisPaintInformation &pi2, KisDistanceInformation *currentDistance) override;
     std::pair<int, bool> doAsynchronousUpdate(QVector<KisRunnableStrokeJobData *> &jobs) override;
-
 
 protected:
     KisSpacingInformation paintAt(const KisPaintInformation& info) override;
@@ -59,7 +57,6 @@ protected:
 
     UpdateSharedStateSP m_updateSharedState;
 
-
 private:
     KisAirbrushOptionData m_airbrushData;
 
@@ -73,7 +70,6 @@ private:
     KisSharpnessOption m_sharpnessOption;
     KisRotationOption m_rotationOption;
     KisFlowOpacityOption2 m_opacityOption;
-
 
     KisPaintDeviceSP m_lineCacheDevice;
 
@@ -89,4 +85,4 @@ private:
     const int m_maxUpdatePeriod;
 };
 
-#endif // KIS_BRUSHOP_H_
+#endif

@@ -36,7 +36,6 @@ public:
     }
 };
 
-
 ArtisticColorSelectorPlugin::ArtisticColorSelectorPlugin(QObject* parent, const QVariantList &):
     QObject(parent)
 {

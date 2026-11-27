@@ -80,7 +80,6 @@ void KisIconWidget::paintEvent(QPaintEvent *event)
         pixmap.fill(m_d->backgroundColor);
         QPainter p(&pixmap);
 
-        // Round off the corners of the preview
         QRegion clipRegion(0, 0, iconWidth, iconHeight);
         clipRegion -= QRegion(0, 0, 1, 1);
         clipRegion -= QRegion(iconWidth - 1, 0, 1, 1);

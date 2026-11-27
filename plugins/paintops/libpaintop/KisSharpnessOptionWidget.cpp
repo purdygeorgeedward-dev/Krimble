@@ -5,7 +5,6 @@
  */
 #include "KisSharpnessOptionWidget.h"
 
-
 #include <KisLager.h>
 
 #include <QWidget>

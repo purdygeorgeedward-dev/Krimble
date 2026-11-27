@@ -117,7 +117,6 @@ void KisTimeBasedItemModel::setImage(KisImageWSP p_image)
     beginResetModel();
 
     if (m_d->image) {
-        //Disconnect old image..
         const KisImageAnimationInterface *ai = m_d->image->animationInterface();
         ai->disconnect(this);
     }
@@ -173,7 +172,6 @@ void KisTimeBasedItemModel::setAnimationPlayer(KisCanvasAnimationState *player)
         const int frame = player ? player->displayProxy()->activeFrame() : m_d->image->animationInterface()->currentUITime();
         setHeaderData(frame, Qt::Horizontal, true, ActiveFrameRole);
 
-        // only prioritize the cache, no seek operation to prevent audio from playing
         setHeaderData(frame, Qt::Horizontal, QVariant(int(SEEK_NONE)), ScrubToRole);
     }
 }
@@ -279,7 +277,6 @@ bool KisTimeBasedItemModel::setHeaderData(int section, Qt::Orientation orientati
         }
     };
 
-
     if (orientation == Qt::Horizontal) {
         switch (role) {
         case ActiveFrameRole:
@@ -289,34 +286,13 @@ bool KisTimeBasedItemModel::setHeaderData(int section, Qt::Orientation orientati
                 int prevFrame = m_d->activeFrameIndex;
                 m_d->activeFrameIndex = section;
 
-                /**
-                 * Optimization Hack Alert:
-                 *
-                 * ideally, we should Q_EMIT all four signals, but... The
-                 * point is this code is used in a tight loop during
-                 * playback, so it should run as fast as possible. To tell
-                 * the story short, commenting out these three lines makes
-                 * playback run 15% faster ;)
-                 */
-
                 if (m_d->scrubInProgress) {
                     Q_EMIT dataChanged(this->index(0, m_d->activeFrameIndex), this->index(rowCount() - 1, m_d->activeFrameIndex));
 
-                    /*
-                     * In order to try to correct rendering issues while preserving performance, we will
-                     * defer updates just long enough that visual artifacts aren't majorly noticeable.
-                     * By using a signal compressor, we're going to update the range of columns between
-                     * min / max. That min max is reset every time the update occurs. This should fix
-                     * rendering issues to a configurable framerate.
-                     */
                     m_d->scrubHeaderMin = qMin(m_d->activeFrameIndex, m_d->scrubHeaderMin);
                     m_d->scrubHeaderMax = qMax(m_d->activeFrameIndex, m_d->scrubHeaderMax);
                     m_d->scrubHeaderUpdateCompressor->start(m_d->activeFrameIndex);
 
-                    // vvvvvvvvvvvvvvvvvvvvv Read above comment.. This fixes all timeline rendering issues, but at what cost???
-                    //Q_EMIT dataChanged(this->index(0, prevFrame), this->index(rowCount() - 1, prevFrame));
-                    //Q_EMIT headerDataChanged (Qt::Horizontal, m_d->activeFrameIndex, m_d->activeFrameIndex);
-                    //Q_EMIT headerDataChanged (Qt::Horizontal, prevFrame, prevFrame);
                 } else {
                     Q_EMIT dataChanged(this->index(0, prevFrame), this->index(rowCount() - 1, prevFrame));
                     Q_EMIT dataChanged(this->index(0, m_d->activeFrameIndex), this->index(rowCount() - 1, m_d->activeFrameIndex));
@@ -461,7 +437,6 @@ bool KisTimeBasedItemModel::mirrorFrames(QModelIndexList indexes)
             rowsList[index.row()].append(index);
         }
 
-
         Q_FOREACH (int row, rowsList.keys()) {
             QModelIndexList &list = rowsList[row];
 
@@ -554,7 +529,6 @@ bool KisTimeBasedItemModel::isScrubbing()
     return m_d->scrubInProgress;
 }
 
-
 void KisTimeBasedItemModel::slotCurrentTimeChanged(int time)
 {
     if (time != m_d->activeFrameIndex) {
@@ -594,7 +568,6 @@ void KisTimeBasedItemModel::slotCacheChanged()
 
     Q_EMIT headerDataChanged(Qt::Horizontal, 0, numFrames);
 }
-
 
 void KisTimeBasedItemModel::slotPlaybackFrameChanged()
 {

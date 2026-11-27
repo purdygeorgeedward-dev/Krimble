@@ -149,7 +149,6 @@ private:
     QButtonGroup *viewGroup;
 };
 
-
 inline QMap<QString, QDomNode> rootItemsInSvg(const QDomDocument &d){
     QMap<QString, QDomNode> nodeMap;
     QDomNodeList svgs = d.elementsByTagName("svg");
@@ -165,7 +164,6 @@ inline QMap<QString, QDomNode> rootItemsInSvg(const QDomDocument &d){
     }
     return nodeMap;
 };
-
 
 StoryboardDockerDock::StoryboardDockerDock( )
     : QDockWidget(i18nc("Storyboard Panel", "Storyboard"))
@@ -193,7 +191,6 @@ StoryboardDockerDock::StoryboardDockerDock( )
     connect(m_exportAsPdfAction, SIGNAL(triggered()), this, SLOT(slotExportAsPdf()));
     connect(m_exportAsSvgAction, SIGNAL(triggered()), this, SLOT(slotExportAsSvg()));
 
-    //Setup dynamic QListView Width Based on Comment Model Columns...
     connect(m_commentModel, &StoryboardCommentModel::sigCommentListChanged, this, &StoryboardDockerDock::slotUpdateMinimumWidth);
     connect(m_storyboardModel.data(), &StoryboardModel::rowsInserted, this, &StoryboardDockerDock::slotUpdateMinimumWidth);
 
@@ -232,7 +229,7 @@ StoryboardDockerDock::StoryboardDockerDock( )
     m_modeGroup->button(Mode::Row)->click();
     m_viewGroup->button(View::All)->click();
 
-    {   // Footer section...
+    {
         QAction* action = new QAction(i18nc("Add new scene as the last storyboard", "Add Scene"), this);
         connect(action, &QAction::triggered, this, [this](bool){
             if (!m_canvas) return;
@@ -294,7 +291,6 @@ void StoryboardDockerDock::setCanvas(KoCanvasBase *canvas)
         disconnect(m_canvas->imageView()->document(), SIGNAL(sigStoryboardItemListChanged()), this, SLOT(slotUpdateStoryboardModelList()));
         disconnect(m_canvas->imageView()->document(), SIGNAL(sigStoryboardItemListChanged()), this, SLOT(slotUpdateCommentModelList()));
 
-        //update the lists in KisDocument and empty storyboardModel's list and commentModel's list
         slotUpdateDocumentList();
         m_storyboardModel->resetData(StoryboardItemList());
         m_commentModel->resetData(QVector<StoryboardComment>());
@@ -305,7 +301,6 @@ void StoryboardDockerDock::setCanvas(KoCanvasBase *canvas)
     setEnabled(m_canvas != 0);
 
     if (m_canvas && m_canvas->image()) {
-        //sync data between KisDocument and models
         slotUpdateStoryboardModelList();
         slotUpdateCommentModelList();
 
@@ -340,10 +335,8 @@ void StoryboardDockerDock::setViewManager(KisViewManager* kisview)
     }
 }
 
-
 void StoryboardDockerDock::notifyImageDeleted()
 {
-    //if there is no image
     if (!m_canvas || !m_canvas->image()){
         m_storyboardModel->setImage(0);
     }
@@ -390,7 +383,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
         ExportPage layoutPage;
         QPrinter printer(QPrinter::HighResolution);
 
-        // Setup export parameters...
         QPainter painter;
         QSvgGenerator generator;
 
@@ -399,7 +391,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
 
         StoryboardItemList storyboardList = m_storyboardModel->getData();
 
-        // Setup per-element layout details...
         bool layoutSpecifiedBySvg = dlg.layoutSpecifiedBySvgFile();
         if (layoutSpecifiedBySvg) {
             QString svgFileName = dlg.layoutSvgFile();
@@ -411,19 +402,18 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
             printer.setOutputFileName(dlg.saveFileName());
             printer.setPageSize(dlg.pageSize());
             printer.setPageOrientation(dlg.pageOrientation());
-            painter.begin(&printer); // We need to begin the painter temporarily for font metrics.
+            painter.begin(&printer);
             painter.setFont(font);
             layoutPage = getPageLayout(rows,
                                        columns,
                                        QRect(0, 0, m_canvas->image()->width(), m_canvas->image()->height()),
                                        printer.pageLayout().paintRectPixels(printer.resolution()),
                                        painter.fontMetrics());
-            painter.end(); // End temporary painter begin.
+            painter.end();
         }
 
         KIS_SAFE_ASSERT_RECOVER_RETURN(layoutPage.elements.length() > 0);
 
-        // Get a range of items to render. Used to be configurable in an older version but now simplified...
         QModelIndex firstIndex = m_storyboardModel->index(0,0);
         QModelIndex lastIndex  = m_storyboardModel->index(m_storyboardModel->rowCount() - 1, 0);
 
@@ -459,7 +449,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
             painter.setBackgroundMode(Qt::BGMode::OpaqueMode);
         }
 
-        // Paint boards
         int pageNumber = 1;
         int pageDurationInFrames = 0;
 
@@ -478,7 +467,7 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                     }
                 }
                 else {
-                    if (currentBoard != 0 ) { // New page!
+                    if (currentBoard != 0 ) {
                         printer.newPage();
 
                         pageNumber++;
@@ -515,7 +504,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
             pen.setWidth(5);
             painter.setPen(pen);
 
-            // Draw image
             if (layoutShot->cutImageRect.has_value()) {
                 QRectF imgRect = layoutShot->cutImageRect.value();
                 QSizeF resizedImage = QSizeF(pxmp.size()).scaled(layoutShot->cutImageRect->size(), Qt::KeepAspectRatio);
@@ -528,11 +516,10 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                 painter.drawRect(layoutShot->cutImageRect.value());
             }
 
-            { // Insert shot text elements...
+            {
                 painter.save();
                 painter.setBackgroundMode(Qt::TransparentMode);
 
-                // Draw shot name
                 if (layoutShot->cutNameRect.has_value()) {
                     QString str = storyboardList.at(currentBoard + firstItemRow)->child(StoryboardItem::ItemName)->data().toString();
                     painter.drawText(layoutShot->cutNameRect.value().translated(painter.fontMetrics().averageCharWidth() / 2, 0), Qt::AlignLeft | Qt::AlignVCenter, str);
@@ -542,7 +529,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                     }
                 }
 
-                // Draw shot number
                 if (layoutShot->cutNumberRect.has_value()) {
                     painter.drawText(layoutShot->cutNumberRect.value(), Qt::AlignCenter, QString::number(currentBoard + firstItemRow));
 
@@ -556,9 +542,7 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                 const int boardDurationFrames = m_storyboardModel->data(boardIndex, StoryboardModel::TotalSceneDurationInFrames).toInt();
                 pageDurationInFrames += boardDurationFrames;
 
-                // Draw shot duration
                 if (layoutShot->cutDurationRect.has_value()) {
-                    // Split shot duration into tuple of seconds + frames (remainder)..
                     int durationSecondsPart = boardDurationFrames / m_storyboardModel->getFramesPerSecond();
                     int durationFramesPart = boardDurationFrames % m_storyboardModel->getFramesPerSecond();
 
@@ -573,8 +557,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                 painter.restore();
             }
 
-
-            // Draw shot comments
             for (int commentIndex = 0; commentIndex < numComments; commentIndex++) {
                 if (!layoutShot->commentRects.contains(comments[commentIndex].name))
                     continue;
@@ -585,7 +567,7 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                 doc.setDocumentMargin(0);
                 doc.setDefaultFont(painter.font());
                 QString comment;
-                comment += "<p><b>" + commentName + "</b></p>"; // if arrange options are used check for visibility
+                comment += "<p><b>" + commentName + "</b></p>";
                 QString originalCommentText = qvariant_cast<CommentBox>(storyboardList.at(currentBoard + firstItemRow)->child(StoryboardItem::Comments + commentIndex)->data()).content.toString();
                 originalCommentText = originalCommentText.replace('\n', "</p><p>");
                 comment += "<p>&nbsp;" + originalCommentText + "</p>";
@@ -597,7 +579,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                 QAbstractTextDocumentLayout::PaintContext ctx;
                 ctx.palette.setColor(QPalette::Text, painter.pen().color());
 
-                //draw the comments
                 painter.save();
                 painter.translate(layoutShot->commentRects[commentName].topLeft() + QPoint(MARGIN, MARGIN));
                 painter.setClipRegion(QRegion(0,0,layoutShot->commentRects[commentName].width(), layoutShot->commentRects[commentName].height() - painter.fontMetrics().height()));
@@ -608,7 +589,6 @@ void StoryboardDockerDock::slotExport(ExportFormat format)
                 painter.drawRect(layoutShot->commentRects[commentName]);
             }
 
-            // Draw overlays after drawing last element on page or after drawing last element in general.
             if ((currentBoard % layoutPage.elements.length()) == (layoutPage.elements.length() - 1) || (currentBoard == numBoards - 1)) {
 
                 painter.save();
@@ -673,7 +653,7 @@ void StoryboardDockerDock::slotModeChanged(QAbstractButton* button)
         m_ui->sceneView->setFlow(QListView::TopToBottom);
         m_ui->sceneView->setWrapping(false);
         m_ui->sceneView->setItemOrientation(Qt::Horizontal);
-        m_viewGroup->button(View::CommentsOnly)->setEnabled(false);           //disable the comments only view
+        m_viewGroup->button(View::CommentsOnly)->setEnabled(false);
     }
     else if (mode == Mode::Grid) {
         m_ui->sceneView->setFlow(QListView::LeftToRight);
@@ -701,7 +681,7 @@ void StoryboardDockerDock::slotViewChanged(QAbstractButton* button)
     else if (view == View::CommentsOnly) {
         m_ui->sceneView->setCommentVisibility(true);
         m_ui->sceneView->setThumbnailVisibility(false);
-        m_modeGroup->button(Mode::Row)->setEnabled(false);               //disable the row mode
+        m_modeGroup->button(Mode::Row)->setEnabled(false);
     }
     m_storyboardModel->layoutChanged();
 }
@@ -744,7 +724,7 @@ StoryboardDockerDock::ExportPage StoryboardDockerDock::getPageLayout(int rows, i
     for (int i = 0; i < rects.length(); i++) {
         QRectF& cellRect = rects[i];
 
-        const bool horizontal = cellRect.width() > cellRect.height(); // Determine general image / text flow orientation.
+        const bool horizontal = cellRect.width() > cellRect.height();
         ExportPageShot layout;
 
         QVector<StoryboardComment> comments = m_commentModel->getData();
@@ -794,7 +774,6 @@ StoryboardDockerDock::ExportPage StoryboardDockerDock::getPageLayout(QString lay
     ExportPage page;
     QVector<ExportPageShot> elements;
 
-    // Load DOM from file...
     QFile f(layoutSvgFileName);
     if (!f.open(QIODevice::ReadOnly ))
     {
@@ -820,7 +799,7 @@ StoryboardDockerDock::ExportPage StoryboardDockerDock::getPageLayout(QString lay
 
     QMap<int, ExportPageShot> elementMap;
 
-    { // Go through all root-level svg data and preconfigure...
+    {
         QMap<QString, QDomNode> groupsMap = rootItemsInSvg(svgDoc);
 
         KIS_ASSERT_RECOVER_RETURN_VALUE(groupsMap.contains("layout"), page);
@@ -898,7 +877,6 @@ StoryboardDockerDock::ExportPage StoryboardDockerDock::getPageLayout(QString lay
         }
     }
 
-    // Sort fetched elements and push to array to return...
     QList<int> indices = elementMap.keys();
     std::sort(indices.begin(), indices.end(), [](const int& a, const int& b){
         return a < b;

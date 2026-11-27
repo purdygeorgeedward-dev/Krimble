@@ -25,11 +25,9 @@
 #include <DummyResource.h>
 #include <ResourceTestHelper.h>
 
-
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
-
 
 void TestStorageModel::initTestCase()
 {
@@ -66,7 +64,6 @@ void TestStorageModel::testWithTagModelTester()
     Q_UNUSED(tester);
 }
 
-
 void TestStorageModel::testRowCount()
 {
     QSqlQuery q;
@@ -100,7 +97,6 @@ void TestStorageModel::testSetActive()
 
     }
 }
-
 
 void TestStorageModel::cleanupTestCase()
 {
@@ -145,9 +141,6 @@ void TestStorageModel::testImportStorage()
 {
 
 }
-
-
-
 
 SIMPLE_TEST_MAIN(TestStorageModel)
 

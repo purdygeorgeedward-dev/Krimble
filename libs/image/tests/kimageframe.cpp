@@ -38,4 +38,3 @@ void KImageFrame::paintEvent(QPaintEvent*)
     p.end();
 }
 
-// kate: hl C++; indent-width 4; replace-tabs on;

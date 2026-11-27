@@ -14,7 +14,6 @@
 #include <lager/state.hpp>
 #include <lager/extra/qt.hpp>
 
-
 class KRITAWIDGETUTILS_EXPORT KisToolBarStateModel : public QObject
 {
     Q_OBJECT
@@ -28,4 +27,4 @@ public:
     LAGER_QT_CURSOR(bool, toolBarsLocked);
 };
 
-#endif // KISTOOLBARSTATEMODEL_H
+#endif

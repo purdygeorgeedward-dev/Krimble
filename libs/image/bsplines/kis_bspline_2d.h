@@ -16,7 +16,6 @@
 
 #include "kis_bspline.h"
 
-
 namespace KisBSplines {
 
 template <class Spline>
@@ -94,10 +93,6 @@ private:
     struct Private;
     const QScopedPointer<Private> m_d;
 
-    /**
-     * We need to store them separately, because they should
-     * be accessible from the templated part
-     */
     float m_xStart;
     float m_xEnd;
     int m_numSamplesX;
@@ -109,4 +104,4 @@ private:
 
 }
 
-#endif /* __KIS_BSPLINE_2D_H */
+#endif

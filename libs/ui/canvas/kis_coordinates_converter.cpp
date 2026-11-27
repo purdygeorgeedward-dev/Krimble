@@ -21,7 +21,6 @@
 #include <KisValueCache.h>
 #include <KisPortingUtils.h>
 
-
 struct KisCoordinatesConverter::Private {
     Private():
         imageXRes(1.0),
@@ -78,20 +77,6 @@ struct KisCoordinatesConverter::Private {
         return imageToDocument.map(preferredTransformationCenterImage);
     }
 };
-
-/**
- * When vastScrolling value is less than 0.5 it is possible
- * that the whole scrolling area (viewport) will be smaller than
- * the size of the widget. In such cases the image should be
- * centered in the widget. Previously we used a special parameter
- * documentOrigin for this purpose, now the value for this
- * centering is calculated dynamically, helping the offset to
- * center the image inside the widget
- *
- * Note that the correction is null when the size of the document
- * plus vast scrolling reserve is larger than the widget. This
- * is always true for vastScrolling parameter > 0.5.
- */
 
 QPointF KisCoordinatesConverter::centeringCorrection() const
 {
@@ -154,22 +139,6 @@ QPoint KisCoordinatesConverter::maximumOffset() const
     return m_d->maximumOffset;
 }
 
-/**
- * The document offset and the position of the top left corner of the
- * image must always coincide, that is why we need to correct them to
- * and fro.
- *
- * When we change zoom level, the calculation of the new offset is
- * done by KoCanvasControllerWidget, that is why we just passively fix
- * the flakeToWidget transform to conform the offset and wait until
- * the canvas controller will recenter us.
- *
- * But when we do our own transformations of the canvas, like rotation
- * and mirroring, we cannot rely on the centering of the canvas
- * controller and we do it ourselves. Then we just set new offset and
- * return its value to be set in the canvas controller explicitly.
- */
-
 void KisCoordinatesConverter::correctOffsetToTransformationAndSnap()
 {
     m_d->documentOffset = snapToDevicePixel(-(imageRectInWidgetPixels().topLeft() -
@@ -212,7 +181,6 @@ void KisCoordinatesConverter::recalculateTransformations()
     m_d->widgetToViewport = reversedTransform * QTransform::fromTranslate(-offset.x(), -offset.y());
 }
 
-
 KisCoordinatesConverter::KisCoordinatesConverter()
     : m_d(new Private) { }
 
@@ -231,8 +199,6 @@ void KisCoordinatesConverter::setCanvasWidgetSize(QSizeF size)
     m_d->canvasWidgetSize = snapWidgetSizeToDevicePixel(size);
     recalculateTransformations();
 
-    // the widget center has changed, hence the preferred
-    // center changes as well
     resetPreferredTransformationCenter();
 }
 
@@ -246,22 +212,14 @@ void KisCoordinatesConverter::setImage(KisImageWSP image)
     m_d->imageXRes = image->xRes();
     m_d->imageYRes = image->yRes();
 
-    // we should **not** call setResolution() here, since
-    // it is a different kind of resolution that is used
-    // to convert the image to the physical size of the display
-
     m_d->imageBounds = image->bounds();
     recalculateZoomLevelLimits();
     recalculateTransformations();
 
     if (m_d->canvasWidgetSize.isEmpty()) {
-        // if setImage() comes before setCanvasWidgetSize(), then just remember the
-        // proposed mode and postpone the actual recentering of the image
-        // (this case is supposed to happen in unittests only)
         KoZoomHandler::setZoomMode(KoZoomMode::ZOOM_PAGE);
         m_d->preferredTransformationCenterImage = m_d->imageBounds.center();
     } else {
-        // the default mode after initialization is "Zoom Page"
         setZoom(KoZoomMode::ZOOM_PAGE, 777.7, resolutionX(), resolutionY(), std::nullopt);
     }
 }
@@ -270,8 +228,6 @@ void KisCoordinatesConverter::setExtraReferencesBounds(const QRect &imageRect)
 {
     if (imageRect == m_d->extraReferencesBounds) return;
 
-    // this value affects scroll range only, so no need to do extra
-    // still point tracking
     m_d->extraReferencesBounds = imageRect;
     recalculateTransformations();
 }
@@ -282,8 +238,6 @@ void KisCoordinatesConverter::setImageBounds(const QRect &rect, const QPointF ol
 
     const QPointF oldWidgetStillPoint = imageToWidget(oldImageStillPoint);
 
-    // we reset zoom mode to constant to make sure that
-    // the image changes visually for the user
     setZoomMode(KoZoomMode::ZOOM_CONSTANT);
 
     m_d->imageBounds = rect;
@@ -299,19 +253,11 @@ void KisCoordinatesConverter::setImageBounds(const QRect &rect, const QPointF ol
 
 void KisCoordinatesConverter::setImageResolution(qreal xRes, qreal yRes)
 {
-    // we consiter the center of the image to be the still point
-    // on the canvas
 
     if (qFuzzyCompare(xRes, m_d->imageXRes) && qFuzzyCompare(yRes, m_d->imageYRes)) return;
 
     const QPointF oldImageCenter = imageCenterInWidgetPixel();
 
-    // we should **not** call setResolution() here, since
-    // it is a different kind of resolution that is used
-    // to convert the image to the physical size of the display
-
-    // we reset zoom mode to constant to make sure that
-    // the image changes visually for the user
     setZoomMode(KoZoomMode::ZOOM_CONSTANT);
 
     m_d->imageXRes = xRes;
@@ -328,20 +274,7 @@ void KisCoordinatesConverter::setImageResolution(qreal xRes, qreal yRes)
 
 void KisCoordinatesConverter::setDocumentOffset(const QPointF& offset)
 {
-    // when changing the offset manually, the mode is explicitly
-    // reset to constant
     setZoomMode(KoZoomMode::ZOOM_CONSTANT);
-
-    // The given offset is in widget logical pixels. In order to prevent fuzzy
-    // canvas rendering at 100% pixel-perfect zoom level when devicePixelRatio
-    // is not integral, we adjusts the offset to map to whole device pixels.
-
-    // Steps to reproduce the issue (when no snapping):
-    // 1) Download an image with 1px vertical black and white stripes
-    // 2) Enable fractional HiDPI support in Krita
-    // 3) Set display scaling to 1.5 or 2.5
-    // 4) Try to change offset of the image. If offset is unaligned, then
-    //    the image will disappear on the canvas.
 
     m_d->documentOffset = snapToDevicePixel(offset);
     recalculateTransformations();
@@ -376,8 +309,6 @@ qreal KisCoordinatesConverter::rotationAngle() const
 
 void KisCoordinatesConverter::setZoom(qreal zoom)
 {
-    // when changing the offset manually, the mode is explicitly
-    // reset to constant, this method is used in unittests mostly
     setZoomMode(KoZoomMode::ZOOM_CONSTANT);
 
     KoZoomHandler::setZoom(zoom);
@@ -390,16 +321,7 @@ void KisCoordinatesConverter::setCanvasWidgetSizeKeepZoom(const QSizeF &size)
     setCanvasWidgetSize(size);
 
     if (zoomMode() == KoZoomMode::ZOOM_CONSTANT) {
-        // in constant mode we just preserve the document offset
-        // (as much as we can in relation to the vast scroll factor)
     } else {
-        /**
-         * WARNING: we can safely call setZoom() after changing widget size **only**
-         * for non-constant modes, because they have no still points, they always
-         * align to the center of the widget. Constant mode, reads the state of the
-         * canvas before transformation to calculate the position of the still point,
-         * hence we cannot change the state separately.
-         */
         setZoom(zoomMode(), 777.0, resolutionX(), resolutionY(), std::nullopt);
     }
 }
@@ -408,23 +330,14 @@ QSizeF KisCoordinatesConverter::snapWidgetSizeToDevicePixel(const QSizeF &size) 
 {
     if (qFuzzyCompare(m_d->devicePixelRatio, 1.0)) return size;
 
-    // This is how QOpenGLCanvas sets the FBO and the viewport size. If
-    // devicePixelRatioF() is non-integral, the result is truncated.
-    // *Correction*: The FBO size is actually rounded, but the glViewport call
-    // uses integer truncation and that's what really matters.
     const int viewportWidth = static_cast<int>(size.width() * m_d->devicePixelRatio);
     const int viewportHeight = static_cast<int>(size.height() * m_d->devicePixelRatio);
 
-    // The widget size may be an integer but here we actually want to give
-    // KisCoordinatesConverter the logical viewport size aligned to device
-    // pixels.
     return QSizeF(viewportWidth, viewportHeight) / m_d->devicePixelRatio;
 }
 
 QSize KisCoordinatesConverter::viewportDevicePixelSize() const
 {
-    // TODO: add an assert and a unittest to verify that there is no
-    //       actual rounding happens, only intolerances!
     return qFuzzyCompare(m_d->devicePixelRatio, 1.0) ?
         m_d->canvasWidgetSize.toSize() :
         (m_d->canvasWidgetSize * m_d->devicePixelRatio).toSize();
@@ -444,8 +357,6 @@ void KisCoordinatesConverter::setZoom(KoZoomMode::Mode mode, qreal zoom, qreal r
     if(mode == KoZoomMode::ZOOM_CONSTANT) {
         if(qFuzzyIsNull(zoom)) return;
 
-        /// only constant mode is a subject for clamping,
-        /// fit-modes are allowed to zoom as much as needed
         zoom = clampZoom(zoom);
 
         KoViewTransformStillPoint effectiveStillPoint =
@@ -495,8 +406,6 @@ void KisCoordinatesConverter::setZoom(KoZoomMode::Mode mode, qreal zoom, qreal r
 
         QPointF newDocumentOffset = m_d->documentOffset + offset;
 
-        // just explicitly set minimal axis offset to zero to
-        // avoid imperfections of floating point numbers
         if (fitToWidth) {
             newDocumentOffset.setX(-cfgMargin);
         } else {
@@ -543,7 +452,6 @@ qreal KisCoordinatesConverter::effectiveZoom() const
         qWarning() << "WARNING: Zoom is not isotropic!"  << ppVar(scaleX) << ppVar(scaleY) << ppVar(qFuzzyCompare(scaleX, scaleY));
     }
 
-    // zoom by average of x and y
     return 0.5 * (scaleX + scaleY);
 }
 
@@ -556,7 +464,6 @@ qreal KisCoordinatesConverter::effectivePhysicalZoom() const
         qWarning() << "WARNING: Zoom is not isotropic!"  << ppVar(scaleX) << ppVar(scaleY) << ppVar(qFuzzyCompare(scaleX, scaleY));
     }
 
-    // zoom by average of x and y
     return 0.5 * (scaleX + scaleY);
 }
 
@@ -569,7 +476,6 @@ void KisCoordinatesConverter::beginRotation()
 {
     KIS_SAFE_ASSERT_RECOVER_NOOP(!m_d->isRotating);
 
-    // Save the current transformation and angle to use as the base of the ongoing rotation.
     m_d->rotationBaseTransform = m_d->flakeToWidget;
     m_d->rotationBaseAngle = m_d->rotationAngle;
     m_d->isRotating = true;
@@ -596,13 +502,11 @@ void KisCoordinatesConverter::rotate(const std::optional<KoViewTransformStillPoi
 
     if (!m_d->isNativeGesture && m_d->isRotating)
     {
-        // Modal (begin/end) rotation. Transform from the stable base.
         m_d->flakeToWidget = m_d->rotationBaseTransform;
         m_d->rotationAngle = std::fmod(m_d->rotationBaseAngle + angle, 360.0);
     }
     else
     {
-        // Immediate rotation, directly applied to the canvas transformation.
         m_d->rotationAngle = std::fmod(m_d->rotationAngle + angle, 360.0);
     }
 
@@ -627,15 +531,13 @@ void KisCoordinatesConverter::rotate(const std::optional<KoViewTransformStillPoi
 
 void KisCoordinatesConverter::mirror(const std::optional<KoViewTransformStillPoint> &stillPoint, bool mirrorXAxis, bool mirrorYAxis)
 {
-    bool keepOrientation = false; // XXX: Keep here for now, maybe some day we can restore the parameter again.
+    bool keepOrientation = false;
 
     KoViewTransformStillPoint effectiveStillPoint =
         stillPoint ? *stillPoint :
         KoViewTransformStillPoint(m_d->preferredTransformationCenterInDocumentPixels(), widgetCenterPoint());
 
-
     if (kisSquareDistance(effectiveStillPoint.viewPoint(), widgetCenterPoint()) > 2.0) {
-        // when mirroring not against the center, reset the zoom mode
         setZoomMode(KoZoomMode::ZOOM_CONSTANT);
     }
 
@@ -664,7 +566,6 @@ void KisCoordinatesConverter::mirror(const std::optional<KoViewTransformStillPoi
 
     m_d->flakeToWidget *= QTransform::fromTranslate(effectiveStillPoint.viewPoint().x(),effectiveStillPoint.viewPoint().y());
 
-
     if (!keepOrientation && (doXMirroring ^ doYMirroring)) {
         m_d->rotationAngle = -m_d->rotationAngle;
     }
@@ -675,7 +576,6 @@ void KisCoordinatesConverter::mirror(const std::optional<KoViewTransformStillPoi
     correctOffsetToTransformationAndSnap();
 
     if (zoomMode() != KoZoomMode::ZOOM_CONSTANT) {
-        // we were "centered", so let's try to keep the offset as before
         m_d->documentOffset = oldDocumentOffset;
     } else {
         recalculateTransformations();
@@ -760,14 +660,6 @@ void KisCoordinatesConverter::getQPainterCheckersInfo(QTransform *transform,
                                                       QPolygonF *polygon,
                                                       const bool scrollCheckers) const
 {
-    /**
-     * Qt has different rounding for QPainter::drawRect/drawImage.
-     * The image is rounded mathematically, while rect in aligned
-     * to the next integer. That causes transparent line appear on
-     * the canvas.
-     *
-     * See: https://bugreports.qt.nokia.com/browse/QTBUG-22827
-     */
 
     QRectF imageRect = imageRectInViewportPixels();
     imageRect.adjust(0,0,-0.5,-0.5);
@@ -809,9 +701,6 @@ QPointF KisCoordinatesConverter::imageCenterInWidgetPixel() const
     QPolygonF poly = imageToWidget(QPolygon(m_d->imageBounds));
     return (poly[0] + poly[1] + poly[2] + poly[3]) / 4.0;
 }
-
-
-// these functions return a bounding rect if the canvas is rotated
 
 QRectF KisCoordinatesConverter::imageRectInWidgetPixels() const
 {
@@ -866,15 +755,12 @@ QPointF KisCoordinatesConverter::widgetCenterPoint() const
 
 void KisCoordinatesConverter::imageScale(qreal *scaleX, qreal *scaleY) const
 {
-    // get the x and y zoom level of the canvas
     qreal zoomX, zoomY;
     KoZoomHandler::zoom(&zoomX, &zoomY);
 
-    // Get the KisImage resolution
     qreal resX = m_d->imageXRes;
     qreal resY = m_d->imageYRes;
 
-    // Compute the scale factors
     *scaleX = zoomX / resX;
     *scaleY = zoomY / resY;
 }
@@ -886,14 +772,6 @@ void KisCoordinatesConverter::imagePhysicalScale(qreal *scaleX, qreal *scaleY) c
     *scaleY *= m_d->devicePixelRatio;
 }
 
-/**
- * @brief Adjust a given pair of coordinates to the nearest device pixel
- *        according to the value of `devicePixelRatio`.
- * @param point a point in logical pixel space
- * @return The point in logical pixel space but adjusted to the nearest device
- *         pixel
- */
-
 QPointF KisCoordinatesConverter::snapToDevicePixel(const QPointF &point) const
 {
     if (!m_d->rotationIsOrthogonal) {
@@ -901,8 +779,6 @@ QPointF KisCoordinatesConverter::snapToDevicePixel(const QPointF &point) const
     }
 
     QPoint devicePixel = (point * m_d->devicePixelRatio).toPoint();
-    // These adjusted coords will be in logical pixel but is aligned in device
-    // pixel space for pixel-perfect rendering.
     return QPointF(devicePixel) / m_d->devicePixelRatio;
 }
 
@@ -951,7 +827,7 @@ void KisCoordinatesConverter::recalculateZoomLevelLimits()
 
     m_d->minZoom = qMin(100.0 / minDimension, 0.1);
     m_d->maxZoom = 90.0;
-    m_d->standardZoomLevels.clear(); // TODO: reset only on real change!
+    m_d->standardZoomLevels.clear();
 }
 
 qreal KisCoordinatesConverter::findNextZoom(qreal currentZoom, const QVector<qreal> &zoomLevels)

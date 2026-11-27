@@ -13,14 +13,7 @@ class KRITAIMAGE_EXPORT KisCroppedOriginalLayerInterface
 public:
     virtual ~KisCroppedOriginalLayerInterface();
 
-
-    /**
-     * Force regeneration of the hidden part of original() device
-     * (the one outside image bounds). After regeneration is completed,
-     * the layer will Q_EMIT dirty signals itself, so no manual forced
-     * update is needed.
-     */
     virtual void forceUpdateHiddenAreaOnOriginal() = 0;
 };
 
-#endif // KISCROPPEDORIGINALLAYERINTERFACE_H
+#endif

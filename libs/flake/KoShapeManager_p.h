@@ -38,18 +38,10 @@ public:
         delete selection;
     }
 
-    /**
-     * Update the tree when there are shapes in m_aggregate4update. This is done so not all
-     * updates to the tree are done when they are asked for but when they are needed.
-     */
     void updateTree();
 
     void forwardCompressedUpdate();
 
-
-    /**
-     * Recursively detach the shapes from this shape manager
-     */
     void unlinkFromShapesRecursively(const QList<KoShape *> &shapes);
 
     QList<KoShape *> shapes;

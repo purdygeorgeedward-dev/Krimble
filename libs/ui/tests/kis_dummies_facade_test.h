@@ -9,7 +9,6 @@
 
 #include "kis_dummies_facade_base_test.h"
 
-
 class KisDummiesFacadeTest : public KisDummiesFacadeBaseTest
 {
     Q_OBJECT
@@ -22,4 +21,4 @@ protected:
     void destroyDummiesFacade(KisDummiesFacadeBase *dummiesFacade) override;
 };
 
-#endif /* __KIS_DUMMIES_FACADE_TEST_H */
+#endif

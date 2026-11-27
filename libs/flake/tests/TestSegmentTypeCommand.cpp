@@ -19,7 +19,6 @@ void TestSegmentTypeCommand::changeToCurve()
     QList<KoPathPointData> segments;
     segments.append(segment);
 
-    // get first segment
     KoPathSegment s = path.segmentByIndex(KoPathPointIndex(0,0));
 
     KoPathSegmentTypeCommand cmd(segments, KoPathSegmentTypeCommand::Curve);
@@ -48,7 +47,6 @@ void TestSegmentTypeCommand::changeToLine()
     QList<KoPathPointData> segments;
     segments.append(segment);
 
-    // get first segment
     KoPathSegment s = path.segmentByIndex(KoPathPointIndex(0,0));
 
     KoPathSegmentTypeCommand cmd(segments, KoPathSegmentTypeCommand::Line);

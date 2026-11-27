@@ -8,28 +8,22 @@
 
 #include <QRect>
 #include <QRectF>
-// no forward-declaration, used to get GL* primitive types defined
 #include <QOpenGLFunctions>
 
 #include "kis_opengl.h"
-
 
 class KisOpenGLBufferCircularStorage;
 class KisTextureTileUpdateInfo;
 class QOpenGLBuffer;
 
-
 struct KisGLTexturesInfo {
 
-    // real width and height
     int width {0};
     int height {0};
 
-    // width and height minus border padding?
     int effectiveWidth {1};
     int effectiveHeight {1};
 
-    // size of the border padding
     int border {0};
 
     GLint internalFormat {0};
@@ -69,11 +63,6 @@ public:
 
     QRectF imageRectInTexturePixels(const QRect &imageRect) const;
 
-    /**
-     * Binds the tile's texture to the current GL_TEXTURE_2D binding point,
-     * regenerates the mipmap if needed and returns the levelOfDetail that
-     * should be used for painting
-     */
     int bindToActiveTexture(bool blockMipmapRegeneration);
 
 private:
@@ -100,5 +89,5 @@ private:
     Q_DISABLE_COPY(KisTextureTile)
 };
 
-#endif /* KIS_TEXTURE_TILE_H_ */
+#endif
 

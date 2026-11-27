@@ -30,7 +30,6 @@ public:
     }
 
     void createClipPathShapes() {
-        // check if we have already created the clip path shapes
         if (!clipPathShapes.isEmpty())
             return;
 
@@ -51,9 +50,7 @@ public:
                 clipPathShapes.append(pathShape);
             }
 
-            // apply transformations
             Q_FOREACH (KoPathShape *pathShape, clipPathShapes) {
-                // apply transformation so that it matches the current clipped shapes clip path
                 pathShape->applyAbsoluteTransformation(clipPath->clipDataTransformation(shape));
                 pathShape->setZIndex(shape->zIndex() + 1);
                 clipPathParents.append(shape->parent());
@@ -66,7 +63,6 @@ public:
     QList<KoPathShape*> clipPathShapes;
     QList<KoShapeContainer*> clipPathParents;
 
-    // TODO: damn! this is not a controller, this is a document! Needs refactoring!
     KoShapeControllerBase *controller;
 
     bool executed;

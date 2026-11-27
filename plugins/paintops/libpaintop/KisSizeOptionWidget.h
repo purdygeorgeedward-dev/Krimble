@@ -26,5 +26,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-
-#endif // KISSIZEOPTIONWIDGET_H
+#endif

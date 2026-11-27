@@ -41,5 +41,4 @@ protected:
     KisOptimizedByteArray::MemoryAllocatorSP m_memoryAllocator;
 };
 
-
-#endif //KRITA_KISCOLORSMUDGESTRATEGY_H
+#endif

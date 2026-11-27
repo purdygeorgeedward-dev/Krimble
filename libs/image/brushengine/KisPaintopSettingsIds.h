@@ -20,4 +20,4 @@ KRITAIMAGE_EXPORT extern const char MaskingBrushPresetPrefix[];
 
 }
 
-#endif // KISPAINTOPSETTINGSIDS_H
+#endif

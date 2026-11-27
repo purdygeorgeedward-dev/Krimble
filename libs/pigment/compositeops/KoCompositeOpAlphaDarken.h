@@ -12,9 +12,6 @@
 #include "KoCompositeOpBase.h"
 #include <KoCompositeOpRegistry.h>
 
-/**
- * A template version of the alphadarken composite operation to use in colorspaces
- */
 template<class Traits, class ParamsWrapper>
 class KoCompositeOpAlphaDarken: public KoCompositeOp
 {
@@ -106,23 +103,7 @@ public:
         channels_type fullFlowAlpha;
         channels_type averageOpacity = scale<channels_type>(paramsWrapper.averageOpacity);
 
-        /**
-         * Here we calculate fullFlowAlpha, which should strive either to
-         * averageOpacity or opacity (whichever is the greater) or just keep old dstAlpha
-         * value, if both opacity values are not bit enough
-         */
         if (averageOpacity > opacity) {
-            /**
-             * This cryptic code is basically an optimized version of the following:
-             * fullFlowAlpha = averageOpacity *
-             *                     unionShapeOpacity(srcAlpha / averageOpacity,
-             *                                       dstAlpha / averageOpacity);
-             *
-             * The main idea is: fullFlowAlpha should be as near to averageOpacity as
-             * maximum of srcAlpha and dstAlpha and a bit more. So that in consequent
-             * applications of the blending operation alpha channel would aim to
-             * averageOpacity.
-             */
 
             channels_type reverseBlend = KoColorSpaceMaths<channels_type>::divide(dstAlpha, averageOpacity);
             fullFlowAlpha = averageOpacity > dstAlpha ? lerp(srcAlpha, averageOpacity, reverseBlend) : dstAlpha;
@@ -139,4 +120,4 @@ public:
     }
 };
 
-#endif // KOCOMPOSITEOPALPHADARKEN_H_
+#endif

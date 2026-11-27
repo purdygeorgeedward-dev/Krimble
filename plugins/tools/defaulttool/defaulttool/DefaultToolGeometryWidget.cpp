@@ -44,7 +44,6 @@
 #include "kis_icon.h"
 #include <kis_canvas2.h>
 
-
 DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QWidget *parent)
     : QWidget(parent)
     , m_tool(tool)
@@ -55,12 +54,9 @@ DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QW
 
     setUnit(KoUnit(KoUnit::Point));
 
-    // Connect and initialize automated aspect locker
     m_sizeAspectLocker->connectSpinBoxes(widthSpinBox, heightSpinBox, aspectButton);
     aspectButton->setKeepAspectRatio(false);
 
-
-    // TODO: use valueChanged() instead!
     connect(positionXSpinBox, SIGNAL(valueChangedPt(qreal)), this, SLOT(slotRepositionShapes()));
     connect(positionYSpinBox, SIGNAL(valueChangedPt(qreal)), this, SLOT(slotRepositionShapes()));
 
@@ -76,10 +72,6 @@ DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QW
     connect(chkGlobalCoordinates, SIGNAL(toggled(bool)), SLOT(slotUpdateSizeBoxes()));
     connect(chkGlobalCoordinates, SIGNAL(toggled(bool)), SLOT(slotUpdateAspectButton()));
 
-
-    /**
-     * A huge block of self-blocking acyclic connections
-     */
     KisAcyclicSignalConnector *acyclicConnector = new KisAcyclicSignalConnector(this);
     acyclicConnector->connectForwardVoid(m_sizeAspectLocker.data(), SIGNAL(aspectButtonChanged()), this, SLOT(slotAspectButtonToggled()));
     acyclicConnector->connectBackwardVoid(selectedShapesProxy, SIGNAL(selectionChanged()), this, SLOT(slotUpdateAspectButton()));
@@ -92,8 +84,6 @@ DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QW
     KisAcyclicSignalConnector *contentSizeConnector = acyclicConnector->createCoordinatedConnector();
     contentSizeConnector->connectBackwardVoid(selectedShapesProxy, SIGNAL(selectionContentChanged()), this, SLOT(slotUpdateSizeBoxesNoAspectChange()));
 
-
-    // Connect and initialize anchor point resource
     KoCanvasResourceProvider *resourceManager = m_tool->canvas()->resourceManager();
     connect(resourceManager,
             SIGNAL(canvasResourceChanged(int,QVariant)),
@@ -101,7 +91,6 @@ DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QW
     resourceManager->setResource(DefaultTool::HotPosition, int(KoFlake::AnchorPosition::Center));
     positionSelector->setValue(KoFlake::AnchorPosition(resourceManager->resource(DefaultTool::HotPosition).toInt()));
 
-    // Connect anchor point selector
     connect(positionSelector, SIGNAL(valueChanged(KoFlake::AnchorPosition)), SLOT(slotAnchorPointChanged()));
 
     cmbPaintOrder->setIconSize(QSize(22, 22));
@@ -125,7 +114,6 @@ DefaultToolGeometryWidget::DefaultToolGeometryWidget(KoInteractionTool *tool, QW
 
     connect(dblOpacity, SIGNAL(valueChanged(qreal)), SLOT(slotOpacitySliderChanged(qreal)));
 
-    // cold init
     slotUpdateOpacitySlider();
 }
 
@@ -164,11 +152,6 @@ QRectF calculateSelectionBounds(KoSelection *selection,
     if (useGlobalSize) {
         resultRect = shape->absoluteTransformation().mapRect(resultRect);
     } else {
-        /**
-         * Some shapes, e.g. KoSelection and KoShapeGroup don't have real size() and
-         * do all the resizing with transformation(), just try to cover this case and
-         * fetch their scale using the transform.
-         */
 
         KisAlgebra2D::DecomposedMatrix matrix(shape->transformation());
         resultRect = matrix.scaleTransform().mapRect(resultRect);
@@ -218,7 +201,6 @@ void DefaultToolGeometryWidget::slotUpdateCheckboxes()
         chkUniformScaling->setEnabled(uniformScalingAvailable);
     }
 
-    // TODO: not implemented yet!
     chkAnchorLock->setEnabled(false);
 }
 
@@ -253,7 +235,7 @@ void DefaultToolGeometryWidget::slotUpdateAspectButton()
         if (hasKeepAspectRatio && hasNotKeepAspectRatio) break;
     }
 
-    Q_UNUSED(hasNotKeepAspectRatio); // TODO: use for tristated mode of the checkbox
+    Q_UNUSED(hasNotKeepAspectRatio);
 
     const bool useGlobalSize = chkGlobalCoordinates->isChecked();
     const KoFlake::AnchorPosition anchor = positionSelector->value();
@@ -263,24 +245,6 @@ void DefaultToolGeometryWidget::slotUpdateAspectButton()
     aspectButton->setKeepAspectRatio(hasKeepAspectRatio && !hasNullDimensions);
     aspectButton->setEnabled(!hasNullDimensions);
 }
-
-//namespace {
-//qreal calculateCommonShapeTransparency(const QList<KoShape*> &shapes)
-//{
-//    qreal commonTransparency = -1.0;
-
-//    Q_FOREACH (KoShape *shape, shapes) {
-//        if (commonTransparency < 0) {
-//            commonTransparency = shape->transparency();
-//        } else if (!qFuzzyCompare(commonTransparency, shape->transparency())) {
-//            commonTransparency = -1.0;
-//            break;
-//        }
-//    }
-
-//    return commonTransparency;
-//}
-//}
 
 void DefaultToolGeometryWidget::slotOpacitySliderChanged(qreal newOpacity)
 {
@@ -499,7 +463,6 @@ void DefaultToolGeometryWidget::setUnit(const KoUnit &unit)
     widthSpinBox->setDecimals(2);
     heightSpinBox->setDecimals(2);
 
-    // here we need to ensure that even for pixels unit, we can use decimals
     positionXSpinBox->preventDecimalsChangeFromUnitManager(true);
     positionYSpinBox->preventDecimalsChangeFromUnitManager(true);
     widthSpinBox->preventDecimalsChangeFromUnitManager(true);

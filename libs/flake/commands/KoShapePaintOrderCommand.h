@@ -19,9 +19,7 @@ public:
     KoShapePaintOrderCommand(const QList<KoShape *> &shapes, KoShape::PaintOrder first, KoShape::PaintOrder second, KUndo2Command *parent = nullptr);
 
     ~KoShapePaintOrderCommand() override;
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 
     int id() const override;
@@ -32,4 +30,4 @@ private:
     Private * const d;
 };
 
-#endif // KOSHAPEPAINTORDERCOMMAND_H
+#endif

@@ -16,7 +16,6 @@
 #include "kis_global.h"
 #include "kis_assert.h"
 
-
 KoInteractionTool::KoInteractionTool(KoCanvasBase *canvas)
     : KoToolBase(*(new KoInteractionToolPrivate(this, canvas)))
 {
@@ -34,7 +33,6 @@ void KoInteractionTool::paint(QPainter &painter, const KoViewConverter &converte
         d->currentStrategy->paint(painter, converter, canvas()->displayRendererInterface());
     } else {
         Q_FOREACH (KoInteractionStrategyFactorySP factory, d->interactionFactories) {
-            // skip the rest of rendering if the factory asks for it
             if (factory->paintOnHover(painter, converter, canvas()->displayRendererInterface())) break;
         }
     }
@@ -43,7 +41,7 @@ void KoInteractionTool::paint(QPainter &painter, const KoViewConverter &converte
 void KoInteractionTool::mousePressEvent(KoPointerEvent *event)
 {
     Q_D(KoInteractionTool);
-    if (d->currentStrategy) { // possible if the user presses an extra mouse button
+    if (d->currentStrategy) {
         cancelCurrentStrategy();
         return;
     }
@@ -61,7 +59,6 @@ void KoInteractionTool::mouseMoveEvent(KoPointerEvent *event)
         d->currentStrategy->handleMouseMove(d->lastPoint, event->modifiers());
     } else {
         Q_FOREACH (KoInteractionStrategyFactorySP factory, d->interactionFactories) {
-            // skip the rest of rendering if the factory asks for it
             if (factory->hoverEvent(event)) return;
         }
 

@@ -13,18 +13,16 @@
 #include "commands/kis_selection_commands.h"
 #include "kis_selection.h"
 
-
 void KisSelectionDecorationTest::testConcurrentSelectionFetches()
 {
     KisImageSP image = utils::createImage(0, QSize(3000, 3000));
 
     for (int i = 0; i < 10000; i++) {
         KisProcessingApplicator applicator(image,
-                                           0 /* we need no automatic updates */,
+                                           0 ,
                                            KisProcessingApplicator::SUPPORTS_WRAPAROUND_MODE,
                                            KisImageSignalVector(),
                                            kundo2_noi18n("test stroke"));
-
 
         applicator.applyCommand(new KisSetEmptyGlobalSelectionCommand(image), KisStrokeJobData::SEQUENTIAL, KisStrokeJobData::EXCLUSIVE);
         applicator.applyCommand(new KisDeselectGlobalSelectionCommand(image), KisStrokeJobData::SEQUENTIAL, KisStrokeJobData::EXCLUSIVE);

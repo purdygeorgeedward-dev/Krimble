@@ -36,7 +36,6 @@ bool Palette::operator!=(const Palette &other) const
     return !(operator==(other));
 }
 
-
 int Palette::numberOfEntries() const
 {
     if (!d->palette) return 0;

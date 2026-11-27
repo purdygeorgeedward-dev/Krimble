@@ -15,7 +15,6 @@
 #include "kis_canvas2.h"
 #include "KisViewManager.h"
 
-
 BrushHudDock::BrushHudDock( )
     : QDockWidget(i18nc("@title:window On-Canvas Brush Editor panel", "On-Canvas Brush Editor"))
     , m_canvas(0)

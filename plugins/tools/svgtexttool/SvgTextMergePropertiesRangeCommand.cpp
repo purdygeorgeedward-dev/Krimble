@@ -25,7 +25,6 @@ SvgTextMergePropertiesRangeCommand::SvgTextMergePropertiesRangeCommand(KoSvgText
 {
     setText(kundo2_i18n("Change Text Properties"));
 
-    // Some properties may change cursor pos count, so we need the indices.
     m_startIndex = m_shape->indexForPos(qMin(pos, anchor));
     m_endIndex = m_shape->indexForPos(qMax(pos, anchor));
 }
@@ -58,14 +57,6 @@ bool SvgTextMergePropertiesRangeCommand::mergeWith(const KUndo2Command *other)
     if (!command || command->m_shape != m_shape || m_startIndex != command->m_startIndex || m_endIndex != command->m_endIndex) {
         return false;
     }
-
-    /**
-     * The merging algorithm should follow the ordering of
-     * KoSvgTextShape::mergePropertiesIntoRange, that is, firstly,
-     * the properties in @p removeProperties list are removed,
-     * then properties in @p properties are applied. If the property is
-     * present in both lists, then the value from @p properties is used.
-     */
 
     Q_FOREACH(KoSvgTextProperties::PropertyId p, command->m_removeProperties) {
         m_props.removeProperty(p);

@@ -59,7 +59,7 @@ bool KisFilterMask::filterNeedsTransparentPixels() const
     if (!cs) return false;
 
     QMutexLocker l(&m_d->transparentPixelsCacheLock);
-    
+
     if (m_d->needsTransparentPixelsCache) {
         if (*m_d->needsTransparentPixelsCache->colorSpace != *cs) {
             m_d->needsTransparentPixelsCache = std::nullopt;
@@ -174,10 +174,6 @@ QRect KisFilterMask::exactBounds() const
 
 QRect KisFilterMask::changeRect(const QRect &rect, PositionToFilthy pos) const
 {
-    /**
-     * FIXME: This check of the emptiness should be done
-     * on the higher/lower level
-     */
     if (rect.isEmpty()) return rect;
 
     QRect filteredRect = rect;
@@ -192,30 +188,14 @@ QRect KisFilterMask::changeRect(const QRect &rect, PositionToFilthy pos) const
         filteredRect = filter->changedRect(rect, filterConfig.data(), lod);
     }
 
-    /**
-     * We can't paint outside a selection, that is why we call
-     * KisMask::changeRect to crop actual change area in the end
-     */
     filteredRect = KisMask::changeRect(filteredRect, pos);
 
-    /**
-     * FIXME: Think over this solution
-     * Union of rects means that changeRect returns NOT the rect
-     * changed by this very layer, but an accumulated rect changed
-     * by all underlying layers. Just take into account and change
-     * documentation accordingly
-     */
     return rect | filteredRect;
 }
 
 QRect KisFilterMask::needRect(const QRect& rect, PositionToFilthy pos) const
 {
     Q_UNUSED(pos);
-
-    /**
-     * FIXME: This check of the emptiness should be done
-     * on the higher/lower level
-     */
 
     if(rect.isEmpty()) return rect;
 
@@ -228,12 +208,6 @@ QRect KisFilterMask::needRect(const QRect& rect, PositionToFilthy pos) const
 
     KisFilterSP filter = KisFilterRegistry::instance()->value(filterConfig->name());
 
-    /**
-     * If we need some additional pixels even outside of a selection
-     * for accurate layer filtering, we'll get them!
-     * And no KisMask::needRect will prevent us from doing this! ;)
-     * That's why simply we do not call KisMask::needRect here :)
-     */
     return filter->neededRect(rect, filterConfig.data(), lod);
 }
 

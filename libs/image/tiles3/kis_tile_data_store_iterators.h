@@ -11,20 +11,6 @@
 #include "kis_tile_data.h"
 #include "kis_debug.h"
 
-/**
- * KisTileDataStoreIterator,
- * KisTileDataStoreReverseIterator,
- * KisTileDataStoreClockIterator
- * - are general iterators for the contents of KisTileDataStore.
- * The store starts holding a lock when returns one of such
- * iterators, so no one will be able to change the list while
- * you are iterating.
- *
- * But be careful! You can't change the list while iterating either,
- * because it can invalidate the iterator. This is a general rule.
- */
-
-
 class KisTileDataStoreIterator
 {
 public:
@@ -156,5 +142,5 @@ private:
     int m_finalPosition;
 };
 
-#endif /* KIS_TILE_DATA_STORE_ITERATORS_H_ */
+#endif
 

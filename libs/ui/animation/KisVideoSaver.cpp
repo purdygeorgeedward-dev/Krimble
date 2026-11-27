@@ -95,8 +95,6 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
         settings.inputFiles.append(inputDir + savedFile);
     }
 
-    // MLT can't read from Android content URIs, so we have to copy the file
-    // into temporary storage and get a real path for it.
     QTemporaryFile audioFile;
     if (format->supportsAudio() && options.includeAudio) {
         QVector<QFileInfo> audioFiles = m_doc->getAudioTracks();
@@ -112,15 +110,6 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
         }
     }
 
-    // This whole batchMode business is either a vestige or was never actually
-    // implemented to completion. It's *supposed* to not show dialogs if Krita
-    // is run in batch mode via the command line, but it's not actually wired up
-    // properly. KisAnimationRender always sets it to false with a TODO to fetch
-    // it correctly and the ffmpeg code here never sets it either, meaning it'll
-    // always be false. For consistency, I've made KisMediaEncoderWrapper behave
-    // the same, even if it's kind of pointless. But if you're working on this
-    // in the future, you should be able to do the same thing for this code path
-    // as you're doing for the ffmpeg one.
     bool batchMode = false;
     return KisMediaEncoderWrapper().start(settings, batchMode);
 #else
@@ -140,7 +129,6 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
     const KisTimeSpan clipRange = KisTimeSpan::fromTimeToTime(options.firstFrame,
                                                               options.lastFrame);
 
-     // export dimensions could be off a little bit, so the last force option tweaks the pixels for the export to work
     const QString exportDimensions =
         QString("scale=w=")
             .append(QString::number(options.width))
@@ -148,10 +136,9 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
             .append(QString::number(options.height))
             .append(":flags=")
             .append(options.scaleFilter);
-            //.append(":force_original_aspect_ratio=decrease"); HOTFIX for even:odd dimension images.
 
     const QString resultFile = options.resolveAbsoluteVideoFilePath();
-    const QFileInfo resultFileInfo(resultFile);  
+    const QFileInfo resultFileInfo(resultFile);
     const QDir videoDir(resultFileInfo.absolutePath());
 
     const QString suffix = resultFileInfo.suffix().toLower();
@@ -160,17 +147,17 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
     QStringList additionalOptionsList = options.customFFMpegOptions.split(' ', Qt::SkipEmptyParts);
 
     QScopedPointer<KisFFMpegWrapper> ffmpegWrapper(new KisFFMpegWrapper(this));
-    
+
     {
         QStringList paletteArgs;
         QStringList simpleFilterArgs;
         QStringList complexFilterArgs;
         QStringList args;
-        
-        args << "-y" // Auto Confirm...
-             << "-r" << QString::number(options.frameRate) // Frame rate for video...
+
+        args << "-y"
+             << "-r" << QString::number(options.frameRate)
              << "-start_number" << QString::number(sequenceStart) << "-start_number_range" << "1"
-             << "-i" << savedFilesMask; // Input frame(s) file mask..
+             << "-i" << savedFilesMask;
 
         const int lavfiOptionsIndex = additionalOptionsList.indexOf("-lavfi");
 
@@ -178,28 +165,28 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
             complexFilterArgs << additionalOptionsList.takeAt(lavfiOptionsIndex + 1);
 
             additionalOptionsList.removeAt( lavfiOptionsIndex );
-        }                  
-      
+        }
+
         if ( options.videoMimeType == "image/gif" ) {
             paletteArgs << "-r" << QString::number(options.frameRate)
                         << "-start_number" << QString::number(sequenceStart) << "-start_number_range" << "1"
                         << "-i" << savedFilesMask;
-            
+
             const int paletteOptionsIndex = additionalOptionsList.indexOf("-palettegen");
             QString palettegenString = "palettegen";
-            
+
             if ( paletteOptionsIndex != -1 ) {
                 palettegenString = additionalOptionsList.takeAt(paletteOptionsIndex + 1);
 
                 additionalOptionsList.removeAt( paletteOptionsIndex );
             }
-                        
+
             if (m_image->width() != options.width || m_image->height() != options.height) {
                 paletteArgs << "-vf" << (exportDimensions + "," + palettegenString );
             } else {
                 paletteArgs << "-vf" << palettegenString;
             }
-                 
+
             paletteArgs << "-y" << palettePath;
 
             QStringList ffmpegArgs;
@@ -214,23 +201,22 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
             ffmpegSettings.progressMessage = i18nc("Animation export dialog for palette exporting. arg1: file-suffix",
                                                "Creating palette for %1 file format.", "[suffix]");
             ffmpegSettings.logPath = QDir::tempPath() + QDir::separator() + "krita" + QDir::separator() + "ffmpeg.log";
-            
+
             KisImportExportErrorCode result = ffmpegWrapper->start(ffmpegSettings);
 
             if (!result.isOk()) {
                 return result;
             }
-            
+
             if (lavfiOptionsIndex == -1) {
                 complexFilterArgs << "[0:v][1:v] paletteuse";
             }
-            
+
             args << "-i" << palettePath;
 
-            // We need to kill the process so we can reuse it later down the chain. BUG:446320
             ffmpegWrapper->reset();
         }
-        
+
         QVector<QFileInfo> audioFiles = m_doc->getAudioTracks();
         if (options.includeAudio && audioFiles.count() > 0 && audioFiles.first().exists()) {
             QFileInfo audioFileInfo = audioFiles.first();
@@ -246,26 +232,23 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
             args << "-t" << QLocale::c().toString(durationTime, ffmpegTimeFormat);
             args << "-i" << audioFileInfo.absoluteFilePath();
         }
-      
-        // if we are exporting out at a different image size, we apply scaling filter
-        // export options HAVE to go after input options, so make sure this is after the audio import
+
         if (m_image->width() != options.width || m_image->height() != options.height) {
             simpleFilterArgs << exportDimensions;
         }
 
-        if ( !complexFilterArgs.isEmpty() ) { 
+        if ( !complexFilterArgs.isEmpty() ) {
             args << "-lavfi" << (!simpleFilterArgs.isEmpty() ? simpleFilterArgs.join(",").append("[0:v];"):"") + complexFilterArgs.join(";");
         } else if ( !simpleFilterArgs.isEmpty() ) {
             args << "-vf" << simpleFilterArgs.join(",");
         }
-        
+
         args << additionalOptionsList;
 
         dbgFile << "savedFilesMask" << savedFilesMask
                 << "save files offset" << sequenceStart
-                << "start" << QString::number(clipRange.start()) 
+                << "start" << QString::number(clipRange.start())
                 << "duration" << clipRange.duration();
-
 
         KisFFMpegWrapperSettings ffmpegSettings;
         ffmpegSettings.processPath = options.ffmpegPath;
@@ -278,7 +261,6 @@ KisImportExportErrorCode KisAnimationVideoSaver::encode(const QString &framesDir
 
         resultOuter = ffmpegWrapper->start(ffmpegSettings);
     }
-     
 
     return resultOuter;
 #endif

@@ -11,7 +11,6 @@
 #include <QList>
 #include "recorder_export_settings.h"
 
-
 class KisConfig;
 class QSize;
 
@@ -88,4 +87,4 @@ bool operator==(const RecorderProfile &left, const RecorderProfile &right);
 bool operator!=(const RecorderProfile &left, const RecorderProfile &right);
 #endif
 
-#endif // RECORDER_EXPORT_CONFIG_H
+#endif

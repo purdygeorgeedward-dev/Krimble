@@ -29,7 +29,6 @@ public:
         , m_psize(cs->pixelSize())
         , m_chanCount(cs->channelCount())
     {
-        // Only invert COLOR channels
         const QList<KoChannelInfo *> channels = cs->channels();
         for(quint8 i = 0; i < m_chanCount; i++){
             if(channels.at(i)->channelType() == KoChannelInfo::COLOR)
@@ -64,25 +63,6 @@ public:
             dst += m_psize;
         }
     }
-
-    // Once CMYK and LAB 32 float are normalized, this inverts will invert properly
-//    template<typename T>
-//    void transformC(const quint8 *src, quint8 *dst, qint32 nPixels) const {
-//        QVector<float> normChan(m_chanCount);
-
-//        float *m_rgba;
-//        float *m_dst = (float*)(dst);
-//        while (nPixels--) {
-//            m_colorSpace->normalisedChannelsValue(src, normChan);
-//            for(quint8 i : m_channels){
-//                normChan[i] = KoColorSpaceMaths<float>::invert(normChan[i]);
-//            }
-//            m_colorSpace->fromNormalisedChannelsValue(dst,normChan);
-//            //m_rgba += m_psize;
-//            src += m_psize;
-//            dst += m_psize;
-//        }
-//    }
 
 protected:
     QList<quint8> m_channels;
@@ -153,7 +133,6 @@ public:
         transformGen(src,dst,nPixels);
     }
 };
-
 
 class KoInvertColorTransformation
 {

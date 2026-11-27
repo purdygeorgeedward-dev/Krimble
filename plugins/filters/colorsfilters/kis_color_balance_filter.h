@@ -12,7 +12,6 @@
 #include "ui_wdg_color_balance.h"
 #include "filter/kis_color_transformation_filter.h"
 
-
 class QWidget;
 class KoColorTransformation;
 

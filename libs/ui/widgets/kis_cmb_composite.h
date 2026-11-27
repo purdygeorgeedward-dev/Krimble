@@ -36,7 +36,6 @@ private:
     KisSortedCompositeOpListModel *m_model;
 };
 
-
 class KRITAUI_EXPORT KisCompositeOpComboBox: public KisSqueezedComboBox
 {
     Q_OBJECT
@@ -104,4 +103,4 @@ public:
     KisLayerStyleCompositeOpComboBox(QWidget* parent = 0);
 };
 
-#endif // KIS_COMPOSITEOP_WIDGETS_H_
+#endif

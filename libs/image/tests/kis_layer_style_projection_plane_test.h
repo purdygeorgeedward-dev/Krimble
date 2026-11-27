@@ -41,4 +41,4 @@ private:
 
 };
 
-#endif /* __KIS_LAYER_STYLE_PROJECTION_PLANE_TEST_H */
+#endif

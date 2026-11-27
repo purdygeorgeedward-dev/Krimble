@@ -29,4 +29,4 @@ public:
     KisImportExportErrorCode writeImage(KisGroupLayerSP rootLayer);
 };
 
-#endif // _KIS_TIFF_PSD_WRITER_VISITOR_H
+#endif

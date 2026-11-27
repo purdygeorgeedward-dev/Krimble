@@ -20,10 +20,8 @@
 
 const qreal MIN_DISTANCE_SPACING = 0.5;
 
-// Smallest allowed interval when timed spacing is enabled, in milliseconds.
 const qreal MIN_TIMED_INTERVAL = 0.5;
 
-// Largest allowed interval when timed spacing is enabled, in milliseconds.
 const qreal MAX_TIMED_INTERVAL = LONG_TIME;
 
 struct Q_DECL_HIDDEN KisDistanceInformation::Private {
@@ -43,26 +41,21 @@ struct Q_DECL_HIDDEN KisDistanceInformation::Private {
     {
     }
 
-    // Accumulators of time/distance passed since the last painted dab
     QPointF accumDistance;
     qreal accumTime;
 
     KisSpacingInformation spacing;
     qreal spacingUpdateInterval;
-    // Accumulator of time passed since the last spacing update
     qreal timeSinceSpacingUpdate;
 
     KisTimingInformation timing;
     qreal timingUpdateInterval;
-    // Accumulator of time passed since the last timing update
     qreal timeSinceTimingUpdate;
 
-    // Information about the last position considered (not necessarily a painted dab)
     QPointF lastPosition;
     qreal lastAngle;
     bool lastDabInfoValid;
 
-    // Information about the last painted dab
     KisPaintInformation lastPaintInformation;
     bool lastPaintInfoValid;
 
@@ -86,8 +79,6 @@ struct Q_DECL_HIDDEN KisDistanceInitInfo::Private {
     {
     }
 
-
-    // Indicates whether lastPosition,  and lastAngle are valid or not.
     bool hasLastInfo;
 
     QPointF lastPosition;
@@ -407,7 +398,6 @@ qreal KisDistanceInformation::getNextPointPosition(const QPointF &start,
                                                    qreal startTime,
                                                    qreal endTime)
 {
-    // Compute interpolation factor based on distance.
     qreal distanceFactor = -1.0;
     if (m_d->spacing.isDistanceSpacingEnabled()) {
         distanceFactor = m_d->spacing.isIsotropic() ?
@@ -415,13 +405,11 @@ qreal KisDistanceInformation::getNextPointPosition(const QPointF &start,
             getNextPointPositionAnisotropic(start, end);
     }
 
-    // Compute interpolation factor based on time.
     qreal timeFactor = -1.0;
     if (m_d->timing.isTimedSpacingEnabled()) {
         timeFactor = getNextPointPositionTimed(startTime, endTime);
     }
 
-    // Return the distance-based or time-based factor, whichever is smallest.
     qreal t = -1.0;
     if (distanceFactor < 0.0) {
         t = timeFactor;
@@ -431,14 +419,11 @@ qreal KisDistanceInformation::getNextPointPosition(const QPointF &start,
         t = qMin(distanceFactor, timeFactor);
     }
 
-    // If we aren't ready to paint a dab, accumulate time for the spacing/timing updates that might
-    // be needed between dabs.
     if (t < 0.0) {
         m_d->timeSinceSpacingUpdate += endTime - startTime;
         m_d->timeSinceTimingUpdate += endTime - startTime;
     }
 
-    // If we are ready to paint a dab, reset the accumulated time for spacing/timing updates.
     else {
         m_d->timeSinceSpacingUpdate = 0.0;
         m_d->timeSinceTimingUpdate = 0.0;
@@ -472,8 +457,6 @@ qreal KisDistanceInformation::getNextPointPositionIsotropic(const QPointF &start
 
     qreal t;
 
-    // nextPointDistance can sometimes be negative if the spacing info has been modified since the
-    // last interpolation attempt. In that case, have a point painted immediately.
     if (nextPointDistance <= 0.0) {
         resetAccumulators();
         t = 0.0;
@@ -504,15 +487,12 @@ qreal KisDistanceInformation::getNextPointPositionAnisotropic(const QPointF &sta
 
     qreal gamma = pow2(x * a_rev) + pow2(y * b_rev) - 1;
 
-    // If the distance accumulator is already past the spacing ellipse, have a point painted
-    // immediately. This can happen if the spacing info has been modified since the last
-    // interpolation attempt.
     if (gamma >= 0.0) {
         resetAccumulators();
         return 0.0;
     }
 
-    static const qreal eps = 2e-3; // < 0.2 deg
+    static const qreal eps = 2e-3;
 
     qreal currentRotation = m_d->spacing.rotation();
     if (m_d->spacing.coordinateSystemFlipped()) {
@@ -523,8 +503,6 @@ qreal KisDistanceInformation::getNextPointPositionAnisotropic(const QPointF &sta
 
     if (currentRotation > eps) {
         QTransform rot;
-        // since the ellipse is symmetrical, the sign
-        // of rotation doesn't matter
         rot.rotateRadians(currentRotation);
         diff = rot.map(diff);
     }
@@ -557,7 +535,6 @@ qreal KisDistanceInformation::getNextPointPositionAnisotropic(const QPointF &sta
 qreal KisDistanceInformation::getNextPointPositionTimed(qreal startTime,
                                                         qreal endTime)
 {
-    // If start time is not before end time, do not interpolate.
     if (!(startTime < endTime)) {
         return -1.0;
     }
@@ -565,11 +542,9 @@ qreal KisDistanceInformation::getNextPointPositionTimed(qreal startTime,
     qreal timedSpacingInterval = qBound(MIN_TIMED_INTERVAL, m_d->timing.timedSpacingInterval(),
                                         MAX_TIMED_INTERVAL);
     qreal nextPointInterval = timedSpacingInterval - m_d->accumTime;
-    
+
     qreal t = -1.0;
 
-    // nextPointInterval can sometimes be negative if the spacing info has been modified since the
-    // last interpolation attempt. In that case, have a point painted immediately.
     if (nextPointInterval <= 0.0) {
         resetAccumulators();
         t = 0.0;
@@ -582,7 +557,7 @@ qreal KisDistanceInformation::getNextPointPositionTimed(qreal startTime,
         m_d->accumTime += endTime - startTime;
         t = -1.0;
     }
-    
+
     return t;
 }
 
@@ -607,7 +582,6 @@ void KisDistanceInformation::lockCurrentDrawingAngle(const KisPaintInformation &
 
     m_d->lockedDrawingAngleOptional = newAngle;
 }
-
 
 qreal KisDistanceInformation::scalarDistanceApprox() const
 {

@@ -25,5 +25,4 @@ private:
     KoStore *m_store;
 };
 
-
 #endif

@@ -61,4 +61,4 @@ private:
     KoResourceServer<KisBrush> *m_rServer;
 };
 
-#endif // KIS_CLIPBOARD_BRUSH_WIDGET_H
+#endif

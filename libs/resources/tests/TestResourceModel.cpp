@@ -30,7 +30,6 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
 
-
 void TestResourceModel::initTestCase()
 {
     ResourceTestHelper::initTestDb();
@@ -68,7 +67,6 @@ void TestResourceModel::testWithTagModelTester()
     Q_UNUSED(tester);
 }
 
-
 void TestResourceModel::testRowCount()
 {
     QSqlQuery q;
@@ -104,7 +102,6 @@ void TestResourceModel::testData()
     QVERIFY(resourceNames.contains("test2.kpp"));
 }
 
-
 void TestResourceModel::testResourceForIndex()
 {
     KisResourceModel resourceModel(m_resourceType);
@@ -137,7 +134,6 @@ void TestResourceModel::testSetInactiveByIndex()
     QVERIFY(!resourceModel.indexForResource(resource).isValid());
     QVERIFY(!resourceModel.resourceForId(resource->resourceId()));
     QVERIFY(resourceModel.resourcesForName(resource->name()).isEmpty());
-    // verify that all mapped resources are still reachable by id
     for (int i = 0; i < resourceCount - 1; i++) {
         KoResourceSP resource2 = resourceModel.resourceForIndex(resourceModel.index(i, 0));
         QVERIFY(resource2);
@@ -196,16 +192,14 @@ void TestResourceModel::testAddDuplicatedResource()
 
     KoResourceSP resource(new DummyResource("duplicated_resource.kpp"));
     resource->setValid(true);
-    bool r = resourceModel.addResource(resource); // first add to the folder storage
+    bool r = resourceModel.addResource(resource);
 
     QVERIFY(r);
     QCOMPARE(resourceModel.rowCount(), startResourceCount + 1);
 
-    // Matching MD5, name and filename resources should be hidden -- BUG:445367
-    // the copy of this resource has been added in testAddResource()
     resource.reset(new DummyResource("duplicated_resource.kpp"));
     resource->setValid(true);
-    r = resourceModel.addResource(resource, "memory"); // then add to the temporary storage
+    r = resourceModel.addResource(resource, "memory");
 
     QVERIFY(r);
     QCOMPARE(resourceModel.rowCount(), startResourceCount + 1);
@@ -305,7 +299,6 @@ void TestResourceModel::testUpdateResource()
     }
 
     {
-        // Check the resource itself
         KisResourceLocator::instance()->purge("", {});
         KoResourceSP resource = KisResourceLocator::instance()->resourceForId(resourceId);
 
@@ -313,7 +306,6 @@ void TestResourceModel::testUpdateResource()
         QCOMPARE(resource.dynamicCast<DummyResource>()->something(), "It's changed");
         QVERIFY(resource->resourceId() == resourceId);
 
-        // Check the versions in the database
         QSqlQuery q;
         QVERIFY(q.prepare("SELECT count(*)\n"
                           "FROM   versioned_resources\n"
@@ -334,32 +326,23 @@ void TestResourceModel::testTwoExistingResourceModels()
     KisResourceModel resourceModelCopy(m_resourceType);
     resourceModelCopy.setResourceFilter(KisResourceModel::ShowAllResources);
 
-
     int resourceCount = resourceModel.rowCount();
     KoResourceSP resource(new DummyResource("dummy_1.kpp"));
     resource->setValid(true);
 
-
     bool r = resourceModel.addResource(resource);
     QVERIFY(r);
-
-
-    // it only works if you uncomment this line
-    // but it should work without it
-    // resourceModelCopy.invalidate();
 
     QCOMPARE(resourceModel.rowCount(), resourceModelCopy.rowCount());
     QCOMPARE(resourceCount + 1, resourceModel.rowCount());
     QCOMPARE(resourceCount + 1, resourceModelCopy.rowCount());
 }
 
-
 void TestResourceModel::cleanupTestCase()
 {
     ResourceTestHelper::rmTestDb();
     ResourceTestHelper::cleanDstLocation(m_dstLocation);
 }
-
 
 SIMPLE_TEST_MAIN(TestResourceModel)
 

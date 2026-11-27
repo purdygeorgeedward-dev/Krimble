@@ -24,10 +24,6 @@ KisSyncLodCacheStrokeStrategy::KisSyncLodCacheStrokeStrategy(KisImageWSP image, 
 {
     m_d->image = image;
 
-    /**
-     * We shouldn't start syncing before all the updates are
-     * done. Otherwise we might get artifacts!
-     */
     enableJob(KisSimpleStrokeStrategy::JOB_INIT, true, KisStrokeJobData::BARRIER, KisStrokeJobData::EXCLUSIVE);
     enableJob(KisSimpleStrokeStrategy::JOB_DOSTROKE);
 
@@ -47,9 +43,8 @@ void KisSyncLodCacheStrokeStrategy::initStrokeCallback()
     addMutatedJobs(jobs);
 }
 
-QList<KisStrokeJobData*> KisSyncLodCacheStrokeStrategy::createJobsData(KisImageWSP /*_image*/)
+QList<KisStrokeJobData*> KisSyncLodCacheStrokeStrategy::createJobsData(KisImageWSP )
 {
-    // all the jobs are populates in the init job
     return {};
 }
 

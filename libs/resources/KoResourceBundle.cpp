@@ -36,7 +36,6 @@
 #include <kis_debug.h>
 #include <KisGlobalResourcesInterface.h>
 
-
 KoResourceBundle::KoResourceBundle(QString const& fileName)
     : m_filename(fileName),
       m_bundleVersion("1")
@@ -91,8 +90,6 @@ bool KoResourceBundle::load()
     }
 
     if (resourceStore->open("preview.png")) {
-        // Workaround for some OS (Debian, Ubuntu), where loading directly from the QIODevice
-        // fails with "libpng error: IDAT: CRC error"
         QByteArray data = resourceStore->device()->readAll();
         QBuffer buffer(&data);
         m_thumbnail.load(&buffer, "PNG");
@@ -101,10 +98,6 @@ bool KoResourceBundle::load()
         qWarning() << "Could not open preview.png";
     }
 
-    /*
-     * If no version is found it's an old bundle with md5 hashes to fix, or if some manifest resource entry
-     * doesn't not correspond to a file the bundle is "broken", in both cases we need to recreate the bundle.
-     */
     if (!versionFound) {
         m_metadata.insert(KisResourceStorage::s_meta_version, "1");
     }
@@ -156,10 +149,8 @@ bool saveResourceToStore(const QString &filename, KoResourceSP resource, KoStore
     }
 
     if (!resource->thumbnailPath().isEmpty()) {
-        // hack for MyPaint brush presets previews
         const QImage thumbnail = resource->thumbnail();
 
-        // clone resource to find out the file path for its preview
         KoResourceSP clonedResource = resource->clone();
         clonedResource->setFilename(filename);
 
@@ -178,7 +169,6 @@ bool saveResourceToStore(const QString &filename, KoResourceSP resource, KoStore
         store->close();
         buf.close();
     }
-
 
     return size == buf.size();
 }
@@ -236,7 +226,7 @@ bool KoResourceBundle::save()
     return true;
 }
 
-bool KoResourceBundle::saveToDevice(QIODevice */*dev*/) const
+bool KoResourceBundle::saveToDevice(QIODevice * ) const
 {
     return false;
 }
@@ -355,7 +345,6 @@ bool KoResourceBundle::readMetaData(KoStore *resourceStore)
             m_metadata.insert(name, value);
             name = "meta:" + name;
         } else if (name == "cd:creator") {
-            // Bundles from some versions have prefix 'cd' instead of 'dc'.
             name = "dc:creator";
         }
 
@@ -400,11 +389,9 @@ void KoResourceBundle::saveMetadata(QScopedPointer<KoStore> &store)
     writeMeta(KisResourceStorage::s_meta_license, &metaWriter);
     writeMeta(KisResourceStorage::s_meta_website, &metaWriter);
 
-    // For compatibility
     writeUserDefinedMeta("email", &metaWriter);
     writeUserDefinedMeta("license", &metaWriter);
     writeUserDefinedMeta("website", &metaWriter);
-
 
     Q_FOREACH (const QString &tag, m_bundletags) {
         QByteArray ba1 = KisResourceStorage::s_meta_user_defined.toUtf8();
@@ -416,7 +403,7 @@ void KoResourceBundle::saveMetadata(QScopedPointer<KoStore> &store)
         metaWriter.endElement();
     }
 
-    metaWriter.endElement(); // meta:meta
+    metaWriter.endElement();
     metaWriter.endDocument();
 
     buf.close();

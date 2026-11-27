@@ -29,7 +29,6 @@ KisDecorationsWrapperLayer::KisDecorationsWrapperLayer(KisDocument *document)
     m_d->fakeOriginalDevice->setDefaultBounds(new KisDefaultBounds(document->image()));
 }
 
-
 KisDecorationsWrapperLayer::KisDecorationsWrapperLayer(const KisDecorationsWrapperLayer &rhs)
     : KisExternalLayer(rhs.image(), "decorations-wrapper-layer", OPACITY_OPAQUE_U8),
       m_d(new Private)

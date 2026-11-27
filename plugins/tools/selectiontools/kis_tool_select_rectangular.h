@@ -18,7 +18,6 @@
 #include <kis_icon.h>
 #include <QKeySequence>
 
-
 class __KisToolSelectRectangularLocal : public KisToolRectangleBase
 {
     Q_OBJECT
@@ -26,7 +25,6 @@ class __KisToolSelectRectangularLocal : public KisToolRectangleBase
 public:
     __KisToolSelectRectangularLocal(KoCanvasBase * canvas);
 };
-
 
 class KisToolSelectRectangular : public KisToolSelectBase<__KisToolSelectRectangularLocal>
 {
@@ -63,7 +61,5 @@ public:
     }
 };
 
-
-
-#endif // KIS_TOOL_SELECT_RECTANGULAR_H_
+#endif
 

@@ -76,6 +76,11 @@ private:
     int m_hoveredStop;
     KoGradientStop m_removedStop;
     bool m_drag;
+    QPoint m_krimblePressPos;
+    bool m_krimbleDragStarted {false};
+    bool m_krimbleTapToInsert {false};
+    qreal m_krimbleInsertT {0.0};
+    int krimbleDragThreshold() const;
     QSize m_handleSize;
     KisSignalCompressor m_updateCompressor;
 };

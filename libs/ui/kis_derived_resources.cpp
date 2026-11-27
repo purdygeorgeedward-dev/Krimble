@@ -13,7 +13,6 @@
 #include "KisPaintOpPresetUpdateProxy.h"
 #include "KisResourceModel.h"
 
-
 struct KisPresetUpdateMediator::Private
 {
     Private() : model(ResourceType::PaintOpPresets) {}
@@ -58,21 +57,12 @@ void KisPresetUpdateMediator::slotResourceChanged(const QModelIndex &topLeft, co
 {
     Q_UNUSED(roles)
 
-    /// the name of the preset is stored in KoResource, not
-    /// in KisPaintOpSettings, so we should track it separately
-
     if (m_d->linkedResourceIndex.row() >= topLeft.row() &&
             m_d->linkedResourceIndex.row() <= bottomRight.row()) {
 
         Q_EMIT sigResourceChanged(key());
     }
 }
-
-
-/*********************************************************************/
-/*          KisCompositeOpResourceConverter                          */
-/*********************************************************************/
-
 
 KisCompositeOpResourceConverter::KisCompositeOpResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::CurrentCompositeOp,
@@ -95,11 +85,6 @@ QVariant KisCompositeOpResourceConverter::toSource(const QVariant &value, const 
     return QVariant::fromValue(preset);
 }
 
-/*********************************************************************/
-/*          KisEffectiveCompositeOpResourceConverter                 */
-/*********************************************************************/
-
-
 KisEffectiveCompositeOpResourceConverter::KisEffectiveCompositeOpResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::CurrentEffectiveCompositeOp,
                                  KoCanvasResource::CurrentPaintOpPreset)
@@ -116,16 +101,11 @@ QVariant KisEffectiveCompositeOpResourceConverter::toSource(const QVariant &valu
 {
     Q_UNUSED(value);
 
-    // WARNING: we don't save that!
     KisPaintOpPresetSP preset = sourceValue.value<KisPaintOpPresetSP>();
     if (!preset) return sourceValue;
 
     return QVariant::fromValue(preset);
 }
-
-/*********************************************************************/
-/*          KisOpacityToPresetOpacityResourceConverter               */
-/*********************************************************************/
 
 KisOpacityToPresetOpacityResourceConverter::KisOpacityToPresetOpacityResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::Opacity,
@@ -148,10 +128,6 @@ QVariant KisOpacityToPresetOpacityResourceConverter::toSource(const QVariant &va
     return QVariant::fromValue(preset);
 }
 
-/*********************************************************************/
-/*          KisFlowResourceConverter                                 */
-/*********************************************************************/
-
 KisFlowResourceConverter::KisFlowResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::Flow,
                                  KoCanvasResource::CurrentPaintOpPreset)
@@ -172,10 +148,6 @@ QVariant KisFlowResourceConverter::toSource(const QVariant &value, const QVarian
     preset->settings()->setPaintOpFlow(value.toReal());
     return QVariant::fromValue(preset);
 }
-
-/*********************************************************************/
-/*          KisFadeResourceConverter                                 */
-/*********************************************************************/
 
 KisFadeResourceConverter::KisFadeResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::Fade,
@@ -198,10 +170,6 @@ QVariant KisFadeResourceConverter::toSource(const QVariant &value, const QVarian
     return QVariant::fromValue(preset);
 }
 
-/*********************************************************************/
-/*          KisScatterResourceConverter                              */
-/*********************************************************************/
-
 KisScatterResourceConverter::KisScatterResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::Scatter,
                                  KoCanvasResource::CurrentPaintOpPreset)
@@ -222,10 +190,6 @@ QVariant KisScatterResourceConverter::toSource(const QVariant &value, const QVar
     preset->settings()->setPaintOpScatter(value.toReal());
     return QVariant::fromValue(preset);
 }
-
-/*********************************************************************/
-/*          KisSizeResourceConverter                                 */
-/*********************************************************************/
 
 KisSizeResourceConverter::KisSizeResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::Size,
@@ -248,10 +212,6 @@ QVariant KisSizeResourceConverter::toSource(const QVariant &value, const QVarian
     return QVariant::fromValue(preset);
 }
 
-/*********************************************************************/
-/*          KisBrushRotationResourceConverter                        */
-/*********************************************************************/
-
 KisBrushRotationResourceConverter::KisBrushRotationResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::BrushRotation,
                                  KoCanvasResource::CurrentPaintOpPreset)
@@ -273,10 +233,6 @@ QVariant KisBrushRotationResourceConverter::toSource(const QVariant &value, cons
     return QVariant::fromValue(preset);
 }
 
-///*********************************************************************/
-///*          KisPatternSizeResourceConverter                          */
-///*********************************************************************/
-//
 KisPatternSizeResourceConverter::KisPatternSizeResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::PatternSize,
         KoCanvasResource::CurrentPaintOpPreset)
@@ -301,10 +257,6 @@ QVariant KisPatternSizeResourceConverter::toSource(const QVariant& value, const 
     return QVariant::fromValue(preset);
 }
 
-/*********************************************************************/
-/*          KisLodAvailabilityResourceConverter                      */
-/*********************************************************************/
-
 KisLodAvailabilityResourceConverter::KisLodAvailabilityResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::LodAvailability,
                                  KoCanvasResource::CurrentPaintOpPreset)
@@ -325,10 +277,6 @@ QVariant KisLodAvailabilityResourceConverter::toSource(const QVariant &value, co
     KisPaintOpSettings::setLodUserAllowed(preset->settings().data(), value.toBool());
     return QVariant::fromValue(preset);
 }
-
-/*********************************************************************/
-/*          KisLodSizeThresholdResourceConverter                     */
-/*********************************************************************/
 
 KisLodSizeThresholdResourceConverter::KisLodSizeThresholdResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::LodSizeThreshold,
@@ -351,10 +299,6 @@ QVariant KisLodSizeThresholdResourceConverter::toSource(const QVariant &value, c
     return QVariant::fromValue(preset);
 }
 
-/*********************************************************************/
-/*          KisLodSizeThresholdSupportedResourceConverter            */
-/*********************************************************************/
-
 KisLodSizeThresholdSupportedResourceConverter::KisLodSizeThresholdSupportedResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::LodSizeThresholdSupported,
                                  KoCanvasResource::CurrentPaintOpPreset)
@@ -369,16 +313,10 @@ QVariant KisLodSizeThresholdSupportedResourceConverter::fromSource(const QVarian
 
 QVariant KisLodSizeThresholdSupportedResourceConverter::toSource(const QVariant &value, const QVariant &sourceValue)
 {
-    // this property of the preset is immutable
 
     Q_UNUSED(value);
     return sourceValue;
 }
-
-
-/*********************************************************************/
-/*          KisEraserModeResourceConverter                           */
-/*********************************************************************/
 
 KisEraserModeResourceConverter::KisEraserModeResourceConverter()
     : KoDerivedResourceConverter(KoCanvasResource::EraserMode,

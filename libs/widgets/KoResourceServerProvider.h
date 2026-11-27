@@ -28,9 +28,6 @@
 #include <resources/KisSeExprScript.h>
 #endif
 
-/**
- * Provides default resource servers for gradients, patterns and palettes
- */
 class KRITAWIDGETS_EXPORT KoResourceServerProvider : public QObject
 {
     Q_OBJECT
@@ -60,4 +57,4 @@ private:
     Private* const d;
 };
 
-#endif // KORESOURCESERVERPROVIDER_H
+#endif

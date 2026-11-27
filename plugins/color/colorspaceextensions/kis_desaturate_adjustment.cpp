@@ -45,37 +45,36 @@ public:
             g = SCALE_TO_FLOAT(src->green);
             b = SCALE_TO_FLOAT(src->blue);
 
-            // https://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
             switch(m_type) {
-            case 0: // lightness
+            case 0:
             {
                 gray = (qMax(qMax(r, g), b) + qMin(qMin(r, g), b)) / 2;
                 break;
             }
-            case 1: // luminosity BT 709
+            case 1:
             {
                 gray = r * 0.2126 + g * 0.7152 + b * 0.0722;
                 break;
 
             }
 
-            case 2: // luminosity BT 601
+            case 2:
             {
                 gray = r * 0.299 + g * 0.587 + b * 0.114;
                 break;
 
             }
-            case 3: // average
+            case 3:
             {
                 gray = (r + g + b) / 3;
                 break;
             }
-            case 4: // min
+            case 4:
             {
                 gray = qMin(qMin(r, g), b);
                 break;
             }
-            case 5: // min
+            case 5:
             {
                 gray = qMax(qMax(r, g), b);
                 break;
@@ -110,12 +109,6 @@ public:
         return -1;
     }
 
-    /**
-    * name - "type":
-    *  0: lightness
-    *  1: luminosity
-    *  2: average
-    */
     void setParameter(int id, const QVariant& parameter) override
     {
         switch(id)
@@ -133,7 +126,6 @@ private:
     int m_type {0};
 
 };
-
 
 KisDesaturateAdjustmentFactory::KisDesaturateAdjustmentFactory()
     : KoColorTransformationFactory("desaturate_adjustment")

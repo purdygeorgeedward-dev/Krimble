@@ -78,7 +78,6 @@ QVector<KoAbstractGradientSP> KisAslLayerStyleSerializer::gradients() const
 QHash<QString, KisPSDLayerStyleSP> KisAslLayerStyleSerializer::stylesHash()
 {
     if (m_stylesHash.count() == 0 && m_stylesVector.count() != 0) {
-        // build the hash
         Q_FOREACH(KisPSDLayerStyleSP style, m_stylesVector) {
             m_stylesHash.insert(style->psdUuid(), style);
         }
@@ -317,8 +316,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
 
     QVector<KoPatternSP> allPatterns;
 
-    /// the duplicated patterns will be resolved later at the
-    /// uuid generation stage
     Q_FOREACH (KisPSDLayerStyleSP style, m_stylesVector) {
         allPatterns += fetchAllPatterns(style.data(), style->resourcesInterface());
     }
@@ -361,8 +358,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
         w.writeUnitFloat("Scl ", "#Prc", 100);
         w.writeBoolean("masterFXSwitch", style->isEnabled());
 
-
-        // Drop Shadow
         const psd_layer_effects_drop_shadow *dropShadow = style->dropShadow();
         if (dropShadow->effectEnabled()) {
             w.enterDescriptor("DrSh", "", "DrSh");
@@ -381,7 +376,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
 
             w.writeBoolean("AntA", dropShadow->antiAliased());
 
-            // FIXME: save curves
             w.writeCurve("TrnS",
                          "Linear",
                          QVector<QPointF>() << QPointF() << QPointF(255, 255));
@@ -390,7 +384,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.leaveDescriptor();
         }
 
-        // Inner Shadow
         const psd_layer_effects_inner_shadow *innerShadow = style->innerShadow();
         if (innerShadow->effectEnabled()) {
             w.enterDescriptor("IrSh", "", "IrSh");
@@ -409,7 +402,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
 
             w.writeBoolean("AntA", innerShadow->antiAliased());
 
-            // FIXME: save curves
             w.writeCurve("TrnS",
                          "Linear",
                          QVector<QPointF>() << QPointF() << QPointF(255, 255));
@@ -417,7 +409,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.leaveDescriptor();
         }
 
-        // Outer Glow
         const psd_layer_effects_outer_glow *outerGlow = style->outerGlow();
         if (outerGlow->effectEnabled()) {
             w.enterDescriptor("OrGl", "", "OrGl");
@@ -454,7 +445,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
 
             w.writeBoolean("AntA", outerGlow->antiAliased());
 
-            // FIXME: save curves
             w.writeCurve("TrnS",
                          "Linear",
                          QVector<QPointF>() << QPointF() << QPointF(255, 255));
@@ -464,7 +454,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.leaveDescriptor();
         }
 
-        // Inner Glow
         const psd_layer_effects_inner_glow *innerGlow = style->innerGlow();
         if (innerGlow->effectEnabled()) {
             w.enterDescriptor("IrGl", "", "IrGl");
@@ -496,7 +485,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.writeUnitFloat("Ckmt", "#Pxl", innerGlow->spread());
             w.writeUnitFloat("blur", "#Pxl", innerGlow->size());
 
-            // NOTE: order is swapped in ASL!
             w.writeUnitFloat("ShdN", "#Prc", innerGlow->jitter());
             w.writeUnitFloat("Nose", "#Prc", innerGlow->noise());
 
@@ -504,7 +492,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
 
             w.writeEnum("glwS", "IGSr", innerGlow->source() == psd_glow_center ? "SrcC" : "SrcE");
 
-            // FIXME: save curves
             w.writeCurve("TrnS",
                          "Linear",
                          QVector<QPointF>() << QPointF() << QPointF(255, 255));
@@ -514,7 +501,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.leaveDescriptor();
         }
 
-        // Bevel and Emboss
         const psd_layer_effects_bevel_emboss *bevelAndEmboss = style->bevelAndEmboss();
         if (bevelAndEmboss->effectEnabled()) {
             w.enterDescriptor("ebbl", "", "ebbl");
@@ -540,7 +526,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.writeUnitFloat("blur", "#Pxl", bevelAndEmboss->size());
             w.writeEnum("bvlD", "BESs", bevelAndEmboss->direction() == psd_direction_up ? "In  " : "Out ");
 
-            // FIXME: save curves
             w.writeCurve("TrnS",
                          "Linear",
                          QVector<QPointF>() << QPointF() << QPointF(255, 255));
@@ -552,7 +537,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             if (bevelAndEmboss->contourEnabled()) {
                 w.writeBoolean("useShape", bevelAndEmboss->contourEnabled());
 
-                // FIXME: save curves
                 w.writeCurve("MpgS",
                              "Linear",
                              QVector<QPointF>() << QPointF() << QPointF(255, 255));
@@ -577,7 +561,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.leaveDescriptor();
         }
 
-        // Satin
         const psd_layer_effects_satin *satin = style->satin();
         if (satin->effectEnabled()) {
             w.enterDescriptor("ChFX", "", "ChFX");
@@ -593,7 +576,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.writeUnitFloat("Dstn", "#Pxl", satin->distance());
             w.writeUnitFloat("blur", "#Pxl", satin->size());
 
-            // FIXME: save curves
             w.writeCurve("MpgS",
                          "Linear",
                          QVector<QPointF>() << QPointF() << QPointF(255, 255));
@@ -613,7 +595,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.leaveDescriptor();
         }
 
-        // Gradient Overlay
         const psd_layer_effects_gradient_overlay *gradientOverlay = style->gradientOverlay();
         KoSegmentGradient *segmentGradient = dynamic_cast<KoSegmentGradient*>(gradientOverlay->gradient(style->resourcesInterface()).data());
         KoStopGradient *stopGradient = dynamic_cast<KoStopGradient*>(gradientOverlay->gradient(style->resourcesInterface()).data());
@@ -646,7 +627,6 @@ QDomDocument KisAslLayerStyleSerializer::formXmlDocument() const
             w.leaveDescriptor();
         }
 
-        // Pattern Overlay
         const psd_layer_effects_pattern_overlay *patternOverlay = style->patternOverlay();
         if (patternOverlay->effectEnabled()) {
             w.enterDescriptor("patternFill", "", "patternFill");
@@ -737,7 +717,6 @@ void replaceAllChildren(QDomNode src, QDomNode dst)
         dst.removeChild(node);
 
     } while(!node.isNull());
-
 
     node = src.firstChild();
     while(!node.isNull()) {
@@ -1065,7 +1044,6 @@ void KisAslLayerStyleSerializer::connectCatcherToStyle(KisPSDLayerStyle *style, 
     CONN_UNITF("/OrGl/Inpr", "#Prc", setRange, outerGlow, psd_layer_effects_outer_glow, prefix);
     CONN_UNITF("/OrGl/ShdN", "#Prc", setJitter, outerGlow, psd_layer_effects_outer_glow, prefix);
 
-
     psd_layer_effects_inner_glow *innerGlow = style->innerGlow();
 
     CONN_COMPOSITE_OP("/IrGl/Md  ", setBlendMode, innerGlow, psd_layer_effects_inner_glow, prefix);
@@ -1089,7 +1067,6 @@ void KisAslLayerStyleSerializer::connectCatcherToStyle(KisPSDLayerStyle *style, 
     glowSourceMap.insert("SrcC", psd_glow_center);
     glowSourceMap.insert("SrcE", psd_glow_edge);
     CONN_ENUM("/IrGl/glwS", "IGSr", setSource, glowSourceMap, psd_glow_source, innerGlow, psd_layer_effects_inner_glow, prefix);
-
 
     psd_layer_effects_satin *satin = style->satin();
 
@@ -1125,7 +1102,6 @@ void KisAslLayerStyleSerializer::connectCatcherToStyle(KisPSDLayerStyle *style, 
     CONN_BOOL("/GrFl/Algn", setAlignWithLayer, gradientOverlay, psd_layer_effects_gradient_overlay, prefix);
     CONN_POINT("/GrFl/Ofst", setGradientOffset, gradientOverlay, psd_layer_effects_gradient_overlay, prefix);
     CONN_GRADIENT("/GrFl/Grad", setGradient, gradientOverlay, psd_layer_effects_gradient_overlay, prefix);
-
 
     QMap<QString, psd_gradient_style> gradientStyleMap;
     gradientStyleMap.insert("Lnr ", psd_gradient_style_linear);
@@ -1164,10 +1140,8 @@ void KisAslLayerStyleSerializer::connectCatcherToStyle(KisPSDLayerStyle *style, 
     strokeFillType.insert("Ptrn", psd_fill_pattern);
     CONN_ENUM("/FrFX/PntT", "FrFl", setFillType, strokeFillType, psd_fill_type, stroke, psd_layer_effects_stroke, prefix);
 
-    // Color type
     CONN_COLOR("/FrFX/Clr ", setColor, stroke, psd_layer_effects_stroke, prefix);
 
-    // Gradient Type
     CONN_GRADIENT("/FrFX/Grad", setGradient, stroke, psd_layer_effects_stroke, prefix);
     CONN_UNITF("/FrFX/Angl", "#Ang", setAngle, stroke, psd_layer_effects_stroke, prefix);
     CONN_UNITF("/FrFX/Scl ", "#Prc", setScale, stroke, psd_layer_effects_stroke, prefix);
@@ -1177,12 +1151,9 @@ void KisAslLayerStyleSerializer::connectCatcherToStyle(KisPSDLayerStyle *style, 
     CONN_POINT("/FrFX/Ofst", setGradientOffset, stroke, psd_layer_effects_stroke, prefix);
     CONN_BOOL("/FrFX/Dthr", setDither, stroke, psd_layer_effects_stroke, prefix);
 
-    // Pattern type
-
     CONN_PATTERN("/FrFX/Ptrn", setPattern, stroke, psd_layer_effects_stroke, prefix);
-    CONN_BOOL("/FrFX/Lnkd", setAlignWithLayer, stroke, psd_layer_effects_stroke, prefix); // yes, we share the params...
+    CONN_BOOL("/FrFX/Lnkd", setAlignWithLayer, stroke, psd_layer_effects_stroke, prefix);
     CONN_POINT("/FrFX/phase", setPatternPhase, stroke, psd_layer_effects_stroke, prefix);
-
 
     psd_layer_effects_bevel_emboss *bevelAndEmboss = style->bevelAndEmboss();
 
@@ -1219,7 +1190,6 @@ void KisAslLayerStyleSerializer::connectCatcherToStyle(KisPSDLayerStyle *style, 
 
     CONN_UNITF("/ebbl/blur", "#Pxl", setSize, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
 
-
     QMap<QString, psd_direction> bevelDirectionMap;
     bevelDirectionMap.insert("In  ", psd_direction_up);
     bevelDirectionMap.insert("Out ", psd_direction_down);
@@ -1231,14 +1201,10 @@ void KisAslLayerStyleSerializer::connectCatcherToStyle(KisPSDLayerStyle *style, 
 
     CONN_UNITF("/ebbl/Sftn", "#Pxl", setSoften, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
 
-    // Use shape mode
-
     CONN_BOOL("/ebbl/useShape", setContourEnabled, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
     CONN_CURVE("/ebbl/MpgS", setGlossContourLookupTable, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
     CONN_BOOL("/ebbl/AntA", setAntiAliased, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
     CONN_UNITF("/ebbl/Inpr", "#Prc", setContourRange, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
-
-    // Use texture mode
 
     CONN_BOOL("/ebbl/useTexture", setTextureEnabled, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
     CONN_BOOL("/ebbl/InvT", setTextureInvert, bevelAndEmboss, psd_layer_effects_bevel_emboss, prefix);
@@ -1335,8 +1301,6 @@ void KisAslLayerStyleSerializer::assignAllLayerStylesToLayers(KisNodeSP root, co
         }
     }
 
-    // we iterate over non-uploaded styles which store all the dependent resources
-    // internally
     KisLayerUtils::recursiveApplyNodes(root, [styles = m_stylesVector] (KisNodeSP node) {
         KisLayer* layer = qobject_cast<KisLayer*>(node.data());
 
@@ -1374,9 +1338,6 @@ void KisAslLayerStyleSerializer::readFromDevice(QIODevice &device)
         return;
     }
 
-    //dbgKrita << ppVar(doc.toString());
-
-    //KisAslObjectCatcher c2;
     KisAslXmlParser parser;
     parser.parseXML(doc, m_catcher);
 
@@ -1386,7 +1347,6 @@ void KisAslLayerStyleSerializer::readFromDevice(QIODevice &device)
     for(const auto &style : m_stylesVector)
         allStyles.insert(style->psdUuid(), style);
 
-    // correct all the layer styles
     for (const auto &style : allStyles) {
         FillStylesCorrector::correct(style.data());
 
@@ -1424,28 +1384,20 @@ void KisAslLayerStyleSerializer::registerPSDPattern(const QDomDocument &doc)
     catcher.subscribePattern("/Patterns/KisPattern", std::bind(&KisAslLayerStyleSerializer::registerPatternObject, this, _1, _2));
     catcher.subscribePattern("/patterns/KisPattern", std::bind(&KisAslLayerStyleSerializer::registerPatternObject, this, _1, _2));
 
-    //KisAslObjectCatcher c2;
     KisAslXmlParser parser;
     parser.parseXML(doc, catcher);
 }
 
 void KisAslLayerStyleSerializer::readFromPSDXML(const QDomDocument &doc)
 {
-    // The caller prepares the document using the following code
-    //
-    // KisAslReader reader;
-    // QDomDocument doc = reader.readLfx2PsdSection(device);
 
     m_stylesVector.clear();
 
-    //m_catcher.subscribePattern("/Patterns/KisPattern", std::bind(&KisAslLayerStyleSerializer::registerPatternObject, this, _1));
     m_catcher.subscribeNewStyleStarted(std::bind(&KisAslLayerStyleSerializer::newStyleStarted, this, true));
 
-    //KisAslObjectCatcher c2;
     KisAslXmlParser parser;
     parser.parseXML(doc, m_catcher);
 
-    // correct all the layer styles
     Q_FOREACH (KisPSDLayerStyleSP style, m_stylesVector) {
         FillStylesCorrector::correct(style.data());
     }

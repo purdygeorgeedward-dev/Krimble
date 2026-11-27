@@ -26,7 +26,6 @@ void TestKoColorSpaceSanity::testChannelsInfo()
             if(info->channelType() == KoChannelInfo::COLOR ) {
                 ++colorChannels;
             }
-            // Check poses
             qint32 pos = info->pos();
             QVERIFY(pos + info->size() <= (qint32)colorSpace->pixelSize());
             Q_FOREACH (KoChannelInfo* info2, colorSpace->channels())
@@ -37,7 +36,6 @@ void TestKoColorSpaceSanity::testChannelsInfo()
                 }
             }
 
-            // Check displayPosition
             quint32 displayPosition = info->displayPosition();
             QVERIFY(displayPosition < colorSpace->channelCount());
             QVERIFY(displayPositions.indexOf(displayPosition) == -1);
@@ -49,9 +47,6 @@ void TestKoColorSpaceSanity::testChannelsInfo()
         QCOMPARE(colorSpace->colorChannelCount(), colorChannels);
     }
 }
-
-
-
 
 void TestKoColorSpaceSanity::testIterator()
 {

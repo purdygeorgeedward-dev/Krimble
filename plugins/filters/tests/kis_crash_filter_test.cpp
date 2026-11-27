@@ -28,7 +28,6 @@ bool KisCrashFilterTest::applyFilter(const KoColorSpace * cs,  KisFilterSP f)
     dev->setDefaultBounds(new TestUtil::TestingTimedDefaultBounds(qimage.rect()));
     dev->convertFromQImage(qimage, 0, 0, 0);
 
-    // Get the predefined configuration from a file
     KisFilterConfigurationSP  kfc = f->defaultConfiguration(KisGlobalResourcesInterface::instance());
 
     QFile file(QString(FILES_DATA_DIR) + '/' + f->id() + ".cfg");
@@ -48,7 +47,7 @@ bool KisCrashFilterTest::applyFilter(const KoColorSpace * cs,  KisFilterSP f)
         s = in.readAll();
         kfc->fromXML(s);
     }
-    dbgKrita << f->id() << ", " << cs->id() << ", " << cs->profile()->name();// << kfc->toXML() << "\n";
+    dbgKrita << f->id() << ", " << cs->id() << ", " << cs->profile()->name();
 
     {
         kfc->createLocalResourcesSnapshot(KisGlobalResourcesInterface::instance());
@@ -66,8 +65,6 @@ bool KisCrashFilterTest::testFilter(KisFilterSP f)
     bool ok = false;
     Q_FOREACH (const KoColorSpace* colorSpace, colorSpaces) {
 
-        // Alpha color spaces are never processed directly. They are
-        // first converted into GrayA color space
         if (colorSpace->id().startsWith("ALPHA", Qt::CaseInsensitive)) {
             continue;
         }
@@ -86,7 +83,6 @@ void KisCrashFilterTest::testCrashFilters()
     excludeFilters << "phongbumpmap";
     excludeFilters << "perchannel";
     excludeFilters << "height to normal";
-
 
     QStringList failures;
     QStringList successes;

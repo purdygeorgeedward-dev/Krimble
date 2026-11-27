@@ -13,5 +13,4 @@ void KisImageCommandsTest::testCreation()
 {
 }
 
-
 SIMPLE_TEST_MAIN(KisImageCommandsTest)

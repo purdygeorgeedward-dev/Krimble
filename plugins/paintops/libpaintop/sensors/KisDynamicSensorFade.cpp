@@ -10,7 +10,6 @@
 #include <kis_paint_information.h>
 #include <KisCurveOptionData.h>
 
-
 KisDynamicSensorFade::KisDynamicSensorFade(const KisSensorWithLengthData &data, std::optional<KisCubicCurve> curveOverride)
     : KisDynamicSensor(FadeId, data, curveOverride)
     , m_periodic(data.isPeriodic)

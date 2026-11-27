@@ -35,7 +35,7 @@ public:
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_sharpen"));
         setPriority(26);
-        setToolBoxPriority(136);   // in the toolbox: after Blur (134)
+        setToolBoxPriority(136);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }
 
@@ -47,4 +47,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_SHARPEN_H_
+#endif

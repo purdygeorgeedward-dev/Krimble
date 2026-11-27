@@ -36,7 +36,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-constexpr qreal SHAPE_PRECISION = 1e-6; ///< Value that indicates the precision for testing coordinates for text-in-shape layout.
+constexpr qreal SHAPE_PRECISION = 1e-6;
 
 class KoPathShape;
 struct raqm_glyph_t;
@@ -48,26 +48,26 @@ enum class BreakType {
 };
 
 enum class LineEdgeBehaviour {
-    NoChange, ///< Do nothing special.
-    Collapse, ///< Collapse if first or last in line.
-    ForceHang, ///< Force hanging at the start or end of a line, never measured for justification.
-    ConditionallyHang ///< Only hang if no space otherwise, only measured for justification if not hanging.
+    NoChange,
+    Collapse,
+    ForceHang,
+    ConditionallyHang
 };
 
 struct CursorInfo {
-    QLineF caret; ///< Caret for this characterResult
-    QVector<int> graphemeIndices; ///< The text-string indices of graphemes starting here, starting grapheme is not present.
-    QVector<QPointF> offsets; ///< The advance offsets for each grapheme index.
-    bool rtl = false; ///< Whether the current glyph is right-to-left, as opposed to the markup.
+    QLineF caret;
+    QVector<int> graphemeIndices;
+    QVector<QPointF> offsets;
+    bool rtl = false;
     bool isWordBoundary = false;
-    QColor color; ///< Which color the current position has.
+    QColor color;
 };
 
 struct CursorPos {
-    int cluster; ///< Which character result this position belongs in.
-    int index; ///< Which grapheme this position belongs with.
-    int offset = 0; ///< Which offset this position belongs with.
-    bool synthetic = false; ///< Whether this position was inserted to have a visual indicator.
+    int cluster;
+    int index;
+    int offset = 0;
+    bool synthetic = false;
 };
 
 namespace Glyph {
@@ -89,52 +89,45 @@ struct ColorLayers {
 
 using Variant = std::variant<std::monostate, Outline, Bitmap, ColorLayers>;
 
-} // namespace Glyph
+}
 
 struct CharacterResult {
-    QPointF finalPosition; ///< the final position, taking into account both CSS and SVG positioning considerations.
+    QPointF finalPosition;
     qreal rotate = 0.0;
-    bool hidden = false; // whether the character will be drawn.
-    // The original svg specs' notion of addressable character relies on utf16,
-    // but there's an issue to switch to unicode codepoints proper (that is, utf 32), though it was never applied.
-    // https://github.com/w3c/svgwg/issues/537
-    bool addressable = true; ///< whether the character is not discarded for various reasons,
-                             ///< this is necessary for determining to which index a given x/y transform is applied,
-                             ///< and in this code we also use it to determine if a character is considered for line-breaking.
-    bool middle = false; ///< whether the character is the second of last of a
-                         ///< typographic character.
-    bool anchored_chunk = false; ///< whether this is the start of a new chunk.
+    bool hidden = false;
+    bool addressable = true;
+    bool middle = false;
+    bool anchored_chunk = false;
 
     Glyph::Variant glyph;
 
-    QRectF inkBoundingBox; ///< The bounds of the drawn glyph. Different from the bounds the charresult takes up in the layout, @see layoutBox();
-    bool isHorizontal = true; ///< Whether the current glyph lays out horizontal or vertical. Currently same as paragraph, but in future may change.
+    QRectF inkBoundingBox;
+    bool isHorizontal = true;
     int visualIndex = -1;
     int plaintTextIndex = -1;
-    QPointF cssPosition = QPointF(); ///< the position in accordance with the CSS specs, as opossed to the SVG spec.
-    QPointF textLengthOffset = QPointF(); ///< offset caused by textLength
-    QPointF textPathAndAnchoringOffset = QPointF(); ///< Offset caused by textPath and anchoring.
-    QPointF dominantBaselineOffset = QPointF(); // Shift caused by aligning glyphs to dominant baseline.
-    QPointF baselineOffset = QPointF(); ///< The computed baseline offset, will be applied
-                                        ///< when calculating the line-offset during line breaking.
+    QPointF cssPosition = QPointF();
+    QPointF textLengthOffset = QPointF();
+    QPointF textPathAndAnchoringOffset = QPointF();
+    QPointF dominantBaselineOffset = QPointF();
+    QPointF baselineOffset = QPointF();
     QPointF advance;
     BreakType breakType = BreakType::NoBreak;
     LineEdgeBehaviour lineEnd = LineEdgeBehaviour::NoChange;
     LineEdgeBehaviour lineStart = LineEdgeBehaviour::NoChange;
-    bool justifyBefore = false;///< Justification Opportunity precedes this character.
-    bool justifyAfter = false; ///< Justification Opportunity follows this character.
+    bool justifyBefore = false;
+    bool justifyAfter = false;
     bool isHanging = false;
     bool textLengthApplied = false;
     bool overflowWrap = false;
 
-    qreal extraFontScaling = 1.0; ///< Freetype doesn't allow us to scale below 1pt, so we need to do an extra transformation in these cases.
-    qreal fontHalfLeading; ///< Leading for both sides, can be either negative or positive.
-    KoSvgText::FontMetrics metrics; ///< Fontmetrics for current font, in Freetype scanline coordinates.
-    qreal scaledHalfLeading{}; ///< Leading for both sides, can be either negative or positive, in pt
-    qreal scaledAscent{}; ///< Ascender, in pt
-    qreal scaledDescent{}; ///< Descender, in pt
+    qreal extraFontScaling = 1.0;
+    qreal fontHalfLeading;
+    KoSvgText::FontMetrics metrics;
+    qreal scaledHalfLeading{};
+    qreal scaledAscent{};
+    qreal scaledDescent{};
 
-    std::optional<qreal> tabSize; ///< If present, this is a tab and it should align to multiples of this tabSize value.
+    std::optional<qreal> tabSize;
 
     void calculateAndApplyTabsize(QPointF currentPos, bool isHorizontal, const KoSvgText::ResolutionHandler &resHandler) {
         if (!tabSize) return;
@@ -146,29 +139,16 @@ struct CharacterResult {
         }
     }
 
-    /**
-     * @brief layoutBox
-     * @return a dynamically calculated layoutBox, this is different from the Ink bounding box.
-     */
     QRectF layoutBox() const {
         return isHorizontal? QRectF(0, advance.y()+scaledAscent, advance.x(), scaledDescent-scaledAscent)
                          : QRectF(advance.x()+scaledDescent, 0, scaledAscent-scaledDescent, advance.y());
     }
-    /**
-     * @brief lineHeightBox
-     * @return The box representing the line height of this char.
-     */
     QRectF lineHeightBox () const {
         QRectF lBox = layoutBox();
         return isHorizontal? lBox.adjusted(0, -scaledHalfLeading, 0, scaledHalfLeading)
                          : lBox.adjusted(-scaledHalfLeading, 0, scaledHalfLeading, 0);
     }
 
-    /**
-     * @brief translateOrigin
-     * For dominant baseline, we want to move the glyph origin.
-     * This encompassed the glyph, the ascent and descent, and the metrics.
-     */
     void translateOrigin(QPointF newOrigin) {
         if (newOrigin == QPointF()) return;
         if (Glyph::Outline *outlineGlyph = std::get_if<Glyph::Outline>(&glyph)) {
@@ -194,12 +174,6 @@ struct CharacterResult {
         }
     }
 
-    /**
-     * @brief scaleCharacterResult
-     * convenience function to scale the whole character result.
-     * @param xScale -- the factor by which the width should be scaled.
-     * @param yScale -- the factor by which the height should be scaled.
-     */
     void scaleCharacterResult(qreal xScale, qreal yScale) {
         QTransform scale = QTransform::fromScale(xScale, yScale);
         if (scale.isIdentity()) return;
@@ -278,29 +252,12 @@ struct CharacterResult {
 };
 
 struct LineChunk {
-    QLineF length; ///< Used to measure how long the current line is allowed to be.
-    QVector<int> chunkIndices; ///< charResult indices that belong to this chunk.
+    QLineF length;
+    QVector<int> chunkIndices;
     QRectF boundingBox;
     QPointF conditionalHangEnd = QPointF();
 };
 
-/**
- * @brief The LineBox struct
- *
- * The line box struct is to simplify keeping track of lines inside the wrapping
- * functions. It somewhat corresponds to CSS line boxes, with the caveat that formally,
- * a line split in two in CSS/SVG would be two line boxes, while we instead have two
- * line chunks in a single line box. This is necessary to ensure we can calculate the
- * same line height for boxes split by a shape.
- *
- * CSS-Inline-3 defines Line Boxes here: https://www.w3.org/TR/css-inline-3/#line-box
- * CSS-Text-3 briefly talks about them here: https://www.w3.org/TR/css-text-3/#bidi-linebox
- * SVG-2 chapter text talks about them here: https://svgwg.org/svg2-draft/text.html#TextLayoutAutoNotes
- *
- * What is important to us is that all the above specifications, when they talk about Bidi-reordering,
- * agree that the order is dependant on the paragraph/block level direction, and is not affected by
- * the inline content changing direction. Which is good, because that'd make things super hard.
- */
 struct LineBox {
 
     LineBox() {
@@ -335,12 +292,12 @@ struct LineBox {
     QVector<LineChunk> chunks;
     int currentChunk = -1;
 
-    qreal expectedLineTop = 0; ///< Because fonts can affect lineheight mid-line, and this affects wrapping, this estimates the line-height.
+    qreal expectedLineTop = 0;
     qreal actualLineTop = 0;
     qreal actualLineBottom = 0;
 
-    QPointF baselineTop = QPointF(); ///< Used to identify the top of the line for baseline-alignment.
-    QPointF baselineBottom = QPointF(); ///< Used to identify the bottom of the line for baseline-alignment.
+    QPointF baselineTop = QPointF();
+    QPointF baselineBottom = QPointF();
 
     QPointF textIndent = QPointF();
     bool firstLine = false;
@@ -414,9 +371,6 @@ struct LineBox {
 
 };
 
-/**
- * A representation of a single leaf of the KisForest<KoTextContentElement>
- **/
 struct SubChunk {
 
     SubChunk(KisForest<KoSvgTextContentElement>::child_iterator leaf):
@@ -427,10 +381,9 @@ struct SubChunk {
     QString text;
     QString originalText;
     KisForest<KoSvgTextContentElement>::child_iterator associatedLeaf;
-    QVector<QPair<int, int>> newToOldPositions; ///< For transformed strings, we need to know which
+    QVector<QPair<int, int>> newToOldPositions;
     bool textInPath = false;
-    bool firstTextInPath = false; ///< We need to mark the first text in path as an anchored chunk.
-                                  ///< original index matches which new index;
+    bool firstTextInPath = false;
     KoSvgTextProperties inheritedProps;
     QSharedPointer<KoShapeBackground> bg;
 };
@@ -438,9 +391,6 @@ struct SubChunk {
 class KRITAFLAKE_EXPORT KoSvgTextShape::Private
 {
 public:
-    // NOTE: the cache data is shared between all the instances of
-    //       the shape, though it will be reset locally if the
-    //       accessing thread changes
 
     Private()
         : internalShapesPainter(new KoShapePainter)
@@ -562,11 +512,6 @@ public:
 
     QList<QPainterPath> currentTextWrappingAreas;
 
-    /**
-     * @brief updateShapeContours
-     * The current shape contours can be slow to compute, so this function
-     * calls computing them, and then calls relayout();
-     */
     void updateTextWrappingAreas();
     static QList<QPainterPath> generateShapes(const QList<KoShape*> shapesInside, const QList<KoShape*> shapesSubtract, const KoSvgTextProperties &properties);
 
@@ -575,15 +520,14 @@ public:
         return it != textPaths.end()? *it: nullptr;
     }
 
-    // Convenience function to ensure the bounds checking is in place.
     CursorPos getCursorPos(int pos) {
         return cursorPos.at(qBound(0, pos, cursorPos.size()-1));
     }
 
     KisForest<KoSvgTextContentElement> textData;
-    bool isLoading = false; ///< Turned on when loading in text data, blocks updates to shape listeners.
+    bool isLoading = false;
 
-    bool disableFontMatching = false; ///< Turn off font matching, which should speed up relayout slightly.
+    bool disableFontMatching = false;
 
     QVector<CharacterResult> result;
     QVector<LineBox> lineBoxes;
@@ -698,7 +642,6 @@ public:
                     const QVector<CharacterResult> &result,
                     int &currentIndex);
 
-    /// Get the number of characters for the whole subtree of this node.
     static int numChars(KisForest<KoSvgTextContentElement>::child_iterator parent, bool withControls = false, KoSvgTextProperties resolvedProps = KoSvgTextProperties::defaultProperties()) {
         KoSvgTextProperties props = parent->properties;
         props.inheritFrom(resolvedProps, true);
@@ -709,24 +652,11 @@ public:
         return count;
     }
 
-    /// Get the child count of the current node. A node without children is a text node.
     static int childCount(KisForest<KoSvgTextContentElement>::child_iterator it) {
         return std::distance(KisForestDetail::childBegin(it), KisForestDetail::childEnd(it));
     }
-    /**
-     * Return a linearized representation of a subtree of text "subchunks".
-     */
     static QVector<SubChunk> collectSubChunks(KisForest<KoSvgTextContentElement>::child_iterator it, KoSvgTextProperties parent, bool textInPath, bool &firstTextInPath);
 
-    /**
-     * @brief findTextContentElementForIndex
-     * Finds the given leaf of the current tree-wide string index.
-     * @param tree -- tree to search in.
-     * @param currentIndex -- currentIndex, will always be set to the start index of the found element.
-     * @param sought -- index sought.
-     * @param skipZeroWidth -- whether to explicitly skip zero-width chunks. Remove text may set this to true, while inserting text into empty chunks requires this to be false.
-     * @return iterator -- found iterator. Will default to tree end if nothing is found.
-     */
     static KisForest<KoSvgTextContentElement>::depth_first_tail_iterator findTextContentElementForIndex(KisForest<KoSvgTextContentElement> &tree,
                                                                                                         int &currentIndex,
                                                                                                         int sought,
@@ -750,19 +680,9 @@ public:
         }
         return it;
     }
-    /**
-     * @brief splitContentElement
-     * split the contentElement in tree at index into two nodes.
-     * @param tree -- tree to work on.
-     * @param index -- index
-     * @param allowEmptyText -- when false, will return true without splitting
-     * the text content element, if the split text would be empty.
-     * @return whether it was successful.
-     */
     static bool splitContentElement(KisForest<KoSvgTextContentElement> &tree, int index, bool allowEmptyText = true) {
         int currentIndex = 0;
 
-        // If there's only a single root element, don't bother searching.
         auto contentElement = depth(tree) == 1? tree.depthFirstTailBegin(): findTextContentElementForIndex(tree, currentIndex, index, true);
         if (contentElement == tree.depthFirstTailEnd()) return false;
 
@@ -780,8 +700,6 @@ public:
             if (!allowEmptyText && (duplicate.text.isEmpty() || length == 0)) {
                 return true;
             }
-
-            // TODO: handle localtransforms better; annoyingly, this requires whitespace handling
 
             if (siblingCurrent(contentElement) != tree.childBegin()
                     && contentElement->textPathId.isEmpty()
@@ -803,19 +721,11 @@ public:
         return false;
     }
 
-    /**
-     * @brief splitTree
-     * Split the whole hierarchy of nodes at the given index.
-     * @param tree - tree to split.
-     * @param index - index to split at.
-     * @param textPathAfterSplit - whether to put any found textPaths before or after the split.
-     */
     static void splitTree(KisForest<KoSvgTextContentElement> &tree, int index, bool textPathAfterSplit) {
         splitContentElement(tree, index, false);
         int currentIndex = 0;
         auto contentElement = depth(tree) == 1? tree.depthFirstTailBegin(): findTextContentElementForIndex(tree, currentIndex, index, true);
 
-        // We're either at the start or end.
         if (contentElement == tree.depthFirstTailEnd()) return;
         if (siblingCurrent(contentElement) == tree.childBegin()) return;
 
@@ -855,18 +765,8 @@ public:
         }
     }
 
-    /**
-     * @brief findTopLevelParent
-     * Returns the toplevel parent of child that is not root.
-     * @param root -- root under which the toplevel item is.
-     * @param child -- child for which to search the parent for.
-     * @return toplevel parent of child that is itself a child of root,
-     * will return childEnd(root) if the child isn't inside root.
-     */
     static KisForest<KoSvgTextContentElement>::child_iterator findTopLevelParent(KisForest<KoSvgTextContentElement>::child_iterator root,
                                                                                  KisForest<KoSvgTextContentElement>::child_iterator child) {
-        // An earlier version of the code used Hierarchy iterator,
-        // but that had too many exceptions when the child was not in the root.
         if (!child.node()) return childEnd(root);
         if (KisForestDetail::parent(child) == root) return child;
         for (auto rootChild = childBegin(root); rootChild != childEnd(root); rootChild++) {
@@ -880,14 +780,6 @@ public:
         return childEnd(root);
     }
 
-    /**
-     * @brief collapsedWhiteSpacesForText
-     * This returns the collapsed spaces for a given piece of text, without transforms.
-     * @param tree -- text data tree.
-     * @param allText -- some collapseMethods modify the text. This is a pointer that sets the modified text.
-     * @param alsoCollapseLowSurrogate -- whether to mark utf16 surrogates as collapsed too.
-     * @return list of collapsed characters
-     */
     static QVector<bool> collapsedWhiteSpacesForText(KisForest<KoSvgTextContentElement> &tree, QString &allText, const bool alsoCollapseLowSurrogate = false, bool includeBidiControls = false) {
         QMap<int, KoSvgText::TextSpaceCollapse> collapseModes;
 
@@ -929,17 +821,6 @@ public:
         return collapsed;
     }
 
-    /**
-     * @brief removeTransforms
-     * Remove all local SVG character transforms in a certain range.
-     * Local transforms are influenced by whitespace collapse and
-     * whether they are set to unicode codepoints, and they also accumulate
-     * from parent to child. This function removes all local transforms in
-     * a certain section.
-     * @param tree -- tree to remove transforms from.
-     * @param start -- start at which to remove transforms.
-     * @param length -- end to remove from.
-     */
     static void removeTransforms(KisForest<KoSvgTextContentElement> &tree, const int start, const int length) {
         QString all;
         QVector<bool> collapsedCharacters = collapsedWhiteSpacesForText(tree, all, true);
@@ -948,11 +829,6 @@ public:
         removeTransformsImpl(root, 0, start, length, collapsedCharacters);
     }
 
-    /**
-     * @brief removeTransformsImpl
-     * recursive function that handles removing local transforms in a certain range.
-     * Used by removeTransform.
-     */
     static int removeTransformsImpl(KisForest<KoSvgTextContentElement>::child_iterator currentTextElement, const int globalIndex, const int start, const int length, const QVector<bool> collapsedCharacters) {
         int currentLength = 0;
         auto it = childBegin(currentTextElement);
@@ -989,15 +865,6 @@ public:
         return currentLength;
     }
 
-    /**
-     * @brief insertTransforms
-     * Inserts empty transforms into tree recursively.
-     * @param tree -- tree to insert transforms on.
-     * @param start -- start index.
-     * @param length -- amount of transforms to insert.
-     * @param allowSkipFirst -- whether we're allowed to skip the first
-     * transform because it is at the start of a text element.
-     */
     static void insertTransforms(KisForest<KoSvgTextContentElement> &tree, const int start, const int length, const bool allowSkipFirst) {
         QString all;
         QVector<bool> collapsedCharacters = collapsedWhiteSpacesForText(tree, all, true);
@@ -1005,11 +872,6 @@ public:
         auto root = tree.childBegin();
         insertTransformsImpl(root, 0, start, length, collapsedCharacters, allowSkipFirst);
     }
-    /**
-     * @brief insertTransformsImpl
-     * Recursive function that handles inserting empty transforms into a given range.
-     * Used by insertTransforms.
-     */
     static int insertTransformsImpl(KisForest<KoSvgTextContentElement>::child_iterator currentTextElement, const int globalIndex, const int start, const int length, const QVector<bool> collapsedCharacters, const bool allowSkipFirst) {
         int currentLength = 0;
         auto it = childBegin(currentTextElement);
@@ -1036,7 +898,6 @@ public:
                 }
             }
 
-            // When at the start, skip the first transform.
             if (transformOffset == 0 && allowSkipFirst && currentTextElement->localTransformations.at(0).startsNewChunk()) {
                 transformOffset += 1;
             }
@@ -1051,16 +912,6 @@ public:
         return currentLength;
     }
 
-    /**
-     * @brief applyWhiteSpace
-     * CSS Whitespace processes whitespaces so that duplicate white spaces and
-     * unnecessary hard breaks get removed from the text. Within the text layout
-     * we avoid removing the white spaces. However, when converting between text
-     * types it can be useful to remove these spaces.
-     * This function actually applies the white space rule to the active text.
-     * @param tree -- tree to apply the whitespace rule onto.
-     * @param convertToPreWrapped -- switch all whitespace rules to pre-wrapped.
-     */
     void applyWhiteSpace(KisForest<KoSvgTextContentElement> &tree, const bool convertToPreWrapped = false) {
         QString allText;
         QVector<bool> collapsed = collapsedWhiteSpacesForText(tree, allText, false);
@@ -1079,9 +930,6 @@ public:
 
     void applyWhiteSpaceImpl(std::reverse_iterator<KisForest<KoSvgTextContentElement>::child_iterator> current, QVector<bool> &collapsed, QString &allText, const bool convertToPreWrapped) {
         auto base = current.base();
-        // It seems that .base() refers to the next entry instead of the pointer,
-        // which is coherent with the template implementation of "operator*" here:
-        // https://en.cppreference.com/w/cpp/iterator/reverse_iterator.html
         base--;
         if(base != siblingEnd(base)) {
             auto end = std::make_reverse_iterator(childBegin(base));
@@ -1132,13 +980,6 @@ public:
         return resolvedTransforms;
     }
 
-    /**
-     * @brief insertNewLinesAtAnchors
-     * Resolves character transforms and then inserts new lines at each
-     * transform that creates a new chunk.
-     * @param tree -- tree to apply to.
-     * @param shapesInside -- whether we're wrapping in shape.
-     */
     static void insertNewLinesAtAnchors(KisForest<KoSvgTextContentElement> &tree, bool shapesInside = false) {
         QVector<KoSvgText::CharTransformation> resolvedTransforms = resolvedTransformsForTree(tree, shapesInside);
 
@@ -1174,20 +1015,12 @@ public:
             for (int i = 0; i < total; i++) {
                 const int j = total - (i+1);
                 KoSvgText::CharTransformation transform = resolvedTransforms.takeLast();
-                /**
-                 * Because sometimes we have to deal with multiple transforms on a span
-                 * we only really want to insert newlines when at a content element start.
-                 * In theory the other transforms can be tested, but this is hard,
-                 * and semantically it doesn't make sense if a svg text does this.
-                 */
                 bool startsNewChunk = transform.startsNewChunk() && j == 0;
 
                 if (inTextPath) {
-                    // First transform in path is always absolute, so we don't insert a newline.
                     startsNewChunk = false;
                     inTextPath = false;
                 }
-                // When there's no new chunk, we're not at the start of the text and there isn't already a line feed, insert a line feed.
                 if (startsNewChunk && !resolvedTransforms.isEmpty() && current->text.at(j) != QChar::LineFeed) {
                     current->text.insert(j, "\n");
                 }
@@ -1198,7 +1031,6 @@ public:
 
     void setTransformsFromLayout(KisForest<KoSvgTextContentElement> &tree, const QVector<CharacterResult> layout) {
         for (int i = 0; i< layout.size(); i++) {
-            //split all anchored chunks, so we can set transforms on them.
             if (layout.at(i).anchored_chunk) {
                 int plainTextIndex = layout.at(i).plaintTextIndex;
                 splitContentElement(tree, plainTextIndex);
@@ -1219,7 +1051,7 @@ public:
                                      int &globalIndex, bool isHorizontal) {
         KoSvgTextProperties props = current->properties;
         props.inheritFrom(parentProps);
-        if (!current->textPathId.isEmpty()) return; // When we're doing text-on-path, we're already in preformatted mode.
+        if (!current->textPathId.isEmpty()) return;
         for (auto it = childBegin(current); it!= childEnd(current); it++) {
             setTransformsFromLayoutImpl(it, props, layout, globalIndex, isHorizontal);
         }
@@ -1238,7 +1070,6 @@ public:
                 }
                 KoSvgText::CharTransformation transform;
 
-                //TODO: Also split up content element if multiple anchored chunks.
                 if (result.anchored_chunk) {
                     int endIndex = 0;
                     qreal shift = anchoredChunkShift(layout, isHorizontal, i, endIndex);
@@ -1262,14 +1093,6 @@ public:
         }
     }
 
-    /**
-     * @brief cleanUpImpl
-     * implementation of recursive function for cleanup.
-     * This goes over a child and decides whether it should be removed.
-     * If the child has more than one child of its own, it'll call this function
-     * over the children, and then handle the removal of children marked as deletable.
-     * @return whether the given child should be removed from the tree.
-     */
     static bool cleanUpImpl(KisForest<KoSvgTextContentElement> &tree, KisForest<KoSvgTextContentElement>::child_iterator current) {
         const int children = childCount(current);
         if (children == 0) {
@@ -1277,14 +1100,11 @@ public:
             if (length == 0 && current != tree.childBegin() && current->textPathId.isEmpty()) {
                 return true;
             } else {
-                // check if siblings are similar.
                 auto siblingPrev = current;
                 KoSvgText::UnicodeBidi bidi = KoSvgText::UnicodeBidi(current->properties.property(KoSvgTextProperties::UnicodeBidiId,
                                                                                              QVariant(KoSvgText::BidiNormal)).toInt());
                 siblingPrev--;
                 while (!isEnd(siblingPrev) && siblingPrev->text.isEmpty()) {
-                    // By checking whether the text is empty, we can skip previous
-                    // siblings that are already marked for deletion.
                     siblingPrev--;
                 }
                 if (!isEnd(siblingPrev)
@@ -1295,14 +1115,12 @@ public:
                         && (siblingPrev->properties == current->properties)
                         && (bidi != KoSvgText::BidiIsolate && bidi != KoSvgText::BidiIsolateOverride)
                         && childCount(siblingPrev) == 0) {
-                    // TODO: handle localtransforms better; annoyingly, this requires whitespace handling
                     siblingPrev->text += current->text;
                     current->text = QString();
                     return true;
                 }
             }
         } else if (children == 1) {
-            // merge single children into parents if possible.
             auto child = childBegin(current);
             if ((child->localTransformations.isEmpty() && current->localTransformations.isEmpty())
                     && (child->textPathId.isEmpty() && current->textPathId.isEmpty())
@@ -1331,21 +1149,12 @@ public:
                 tree.erase(child);
             }
             if (childCount(current) <= 1) {
-                // This checks if, when there's only 0 or 1 children, this node can be cleaned up as well.
                 return cleanUpImpl(tree, current);
             }
         }
         return false;
     }
 
-    /**
-     * @brief cleanUp
-     * This cleans up the tree by...
-     * - Removing empty text elements that are not the root or text paths.
-     * - Merging sibling elements with similar properties.
-     * - Merging single children with parent if possible.
-     * @param tree -- tree to clean up
-     */
     static void cleanUp(KisForest<KoSvgTextContentElement> &tree) {
         if (tree.childBegin() != tree.childEnd()) {
             cleanUpImpl(tree, tree.childBegin());
@@ -1386,10 +1195,6 @@ public:
 
     KoSvgTextNodeIndex createTextNodeIndex(KisForest<KoSvgTextContentElement>::child_iterator textElement) const;
 
-    /**
-     * @brief removeTextPathId
-     * Remove the text path id with the given name from the toplevel elements.
-     */
     static void removeTextPathId(KisForest<KoSvgTextContentElement>::child_iterator parent, const QString &name) {
         for (auto it = childBegin(parent); it != childEnd(parent); it++) {
             if (it->textPathId == name) {
@@ -1421,15 +1226,6 @@ public:
         }
     }
 
-    /**
-     * @brief boundingBoxFromTree
-     * get the bounding box of the current textdata tree.
-     * We need the bounding box for a variety of things, primarily KoShape::boundingRect(),
-     * but also the calculation of the gradient painting rect.
-     * @param tree -- tree to perform this on.
-     * @param includeStrokeInset -- whether to include stroke insets.
-     * @return a bounding rect.
-     */
     static QRectF boundingBoxFromTree(KisForest<KoSvgTextContentElement> tree, const KoSvgTextShape *rootShape, bool includeStrokeInset) {
         QRectF result;
         QList<KoShapeStrokeModelSP> parentStrokes;
@@ -1455,7 +1251,6 @@ public:
                     }
                 }
                 if (it->properties.hasProperty(KoSvgTextProperties::StrokeId)) {
-                    // reset stroke to use parent stroke.
                     parentStrokes.pop_back();
                 }
             }
@@ -1464,4 +1259,4 @@ public:
     }
 };
 
-#endif // KO_SVG_TEXT_SHAPE_P_H
+#endif

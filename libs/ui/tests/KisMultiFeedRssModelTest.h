@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISMULTIFEEDRSSMODELTEST_H
 #define KISMULTIFEEDRSSMODELTEST_H
 
@@ -24,4 +23,4 @@ private Q_SLOTS:
     void testRemoveFeed_data();
 };
 
-#endif // KISMULTIFEEDRSSMODELTEST_H
+#endif

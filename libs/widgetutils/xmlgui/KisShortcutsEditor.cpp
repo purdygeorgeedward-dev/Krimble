@@ -16,9 +16,6 @@
 #include "config-xmlgui.h"
 #include "kis_action_registry.h"
 
-// The following is needed for KisShortcutsEditorPrivate and QTreeWidgetHack
-// #include "KisShortcutsDialog_p.h"
-
 #include <QAction>
 #include <QList>
 #include <QObject>
@@ -38,12 +35,7 @@
 #include "kactioncategory.h"
 #include <ktreewidgetsearchline.h>
 
-//---------------------------------------------------------------------
-// KisShortcutsEditor
-//---------------------------------------------------------------------
-
 Q_DECLARE_METATYPE(KisShortcutsEditorItem *)
-
 
 KisShortcutsEditor::KisShortcutsEditor(QWidget *parent, ActionTypes actionType, LetterShortcuts allowLetterShortcuts)
     : QWidget(parent)
@@ -59,7 +51,6 @@ KisShortcutsEditor::~KisShortcutsEditor()
 
 bool KisShortcutsEditor::isModified() const
 {
-    // Iterate over all items
     QTreeWidgetItemIterator it(d->ui.list, QTreeWidgetItemIterator::NoChildren);
 
     for (; (*it); ++it) {
@@ -84,54 +75,34 @@ void KisShortcutsEditor::clearSearch()
     d->ui.searchFilter->searchLine()->clear();
 }
 
-
 void KisShortcutsEditor::addCollection(KisKActionCollection *collection, const QString &title)
 {
-    // KXmlGui add action collections unconditionally. If some plugin doesn't
-    // provide actions we don't want to create empty subgroups.
     if (collection->isEmpty()) {
         return;
     }
 
-    // Pause updating.
     setUpdatesEnabled(false);
 
-
-    /**
-     * Forward this action collection to the delegate which will do conflict checking.
-     * This _replaces_ existing collections in the delegate.
-     */
     d->actionCollections.append(collection);
     d->delegate->setCheckActionCollections(d->actionCollections);
 
-
-    // Determine how we should label this collection in the widget.
     QString collectionTitle;
     if (!title.isEmpty()) {
       collectionTitle = title;
     } else {
-      // Use the programName (Translated).
       collectionTitle = collection->componentDisplayName();
     }
 
-    // Create the collection root node.
     QTreeWidgetItem *hierarchy[3];
     hierarchy[KisShortcutsEditorPrivate::Root] = d->ui.list->invisibleRootItem();
     hierarchy[KisShortcutsEditorPrivate::Program] =
       d->findOrMakeItem(hierarchy[KisShortcutsEditorPrivate::Root], collectionTitle);
     hierarchy[KisShortcutsEditorPrivate::Action] = 0;
 
-    // Remember which actions we have seen. We will be adding categorized
-    // actions first, so this will help us keep track of which actions haven't
-    // been categorized yet, so we can add them as uncategorized at the end.
     QSet<QAction *> actionsSeen;
 
-    // Add a subtree for each category? Perhaps easier to think that this
-    // doesn't exist. Basically you add KisKActionCategory as a QObject child of
-    // KisKActionCollection, and then tag objects as belonging to the category.
     foreach (KisKActionCategory *category, collection->categories()) {
 
-        // Don't display empty categories.
         if (category->actions().isEmpty()) {
             continue;
         }
@@ -139,28 +110,23 @@ void KisShortcutsEditor::addCollection(KisKActionCollection *collection, const Q
         hierarchy[KisShortcutsEditorPrivate::Action] =
           d->findOrMakeItem(hierarchy[KisShortcutsEditorPrivate::Program], category->text());
 
-        // Add every item from the category.
         foreach (QAction *action, category->actions()) {
             actionsSeen.insert(action);
             d->addAction(action, hierarchy, KisShortcutsEditorPrivate::Action);
         }
 
-        // Fold in each KisKActionCategory by default.
         hierarchy[KisShortcutsEditorPrivate::Action]->setExpanded(false);
 
     }
 
-    // Finally, tack on any uncategorized actions.
     foreach (QAction *action, collection->actions()) {
         if (!actionsSeen.contains(action)) {
             d->addAction(action, hierarchy, KisShortcutsEditorPrivate::Program);
         }
     }
 
-    // sort the list
     d->ui.list->sortItems(Name, Qt::AscendingOrder);
 
-    // Now turn on updating again.
     setUpdatesEnabled(true);
 
     QTimer::singleShot(0, this, SLOT(resizeColumns()));
@@ -178,12 +144,10 @@ void KisShortcutsEditor::importConfiguration(KConfigBase *config, bool isScheme)
         return;
     }
 
-    // If this is a shortcut scheme, apply it
     if (isScheme) {
         KisActionRegistry::instance()->applyShortcutScheme(config);
     }
 
-    // Update the dialog entry items
     const KConfigGroup schemeShortcuts(config, QStringLiteral("Shortcuts"));
     for (QTreeWidgetItemIterator it(d->ui.list); (*it); ++it) {
 
@@ -220,7 +184,6 @@ void KisShortcutsEditor::exportConfiguration(KConfigBase *config) const
 
 void KisShortcutsEditor::saveShortcuts(KConfigGroup *config) const
 {
-    // This is a horrible mess with pointers...
     KConfigGroup cg;
     if (config == 0) {
         cg = KConfigGroup(KSharedConfig::openConfig("kritashortcutsrc"),
@@ -228,7 +191,6 @@ void KisShortcutsEditor::saveShortcuts(KConfigGroup *config) const
         config = &cg;
     }
 
-    // Clear and reset temporary shortcuts
     config->deleteGroup();
     foreach (KisKActionCollection *collection, d->actionCollections) {
         collection->writeSettings(config, false);
@@ -237,16 +199,12 @@ void KisShortcutsEditor::saveShortcuts(KConfigGroup *config) const
     KisActionRegistry::instance()->notifySettingsUpdated();
 }
 
-//slot
 void KisShortcutsEditor::resizeColumns()
 {
     for (int i = 0; i < d->ui.list->columnCount(); i++) {
         d->ui.list->resizeColumnToContents(i);
     }
 }
-
-
-
 
 void KisShortcutsEditor::commit()
 {
@@ -260,12 +218,11 @@ void KisShortcutsEditor::commit()
 void KisShortcutsEditor::save()
 {
     saveShortcuts();
-    commit(); // Not doing this would be bad
+    commit();
 }
 
 void KisShortcutsEditor::undo()
 {
-    // TODO: is this working?
     for (QTreeWidgetItemIterator it(d->ui.list); (*it); ++it) {
         if (KisShortcutsEditorItem *item = dynamic_cast<KisShortcutsEditorItem *>(*it)) {
             item->undo();
@@ -286,7 +243,6 @@ void KisShortcutsEditor::printShortcuts() const
 void KisShortcutsEditor::searchUpdated(QString s)
 {
     if (s.isEmpty()) {
-        // Reset the tree area
         d->ui.list->collapseAll();
         d->ui.list->expandToDepth(0);
     } else {
@@ -303,6 +259,5 @@ void KisShortcutsEditor::setActionTypes(ActionTypes actionTypes)
 {
     d->setActionTypes(actionTypes);
 }
-
 
 #include "moc_KisShortcutsEditor.cpp"

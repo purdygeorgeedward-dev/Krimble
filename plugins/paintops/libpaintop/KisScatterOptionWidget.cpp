@@ -16,7 +16,6 @@
 #include <KisScatterOptionModel.h>
 #include <KisWidgetConnectionUtils.h>
 
-
 struct KisScatterOptionWidget::Private
 {
     Private(lager::cursor<KisScatterOptionData> optionData)

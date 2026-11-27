@@ -28,5 +28,4 @@ protected:
     QList<QAction *> createActionsImpl() override;
 };
 
-
-#endif 
+#endif

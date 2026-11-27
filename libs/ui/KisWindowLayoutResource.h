@@ -36,7 +36,6 @@ public:
     bool saveToDevice(QIODevice *dev) const override;
     bool loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourcesInterface) override;
 
-
     QPair<QString, QString> resourceType() const override
     {
         return QPair<QString, QString>(ResourceType::WindowLayouts, "");
@@ -56,6 +55,5 @@ private:
 
     QScopedPointer<Private> d;
 };
-
 
 #endif

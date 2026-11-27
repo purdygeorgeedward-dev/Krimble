@@ -39,16 +39,13 @@ public:
 private Q_SLOTS:
 
     void toggleQualitySlider(bool toggle);
-    // Disable HLG OOTF options when the toggle is off.
     void toggleHLGOptions(bool toggle);
-    // Disable all HLG options when the index is not for an HLG option.
     void toggleExtraHDROptions(int index);
 private:
 
     bool m_hasAlpha {false};
 
 };
-
 
 class HeifExport : public KisImportExportFilter
 {
@@ -57,7 +54,6 @@ public:
     HeifExport(QObject *parent, const QVariantList &);
     ~HeifExport() override;
 
-    // This should return true if the library can work with a QIODevice, and doesn't want to open the file by itself
     bool supportsIO() const override { return true; }
 
     KisImportExportErrorCode convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP configuration = 0) override;

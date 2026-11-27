@@ -16,7 +16,6 @@ class QPointF;
 class QRectF;
 class QTransform;
 
-
 class KoVectorPatternBackground : public KoShapeBackground
 {
 public:
@@ -28,9 +27,6 @@ public:
     void setReferenceCoordinates(KoFlake::CoordinateSystem value);
     KoFlake::CoordinateSystem referenceCoordinates() const;
 
-    /**
-     * In ViewBox just use the same mode as for referenceCoordinates
-     */
     void setContentCoordinates(KoFlake::CoordinateSystem value);
     KoFlake::CoordinateSystem contentCoordinates() const;
 
@@ -50,4 +46,4 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-#endif // KOVECTORPATTERNBACKGROUND_H
+#endif

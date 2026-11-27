@@ -53,7 +53,6 @@ void KisCurveOptionDataTest::testSerializeDisabledSensors()
     KisCurveOptionData data(KoID("Opacity"),
                             KisCurveOptionData::Checkability::NotCheckable);
 
-    // sensor is disabled!
     data.sensorStruct().sensorPressure.isActive = false;
     data.sensorStruct().sensorPressure.curve = "0.0,0.5;1,1;";
 
@@ -75,12 +74,6 @@ void KisCurveOptionDataTest::testSerializeDisabledSensors()
     data.write(&config);
     QVERIFY(data2.read(&config));
 
-    /**
-     * The disabled sensor is **not** saved into the serialized
-     * form, so the roundtripping such data will not result
-     * in the same data in C++ sense.
-     */
-
     QCOMPARE(data2.sensorStruct().sensorPressure.isActive, false);
     QCOMPARE(data2.sensorStruct().sensorRotation.isActive, true);
 
@@ -94,12 +87,6 @@ void KisCurveOptionDataTest::testSerializeNoSensors()
 {
     KisCurveOptionData data(KoID("Opacity"),
                             KisCurveOptionData::Checkability::NotCheckable);
-
-    /**
-     * When Krita loads a configuration with no sensors
-     * available, it automatically activates a pressure
-     * sensors with the default curve.
-     */
 
     QCOMPARE(data.sensorStruct().sensorPressure.isActive, true);
     QCOMPARE(data.sensorStruct().sensorPressure.curve, DEFAULT_CURVE_STRING);

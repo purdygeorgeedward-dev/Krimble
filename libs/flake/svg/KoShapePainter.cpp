@@ -148,35 +148,26 @@ void KoShapePainter::paint(QPainter &painter, const QRect &painterRect, const QR
         return;
 
     KoViewConverter converter;
-    // calculate the painter destination rectangle size in document coordinates
     QRectF paintBox = converter.viewToDocument(QRectF(QPointF(), painterRect.size()));
 
-    // compute the zoom factor based on the bounding rects in document coordinates
-    // so that the content fits into the image
     qreal zoomW = paintBox.width() / documentRect.width();
     qreal zoomH = paintBox.height() / documentRect.height();
     qreal zoom = qMin(zoomW, zoomH);
 
-    // now set the zoom into the zoom handler used for painting the shape
     converter.setZoom(zoom);
 
     painter.save();
 
-    // initialize painter
     painter.setPen(QPen(Qt::NoPen));
     painter.setBrush(Qt::NoBrush);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setClipRect(painterRect.adjusted(-1,-1,1,1));
 
-    // convert document rectangle to view coordinates
     QRectF zoomedBound = converter.documentToView(documentRect);
-    // calculate offset between painter rectangle and converted document rectangle
     QPointF offset = QRectF(painterRect).center() - zoomedBound.center();
-    // center content in painter rectangle
     painter.translate(offset.x(), offset.y());
     painter.setTransform(converter.documentToView(), true);
 
-    // finally paint the shapes
     paint(painter);
 
     painter.restore();

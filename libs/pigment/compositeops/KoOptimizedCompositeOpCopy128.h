@@ -63,10 +63,7 @@ struct CopyCompositor128 {
 
         const float_m opacity_is_null_mask = opacity_norm_vec == zeroValue;
 
-        // The source cannot change the colors in the destination,
-        // since its fully transparent
         if (xsimd::all(opacity_is_null_mask)) {
-            // noop
         } else if (xsimd::all(opacity_norm_vec == oneValue)) {
             if (xsimd::all(src_alpha == zeroValue)) {
                 dataWrapper.clearPixels(dst);
@@ -102,19 +99,10 @@ struct CopyCompositor128 {
                 dst_c3 += opacity_norm_vec * (src_c3 - dst_c3);
 
                 if (!xsimd::all(newAlpha == oneValue)) {
-                    /// This division by newAlpha may be unsafe in case
-                    /// **some** elements of newAlpha are null. We don't
-                    /// care, because:
-                    ///
-                    /// 1) the value will be clamped by xsimd::min a bit later;
-                    ///
-                    /// 2) even if it doesn't, the new alpha will be null,
-                    ///    so the state of the color channels is undefined
 
                     dst_c1 /= newAlpha;
                     dst_c2 /= newAlpha;
                     dst_c3 /= newAlpha;
-
 
                     const float_v unitValue(KoColorSpaceMathsTraits<channels_type>::unitValue);
                     dst_c1 = xsimd::select(xsimd::isnan(dst_c1), unitValue, dst_c1);
@@ -125,12 +113,6 @@ struct CopyCompositor128 {
                     dst_c3 = xsimd::min(dst_c3, unitValue);
                 }
 
-                /**
-                 * Roundtrip `dst * dst_alpha / newAlpha` may not be possible
-                 * (it happens when mask (and therefore opacity) is null). In
-                 * such case we should recover original value of the pixels to
-                 * be consistent with the scalar version of the algorithm.
-                 */
                 pixelRecoverHelper.recoverPixels(opacity_is_null_mask, dst_c1, dst_c2, dst_c3);
 
                 dataWrapper.write(dst, dst_c1, dst_c2, dst_c3, newAlpha);
@@ -149,8 +131,6 @@ struct CopyCompositor128 {
 
         const channels_type nativeOriginalSrcAlpha = s[alpha_pos];
 
-        // we shouldn't leak undefined color value from under the locked zero alpha
-        // into our destination
         if (alphaLocked &&
             nativeOriginalSrcAlpha == KoColorSpaceMathsTraits<channels_type>::zeroValue) {
 
@@ -166,7 +146,6 @@ struct CopyCompositor128 {
         }
 
         if (opacity == 0.0f) {
-            // noop
         } else if (opacity == 1.0f) {
             if (allChannelsFlag && !alphaLocked) {
                 if (srcAlpha == 0.0f) {
@@ -185,7 +164,6 @@ struct CopyCompositor128 {
                     if (!alphaLocked) d[3] = s[3];
 
                 } else {
-                    // Precondition: d[alpha_pos] == 0 && !alphaLocked
 
                     const QBitArray &channelFlags = oparams.channelFlags;
                     d[0] = channelFlags.at(0) ? s[0] : KoColorSpaceMathsTraits<channels_type>::zeroValue;
@@ -258,7 +236,6 @@ struct CopyCompositor128 {
                         if (channelFlags.at(1)) d[1] = PixelWrapper<channels_type, _impl>::roundFloatToUint(dst_c2);
                         if (channelFlags.at(2)) d[2] = PixelWrapper<channels_type, _impl>::roundFloatToUint(dst_c3);
                     } else {
-                        // Precondition: dstAlpha == 0 && !alphaLocked
                         const QBitArray &channelFlags = oparams.channelFlags;
                         d[0] = channelFlags.at(0) ? dst_c1 : KoColorSpaceMathsTraits<channels_type>::zeroValue;
                         d[1] = channelFlags.at(1) ? dst_c2 : KoColorSpaceMathsTraits<channels_type>::zeroValue;
@@ -275,11 +252,6 @@ struct CopyCompositor128 {
     }
 };
 
-/**
- * An optimized version of a composite op for the use in 16 byte
- * colorspaces with alpha channel placed at the last byte of
- * the pixel: C1_C2_C3_A.
- */
 template<typename _impl>
 class KoOptimizedCompositeOpCopy128 : public KoCompositeOp
 {
@@ -317,7 +289,7 @@ public:
                 KoStreamedMath<_impl>::template genericComposite128_novector<haveMask, false, CopyCompositor128<float, true, true> >(params);
             } else if (!allChannelsFlag && !alphaLocked) {
                 KoStreamedMath<_impl>::template genericComposite128_novector<haveMask, false, CopyCompositor128<float, false, false> >(params);
-            } else /*if (!allChannelsFlag && alphaLocked) */{
+            } else {
                 KoStreamedMath<_impl>::template genericComposite128_novector<haveMask, false, CopyCompositor128<float, true, false> >(params);
             }
         }
@@ -361,13 +333,12 @@ public:
                 KoStreamedMath<_impl>::template genericComposite64_novector<haveMask, false, CopyCompositor128<quint16, true, true> >(params);
             } else if (!allChannelsFlag && !alphaLocked) {
                 KoStreamedMath<_impl>::template genericComposite64_novector<haveMask, false, CopyCompositor128<quint16, false, false> >(params);
-            } else /*if (!allChannelsFlag && alphaLocked) */{
+            } else {
                 KoStreamedMath<_impl>::template genericComposite64_novector<haveMask, false, CopyCompositor128<quint16, true, false> >(params);
             }
         }
     }
 };
-
 
 template<typename _impl>
 class KoOptimizedCompositeOpCopy32 : public KoCompositeOp
@@ -406,10 +377,10 @@ public:
                 KoStreamedMath<_impl>::template genericComposite32_novector<haveMask, false, CopyCompositor128<quint8, true, true> >(params);
             } else if (!allChannelsFlag && !alphaLocked) {
                 KoStreamedMath<_impl>::template genericComposite32_novector<haveMask, false, CopyCompositor128<quint8, false, false> >(params);
-            } else /*if (!allChannelsFlag && alphaLocked) */{
+            } else {
                 KoStreamedMath<_impl>::template genericComposite32_novector<haveMask, false, CopyCompositor128<quint8, true, false> >(params);
             }
         }
     }
 };
-#endif // KOOPTIMIZEDCOMPOSITEOPCOPY128_H_
+#endif

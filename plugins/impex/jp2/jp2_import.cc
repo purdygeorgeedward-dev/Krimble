@@ -23,7 +23,7 @@ jp2Import::~jp2Import()
 {
 }
 
-KisImportExportErrorCode jp2Import::convert(KisDocument *document, QIODevice */*io*/,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode jp2Import::convert(KisDocument *document, QIODevice * ,  KisPropertiesConfigurationSP )
 {
     JP2Converter converter(document);
     KisImportExportErrorCode result = converter.buildImage(filename());

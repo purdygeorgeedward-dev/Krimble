@@ -33,7 +33,6 @@ __KisToolSelectRectangularLocal::__KisToolSelectRectangularLocal(KoCanvasBase * 
     setObjectName("tool_select_rectangular");
 }
 
-
 KisToolSelectRectangular::KisToolSelectRectangular(KoCanvasBase *canvas):
     KisToolSelectBase<__KisToolSelectRectangularLocal>(canvas, i18n("Rectangular Selection"))
 {}
@@ -91,8 +90,6 @@ void KisToolSelectRectangular::finishRect(const QRectF& rect, qreal roundCorners
             -> KUndo2Command * {
                 KisPainter painter(tmpSel);
                 painter.setPaintColor(KoColor(Qt::black, tmpSel->colorSpace()));
-                // Since the feathering already smooths the selection, the
-                // antiAlias is not applied if we must feather
                 painter.setAntiAliasPolygonFill(antiAlias && feather == 0);
                 painter.setFillStyle(KisPainter::FillStyleForegroundColor);
                 painter.setStrokeStyle(KisPainter::StrokeStyleNone);

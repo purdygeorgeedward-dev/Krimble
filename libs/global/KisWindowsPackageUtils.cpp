@@ -9,9 +9,6 @@
 
 #include <array>
 
-// XXX: needs to go first because under MinGW
-// clangd gets really confused and errors on missing
-// definition of WINAPI_FAMILY_PARTITION
 #include <windows.h>
 
 #if defined __has_include
@@ -22,28 +19,12 @@
 #endif
 
 #if defined HAS_APPMODEL_H
-// ---
-// GetCurrentPackageFamilyName
-// appmodel.h / Kernel32.dll / Windows 8
-// ---
 using pGetCurrentPackageFamilyName_t = decltype(&GetCurrentPackageFamilyName);
 
-// ---
-// GetCurrentPackageFullName
-// appmodel.h / Kernel32.dll / Windows 8
-// ---
 using pGetCurrentPackageFullName_t = decltype(&GetCurrentPackageFullName);
 #else
-// ---
-// GetCurrentPackageFamilyName
-// appmodel.h / Kernel32.dll / Windows 8
-// ---
 using pGetCurrentPackageFamilyName_t = LONG(WINAPI *)(UINT32 *packageFamilyNameLength, PWSTR packageFamilyName);
 
-// ---
-// GetCurrentPackageFullName
-// appmodel.h / Kernel32.dll / Windows 8
-// ---
 using pGetCurrentPackageFullName_t = LONG(WINAPI *)(UINT32 *packageFullNameLength, PWSTR packageFullName);
 #endif
 
@@ -61,14 +42,6 @@ constexpr int PACKAGE_FULL_NAME_MAX_LENGTH = 127;
 constexpr LONG APPMODEL_ERROR_NO_PACKAGE = 15700;
 #endif
 
-// Flag for `KNOWN_FOLDER_FLAG`, introduced in Win 10 ver 1703, which when
-// used within a Desktop Bridge process, will cause the API to return the
-// redirected target of the locations.
-//
-// ---
-// KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET
-// shlobj_core.h / Windows 10 v1703
-// ---
 #ifndef KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET
 #define KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET 0x00040000
 #endif
@@ -113,19 +86,16 @@ bool isRunningInPackage()
 bool tryGetCurrentPackageFamilyName(QString *outName)
 {
     if (!AppmodelFunctions::instance().getCurrentPackageFamilyName) {
-        // We are probably on Windows 7 or earlier.
         return false;
     }
 
-    std::array<WCHAR, PACKAGE_FULL_NAME_MAX_LENGTH + 1> name{}; // includes null terminator
+    std::array<WCHAR, PACKAGE_FULL_NAME_MAX_LENGTH + 1> name{};
     UINT32 nameLength = name.size();
     const LONG result = AppmodelFunctions::instance().getCurrentPackageFamilyName(&nameLength, name.data());
     if (result == APPMODEL_ERROR_NO_PACKAGE) {
-        // Process not running from a package.
         return false;
     }
     if (result == ERROR_INSUFFICIENT_BUFFER) {
-        // This shouldn't happen!
         qWarning() << "GetCurrentPackageFamilyName returned "
                       "ERROR_INSUFFICIENT_BUFFER, required length is"
                    << nameLength;
@@ -140,14 +110,12 @@ bool tryGetCurrentPackageFamilyName(QString *outName)
     }
 
     if (outName) {
-        // Sanity check
         if (nameLength > name.size()) {
             qWarning() << "GetCurrentPackageFamilyName returned a length "
                           "exceeding the buffer size:"
                        << nameLength;
             nameLength = name.size();
         }
-        // Exclude null terminator
         if (nameLength > 0 && name.at(nameLength - 1) == L'\0') {
             nameLength -= 1;
         }
@@ -159,19 +127,16 @@ bool tryGetCurrentPackageFamilyName(QString *outName)
 bool tryGetCurrentPackageFullName(QString *outName)
 {
     if (!AppmodelFunctions::instance().getCurrentPackageFullName) {
-        // We are probably on Windows 7 or earlier.
         return false;
     }
 
-    std::array<WCHAR, PACKAGE_FULL_NAME_MAX_LENGTH + 1> name{}; // includes null terminator
+    std::array<WCHAR, PACKAGE_FULL_NAME_MAX_LENGTH + 1> name{};
     UINT32 nameLength = name.size();
     const LONG result = AppmodelFunctions::instance().getCurrentPackageFullName(&nameLength, name.data());
     if (result == APPMODEL_ERROR_NO_PACKAGE) {
-        // Process not running from a package.
         return false;
     }
     if (result == ERROR_INSUFFICIENT_BUFFER) {
-        // This shouldn't happen!
         qWarning() << "GetCurrentPackageFullName returned "
                       "ERROR_INSUFFICIENT_BUFFER, required length is"
                    << nameLength;
@@ -186,14 +151,12 @@ bool tryGetCurrentPackageFullName(QString *outName)
     }
 
     if (outName) {
-        // Sanity check
         if (nameLength > name.size()) {
             qWarning() << "GetCurrentPackageFullName returned a length "
                           "exceeding the buffer size:"
                        << nameLength;
             nameLength = name.size();
         }
-        // Exclude null terminator
         if (nameLength > 0 && name.at(nameLength - 1) == L'\0') {
             nameLength -= 1;
         }
@@ -220,4 +183,4 @@ QString getPackageRoamingAppDataLocation()
     return appData;
 }
 
-} /* namespace KisWindowsPackageUtils */
+}

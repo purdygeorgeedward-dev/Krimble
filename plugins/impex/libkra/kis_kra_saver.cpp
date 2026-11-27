@@ -54,7 +54,6 @@
 #include <QFileInfo>
 #include <QDir>
 
-
 using namespace KRA;
 
 struct KisKraSaver::Private
@@ -106,14 +105,12 @@ QDomElement KisKraSaver::saveXML(QDomDocument& doc,  KisImageSP image)
     imageElement.setAttribute(HEIGHT, KisDomUtils::toString(image->height()));
     imageElement.setAttribute(COLORSPACE_NAME, image->colorSpace()->id());
     imageElement.setAttribute(DESCRIPTION, m_d->doc->documentInfo()->aboutInfo("comment"));
-    // XXX: Save profile as blob inside the image, instead of the product name.
     if (image->profile() && image->profile()-> valid()) {
         imageElement.setAttribute(PROFILE, image->profile()->name());
     }
     imageElement.setAttribute(X_RESOLUTION, KisDomUtils::toString(image->xRes()*72.0));
     imageElement.setAttribute(Y_RESOLUTION, KisDomUtils::toString(image->yRes()*72.0));
 
-    //now the proofing options:
     if (image->proofingConfiguration()) {
         imageElement.setAttribute(PROOFINGPROFILENAME,
                                   KisDomUtils::toString(image->proofingConfiguration()->proofingProfile));
@@ -144,7 +141,7 @@ QDomElement KisKraSaver::saveXML(QDomDocument& doc,  KisImageSP image)
                                   KisDomUtils::toString(image->proofingConfiguration()->legacyAdaptationState()));
     }
 
-    quint32 count = 1; // We don't save the root layer, but it does count
+    quint32 count = 1;
     KisSaveXmlVisitor visitor(doc, imageElement, count, m_d->filename, true);
     visitor.setSelectedNodes({m_d->doc->preActivatedNode()});
 
@@ -165,7 +162,6 @@ QDomElement KisKraSaver::saveXML(QDomDocument& doc,  KisImageSP image)
     saveColorHistory(doc, imageElement);
     saveResourcesToXML(doc, imageElement);
 
-    // Redundancy -- Save animation metadata in XML to prevent data loss for the time being...
     QDomElement animationElement = doc.createElement("animation");
     KisDomUtils::saveValue(&animationElement, "framerate", image->animationInterface()->framerate());
     KisDomUtils::saveValue(&animationElement, "range", image->animationInterface()->documentPlaybackRange());
@@ -197,7 +193,6 @@ QDomElement KisKraSaver::saveXML(QDomDocument& doc,  KisImageSP image)
         }
         imageElement.appendChild(annotationsElement);
     }
-
 
     return imageElement;
 }
@@ -232,8 +227,6 @@ bool KisKraSaver::saveResources(KoStore *store, KisImageSP image, const QString 
             continue;
         }
 
-        // we first read into a buffer to make sure the save operation is transactional,
-        // that is, either resource is saves correctly, or the file is left empty.
         QByteArray ba = resource.data();
 
         qint64 nwritten = 0;
@@ -370,7 +363,6 @@ void KisKraSaver::saveResourcesToXML(QDomDocument &doc, QDomElement &element)
     QDomElement eResources = doc.createElement(RESOURCES);
 
     Q_FOREACH (const KoResourceLoadResult resource, m_d->linkedDocumentResources) {
-        // all warnings will be issued in KisKraSaver::saveResources()
         if (resource.type() != KoResourceLoadResult::EmbeddedResource) continue;
 
         KoResourceSignature sig = resource.signature();
@@ -395,7 +387,6 @@ void KisKraSaver::saveResourcesToXML(QDomDocument &doc, QDomElement &element)
 
 void KisKraSaver::saveStoryboardToXML(QDomDocument& doc, QDomElement &element)
 {
-    //saving storyboard comments
     QDomElement eCommentList = doc.createElement("StoryboardCommentList");
     for (StoryboardComment comment: m_d->doc->getStoryboardCommentsList()) {
         QDomElement commentElement = doc.createElement("storyboardcomment");
@@ -405,7 +396,6 @@ void KisKraSaver::saveStoryboardToXML(QDomDocument& doc, QDomElement &element)
     }
     element.appendChild(eCommentList);
 
-    //saving storyboard items
     QDomElement eItemList = doc.createElement("StoryboardItemList");
     for (StoryboardItemSP item : m_d->doc->getStoryboardItemList()) {
         QDomElement eItem =  item->toXML(doc);
@@ -481,7 +471,6 @@ bool KisKraSaver::saveBinaryData(KoStore* store, KisImageSP image, const QString
 {
     QString location;
 
-    // Save the layers data
     KisKraSaveVisitor visitor(store, m_d->imageName, m_d->nodeFileNames);
 
     if (external)
@@ -498,7 +487,6 @@ bool KisKraSaver::saveBinaryData(KoStore* store, KisImageSP image, const QString
     bool r = true;
     qint64 nwritten = 0;
 
-    // saving annotations
     bool savingAnnotationsSuccess = true;
     KisAnnotationSP annotation = image->annotation("exif");
     if (annotation) {
@@ -552,7 +540,6 @@ bool KisKraSaver::saveBinaryData(KoStore* store, KisImageSP image, const QString
     }
     success = success && savingImageProfileSuccess;
 
-    //This'll embed the profile used for proofing into the kra file.
     bool savingSoftproofingProfileSuccess = true;
     if (image->proofingConfiguration()) {
         const KoColorProfile *proofingProfile =
@@ -583,7 +570,6 @@ bool KisKraSaver::saveBinaryData(KoStore* store, KisImageSP image, const QString
 
     success = success && savingSoftproofingProfileSuccess;
 
-    // Save the remaining annotations
     vKisAnnotationSP_it beginIt = image->beginAnnotations();
     vKisAnnotationSP_it endIt = image->endAnnotations();
 
@@ -671,8 +657,6 @@ bool KisKraSaver::saveBinaryData(KoStore* store, KisImageSP image, const QString
 
     return success;
 }
-
-
 
 QStringList KisKraSaver::errorMessages() const
 {
@@ -897,7 +881,6 @@ bool KisKraSaver::saveAudioXML(QDomDocument& doc, QDomElement& element)
 bool KisKraSaver::saveKoColors(QDomDocument &doc, QDomElement &colorsElement,
                                const QList<KoColor> &colors) const
 {
-    // Writes like <colors><RGB ../><RGB .. /> ... </colors>
     Q_FOREACH(const KoColor & color, colors) {
         color.toXML(doc, colorsElement);
     }

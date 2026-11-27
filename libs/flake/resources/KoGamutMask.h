@@ -16,7 +16,6 @@
 #include <KoResource.h>
 #include <KoShape.h>
 
-//class KoViewConverter;
 class QTransform;
 
 class KoGamutMaskShape
@@ -36,10 +35,6 @@ private:
     KoShape* m_maskShape {nullptr};
 };
 
-
-/**
- * @brief The resource type for gamut masks used by the artistic color selector
- */
 class KRITAFLAKE_EXPORT KoGamutMask : public QObject, public KoResource
 {
     Q_OBJECT
@@ -81,7 +76,7 @@ public:
 
     QSizeF maskSize();
 
-    void setMaskShapes(QList<KoShape*> shapes);   
+    void setMaskShapes(QList<KoShape*> shapes);
     void setPreviewMaskShapes(QList<KoShape*> shapes);
 
     QList<KoShape*> koShapes() const;
@@ -97,4 +92,4 @@ private:
 
 typedef QSharedPointer<KoGamutMask> KoGamutMaskSP;
 
-#endif // KOGAMUTMASK_H
+#endif

@@ -7,7 +7,6 @@
 
 #include <KisLager.h>
 
-
 KisCurveOpOptionModel::KisCurveOpOptionModel(lager::cursor<KisCurveOpOptionData> _optionData)
     : optionData(_optionData)
     , LAGER_QT(curvePaintConnectionLine) {_optionData[&KisCurveOpOptionData::curve_paint_connection_line]}

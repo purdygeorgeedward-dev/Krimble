@@ -19,7 +19,6 @@
 #include <QRegularExpression>
 #include "KisQPainterStateSaver.h"
 
-
 struct Q_DECL_HIDDEN ImageShape::Private : public QSharedData
 {
     Private() {}
@@ -35,7 +34,6 @@ struct Q_DECL_HIDDEN ImageShape::Private : public QSharedData
     QScopedPointer<SvgUtil::PreserveAspectRatioParser> ratioParser;
     QTransform viewBoxTransform;
 };
-
 
 ImageShape::ImageShape()
     : m_d(new Private)
@@ -97,7 +95,7 @@ bool ImageShape::saveSvg(SvgSavingContext &context)
     }
     SvgStyleWriter::saveMetadata(this, context);
 
-    context.shapeWriter().endElement(); // image
+    context.shapeWriter().endElement();
 
     return true;
 }
@@ -151,7 +149,6 @@ bool ImageShape::loadSvg(const QDomElement &element, SvgLoadingContext &context)
     }
 
     if (m_d->ratioParser->defer) {
-        // TODO:
     }
 
     return true;

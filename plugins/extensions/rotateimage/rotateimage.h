@@ -44,4 +44,4 @@ private Q_SLOTS:
     void slotRotateAllLayers180();
 };
 
-#endif // ROTATEIMAGE_H
+#endif

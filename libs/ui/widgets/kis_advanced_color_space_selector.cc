@@ -156,7 +156,6 @@ void KisAdvancedColorSpaceSelector::fillDescription()
     QString notApplicableTooltip = i18nc("@info:tooltip","This profile has no colorants.");
     QString profileName = i18nc("Shows up instead of the name when there's no profile","No Profile Found");
     QString whatIsColorant = i18n("Colorant in d50-adapted xyY.");
-    //set colorants
     const QString colorSpaceId = KoColorSpaceRegistry::instance()->colorSpaceId(d->colorSpaceSelector->cmbColorModels->currentItem(), d->colorSpaceSelector->cmbColorDepth->currentItem());
     QList<const KoColorProfile *>  profileList = KoColorSpaceRegistry::instance()->profilesFor(colorSpaceId);
 
@@ -165,7 +164,6 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         if (currentColorSpace()->profile()->hasColorants()){
             QVector <KoColorimetryUtils::xyY> colorants = currentColorSpace()->profile()->getColorantsxyY();
             KoColorimetryUtils::xyY whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
-            //QString text = currentColorSpace()->profile()->info() + " =" +
             d->colorSpaceSelector->lblXYZ_W->setText(nameWhitePoint(whitepoint));
             d->colorSpaceSelector->lblXYZ_W->setToolTip(QString::number(whitepoint.x, 'f', 4) + ", " + QString::number(whitepoint.y, 'f', 4) + ", " + QString::number(whitepoint.Y, 'f', 4));
             d->colorSpaceSelector->TongueWidget->setToolTip("<html><head/><body><table><tr><th colspan='4'>"+i18nc("@info:tooltip","This profile has the following xyY colorants:")+"</th></tr><tr><td>"+
@@ -184,7 +182,6 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         d->colorSpaceSelector->TongueWidget->setToolTip(notApplicableTooltip);
     }
 
-    //set TRC
     QVector <double> estimatedTRC(3);
     QString estimatedGamma = i18nc("Estimated Gamma indicates how the TRC (Tone Response Curve or Tone Reproduction Curve) is bent. A Gamma of 1.0 means linear.", "<b>Estimated Gamma</b>: ");
     QString estimatedsRGB = i18nc("This is for special Gamma types that LCMS cannot differentiate between", "<b>Estimated Gamma</b>: sRGB, L* or rec709 TRC");
@@ -673,71 +670,47 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         }
     }
 
-
     d->colorSpaceSelector->textProfileDescription->moveCursor(QTextCursor::Start);
 
 }
 
 QString KisAdvancedColorSpaceSelector::nameWhitePoint(KoColorimetryUtils::xyY whitePoint) {
     QString name=(QString::number(whitePoint.x) + ", " + QString::number(whitePoint.y, 'f', 4));
-    //A   (0.451170, 0.40594) (2856K)(tungsten)
     if ((whitePoint.x>0.451170-0.005 && whitePoint.x<0.451170 + 0.005) &&
             (whitePoint.y>0.40594-0.005 && whitePoint.y<0.40594 + 0.005)){
         name="A";
         return name;
     }
-    //B   (0.34980, 0.35270) (4874K) (Direct Sunlight at noon)(obsolete)
-    //C   (0.31039, 0.31905) (6774K) (average/north sky daylight)(obsolete)
-    //D50 (0.34773, 0.35952) (5003K) (Horizon Light, default color of white paper, ICC profile standard illuminant)
     if ((whitePoint.x>0.34773-0.005 && whitePoint.x<0.34773 + 0.005) &&
             (whitePoint.y>0.35952-0.005 && whitePoint.y<0.35952 + 0.005)){
         name="D50";
         return name;
     }
-    //D55 (0.33411,	0.34877) (5503K) (Mid-morning / Mid-afternoon Daylight)
     if ((whitePoint.x>0.33411-0.001 && whitePoint.x<0.33411 + 0.001) &&
             (whitePoint.y>0.34877-0.005 && whitePoint.y<0.34877 + 0.005)){
         name="D55";
         return name;
     }
-    //D60 (0.3217, 0.3378) (~6000K) (ACES colorspace default)
     if ((whitePoint.x>0.3217-0.001 && whitePoint.x<0.3217 + 0.001) &&
             (whitePoint.y>0.3378-0.005 && whitePoint.y<0.3378 + 0.005)){
         name="D60";
         return name;
     }
-    //D65 (0.31382, 0.33100) (6504K) (Noon Daylight, default for computer and tv screens, sRGB default)
-    //Elle's are old school with 0.3127 and 0.3289
     if ((whitePoint.x>0.31382-0.002 && whitePoint.x<0.31382 + 0.002) &&
             (whitePoint.y>0.33100-0.005 && whitePoint.y<0.33100 + 0.002)){
         name="D65";
         return name;
     }
-    //D75 (0.29968, 0.31740) (7504K) (North sky Daylight)
     if ((whitePoint.x>0.29968-0.001 && whitePoint.x<0.29968 + 0.001) &&
             (whitePoint.y>0.31740-0.005 && whitePoint.y<0.31740 + 0.005)){
         name="D75";
         return name;
     }
-    //E   (1/3, 1/3)         (5454K) (Equal Energy. CIERGB default)
     if ((whitePoint.x>(1.0/3.0)-0.001 && whitePoint.x<(1.0/3.0) + 0.001) &&
             (whitePoint.y>(1.0/3.0)-0.001 && whitePoint.y<(1.0/3.0) + 0.001)){
         name="E";
         return name;
     }
-    //The F series seems to sorta overlap with the D series, so I'll just leave them in comment here.//
-    //F1  (0.31811, 0.33559) (6430K) (Daylight Fluorescent)
-    //F2  (0.37925, 0.36733) (4230K) (Cool White Fluorescent)
-    //F3  (0.41761, 0.38324) (3450K) (White Fluorescent)
-    //F4  (0.44920, 0.39074) (2940K) (Warm White Fluorescent)
-    //F5  (0.31975, 0.34246) (6350K) (Daylight Fluorescent)
-    //F6  (0.38660, 0.37847) (4150K) (Lite White Fluorescent)
-    //F7  (0.31569, 0.32960) (6500K) (D65 simulator, Daylight simulator)
-    //F8  (0.34902, 0.35939) (5000K) (D50 simulator)
-    //F9  (0.37829, 0.37045) (4150K) (Cool White Deluxe Fluorescent)
-    //F10 (0.35090, 0.35444) (5000K) (Philips TL85, Ultralume 50)
-    //F11 (0.38541, 0.37123) (4000K) (Philips TL84, Ultralume 40)
-    //F12 (0.44256, 0.39717) (3000K) (Philips TL83, Ultralume 30)
 
     return name;
 }

@@ -17,7 +17,6 @@ class KisNodeModel;
 class KisNodeDummy;
 class KisNodeManager;
 
-
 class KRITAUI_EXPORT KisNodeFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -53,4 +52,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_NODE_FILTER_PROXY_MODEL_H */
+#endif

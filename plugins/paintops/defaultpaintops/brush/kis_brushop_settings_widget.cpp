@@ -36,14 +36,12 @@ KisBrushOpSettingsWidget::KisBrushOpSettingsWidget(QWidget* parent, KisResources
                                        KisBrushOptionWidgetFlag::SupportsHSLBrushMode,
                                        parent)
 {
-    // TODO: pass into KisPaintOpSettingsWidget!
     Q_UNUSED(canvasResourcesInterface);
 
     setObjectName("brush option widget");
 
     namespace kpowu = KisPaintOpOptionWidgetUtils;
 
-    // Brush tip options
     addPaintOpOption(kpowu::createOptionWidget<KisCompositeOpOptionWidget>());
     addPaintOpOption(kpowu::createOpacityOptionWidget());
     addPaintOpOption(kpowu::createFlowOptionWidget());
@@ -60,7 +58,6 @@ KisBrushOpSettingsWidget::KisBrushOpSettingsWidget(QWidget* parent, KisResources
 
     addPaintOpOption(kpowu::createOptionWidget<KisScatterOptionWidget>());
 
-    // Colors options
     addPaintOpOption(kpowu::createOptionWidget<KisColorSourceOptionWidget>());
     addPaintOpOption(kpowu::createDarkenOptionWidget());
     addPaintOpOption(kpowu::createMixOptionWidget());
@@ -95,7 +92,7 @@ KisBrushOpSettingsWidget::~KisBrushOpSettingsWidget()
 KisPropertiesConfigurationSP KisBrushOpSettingsWidget::configuration() const
 {
     KisBrushBasedPaintOpSettingsSP config = new KisBrushOpSettings(resourcesInterface());
-    config->setProperty("paintop", "paintbrush"); // XXX: make this a const id string
+    config->setProperty("paintop", "paintbrush");
     writeConfiguration(config);
     return config;
 }

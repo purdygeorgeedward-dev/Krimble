@@ -12,9 +12,6 @@
 
 class KisViewManager;
 
-/**
- * Template of view plugin
- */
 class DigitalMixerPlugin : public QObject
 {
     Q_OBJECT

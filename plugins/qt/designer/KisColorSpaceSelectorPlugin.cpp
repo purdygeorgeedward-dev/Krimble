@@ -7,7 +7,6 @@
 #include "KisColorSpaceSelectorPlugin.h"
 #include <widgets/kis_color_space_selector.h>
 
-
 KisColorSpaceSelectorPlugin::KisColorSpaceSelectorPlugin(QObject *parent)
     : QObject(parent),
       m_initialized(false)

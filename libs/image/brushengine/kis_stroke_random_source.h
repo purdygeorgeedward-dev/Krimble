@@ -13,14 +13,6 @@
 #include "kis_random_source.h"
 #include "KisPerStrokeRandomSource.h"
 
-
-/**
- * A helper class to handle multiple KisRandomSource objects in a
- * stroke strategies. It creates two identical random sources in the
- * beginning of the stroke, so, when copied through copy-ctor and set
- * another level of detail starts returning the same sequence of
- * numbers as was returned for the first stroke.
- */
 class KRITAIMAGE_EXPORT  KisStrokeRandomSource
 {
 public:
@@ -41,4 +33,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_STROKE_RANDOM_SOURCE_H */
+#endif

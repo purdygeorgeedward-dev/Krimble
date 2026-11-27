@@ -30,5 +30,5 @@ private Q_SLOTS:
     void testImages();
 };
 
-#endif // _KIS_HEIF_TEST_H_
+#endif
 

@@ -9,7 +9,6 @@
 #include <KoShapeContainer.h>
 #include <kis_assert.h>
 
-
 KoAddRemoveShapeCommandImpl::KoAddRemoveShapeCommandImpl(KoShape *shape, KoShapeContainer *parent, KisCommandUtils::FlipFlopCommand::State state, KUndo2Command *parentCommand)
     : KisCommandUtils::FlipFlopCommand(state, parentCommand),
       m_shape(shape),

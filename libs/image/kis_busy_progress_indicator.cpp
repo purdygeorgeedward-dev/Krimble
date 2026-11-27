@@ -11,14 +11,13 @@
 
 #include "KoProgressProxy.h"
 
-
 struct KisBusyProgressIndicator::Private
 {
     Private(KisBusyProgressIndicator *_q)
         : timer(new QTimer(_q))
         {}
 
-    QTimer *timer {nullptr}; // owned by QObject hierarchy
+    QTimer *timer {nullptr};
     int numEmptyTicks {0};
     QAtomicInt numUpdates;
     QAtomicInt timerStarted;
@@ -45,7 +44,6 @@ struct KisBusyProgressIndicator::Private
         isStarted = false;
     }
 };
-
 
 KisBusyProgressIndicator::KisBusyProgressIndicator(KoProgressProxy *progressProxy)
     : m_d(new Private(this))

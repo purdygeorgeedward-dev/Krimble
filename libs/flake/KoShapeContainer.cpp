@@ -95,8 +95,6 @@ bool KoShapeContainer::inheritsTransform(const KoShape *shape) const
 
 void KoShapeContainer::paint(QPainter &painter) const
 {
-    // Shape container paints only its internal component part. All the children are rendered
-    // by the shape manager itself
 
     painter.save();
     paintComponent(painter);
@@ -118,7 +116,7 @@ void KoShapeContainer::shapeChanged(ChangeType type, KoShape* shape)
 
 bool KoShapeContainer::isClipped(const KoShape *child) const
 {
-    if (d->model == 0) // throw exception??
+    if (d->model == 0)
         return false;
     return d->model->isClipped(child);
 }
@@ -154,13 +152,9 @@ void KoShapeContainer::setModel(KoShapeContainerModel *model)
 void KoShapeContainer::setModelInit(KoShapeContainerModel *model)
 {
     setModel(model);
-    // HACK ALERT: the shapes are copied inside the model,
-    //             but we still need to connect the to the
-    //             hierarchy here!
     if (d->model) {
         Q_FOREACH (KoShape *shape, d->model->shapes()) {
-            if (shape) { // Note: shape can be 0 because not all shapes
-                //       implement cloneShape, e.g. the text shape.
+            if (shape) {
                 shape->setParent(this);
             }
         }
@@ -187,7 +181,6 @@ void KoShapeContainer::ShapeInterface::addShape(KoShape *shape)
         return;
     }
 
-    // TODO add a method to create a default model depending on the shape container
     if (!d->model) {
         d->model = new SimpleShapeContainerModel();
     }

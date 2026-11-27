@@ -40,4 +40,4 @@ public:
     LAGER_QT_CURSOR(LineHeightType, unit);
 };
 
-#endif // LINEHEIGHTMODEL_H
+#endif

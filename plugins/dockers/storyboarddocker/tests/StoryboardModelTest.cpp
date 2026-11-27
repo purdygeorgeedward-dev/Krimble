@@ -13,9 +13,6 @@
 
 void StoryboardModelTest::init()
 {
-    /* TODO: Seems like it's wrong to be testing the storyboard model without image data.
-     * We should reconsider this later down the line. The model should depend on having an image
-     * to be valid! */
 
     m_commentModel = new StoryboardCommentModel(this);
     m_storyboardModel = new StoryboardModel(this);
@@ -27,7 +24,6 @@ void StoryboardModelTest::init()
     m_storyboardModel->insertChildRows(pos);
     QCOMPARE(m_commentModel->rowCount(), 1);
 }
-
 
 void StoryboardModelTest::cleanup()
 {
@@ -57,8 +53,6 @@ void StoryboardModelTest::testAddComment()
     QCOMPARE(m_storyboardModel->rowCount(m_storyboardModel->index(0,0)), m_commentModel->rowCount() + 4);
 
 #if defined(QT_NO_DEBUG) && !defined(QT_FORCE_ASSERTS)
-    // add at an invalid position
-    // if assertions are enabled, this will make Qt crash in QAbstractItemModel::beginInsertRows
     m_commentModel->insertRows(-1, 1);
 
     QCOMPARE(commentCount + 1, m_commentModel->rowCount());
@@ -85,7 +79,6 @@ void StoryboardModelTest::testRemoveComment()
     QCOMPARE(m_storyboardModel->rowCount(m_storyboardModel->index(0,0)), m_commentModel->rowCount() + 4);
 
 #if defined(QT_NO_DEBUG) && !defined(QT_FORCE_ASSERTS)
-    // if assertions are enabled, this will make Qt crash in QAbstractItemModel::beginRemoveRows
     m_commentModel->removeRows(-1,1);
 
     QCOMPARE(rowsComment - 1, m_commentModel->rowCount());
@@ -126,7 +119,6 @@ void StoryboardModelTest::testFrameRemoved()
     QCOMPARE(rows-1, m_storyboardModel->rowCount());
 }
 
-
 void StoryboardModelTest::testFrameChanged()
 {
 
@@ -139,7 +131,6 @@ void StoryboardModelTest::testFrameChanged()
 
     QCOMPARE(m_storyboardModel->data(frameIndex).toInt(), 100);
 
-    //invalid value shouldn't change anything
     QVariant invalidValue = QVariant(-100);
     m_storyboardModel->setData(frameIndex, invalidValue, Qt::EditRole);
 
@@ -157,7 +148,6 @@ void StoryboardModelTest::testDurationChanged()
 
     QCOMPARE(m_storyboardModel->data(secIndex).toInt(), 100);
 
-    //invalid value shouldn't change anything
     QVariant invalidValue = QVariant(-100);
     m_storyboardModel->setData(secIndex, invalidValue, Qt::EditRole);
 

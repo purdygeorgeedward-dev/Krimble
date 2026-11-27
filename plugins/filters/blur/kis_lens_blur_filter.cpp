@@ -6,7 +6,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_lens_blur_filter.h"
 #include "kis_wdg_lens_blur.h"
 
@@ -24,11 +23,9 @@
 #include <kis_processing_information.h>
 #include "kis_lod_transform.h"
 
-
 #include <QPainter>
 
 #include <math.h>
-
 
 KisLensBlurFilter::KisLensBlurFilter() : KisFilter(id(), FiltersCategoryBlurId, i18n("&Lens Blur..."))
 {
@@ -150,7 +147,6 @@ void KisLensBlurFilter::processImpl(KisPaintDeviceSP device,
     imagePainter.setTransform(offsetTransform);
     imagePainter.drawPolygon(transformedIris, Qt::WindingFill);
 
-    // construct kernel from image
     Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic> irisKernel(kernelHeight, kernelWidth);
     for (int j = 0; j < kernelHeight; ++j) {
         for (int i = 0; i < kernelWidth; ++i) {
@@ -158,7 +154,6 @@ void KisLensBlurFilter::processImpl(KisPaintDeviceSP device,
         }
     }
 
-    // apply convolution
     KisConvolutionPainter painter(device);
     painter.setChannelFlags(channelFlags);
     painter.setProgress(progressUpdater);

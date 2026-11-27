@@ -17,7 +17,6 @@
 #include <KisSequentialIteratorProgress.h>
 #include <KisGlobalResourcesInterface.h>
 
-
 KisVibranceFilter::KisVibranceFilter() : KisFilter(id(), FiltersCategoryAdjustId, i18n("&Vibrance..."))
 {
     setColorSpaceIndependence(FULLY_INDEPENDENT);
@@ -81,7 +80,6 @@ void KisVibranceFilter::processImpl(KisPaintDeviceSP device,
         rgba[0] = quint16(newB * 65535.0 + 0.5);
         rgba[1] = quint16(newG * 65535.0 + 0.5);
         rgba[2] = quint16(newR * 65535.0 + 0.5);
-        // rgba[3] (alpha) left unchanged
 
         cs->fromRgbA16(reinterpret_cast<quint8*>(rgba), it.rawData(), 1);
     }

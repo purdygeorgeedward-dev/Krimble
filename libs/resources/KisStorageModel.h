@@ -16,11 +16,6 @@
 
 class QSqlQuery;
 
-/**
- * KisStorageModel provides a model of all registered storages, like
- * the folder storages, the bundle storages or the memory storages. Note
- * that inactive storages are also part of this model.
- */
 class KRITARESOURCES_EXPORT KisStorageModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -53,7 +48,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
 
-    /// Enable and disable the storage represented by index
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
@@ -70,22 +64,17 @@ Q_SIGNALS:
 
     void storageEnabled(const QString &storage);
     void storageDisabled(const QString &storage);
-    
-    /// Emitted when an individual storage is initialized
+
     void storageResynchronized(const QString &storage, bool isBulkResynchronization);
 
-    /// Emitted on loading when all the storages are finished initialization
     void storagesBulkSynchronizationFinished();
 
 private Q_SLOTS:
 
-    /// Called whenever a storage is added
     void addStorage(const QString &location);
 
-    /// This is called when a storage really is deleted both from database and anywhere else
     void removeStorage(const QString &location);
 
-    /// called when storages finished synchronization process
     void slotStoragesBulkSynchronizationFinished();
 
 private :
@@ -102,4 +91,4 @@ private :
     QScopedPointer<Private> d;
 };
 
-#endif // KISSTORAGEMODEL_H
+#endif

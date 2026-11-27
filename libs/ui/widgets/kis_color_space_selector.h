@@ -29,12 +29,7 @@ public:
     void showColorBrowserButton(bool showButton);
     void showDepth(bool showDepth);
 Q_SIGNALS:
-    /**
-     * This signal is emitted when a new color space is selected.
-     * @param valid indicates if the color space can be used
-     */
     void selectionChanged(bool valid);
-    /// This signal is emitted, when a new color space is selected, that can be used (eg is valid)
     void colorSpaceChanged(const KoColorSpace*);
 private Q_SLOTS:
     void fillCmbDepths(const KoID& idd);
@@ -52,6 +47,5 @@ private:
     Private * const d;
 
 };
-
 
 #endif

@@ -13,10 +13,6 @@
 
 #include <KoResource.h>
 
-/**
- * The icon widget is used in the control box where the current color and brush
- * are shown.
- */
 class KRITAUI_EXPORT KisIconWidget : public KisPopupButton
 {
 
@@ -38,5 +34,5 @@ private:
     Private* const m_d;
 };
 
-#endif // KIS_ICONWIDGET_H_
+#endif
 

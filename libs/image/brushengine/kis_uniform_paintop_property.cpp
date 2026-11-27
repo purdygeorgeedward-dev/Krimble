@@ -110,7 +110,6 @@ void KisUniformPaintOpProperty::requestReadValue()
 
 KisPaintOpSettingsSP KisUniformPaintOpProperty::settings() const
 {
-    // correct conversion weak-to-strong shared pointer
     return m_d->settings ? m_d->settings : KisPaintOpSettingsSP();
 }
 

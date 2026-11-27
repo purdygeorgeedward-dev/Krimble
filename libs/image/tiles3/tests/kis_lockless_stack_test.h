@@ -24,9 +24,8 @@ private Q_SLOTS:
 
     void stressTestClear();
 
-
     void stressTestBulkPop();
 };
 
-#endif /* KIS_LOCKLESS_STACK_TEST_H */
+#endif
 

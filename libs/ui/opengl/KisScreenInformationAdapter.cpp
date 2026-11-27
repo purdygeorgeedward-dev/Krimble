@@ -14,8 +14,6 @@
 
 #include <config-hdr.h>
 
-
-
 #ifdef Q_OS_WIN
 #include <qpa/qplatformnativeinterface.h>
 #include <d3d11.h>
@@ -51,7 +49,6 @@ void getProcAddressSafe(QOpenGLContext *context, const char *funcName, FuncType 
 typedef const char *(EGLAPIENTRYP PFNEGLQUERYSTRINGPROC) (EGLDisplay dpy, EGLint name);
 #endif
 }
-
 
 struct KisScreenInformationAdapter::Private
 {

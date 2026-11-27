@@ -32,7 +32,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef _MSC_VER
 #define PROPAGATE_CONST_CONSTEXPR constexpr
 #else
-#if _MSC_VER <= 1900 // MSVS 2015 and earlier
+#if _MSC_VER <= 1900
 #define PROPAGATE_CONST_CONSTEXPR
 #define PROPAGATE_CONST_HAS_NO_EXPRESSION_SFINAE
 #else
@@ -76,7 +76,6 @@ class propagate_const {
   struct is_propagate_const<propagate_const<U>> : true_type {};
 
  public:
-  // [propagate_const.ctor], constructors
   PROPAGATE_CONST_CONSTEXPR propagate_const() = default;
 
   propagate_const(const propagate_const& p) = delete;
@@ -84,9 +83,6 @@ class propagate_const {
   PROPAGATE_CONST_CONSTEXPR propagate_const(propagate_const&& p) = default;
 
 #ifdef PROPAGATE_CONST_HAS_NO_EXPRESSION_SFINAE
-  //
-  // Make converting constructors explicit as we cannot use SFINAE to check.
-  //
   template <class U, class = enable_if_t<is_constructible<T, U&&>::value>>
   explicit PROPAGATE_CONST_CONSTEXPR propagate_const(propagate_const<U>&& pu)
       : t_(std::move(pu.t_))
@@ -101,9 +97,6 @@ class propagate_const {
   {
   }
 #else
-  //
-  // Use SFINAE to check if converting constructor should be explicit.
-  //
   template <class U, enable_if_t<!is_convertible<U&&, T>::value &&
                                      is_constructible<T, U&&>::value,
                                  bool> = true>
@@ -128,7 +121,6 @@ class propagate_const {
   PROPAGATE_CONST_CONSTEXPR propagate_const(U&& u) : t_(std::forward<U>(u)) {}
 #endif
 
-  // [propagate_const.assignment], assignment
   propagate_const& operator=(const propagate_const& p) = delete;
 
   PROPAGATE_CONST_CONSTEXPR propagate_const& operator=(propagate_const&& p) = default;
@@ -146,13 +138,12 @@ class propagate_const {
     return *this;
   }
 
-  // [propagate_const.const_observers], const observers
   explicit PROPAGATE_CONST_CONSTEXPR operator bool() const { return get() != nullptr; }
   PROPAGATE_CONST_CONSTEXPR const element_type* operator->() const { return get(); }
 
   template <class T_ = T, class U = enable_if_t<is_convertible<
                               const T_, const element_type*>::value>>
-  PROPAGATE_CONST_CONSTEXPR operator const element_type*() const  // Not always defined
+  PROPAGATE_CONST_CONSTEXPR operator const element_type*() const
   {
     return get();
   }
@@ -161,12 +152,11 @@ class propagate_const {
 
   PROPAGATE_CONST_CONSTEXPR const element_type* get() const { return get_pointer(t_); }
 
-  // [propagate_const.non_const_observers], non-const observers
   PROPAGATE_CONST_CONSTEXPR element_type* operator->() { return get(); }
 
   template <class T_ = T,
             class U = enable_if_t<is_convertible<T_, element_type*>::value>>
-  PROPAGATE_CONST_CONSTEXPR operator element_type*()  // Not always defined
+  PROPAGATE_CONST_CONSTEXPR operator element_type*()
   {
     return get();
   }
@@ -174,8 +164,7 @@ class propagate_const {
   PROPAGATE_CONST_CONSTEXPR element_type& operator*() { return *get(); }
 
   PROPAGATE_CONST_CONSTEXPR element_type* get() { return get_pointer(t_); }
-  
-  // [propagate_const.modifiers], modifiers
+
   PROPAGATE_CONST_CONSTEXPR void swap(propagate_const& pt) noexcept(
       noexcept(swap(declval<T&>(), declval<T&>()))) {
     swap(t_, pt.t_);
@@ -192,7 +181,6 @@ class propagate_const {
   friend struct std::greater_equal<propagate_const<T>>;
   friend struct std::less_equal<propagate_const<T>>;
 
-  // [propagate_const.relational], relational operators
   friend PROPAGATE_CONST_CONSTEXPR bool operator==(const propagate_const& pt, nullptr_t) {
     return pt.t_ == nullptr;
   }
@@ -318,8 +306,6 @@ class propagate_const {
   }
 };
 
-
-// [propagate_const.algorithms], specialized algorithms
 template <class T>
 PROPAGATE_CONST_CONSTEXPR void swap(propagate_const<T>& pt, propagate_const<T>& pu) noexcept(
     noexcept(swap(declval<T&>(), declval<T&>())))
@@ -327,10 +313,9 @@ PROPAGATE_CONST_CONSTEXPR void swap(propagate_const<T>& pt, propagate_const<T>& 
   swap(pt.underlying_ptr(), pu.underlying_ptr());
 }
 
-}  //  end namespace fundamentals_v2
-}  //  end namespace experimental
+}
+}
 
-// [propagate_const.hash], hash support
 template <class T>
 struct hash<experimental::fundamentals_v2::propagate_const<T>> {
   typedef size_t result_type;
@@ -342,7 +327,6 @@ struct hash<experimental::fundamentals_v2::propagate_const<T>> {
   }
 };
 
-// [propagate_const.comparison_function_objects], comparison function objects
 template <class T>
 struct equal_to<experimental::fundamentals_v2::propagate_const<T>> {
   typedef experimental::fundamentals_v2::propagate_const<T> first_argument_type;
@@ -421,7 +405,7 @@ struct greater_equal<experimental::fundamentals_v2::propagate_const<T>> {
   }
 };
 
-}  // end namespace std
+}
 
 #undef PROPAGATE_CONST_CONSTEXPR
-#endif // JBCOE_PROPAGATE_CONST_INCLUDED
+#endif

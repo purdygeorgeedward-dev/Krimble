@@ -11,7 +11,6 @@
 
 #include "kritawidgets_export.h"
 
-
 class KRITAWIDGETS_EXPORT KisPaletteDelegate : public QAbstractItemDelegate
 {
 private:
@@ -32,4 +31,4 @@ private:
     QString m_crossedKeyword;
 };
 
-#endif /* __KIS_PALETTE_DELEGATE_H */
+#endif

@@ -33,12 +33,12 @@
         }                                                               \
     } while (0)
 
-#else /* SANITY_CHECK_FILTER_CONFIGURATION_OWNER */
+#else
 
 #define SANITY_ACQUIRE_FILTER(filter)
 #define SANITY_RELEASE_FILTER(filter)
 
-#endif /* SANITY_CHECK_FILTER_CONFIGURATION_OWNER*/
+#endif
 
 KisNodeFilterInterface::KisNodeFilterInterface(KisFilterConfigurationSP filterConfig)
     : m_filterConfiguration(filterConfig)
@@ -64,7 +64,7 @@ KisFilterConfigurationSP KisNodeFilterInterface::filter() const
     return m_filterConfiguration;
 }
 
-void KisNodeFilterInterface::setFilter(KisFilterConfigurationSP filterConfig, bool /*checkCompareConfig*/)
+void KisNodeFilterInterface::setFilter(KisFilterConfigurationSP filterConfig, bool )
 {
     SANITY_RELEASE_FILTER(m_filterConfiguration);
 
@@ -77,14 +77,6 @@ void KisNodeFilterInterface::setFilter(KisFilterConfigurationSP filterConfig, bo
 
 void KisNodeFilterInterface::notifyColorSpaceChanged()
 {
-    /**
-     * On a color space change we need to reset all the
-     * caches stored inside filter configuration. The
-     * current "standard" way for doing that is just to
-     * clone the configuration (which clones everything
-     * except of the caches). We should probably invent
-     * a better approach for that cache resetting later.
-     */
 
     if (m_filterConfiguration) {
         m_filterConfiguration = m_filterConfiguration->clone();

@@ -42,12 +42,10 @@ QPointF ConcentricEllipseAssistant::project(const QPointF& pt, const QPointF& st
     Q_ASSERT(isAssistantComplete());
     m_ellipse.set(*handles()[0], *handles()[1], *handles()[2]);
 
-    //calculate ratio
     QPointF initial = m_ellipse.project(strokeBegin);
     QPointF center = m_ellipse.boundingRect().center();
     qreal Ratio = QLineF(center, strokeBegin).length() /QLineF(center, initial).length();
 
-    //calculate the points of the extrapolated ellipse.
     QLineF extrapolate0 = QLineF(center, *handles()[0]);
     extrapolate0.setLength(extrapolate0.length()*Ratio);
     QLineF extrapolate1 = QLineF(center, *handles()[1]);
@@ -55,13 +53,12 @@ QPointF ConcentricEllipseAssistant::project(const QPointF& pt, const QPointF& st
     QLineF extrapolate2 = QLineF(center, *handles()[2]);
     extrapolate2.setLength(extrapolate2.length()*Ratio);
 
-    //set the extrapolation ellipse.
     m_extraEllipse.set(extrapolate0.p2(), extrapolate1.p2(), extrapolate2.p2());
 
     return m_extraEllipse.project(pt);
 }
 
-QPointF ConcentricEllipseAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool /*snapToAny*/, qreal /*moveThresholdPt*/)
+QPointF ConcentricEllipseAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool , qreal )
 {
     return project(pt, strokeBegin);
 }
@@ -87,13 +84,9 @@ void ConcentricEllipseAssistant::drawAssistant(QPainter& gc, const QRectF& updat
                 QPointF initial = m_ellipse.project(initialTransform.inverted().map(mousePos));
                 QPointF center = m_ellipse.boundingRect().center();
                 qreal Ratio = QLineF(center, initialTransform.inverted().map(mousePos)).length() /QLineF(center, initial).length();
-                //line from center to handle 1 * difference.
-                //set handle1 translated to
-                // valid ellipse
                 gc.setTransform(initialTransform);
                 gc.setTransform(m_ellipse.getInverse(), true);
                 QPainterPath path;
-                // Draw the ellipse
                 path.addEllipse(QPointF(0, 0), m_ellipse.semiMajor()*Ratio, m_ellipse.semiMinor()*Ratio);
                 drawPreview(gc, path, displayRenderInterface);
             }
@@ -104,17 +97,15 @@ void ConcentricEllipseAssistant::drawAssistant(QPainter& gc, const QRectF& updat
 
 }
 
-
 void ConcentricEllipseAssistant::drawCache(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool assistantVisible)
 {
-    if (assistantVisible == false || handles().size() < 2) { // 2 points means a line, so we can continue after 1 point
+    if (assistantVisible == false || handles().size() < 2) {
         return;
     }
 
     QTransform initialTransform = converter->documentToWidgetTransform();
 
     if (handles().size() == 2) {
-        // just draw the axis
         gc.setTransform(initialTransform);
         QPainterPath path;
         path.moveTo(*handles()[0]);
@@ -124,14 +115,12 @@ void ConcentricEllipseAssistant::drawCache(QPainter& gc, const KisCoordinatesCon
     }
 
     if (m_ellipse.set(*handles()[0], *handles()[1], *handles()[2])) {
-        // valid ellipse
 
         gc.setTransform(initialTransform);
         gc.setTransform(m_ellipse.getInverse(), true);
         QPainterPath path;
         path.moveTo(QPointF(-m_ellipse.semiMajor(), 0)); path.lineTo(QPointF(m_ellipse.semiMajor(), 0));
         path.moveTo(QPointF(0, -m_ellipse.semiMinor())); path.lineTo(QPointF(0, m_ellipse.semiMinor()));
-        // Draw the ellipse
         path.addEllipse(QPointF(0, 0), m_ellipse.semiMajor(), m_ellipse.semiMinor());
         drawPath(gc, path, displayRenderInterface, isSnappingActive());
     }

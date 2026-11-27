@@ -42,8 +42,6 @@
 
 #include "../../color/colorspaceextensions/kis_hsv_adjustment.h"
 
-// KisCrossChannelFilterConfiguration
-
 KisCrossChannelFilterConfiguration::KisCrossChannelFilterConfiguration(int channelCount, const KoColorSpace *cs, KisResourcesInterfaceSP resourcesInterface)
     : KisMultiChannelFilterConfiguration(channelCount, "crosschannel", 1, resourcesInterface)
     , m_colorSpace(cs)
@@ -83,7 +81,6 @@ void KisCrossChannelFilterConfiguration::setDriverChannels(QVector<int> driverCh
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(driverChannels.size() == m_curves.size());
 
-    // Clean unused properties
     if (driverChannels.size() < m_driverChannels.size()) {
         for (int i = driverChannels.size(); i < m_driverChannels.size(); ++i) {
             const QString name = QLatin1String("driver") + QString::number(i);
@@ -93,7 +90,6 @@ void KisCrossChannelFilterConfiguration::setDriverChannels(QVector<int> driverCh
 
     m_driverChannels = driverChannels;
 
-    // Update properties for python
     for (int i = 0; i < m_driverChannels.size(); ++i) {
         const QString name = QLatin1String("driver") + QString::number(i);
         const int value = m_driverChannels[i];
@@ -169,7 +165,7 @@ void KisCrossChannelFilterConfiguration::setProperty(const QString& name, const 
         }
 
         KisMultiChannelFilterConfiguration::setProperty(name, value);
-        
+
         m_driverChannels.resize(newChannelCount);
 
         if (newChannelCount > prevChannelCount) {
@@ -249,8 +245,6 @@ KisCrossChannelConfigWidget::KisCrossChannelConfigWidget(QWidget * parent, KisPa
     connect(m_page->cmbDriverChannel, SIGNAL(activated(int)), this, SLOT(slotDriverChannelSelected(int)));
 }
 
-// KisCrossChannelConfigWidget
-
 KisCrossChannelConfigWidget::~KisCrossChannelConfigWidget()
 {}
 
@@ -266,7 +260,6 @@ void KisCrossChannelConfigWidget::setConfiguration(const KisPropertiesConfigurat
 
 int KisCrossChannelConfigWidget::findDefaultVirtualChannelSelection()
 {
-    // Show the first channel with a curve, or saturation by default
 
     int initialChannel = -1;
     for (int i = 0; i < m_virtualChannels.size(); i++) {
@@ -282,7 +275,6 @@ int KisCrossChannelConfigWidget::findDefaultVirtualChannelSelection()
 
     return initialChannel;
 }
-
 
 KisPropertiesConfigurationSP KisCrossChannelConfigWidget::configuration() const
 {
@@ -306,7 +298,6 @@ void KisCrossChannelConfigWidget::updateChannelControls()
     m_page->cmbDriverChannel->setCurrentIndex(index);
 }
 
-
 KisPropertiesConfigurationSP KisCrossChannelConfigWidget::getDefaultConfiguration()
 {
     return new KisCrossChannelFilterConfiguration(m_virtualChannels.size(), m_dev->colorSpace(), KisGlobalResourcesInterface::instance());
@@ -322,8 +313,6 @@ void KisCrossChannelConfigWidget::slotDriverChannelSelected(int index)
     updateChannelControls();
     Q_EMIT sigConfigurationItemChanged();
 }
-
-// KisCrossChannelFilter
 
 KisCrossChannelFilter::KisCrossChannelFilter() : KisMultiChannelFilter(id(), i18n("&Cross-channel adjustment curves..."))
 {}
@@ -376,12 +365,10 @@ KoColorTransformation* KisCrossChannelFilter::createTransformation(const KoColor
         KisMultiChannelFilter::getVirtualChannels(cs, originalTransfers.size());
 
     if (originalTransfers.size() > int(virtualChannels.size())) {
-        // We got an illegal number of colorchannels :(
         return 0;
     }
 
     QVector<KoColorTransformation*> transforms;
-    // Channel order reversed in order to adjust saturation before hue. This allows mapping grays to colors.
     for (int i = virtualChannels.size() - 1; i >= 0; i--) {
         if (!curves[i].isConstant(0.5)) {
             int channel = mapChannel(virtualChannels[i]);

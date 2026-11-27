@@ -19,9 +19,9 @@ struct KRITAFLAKE_EXPORT KoUnicodeBlockData : public boost::equality_comparable<
         : name(name)
         , start(start)
         , end(end) {}
-    QString name; ///< Name of the block.
-    uint start; ///< Start char
-    uint end; ///< End char
+    QString name;
+    uint start;
+    uint end;
 
     bool operator==(const KoUnicodeBlockData &rhs) const {
         return (start == rhs.start && end == rhs.end);
@@ -32,17 +32,13 @@ struct KRITAFLAKE_EXPORT KoUnicodeBlockData : public boost::equality_comparable<
     }
 };
 
-// This is a helper class to generate unicode block data.
-
 class KRITAFLAKE_EXPORT KoUnicodeBlockDataFactory {
 public:
     KoUnicodeBlockDataFactory();
     ~KoUnicodeBlockDataFactory();
 
-    // Returns the unicode block for the given code point, if not available, returns noBlock().
     KoUnicodeBlockData blockForUCS(const uint &codepoint);
 
-    // Default block when there's no other blocks.
     static KoUnicodeBlockData noBlock() {
         static const QString noBlockName = i18nc("@title", "No Block");
         return KoUnicodeBlockData(noBlockName, 0x10FFFF, 0x10FFFF);
@@ -53,4 +49,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KOUNICODEBLOCKDATA_H
+#endif

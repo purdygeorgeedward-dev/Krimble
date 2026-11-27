@@ -40,7 +40,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(DefaultToolsFactory, "kritadefaulttools.json", registerPlugin<DefaultTools>();)
 
-
 DefaultTools::DefaultTools(QObject *parent, const QVariantList &)
         : QObject(parent)
 {

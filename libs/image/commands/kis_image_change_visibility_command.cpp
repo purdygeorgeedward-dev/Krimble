@@ -4,13 +4,11 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_image_commands.h"
 #include "kis_image.h"
 #include "kis_node.h"
 
 #include <klocalizedstring.h>
-
 
 KisImageChangeVisibilityCommand::KisImageChangeVisibilityCommand(bool visibility, KisNodeSP node)
     : KUndo2Command(kundo2_noi18n("change-visibility-command"), 0)

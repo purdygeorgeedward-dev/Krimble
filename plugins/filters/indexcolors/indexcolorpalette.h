@@ -34,17 +34,17 @@ struct IndexColorPalette
     void insertShades(QColor clrA, QColor clrB, int shades);
     void insertShades(KoColor clrA, KoColor clrB, int shades);
     void insertShades(LabColor clrA, LabColor clrB, int shades);
-    
+
     void insertColor(QColor clr);
     void insertColor(KoColor clr);
     void insertColor(LabColor clr);
-    
+
     void mergeMostRedundantColors();
-    
+
     LabColor getNearestIndex(LabColor clr) const;
     int numColors() const;
     float similarity(LabColor c0, LabColor c1) const;
     QPair< int, int > getNeighbours(int mainClr) const;
 };
 
-#endif // INDEXCOLORPALETTE_H
+#endif

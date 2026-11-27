@@ -12,7 +12,6 @@
 
 namespace {
 
-
 class KisParticleOpWidget: public QWidget, public Ui::WdgParticleOptions
 {
 public:
@@ -39,9 +38,7 @@ public:
     }
 };
 
-
 }
-
 
 struct KisParticleOpOptionWidget::Private
 {
@@ -52,7 +49,6 @@ struct KisParticleOpOptionWidget::Private
 
     KisParticleOpOptionModel model;
 };
-
 
 KisParticleOpOptionWidget::KisParticleOpOptionWidget(lager::cursor<KisParticleOpOptionData> optionData)
     : KisPaintOpOption(i18n("Brush size"), KisPaintOpOption::GENERAL, true)

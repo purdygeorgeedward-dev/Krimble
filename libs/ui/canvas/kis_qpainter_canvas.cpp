@@ -7,7 +7,6 @@
 
 #include "kis_qpainter_canvas.h"
 
-
 #include <QPaintEvent>
 #include <QPoint>
 #include <QRect>
@@ -192,8 +191,6 @@ void KisQPainterCanvas::setDisplayFilter(QSharedPointer<KisDisplayFilter> displa
 void KisQPainterCanvas::notifyImageColorSpaceChanged(const KoColorSpace *cs)
 {
     Q_UNUSED(cs);
-    // FIXME: on color space change the data is refetched multiple
-    //        times by different actors!
     canvas()->startUpdateInPatches(canvas()->image()->bounds());
 }
 
@@ -231,14 +228,8 @@ KisUpdateInfoSP KisQPainterCanvas::startUpdateCanvasProjection(const QRect & rc)
     return m_d->prescaledProjection->updateCache(rc);
 }
 
-
 QRect KisQPainterCanvas::updateCanvasProjection(KisUpdateInfoSP info)
 {
-    /**
-    * It might happen that the canvas type is switched while the
-    * update info is being stuck in the Qt's signals queue. Than a wrong
-    * type of the info may come. So just check it here.
-    */
     bool isPPUpdateInfo = dynamic_cast<KisPPUpdateInfo*>(info.data());
     if (isPPUpdateInfo) {
         m_d->prescaledProjection->recalculateCache(info);
@@ -247,7 +238,6 @@ QRect KisQPainterCanvas::updateCanvasProjection(KisUpdateInfoSP info)
         return QRect();
     }
 }
-
 
 void KisQPainterCanvas::resizeEvent(QResizeEvent *e)
 {

@@ -21,7 +21,6 @@ class KisLayerStyleFilterEnvironment;
 class KisMultipleProjection;
 class KisCachedSelection;
 
-
 namespace KisLsUtils
 {
 
@@ -115,4 +114,4 @@ namespace KisLsUtils
 
 }
 
-#endif /* __KIS_LS_UTILS_H */
+#endif

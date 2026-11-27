@@ -25,7 +25,6 @@ DlgOffsetImage::DlgOffsetImage(QWidget *  parent, const char * name, QSize image
     setDefaultButton(Ok);
     setObjectName(name);
 
-
     m_lock = false;
 
     m_page = new WdgOffsetImage(this);
@@ -111,5 +110,4 @@ void DlgOffsetImage::okClicked()
 {
     accept();
 }
-
 

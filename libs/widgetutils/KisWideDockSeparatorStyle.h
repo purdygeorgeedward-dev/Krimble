@@ -8,15 +8,6 @@
 #include <QProxyStyle>
 #include <QIcon>
 
-/**
- * Krimble: a proxy style that doubles the pixel metric governing the width
- * of dock widget (panel) separators. On a touchscreen, the default width
- * most desktop styles use (a handful of pixels, sized for a mouse cursor) is
- * too small to reliably grab with a finger to resize a docked panel. Qt ties
- * the visible separator width and its resize hit-test/grab zone to the same
- * single pixel metric, so there's no way to widen only the grab zone without
- * also widening what's drawn on screen -- this doubles both together.
- */
 class KRITAWIDGETUTILS_EXPORT KisWideDockSeparatorStyle : public QProxyStyle
 {
 public:
@@ -29,4 +20,4 @@ public:
     QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override;
 };
 
-#endif // KISWIDEDOCKSEPARATORSTYLE_H
+#endif

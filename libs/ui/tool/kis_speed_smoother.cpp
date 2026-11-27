@@ -62,7 +62,6 @@ struct KisSpeedSmoother::Private
     int numSmoothingSamples {3};
 };
 
-
 KisSpeedSmoother::KisSpeedSmoother()
     : m_d(new Private(MAX_SMOOTH_HISTORY))
 {
@@ -114,8 +113,6 @@ qreal KisSpeedSmoother::getNextSpeedImpl(const QPointF &pt, qreal time)
     }
 
     const qreal dist = kisDistance(pt, m_d->lastPoint);
-    // Getting the exact same position is bogus, it is probably just a previous
-    // point reported again. On Android, this happens all the time. Skip them.
     if (qFuzzyIsNull(dist)) {
         return m_d->lastSpeed;
     }
@@ -141,14 +138,6 @@ qreal KisSpeedSmoother::getNextSpeedImpl(const QPointF &pt, qreal time)
         itemsSearched++;
         totalDistance += it->distance;
 
-        /**
-         * Mind you, we don't care about the specific timestamps
-         * of the tablet events! They are not reliable. Instead,
-         * we are trying to estimate the sample rate of the tablet
-         * itself using the filtered mean accumulator. It works in
-         * an assumption that all the tablets generate events at a
-         * fixed sample rate.
-         */
         totalTime += avgTimeDiff;
 
         if (itemsSearched > m_d->numSmoothingSamples &&

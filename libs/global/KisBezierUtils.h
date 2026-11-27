@@ -11,13 +11,9 @@
 
 #include <kis_algebra_2d.h>
 
-
 namespace KisBezierUtils
 {
 using KisAlgebra2D::lerp;
-
-
-
 
 inline QPointF bezierCurveDeriv(const QPointF p0,
                                 const QPointF p1,
@@ -48,7 +44,6 @@ inline QPointF bezierCurveDeriv2(const QPointF p0,
         6 * t * (p3 - 2 * p2 + p1);
 }
 
-
 inline void deCasteljau(const QPointF &q0,
                         const QPointF &q1,
                         const QPointF &q2,
@@ -67,10 +62,8 @@ inline void deCasteljau(const QPointF &q0,
     q[2] = q2;
     q[3] = q3;
 
-    // points of the new segment after the split point
     QPointF p[3];
 
-    // the De Casteljau algorithm
     for (unsigned short j = 1; j <= 3; ++j) {
         for (unsigned short i = 0; i <= 3 - j; ++i) {
             q[i] = (1.0 - t) * q[i] + t * q[i + 1];
@@ -188,71 +181,23 @@ qreal nearestPoint(const QList<QPointF> controlPoints, const QPointF &point, qre
 KRITAGLOBAL_EXPORT
 int controlPolygonZeros(const QList<QPointF> &controlPoints);
 
-/**
- * @brief calculates local (u,v) coordinates of the patch corresponding to \p globalPoint
- *
- * The function uses Krita's own level-based patch interpolation algorithm
- *
- * @param points control points as laid out in KisBezierPatch
- * @param globalPoint point in global coordinates
- * @return point in local coordinates
- */
 KRITAGLOBAL_EXPORT
 QPointF calculateLocalPos(const std::array<QPointF, 12> &points,
                           const QPointF &globalPoint);
 
-/**
- * @brief calculates global coordinate corresponding to the patch coordinate (u, v)
- *
- * The function uses Krita's own level-based patch interpolation algorithm
- *
- * @param points control points as laid out in KisBezierPatch
- * @param localPoint point in local coordinates
- * @return point in global coordinates
- */
 KRITAGLOBAL_EXPORT
 QPointF calculateGlobalPos(const std::array<QPointF, 12> &points, const QPointF &localPoint);
 
-/**
- * @brief calculates local (u,v) coordinates of the patch corresponding to \p globalPoint
- *
- * The function uses SVG2 toon patches algorithm
- *
- * @param points control points as laid out in KisBezierPatch
- * @param globalPoint point in global coordinates
- * @return point in local coordinates
- */
 KRITAGLOBAL_EXPORT
 QPointF calculateLocalPosSVG2(const std::array<QPointF, 12> &points,
                               const QPointF &globalPoint);
 
-/**
- * @brief calculates global coordinate corresponding to the patch coordinate (u, v)
- *
- * The function uses SVG2 toon patches algorithm
- *
- * @param points control points as laid out in KisBezierPatch
- * @param localPoint point in local coordinates
- * @return point in global coordinates
- */
 KRITAGLOBAL_EXPORT
 QPointF calculateGlobalPosSVG2(const std::array<QPointF, 12> &points, const QPointF &localPoint);
 
-
-/**
- * @brief Interpolates quadric curve passing through given points
- *
- * Interpolates quadric curve passing through \p p0, \p pt and \p p2
- * with ensuring that \p pt placed at position \p t
- * @return interpolated value for control point p1
- */
 KRITAGLOBAL_EXPORT
 QPointF interpolateQuadric(const QPointF &p0, const QPointF &p2, const QPointF &pt, qreal t);
 
-/**
- * @brief moves point \p t of the curve by offset \p offset
- * @return proposed offsets for points p1 and p2 of the curve
- */
 KRITAGLOBAL_EXPORT
 std::pair<QPointF, QPointF> offsetSegment(qreal t, const QPointF &offset);
 
@@ -282,17 +227,6 @@ qreal curveParamByProportion(const QPointF p0,
 KRITAGLOBAL_EXPORT
 qreal curveProportionByParam(const QPointF p0, const QPointF p1, const QPointF p2, const QPointF p3, qreal t, const qreal error);
 
-/**
- * @brief Adjusts position for the bezier control points
- * after removing a node.
- *
- * First source curve P: \p p0, \p p1, \p p2, \p p3
- * Second source curve Q: \p p3, \p q1, \p q2, \p q3
- *
- * Node to remove: \p p3 and its control points \p p2 and \p q1
- *
- * @return a pair of new positions for \p p1 and \p q2
- */
 KRITAGLOBAL_EXPORT
 std::pair<QPointF, QPointF> removeBezierNode(const QPointF &p0,
                                              const QPointF &p1,
@@ -302,15 +236,6 @@ std::pair<QPointF, QPointF> removeBezierNode(const QPointF &p0,
                                              const QPointF &q2,
                                              const QPointF &q3);
 
-/**
- * Find intersection points (their parameter values) between a cubic
- * Bezier curve and a line.
- *
- * Curve: \p p0, \p p1, \p p2, \p p3
- * Line: \p line
- *
- * For cubic Bezier curves there can be at most three intersection points.
- */
 KRITAGLOBAL_EXPORT
 QVector<qreal> intersectWithLine(const QPointF &p0,
                                  const QPointF &p1,
@@ -319,10 +244,6 @@ QVector<qreal> intersectWithLine(const QPointF &p0,
                                  const QLineF &line,
                                  qreal eps);
 
-/**
- * Find new nearest intersection point between a cubic Bezier curve and a line.
- * The resulting point will be the nearest to \p nearestAnchor.
- */
 KRITAGLOBAL_EXPORT
 boost::optional<qreal> intersectWithLineNearest(const QPointF &p0,
                                                 const QPointF &p1,
@@ -332,6 +253,6 @@ boost::optional<qreal> intersectWithLineNearest(const QPointF &p0,
                                                 const QPointF &nearestAnchor,
                                                 qreal eps);
 
-} // namespace KisBezierUtils
+}
 
-#endif // KISBEZIERUTILS_H
+#endif

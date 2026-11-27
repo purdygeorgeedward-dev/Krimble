@@ -34,7 +34,7 @@ KisCSVExport::~KisCSVExport()
 {
 }
 
-KisImportExportErrorCode KisCSVExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisCSVExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     CSVSaver kpc(document, batchMode());
 

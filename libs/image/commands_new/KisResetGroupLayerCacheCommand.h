@@ -24,4 +24,4 @@ private:
     const KoColorSpace *m_dstColorSpace;
 };
 
-#endif // KISRESETGROUPLAYERCACHECOMMAND_H
+#endif

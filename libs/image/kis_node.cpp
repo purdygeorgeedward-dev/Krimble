@@ -40,37 +40,11 @@ typedef KisSafeReadList<KisNodeSP> KisSafeReadNodeList;
 #include "KisRegion.h"
 #include <KisStaticInitializer.h>
 
-/**
- * The link between KisProjection and KisImageUpdater
- * uses queued signals with an argument of KisNodeSP type,
- * so we should register it beforehand
- */
 KIS_DECLARE_STATIC_INITIALIZER {
     qRegisterMetaType<KisNodeSP>("KisNodeSP");
     qRegisterMetaType<KisNodeList>("KisNodeList");
     qRegisterMetaType<KisNodeAdditionFlags>("KisNodeAdditionFlags");
 }
-
-
-/**
- * Note about "thread safety" of KisNode
- *
- * 1) One can *read* any information about node and node graph in any
- *    number of threads concurrently. This operation is safe because
- *    of the usage of KisSafeReadNodeList and will run concurrently
- *    (lock-free).
- *
- * 2) One can *write* any information into the node or node graph in a
- *    single thread only! Changing the graph concurrently is *not*
- *    sane and therefore not supported.
- *
- * 3) One can *read and write* information about the node graph
- *    concurrently, given that there is only *one* writer thread and
- *    any number of reader threads. Please note that in this case the
- *    node's code is just guaranteed *not to crash*, which is ensured
- *    by nodeSubgraphLock. You need to ensure the sanity of the data
- *    read by the reader threads yourself!
- */
 
 struct Q_DECL_HIDDEN KisNode::Private
 {
@@ -103,10 +77,6 @@ public:
     KisFrameChangeUpdateRecipe handleKeyframeChannelUpdateImpl(const KisKeyframeChannel *channel, int time);
 };
 
-/**
- * Finds the layer in \p dstRoot subtree, which has the same path as
- * \p srcTarget has in \p srcRoot
- */
 const KisNode* KisNode::Private::findSymmetricClone(const KisNode *srcRoot,
                                                     const KisNode *dstRoot,
                                                     const KisNode *srcTarget)
@@ -129,16 +99,6 @@ const KisNode* KisNode::Private::findSymmetricClone(const KisNode *srcRoot,
     return 0;
 }
 
-/**
- * This function walks through a subtrees of old and new layers and
- * searches for clone layers. For each clone layer it checks whether
- * its copyFrom() lays inside the old subtree, and if it is so resets
- * it to the corresponding layer in the new subtree.
- *
- * That is needed when the user duplicates a group layer with all its
- * layer subtree. In such a case all the "internal" clones must stay
- * "internal" and not point to the layers of the older group.
- */
 void KisNode::Private::processDuplicatedClones(const KisNode *srcDuplicationRoot,
                                                const KisNode *dstDuplicationRoot,
                                                KisNode *node)
@@ -180,9 +140,6 @@ KisNode::KisNode(const KisNode & rhs)
     m_d->parent = 0;
     m_d->graphListener = 0;
     moveToThread(qApp->thread());
-
-    // NOTE: the nodes are not supposed to be added/removed while
-    // creation of another node, so we do *no* locking here!
 
     KisSafeReadNodeList::const_iterator iter;
     FOREACH_SAFE(iter, rhs.m_d->nodes) {
@@ -233,7 +190,7 @@ QRect KisNode::accessRect(const QRect &rect, PositionToFilthy pos) const
     return rect;
 }
 
-void KisNode::childNodeChanged(KisNodeSP /*changedChildNode*/)
+void KisNode::childNodeChanged(KisNodeSP )
 {
 }
 
@@ -372,15 +329,6 @@ KisNodeSP KisNode::lastChild() const
 
 KisNodeSP KisNode::prevChildImpl(KisNodeSP child)
 {
-    /**
-     * Warning: mind locking policy!
-     *
-     * The graph locks must be *always* taken in descending
-     * order. That is if you want to (or it implicitly happens that
-     * you) take a lock of a parent and a chil, you must first take
-     * the lock of a parent, and only after that ask a child to do the
-     * same.  Otherwise you'll get a deadlock.
-     */
 
     QReadLocker l(&m_d->nodeSubgraphLock);
 
@@ -390,9 +338,6 @@ KisNodeSP KisNode::prevChildImpl(KisNodeSP child)
 
 KisNodeSP KisNode::nextChildImpl(KisNodeSP child)
 {
-    /**
-     * See a comment in KisNode::prevChildImpl()
-     */
     QReadLocker l(&m_d->nodeSubgraphLock);
 
     int i = m_d->nodes.indexOf(child) + 1;
@@ -416,7 +361,6 @@ quint32 KisNode::childCount() const
     QReadLocker l(&m_d->nodeSubgraphLock);
     return m_d->nodes.size();
 }
-
 
 KisNodeSP KisNode::at(quint32 index) const
 {
@@ -476,11 +420,6 @@ bool KisNode::add(KisNodeSP newNode, KisNodeSP aboveThis, KisNodeAdditionFlags f
 
     int idx = aboveThis ? this->index(aboveThis) + 1 : 0;
 
-    // theoretical race condition may happen here ('idx' may become
-    // deprecated until the write lock will be held). But we ignore
-    // it, because it is not supported to add/remove nodes from two
-    // concurrent threads simultaneously
-
     if (m_d->graphListener) {
         m_d->graphListener->aboutToAddANode(this, idx);
     }
@@ -523,7 +462,7 @@ bool KisNode::remove(quint32 index)
 
             removedNode->setGraphListener(0);
 
-            removedNode->setParent(0);   // after calling aboutToRemoveANode or then the model get broken according to TT's modeltest
+            removedNode->setParent(0);
             m_d->nodes.removeAt(index);
         }
 
@@ -679,7 +618,6 @@ void KisNode::requestTimeSwitch(int time)
 
 void KisNode::syncLodCache()
 {
-    // noop. everything is done by getLodCapableDevices()
 }
 
 KisPaintDeviceList KisNode::getLodCapableDevices() const

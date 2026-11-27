@@ -20,10 +20,6 @@
 namespace KisLazySharedCacheStorageDetail
 {
 
-/**
- * A policy-like class for sharing the **data** between two
- * objects
- */
 template <typename StorageType, typename T, typename... Args>
 struct DataStorage
 {
@@ -57,12 +53,6 @@ private:
 template <typename T, typename... Args>
 using DataWrapperLocal = DataStorage<QSharedPointer<T>, T, Args...>;
 
-
-/**
- * A policy-like class for sharing DataStorage object
- * between the two different objects. It just ads one
- * more level of locking to ensure thread-safety.
- */
 template <typename T, typename... Args>
 struct DataWrapperShared
 {
@@ -82,7 +72,6 @@ private:
         DataStorage<QScopedPointer<ConstType>, T, Args...> m_value;
     };
 public:
-
 
     DataWrapperShared() : m_sharedStorage(new SharedStorage()) {}
     DataWrapperShared(T *value) : m_sharedStorage(new SharedStorage(value)) {}
@@ -171,40 +160,14 @@ private:
     mutable QMutex m_mutex;
 };
 
-/**
- * KisLazySharedCacheStorage is a special class that allows two classes
- * lazily share an existing cache data. That is, after the class has been
- * cloned via a copy constructor it keeps a pointer to the cached data of
- * the source object. This link is kept until one of the objects calls
- * `cache.reset()`, then the cached data is detached.
- *
- * Take it into account that KisLazySharedCacheStorage will keep a link
- * **only** in case the cache existed at the moment of cloning. That is
- * the main difference to KisLazySharedCacheStorageLinked.
- *
- * The class guarantees full tread-safety of the access and detach of
- * the cache object.
- */
 template <typename T, typename... Args>
 using KisLazySharedCacheStorage =
     KisLazySharedCacheStorageBase<
         KisLazySharedCacheStorageDetail::DataWrapperLocal<T, Args...>, T, Args...>;
 
-/**
- * KisLazySharedCacheStorageLinked is a special class that allows two classes
- * lazily share a cache object. The two classes will not only share cache data,
- * but also the cache object itself. That is, when one of the objects updates
- * the cache data, this data will also be uploaded into the cache of the other
- * object. The link between the two objects is kept until one of the objects
- * calls `cache.reset()`.
- *
- * The class guarantees full tread-safety of the access and detach of
- * the cache object.
- */
 template <typename T, typename... Args>
 using KisLazySharedCacheStorageLinked =
     KisLazySharedCacheStorageBase<
         KisLazySharedCacheStorageDetail::DataWrapperShared<T, Args...>, T, Args...>;
 
-
-#endif // KISLAZYSHAREDCACHESTORAGE_H
+#endif

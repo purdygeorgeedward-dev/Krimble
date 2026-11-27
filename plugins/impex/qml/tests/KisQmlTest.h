@@ -17,5 +17,5 @@ private Q_SLOTS:
     void testExportToReadonly();
 };
 
-#endif // _KIS_QML_TEST_H_
+#endif
 

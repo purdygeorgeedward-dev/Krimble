@@ -25,30 +25,16 @@ public:
     {
     }
 
-    /// calculates signed distance of given point from segment chord
     qreal distanceFromChord(const QPointF &point) const;
 
-    /// Returns the chord length, i.e. the distance between first and last control point
     qreal chordLength() const;
 
-    /// Returns intersection of lines if one exists
     QList<QPointF> linesIntersection(const KoPathSegment &segment) const;
 
-    /// Returns parameters for curve extrema
     QList<qreal> extrema() const;
 
-    /// Returns parameters for curve roots
     QList<qreal> roots() const;
 
-    /**
-     * The DeCasteljau algorithm for parameter t.
-     * @param t the parameter to evaluate at
-     * @param p1 the new control point of the segment start (for cubic curves only)
-     * @param p2 the first control point at t
-     * @param p3 the new point at t
-     * @param p4 the second control point at t
-     * @param p3 the new control point of the segment end (for cubic curves only)
-     */
     void deCasteljau(qreal t, QPointF *p1, QPointF *p2, QPointF *p3, QPointF *p4, QPointF *p5) const;
 
     KoPathPoint *first;
@@ -75,10 +61,8 @@ void KoPathSegment::Private::deCasteljau(qreal t, QPointF *p1, QPointF *p2, QPoi
         q[deg] = second->point();
     }
 
-    // points of the new segment after the split point
     QPointF p[3];
 
-    // the De Casteljau algorithm
     for (unsigned short j = 1; j <= deg; ++j) {
         for (unsigned short i = 0; i <= deg - j; ++i) {
             q[i] = (1.0 - t) * q[i] + t * q[i + 1];
@@ -114,22 +98,16 @@ QList<qreal> KoPathSegment::Private::roots() const
     if (!q->isValid())
         return rootParams;
 
-    // Calculate how often the control polygon crosses the x-axis
-    // This is the upper limit for the number of roots.
     int xAxisCrossings = KisBezierUtils::controlPolygonZeros(q->controlPoints());
 
     if (!xAxisCrossings) {
-        // No solutions.
     }
     else if (xAxisCrossings == 1 && q->isFlat(0.01 / chordLength())) {
-        // Exactly one solution.
-        // Calculate intersection of chord with x-axis.
         QPointF chord = second->point() - first->point();
         QPointF segStart = first->point();
         rootParams.append((chord.x() * segStart.y() - chord.y() * segStart.x()) / - chord.y());
     }
     else {
-        // Many solutions. Do recursive midpoint subdivision.
         QPair<KoPathSegment, KoPathSegment> splitSegments = q->splitAt(0.5);
         rootParams += splitSegments.first.d->roots();
         rootParams += splitSegments.second.d->roots();
@@ -146,39 +124,13 @@ QList<qreal> KoPathSegment::Private::extrema() const
 
     QList<qreal> params;
 
-    /*
-     * The basic idea for calculating the extrema for bezier segments
-     * was found in comp.graphics.algorithms:
-     *
-     * Both the x coordinate and the y coordinate are polynomial. Newton told
-     * us that at a maximum or minimum the derivative will be zero.
-     *
-     * We have a helpful trick for the derivatives: use the curve r(t) defined by
-     * differences of successive control points.
-     * Setting r(t) to zero and using the x and y coordinates of differences of
-     * successive control points lets us find the parameters t, where the original
-     * bezier curve has a minimum or a maximum.
-     */
     if (deg == 2) {
-        /*
-         * For quadratic bezier curves r(t) is a linear Bezier curve:
-         *
-         *  1
-         * r(t) = Sum Bi,1(t) *Pi = B0,1(t) * P0 + B1,1(t) * P1
-         * i=0
-         *
-         * r(t) = (1-t) * P0 + t * P1
-         *
-         * r(t) = (P1 - P0) * t + P0
-         */
 
-        // calculating the differences between successive control points
         QPointF cp = first->activeControlPoint2() ?
                      first->controlPoint2() : second->controlPoint1();
         QPointF x0 = cp - first->point();
         QPointF x1 = second->point() - cp;
 
-        // calculating the coefficients
         QPointF a = x1 - x0;
         QPointF c = x0;
 
@@ -187,29 +139,14 @@ QList<qreal> KoPathSegment::Private::extrema() const
         if (a.y() != 0.0)
             params.append(-c.y() / a.y());
     } else if (deg == 3) {
-        /*
-         * For cubic bezier curves r(t) is a quadratic Bezier curve:
-         *
-         *  2
-         * r(t) = Sum Bi,2(t) *Pi = B0,2(t) * P0 + B1,2(t) * P1 + B2,2(t) * P2
-         * i=0
-         *
-         * r(t) = (1-t)^2 * P0 + 2t(1-t) * P1 + t^2 * P2
-         *
-         * r(t) = (P2 - 2*P1 + P0) * t^2 + (2*P1 - 2*P0) * t + P0
-         *
-         */
-        // calculating the differences between successive control points
         QPointF x0 = first->controlPoint2() - first->point();
         QPointF x1 = second->controlPoint1() - first->controlPoint2();
         QPointF x2 = second->point() - second->controlPoint1();
 
-        // calculating the coefficients
         QPointF a = x2 - 2.0 * x1 + x0;
         QPointF b = 2.0 * x1 - 2.0 * x0;
         QPointF c = x0;
 
-        // calculating parameter t at minimum/maximum in x-direction
         if (a.x() == 0.0) {
             params.append(- c.x() / b.x());
         } else {
@@ -220,7 +157,6 @@ QList<qreal> KoPathSegment::Private::extrema() const
             params.append((-b.x() - sqrt(rx)) / (2.0*a.x()));
         }
 
-        // calculating parameter t at minimum/maximum in y-direction
         if (a.y() == 0.0) {
             params.append(- c.y() / b.y());
         } else {
@@ -237,21 +173,15 @@ QList<qreal> KoPathSegment::Private::extrema() const
 
 qreal KoPathSegment::Private::distanceFromChord(const QPointF &point) const
 {
-    // the segments chord
     QPointF chord = second->point() - first->point();
-    // the point relative to the segment
     QPointF relPoint = point - first->point();
-    // project point to chord
     qreal scale = chord.x() * relPoint.x() + chord.y() * relPoint.y();
     scale /= chord.x() * chord.x() + chord.y() * chord.y();
 
-    // the vector form the point to the projected point on the chord
     QPointF diffVec = scale * chord - relPoint;
 
-    // the unsigned distance of the point to the chord
     qreal distance = sqrt(diffVec.x() * diffVec.x() + diffVec.y() * diffVec.y());
 
-    // determine sign of the distance using the cross product
     if (chord.x()*relPoint.y() - chord.y()*relPoint.x() > 0) {
         return distance;
     } else {
@@ -267,19 +197,6 @@ qreal KoPathSegment::Private::chordLength() const
 
 QList<QPointF> KoPathSegment::Private::linesIntersection(const KoPathSegment &segment) const
 {
-    //debugFlake << "intersecting two lines";
-    /*
-    we have to line segments:
-
-    s1 = A + r * (B-A), s2 = C + s * (D-C) for r,s in [0,1]
-
-        if s1 and s2 intersect we set s1 = s2 so we get these two equations:
-
-    Ax + r * (Bx-Ax) = Cx + s * (Dx-Cx)
-    Ay + r * (By-Ay) = Cy + s * (Dy-Cy)
-
-    which we can solve to get r and s
-    */
     QList<QPointF> isects;
     QPointF A = first->point();
     QPointF B = second->point();
@@ -288,7 +205,6 @@ QList<QPointF> KoPathSegment::Private::linesIntersection(const KoPathSegment &se
 
     qreal denom = (B.x() - A.x()) * (D.y() - C.y()) - (B.y() - A.y()) * (D.x() - C.x());
     qreal num_r = (A.y() - C.y()) * (D.x() - C.x()) - (A.x() - C.x()) * (D.y() - C.y());
-    // check if lines are collinear
     if (denom == 0.0 && num_r == 0.0)
         return isects;
 
@@ -296,20 +212,16 @@ QList<QPointF> KoPathSegment::Private::linesIntersection(const KoPathSegment &se
     qreal r = num_r / denom;
     qreal s = num_s / denom;
 
-    // check if intersection is inside our line segments
     if (r < 0.0 || r > 1.0)
         return isects;
     if (s < 0.0 || s > 1.0)
         return isects;
 
-    // calculate the actual intersection point
     isects.append(A + r * (B - A));
 
     return isects;
 }
 
-
-///////////////////
 KoPathSegment::KoPathSegment(KoPathPoint * first, KoPathPoint * second)
     : d(new Private(this, first, second))
 {
@@ -466,7 +378,6 @@ QRectF KoPathSegment::controlPointRect() const
     }
 
     if (degree() == 1) {
-        // adjust bounding rect of horizontal and vertical lines
         if (bbox.height() == 0.0)
             bbox.setHeight(0.1);
         if (bbox.width() == 0.0)
@@ -484,17 +395,11 @@ QRectF KoPathSegment::boundingRect() const
     QRectF rect = QRectF(d->first->point(), d->second->point()).normalized();
 
     if (degree() == 1) {
-        // adjust bounding rect of horizontal and vertical lines
         if (rect.height() == 0.0)
             rect.setHeight(0.1);
         if (rect.width() == 0.0)
             rect.setWidth(0.1);
     } else {
-        /*
-         * The basic idea for calculating the axis aligned bounding box (AABB) for bezier segments
-         * was found in comp.graphics.algorithms:
-         * Use the points at the extrema of the curve to calculate the AABB.
-         */
         foreach (qreal t, d->extrema()) {
             if (t >= 0.0 && t <= 1.0) {
                 QPointF p = pointAt(t);
@@ -511,8 +416,6 @@ QRectF KoPathSegment::boundingRect() const
 
 QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
 {
-    // this function uses a technique known as bezier clipping to find the
-    // intersections of the two bezier curves
 
     QList<QPointF> isects;
 
@@ -524,22 +427,15 @@ QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
 
     QRectF myBound = boundingRect();
     QRectF otherBound = segment.boundingRect();
-    //debugFlake << "my boundingRect =" << myBound;
-    //debugFlake << "other boundingRect =" << otherBound;
     if (!myBound.intersects(otherBound)) {
-        //debugFlake << "segments do not intersect";
         return isects;
     }
 
-    // short circuit lines intersection
     if (degree1 == 1 && degree2 == 1) {
-        //debugFlake << "intersecting two lines";
         isects += d->linesIntersection(segment);
         return isects;
     }
 
-    // first calculate the fat line L by using the signed distances
-    // of the control points from the chord
     qreal dmin, dmax;
     if (degree1 == 1) {
         dmin = 0.0;
@@ -564,27 +460,6 @@ QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
         }
     }
 
-    //debugFlake << "using fat line: dmax =" << dmax << " dmin =" << dmin;
-
-    /*
-      the other segment is given as a bezier curve of the form:
-     (1) P(t) = sum_i P_i * B_{n,i}(t)
-     our chord line is of the form:
-     (2) ax + by + c = 0
-     we can determine the distance d(t) from any point P(t) to our chord
-     by substituting formula (1) into formula (2):
-     d(t) = sum_i d_i B_{n,i}(t), where d_i = a*x_i + b*y_i + c
-     which forms another explicit bezier curve
-     D(t) = (t,d(t)) = sum_i D_i B_{n,i}(t)
-     now values of t for which P(t) lies outside of our fat line L
-     corresponds to values of t for which D(t) lies above d = dmax or
-     below d = dmin
-     we can determine parameter ranges of t for which P(t) is guaranteed
-     to lie outside of L by identifying ranges of t which the convex hull
-     of D(t) lies above dmax or below dmin
-    */
-    // now calculate the control points of D(t) by using the signed
-    // distances of P_i to our chord
     KoPathSegment dt;
     if (degree2 == 1) {
         QPointF p0(0.0, d->distanceFromChord(segment.first()->point()));
@@ -604,15 +479,11 @@ QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
         QPointF p3(1.0, d->distanceFromChord(segment.second()->point()));
         dt = KoPathSegment(p0, p1, p2, p3);
     } else {
-        //debugFlake << "invalid degree of segment -> exiting";
         return isects;
     }
 
-    // get convex hull of the segment D(t)
     QList<QPointF> hull = dt.convexHull();
 
-    // now calculate intersections with the line y1 = dmin, y2 = dmax
-    // with the convex hull edges
     int hullCount = hull.count();
     qreal tmin = 1.0, tmax = 0.0;
     bool intersectionsFoundMax = false;
@@ -621,15 +492,11 @@ QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
     for (int i = 0; i < hullCount; ++i) {
         QPointF p1 = hull[i];
         QPointF p2 = hull[(i+1) % hullCount];
-        //debugFlake << "intersecting hull edge (" << p1 << p2 << ")";
-        // hull edge is completely above dmax
         if (p1.y() > dmax && p2.y() > dmax)
             continue;
-        // hull edge is completely below dmin
         if (p1.y() < dmin && p2.y() < dmin)
             continue;
         if (p1.x() == p2.x()) {
-            // vertical edge
             bool dmaxIntersection = (dmax < qMax(p1.y(), p2.y()) && dmax > qMin(p1.y(), p2.y()));
             bool dminIntersection = (dmin < qMax(p1.y(), p2.y()) && dmin > qMin(p1.y(), p2.y()));
             if (dmaxIntersection || dminIntersection) {
@@ -637,23 +504,16 @@ QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
                 tmax = qMax(tmax, p1.x());
                 if (dmaxIntersection) {
                     intersectionsFoundMax = true;
-                    //debugFlake << "found intersection with dmax at " << p1.x() << "," << dmax;
                 } else {
                     intersectionsFoundMin = true;
-                    //debugFlake << "found intersection with dmin at " << p1.x() << "," << dmin;
                 }
             }
         } else if (p1.y() == p2.y()) {
-            // horizontal line
             if (p1.y() == dmin || p1.y() == dmax) {
                 if (p1.y() == dmin) {
                     intersectionsFoundMin = true;
-                    //debugFlake << "found intersection with dmin at " << p1.x() << "," << dmin;
-                    //debugFlake << "found intersection with dmin at " << p2.x() << "," << dmin;
                 } else {
                     intersectionsFoundMax = true;
-                    //debugFlake << "found intersection with dmax at " << p1.x() << "," << dmax;
-                    //debugFlake << "found intersection with dmax at " << p2.x() << "," << dmax;
                 }
                 tmin = qMin(tmin, p1.x());
                 tmin = qMin(tmin, p2.x());
@@ -670,28 +530,19 @@ QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
                 tmin = qMin(tmin, t1);
                 tmax = qMax(tmax, t1);
                 intersectionsFoundMax = true;
-                //debugFlake << "found intersection with dmax at " << t1 << "," << dmax;
             }
             qreal t2 = (dmin - n) / m;
             if (t2 >= 0.0 && t2 < 1.0) {
                 tmin = qMin(tmin, t2);
                 tmax = qMax(tmax, t2);
                 intersectionsFoundMin = true;
-                //debugFlake << "found intersection with dmin at " << t2 << "," << dmin;
             }
         }
     }
 
     bool intersectionsFound = intersectionsFoundMin && intersectionsFoundMax;
 
-    //if (intersectionsFound)
-    //    debugFlake << "clipping segment to interval [" << tmin << "," << tmax << "]";
-
     if (!intersectionsFound || (1.0 - (tmax - tmin)) <= 0.2) {
-        //debugFlake << "could not clip enough -> split segment";
-        // we could not reduce the interval significantly
-        // so split the curve and calculate intersections
-        // with the remaining parts
         QPair<KoPathSegment, KoPathSegment> parts = splitAt(0.5);
         if (d->chordLength() < 1e-5)
             isects += parts.first.second()->point();
@@ -700,15 +551,11 @@ QList<QPointF> KoPathSegment::intersections(const KoPathSegment &segment) const
             isects += segment.intersections(parts.second);
         }
     } else if (qAbs(tmin - tmax) < 1e-5) {
-        //debugFlake << "Yay, we found an intersection";
-        // the interval is pretty small now, just calculate the intersection at this point
         isects.append(segment.pointAt(tmin));
     } else {
         QPair<KoPathSegment, KoPathSegment> clip1 = segment.splitAt(tmin);
-        //debugFlake << "splitting segment at" << tmin;
         qreal t = (tmax - tmin) / (1.0 - tmin);
         QPair<KoPathSegment, KoPathSegment> clip2 = clip1.second.splitAt(t);
-        //debugFlake << "splitting second part at" << t << "("<<tmax<<")";
         isects += clip2.first.intersections(*this);
     }
 
@@ -740,13 +587,6 @@ KoPathSegment KoPathSegment::toCubic() const
         p1->setControlPoint2(p1->point() + 0.3 * (p2->point() - p1->point()));
         p2->setControlPoint1(p2->point() + 0.3 * (p1->point() - p2->point()));
     } else if (degree() == 2) {
-        /* quadric bezier (a0,a1,a2) to cubic bezier (b0,b1,b2,b3):
-        *
-        * b0 = a0
-        * b1 = a0 + 2/3 * (a1-a0)
-        * b2 = a1 + 1/3 * (a2-a1)
-        * b3 = a2
-        */
         QPointF a1 = p1->activeControlPoint2() ? p1->controlPoint2() : p2->controlPoint1();
         QPointF b1 = p1->point() + 2.0 / 3.0 * (a1 - p1->point());
         QPointF b2 = a1 + 1.0 / 3.0 * (p2->point() - a1);
@@ -759,30 +599,6 @@ KoPathSegment KoPathSegment::toCubic() const
 
 qreal KoPathSegment::length(qreal error) const
 {
-    /*
-     * This algorithm is implemented based on an idea by Jens Gravesen:
-     * "Adaptive subdivision and the length of Bezier curves" mat-report no. 1992-10, Mathematical Institute,
-     * The Technical University of Denmark.
-     *
-     * By subdividing the curve at parameter value t you only have to find the length of a full Bezier curve.
-     * If you denote the length of the control polygon by L1 i.e.:
-     *   L1 = |P0 P1| +|P1 P2| +|P2 P3|
-     *
-     * and the length of the cord by L0 i.e.:
-     *   L0 = |P0 P3|
-     *
-     * then
-     *   L = 1/2*L0 + 1/2*L1
-     *
-     * is a good approximation to the length of the curve, and the difference
-     *   ERR = L1-L0
-     *
-     * is a measure of the error. If the error is to large, then you just subdivide curve at parameter value
-     * 1/2, and find the length of each half.
-     * If m is the number of subdivisions then the error goes to zero as 2^-4m.
-     * If you don't have a cubic curve but a curve of degree n then you put
-     *   L = (2*L0 + (n-1)*L1)/(n+1)
-     */
 
     int deg = degree();
 
@@ -791,14 +607,12 @@ qreal KoPathSegment::length(qreal error) const
 
     QList<QPointF> ctrlPoints = controlPoints();
 
-    // calculate chord length
     qreal chordLen = d->chordLength();
 
     if (deg == 1) {
         return chordLen;
     }
 
-    // calculate length of control polygon
     qreal polyLength = 0.0;
 
     for (int i = 0; i < deg; ++i) {
@@ -807,11 +621,9 @@ qreal KoPathSegment::length(qreal error) const
     }
 
     if ((polyLength - chordLen) > error) {
-        // the error is still bigger than our tolerance -> split segment
         QPair<KoPathSegment, KoPathSegment> parts = splitAt(0.5);
         return parts.first.length(error) + parts.second.length(error);
     } else {
-        // the error is smaller than our tolerance
         if (deg == 3)
             return 0.5 * chordLen + 0.5 * polyLength;
         else
@@ -833,29 +645,22 @@ qreal KoPathSegment::lengthAt(qreal t, qreal error) const
 qreal KoPathSegment::paramAtLength(qreal length, qreal tolerance) const
 {
     const int deg = degree();
-    // invalid degree or invalid specified length
     if (deg < 1 || length <= 0.0) {
         return 0.0;
     }
 
     if (deg == 1) {
-        // make sure we return a maximum value of 1.0
         return qMin(qreal(1.0), length / d->chordLength());
     }
 
-    // for curves we need to make sure, that the specified length
-    // value does not exceed the actual length of the segment
-    // if that happens, we return 1.0 to avoid infinite looping
     if (length >= d->chordLength() && length >= this->length(tolerance)) {
         return 1.0;
     }
 
-    qreal startT = 0.0; // interval start
-    qreal midT = 0.5;   // interval center
-    qreal endT = 1.0;   // interval end
+    qreal startT = 0.0;
+    qreal midT = 0.5;
+    qreal endT = 1.0;
 
-    // divide and conquer, split a midpoint and check
-    // on which side of the midpoint to continue
     qreal midLength = lengthAt(0.5);
     while (qAbs(midLength - length) / length > tolerance) {
         if (midLength < length)
@@ -863,9 +668,7 @@ qreal KoPathSegment::paramAtLength(qreal length, qreal tolerance) const
         else
             endT = midT;
 
-        // new interval center
         midT = 0.5 * (startT + endT);
-        // length at new interval center
         midLength = lengthAt(midT);
     }
 
@@ -874,19 +677,10 @@ qreal KoPathSegment::paramAtLength(qreal length, qreal tolerance) const
 
 bool KoPathSegment::isFlat(qreal tolerance) const
 {
-    /*
-     * Calculate the height of the bezier curve.
-     * This is done by rotating the curve so that then chord
-     * is parallel to the x-axis and the calculating the
-     * parameters t for the extrema of the curve.
-     * The curve points at the extrema are then used to
-     * calculate the height.
-     */
     if (degree() <= 1)
         return true;
 
     QPointF chord = d->second->point() - d->first->point();
-    // calculate angle of chord to the x-axis
     qreal chordAngle = atan2(chord.y(), chord.x());
     QTransform m;
     m.translate(d->first->point().x(), d->first->point().y());
@@ -915,16 +709,12 @@ QList<QPointF> KoPathSegment::convexHull() const
     QList<QPointF> hull;
     int deg = degree();
     if (deg == 1) {
-        // easy just the two end points
         hull.append(d->first->point());
         hull.append(d->second->point());
     } else if (deg == 2) {
-        // we want to have a counter-clockwise oriented triangle
-        // of the three control points
         QPointF chord = d->second->point() - d->first->point();
         QPointF cp = d->first->activeControlPoint2() ? d->first->controlPoint2() : d->second->controlPoint1();
         QPointF relP = cp - d->first->point();
-        // check on which side of the chord the control point is
         bool pIsRight = (chord.x() * relP.y() - chord.y() * relP.x() > 0);
         hull.append(d->first->point());
         if (pIsRight)
@@ -933,10 +723,8 @@ QList<QPointF> KoPathSegment::convexHull() const
         if (! pIsRight)
             hull.append(cp);
     } else if (deg == 3) {
-        // we want a counter-clockwise oriented polygon
         QPointF chord = d->second->point() - d->first->point();
         QPointF relP1 = d->first->controlPoint2() - d->first->point();
-        // check on which side of the chord the control points are
         bool p1IsRight = (chord.x() * relP1.y() - chord.y() * relP1.x() > 0);
         hull.append(d->first->point());
         if (p1IsRight)
@@ -945,8 +733,6 @@ QList<QPointF> KoPathSegment::convexHull() const
         if (! p1IsRight)
             hull.append(d->first->controlPoint2());
 
-        // now we have a counter-clockwise triangle with the points i,j,k
-        // we have to check where the last control points lies
         bool rightOfEdge[3];
         QPointF lastPoint = d->second->controlPoint1();
         for (int i = 0; i < 3; ++i) {
@@ -957,19 +743,14 @@ QList<QPointF> KoPathSegment::convexHull() const
         for (int i = 0; i < 3; ++i) {
             int prev = (3 + i - 1) % 3;
             int next = (i + 1) % 3;
-            // check if point is only right of the n-th edge
             if (! rightOfEdge[prev] && rightOfEdge[i] && ! rightOfEdge[next]) {
-                // insert by breaking the n-th edge
                 hull.insert(i + 1, lastPoint);
                 break;
             }
-            // check if it is right of the n-th and right of the (n+1)-th edge
             if (rightOfEdge[i] && rightOfEdge[next]) {
-                // remove both edge, insert two new edges
                 hull[i+1] = lastPoint;
                 break;
             }
-            // check if it is right of n-th and right of (n-1)-th edge
             if (rightOfEdge[i] && rightOfEdge[prev]) {
                 hull[i] = lastPoint;
                 break;
@@ -1043,14 +824,6 @@ KoPathSegment KoPathSegment::interpolate(const QPointF &p0, const QPointF &p1, c
 {
     if (t <= 0.0 || t >= 1.0)
         return KoPathSegment();
-
-    /*
-        B(t) = [x2 y2] = (1-t)^2*P0 + 2t*(1-t)*P1 + t^2*P2
-
-               B(t) - (1-t)^2*P0 - t^2*P2
-         P1 =  --------------------------
-                       2t*(1-t)
-    */
 
     QPointF c1 = p1 - (1.0-t) * (1.0-t)*p0 - t * t * p2;
 

@@ -55,4 +55,4 @@ struct KoOptimizedCompositeOpFactoryPerArch {
     static KoCompositeOp *create(const KoColorSpace *);
 };
 
-#endif /* KOOPTIMIZEDCOMPOSITEOPFACTORYPERARCH_H */
+#endif

@@ -84,8 +84,6 @@ class KRITAIMAGE_EXPORT KisBoxFilterStrategy : public KisFilterStrategy
 {
 public:
     KisBoxFilterStrategy() : KisFilterStrategy(KoID("NearestNeighbor", i18n("Nearest Neighbor"))) {
-        // 0.5 and 128, but with a bit of margin to ensure the correct pixel will be used
-        // even in case of calculation errors
         supportVal = 0.51; intSupportVal = 129;
     }
     ~KisBoxFilterStrategy() override {}
@@ -96,7 +94,6 @@ public:
 
     virtual qreal support(qreal weightsPositionScale) override;
     virtual qint32 intSupport(qreal weightsPositionScale) override;
-
 
     qint32 intValueAt(qint32 t, qreal weightsPositionScale) const override;
     qreal valueAt(qreal t, qreal weightsPositionScale) const override;
@@ -177,21 +174,10 @@ public:
     ~KisFilterStrategyRegistry() override;
     static KisFilterStrategyRegistry* instance();
 
-    /**
-     * This function return a list of all the keys in KoID format by using the name() method
-     * on the objects stored in the registry.
-     */
     QList<KoID> listKeys() const;
 
-    /**
-     * This function return a string formatted in HTML that contains the descriptions of all objects
-     * (with a non empty description) stored in the registry.
-     */
     QString formattedDescriptions() const;
 
-    /**
-     * Try to select an appropriate image filtering strategy based on original and desired parameters.
-     */
     KisFilterStrategy* autoFilterStrategy(QSize originalSize, QSize desiredSize) const;
 
 private:
@@ -201,4 +187,4 @@ private:
 
 };
 
-#endif // KIS_FILTER_STRATEGY_H_
+#endif

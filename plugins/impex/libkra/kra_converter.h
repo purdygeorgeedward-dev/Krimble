@@ -35,9 +35,6 @@ public:
 
     KisImportExportErrorCode buildImage(QIODevice *io);
     KisImportExportErrorCode buildFile(QIODevice *io, const QString &filename, bool addMergedImage = true);
-    /**
-     * Retrieve the constructed image
-     */
     KisImageSP image();
     vKisNodeSP activeNodes();
     QList<KisPaintingAssistantSP> assistants();

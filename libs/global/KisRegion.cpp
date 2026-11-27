@@ -132,7 +132,6 @@ struct HorizontalSplitPolicy
     }
 };
 
-
 struct VoidNoOp {
     void operator()() const { };
     template<typename P1, typename... Params>
@@ -312,7 +311,7 @@ KisRegion &KisRegion::operator=(const KisRegion &rhs)
 
 KisRegion &KisRegion::operator&=(const QRect &rect)
 {
-    for (auto it = m_rects.begin(); it != m_rects.end(); /* noop */) {
+    for (auto it = m_rects.begin(); it != m_rects.end(); ) {
         *it &= rect;
         if (it->isEmpty()) {
             it = m_rects.erase(it);
@@ -346,12 +345,6 @@ bool KisRegion::isEmpty() const
 
 QRegion KisRegion::toQRegion() const
 {
-    // TODO: utilize QRegion::setRects to make creation of QRegion much
-    //       faster. The only reason why we cannot use it "as is", is that our m_rects
-    //       do not satisfy the second setRects()'s precondition: "All rectangles with
-    //       a given top coordinate must have the same height". We can implement a
-    //       simple algorithm for cropping m_rects, and it will be much faster than
-    //       constructing QRegion iteratively.
 
     return std::accumulate(m_rects.constBegin(), m_rects.constEnd(), QRegion(), std::bit_or<QRegion>());
 }

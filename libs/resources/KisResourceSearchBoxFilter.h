@@ -6,16 +6,11 @@
 #ifndef KIS_RESOURCE_SEARCH_BOX_FILTER_H
 #define KIS_RESOURCE_SEARCH_BOX_FILTER_H
 
-
 #include "kritaresources_export.h"
 
 #include <QString>
 #include <QScopedPointer>
 
-/**
- * XXX: Apidox
- * 
- */
 class KRITARESOURCES_EXPORT KisResourceSearchBoxFilter
 {
 
@@ -36,6 +31,5 @@ private:
     QScopedPointer<Private> m_d;
 
 };
-
 
 #endif

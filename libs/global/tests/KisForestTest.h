@@ -53,4 +53,4 @@ private Q_SLOTS:
 
 };
 
-#endif // KISFORESTTEST_H
+#endif

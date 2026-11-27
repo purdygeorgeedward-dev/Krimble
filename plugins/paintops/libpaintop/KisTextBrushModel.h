@@ -32,7 +32,6 @@ public:
 
     ~KisTextBrushModel();
 
-    // the state must be declared **before** any cursors or readers
     lager::cursor<CommonData> m_commonData;
     lager::cursor<TextBrushData> m_textBrushData;
 
@@ -42,4 +41,4 @@ public:
     LAGER_QT_CURSOR(bool, usePipeMode);
 };
 
-#endif // KISTEXTBRUSHMODEL_H
+#endif

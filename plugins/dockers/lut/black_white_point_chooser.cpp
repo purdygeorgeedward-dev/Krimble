@@ -16,7 +16,6 @@
 #include <QFormLayout>
 #include "kis_slider_spin_box.h"
 
-
 BlackWhitePointChooser::BlackWhitePointChooser(QWidget* parent)
     : QFrame(parent, Qt::Popup)
 {

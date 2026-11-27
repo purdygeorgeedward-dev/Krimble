@@ -19,7 +19,6 @@ class ToolTransformArgs;
 class TransformTransactionProperties;
 class QImage;
 
-
 class KisMeshTransformStrategy : public KisSimplifiedActionPolicyStrategy
 {
     Q_OBJECT
@@ -29,7 +28,6 @@ public:
                              ToolTransformArgs &currentArgs,
                              TransformTransactionProperties &transaction);
     ~KisMeshTransformStrategy() override;
-
 
     void setTransformFunction(const QPointF &mousePos, bool perspectiveModifierActive, bool shiftModifierActive, bool altModifierActive) override;
     QPointF handleSnapPoint(const QPointF &imagePos) override;
@@ -65,4 +63,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_MESH_TRANSFORM_STRATEGY_H */
+#endif

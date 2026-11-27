@@ -56,4 +56,4 @@ private:
     bool m_havePendingTextureUpdate = false;
 };
 
-#endif // KISGLIMAGEWIDGET_H
+#endif

@@ -367,7 +367,7 @@ readLayerImpl::create<xsimd::current_arch>(const int luma,
                                            float displayNits,
                                            const KoColorSpace *colorSpace);
 
-} // namespace Planar
+}
 
 namespace HDR
 {
@@ -696,7 +696,7 @@ readLayerImpl::create<xsimd::current_arch>(const int luma,
                                            float displayGamma,
                                            float displayNits,
                                            const KoColorSpace *colorSpace);
-} // namespace HDR
+}
 
 namespace SDR
 {
@@ -961,6 +961,6 @@ readLayerImpl::create<xsimd::current_arch>(LinearizePolicy linearizePolicy,
                                            float displayGamma,
                                            float displayNits,
                                            const KoColorSpace *colorSpace);
-} // namespace SDR
+}
 
-#endif // XSIMD_UNIVERSAL_BUILD_PASS
+#endif

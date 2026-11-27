@@ -19,5 +19,5 @@ private Q_SLOTS:
     void testImportIncorrectFormat();
 };
 
-#endif // _KIS_JP2_TEST_H_
+#endif
 

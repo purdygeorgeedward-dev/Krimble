@@ -69,7 +69,6 @@ KisImportExportErrorCode KisJPEGExport::convert(KisDocument *document, QIODevice
     KisImageSP image = document->savingImage();
     Q_CHECK_PTR(image);
 
-    // An extra option to pass to the config widget to set the state correctly, this isn't saved
     const KoColorSpace* cs = image->projection()->colorSpace();
     bool sRGB = cs->profile()->name().contains(QLatin1String("srgb"), Qt::CaseInsensitive);
     configuration->setProperty("is_sRGB", sRGB);
@@ -116,7 +115,6 @@ KisImportExportErrorCode KisJPEGExport::convert(KisDocument *document, QIODevice
         metaDataStore.reset(new KisMetaData::Store());
     }
 
-    //add extra meta-data here
     const KisMetaData::Schema* dcSchema = KisMetaData::SchemaRegistry::instance()->schemaFromUri(KisMetaData::Schema::DublinCoreSchemaUri);
     Q_ASSERT(dcSchema);
     if (options.storeDocumentMetaData) {
@@ -173,7 +171,7 @@ KisImportExportErrorCode KisJPEGExport::convert(KisDocument *document, QIODevice
     return res;
 }
 
-KisPropertiesConfigurationSP KisJPEGExport::defaultConfiguration(const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisPropertiesConfigurationSP KisJPEGExport::defaultConfiguration(const QByteArray & , const QByteArray & ) const
 {
     KisPropertiesConfigurationSP cfg = new KisPropertiesConfiguration();
     cfg->setProperty("progressive", false);
@@ -192,7 +190,7 @@ KisPropertiesConfigurationSP KisJPEGExport::defaultConfiguration(const QByteArra
     cfg->setProperty("smartProtect", 0);
     cfg->setProperty("smartSensitivity", 35);
     cfg->setProperty("smartGrayscale", true);
-    cfg->setProperty("smartForceGray", false);   // task 49
+    cfg->setProperty("smartForceGray", false);
     cfg->setProperty("storeMetaData", false);
 
     KoColor fill_color(KoColorSpaceRegistry::instance()->rgb8());
@@ -207,7 +205,7 @@ KisPropertiesConfigurationSP KisJPEGExport::defaultConfiguration(const QByteArra
     return cfg;
 }
 
-KisConfigWidget *KisJPEGExport::createConfigurationWidget(QWidget *parent, const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisConfigWidget *KisJPEGExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray & ) const
 {
     return new KisWdgOptionsJPEG(parent);
 }
@@ -224,7 +222,6 @@ void KisJPEGExport::initializeCapabilities()
             << QPair<KoID, KoID>(CMYKAColorModelID, Integer8BitsColorDepthID);
     addSupportedColorModels(supportedColorModels, "JPEG");
 }
-
 
 KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
     : KisConfigWidget(parent)
@@ -296,7 +293,6 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
 
 #ifdef Q_OS_ANDROID
     {
-        // Basic: Quality, Transparent pixel fill color
         gridLayout_4->removeWidget(label);
         gridLayout_4->removeWidget(qualityLevel);
         gridLayout_4->removeWidget(label_4);
@@ -305,7 +301,6 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
         gridLayout_4->addWidget(qualityLevel, 1, 0);
         gridLayout_4->addWidget(label_4, 2, 0);
         gridLayout_4->addWidget(bnTransparencyFillColor, 3, 0);
-        // Advanced quality: Smoothing, Subsampling
         gridLayout_3->removeWidget(label_3);
         gridLayout_3->removeWidget(smoothLevel);
         gridLayout_3->removeWidget(label_5);
@@ -314,7 +309,6 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
         gridLayout_3->addWidget(smoothLevel, 1, 0);
         gridLayout_3->addWidget(label_5, 2, 0);
         gridLayout_3->addWidget(subsampling, 3, 0);
-        // Metadata: the two boxes one under the other
         if (QGridLayout *metadataLayout = qobject_cast<QGridLayout*>(tab_3->layout())) {
             metadataLayout->removeWidget(groupBox_2);
             metadataLayout->addWidget(groupBox_2, metadataLayout->rowCount(), 0);
@@ -322,7 +316,6 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
     }
 #endif
 }
-
 
 void KisWdgOptionsJPEG::setConfiguration(const KisPropertiesConfigurationSP cfg)
 {
@@ -343,7 +336,7 @@ void KisWdgOptionsJPEG::setConfiguration(const KisPropertiesConfigurationSP cfg)
     bnTransparencyFillColor->setDefaultColor(background);
     bnTransparencyFillColor->setColor(cfg->getColor("transparencyFillcolor", background));
     chkAuthor->setChecked(cfg->getBool("storeAuthor", false));
-#if 0   // task 49: the old lines (the check box "Save gray pictures as one channel" is gone; a gray picture is always saved as one channel now)
+#if 0
     sliderSmartLevel->setValue(cfg->getInt("smartLevel", 0));
     sliderSmartSensitivity->setValue(cfg->getInt("smartSensitivity", 35));
     const int smartProtect = cfg->getInt("smartProtect", 0);
@@ -405,7 +398,7 @@ KisPropertiesConfigurationSP KisWdgOptionsJPEG::configuration() const
     cfg->setProperty("xmp", xmp->isChecked());
     cfg->setProperty("transparencyFillcolor", transparencyFillcolor);
     cfg->setProperty("storeAuthor", chkAuthor->isChecked());
-#if 0   // task 49: the old lines
+#if 0
     cfg->setProperty("smartLevel", sliderSmartLevel->value());
     cfg->setProperty("smartSensitivity", sliderSmartSensitivity->value());
     cfg->setProperty("smartProtect", radSmartMine->isChecked() ? 1 : (radSmartNone->isChecked() ? 2 : 0));
@@ -415,7 +408,7 @@ KisPropertiesConfigurationSP KisWdgOptionsJPEG::configuration() const
     cfg->setProperty("smartSensitivity", sliderSmartSensitivity->value());
     cfg->setProperty("smartProtect", radSmartMine->isChecked() ? 1 : (radSmartNone->isChecked() ? 2 : 0));
     cfg->setProperty("smartForceGray", chkSmartForceGray->isChecked());
-    cfg->setProperty("smartGrayscale", true);   // a gray picture is always saved as one channel
+    cfg->setProperty("smartGrayscale", true);
     cfg->setProperty("storeMetaData", chkMetaData->isChecked());
 
     QString enabledFilters;

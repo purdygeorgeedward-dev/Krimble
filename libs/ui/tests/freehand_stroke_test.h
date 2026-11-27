@@ -9,7 +9,6 @@
 
 #include <simpletest.h>
 
-
 class FreehandStrokeTest : public QObject
 {
     Q_OBJECT
@@ -26,4 +25,4 @@ private Q_SLOTS:
     void testPredefinedBrushStrokeLod();
 };
 
-#endif /* __FREEHAND_STROKE_TEST_H */
+#endif

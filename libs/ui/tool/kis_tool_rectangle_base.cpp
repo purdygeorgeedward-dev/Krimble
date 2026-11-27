@@ -44,7 +44,6 @@ KisToolRectangleBase::KisToolRectangleBase(KoCanvasBase * canvas, KisToolRectang
 {
 }
 
-
 QList<QPointer<QWidget> > KisToolRectangleBase::createOptionWidgets()
 {
     QList<QPointer<QWidget>> widgetsList = KisToolShape::createOptionWidgets();
@@ -80,7 +79,6 @@ void KisToolRectangleBase::constraintsChanged(bool forceRatio, bool forceWidth, 
     m_forcedWidth = width;
     m_forcedRatio = ratio;
 
-    // Avoid division by zero in size calculations
     if (ratio < 0.0001f)
         m_isRatioForced = false;
 }
@@ -285,7 +283,6 @@ void KisToolRectangleBase::continuePrimaryAction(KoPointerEvent *event)
     t2.rotateRadians(getRotationAngle());
     diag = t2.map(baseDiag);
 
-    // resize around center point?
     if (expandFromCenter && !fixedSize && !rotateMode) {
       m_dragStart = m_dragCenter - diag / 2;
       m_dragEnd = m_dragCenter + diag / 2;
@@ -314,10 +311,6 @@ void KisToolRectangleBase::continuePrimaryAction(KoPointerEvent *event)
 void KisToolRectangleBase::endPrimaryAction(KoPointerEvent *event)
 {
     CHECK_MODE_SANITY_OR_RETURN(KisTool::PAINT_MODE);
-    // If the event was not originated by the user releasing the button
-    // (for example due to the canvas loosing focus), then we just cancel the
-    // operation. This prevents some issues with shapes being added after
-    // the image was closed while the shape was being made
     if (event->spontaneous()) {
         endStroke();
     } else {
@@ -369,7 +362,7 @@ QRectF KisToolRectangleBase::createRect(const QPointF &start, const QPointF &end
     const QPointF newStart(qRound(start.x()), qRound(start.y()));
     const QPointF newEnd(qRound(end1.x()), qRound(end1.y()));
     const QPointF newCenter = (newStart + newEnd) / 2.0;
-   
+
     QRectF result(newStart, newEnd);
     result.moveCenter(tInv.map(newCenter));
 

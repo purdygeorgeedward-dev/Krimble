@@ -9,7 +9,6 @@
 
 #include "KisRunnableStrokeJobData.h"
 
-
 class FreehandStrokeRunnableJobDataWithUpdate : public KisRunnableStrokeJobData
 {
 public:
@@ -26,4 +25,4 @@ public:
     }
 };
 
-#endif // FREEHANDSTROKERUNNABLEJOBDATAWITHUPDATE_H
+#endif

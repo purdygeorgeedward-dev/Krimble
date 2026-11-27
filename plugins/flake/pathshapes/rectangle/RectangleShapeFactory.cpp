@@ -65,14 +65,13 @@ KoShape *RectangleShapeFactory::createShape(const KoProperties *params, KoDocume
                 params->doubleProperty("y", rectShape->absolutePosition(KoFlake::TopLeft).y())),
         KoFlake::TopLeft);
 
-
     rectShape->setCornerRadiusX(params->doubleProperty("rx", 0.0));
     rectShape->setCornerRadiusY(params->doubleProperty("ry", 0.0));
 
     return shape;
 }
 
-bool RectangleShapeFactory::supports(const QDomElement &e, KoShapeLoadingContext &/*context*/) const
+bool RectangleShapeFactory::supports(const QDomElement &e, KoShapeLoadingContext & ) const
 {
     Q_UNUSED(e);
     return (e.localName() == "rect" && e.namespaceURI() == KoXmlNS::draw);

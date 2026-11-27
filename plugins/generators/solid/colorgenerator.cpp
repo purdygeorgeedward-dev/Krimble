@@ -77,7 +77,6 @@ void KisColorGenerator::generate(KisProcessingInformation dstInfo,
     if (config) {
         c = config->getColor("color");
 
-
         KisFillPainter gc(dst);
         gc.setProgress(progressUpdater);
         gc.setChannelFlags(config->channelFlags());

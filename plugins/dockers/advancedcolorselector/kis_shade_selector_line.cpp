@@ -24,7 +24,6 @@
 #include "kis_display_color_converter.h"
 #include "kis_paint_device.h"
 
-
 KisShadeSelectorLine::KisShadeSelectorLine(KisColorSelectorBaseProxy *parentProxy,
                                            QWidget *parent)
     : KisShadeSelectorLineBase(parent),
@@ -100,7 +99,7 @@ void KisShadeSelectorLine::fromString(const QString& string)
     m_hueDelta = strili.at(1).toDouble();
     m_saturationDelta = strili.at(2).toDouble();
     m_valueDelta = strili.at(3).toDouble();
-    if(strili.size()==4) return;            // don't crash, if reading old config files.
+    if(strili.size()==4) return;
     m_hueShift = strili.at(4).toDouble();
     m_saturationShift = strili.at(5).toDouble();
     m_valueShift = strili.at(6).toDouble();

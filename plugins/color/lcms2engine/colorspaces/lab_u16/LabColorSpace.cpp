@@ -82,12 +82,9 @@ void LabU16ColorSpace::colorFromXML(quint8 *pixel, const QDomElement &elt) const
     double a = KisDomUtils::toDouble(elt.attribute("a"));
     double b = KisDomUtils::toDouble(elt.attribute("b"));
 
-    // L will go from 0 to 100
-
     p->L = KoColorSpaceMaths<qreal, KoLabU16Traits::channels_type>::scaleToA(KisDomUtils::toDouble(elt.attribute("L"))*0.01f);
     KoLabU16Traits::channels_type halfValue = KoLabColorSpaceMathsTraits<KoLabU16Traits::channels_type>::halfValueAB;
 
-    // a goes from  -128 to 127
     if(a <= 0) {
         a = (a/-128.0);
         p->a = halfValue - (a * halfValue);
@@ -178,7 +175,6 @@ void LabU16ColorSpace::convertChannelToVisualRepresentation(const quint8 *src, q
                             c = ColorSpaceTraits::math_trait::unitValueL * (0.5 + ((qreal)c - ColorSpaceTraits::math_trait::halfValueAB) / (2.0 * (ColorSpaceTraits::math_trait::unitValueAB - ColorSpaceTraits::math_trait::halfValueAB)));
                         }
                         break;
-                    // As per KoChannelInfo alpha channels are [0..1]
                     default:
                         c = ColorSpaceTraits::math_trait::unitValueL * (qreal)c / ColorSpaceTraits::math_trait::unitValue;
                         break;

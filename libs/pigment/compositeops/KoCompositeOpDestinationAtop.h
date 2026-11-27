@@ -10,11 +10,6 @@
 
 #include "KoCompositeOpBase.h"
 
-/**
- *  Generic implementation of the Destination-atop composite op, based off the behind composite op.
- *  This is necessary for Open Raster support.
- *  https://www.w3.org/TR/compositing-1/
- */
 template<class CS_Traits>
 class KoCompositeOpDestinationAtop : public KoCompositeOpBase<CS_Traits, KoCompositeOpDestinationAtop<CS_Traits> >
 {
@@ -41,15 +36,12 @@ public:
         channels_type newDstAlpha        = appliedAlpha;
 
         if (dstAlpha != zeroValue<channels_type>() && srcAlpha != zeroValue<channels_type>()) {
-            // blend the color channels as if we were painting on the layer below
             for (qint8 channel = 0; channel < channels_nb; ++channel)
                 if(channel != alpha_pos && (allChannelFlags || channelFlags.testBit(channel))) {
                     dst[channel] = lerp(src[channel],dst[channel],dstAlpha);
                 }
         }
         else if (srcAlpha != zeroValue<channels_type>()) {
-            // don't blend if the color of the destination is undefined (has zero opacity)
-            // copy the source channel instead
             for (qint8 channel = 0; channel < channels_nb; ++channel)
                 if(channel != alpha_pos && (allChannelFlags || channelFlags.testBit(channel)))
                     dst[channel] = src[channel];
@@ -59,4 +51,4 @@ public:
     }
 };
 
-#endif  // _KOCOMPOSITEOPDESTINATIONATOP_H_
+#endif

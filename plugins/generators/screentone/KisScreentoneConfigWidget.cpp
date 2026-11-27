@@ -108,16 +108,10 @@ KisScreentoneConfigWidget::KisScreentoneConfigWidget(QWidget* parent, const KoCo
     m_ui.sliderAlignToPixelGridY->setRange(1, 20);
 
     KisSpinBoxI18nHelper::install(m_ui.sliderAlignToPixelGridX, [](int value) {
-        // i18n: This is meant to be used in a spinbox so keep the {n} in the text
-        //       and it will be substituted by the number. The text before will be
-        //       used as the prefix and the text after as the suffix
         return i18ncp("Horizontal pixel grid alignment prefix/suffix for spinboxes in screentone generator", "Every {n} cell horizontally", "Every {n} cells horizontally", value);
     });
 
     KisSpinBoxI18nHelper::install(m_ui.sliderAlignToPixelGridY, [](int value) {
-        // i18n: This is meant to be used in a spinbox so keep the {n} in the text
-        //       and it will be substituted by the number. The text before will be
-        //       used as the prefix and the text after as the suffix
         return i18ncp("Vertical pixel grid alignment prefix/suffix for spinboxes in screentone generator", "Every {n} cell vertically", "Every {n} cells vertically", value);
     });
 
@@ -130,7 +124,7 @@ KisScreentoneConfigWidget::KisScreentoneConfigWidget(QWidget* parent, const KoCo
     connect(m_ui.buttonEqualizationNone, SIGNAL(toggled(bool)), this, SIGNAL(sigConfigurationUpdated()));
     connect(m_ui.buttonEqualizationFunctionBased, SIGNAL(toggled(bool)), this, SIGNAL(sigConfigurationUpdated()));
     connect(m_ui.buttonEqualizationTemplateBased, SIGNAL(toggled(bool)), this, SIGNAL(sigConfigurationUpdated()));
-    
+
     connect(m_ui.buttonForegroundColor, SIGNAL(changed(const KoColor&)), this, SIGNAL(sigConfigurationUpdated()));
     connect(m_ui.sliderForegroundOpacity, SIGNAL(valueChanged(int)), this, SIGNAL(sigConfigurationUpdated()));
 
@@ -141,7 +135,7 @@ KisScreentoneConfigWidget::KisScreentoneConfigWidget(QWidget* parent, const KoCo
 
     connect(m_ui.sliderBrightness, SIGNAL(valueChanged(qreal)), this, SIGNAL(sigConfigurationUpdated()));
     connect(m_ui.sliderContrast, SIGNAL(valueChanged(qreal)), this, SIGNAL(sigConfigurationUpdated()));
-    
+
     connect(m_ui.buttonSizeModeResolutionBased, SIGNAL(toggled(bool)), this, SLOT(slot_buttonSizeModeResolutionBased_toggled(bool)));
     connect(m_ui.buttonSizeModePixelBased, SIGNAL(toggled(bool)), this, SLOT(slot_buttonSizeModePixelBased_toggled(bool)));
 
@@ -180,7 +174,7 @@ void KisScreentoneConfigWidget::setConfiguration(const KisPropertiesConfiguratio
     const KisScreentoneGeneratorConfiguration *generatorConfig =
         dynamic_cast<const KisScreentoneGeneratorConfiguration*>(config.data());
     KIS_ASSERT(generatorConfig);
-        
+
     {
         KisSignalsBlocker blocker1(m_ui.buttonSizeModeResolutionBased, m_ui.buttonSizeModePixelBased,
                                    m_ui.sliderResolution, m_ui.buttonConstrainFrequency,
@@ -221,7 +215,6 @@ void KisScreentoneConfigWidget::setConfiguration(const KisPropertiesConfiguratio
         slot_setFrequencySlidersRanges();
         m_ui.buttonConstrainFrequency->setKeepAspectRatio(generatorConfig->constrainFrequency());
         m_ui.sliderFrequencyX->setValue(generatorConfig->frequencyX());
-        // Set the frequency y slider to the frequency y value only if the frequency is not constrained
         if (m_ui.buttonConstrainFrequency->keepAspectRatio()) {
             m_ui.sliderFrequencyY->setValue(generatorConfig->frequencyX());
         } else {
@@ -231,7 +224,6 @@ void KisScreentoneConfigWidget::setConfiguration(const KisPropertiesConfiguratio
         m_ui.sliderPositionY->setValue(generatorConfig->positionY());
         m_ui.buttonConstrainSize->setKeepAspectRatio(generatorConfig->constrainSize());
         m_ui.sliderSizeX->setValue(generatorConfig->sizeX());
-        // Set the size y slider to the sithe y value only if the size must not be squared
         if (m_ui.buttonConstrainSize->keepAspectRatio()) {
             m_ui.sliderSizeY->setValue(generatorConfig->sizeX());
         } else {
@@ -266,7 +258,7 @@ KisPropertiesConfigurationSP KisScreentoneConfigWidget::configuration() const
         dynamic_cast<KisScreentoneGeneratorConfiguration*>(
             generator->factoryConfiguration(KisGlobalResourcesInterface::instance()).data()
         );
-        
+
     config->setPattern(m_ui.comboBoxPattern->currentIndex());
     config->setShape(comboIndexToShape(m_ui.comboBoxPattern->currentIndex(), m_ui.comboBoxShape->currentIndex()));
     config->setInterpolation(m_ui.comboBoxInterpolation->currentIndex());
@@ -423,7 +415,6 @@ void KisScreentoneConfigWidget::slot_buttonSizeModeResolutionBased_toggled(bool 
         m_ui.layoutTransformation->takeRow(m_ui.containerSize);
     }
 
-    // Prevent adding the widgets if they are already in the layout
     if (m_ui.layoutTransformation->indexOf(m_ui.containerResolution) == -1) {
         m_ui.layoutTransformation->insertRow(1, m_ui.labelResolution, m_ui.containerResolution);
         m_ui.layoutTransformation->insertRow(2, m_ui.labelFrequency, m_ui.containerFrequency);
@@ -457,7 +448,6 @@ void KisScreentoneConfigWidget::slot_buttonSizeModePixelBased_toggled(bool check
         m_ui.layoutTransformation->takeRow(m_ui.containerFrequency);
     }
 
-    // Prevent adding the widgets if they are already in the layout
     if (m_ui.layoutTransformation->indexOf(m_ui.containerSize) == -1) {
         m_ui.layoutTransformation->insertRow(1, m_ui.labelSize, m_ui.containerSize);
         m_ui.containerSize->show();

@@ -12,4 +12,3 @@ const QLoggingCategory &RESOURCE_LOG() \
     return category;
 }
 
-

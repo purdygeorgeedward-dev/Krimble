@@ -26,8 +26,6 @@ public:
     }
 };
 
-
-
 class DlgCanvasSize: public KoDialog
 {
 
@@ -92,5 +90,4 @@ private:
     KisDocumentAwareSpinBoxUnitManager* _yOffsetUnitManager;
 };
 
-
-#endif // DLG_CANVASSIZE
+#endif

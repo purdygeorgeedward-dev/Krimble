@@ -47,12 +47,7 @@ public:
                                  KoColorConversionTransformation::Intent renderingIntent = KoColorConversionTransformation::internalRenderingIntent(),
                                  KoColorConversionTransformation::ConversionFlags conversionFlags = KoColorConversionTransformation::internalConversionFlags()) override;
 
-
 Q_SIGNALS:
-    /**
-     * The content of the layer has changed, and the canvas decoration
-     * needs to update.
-     */
     void sigUpdateCanvas(const QRectF &rect);
 
 private:
@@ -64,5 +59,4 @@ private:
 
 typedef KisSharedPtr<KisReferenceImagesLayer> KisReferenceImagesLayerSP;
 
-
-#endif //KRITA_KISREFERENCEIMAGESLAYER_H
+#endif

@@ -19,7 +19,6 @@
 #include <kis_assert.h>
 #include <KisGlobalResourcesInterface.h>
 
-
 bool KisResourceUserOperations::userAllowsOverwrite(QWidget* widgetParent, QString resourceFilepath)
 {
     return QMessageBox::question(widgetParent, i18nc("Dialog title", "Overwrite the file?"),
@@ -64,14 +63,14 @@ bool KisResourceUserOperations::resourceNameIsAlreadyUsed(KisResourceModel *reso
 KoResourceSP KisResourceUserOperations::importResourceFileWithUserInput(QWidget *widgetParent, QString storageLocation, QString resourceType, QString resourceFilepath)
 {
     KisResourceModel resourceModel(resourceType);
-    resourceModel.setResourceFilter(KisResourceModel::ShowActiveResources); // inactive don't count here
+    resourceModel.setResourceFilter(KisResourceModel::ShowActiveResources);
 
     KoResourceSP resource = resourceModel.importResourceFile(resourceFilepath, false, storageLocation);
     if (resource.isNull() && storageLocation == "" && resourceModel.importWillOverwriteResource(resourceFilepath, storageLocation)) {
         if (KisResourceUserOperations::userAllowsOverwrite(widgetParent, resourceFilepath)) {
             resource = resourceModel.importResourceFile(resourceFilepath, true, storageLocation);
         } else {
-            return nullptr; // the user doesn't want to import the file anymore because they don't want to overwrite it
+            return nullptr;
         }
     }
     if (!resource) {
@@ -84,7 +83,7 @@ bool KisResourceUserOperations::renameResourceWithUserInput(QWidget *widgetParen
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(resource, false);
     KisResourceModel resourceModel(resource->resourceType().first);
-    resourceModel.setResourceFilter(KisResourceModel::ShowActiveResources); // inactive don't count here
+    resourceModel.setResourceFilter(KisResourceModel::ShowActiveResources);
 
     if (resourceNameIsAlreadyUsed(&resourceModel, resourceName, resource->resourceId())) {
         bool userWantsRename = QMessageBox::question(widgetParent, i18nc("@title:window", "Rename the resource?"),
@@ -108,9 +107,7 @@ bool KisResourceUserOperations::addResourceWithUserInput(QWidget *widgetParent, 
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(resource, false);
     KisResourceModel resourceModel(resource->resourceType().first);
 
-    resourceModel.setResourceFilter(KisResourceModel::ShowAllResources); // we want to consider all resources later when searching for the same name
-
-    // check if adding the resource is possible: it is not if there is a resource with the same filename in the storage the user want to save the resource to
+    resourceModel.setResourceFilter(KisResourceModel::ShowAllResources);
 
     typedef enum {ADD, OVERWRITE, CANCEL} Action;
     Action action = ADD;
@@ -131,7 +128,6 @@ bool KisResourceUserOperations::addResourceWithUserInput(QWidget *widgetParent, 
             return false;
         }
     }
-    // check if there are any other resources with the same name, even in different storages or with different filenames
     else if (resourceNameIsAlreadyUsed(&resourceModel, resource->name()))
     {
         bool userWantsAdd = QMessageBox::question(widgetParent, i18nc("@title:window", "Add the resource?"),
@@ -156,10 +152,8 @@ bool KisResourceUserOperations::addResourceWithUserInput(QWidget *widgetParent, 
         return res;
     } else if (action == OVERWRITE) {
         bool res = updateResourceWithUserInput(widgetParent, resource);
-        // no error message, because it's handled in that function
         return res;
     }
-    // shouldn't get here
     return false;
 }
 
@@ -167,20 +161,15 @@ bool KisResourceUserOperations::updateResourceWithUserInput(QWidget *widgetParen
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(resource, false);
     KisResourceModel resourceModel(resource->resourceType().first);
-    // allow inactive, because this code is used in addResourceWithUserInput
     resourceModel.setResourceFilter(KisResourceModel::ShowAllResources);
 
     if (resource->resourceId() < 0) {
-        // that's a resource that didn't come from a database
-        // we assume that filename and storageLocation are correct, though
         if (QFileInfo(resource->storageLocation()).isRelative()) {
             QString storageLocation = resource->storageLocation();
             resource->setStorageLocation(KisResourceLocator::instance()->makeStorageLocationAbsolute(storageLocation));
         }
 
         int outResourceId;
-        // note that we need to check for any file that exists so we can't use KisResourceModel here
-        // because the model only keeps the current resource filename
         bool result = KisResourceCacheDb::getResourceIdFromVersionedFilename(resource->filename(), resource->resourceType().first,
                                                                KisResourceLocator::instance()->makeStorageLocationRelative(resource->storageLocation()), outResourceId);
         if (!result) {
@@ -197,7 +186,6 @@ bool KisResourceUserOperations::updateResourceWithUserInput(QWidget *widgetParen
             QMessageBox::warning(widgetParent, i18nc("@title:window", "Failed to overwrite the resource"), i18nc("Warning message", "Failed to overwrite the resource."));
             return false;
         }
-        // now we need to move data from the provided pointer to the pointer from the database
         QBuffer buffer;
         buffer.open(QIODevice::ReadWrite);
 
@@ -212,7 +200,6 @@ bool KisResourceUserOperations::updateResourceWithUserInput(QWidget *widgetParen
 
     QString oldName = resourceModel.data(resourceModel.indexForResourceId(resource->resourceId()), Qt::UserRole + KisAllResourcesModel::Name).toString();
     if (resource->name() != oldName) {
-        // rename in action
         if (resourceNameIsAlreadyUsed(&resourceModel, resource->name(), resource->resourceId())) {
             bool userWantsRename = QMessageBox::question(widgetParent, i18nc("@title:window", "Rename the resource?"),
                                   i18nc("Question in a dialog/messagebox", "This name is already used for another resource. Do you want to overwrite "

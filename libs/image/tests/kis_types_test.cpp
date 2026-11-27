@@ -9,5 +9,4 @@
 #include <simpletest.h>
 #include "kis_types.h"
 
-
 SIMPLE_TEST_MAIN(KisTypesTest)

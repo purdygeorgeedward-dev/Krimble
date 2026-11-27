@@ -21,7 +21,7 @@ public:
     KisSprayOpOptionModel(lager::cursor<KisSprayOpOptionData> optionData);
 
     lager::cursor<KisSprayOpOptionData> optionData;
-    
+
     LAGER_QT_CURSOR(int, diameter);
     LAGER_QT_CURSOR(qreal, aspect);
     LAGER_QT_CURSOR(qreal, brushRotation);
@@ -33,7 +33,7 @@ public:
     LAGER_QT_READER(bool, isNumParticlesVisible);
     LAGER_QT_CURSOR(int, particleCount);
     LAGER_QT_CURSOR(qreal, coverage);
-    
+
     LAGER_QT_CURSOR(int, angularDistributionType);
     LAGER_QT_CURSOR(QString, angularDistributionCurve);
     LAGER_QT_CURSOR(int, angularDistributionCurveRepeat);
@@ -45,4 +45,4 @@ public:
     LAGER_QT_CURSOR(bool, radialDistributionCenterBiased);
 };
 
-#endif // KIS_SPRAY_OP_OPTION_MODEL_H
+#endif

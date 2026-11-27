@@ -51,9 +51,6 @@ KisTagChooserWidget::KisTagChooserWidget(KisTagModel *model, QString resourceTyp
     d->comboBox->setToolTip(i18n("Tag"));
     d->comboBox->setSizePolicy(QSizePolicy::Policy::Expanding , QSizePolicy::Policy::Fixed);
 
-    // Allow the combo box to not depend on content size.
-    // Removing below code will cause the QComboBox when inside a QSplitter to have a width
-    // equal to the longest QComboBox item regardless of size policy.
     d->comboBox->setMinimumContentsLength(1);
     d->comboBox->setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy::AdjustToMinimumContentsLengthWithIcon);
 
@@ -96,9 +93,6 @@ KisTagChooserWidget::KisTagChooserWidget(KisTagModel *model, QString resourceTyp
     connect(d->tagToolButton, SIGNAL(undeletionOfTagRequested(KisTagSP)),
             this, SLOT(tagToolUndeleteLastTag(KisTagSP)));
 
-
-    // Workaround for handling tag selection deselection when model resets.
-    // Occurs when model changes under the user e.g. +/- a resource storage.
     connect(d->model, SIGNAL(modelAboutToBeReset()), this, SLOT(cacheSelectedTag()));
     connect(d->model, SIGNAL(modelReset()), this, SLOT(restoreTagFromCache()));
     connect(d->allTagsModel.data(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&)),
@@ -201,7 +195,6 @@ void KisTagChooserWidget::restoreTagFromCache()
 
 void KisTagChooserWidget::slotTagModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> roles)
 {
-    // we care only about the check status
     if (!roles.isEmpty() && !roles.contains(Qt::CheckStateRole)) {
         return;
     }
@@ -293,19 +286,19 @@ void KisTagChooserWidget::addTag(const QString &tagName, KoResourceSP resource)
     KisTagSP tagForUrl = d->model->tagForUrl(tagName);
     if (!tagForUrl.isNull()) {
         int response = overwriteTagDialog(this, tagForUrl->active());
-        if (response == QMessageBox::AcceptRole) { // Undelete
+        if (response == QMessageBox::AcceptRole) {
             d->model->setTagActive(tagForUrl);
             if (!resource.isNull()) {
                 KisTagResourceModel(d->resourceType).tagResources(tagForUrl, QVector<int>() << resource->resourceId());
             }
             d->model->sort(KisAllTagsModel::Name);
             return;
-        } else if (response == QMessageBox::RejectRole) { // Cancel
+        } else if (response == QMessageBox::RejectRole) {
             return;
         }
     }
     QVector<KoResourceSP> resources = (resource.isNull() ? QVector<KoResourceSP>() : (QVector<KoResourceSP>() << resource));
-    d->model->addTag(tagName, true, resources); // this will overwrite the tag
+    d->model->addTag(tagName, true, resources);
     d->model->sort(KisAllTagsModel::Name);
 }
 
@@ -319,19 +312,19 @@ void KisTagChooserWidget::addTag(KisTagSP tag, KoResourceSP resource)
     KisTagSP tagForUrl = d->model->tagForUrl(tag->url());
     if (!tagForUrl.isNull()) {
         int response = overwriteTagDialog(this, tagForUrl->active());
-        if (response == QMessageBox::AcceptRole) { // Undelete
+        if (response == QMessageBox::AcceptRole) {
             d->model->setTagActive(tagForUrl);
             if (!resource.isNull()) {
                 KisTagResourceModel(d->resourceType).tagResources(tagForUrl, QVector<int>() << resource->resourceId());
             }
             d->model->sort(KisAllTagsModel::Name);
             return;
-        } else if (response == QMessageBox::RejectRole) { // Cancel
+        } else if (response == QMessageBox::RejectRole) {
             return;
         }
     }
     QVector<KoResourceSP> resources = (resource.isNull() ? QVector<KoResourceSP>() : (QVector<KoResourceSP>() << resource));
-    d->model->addTag(tag, true, resources); // this will overwrite the tag
+    d->model->addTag(tag, true, resources);
     d->model->sort(KisAllTagsModel::Name);
 }
 
@@ -354,7 +347,6 @@ void KisTagChooserWidget::updateIcons()
 
 void KisTagChooserWidget::tagToolContextMenuAboutToShow()
 {
-    /* only enable the save button if the selected tag set is editable */
     if (currentlySelectedTag()) {
         d->tagToolButton->readOnlyMode(currentlySelectedTag()->id() < 0);
     }

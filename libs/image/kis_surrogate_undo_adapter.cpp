@@ -7,7 +7,6 @@
 #include "kis_surrogate_undo_adapter.h"
 #include "kis_undo_stores.h"
 
-
 KisSurrogateUndoAdapter::KisSurrogateUndoAdapter()
     : KisUndoAdapter(new KisSurrogateUndoStore)
 {

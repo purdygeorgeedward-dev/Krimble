@@ -11,7 +11,6 @@
 #include <KoGenericRegistry.h>
 #include "kis_operation.h"
 
-
 class KRITAUI_EXPORT KisOperationRegistry : public KoGenericRegistry<KisOperation*>
 {
 public:
@@ -20,4 +19,4 @@ public:
     static KisOperationRegistry* instance();
 };
 
-#endif /* __KIS_OPERATION_REGISTRY_H */
+#endif

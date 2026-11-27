@@ -47,4 +47,4 @@ private:
     qreal m_cacheDevicePixelRatioF {1.0};
 };
 
-#endif // KIS_COLOR_SELECTOR_TRIANGLE_H
+#endif

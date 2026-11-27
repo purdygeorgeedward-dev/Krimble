@@ -18,7 +18,6 @@ void KisLocklessStackTest::testOperations()
 {
     KisLocklessStack<int> stack;
 
-
     for(qint32 i = 0; i < 1024; i++) {
         stack.push(i);
     }
@@ -38,22 +37,10 @@ void KisLocklessStackTest::testOperations()
 
 }
 
-/************ BENCHMARKING INFRASTRUCTURE ************************/
-
 #define NUM_TYPES 2
 
-// high-concurrency
 #define NUM_CYCLES 500000
 #define NUM_THREADS 10
-
-// relaxed
-//#define NUM_CYCLES 100
-//#define NUM_THREADS 2
-
-// single-threaded
-//#define NUM_CYCLES 10000000
-//#define NUM_THREADS 1
-
 
 class KisAbstractIntStack
 {
@@ -77,7 +64,7 @@ public:
 
         bool result = m_stack.pop(value);
         Q_ASSERT(result);
-        Q_UNUSED(result); // for release build
+        Q_UNUSED(result);
 
         return value;
     }
@@ -129,7 +116,6 @@ private:
     QStack<int> m_stack;
     QMutex m_mutex;
 };
-
 
 class KisStressJob : public QRunnable
 {

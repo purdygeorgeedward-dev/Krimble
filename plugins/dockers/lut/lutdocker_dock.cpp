@@ -19,7 +19,6 @@
 #include <QScreen>
 #include <QDir>
 
-
 #include <klocalizedstring.h>
 
 #include <KisMainWindow.h>
@@ -48,12 +47,8 @@
 
 #include "black_white_point_chooser.h"
 
-
 OCIO::ConstConfigRcPtr defaultRawProfile()
 {
-    /**
-     * Copied from OCIO, just a noop profile
-     */
     const char * INTERNAL_RAW_PROFILE =
         "ocio_profile_version: 1\n"
         "strictparsing: false\n"
@@ -72,7 +67,6 @@ OCIO::ConstConfigRcPtr defaultRawProfile()
         "      allocation: uniform\n"
         "      description: 'A raw color space. Conversions to and from this space are no-ops.'\n";
 
-
     std::istringstream istream;
     istream.str(INTERNAL_RAW_PROFILE);
     return OCIO::Config::CreateFromStream(istream);
@@ -82,7 +76,7 @@ LutDockerDock::LutDockerDock()
     : QDockWidget(i18n("LUT Management"))
     , m_canvas(0)
 {
-    using namespace std::placeholders; // For _1
+    using namespace std::placeholders;
     m_exposureCompressor.reset(
         new KisSignalCompressorWithParam<qreal>(40, std::bind(&LutDockerDock::exposureValueChanged, this, _1)));
     m_gammaCompressor.reset(
@@ -108,8 +102,6 @@ LutDockerDock::LutDockerDock()
     connect(m_bnSelectLut, SIGNAL(clicked()), SLOT(selectLut()));
     connect(m_bnClearLut, SIGNAL(clicked()), SLOT(clearLut()));
 
-    // See https://groups.google.com/group/ocio-dev/browse_thread/thread/ec95c5f54a74af65 -- maybe need to be reinstated
-    // when people ask for it.
     m_lblLut->hide();
     m_txtLut->hide();
     m_bnSelectLut->hide();
@@ -124,8 +116,6 @@ LutDockerDock::LutDockerDock()
 
     connect(m_exposureDoubleWidget, QOverload<double>::of(&KisDoubleSliderSpinBox::valueChanged),
             [this](double value){ m_exposureCompressor->start(value); });
-
-    // Gamma needs to be exponential (gamma *= 1.1f, gamma /= 1.1f as steps)
 
     m_gammaDoubleWidget->setToolTip(i18n("Select the amount of gamma modification for display. This does not affect the pixels of your image."));
     m_gammaDoubleWidget->setRange(0.1, 5.0, 2);
@@ -224,7 +214,6 @@ bool LutDockerDock::canChangeExposureAndGamma() const
 
     const bool externalColorManagementEnabled =
         m_colorManagement->currentIndex() != (int)KisOcioConfiguration::INTERNAL;
-
 
 #ifdef HAVE_HDR
     KisSurfaceColorSpaceWrapper currentColorSpace =
@@ -474,7 +463,6 @@ void LutDockerDock::resetOcioConfiguration()
         errKrita << "OpenColorIO Error:" << exception.what() << "Cannot create the LUT docker";
     }
 
-
     if (m_ocioConfig) {
         refillControls();
     }
@@ -492,22 +480,22 @@ void LutDockerDock::refillControls()
     KisConfig cfg(true);
     KisOcioConfiguration ocioOptions = cfg.ocioConfiguration();
 
-    { // Color Management Mode
+    {
         KisSignalsBlocker modeBlocker(m_colorManagement);
         m_colorManagement->setCurrentIndex((int) ocioOptions.mode);
     }
 
-    { // Exposure
+    {
         KisSignalsBlocker exposureBlocker(m_exposureDoubleWidget);
         m_exposureDoubleWidget->setValue(m_canvas->viewManager()->canvasResourceProvider()->HDRExposure());
     }
 
-    { // Gamma
+    {
         KisSignalsBlocker gammaBlocker(m_gammaDoubleWidget);
         m_gammaDoubleWidget->setValue(m_canvas->viewManager()->canvasResourceProvider()->HDRGamma());
     }
 
-    { // Components
+    {
         const KoColorSpace *cs = m_canvas->viewManager()->image()->colorSpace();
 
         QStringList itemsList;
@@ -520,11 +508,11 @@ void LutDockerDock::refillControls()
         if (m_cmbComponents->originalTexts() != itemsList) {
             KisSignalsBlocker componentsBlocker(m_cmbComponents);
             m_cmbComponents->resetOriginalTexts(itemsList);
-            m_cmbComponents->setCurrentIndex(1); // All Channels...
+            m_cmbComponents->setCurrentIndex(1);
         }
     }
 
-    { // Input Color Space
+    {
         QStringList itemsList;
         int numOcioColorSpaces = m_ocioConfig->getNumColorSpaces();
         for(int i = 0; i < numOcioColorSpaces; ++i) {
@@ -542,7 +530,7 @@ void LutDockerDock::refillControls()
         m_cmbInputColorSpace->setCurrent(ocioOptions.inputColorSpace);
     }
 
-    { // Display Device
+    {
         QStringList itemsList;
         int numDisplays = m_ocioConfig->getNumDisplays();
         for (int i = 0; i < numDisplays; ++i) {
@@ -558,7 +546,7 @@ void LutDockerDock::refillControls()
         m_cmbDisplayDevice->setCurrent(ocioOptions.displayDevice);
     }
 
-    { // Lock Current Color
+    {
         KisSignalsBlocker locker(m_btnConvertCurrentColor);
         m_btnConvertCurrentColor->setChecked(cfg.ocioLockColorVisualRepresentation());
     }

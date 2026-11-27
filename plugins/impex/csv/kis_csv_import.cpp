@@ -27,7 +27,7 @@ KisCSVImport::~KisCSVImport()
 {
 }
 
-KisImportExportErrorCode KisCSVImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisCSVImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     CSVLoader ib(document, batchMode());
     KisImportExportErrorCode result = ib.buildAnimation(io, filename());

@@ -56,4 +56,3 @@ KisPropertiesConfigurationSP KisWdgUnsharp::configuration() const
     return config;
 }
 
-

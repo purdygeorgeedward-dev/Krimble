@@ -33,10 +33,8 @@
 #include "KisPredefinedBrushModel.h"
 #include "KisTextBrushModel.h"
 
-
 using namespace KisBrushModel;
 using namespace KisWidgetConnectionUtils;
-
 
 namespace detail {
 
@@ -53,7 +51,6 @@ bool warningLabelVisible(qreal theoreticalBrushSize) {
     KisImageConfig cfg(true);
     return theoreticalBrushSize > cfg.maxMaskingBrushSize();
 }
-
 
 }
 
@@ -97,7 +94,6 @@ public:
         lager::watch(m_masterBrushSize, std::bind(&MaskingBrushModel::updatePreserveMode, this));
     }
 
-    // the state must be declared **before** any cursors or readers
     lager::cursor<MaskingBrushData> m_maskingData;
     lager::cursor<qreal> m_commonBrushSizeData;
     lager::reader<qreal> m_masterBrushSize;
@@ -157,7 +153,6 @@ private:
 
 };
 
-
 struct KisMaskingBrushOption::Private
 {
     Private(lager::reader<qreal> effectiveBrushSize)
@@ -202,8 +197,6 @@ struct KisMaskingBrushOption::Private
     lager::reader<qreal> masterBrushSize;
     MaskingBrushModel maskingModel;
 
-    /// we don't use precision data, we just need it to pass
-    /// to the brush selection widget
     lager::state<KisBrushModel::PrecisionData, lager::automatic_tag> brushPrecisionData;
 };
 

@@ -41,5 +41,4 @@ struct KisSmudgeLengthOptionData : KisOptionTuple<KisCurveOptionData, KisSmudgeL
     }
 };
 
-
-#endif // KISSMUDGELENGTHOPTIONDATA_H
+#endif

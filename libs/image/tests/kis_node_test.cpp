@@ -26,7 +26,6 @@ void KisNodeTest::testCreation()
     node->setGraphListener(&graphListener);
     QVERIFY(node->graphListener() != 0);
 
-    // Test contract for initial state
     QVERIFY(node->parent() == 0);
     QVERIFY(node->firstChild() == 0);
     QVERIFY(node->lastChild() == 0);
@@ -40,7 +39,6 @@ void KisNodeTest::testCreation()
     delete node;
 }
 
-
 void KisNodeTest::testOrdering()
 {
     TestUtil::TestGraphListener graphListener;
@@ -51,16 +49,6 @@ void KisNodeTest::testOrdering()
     KisNodeSP node2 = new TestNodeA();
     KisNodeSP node3 = new TestNodeA();
     KisNodeSP node4 = new TestNodeA();
-
-    /*
-     +---------+
-     | node 4  |
-     | node 2  |
-     | node 3  |
-     | node 1  |
-     |root     |
-     +---------+
-    */
 
     graphListener.resetBools();
     QVERIFY(root->lastChild() == 0);
@@ -133,15 +121,6 @@ void KisNodeTest::testOrdering()
     QVERIFY(node2->nextSibling() == node4);
     QVERIFY(node1->nextSibling() == node3);
 
-    /*
-      +---------+
-      | node 3  |
-      |  node 4 |
-      | node 2  |
-      | node 1  |
-      |root     |
-      +---------+
-     */
     graphListener.resetBools();
     QVERIFY(root->remove(root->at(3)) == true);
     QVERIFY(node4->parent() == 0);
@@ -188,18 +167,7 @@ void KisNodeTest::testOrdering()
 
 void KisNodeTest::testSetDirty()
 {
-    // Create a node graph with two branches
 
-    /*
-        node2
-          node4
-              node6
-             node5
-            node5
-          node3
-        node1
-      root
-     */
     KisNodeSP root = new TestNode();
     root->setName("root");
 
@@ -230,7 +198,7 @@ void KisNodeTest::testSetDirty()
     KisNodeSP node7 = new TestNode();
     node7->setName("node7");
     QVERIFY(node6->add(node7, 0));
-#if 0 // XXX: rewrite tests after redesign to update strategies
+#if 0
     node1->setDirty();
     QVERIFY(node1->isDirty());
     QVERIFY(!node2->isDirty());
@@ -255,7 +223,6 @@ void KisNodeTest::testSetDirty()
 
 }
 
-
 void KisNodeTest::testChildNodes()
 {
     KisNodeSP root = new TestNodeA();
@@ -275,12 +242,12 @@ void KisNodeTest::testChildNodes()
     c->setVisible(false);
 
     QList<KisNodeSP> allNodes = root->childNodes(QStringList(), KoProperties());
-    QCOMPARE((int) allNodes.count(), 3);   // a, b, c
+    QCOMPARE((int) allNodes.count(), 3);
 
     QStringList nodeTypes;
     nodeTypes << "TestNodeA" << "TestNodeB";
     QList<KisNodeSP> subSetOfNodeTypes = root->childNodes(nodeTypes, KoProperties());
-    QCOMPARE(subSetOfNodeTypes.count(), 2);   // a, b
+    QCOMPARE(subSetOfNodeTypes.count(), 2);
 
     nodeTypes.clear();
     nodeTypes << "TestNodeB" << "TestNodeC";
@@ -288,12 +255,12 @@ void KisNodeTest::testChildNodes()
     props.setProperty("visible", false);
     props.setProperty("locked", true);
     QList<KisNodeSP> subsetOfTypesAndProps = root->childNodes(nodeTypes, props);
-    QCOMPARE(subsetOfTypesAndProps.count(), 1);   // b
+    QCOMPARE(subsetOfTypesAndProps.count(), 1);
 
     KoProperties props2;
     props2.setProperty("visible", false);
     QList<KisNodeSP> subSetOfProps = root->childNodes(QStringList(), props2);
-    QCOMPARE(subSetOfProps.count(), 2);   // b, c
+    QCOMPARE(subSetOfProps.count(), 2);
 }
 
 #define NUM_CYCLES 100000
@@ -301,7 +268,7 @@ void KisNodeTest::testChildNodes()
 
 class KisNodeTest::VisibilityKiller : public QRunnable {
 public:
-    VisibilityKiller(KisNodeSP victimNode, KisNodeSP nastyChild, bool /*isWriter*/)
+    VisibilityKiller(KisNodeSP victimNode, KisNodeSP nastyChild, bool )
         : m_victimNode(victimNode),
           m_nastyChild(nastyChild)
     {}
@@ -313,7 +280,6 @@ public:
         for(int i = 0; i < NUM_CYCLES; i++) {
             if(i % 3 == 0) {
                 m_nastyChild->setVisible(visibility++ & 0x1);
-                // dbgKrita << "visibility" << i << m_nastyChild->visible();
             }
             else if (i%3 == 1){
                 KoProperties props;
@@ -325,7 +291,6 @@ public:
                 Q_FOREACH (KisNodeSP node, visibleNodes) {
                     m_nastyChild->setVisible(visibility++ & 0x1);
                 }
-                // dbgKrita << visibleNodes;
             }
             else {
                 Q_ASSERT(m_victimNode->firstChild());
@@ -341,7 +306,6 @@ private:
     KisNodeSP m_victimNode;
     KisNodeSP m_nastyChild;
 };
-
 
 template <class KillerClass>
 void KisNodeTest::propertiesStressTestImpl() {
@@ -412,7 +376,6 @@ public:
             }
 
             if (i % 1000 == 0) {
-                //dbgKrita << "Alive";
             }
         }
     }
@@ -428,5 +391,4 @@ void KisNodeTest::graphStressTest() {
 }
 
 SIMPLE_TEST_MAIN(KisNodeTest)
-
 

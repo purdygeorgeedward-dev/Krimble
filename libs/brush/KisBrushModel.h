@@ -21,7 +21,6 @@
 
 #include "kritabrush_export.h"
 
-// TODO: move enumBrushApplication into a separate file
 #include <kis_brush.h>
 
 namespace KisBrushModel {
@@ -39,7 +38,6 @@ struct BRUSH_EXPORT CommonData : public boost::equality_comparable<CommonData>
     bool useAutoSpacing = false;
     qreal autoSpacingCoeff = 1.0;
 
-    // TODO: preview image
 };
 
 enum AutoBrushGeneratorShape {
@@ -155,12 +153,6 @@ struct BRUSH_EXPORT BrushData : public boost::equality_comparable<BrushData> {
                 lhs.textBrush == rhs.textBrush;
     }
 
-    /**
-     * We don't use std::variant here because we want
-     * to keep user's settings when he/she switches
-     * from one type of the brush to another.
-     */
-
     CommonData common;
     BrushType type = Auto;
     AutoBrushData autoBrush;
@@ -171,14 +163,12 @@ struct BRUSH_EXPORT BrushData : public boost::equality_comparable<BrushData> {
     static std::optional<BrushData> read(const KisPropertiesConfiguration *settings, KisResourcesInterfaceSP resourcesInterface);
 };
 
-
 KisPaintopLodLimitations BRUSH_EXPORT brushLodLimitations(const BrushData &data);
 qreal BRUSH_EXPORT effectiveSizeForBrush(BrushType type,
                                          const AutoBrushData &autoBrush,
                                          const PredefinedBrushData &predefinedBrush,
                                          const TextBrushData &textBrush);
 qreal BRUSH_EXPORT effectiveSizeForBrush(const BrushData &brush);
-
 
 void BRUSH_EXPORT setEffectiveSizeForBrush(const BrushType type,
                                            AutoBrushData &autoBrush,
@@ -191,4 +181,4 @@ qreal BRUSH_EXPORT lightnessModeActivated(BrushType type,
 
 }
 
-#endif // KISBRUSHMODEL_H
+#endif

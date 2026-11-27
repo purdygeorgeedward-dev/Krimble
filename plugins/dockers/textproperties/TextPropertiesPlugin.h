@@ -17,4 +17,4 @@ public:
     ~TextPropertiesPlugin();
 };
 
-#endif // TEXTPROPERTIESPLUGIN_H
+#endif

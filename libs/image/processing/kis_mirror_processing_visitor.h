@@ -13,7 +13,6 @@
 
 #include "KisSelectionBasedProcessingHelper.h"
 
-
 class KRITAIMAGE_EXPORT KisMirrorProcessingVisitor : public KisSimpleProcessingVisitor
 {
 public:
@@ -40,4 +39,4 @@ private:
     KisSelectionBasedProcessingHelper m_selectionHelper;
 };
 
-#endif /* __KIS_MIRROR_PROCESSING_VISITOR_H */
+#endif

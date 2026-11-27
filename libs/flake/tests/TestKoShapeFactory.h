@@ -13,7 +13,6 @@ class TestKoShapeFactory : public QObject
     Q_OBJECT
 private Q_SLOTS:
 
-    // tests
     void testCreateFactory();
     void testSupportsQDomElement();
     void testPriority();

@@ -23,7 +23,6 @@
 #include "kis_time_span.h"
 #include "KisLockFrameGenerationLock.h"
 
-
 void checkFrame(KisImageAnimationInterface *i, KisImageSP image, int frameId, bool externalFrameActive, const QRect &rc)
 {
     QCOMPARE(i->currentTime(), frameId);
@@ -51,7 +50,6 @@ void KisImageAnimationInterfaceTest::testFrameRegeneration()
     p.layer->getKeyframeChannel(KisKeyframeChannel::Raster.id(), true);
     layer2->getKeyframeChannel(KisKeyframeChannel::Raster.id(), true);
 
-    // check frame 0
     {
         dev1->fill(rc1, KoColor(Qt::red, dev1->colorSpace()));
         QCOMPARE(dev1->exactBounds(), rc1);
@@ -65,7 +63,6 @@ void KisImageAnimationInterfaceTest::testFrameRegeneration()
         checkFrame(i, p.image, 0, false, rc1 | rc2);
     }
 
-    // switch/create frame 10
     i->switchCurrentTimeAsync(10);
     p.image->waitForDone();
 
@@ -75,8 +72,6 @@ void KisImageAnimationInterfaceTest::testFrameRegeneration()
     KisKeyframeChannel *channel2 = dev2->keyframeChannel();
     channel2->addKeyframe(10);
 
-
-    // check frame 10
     {
         QVERIFY(dev1->exactBounds().isEmpty());
         QVERIFY(dev2->exactBounds().isEmpty());
@@ -92,8 +87,6 @@ void KisImageAnimationInterfaceTest::testFrameRegeneration()
         checkFrame(i, p.image, 10, false, rc3 | rc4);
     }
 
-
-    // check external frame (frame 0)
     {
         KisLockFrameGenerationLock lock(p.image->animationInterface());
         SignalToFunctionProxy proxy1(std::bind(checkFrame, i, p.image, 0, true, rc1 | rc2));
@@ -102,14 +95,11 @@ void KisImageAnimationInterfaceTest::testFrameRegeneration()
         QTest::qWait(200);
     }
 
-    // current frame (flame 10) is still unchanged
     checkFrame(i, p.image, 10, false, rc3 | rc4);
 
-    // switch back to frame 0
     i->switchCurrentTimeAsync(0);
     p.image->waitForDone();
 
-    // check frame 0
     {
         QCOMPARE(dev1->exactBounds(), rc1);
         QCOMPARE(dev2->exactBounds(), rc2);
@@ -117,7 +107,6 @@ void KisImageAnimationInterfaceTest::testFrameRegeneration()
         checkFrame(i, p.image, 0, false, rc1 | rc2);
     }
 
-    // check external frame (frame 10)
     {
         KisLockFrameGenerationLock lock(p.image->animationInterface());
         SignalToFunctionProxy proxy2(std::bind(checkFrame, i, p.image, 10, true, rc3 | rc4));
@@ -126,7 +115,6 @@ void KisImageAnimationInterfaceTest::testFrameRegeneration()
         QTest::qWait(200);
     }
 
-    // current frame is still unchanged
     checkFrame(i, p.image, 0, false, rc1 | rc2);
 }
 
@@ -150,7 +138,6 @@ void KisImageAnimationInterfaceTest::testFramesChangedSignal()
     channel->addKeyframe(10);
     channel->addKeyframe(20);
 
-    // check switching a frame doesn't invalidate cache
     QSignalSpy spy(i, SIGNAL(sigFramesChanged(KisTimeSpan,QRect)));
 
     p.image->animationInterface()->switchCurrentTimeAsync(15);
@@ -169,8 +156,6 @@ void KisImageAnimationInterfaceTest::testFramesChangedSignal()
     QCOMPARE(spy.count(), 1);
     arguments = spy.takeFirst();
     QCOMPARE(arguments.at(0).value<KisTimeSpan>(), KisTimeSpan::fromTimeWithDuration(10, 10));
-
-    // Recursive
 
     channel = dev1->keyframeChannel();
     channel->addKeyframe(13);
@@ -245,7 +230,6 @@ void KisImageAnimationInterfaceTest::testSwitchFrameWithUndo()
     channel->addKeyframe(10);
     channel->addKeyframe(20);
 
-
     QCOMPARE(i->currentTime(), 0);
 
     i->requestTimeSwitchWithUndo(15);
@@ -258,7 +242,6 @@ void KisImageAnimationInterfaceTest::testSwitchFrameWithUndo()
     p.image->waitForDone();
     QCOMPARE(i->currentTime(), 16);
 
-    // the two commands have been merged!
     p.undoStore->undo();
     QTest::qWait(100);
     p.image->waitForDone();
@@ -286,7 +269,6 @@ void KisImageAnimationInterfaceTest::testSwitchFrameHangup()
     channel->addKeyframe(10);
     channel->addKeyframe(20);
 
-
     QCOMPARE(i->currentTime(), 0);
 
     i->requestTimeSwitchWithUndo(15);
@@ -311,7 +293,7 @@ inline QRect rectForTime(int time) {
     return QRect(time * 64 + 1, 65, 62, 62);
 }
 
-} // namespace
+}
 
 void KisImageAnimationInterfaceTest::testAutoKeyframeWithOnionSkins()
 {
@@ -355,9 +337,6 @@ void KisImageAnimationInterfaceTest::testAutoKeyframeWithOnionSkins()
         layer->setDirty(fillRect);
         image->waitForDone();
 
-//        KIS_DUMP_DEVICE_2(dev, QRect(0,0,1000,200), "pd", "dd");
-//        KIS_DUMP_DEVICE_2(layer->projection(), QRect(0,0,1000,200), "proj", "dd");
-
         const QRect farthestOnionSkin(rectForTime(qMax(1, time - 2)));
 
         QCOMPARE(layer->paintDevice()->exactBounds(), fillRect);
@@ -377,17 +356,12 @@ void KisImageAnimationInterfaceTest::testAutoKeyframeWithOnionSkins()
         image->waitForDone();
     }
 
-//    KIS_DUMP_DEVICE_2(dev, QRect(0,0,1000,200), "pd", "dd_xx");
-//    KIS_DUMP_DEVICE_2(layer->projection(), QRect(0,0,1000,200), "proj", "dd_xx");
-
-    // verify that the outline of onion skins has changed
     QCOMPARE(image->animationInterface()->currentTime(), 5);
     QCOMPARE(image->animationInterface()->currentUITime(), 5);
     QCOMPARE(layer->paintDevice()->exactBounds(), rectForTime(4));
     QCOMPARE(layer->projection()->exactBounds(), rectForTime(2) | rectForTime(4));
 
     qInfo() << "Undo the removal of the frame at position" << 5;
-    // undo the removal, not the state should be the same as before
     undoStore->undo();
     QTest::qWait(200);
     image->waitForDone();
@@ -419,6 +393,5 @@ void KisImageAnimationInterfaceTest::testAutoKeyframeWithOnionSkins()
         QCOMPARE(layer->projection()->exactBounds(), rectForTime(qMax(1, time - 3)) | rectForTime(time - 1));
     }
 }
-
 
 SIMPLE_TEST_MAIN(KisImageAnimationInterfaceTest)

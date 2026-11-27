@@ -16,9 +16,6 @@
 
 class KoPathTool;
 
-/**
- * @brief Strategy for moving points of a path shape.
- */
 class KoPathPointMoveStrategy : public KoInteractionStrategy
 {
 public:
@@ -31,12 +28,10 @@ public:
 private:
     QPointF m_startMousePosition;
     QPointF m_startPointPosition;
-    /// the accumulated point move amount
     QPointF m_move;
-    /// pointer to the path tool
     KoPathTool *m_tool;
     std::unique_ptr<KUndo2Command> m_intermediateCommand;
 };
 
-#endif /* KOPATHPOINTMOVESTRATEGY_H */
+#endif
 

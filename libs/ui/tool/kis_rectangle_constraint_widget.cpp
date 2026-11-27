@@ -116,7 +116,7 @@ void KisRectangleConstraintWidget::slotReloadConfig()
     slotRoundCornersChanged();
 }
 
-void KisRectangleConstraintWidget::rectangleChanged(const QRectF &rect) 
+void KisRectangleConstraintWidget::rectangleChanged(const QRectF &rect)
 {
     intWidth->blockSignals(true);
     intHeight->blockSignals(true);

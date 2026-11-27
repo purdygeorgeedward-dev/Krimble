@@ -28,7 +28,6 @@ public:
     KisPropertiesConfigurationSP configuration() const override;
 };
 
-
 class EXRExport : public KisImportExportFilter
 {
     Q_OBJECT

@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisActionPlugin.h"
 #include "KisViewManager.h"
 #include "kis_action_manager.h"

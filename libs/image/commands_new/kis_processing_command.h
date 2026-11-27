@@ -28,4 +28,4 @@ private:
     bool m_visitorExecuted;
 };
 
-#endif /* __KIS_PROCESSING_COMMAND_H */
+#endif

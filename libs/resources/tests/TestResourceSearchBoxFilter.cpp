@@ -6,14 +6,11 @@
  */
 #include "TestResourceSearchBoxFilter.h"
 
-
 #include <simpletest.h>
-
 
 TestResourceSearchBoxFilter::TestResourceSearchBoxFilter()
 {
 }
-
 
 bool TestResourceSearchBoxFilter::filterMatches(QString resourceName, QString filterText)
 {
@@ -123,8 +120,6 @@ void TestResourceSearchBoxFilter::testMultipleExactMatches_data()
 {
     addNameDataColumns();
     addNameData("1", "Nanana", "\"Nanana\",\"Nanana\"", true);
-    // needs to ask for the expected behaviour first
-    /* addNameData("2", "Nanana", "\"Nanana\",\"Glaze\"", false); */
 
     addNameData("3", "Nanana", "!\"Nanana\",!\"Nanana\"", false);
     addNameData("4", "Nanana", "!\"Nanana\",\"Nanana\"", false);
@@ -140,7 +135,6 @@ void TestResourceSearchBoxFilter::testMultipleExactMatches()
 
 void TestResourceSearchBoxFilter::testResourceSearch()
 {
-    // Define some tags to be reused later
     const QString tagPencil = "Pencil";
     const QString tagPen = "Pen";
     const QString tagEraser = "Eraser";
@@ -149,8 +143,6 @@ void TestResourceSearchBoxFilter::testResourceSearch()
     const QString tagTexture = "Texture";
     const QString tagPaint = "Paint";
 
-
-    // Define a list of resources that make up our "database" that we wish to filter.
     QList<MockResource> resources;
 
     MockResource hbPencil("HB Pencil", QStringList() << tagPencil << tagTexture << tagHard);
@@ -183,21 +175,18 @@ void TestResourceSearchBoxFilter::testResourceSearch()
     MockResource polymer("Polymer Eraser", QStringList() << tagHard << tagEraser);
     resources.append(polymer);
 
-
-    // Create filter instance, check initialization and basic API test.
     KisResourceSearchBoxFilter filter;
     QVERIFY(filter.isEmpty());
 
     filter.setFilter("Pen");
     QVERIFY(!filter.isEmpty());
     QVERIFY(filter.matchesResource("Pen", QStringList()));
-    QVERIFY(filter.matchesResource("pEn", QStringList())); //Test case insensitivity
+    QVERIFY(filter.matchesResource("pEn", QStringList()));
 
     filter.setFilter(QString());
     QVERIFY(filter.isEmpty());
 
-
-    {   // Find all pencils
+    {
         filter.setFilter("Pencil");
         QList<MockResource> results = filterResourceList(resources, filter);
         QVERIFY(results.size() == 2);
@@ -207,7 +196,7 @@ void TestResourceSearchBoxFilter::testResourceSearch()
         QVERIFY(!results.contains(rubber));
     }
 
-    {   // Find all Ramon's brushes using partial search
+    {
         filter.setFilter("Ramo");
         QList<MockResource> results = filterResourceList(resources, filter);
         QVERIFY(results.size() == 2);
@@ -216,7 +205,7 @@ void TestResourceSearchBoxFilter::testResourceSearch()
         QVERIFY(!results.contains(polymer));
     }
 
-    {   // Find only the brushes with a specific tag
+    {
         filter.setFilter("#\"" + tagTexture + "\"");
         QList<MockResource> results = filterResourceList(resources, filter);
         QVERIFY(results.size() == 4);
@@ -236,7 +225,7 @@ void TestResourceSearchBoxFilter::testResourceSearch()
         QVERIFY(results.contains(polymer));
     }
 
-    {   // Find with a very short partial search...
+    {
         filter.setFilter("er");
         QList<MockResource> results = filterResourceList(resources, filter);
         QVERIFY(results.size() == 5);
@@ -247,13 +236,11 @@ void TestResourceSearchBoxFilter::testResourceSearch()
         QVERIFY(results.contains(polymer));
     }
 
-    {   // Set filter to be empty, should show everything.
+    {
         filter.setFilter(QString());
         QList<MockResource> results = filterResourceList(resources, filter);
         QVERIFY(results.size() == resources.size());
     }
 }
-
-
 
 SIMPLE_TEST_MAIN(TestResourceSearchBoxFilter)

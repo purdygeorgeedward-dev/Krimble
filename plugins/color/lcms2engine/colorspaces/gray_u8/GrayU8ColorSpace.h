@@ -37,7 +37,7 @@ public:
     void colorToXML(const quint8 *pixel, QDomDocument &doc, QDomElement &colorElt) const override;
 
     void colorFromXML(quint8* pixel, const QDomElement& elt) const override;
-    
+
     void toHSY(const QVector<double> &channelValues, qreal *hue, qreal *sat, qreal *luma) const override;
     QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const override;
     void toYUV(const QVector<double> &channelValues, qreal *y, qreal *u, qreal *v) const override;
@@ -99,4 +99,4 @@ public:
     }
 };
 
-#endif // KIS_STRATEGY_COLORSPACE_GRAYSCALE_H_
+#endif

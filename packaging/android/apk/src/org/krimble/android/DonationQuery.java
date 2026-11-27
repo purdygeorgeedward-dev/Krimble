@@ -14,15 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// Wrapper around the awful interface of the Android billing client. Some undocumented issues:
-// * You can't query both one-time and subscription products in one query, it errors.
-// * Querying for details about products that the user already owns also errors.
-// * Can't query for subscriptions that contain dashes in their IDs, raises invalid ID errors.
-// * Can't query for subscriptions that contain underscores in their IDs, just doesn't return them.
-//
-// Also, this class does all of its queries sequentially. That is intentional, I don't trust the
-// billing client to actually be capable of performing two queries at once, considering the numerous
-// undocumented failure modes it has. It's fine this way.
 public class DonationQuery {
 
     private static final String TAG = "krita.DonationQuery";
@@ -43,10 +34,6 @@ public class DonationQuery {
         DonationQuery donationQuery = new DonationQuery(donationHelper);
         donationQuery.step1QueryOwnedOneTimeProducts();
     }
-
-    // Part 1: Query for products the user has purchased. We must always do this because inquiring
-    // about products that the user already owns raises an (undocumented) error. We also have to do
-    // this in two queries, because the API doesn't allow both one-time products and subscriptions.
 
     private void step1QueryOwnedOneTimeProducts() {
         queryOwnedProducts(BillingClient.ProductType.INAPP, this::step2QueryOwnedSubscriptionProducts);
@@ -81,10 +68,6 @@ public class DonationQuery {
             mOwnedProductIds.addAll(purchase.getProducts());
         }
     }
-
-    // Part 2: Query information about available products, avoiding the forbidden query of
-    // already-owned ones. Even though the API seems to allow it, attempting to query both one-time
-    // and subscription product raises an (undocumented) error.
 
     private void step3QueryOneTimeProductDetails() {
         queryProductDetails(
@@ -137,8 +120,6 @@ public class DonationQuery {
             next.run();
         }
     }
-
-    // Part 3: Report back.
 
     private void step5Finish() {
         mDonationHelper.handleFinishedQuery(this);

@@ -13,7 +13,6 @@
 
 class KisPropertiesConfiguration;
 
-
 class PAINTOP_EXPORT KisEmbeddedTextureData : boost::equality_comparable<KisEmbeddedTextureData>
 {
 public:
@@ -44,4 +43,4 @@ private:
     KoResourceLoadResult tryLoadEmbeddedPattern() const;
 };
 
-#endif // KISEMBEDDEDTEXTUREDATA_H
+#endif

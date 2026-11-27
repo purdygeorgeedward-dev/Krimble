@@ -30,9 +30,6 @@ KisFrameDisplayProxy::KisFrameDisplayProxy(KisCanvas2* canvas, QObject *parent)
 
     connect(m_d->canvas->image()->animationInterface(), &KisImageAnimationInterface::sigFrameRegenerated, this, [this](int frame){
         if (m_d->intendedFrame != frame ) {
-            // We only want to correct our intended frame when the image regenerates
-            // and we're not currently in playback. (In other words, when the state of the image
-            // is determined by external time controls.)
             KisCanvasAnimationState* state = m_d->canvas->animationState();
             if (state->playbackState() != PLAYING) {
                 m_d->intendedFrame = frame;
@@ -46,10 +43,8 @@ KisFrameDisplayProxy::KisFrameDisplayProxy(KisCanvas2* canvas, QObject *parent)
         }
     });
 
-
     connect(m_d->canvas->image()->animationInterface(), &KisImageAnimationInterface::sigFrameRegenerationSkipped, this, [this](int frame){
        if (m_d->intendedFrame != frame) {
-           //TODO make below a method?
            KisCanvasAnimationState* state = m_d->canvas->animationState();
            if (state->playbackState() != PLAYING) {
                m_d->intendedFrame = frame;
@@ -79,12 +74,6 @@ bool KisFrameDisplayProxy::displayFrame(int frame, bool forceReproject)
     }
 
     if (forceReproject || needsReprojection(cache, m_d->displayedFrame, frame)) {
-        // BUG:445265
-        // Edgecase occurs where if we move from a cached frame to a non-cached frame,
-        // we never technically "switch" to the cached one during scrubbing, which
-        // will prevent the uncached frame from ever determining it needs to be
-        // regenerated. We will force a frame switch when going from uncached to cached
-        // to work around this issue.
         ai->switchCurrentTimeAsync(frame, KisImageAnimationInterface::STAO_FORCE_REGENERATION);
         return true;
 

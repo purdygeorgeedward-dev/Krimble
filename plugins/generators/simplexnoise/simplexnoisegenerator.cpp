@@ -128,7 +128,6 @@ KisConfigWidget * KisSimplexNoiseGenerator::createConfigurationWidget(QWidget* p
     return new KisWdgSimplexNoise((KisFilter*)this, (QWidget*)parent);
 }
 
-
 uint KisSimplexNoiseGenerator::seedFromString(const QString &string) const
 {
     QByteArray bytes = QCryptographicHash::hash(string.toUtf8(),QCryptographicHash::Md5);

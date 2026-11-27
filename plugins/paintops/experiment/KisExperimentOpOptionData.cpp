@@ -8,7 +8,6 @@
 
 #include "kis_properties_configuration.h"
 
-
 const QString EXPERIMENT_DISPLACEMENT_ENABLED = "Experiment/displacementEnabled";
 const QString EXPERIMENT_DISPLACEMENT_VALUE = "Experiment/displacement";
 const QString EXPERIMENT_SMOOTHING_ENABLED = "Experiment/smoothing";
@@ -18,8 +17,6 @@ const QString EXPERIMENT_SPEED_VALUE = "Experiment/speed";
 const QString EXPERIMENT_WINDING_FILL = "Experiment/windingFill";
 const QString EXPERIMENT_HARD_EDGE = "Experiment/hardEdge";
 const QString EXPERIMENT_FILL_TYPE = "Experiment/fillType";
-
-
 
 bool KisExperimentOpOptionData::read(const KisPropertiesConfiguration *setting)
 {
@@ -31,7 +28,7 @@ bool KisExperimentOpOptionData::read(const KisPropertiesConfiguration *setting)
     smoothing = setting->getDouble(EXPERIMENT_SMOOTHING_VALUE, 20.0);
     windingFill = setting->getBool(EXPERIMENT_WINDING_FILL);
     hardEdge = setting->getBool(EXPERIMENT_HARD_EDGE);
-    fillType = (ExperimentFillType)setting->getInt(EXPERIMENT_FILL_TYPE, 0); // default to solid color
+    fillType = (ExperimentFillType)setting->getInt(EXPERIMENT_FILL_TYPE, 0);
 
     return true;
 }

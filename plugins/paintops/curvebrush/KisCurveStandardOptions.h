@@ -12,4 +12,4 @@
 using KisCurvesOpacityOption = KisStandardOption<KisCurvesOpacityOptionData>;
 using KisLineWidthOption = KisStandardOption<KisLineWidthOptionData>;
 
-#endif // KISCURVESTANDARDOPTIONS_H
+#endif

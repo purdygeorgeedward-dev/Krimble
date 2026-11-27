@@ -43,14 +43,10 @@ void DlgWaveletDecompose::setScales(quint32 scales)
 
 }
 
-
 qint32 DlgWaveletDecompose::scales()
 {
     return m_page->scales->value();
 }
-
-
-// SLOTS
 
 void DlgWaveletDecompose::okClicked()
 {

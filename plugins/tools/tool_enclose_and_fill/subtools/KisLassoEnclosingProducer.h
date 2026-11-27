@@ -21,9 +21,9 @@ class KisLassoEnclosingProducer : public KisDynamicDelegateTool<KisToolOutlineBa
 public:
     KisLassoEnclosingProducer(KoCanvasBase *canvas);
     ~KisLassoEnclosingProducer() override;
-    
+
     bool hasUserInteractionRunning() const;
-    
+
 protected:
     void finishOutline(const QVector<QPointF> &points) override;
     void beginShape() override;

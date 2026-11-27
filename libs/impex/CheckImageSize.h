@@ -33,7 +33,7 @@ public:
         return image->width() <= m_maxW && image->height() <= m_maxH;
     }
 
-    Level check(KisImageSP /*image*/) const
+    Level check(KisImageSP ) const
     {
         return m_level;
     }
@@ -60,5 +60,4 @@ public:
     }
 };
 
-
-#endif // CHECKIMAGESIZE_H
+#endif

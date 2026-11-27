@@ -37,7 +37,6 @@ void KoFontChangeTracker::resetChangeTracker()
     d->filesChanged = false;
 }
 
-
 void KoFontChangeTracker::directoriesChanged()
 {
     if (!d->filesChanged) {

@@ -59,9 +59,10 @@ ForegroundVisited=160,160,160
 # DecorationHover=138,190,236
 # Krimble 2026-11-13 (task 64): George: "kill the aqua everywhere first." The aqua 29,124,178 is gone: 11,135,221 (#0b87dd).
 BackgroundAlternate=11,135,221
-BackgroundNormal=19,96,146
-DecorationFocus=67,201,255
-DecorationHover=67,201,255
+# Krimble 2026-11-20: aqua replaced with the selection blue #0b87dd (was BackgroundNormal=19,96,146, DecorationFocus and DecorationHover=67,201,255)
+BackgroundNormal=11,135,221
+DecorationFocus=11,135,221
+DecorationHover=11,135,221
 ForegroundActive=235,235,235
 ForegroundInactive=187,194,208
 ForegroundLink=216,216,216
@@ -121,7 +122,7 @@ ForegroundVisited=160,160,160
 
 [General]
 ColorScheme=Krimble Blue-Gray
-Name=Krimble Blue-Gray
+Name=Blue-Gray
 shadeSortColumn=true
 
 [KDE]

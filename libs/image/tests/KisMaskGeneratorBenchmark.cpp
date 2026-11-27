@@ -31,7 +31,6 @@ public:
                                 0.0, 1.0,
                                 m_bounds.width() / 2.0, m_bounds.height() / 2.0,0);
 
-        // Start Benchmark
         applicatorBase->initializeData(&data);
 
         QElapsedTimer maskGenerationTime;
@@ -56,7 +55,7 @@ void KisMaskGeneratorBenchmark::testDefaultScalarMask()
     QRect bounds(0,0,1000,1000);
     {
         KisCircleMaskGenerator circScalar(1000, 1.0, 0.5, 0.5, 2, true);
-        circScalar.setMaskScalarApplicator(); // Force usage of scalar backend
+        circScalar.setMaskScalarApplicator();
 
         KisMaskGeneratorBenchmarkTester(circScalar.applicator(), bounds);
     }
@@ -77,7 +76,7 @@ void KisMaskGeneratorBenchmark::testCircularGaussScalarMask()
     {
     KisGaussCircleMaskGenerator circScalar(1000, 1.0, 0.5, 0.5, 2, true);
     circScalar.setDiameter(1000);
-    circScalar.setMaskScalarApplicator(); // Force usage of scalar backend
+    circScalar.setMaskScalarApplicator();
 
     KisMaskGeneratorBenchmarkTester(circScalar.applicator(), bounds);
     }
@@ -100,7 +99,7 @@ void KisMaskGeneratorBenchmark::testCircularSoftScalarMask()
     {
     KisCurveCircleMaskGenerator circScalar(1000, 1.0, 0.5, 0.5, 2, pointsCurve, true);
     circScalar.setSoftness(0.5);
-    circScalar.setMaskScalarApplicator(); // Force usage of scalar backend
+    circScalar.setMaskScalarApplicator();
 
     KisMaskGeneratorBenchmarkTester(circScalar.applicator(), bounds);
     }
@@ -121,7 +120,7 @@ void KisMaskGeneratorBenchmark::testRectangularScalarMask(){
     QRect bounds(0,0,1000,1000);
     {
         KisRectangleMaskGenerator rectScalar(1000, 1.0, 0.5, 0.5, 2, true);
-        rectScalar.setMaskScalarApplicator(); // Force usage of scalar backend
+        rectScalar.setMaskScalarApplicator();
 
         KisMaskGeneratorBenchmarkTester(rectScalar.applicator(), bounds);
     }
@@ -140,8 +139,7 @@ void KisMaskGeneratorBenchmark::testRectangularGaussScalarMask()
     QRect bounds(0,0,1000,1000);
     {
     KisGaussRectangleMaskGenerator circScalar(1000, 1.0, 0.5, 0.5, 2, true);
-//    circScalar.setDiameter(1000);
-    circScalar.setMaskScalarApplicator(); // Force usage of scalar backend
+    circScalar.setMaskScalarApplicator();
 
     KisMaskGeneratorBenchmarkTester(circScalar.applicator(), bounds);
     }
@@ -151,7 +149,6 @@ void KisMaskGeneratorBenchmark::testRectangularGaussVectorMask()
     QRect bounds(0,0,1000,1000);
     {
     KisGaussRectangleMaskGenerator circVectr(1000, 1.0, 0.5, 0.5, 2, true);
-//    circVectr.setDiameter(1000);
     KisMaskGeneratorBenchmarkTester(circVectr.applicator(), bounds);
     }
 }
@@ -163,7 +160,7 @@ void KisMaskGeneratorBenchmark::testRectangularSoftScalarMask()
     {
     KisCurveRectangleMaskGenerator circScalar(1000, 1.0, 0.5, 0.5, 2, pointsCurve, true);
 
-    circScalar.setMaskScalarApplicator(); // Force usage of scalar backend
+    circScalar.setMaskScalarApplicator();
 
     KisMaskGeneratorBenchmarkTester(circScalar.applicator(), bounds);
     }

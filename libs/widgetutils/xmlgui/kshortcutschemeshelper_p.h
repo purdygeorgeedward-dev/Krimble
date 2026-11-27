@@ -17,17 +17,10 @@ class KisKShortcutSchemesHelper
 {
 public:
 
-    /**
-     * @return the name of the (writable) file to save the shortcut scheme to.
-     */
     static QString shortcutSchemeFileName(const QString &schemeName);
 
     static bool saveShortcutScheme();
 
-    /**
-     * @return a list of files to save the shortcut scheme to. Does not include "Default"
-     * @see shortcutSchemeFileName, exportActionCollection
-     */
     static QHash<QString, QString> schemeFileLocations();
 
 };

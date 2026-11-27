@@ -48,4 +48,4 @@ private:
     RecipeSP m_recipe;
 };
 
-#endif // KISBATCHUPDATELAYERMODIFICATIONCOMMAND_H
+#endif

@@ -48,7 +48,6 @@ public:
         return check(layer);
     }
 
-
     bool visit(KisAdjustmentLayer *layer) override {
         return check(layer);
     }
@@ -75,7 +74,6 @@ public:
 
     bool visit(KisColorizeMask *) override {return true;}
 
-
 private:
     bool check(KisNode * node)
     {
@@ -91,7 +89,6 @@ private:
 
     quint32 m_count;
 };
-
 
 class PSDLayerStyleCheck : public KisExportCheckBase
 {
@@ -112,7 +109,7 @@ public:
         return (v.count() > 0);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -136,4 +133,4 @@ public:
     }
 };
 
-#endif // PSDLayerStyleCHECK_H
+#endif

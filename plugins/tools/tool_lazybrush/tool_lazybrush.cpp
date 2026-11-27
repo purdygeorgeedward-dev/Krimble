@@ -15,9 +15,7 @@
 #include "kis_paint_device.h"
 #include "kis_tool_lazy_brush.h"
 
-
 K_PLUGIN_FACTORY_WITH_JSON(DefaultToolsFactory, "kritatoollazybrush.json", registerPlugin<ToolLazyBrush>();)
-
 
 ToolLazyBrush::ToolLazyBrush(QObject *parent, const QVariantList &)
         : QObject(parent)

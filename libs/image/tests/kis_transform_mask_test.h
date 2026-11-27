@@ -28,4 +28,4 @@ private Q_SLOTS:
     void testTransformHiddenPartsOfTheGroup();
 };
 
-#endif /* __KIS_TRANSFORM_MASK_TEST_H */
+#endif

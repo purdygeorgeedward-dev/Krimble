@@ -34,4 +34,4 @@ private:
     QButtonGroup pasteSources;
 };
 
-#endif // KIS_DLG_PASTE_FORMAT_H
+#endif

@@ -11,7 +11,6 @@
 class KRITAGLOBAL_EXPORT KisAndroidExitInfo
 {
 public:
-    // REASON_* constants from ApplicationExitInfo.
     enum class Reason {
         Unknown = 0,
         ExitSelf = 1,
@@ -32,7 +31,6 @@ public:
         PackageUpdated = 16,
     };
 
-    // IMPORTANCE_* constants from ActivityManager.RunningAppProcessInfo.
     enum class Importance {
         Foreground = 100,
         ForegroundService = 125,
@@ -88,4 +86,4 @@ private:
     const bool m_valid;
 };
 
-#endif // __KISANDROIDEXITINFO_H_
+#endif

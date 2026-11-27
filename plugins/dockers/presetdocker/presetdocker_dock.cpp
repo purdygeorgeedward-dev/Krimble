@@ -30,7 +30,6 @@
 #include <brushengine/kis_paintop_preset.h>
 #include "KisMainWindow.h"
 
-
 PresetDockerDock::PresetDockerDock( )
     : QDockWidget(i18nc("@title:window Brush presets chooser panel", "Brushes"))
     , m_canvas(0)
@@ -83,7 +82,6 @@ PresetDockerDock::PresetDockerDock( )
     connect(m_flowSlider, &QSlider::valueChanged, this, [this](int v) { QSignalBlocker b(m_flowSpin); m_flowSpin->setValue(v); slotKrimbleFlowChanged(v); });
     connect(m_flowSpin, qOverload<int>(&QSpinBox::valueChanged), this, [this](int v) { QSignalBlocker b(m_flowSlider); m_flowSlider->setValue(v); slotKrimbleFlowChanged(v); });
 
-    // the controls follow the brush if its size, opacity or flow is changed somewhere else (a preset is picked, a shortcut)
     m_syncTimer = new QTimer(this);
     m_syncTimer->setInterval(400);
     connect(m_syncTimer, SIGNAL(timeout()), this, SLOT(slotKrimbleSync()));
@@ -167,14 +165,13 @@ void PresetDockerDock::setCanvas(KoCanvasBase *canvas)
     connect(canvas->resourceManager(), SIGNAL(canvasResourceChanged(int,QVariant)),
             this, SLOT(canvasResourceChanged(int,QVariant)));
 
-
     connect(m_canvas->viewManager()->mainWindow(), SIGNAL(themeChanged()), m_presetChooser, SLOT(slotThemeChanged()), Qt::UniqueConnection);
     m_presetChooser->slotThemeChanged();
 
     canvasResourceChanged(KoCanvasResource::CurrentPaintOpPreset);
 }
 
-void PresetDockerDock::canvasResourceChanged(int key, const QVariant& /*v*/)
+void PresetDockerDock::canvasResourceChanged(int key, const QVariant& )
 {
     if (key == KoCanvasResource::CurrentPaintOpPreset) {
         if (m_canvas && m_canvas->resourceManager()) {
@@ -186,6 +183,4 @@ void PresetDockerDock::canvasResourceChanged(int key, const QVariant& /*v*/)
         }
     }
 }
-
-
 

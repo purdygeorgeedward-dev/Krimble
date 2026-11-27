@@ -31,11 +31,10 @@ KisCurvePaintOpSettingsWidget::~ KisCurvePaintOpSettingsWidget()
 {
 }
 
-
 KisPropertiesConfigurationSP  KisCurvePaintOpSettingsWidget::configuration() const
 {
     KisCurvePaintOpSettings* config = new KisCurvePaintOpSettings(resourcesInterface());
-    config->setProperty("paintop", "curvebrush"); // XXX: make this a const id string
+    config->setProperty("paintop", "curvebrush");
     writeConfiguration(config);
     return config;
 }

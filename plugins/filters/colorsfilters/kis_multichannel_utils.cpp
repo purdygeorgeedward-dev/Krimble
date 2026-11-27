@@ -42,25 +42,13 @@ QVector<VirtualChannelInfo> getVirtualChannels(const KoColorSpace *cs,
         KoChannelInfo::displayOrderSorted(cs->channels());
 
     if (maxChannels >= 0 && maxChannels == sortedChannels.size()) {
-        /**
-         * This is the extremely old version of the filter (< Krita 3.0).
-         * It has the following curves layout: R, G, B, A.
-         */
         supportsLightness = false;
         supportsHue = false;
         supportsSaturation = false;
     } else if (maxChannels >= 0 && maxChannels == sortedChannels.size() + 2) {
-        /**
-         * This is the old version of the filter (Krita [3.0, 5.0]).
-         * It has the following channel layout: RGBA, R, G, B, A, Lightness.
-         */
         supportsHue = false;
         supportsSaturation = false;
     } else {
-        /**
-         * Starting Krita 5.1.0 Krita started to use the latest layout:
-         * RGBA, R, G, B, A, Hue, Saturation, Lightness
-         */
     }
 
     if (supportsLightness) {
@@ -106,17 +94,9 @@ KoColorTransformation* createPerChannelTransformationFromTransfers(const KoColor
                                                                    const QVector<QVector<quint16>> &transfers,
                                                                    const QList<bool> &transferIsIdentity)
 {
-    /**
-     * TODO: What about the order of channels? (DK)
-     *
-     * Virtual channels are sorted in display order, does Lcms accepts
-     * transforms in display order? Why on Earth it works?! Is it
-     * documented anywhere?
-     */
     const QVector<VirtualChannelInfo> virtualChannels = getVirtualChannels(cs, transfers.size());
 
     if (transfers.size() > int(virtualChannels.size())) {
-        // We got an illegal number of colorchannels :(
         return 0;
     }
 
@@ -181,10 +161,6 @@ KoColorTransformation* createPerChannelTransformationFromTransfers(const KoColor
     KoColorTransformation *allColorsTransform = 0;
     KoColorTransformation *colorTransform = 0;
 
-    /**
-     * Sometimes the realTransfers are too low, this often happens with faulty config,
-     * which in turn leads to trouble when creating a transform.
-     */
     int missingTransfers = qMax(0, int(cs->channelCount()-realTransfers.size()));
     for (int i=0; i < missingTransfers; i++) {
         realTransfers.append(KisCubicCurve().uint16Transfer());
@@ -195,10 +171,6 @@ KoColorTransformation* createPerChannelTransformationFromTransfers(const KoColor
         for(int i = 0; i < realTransfers.size(); ++i) {
             transfers[i] = realTransfers[i].constData();
 
-            /**
-             * createPerChannelAdjustment() expects alpha channel to
-             * be the last channel in the list, so just it here
-             */
             KIS_ASSERT_RECOVER_NOOP(i != alphaIndexInReal ||
                                     alphaIndexInReal == (realTransfers.size() - 1));
         }
@@ -241,10 +213,6 @@ KoColorTransformation* createPerChannelTransformationFromTransfers(const KoColor
             allColorsTransfers[i] = (i != alphaIndexInReal) ?
                 allColorsTransfer.constData() : 0;
 
-            /**
-             * createPerChannelAdjustment() expects alpha channel to
-             * be the last channel in the list, so just it here
-             */
             KIS_ASSERT_RECOVER_NOOP(i != alphaIndexInReal ||
                                     alphaIndexInReal == (realTransfers.size() - 1));
         }

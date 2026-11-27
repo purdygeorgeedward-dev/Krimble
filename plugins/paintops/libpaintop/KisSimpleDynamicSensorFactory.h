@@ -36,4 +36,4 @@ public:
     QString m_valueSuffix;
 };
 
-#endif // KISSIMPLEDYNAMICSENSORFACTORY_H
+#endif

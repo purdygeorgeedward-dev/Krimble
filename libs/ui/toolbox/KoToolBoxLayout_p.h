@@ -48,8 +48,6 @@ public:
 
     QSize sizeHint() const override
     {
-        // This is implemented just to not freak out GammaRay, in practice
-        // this doesn't have any effect on the layout.
         if (m_orientation == Qt::Vertical) {
             return QSize(m_buttonSize.width(), m_buttonSize.height() * count());
         } else {
@@ -72,8 +70,6 @@ public:
 
     void setGeometry (const QRect &rect) override
     {
-        // the names of the variables assume a vertical orientation,
-        // but all calculations are done based on the real orientation
         const bool isVertical = m_orientation == Qt::Vertical;
         const bool isLeftToRight = parentWidget()->isLeftToRight();
 
@@ -137,8 +133,6 @@ public:
     enum SeparatorFlag {
         SeparatorNone      = 0,
         SeparatorTop       = (1 << 0),
-        // SeparatorBottom = (1 << 1),
-        // SeparatorRight  = (1 << 2),
         SeparatorLeft      = (1 << 3)
     };
     Q_DECLARE_FLAGS(Separators, SeparatorFlag)
@@ -146,42 +140,6 @@ public:
         : QWidget(parent),
         m_layout(new SectionLayout(this))
     {
-// Re-enable this when we need to debug the section layout again.
-//        setAutoFillBackground(true);
-//        static int i = 0;
-//        switch(i) {
-//        case 0:
-//            setStyleSheet("background-color:red");
-//            break;
-//        case 1:
-//            setStyleSheet("background-color:blue");
-//            break;
-//        case 2:
-//            setStyleSheet("background-color:green");
-//            break;
-//        case 3:
-//            setStyleSheet("background-color:yellow");
-//            break;
-//        case 4:
-//            setStyleSheet("background-color:white");
-//            break;
-//        case 5:
-//            setStyleSheet("background-color:gray");
-//            break;
-//        case 6:
-//            setStyleSheet("background-color:lime");
-//            break;
-//        case 7:
-//            setStyleSheet("background-color:silver");
-//            break;
-//        case 8:
-//            setStyleSheet("background-color:purple");
-//            break;
-//        default:
-//            setStyleSheet("background-color:maroon");
-//            break;
-//        }
-//        i++;
 
     }
 
@@ -241,7 +199,6 @@ public:
         m_layout->setOnset(onset);
     }
 
-
 protected:
 private:
     SectionLayout *m_layout;
@@ -270,7 +227,6 @@ public:
 
     QSize sizeHint() const override
     {
-        // Prefer showing two rows/columns by default
         QSize twoIcons = static_cast<Section*> (m_sections[0]->widget())->iconSize() * 2;
         const int length = doLayout(QRect(QPoint(), twoIcons), false);
         if (m_orientation == Qt::Vertical) {
@@ -293,7 +249,7 @@ public:
         addChildWidget(section);
 
         QList<QWidgetItem*>::iterator iterator = m_sections.begin();
-        int defaults = 2; // skip the first two as they are the 'main' and 'dynamic' sections.
+        int defaults = 2;
         while (iterator != m_sections.end()) {
             if (--defaults < 0 && static_cast<Section*> ((*iterator)->widget())->name() > section->name())
                 break;
@@ -304,7 +260,7 @@ public:
 
     void addItem(QLayoutItem*) override
     {
-        Q_ASSERT(0); // don't let anything else be added. (code depends on this!)
+        Q_ASSERT(0);
     }
 
     QLayoutItem* itemAt(int i) const override
@@ -324,7 +280,6 @@ public:
 
     bool hasHeightForWidth() const override
     {
-        // return true;
         return m_orientation == Qt::Vertical;
     }
 
@@ -342,18 +297,12 @@ public:
                     return iconHeight * i;
                 }
             }
-            // Return a huge height
             return 65535;
     #endif
             return -1;
         }
     }
 
-    /**
-     * For calculating the width from height by KoToolBoxScrollArea.
-     * QWidget doesn't actually support trading width for height, so it needs to
-     * be handled specifically.
-     */
     int widthForHeight(int height) const
     {
         if (m_orientation == Qt::Horizontal) {
@@ -395,20 +344,16 @@ public:
 private:
     int doLayout(const QRect &rect, bool notDryRun) const
     {
-        // nothing to do?
         if (m_sections.isEmpty()) {
             return 0;
         }
 
-        // the names of the variables assume a vertical orientation,
-        // but all calculations are done based on the real orientation
         const bool isVertical = m_orientation == Qt::Vertical;
         const bool isLeftToRight = parentWidget()->isLeftToRight();
 
         const QSize iconSize = static_cast<Section*> (m_sections.first()->widget())->iconSize();
 
         const int maxWidth = isVertical ? rect.width() : rect.height();
-        // using min 1 as width to e.g. protect against div by 0 below
         const int iconWidth = qMax(1, isVertical ? iconSize.width() : iconSize.height());
         const int iconHeight = qMax(1, isVertical ? iconSize.height() : iconSize.width());
 
@@ -428,29 +373,24 @@ private:
             Section *section = static_cast<Section*> (wi->widget());
             const int buttonCount = section->visibleButtonCount();
             if (buttonCount == 0) {
-                // move out of view, not perfect TODO: better solution
                 if (notDryRun) {
                     section->setGeometry(1000, 1000, 0, 0);
                 }
                 continue;
             }
 
-            // in compact mode, the previous section's offset is this section's onset
             const int onset = m_compact ? offset : 0;
             const int usedColumns = onset + buttonCount;
             offset = usedColumns % maxColumns;
 
-            // rows needed for the buttons (calculation gets the ceiling value of the plain div)
             const int neededRowCount = ((usedColumns - 1) / maxColumns) + 1;
 
             if (firstSection) {
                 firstSection = false;
             } else {
                 if (m_compact) {
-                    // start on a new row if the current row is full
                     y += (onset == 0) ? iconHeight : 0;
                 } else {
-                    // start on a new row, set separator
                     y += iconHeight + spacing();
                 }
                 if (notDryRun) {
@@ -472,8 +412,6 @@ private:
                     if (isLeftToRight) {
                         geometry = QRect(0, y, width, height);
 
-                        // mask onset and offset regions
-                        // so that they don't block mouse events to other sections
                         mask -= QRegion(0, 0, onW, iconHeight);
                         if (offset != 0) {
                             mask -= QRegion(offW, height - iconHeight, width - offW, iconHeight);
@@ -505,12 +443,9 @@ private:
                 section->setMask(mask);
             }
 
-            // advance by all but the last used row
             y += (neededRowCount - 1) * iconHeight;
         }
 
-        // cache total height (or width), adding the iconHeight for the current row
-        // return y + iconHeight;
         int total = y + iconHeight;
         if (m_trailing) {
             const int gap = spacing();

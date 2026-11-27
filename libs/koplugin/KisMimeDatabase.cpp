@@ -27,10 +27,6 @@ QString KisMimeDatabase::mimeTypeForFile(const QString &file, bool checkExisting
     QString suffix = fi.suffix().toLower();
 
 #ifdef Q_OS_ANDROID
-    // HACK: on Android we can save as .kra with no extension or as something like:
-    // "untitled.kra (1)", (1) being added by the SAF because we can't overwrite the duplicate.
-    // So, we need to be able to remove that number and get extension. If there is no extension,
-    // perhaps try "kra"
     suffix = sanitizeSuffix(suffix);
     if (suffix.isEmpty())
         suffix = "kra";
@@ -55,7 +51,6 @@ QString KisMimeDatabase::mimeTypeForFile(const QString &file, bool checkExisting
 
 #ifdef Q_OS_ANDROID
     QString basename = fi.baseName();
-    // HACK: because we use sanitized suffix
     mime = db.mimeTypeForFile(basename + "." + suffix);
 #else
     mime = db.mimeTypeForFile(file);
@@ -81,8 +76,6 @@ QString KisMimeDatabase::mimeTypeForSuffix(const QString &suffix)
         }
     }
 
-
-    // make the file look like a file so Qt would recognize it
     s = "file." + s;
 
     return mimeTypeForFile(s);
@@ -165,8 +158,6 @@ QString KisMimeDatabase::iconNameForMimeType(const QString &mimeType)
 
 void KisMimeDatabase::fillMimeData()
 {
-    // This should come from the import/export plugins, but the json files aren't translated,
-    // which is bad for the description field
     if (s_mimeDatabase.isEmpty()) {
 
         KisMimeType mimeType;
@@ -295,7 +286,7 @@ void KisMimeDatabase::fillMimeData()
         mimeType.description = i18nc("description of a file type", "Krita Gamut Mask");
         mimeType.suffixes = QStringList() << "kgm";
         s_mimeDatabase << mimeType;
-        
+
         mimeType.mimeType = "application/x-krita-shortcuts";
         mimeType.description = i18nc("description of a file type", "Krita Shortcut Scheme");
         mimeType.suffixes = QStringList() << "shortcuts";
@@ -325,11 +316,6 @@ void KisMimeDatabase::fillMimeData()
         mimeType.description = i18nc("description of a file type", "AVIF Image");
         mimeType.suffixes = QStringList() << "avif";
         s_mimeDatabase << mimeType;
-
-//        mimeType.mimeType = "image/jp2";
-//        mimeType.description = i18nc("description of a file type", "JP2 Image");
-//        mimeType.suffixes = QStringList() << "jp2" << "j2k";
-//        s_mimeDatabase << mimeType;
 
         mimeType.mimeType = "application/x-krita-seexpr-script";
         mimeType.description = i18nc("description of a file type", "SeExpr script package");

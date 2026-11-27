@@ -48,4 +48,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_SOFTEN_H_
+#endif

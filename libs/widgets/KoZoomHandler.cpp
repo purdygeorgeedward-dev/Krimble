@@ -8,7 +8,7 @@
 
 #include "KoZoomHandler.h"
 #include <WidgetsDebug.h>
-#include <KoUnit.h> // for POINT_TO_INCH
+#include <KoUnit.h>
 #include <QPointF>
 #include <QRectF>
 
@@ -23,9 +23,6 @@ KoZoomHandler::KoZoomHandler()
 {
     setZoom(1.0);
     setZoomMode( KoZoomMode::ZOOM_CONSTANT );
-    // Use 72 dpi as a placeholder. KisView will immediately update the
-    // screen resolution correctly after this, using the values initialized
-    // by KisZoomManager::updateScreenResolution().
     setDpi(72, 72);
 }
 
@@ -56,9 +53,6 @@ void KoZoomHandler::setResolution( qreal resolutionX, qreal resolutionY )
 
 void KoZoomHandler::setZoomedResolution( qreal zoomedResolutionX, qreal zoomedResolutionY )
 {
-    // zoom() doesn't matter, it's only used in setZoom() to calculated the zoomed resolutions
-    // Here we know them. The whole point of this method is to allow a different zoom factor
-    // for X and for Y, as can be useful for e.g. fullscreen kpresenter presentations.
     m_zoomedResolutionX = zoomedResolutionX;
     m_zoomedResolutionY = zoomedResolutionY;
 }

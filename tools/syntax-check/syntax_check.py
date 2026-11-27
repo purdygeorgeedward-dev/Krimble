@@ -26,7 +26,7 @@ def main():
     walked = [d for top in ("libs", "plugins") if os.path.isdir(top) for d, _, files in os.walk(top) if any(f.endswith(".h") for f in files) and "/tests" not in d]
     inc = ["-I" + STUBS, "-I."] + ["-I" + d for d in DIRS + [os.path.dirname(source)] + walked if os.path.isdir(d)]
     qt = subprocess.run(["pkg-config", "--cflags", "Qt5Widgets", "Qt5Gui", "Qt5Core", "Qt5Xml"], capture_output=True, text=True).stdout.split()
-    cmd = ["g++", "-std=c++17", "-fsyntax-only", "-fno-operator-names", "-fPIC"] + inc + qt + ["-I/usr/include/KF5", "-I/usr/include/eigen3"] + ["-I" + d for d in sorted(glob.glob("/usr/include/KF5/*")) if os.path.isdir(d)] + [source]
+    cmd = ["g++", "-std=c++17", "-fsyntax-only", "-fno-operator-names", "-fPIC"] + inc + qt + ["-I/usr/include/KF5", "-I/usr/include/eigen3"] + ["-I" + d for d in sorted(glob.glob("/usr/include/KF5/*")) if os.path.isdir(d)] + os.environ.get("KRIMBLE_CHECK_FLAGS", "").split() + [source]
     for _ in range(60):
         out = subprocess.run(cmd, capture_output=True, text=True).stderr
         errors = [l for l in out.split("\n") if re.search(r"error|fatal", l)]

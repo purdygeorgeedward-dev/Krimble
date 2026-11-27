@@ -26,7 +26,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(ToolCropFactory, "kritatoolcrop.json", registerPlugin<ToolCrop>();)
 
-
 ToolCrop::ToolCrop(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

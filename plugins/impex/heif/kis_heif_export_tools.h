@@ -117,7 +117,7 @@ inline auto writePlanarLayer(QSysInfo::Endian endian, Args &&...args)
         return Gray::writePlanarWithLuma<0, 1>(std::forward<Args>(args)...);
     }
 }
-} // namespace Gray
+}
 
 namespace Planar
 {
@@ -141,8 +141,6 @@ inline void writeLayerImpl(const int width,
             ptrG[y * strideG + x] = KoBgrU8Traits::green(data);
             ptrB[y * strideB + x] = KoBgrU8Traits::blue(data);
 
-            // If we already employ KoBgrU8Traits to access the iterator,
-            // we can use it for the opacity too. -amyspark
             if (hasAlpha) {
                 ptrA[y * strideA + x] = KoBgrU8Traits::opacityU8(data);
             }
@@ -163,7 +161,7 @@ inline auto writeLayer(bool hasAlpha, Args &&...args)
         return Planar::writeLayerImpl<false>(std::forward<Args>(args)...);
     }
 }
-} // namespace Planar
+}
 
 namespace HDRInt
 {
@@ -227,7 +225,7 @@ inline auto writeInterleavedLayer(QSysInfo::Endian endian, Args &&...args)
         return writeInterleavedWithAlpha<0, 1>(std::forward<Args>(args)...);
     }
 }
-} // namespace HDRInt
+}
 
 namespace HDRFloat
 {
@@ -464,6 +462,6 @@ inline auto writeInterleavedLayer(const KoID &id, Args &&...args)
             std::forward<Args>(args)...);
     }
 }
-} // namespace HDRFloat
+}
 
-#endif // KIS_HEIF_EXPORT_TOOLS_H
+#endif

@@ -42,10 +42,6 @@ std::shared_ptr<KisWaylandAPIColorManager> KisWaylandSurfaceColorManager::getOrC
         result = s_waylandManager->lock();
     }
 
-    /**
-     * A weak pointer in `s_waylandManager` may have become released,
-     * so it may be null, even though the static itself is non-null.
-     */
     if (!result) {
         result.reset(new KisWaylandAPIColorManager());
         *s_waylandManager = result;
@@ -61,9 +57,6 @@ KisWaylandSurfaceColorManager::KisWaylandSurfaceColorManager(QWindow *window, QO
     connect(m_waylandManager.get(), &KisWaylandAPIColorManager::sigReadyChanged,
             this, &KisWaylandSurfaceColorManager::reinitialize);
 
-    /**
-     * If we have reused an existing wayland manager, then it will be ready
-     */
     if (m_waylandManager->isReady()) {
         reinitialize();
     }
@@ -113,7 +106,6 @@ private:
 
     QObject *m_watched = nullptr;
 };
-
 
 void KisWaylandSurfaceColorManager::reinitialize()
 {
@@ -198,13 +190,6 @@ bool KisWaylandSurfaceColorManager::supportsSurfaceDescription(const KisSurfaceC
     if (std::holds_alternative<KisSurfaceColorimetry::NamedTransferFunction>(desc.colorSpace.transferFunction)) {
         auto waylandTransferFunction = transferFunctionKritaToWayland(std::get<KisSurfaceColorimetry::NamedTransferFunction>(desc.colorSpace.transferFunction));
 
-        /**
-         * For some obscure reason Wayland compositors implemented transfer_function_srgb
-         * as gamma-2.2 transfer function, which caused a lot of confusion. Hence the enum
-         * is going to be deprecated in the upcoming version of the protocol.
-         *
-         * https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/442
-         */
         if (waylandTransferFunction == QtWayland::wp_color_manager_v1::transfer_function_srgb ||
             waylandTransferFunction == QtWayland::wp_color_manager_v1::transfer_function_ext_srgb) {
 
@@ -278,7 +263,6 @@ QFuture<bool> KisWaylandSurfaceColorManager::setSurfaceDescription(const KisSurf
 
 #ifdef USE_KWIN_BUG_WORKAROUND
             if (qEnvironmentVariableIsSet("KRITA_ENABLE_KWIN_INTENT_WORKAROUND")) {
-                // WARNING: KWin <= 6.4.4 doesn't handle intent changes properly
                 if (m_currentDescription && m_currentDescription == desc &&
                     m_renderingIntent && m_renderingIntent != intent) {
 
@@ -395,11 +379,6 @@ void KisWaylandSurfaceColorManager::slotWaylandSurfaceDestroyed()
 KisWaylandSurfaceColorManager::WaylandSurfaceState
 KisWaylandSurfaceColorManager::tryInitilize()
 {
-    /**
-     * Initialization of the managed happens sequentially by transitioning through
-     * a set of states. Some states may be transitioned asynchronously, e.g. when
-     * Qt creates a platform windows or when it creates or recreates a surface.
-     */
 
     WaylandSurfaceState currentState = WaylandSurfaceState::Disconnected;
 

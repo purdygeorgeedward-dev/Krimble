@@ -13,24 +13,14 @@
 
 #include <config-memory-leak-tracker.h>
 
-// Only linux support the memory leak tracker
 #ifndef Q_OS_LINUX
 #undef HAVE_MEMORY_LEAK_TRACKER
 #endif
 
-// Disable the memory leak tracker on release build
 #ifdef NDEBUG
 #undef HAVE_MEMORY_LEAK_TRACKER
 #endif
 
-/**
- * This class tracks what pointer is reference by who. It is used by
- * the smart pointers to detect leaks.
- *
- * Note that the KisMemoryLeakTracker is currently only available on Linux,
- * and translate to NOOP on other platforms. It is also just a debug tool,
- * and should not be used in a production build of krita.
- */
 class KRITAGLOBAL_EXPORT KisMemoryLeakTracker
 {
 public:

@@ -21,7 +21,6 @@ class QModelIndex;
 
 #include "kritaresourcewidgets_export.h"
 
-/// The resource view
 class KRITARESOURCEWIDGETS_EXPORT KisResourceItemView : public QTableView
 {
     Q_OBJECT
@@ -29,8 +28,8 @@ class KRITARESOURCEWIDGETS_EXPORT KisResourceItemView : public QTableView
 public:
 
     enum ViewMode {
-        FIXED_COLUMNS,  /// The number of columns is fixed
-        FIXED_ROWS     /// The number of rows is fixed
+        FIXED_COLUMNS,
+        FIXED_ROWS
     };
 
     explicit KisResourceItemView(QWidget *parent = 0);
@@ -60,16 +59,11 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     bool viewportEvent(QEvent *event) override;
 
-    /**
-     * This will draw a number of rows based on the number of columns if m_viewMode is FIXED_COLUMNS
-     * And it will draw a number of columns based on the number of rows if m_viewMode is FIXED_ROWS
-     */
     void resizeEvent(QResizeEvent *event) override;
 
     void setViewMode(ViewMode mode);
 
     void updateView();
-
 
 private Q_SLOTS:
     void slotItemClicked(const QModelIndex &index);
@@ -80,4 +74,4 @@ private:
     ViewMode m_viewMode;
 };
 
-#endif // KISRESOURCEITEMVIEW_H
+#endif

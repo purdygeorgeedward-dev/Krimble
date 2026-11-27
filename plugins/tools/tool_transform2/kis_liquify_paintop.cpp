@@ -9,14 +9,12 @@
 #include <QPainterPath>
 #include <QTransform>
 
-
 #include <brushengine/kis_paint_information.h>
 #include "kis_liquify_transform_worker.h"
 #include "kis_algebra_2d.h"
 #include "kis_liquify_properties.h"
 #include "kis_spacing_information.h"
 #include "kis_timing_information.h"
-
 
 struct KisLiquifyPaintop::Private
 {
@@ -95,8 +93,6 @@ QPainterPath KisLiquifyPaintop::brushOutline(const KisLiquifyProperties &props,
     return outline;
 }
 
-// TODO: Reduce code duplication between KisLiquifyPaintop and KisPaintOp. It might be possible to
-// make them both subclasses of some more general base class.
 void KisLiquifyPaintop::updateSpacing(const KisPaintInformation &info,
                                KisDistanceInformation &currentDistance) const
 {
@@ -189,7 +185,6 @@ KisSpacingInformation KisLiquifyPaintop::updateSpacingImpl(const KisPaintInforma
 KisTimingInformation KisLiquifyPaintop::updateTimingImpl(const KisPaintInformation &pi) const
 {
     Q_UNUSED(pi);
-    // Don't use airbrushing.
     return KisTimingInformation();
 }
 

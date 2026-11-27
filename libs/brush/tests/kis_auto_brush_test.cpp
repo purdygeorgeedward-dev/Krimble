@@ -34,7 +34,6 @@ void KisAutoBrushTest::testMaskGeneration()
 
     KisPaintInformation info(QPointF(100.0, 100.0), 0.5);
 
-    // check masking an existing paint device
     KisFixedPaintDeviceSP fdev = new KisFixedPaintDevice(cs);
     fdev->setRect(QRect(0, 0, 100, 100));
     fdev->initialize();
@@ -49,7 +48,6 @@ void KisAutoBrushTest::testMaskGeneration()
         QFAIL(QString("Failed to create identical image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
     }
 
-    // Check creating a mask dab with a single color
     fdev = new KisFixedPaintDevice(cs);
     a->mask(fdev, KoColor(Qt::black, cs), KisDabShape(), info);
 
@@ -60,7 +58,6 @@ void KisAutoBrushTest::testMaskGeneration()
         QFAIL(QString("Failed to create identical image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
     }
 
-    // Check creating a mask dab with a color taken from a paint device
     KoColor red(Qt::red, cs);
     cs->setOpacity(red.data(), quint8(128), 1);
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
@@ -106,7 +103,6 @@ void KisAutoBrushTest::testDabSize()
     dabSizeHelper(a, "0.5y",      KisDabShape(1.0, 0.5, 0.0),           10, 3);
 }
 
-//#define SAVE_OUTPUT_IMAGES
 void KisAutoBrushTest::testCopyMasking()
 {
     int w = 64;
@@ -119,7 +115,6 @@ void KisAutoBrushTest::testCopyMasking()
 
     KoColor black(Qt::black, cs);
     KoColor red(Qt::red, cs);
-
 
     KisPaintDeviceSP tempDev = new KisPaintDevice(cs);
     tempDev->fill(0, 0, w, h, red.data());
@@ -151,7 +146,6 @@ void KisAutoBrushTest::testCopyMasking()
     KisPainter painter(dev);
     painter.setCompositeOpId(COMPOSITE_COPY);
     painter.bltFixedWithFixedSelection(x, y, dev2fixed, maskDab, 0, 0, 0, 0, rc.width(), rc.height());
-    //painter.bitBltWithFixedSelection(x, y, tempDev, maskDab, 0, 0, 0, 0, rc.width(), rc.height());
 
 #ifdef SAVE_OUTPUT_IMAGES
     dev->convertToQImage(0).save("final.png");

@@ -17,7 +17,6 @@
 #include <KoConfig.h>
 #include <KoCanvasControllerWidget.h>
 
-
 class KoCanvasControllerWidget;
 class Viewport;
 class KoCanvasBase;

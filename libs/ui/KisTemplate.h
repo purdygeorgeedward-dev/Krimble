@@ -11,7 +11,6 @@
 #include <QString>
 #include <QPixmap>
 
-/** @internal */
 class KisTemplate
 {
 
@@ -68,6 +67,5 @@ private:
     QPixmap m_pixmap;
     QString m_measureSystem;
 };
-
 
 #endif

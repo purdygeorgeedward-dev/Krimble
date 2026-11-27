@@ -21,9 +21,9 @@ class KisEllipseEnclosingProducer : public KisDynamicDelegateTool<KisToolEllipse
 public:
     KisEllipseEnclosingProducer(KoCanvasBase *canvas);
     ~KisEllipseEnclosingProducer() override;
-    
+
     bool hasUserInteractionRunning() const;
-    
+
 protected:
     void finishRect(const QRectF& rect, qreal roundCornersX, qreal roundCornersY) override;
     void beginShape() override;

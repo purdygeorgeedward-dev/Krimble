@@ -84,15 +84,7 @@ KisResourcesSnapshot::KisResourcesSnapshot(KisImageSP image, KisNodeSP currentNo
     }
     m_d->isUsingOtherColor = resourceManager->boolResource(KoCanvasResource::UsingOtherColor);
 
-    /**
-     * We should deep-copy the preset, so that long-running actions
-     * will have correct brush parameters. Theoretically this cloning
-     * can be expensive, but according to measurements, it takes
-     * something like 0.1 ms for an average preset.
-     */
     if (presetOverride) {
-        /// we don't use global resource cache object in this case,
-        /// because the passed preset might be not the global one
         m_d->currentPaintOpPreset =
             presetOverride->cloneWithResourcesSnapshot(
                 KisGlobalResourcesInterface::instance(),
@@ -116,10 +108,9 @@ KisResourcesSnapshot::KisResourcesSnapshot(KisImageSP image, KisNodeSP currentNo
 
 #ifdef HAVE_THREADED_TEXT_RENDERING_WORKAROUND
     KisPaintOpRegistry::instance()->preinitializePaintOpIfNeeded(m_d->currentPaintOpPreset);
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
     m_d->currentExposure = resourceManager->resource(KoCanvasResource::HdrExposure).toDouble();
-
 
     m_d->currentGenerator = resourceManager->resource(KoCanvasResource::CurrentGeneratorConfiguration).value<KisFilterConfiguration*>();
     if (m_d->currentGenerator) {
@@ -142,16 +133,9 @@ KisResourcesSnapshot::KisResourcesSnapshot(KisImageSP image, KisNodeSP currentNo
 
     m_d->selectedNodes = selectedNodes;
 
-    /**
-     * Fill and Stroke styles are not a part of the resource manager
-     * so the tools should set them manually
-     * TODO: port stroke and fill styles to be a part
-     *       of the resource manager
-     */
     m_d->strokeStyle = KisPainter::StrokeStyleBrush;
     m_d->fillStyle = KisPainter::FillStyleNone;
 
-    // Erasing and alpha lock don't mix. If both are enabled, erasing takes priority.
     m_d->globalAlphaLock = !resourceManager->resource(KoCanvasResource::EraserMode).toBool()
             && resourceManager->resource(KoCanvasResource::GlobalAlphaLock).toBool();
     m_d->effectiveZoom = resourceManager->resource(KoCanvasResource::EffectiveZoom).toDouble();
@@ -170,7 +154,7 @@ KisResourcesSnapshot::KisResourcesSnapshot(KisImageSP image, KisNodeSP currentNo
 
 #ifdef HAVE_THREADED_TEXT_RENDERING_WORKAROUND
     KisPaintOpRegistry::instance()->preinitializePaintOpIfNeeded(m_d->currentPaintOpPreset);
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
     QPointF relativeAxesCenter(0.5, 0.5);
     if (m_d->image) {
@@ -181,16 +165,9 @@ KisResourcesSnapshot::KisResourcesSnapshot(KisImageSP image, KisNodeSP currentNo
 
     setCurrentNode(currentNode);
 
-    /**
-     * Fill and Stroke styles are not a part of the resource manager
-     * so the tools should set them manually
-     * TODO: port stroke and fill styles to be a part
-     *       of the resource manager
-     */
     m_d->strokeStyle = KisPainter::StrokeStyleBrush;
     m_d->fillStyle = KisPainter::FillStyleNone;
 }
-
 
 KisResourcesSnapshot::~KisResourcesSnapshot()
 {
@@ -218,11 +195,6 @@ void KisResourcesSnapshot::setupPainter(KisPainter* painter)
     painter->setFillStyle(m_d->fillStyle);
     painter->setPatternTransform(m_d->fillTransform);
 
-
-    /**
-     * The paintOp should be initialized the last, because it may
-     * ask the painter for some options while initialization
-     */
     painter->setPaintOpPreset(m_d->currentPaintOpPreset, m_d->currentNode, m_d->image);
 }
 
@@ -237,17 +209,12 @@ void KisResourcesSnapshot::setupMaskingBrushPainter(KisPainter *painter)
     painter->setOpacityToUnit();
     painter->setChannelFlags(QBitArray());
 
-    // masked brush always paints in indirect mode
     painter->setCompositeOpId(COMPOSITE_ALPHA_DARKEN);
 
     painter->setMirrorInformation(m_d->axesCenter, m_d->mirrorMaskHorizontal, m_d->mirrorMaskVertical);
 
     painter->setStrokeStyle(m_d->strokeStyle);
 
-    /**
-     * The paintOp should be initialized the last, because it may
-     * ask the painter for some options while initialization
-     */
     painter->setPaintOpPreset(m_d->currentPaintOpPreset->createMaskingPreset(),
                               m_d->currentNode, m_d->image);
 }
@@ -311,10 +278,6 @@ bool KisResourcesSnapshot::needsMaskingBrushRendering() const
 
 KisSelectionSP KisResourcesSnapshot::activeSelection() const
 {
-    /**
-     * It is possible to have/use the snapshot without the image. Such
-     * usecase is present for example in the scratchpad.
-     */
     if (m_d->hasOverrideSelection) {
         return m_d->selectionOverride;
     }
@@ -384,7 +347,6 @@ KoPatternSP KisResourcesSnapshot::currentPattern() const
 KoColor KisResourcesSnapshot::currentFgColor() const
 {
     if (m_d->isUsingOtherColor) {
-        // temporarily swap colors if requested by user
         return m_d->currentBgColor;
     } else {
         return m_d->currentFgColor;
@@ -394,7 +356,6 @@ KoColor KisResourcesSnapshot::currentFgColor() const
 KoColor KisResourcesSnapshot::currentBgColor() const
 {
     if (m_d->isUsingOtherColor) {
-        // temporarily swap colors if requested by user
         return m_d->currentFgColor;
     } else {
         return m_d->currentBgColor;
@@ -472,7 +433,7 @@ void KisResourcesSnapshot::setBGColorOverride(const KoColor &color)
 void KisResourcesSnapshot::setSelectionOverride(KisSelectionSP selection)
 {
     m_d->selectionOverride = selection;
-    m_d->hasOverrideSelection = true; // needed if selection passed is null to ignore selection
+    m_d->hasOverrideSelection = true;
 }
 
 void KisResourcesSnapshot::setBrush(const KisPaintOpPresetSP &brush)
@@ -485,5 +446,5 @@ void KisResourcesSnapshot::setBrush(const KisPaintOpPresetSP &brush)
 
 #ifdef HAVE_THREADED_TEXT_RENDERING_WORKAROUND
     KisPaintOpRegistry::instance()->preinitializePaintOpIfNeeded(m_d->currentPaintOpPreset);
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 }

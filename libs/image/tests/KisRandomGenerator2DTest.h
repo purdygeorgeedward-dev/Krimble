@@ -13,7 +13,6 @@ class KisRandomGenerator2DTest : public QObject
 {
     Q_OBJECT
 
-
 private Q_SLOTS:
 
     void testEvolution();

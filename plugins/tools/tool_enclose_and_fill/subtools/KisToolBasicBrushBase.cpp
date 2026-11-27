@@ -42,10 +42,8 @@ KisToolBasicBrushBase::~KisToolBasicBrushBase()
 void KisToolBasicBrushBase::updateSettings()
 {
     KisConfig cfg(true);
-    // Pressure curve
     KisCubicCurve curve(cfg.pressureTabletCurve());
     m_pressureSamples = curve.floatTransfer(levelOfPressureResolution + 1);
-    // Outline options
     m_outlineStyle = cfg.newOutlineStyle();
     m_showOutlineWhilePainting = cfg.showOutlineWhilePainting();
     m_forceAlwaysFullSizedOutline = cfg.forceAlwaysFullSizedOutline();
@@ -226,26 +224,23 @@ void KisToolBasicBrushBase::update(const QRectF &strokeSegmentRect)
 {
     QRectF segmentRect;
     QRectF outlineRect;
-    // Segment rect
     if (mode() == KisTool::PAINT_MODE) {
         if (strokeSegmentRect.isValid()) {
             segmentRect = kisGrowRect(strokeSegmentRect, feedbackLineWidth);
         }
     }
-    // Outline rect
     if (m_outlineStyle != OUTLINE_NONE &&
         (mode() != KisTool::PAINT_MODE || m_showOutlineWhilePainting)) {
         const qreal radius =
             m_forceAlwaysFullSizedOutline
             ? currentPaintOpPreset()->settings()->paintOpSize() / 2.0
             : m_lastPressure * currentPaintOpPreset()->settings()->paintOpSize() / 2.0;
-        outlineRect = 
+        outlineRect =
             kisGrowRect(
                 QRectF(m_lastPosition - QPointF(radius, radius), m_lastPosition + QPointF(radius, radius)),
                 feedbackLineWidth
             );
     }
-    // Update
     if (segmentRect.isValid() && outlineRect.isValid()) {
         updateCanvasPixelRect(segmentRect.united(outlineRect));
     } else if (segmentRect.isValid()) {
@@ -285,7 +280,7 @@ void KisToolBasicBrushBase::paint(QPainter &gc, const KoViewConverter &converter
 void KisToolBasicBrushBase::activate(const QSet<KoShape*> &shapes)
 {
     m_lastPressure = 1.0;
-    
+
     KisToolShape::activate(shapes);
 }
 
@@ -361,7 +356,6 @@ QPainterPath KisToolBasicBrushBase::generateSegment(const QPointF &point1, qreal
     QPointF tangentPointP11, tangentPointP12, tangentPointP21, tangentPointP22;
 
     if (qFuzzyIsNull(deltaR1R2)) {
-        // Same radius case
         const qreal deltaP1P2Length = std::sqrt(deltaP1P2.x() * deltaP1P2.x() + deltaP1P2.y() * deltaP1P2.y());
         const QPointF deltaP1P2Normalized = deltaP1P2 / deltaP1P2Length;
         tangentPointP11 = p1 + QPointF(deltaP1P2Normalized.y(), -deltaP1P2Normalized.x()) * r1;
@@ -369,7 +363,6 @@ QPainterPath KisToolBasicBrushBase::generateSegment(const QPointF &point1, qreal
         tangentPointP21 = p2 + QPointF(deltaP1P2Normalized.y(), -deltaP1P2Normalized.x()) * r2;
         tangentPointP22 = p2 + QPointF(-deltaP1P2Normalized.y(), deltaP1P2Normalized.x()) * r2;
     } else {
-        // General case
         const QPointF tangentIntersectionPoint(
             (p2.x() * r1 - p1.x() * r2) / deltaR1R2,
             (p2.y() * r1 - p1.y() * r2) / deltaR1R2
@@ -381,7 +374,7 @@ QPainterPath KisToolBasicBrushBase::generateSegment(const QPointF &point1, qreal
         {
             const qreal r1Squared = r1 * r1;
             const QPointF deltaP1TangentIntersectionPoint = tangentIntersectionPoint - p1;
-            const qreal deltaP1TangentIntersectionPointLengthSquared = 
+            const qreal deltaP1TangentIntersectionPointLengthSquared =
                 deltaP1TangentIntersectionPoint.x() * deltaP1TangentIntersectionPoint.x() +
                 deltaP1TangentIntersectionPoint.y() * deltaP1TangentIntersectionPoint.y();
             const QPointF t11 = r1Squared * deltaP1TangentIntersectionPoint;
@@ -398,7 +391,7 @@ QPainterPath KisToolBasicBrushBase::generateSegment(const QPointF &point1, qreal
         {
             const qreal r2Squared = r2 * r2;
             const QPointF deltaP2TangentIntersectionPoint = tangentIntersectionPoint - p2;
-            const qreal deltaP2TangentIntersectionPointLengthSquared = 
+            const qreal deltaP2TangentIntersectionPointLengthSquared =
                 deltaP2TangentIntersectionPoint.x() * deltaP2TangentIntersectionPoint.x() +
                 deltaP2TangentIntersectionPoint.y() * deltaP2TangentIntersectionPoint.y();
             const QPointF t11 = r2Squared * deltaP2TangentIntersectionPoint;

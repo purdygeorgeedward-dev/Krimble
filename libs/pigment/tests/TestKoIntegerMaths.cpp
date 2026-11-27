@@ -57,10 +57,6 @@ void TestKoIntegerMaths::UINT16Tests()
     QCOMPARE((int)UINT16_DIVIDE(0, 1), 0);
 
     QCOMPARE((int)UINT16_BLEND(65535, 0, 0), 0);
-    // All these tests gave off-by one errors that apparently aren't
-    // errors.
-    // So -- are we officially expecting 32767 instead of 32768 and
-    // 49151 instead of 49152 here?
     QCOMPARE((int)UINT16_BLEND(65535, 0, 32768), 32767);
     QCOMPARE((int)UINT16_BLEND(65535, 32768, 32768), 49151);
     QCOMPARE((int)UINT16_BLEND(32768, 16384, 65535), 32767);
@@ -69,7 +65,7 @@ void TestKoIntegerMaths::UINT16Tests()
 void TestKoIntegerMaths::conversionTests()
 {
     QCOMPARE((int)UINT8_TO_UINT16(255), 65535);
-    QCOMPARE((int)UINT8_TO_UINT16(254), 65278); // Erm, is this right?
+    QCOMPARE((int)UINT8_TO_UINT16(254), 65278);
     QCOMPARE((int)UINT8_TO_UINT16(0), 0);
     QCOMPARE((int)UINT8_TO_UINT16(128), 128 * 257);
 

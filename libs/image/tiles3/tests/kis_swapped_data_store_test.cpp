@@ -18,7 +18,6 @@
 
 #include "tiles3/kis_tile_data_store.h"
 
-
 #define COLUMN2COLOR(col) (col%255)
 
 void KisSwappedDataStoreTest::testRoundTrip()
@@ -31,7 +30,6 @@ void KisSwappedDataStoreTest::testRoundTrip()
     config.setMaxSwapSize(4);
     config.setSwapSlabSize(1);
     config.setSwapWindowSize(1);
-
 
     KisSwappedDataStore store;
 
@@ -46,7 +44,6 @@ void KisSwappedDataStoreTest::testRoundTrip()
         memset(td->data(), COLUMN2COLOR(i), TILESIZE);
         QVERIFY(memoryIsFilled(COLUMN2COLOR(i), td->data(), TILESIZE));
 
-        // FIXME: take a lock of the tile data
         QVERIFY(store.trySwapOutTileData(td));
     }
 
@@ -55,9 +52,7 @@ void KisSwappedDataStoreTest::testRoundTrip()
     for(qint32 i = 0; i < NUM_TILES; i++) {
         KisTileData *td = tileDataList[i];
         QVERIFY(!td->data());
-        // TODO: check num clones
 
-        // FIXME: take a lock of the tile data
         store.swapInTileData(td);
         QVERIFY(memoryIsFilled(COLUMN2COLOR(i), td->data(), TILESIZE));
     }
@@ -74,12 +69,9 @@ void KisSwappedDataStoreTest::processTileData(qint32 column, KisTileData *td, Ki
         memset(td->data(), COLUMN2COLOR(column), TILESIZE);
         QVERIFY(memoryIsFilled(COLUMN2COLOR(column), td->data(), TILESIZE));
 
-        // FIXME: take a lock of the tile data
         QVERIFY(store.trySwapOutTileData(td));
     }
     else {
-        // TODO: check num clones
-        // FIXME: take a lock of the tile data
         store.swapInTileData(td);
         QVERIFY(memoryIsFilled(COLUMN2COLOR(column), td->data(), TILESIZE));
     }
@@ -97,7 +89,6 @@ void KisSwappedDataStoreTest::testRandomAccess()
     config.setMaxSwapSize(40);
     config.setSwapSlabSize(1);
     config.setSwapWindowSize(1);
-
 
     KisSwappedDataStore store;
 

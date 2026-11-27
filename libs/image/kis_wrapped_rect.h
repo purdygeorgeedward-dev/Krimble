@@ -60,7 +60,7 @@ struct KisWrappedRect : public QVector<QRect> {
                 }
                 return rc;
                 }
-            default /*WRAPAROUND_BOTH*/:
+            default :
                 return rc & wrapRect;
         }
     }
@@ -71,7 +71,7 @@ struct KisWrappedRect : public QVector<QRect> {
                 return (rc.left() >= wrapRect.left() && rc.right() <= wrapRect.right());
             case WRAPAROUND_VERTICAL:
                 return (rc.top() >= wrapRect.top() && rc.bottom() <= wrapRect.bottom());
-            default /*WRAPAROUND_BOTH*/:
+            default :
                 return wrapRect.contains(rc);
         }
     }
@@ -81,15 +81,11 @@ struct KisWrappedRect : public QVector<QRect> {
                 return (pt.x() >= wrapRect.left() && pt.x() <= wrapRect.right());
             case WRAPAROUND_VERTICAL:
                 return (pt.y() >= wrapRect.top() && pt.y() <= wrapRect.bottom());
-            default /*WRAPAROUND_BOTH*/:
+            default :
                 return wrapRect.contains(pt);
         }
     }
 
-    /**
-     * Return origins at which we should paint \p rc with crop rect set to \p wrapRect,
-     * so that the final image would look "wrapped".
-     */
     static inline QVector<QPoint> normalizationOriginsForRect(const QRect &rc, const QRect &wrapRect, WrapAroundAxis wrapAxis) {
         QVector<QPoint> result;
 
@@ -102,28 +98,26 @@ struct KisWrappedRect : public QVector<QRect> {
             int w = wrapAxis != WRAPAROUND_VERTICAL ? qMin(rc.width(), wrapRect.width()) : rc.width();
             int h = wrapAxis != WRAPAROUND_HORIZONTAL ? qMin(rc.height(), wrapRect.height()) : rc.height();
 
-            // we ensure that the top/left of the rect belongs to the
-            // visible rectangle
             Q_ASSERT(wrapRectContains(QPoint(x,y), wrapRect, wrapAxis));
 
             QRect newRect(x, y, w, h);
 
             if (!clipToWrapRect(newRect, wrapRect, wrapAxis).isEmpty()) {
-                result.append(QPoint(x, y)); // tl
+                result.append(QPoint(x, y));
             }
 
             if (wrapAxis != WRAPAROUND_VERTICAL &&
-                !clipToWrapRect(newRect.translated(-wrapRect.width(), 0), wrapRect, wrapAxis).isEmpty()) { // tr
+                !clipToWrapRect(newRect.translated(-wrapRect.width(), 0), wrapRect, wrapAxis).isEmpty()) {
                 result.append(QPoint(x - wrapRect.width(), y));
             }
 
             if (wrapAxis != WRAPAROUND_HORIZONTAL &&
-                !clipToWrapRect(newRect.translated(0, -wrapRect.height()), wrapRect, wrapAxis).isEmpty()) { // bl
+                !clipToWrapRect(newRect.translated(0, -wrapRect.height()), wrapRect, wrapAxis).isEmpty()) {
                 result.append(QPoint(x, y - wrapRect.height()));
             }
 
             if (wrapAxis == WRAPAROUND_BOTH &&
-                !clipToWrapRect(newRect.translated(-wrapRect.width(), -wrapRect.height()), wrapRect, wrapAxis).isEmpty()) { // br
+                !clipToWrapRect(newRect.translated(-wrapRect.width(), -wrapRect.height()), wrapRect, wrapAxis).isEmpty()) {
                 result.append(QPoint(x - wrapRect.width(), y - wrapRect.height()));
             }
         }
@@ -190,29 +184,23 @@ public:
             int w = wrapAxis != WRAPAROUND_VERTICAL ? qMin(rc.width(), wrapRect.width()) : rc.width();
             int h = wrapAxis != WRAPAROUND_HORIZONTAL ? qMin(rc.height(), wrapRect.height()) : rc.height();
 
-            // we ensure that the top/left of the rect belongs to the
-            // visible rectangle
             Q_ASSERT(wrapRectContains(QPoint(x,y), wrapRect, wrapAxis));
 
             QRect newRect(x, y, w, h);
 
-            // We add empty QRects here because a "splitRect" is expected to contain exactly 4 rects.
-            // Functions such as KisPaintDeviceWrappedStrategy::readBytes() and
-            // KisWrappedLineIteratorBase() will not work properly (read: crash) otherwise.
-            append(clipToWrapRect(newRect, wrapRect, wrapAxis)); // tl
+            append(clipToWrapRect(newRect, wrapRect, wrapAxis));
             append(wrapAxis != WRAPAROUND_VERTICAL ?
-                clipToWrapRect(newRect.translated(-wrapRect.width(), 0), wrapRect, wrapAxis) : QRect()); // tr
+                clipToWrapRect(newRect.translated(-wrapRect.width(), 0), wrapRect, wrapAxis) : QRect());
             append(wrapAxis != WRAPAROUND_HORIZONTAL ?
-                clipToWrapRect(newRect.translated(0, -wrapRect.height()), wrapRect, wrapAxis) : QRect()); // bl
+                clipToWrapRect(newRect.translated(0, -wrapRect.height()), wrapRect, wrapAxis) : QRect());
             append(wrapAxis == WRAPAROUND_BOTH ?
-                clipToWrapRect(newRect.translated(-wrapRect.width(), -wrapRect.height()), wrapRect, wrapAxis) : QRect()); // br
+                clipToWrapRect(newRect.translated(-wrapRect.width(), -wrapRect.height()), wrapRect, wrapAxis) : QRect());
         }
     }
 
     bool isSplit() const {
         int size = this->size();
 
-        // we can either split or not split only
         Q_ASSERT(size == 1 || size == 4);
 
         return size > 1;
@@ -247,4 +235,4 @@ private:
     QRect m_originalRect;
 };
 
-#endif /* __KIS_WRAPPED_RECT_H */
+#endif

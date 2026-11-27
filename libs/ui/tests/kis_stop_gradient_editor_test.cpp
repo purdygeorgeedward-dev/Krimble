@@ -14,7 +14,6 @@
 #include "kis_debug.h"
 #include "KisStopGradientEditor.h"
 
-
 void KisStopGradientEditorTest::test()
 {
     QLinearGradient gradient;
@@ -30,7 +29,6 @@ void KisStopGradientEditorTest::test()
     layout->addWidget(widget);
     dialog.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    //dlg.exec();
     qWarning() << "WARNING: showing of the dialogs in the unittest is disabled!";
 }
 

@@ -9,7 +9,6 @@
 #include "kis_node_dummies_graph.h"
 #include "kis_dummies_facade_base.h"
 
-
 TimelineFramesIndexConverter::TimelineFramesIndexConverter(KisDummiesFacadeBase *dummiesFacade)
     : m_dummiesFacade(dummiesFacade),
       m_activeDummy(0),

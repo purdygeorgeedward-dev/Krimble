@@ -68,7 +68,6 @@
 
 #include <KisImportUserFeedbackInterface.h>
 
-// static cache for import and export mimetypes
 QStringList KisImportExportManager::m_importMimeTypes;
 QStringList KisImportExportManager::m_exportMimeTypes;
 
@@ -94,7 +93,6 @@ struct SynchronousUserFeedbackInterface : KisImportUserFeedbackInterface
 };
 
 }
-
 
 class Q_DECL_HIDDEN KisImportExportManager::Private
 {
@@ -127,8 +125,6 @@ struct KisImportExportManager::ConversionResult {
     }
 
     QFuture<KisImportExportErrorCode> futureStatus() const {
-        // if the result is not async, then it means some failure happened,
-        // just return a cancelled future
         KIS_SAFE_ASSERT_RECOVER_NOOP(m_isAsync || !m_status.isOk());
 
         return m_futureStatus;
@@ -146,7 +142,6 @@ private:
     QFuture<KisImportExportErrorCode> m_futureStatus;
     KisImportExportErrorCode m_status = ImportExportCodes::InternalError;
 };
-
 
 KisImportExportManager::KisImportExportManager(KisDocument* document)
     : m_document(document)
@@ -186,13 +181,9 @@ QFuture<KisImportExportErrorCode> KisImportExportManager::exportDocumentAsync(co
     return result.futureStatus();
 }
 
-// The static method to figure out to which parts of the
-// graph this mimetype has a connection to.
 QStringList KisImportExportManager::supportedMimeTypes(Direction direction)
 {
-    // Find the right mimetype by the extension
     QSet<QString> mimeTypes;
-    //    mimeTypes << KisDocument::nativeFormatMimeType() << "application/x-krita-paintoppreset" << "image/openraster";
 
     if (direction == KisImportExportManager::Import) {
         if (m_importMimeTypes.isEmpty()) {
@@ -201,7 +192,6 @@ QStringList KisImportExportManager::supportedMimeTypes(Direction direction)
                 QJsonObject json = loader.metaData().value("MetaData").toObject();
                 Q_FOREACH(const QString &mimetype, json.value("X-KDE-Import").toString().split(",", Qt::SkipEmptyParts)) {
 
-                    //qDebug() << "Adding  import mimetype" << mimetype << KisMimeDatabase::descriptionForMimeType(mimetype) << "from plugin" << loader;
                     mimeTypes << mimetype;
                 }
             }
@@ -216,7 +206,6 @@ QStringList KisImportExportManager::supportedMimeTypes(Direction direction)
                 QJsonObject json = loader.metaData().value("MetaData").toObject();
                 Q_FOREACH(const QString &mimetype, json.value("X-KDE-Export").toString().split(",", Qt::SkipEmptyParts)) {
 
-                    //qDebug() << "Adding  export mimetype" << mimetype << KisMimeDatabase::descriptionForMimeType(mimetype) << "from plugin" << loader;
                     mimeTypes << mimetype;
                 }
             }
@@ -322,7 +311,6 @@ QString KisImportExportManager::getUriForAdditionalFile(const QString &defaultUr
 
 KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImportExportManager::Direction direction, const QString &location, const QString& realLocation, const QString &mimeType, bool showWarnings, KisPropertiesConfigurationSP exportConfiguration, bool isAsync, bool isAdvancedExporting)
 {
-    // export configuration is supported for export only
     KIS_SAFE_ASSERT_RECOVER_NOOP(direction == Export || !bool(exportConfiguration));
 
     QString typeName = mimeType;
@@ -332,10 +320,6 @@ KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImpo
 
     QSharedPointer<KisImportExportFilter> filter;
 
-    /**
-     * Fetching a filter from the registry is a really expensive operation,
-     * because it blocks all the threads. Cache the filter if possible.
-     */
     if (direction == KisImportExportManager::Export &&
             d->cachedExportFilter &&
             d->cachedExportFilterMimeType == typeName) {
@@ -366,12 +350,6 @@ KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImpo
     }
 
     if (!d->updater.isNull()) {
-        // WARNING: The updater is not guaranteed to be persistent! If you ever want
-        // to add progress reporting to "Save also as .kra", make sure you create
-        // a separate KoProgressUpdater for that!
-
-        // WARNING2: the failsafe completion of the updater happens in the destructor
-        // the filter.
 
         filter->setUpdater(d->updater);
     }
@@ -388,7 +366,7 @@ KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImpo
 
     KIS_ASSERT_RECOVER_RETURN_VALUE(
                 direction == Import || direction == Export,
-                KisImportExportErrorCode(ImportExportCodes::InternalError)); // "bad conversion graph"
+                KisImportExportErrorCode(ImportExportCodes::InternalError));
 
     ConversionResult result = KisImportExportErrorCode(ImportExportCodes::OK);
     if (direction == Import) {
@@ -397,10 +375,8 @@ KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImpo
                                 .arg(QString::fromLatin1(from), QString::fromLatin1(to), location,
                                      realLocation, QString::number(batchMode())));
 
-        // async importing is not yet supported!
         KIS_SAFE_ASSERT_RECOVER_NOOP(!isAsync);
 
-        // FIXME: Dmitry says "this progress reporting code never worked. Initial idea was to implement it his way, but I stopped and didn't finish it"
         if (0 && !batchMode()) {
             KisAsyncActionFeedback f(i18n("Opening document..."), 0);
             result = f.runAction(std::bind(&KisImportExportManager::doImport, this, location, filter));
@@ -434,7 +410,7 @@ KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImpo
         }
 
     }
-    else /* if (direction == Export) */ {
+    else {
         if (!exportConfiguration) {
             exportConfiguration = filter->lastSavedConfiguration(from, to);
         }
@@ -448,7 +424,6 @@ KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImpo
                                                        from, to,
                                                        batchMode(), showWarnings,
                                                        &alsoAsKra, isAdvancedExporting);
-
 
         if (!batchMode() && !askUser) {
             return KisImportExportErrorCode(ImportExportCodes::Cancelled);
@@ -466,7 +441,6 @@ KisImportExportManager::ConversionResult KisImportExportManager::convert(KisImpo
             result = QtConcurrent::run(std::bind(&KisImportExportManager::doExport, this, location, filter,
                                                  exportConfiguration, alsoAsKraLocation));
 
-            // we should explicitly report that the exporting has been initiated
             result.setStatus(ImportExportCodes::OK);
 
         } else if (!batchMode()) {
@@ -517,7 +491,6 @@ void KisImportExportManager::fillStaticExportConfigurationProperties(KisProperti
     exportConfiguration->setProperty(KisImportExportFilter::HDRTag, cs->hasHighDynamicRange());
 }
 
-
 void KisImportExportManager::fillStaticExportConfigurationProperties(KisPropertiesConfigurationSP exportConfiguration)
 {
     return fillStaticExportConfigurationProperties(exportConfiguration, m_document->image());
@@ -533,9 +506,6 @@ bool KisImportExportManager::askUserAboutExportConfiguration(
         bool *alsoAsKra,
         bool isAdvancedExporting)
 {
-
-    // prevents the animation renderer from running this code
-
 
     const QString mimeUserDescription = KisMimeDatabase::descriptionForMimeType(to);
 
@@ -562,7 +532,6 @@ bool KisImportExportManager::askUserAboutExportConfiguration(
         }
     }
 
-    // Extra checks that cannot be done by the checker, because the checker only has access to the image.
     if (!m_document->assistants().isEmpty() && to != m_document->nativeFormatMimeType()) {
         warnings.append(i18nc("image conversion warning", "The image contains <b>assistants</b>. The assistants will not be saved."));
     }
@@ -794,15 +763,6 @@ KisImportExportErrorCode KisImportExportManager::doExport(const QString &locatio
     return status;
 }
 
-// Temporary workaround until QTBUG-57299 is fixed.
-// 02-10-2019 update: the bug is closed, but we've still seen this issue.
-//                    and without using QSaveFile the issue can still occur
-//                    when QFile::copy fails because Dropbox/Google/OneDrive
-//                    locks the target file.
-// 02-24-2022 update: Added macOS since QSaveFile does not work on sandboxed krita
-//                    It can work if user gives access to the container dir, but
-//                    we cannot guarantee the user gave us permission.
-// 12-05-2025 update: Also Android because we gotta play in the sandbox.
 #if !(defined(Q_OS_WIN) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID))
 #define USE_QSAVEFILE
 #endif
@@ -811,12 +771,6 @@ namespace {
 QFileDevice::FileError getFileOpenError(const QFileDevice &file)
 {
     QFileDevice::FileError error = file.error();
-    /**
-     * On Android Qt's AndroidContentFileEngine::open may be not very
-     * accurate with setting a proper error code when requesting file
-     * descriptor from JNI and getting a refusal. We should handle this
-     * condition gracefully.
-     */
     if (error == QFileDevice::NoError) {
         return QFileDevice::OpenError;
     } else {
@@ -857,10 +811,7 @@ KisImportExportErrorCode KisImportExportManager::doExportImpl(const QString &loc
                 status = KisImportExportErrorCannotWrite(file.error());
             }
 #elif defined(Q_OS_ANDROID)
-            // The Android file system is bananas, so it needs special handling.
 
-            // If the temporary file is still open, ensure it's fully written.
-            // If it got closed, open it again so that we can read from it.
             if(file.isOpen()) {
                 if (!file.flush()) {
                     return KisImportExportErrorCannotWrite(file.error());
@@ -869,59 +820,40 @@ KisImportExportErrorCode KisImportExportManager::doExportImpl(const QString &loc
                 return KisImportExportErrorCannotWrite(getFileOpenError(file));
             }
 
-            // Grab the size we're expecting to write for later verification.
             qint64 expectedSize = file.size();
             if (expectedSize < 0 || !file.seek(0)) {
                 return KisImportExportErrorCannotWrite(file.error());
             }
 
-            // Open the target file. We have to explicitly tell the file to
-            // truncate itself because unlike on every other system it doesn't
-            // do that on its own when opening a file for writing, it just
-            // leaves the old content laying around and you start overwriting
-            // it, potentially leaving old garbage at the end of the file.
             QFile target(location);
             if (!target.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                 return KisImportExportErrorCannotWrite(getFileOpenError(target));
             }
 
-            // QFile::copy also doesn't work, so we gotta do it manually by
-            // alternately reading and writing BUFSIZ-sized chunks.
             QByteArray buf;
             buf.resize(BUFSIZ);
             qint64 totalWritten = 0;
             while (true) {
                 qint64 read = file.read(buf.data(), BUFSIZ);
                 if (read < 0) {
-                    // Read error.
                     return KisImportExportErrorCannotWrite(file.error());
                 } else if (read == 0) {
-                    // End of file.
                     break;
                 } else {
-                    // Successful read, try to write it.
                     qint64 written = target.write(buf.constData(), read);
                     if (written < 0) {
-                        // Write error.
                         return KisImportExportErrorCannotWrite(target.error());
                     }
-                    // We may not have written as much as we read, but we handle
-                    // that at the end.
                     totalWritten += written;
                 }
             }
 
-            // Finish up and make sure what we wrote is out to storage.
             file.close();
             if (!target.flush()) {
                 return KisImportExportErrorCannotWrite(target.error());
             }
             target.close();
 
-            // Now check if we actually wrote as much as we wanted to. If not,
-            // raise an error. There's not much we can do about it though, since
-            // we already truncated the original file at this point and don't
-            // have permissions to create backup files in the sandbox.
             if (totalWritten != expectedSize) {
                 return KisImportExportErrorCannotWrite(QFileDevice::CopyError);
             }
@@ -930,7 +862,6 @@ KisImportExportErrorCode KisImportExportManager::doExportImpl(const QString &loc
             file.close();
             QFile target(location);
             if (target.exists()) {
-                // There should already be a .kra~ backup
                 target.remove();
             }
             if (!file.copy(location)) {
@@ -942,7 +873,6 @@ KisImportExportErrorCode KisImportExportManager::doExportImpl(const QString &loc
     }
 
     if (status.isOk()) {
-        // Do some minimal verification
         QString verificationResult = filter->verify(location);
         if (!verificationResult.isEmpty()) {
             status = KisImportExportErrorCode(ImportExportCodes::ErrorWhileWriting);

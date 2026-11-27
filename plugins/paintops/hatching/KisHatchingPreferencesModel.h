@@ -28,4 +28,4 @@ public:
     LAGER_QT_CURSOR(bool, useSubpixelPrecision);
 };
 
-#endif // KIS_HATCHING_PREFERENCES_MODEL_H
+#endif

@@ -6,8 +6,6 @@
 #ifndef KIS_OPENGL_H_
 #define KIS_OPENGL_H_
 
-/** @file */
-
 #include <QtGlobal>
 #include <QFlags>
 
@@ -23,18 +21,14 @@ class QOpenGLContext;
 class QString;
 class QSurfaceFormat;
 
-/**
- * This class manages a shared OpenGL context and provides utility
- * functions for checking capabilities and error reporting.
- */
 class KRITAUI_EXPORT KisOpenGL
 {
 public:
     enum FilterMode {
-        NearestFilterMode,  // nearest
-        BilinearFilterMode, // linear, no mipmap
-        TrilinearFilterMode, // LINEAR_MIPMAP_LINEAR
-        HighQualityFiltering // Mipmaps + custom shader
+        NearestFilterMode,
+        BilinearFilterMode,
+        TrilinearFilterMode,
+        HighQualityFiltering
     };
 
     enum OpenGLRenderer {
@@ -50,7 +44,7 @@ public:
         AngleRendererDefault    = 0x0000,
         AngleRendererD3d11      = 0x0002,
         AngleRendererD3d9       = 0x0004,
-        AngleRendererD3d11Warp  = 0x0008, // "Windows Advanced Rasterization Platform"
+        AngleRendererD3d11Warp  = 0x0008,
     };
 
     struct KRITAUI_EXPORT RendererConfig {
@@ -81,10 +75,8 @@ public:
     static QString convertOpenGLRendererToConfig(OpenGLRenderer renderer);
     static OpenGLRenderer convertConfigToOpenGLRenderer(QString renderer);
 
-    /// Request OpenGL version 3.2
     static void initialize();
 
-    /// Initialize shared OpenGL context
     static void initializeContext(QOpenGLContext *ctx);
 
     static const QString &getDebugText();
@@ -97,13 +89,8 @@ public:
     static bool hasOpenGLES();
     static bool supportsVAO();
 
-    /// Check for OpenGL
     static bool hasOpenGL();
 
-    /**
-     * @brief supportsFilter
-     * @return True if OpenGL provides fence sync methods.
-     */
     static bool supportsFenceSync();
 
     static bool supportsBufferMapping();
@@ -113,18 +100,8 @@ public:
 
     static bool useTextureBufferInvalidation();
 
-    /**
-     * @brief supportsRenderToFBO
-     * @return True if OpenGL can render to FBO, used
-     * currently for rendering cursor with image overlay
-     * fx.
-     */
     static bool useFBOForToolOutlineRendering();
 
-    /**
-     * Returns true if we have a driver that has bugged support to sync objects (a fence)
-     * and false otherwise.
-     */
     static bool needsFenceWorkaround();
 
     static void testingInitializeDefaultSurfaceFormat();
@@ -139,7 +116,6 @@ private:
 
     KisOpenGL();
 
-
 };
 
 #ifdef Q_OS_WIN
@@ -148,4 +124,4 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(KisOpenGL::OpenGLRenderers);
 
 Q_DECLARE_METATYPE(KisOpenGL::XcbGLProviderProtocol)
 
-#endif // KIS_OPENGL_H_
+#endif

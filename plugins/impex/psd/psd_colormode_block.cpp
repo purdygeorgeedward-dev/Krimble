@@ -16,7 +16,6 @@ PSDColorModeBlock::PSDColorModeBlock(psd_color_mode colormode)
 
 bool PSDColorModeBlock::read(QIODevice &io)
 {
-    // get length
     psdread(io, blocksize);
 
     if (blocksize == 0) {

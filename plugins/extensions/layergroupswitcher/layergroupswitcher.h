@@ -25,4 +25,4 @@ private Q_SLOTS:
     void moveIntoPreviousGroup();
 };
 
-#endif // LAYERGROUP_SWITCHER_H
+#endif

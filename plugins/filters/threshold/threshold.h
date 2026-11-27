@@ -21,8 +21,6 @@ class WdgThreshold;
 class QWidget;
 class KisHistogram;
 
-
-
 class KritaThreshold : public QObject
 {
     Q_OBJECT
@@ -68,12 +66,10 @@ private Q_SLOTS:
 
     void slotSetThreshold(int);
 
-
 protected:
     QScopedPointer<KisHistogram> m_histogram;
     bool m_histlog;
 };
-
 
 #endif
 

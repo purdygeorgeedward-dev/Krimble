@@ -17,7 +17,6 @@
 
 Q_GLOBAL_STATIC(KisBrushServerProvider, s_instance)
 
-
 KisBrushServerProvider::KisBrushServerProvider()
 {
     m_brushServer = new KoResourceServer<KisBrush>(ResourceType::Brushes);

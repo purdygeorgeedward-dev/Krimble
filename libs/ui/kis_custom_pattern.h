@@ -53,5 +53,4 @@ private:
     KoResourceServer<KoPattern>* m_rServer {0};
 };
 
-
-#endif // KIS_CUSTOM_PATTERN_H_
+#endif

@@ -42,7 +42,6 @@ void NodeViewTest::cleanup()
     delete m_doc;
 }
 
-
 void NodeViewTest::testLayers()
 {
 #ifndef ENABLE_GUI_TESTS
@@ -94,7 +93,6 @@ void NodeViewTest::testColorLabels()
 #ifndef ENABLE_GUI_TESTS
     return;
 #endif
-
 
     QDialog dlg;
 

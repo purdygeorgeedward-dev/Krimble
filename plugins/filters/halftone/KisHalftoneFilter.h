@@ -53,7 +53,7 @@ private:
 
     static QVector<quint8> makeHardnessLut(qreal hardness);
     static QVector<quint8> makeNoiseWeightLut(qreal hardness);
-    
+
     static inline quint8 mapU8ToRange(quint8 value, quint8 new_min, quint8 new_max) {
         Q_UNUSED(new_min);
         Q_UNUSED(new_max);
@@ -71,7 +71,7 @@ private:
                                               KoUpdater *progressUpdater) const;
 
     bool checkUpdaterInterruptedAndSetPercent(KoUpdater *progressUpdater, int percent) const;
-    
+
     void processIntensity(KisPaintDeviceSP device,
                           const QRect& applyRect,
                           const KisHalftoneFilterConfiguration *config,

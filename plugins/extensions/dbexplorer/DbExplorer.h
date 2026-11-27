@@ -25,4 +25,4 @@ public Q_SLOTS:
 
 };
 
-#endif // DBEXPLORER_H
+#endif

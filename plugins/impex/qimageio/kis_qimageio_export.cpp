@@ -90,7 +90,7 @@ void KisQImageIOExport::initializeCapabilities()
     addCapability(KisExportCheckRegistry::instance()->get("ColorModelPerLayerCheck/" + RGBAColorModelID.id() + "/" + Integer8BitsColorDepthID.id())->create(KisExportCheckBase::SUPPORTED));
 }
 
-KisConfigWidget *KisQImageIOExport::createConfigurationWidget(QWidget *parent, const QByteArray& /*from*/, const QByteArray& /*to*/) const
+KisConfigWidget *KisQImageIOExport::createConfigurationWidget(QWidget *parent, const QByteArray& , const QByteArray& ) const
 {
     if (mimeType() == "image/webp") {
         return new KisWdgOptionsQImageIO(parent);
@@ -103,7 +103,6 @@ KisPropertiesConfigurationSP KisQImageIOExport::defaultConfiguration(const QByte
 {
     if (mimeType() == "image/webp") {
         KisPropertiesConfigurationSP cfg = new KisPropertiesConfiguration();
-        // the Qt webp plugin chooses 75 when passing -1 (default argument) to QImage::save()
         cfg->setProperty("quality", 75);
         return cfg;
     }

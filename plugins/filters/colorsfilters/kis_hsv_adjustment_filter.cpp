@@ -40,8 +40,6 @@ enum class SLIDER_TYPE {
     LUMA_YUV,
 };
 
-// Corresponds the 5 transformations defined in kis_hsv_adjustment.cpp
-// 0:HSV, 1:HSL, 2:HSI, 3:HSY, 4:YUV
 enum class SLIDER_SET {
     HSV, HSL, HSI, HSY, YUV,
 };
@@ -72,7 +70,6 @@ struct SliderSettings {
         spinBox->setMaximum(max);
 
         if (prevColorize != colorize) {
-            // Rescale the value
             value = static_cast<int>(min + norm * static_cast<double>(max - min));
         }
 
@@ -88,10 +85,9 @@ struct SliderSettings {
         if (!colorize) {
             switch (m_type) {
             case SLIDER_TYPE::HUE:
-                // Slider colors shift to mimic hue changes on canvas.
                 nHue = fmod(nHue + 0.5, 1);
                 break;
-            case SLIDER_TYPE::GREEN_RED: // fallthrough
+            case SLIDER_TYPE::GREEN_RED:
             case SLIDER_TYPE::YELLOW_BLUE:
                 nHue = 0.5;
                 nSaturation = 0.5;
@@ -103,7 +99,6 @@ struct SliderSettings {
                 nSaturation = 0;
                 nValue = 1;
 
-                // Display a gray bar for YUV Luma in non-colorize mode
                 if (m_type == SLIDER_TYPE::LUMA_YUV) {
                     type = SLIDER_TYPE::LUMA;
                 }
@@ -112,7 +107,6 @@ struct SliderSettings {
 
         switch (type) {
         case SLIDER_TYPE::HUE: {
-            // The hue slider does not move on colorize mode
             if (colorize) {
                 nHue = 0;
             }
@@ -136,7 +130,7 @@ struct SliderSettings {
                     slider->setMixMode(KisHsvColorSlider::MIX_MODE::HSL);
                     break;
 
-                default: // fallthrough
+                default:
                 case SLIDER_SET::HSV:
                     break;
                 }
@@ -146,9 +140,9 @@ struct SliderSettings {
             break;
         }
 
-        case SLIDER_TYPE::VALUE:     // fallthrough
-        case SLIDER_TYPE::LIGHTNESS: // fallthrough
-        case SLIDER_TYPE::LUMA:      // fallthrough
+        case SLIDER_TYPE::VALUE:
+        case SLIDER_TYPE::LIGHTNESS:
+        case SLIDER_TYPE::LUMA:
         case SLIDER_TYPE::INTENSITY: {
             slider->setColors(nHue, nSaturation, 0, nHue, nSaturation, 1);
             break;
@@ -162,18 +156,17 @@ struct SliderSettings {
             qreal minR, minG, minB;
             qreal maxR, maxG, maxB;
 
-            if (m_type == SLIDER_TYPE::GREEN_RED) { // Cr
+            if (m_type == SLIDER_TYPE::GREEN_RED) {
                 YUVToRGB(nValue, nHue, 0, &minR, &minG, &minB);
                 YUVToRGB(nValue, nHue, 1, &maxR, &maxG, &maxB);
-            } else if (m_type == SLIDER_TYPE::YELLOW_BLUE) { // Cb
+            } else if (m_type == SLIDER_TYPE::YELLOW_BLUE) {
                 YUVToRGB(nValue, 0, nSaturation, &minR, &minG, &minB);
                 YUVToRGB(nValue, 1, nSaturation, &maxR, &maxG, &maxB);
-            } else { // Y
+            } else {
                 YUVToRGB(0, nHue, nSaturation, &minR, &minG, &minB);
                 YUVToRGB(1, nHue, nSaturation, &maxR, &maxG, &maxB);
             }
 
-            // Clamp
             minR = qBound(0.0, minR, 1.0);
             minG = qBound(0.0, minG, 1.0);
             minB = qBound(0.0, minB, 1.0);
@@ -221,7 +214,6 @@ struct SliderSettings {
     int m_resetValue;
 };
 
-// Slider configuration based on their SLIDER_TYPE
 const SliderSettings SLIDER_TABLE[9] = {
     SliderSettings(SLIDER_TYPE::HUE,        KisHsvColorSlider::MIX_MODE::HSV,         ki18n("Hue"),         0,    360, -180, 180, 0),
     SliderSettings(SLIDER_TYPE::SATURATION, KisHsvColorSlider::MIX_MODE::HSV,         ki18n("Saturation"),  0,    100, -100, 100, 0),
@@ -234,8 +226,6 @@ const SliderSettings SLIDER_TABLE[9] = {
     SliderSettings(SLIDER_TYPE::LUMA_YUV,   KisHsvColorSlider::MIX_MODE::COLOR_SPACE, ki18n("Luma"),        -100, 100, -100, 100, 0),
 };
 
-// Defines which sliders to display in each set.
-// One for each SLIDER_SET.
 const std::array<SLIDER_TYPE, 3> SLIDER_SETS[5] = {
     { SLIDER_TYPE::HUE,         SLIDER_TYPE::SATURATION, SLIDER_TYPE::VALUE     },
     { SLIDER_TYPE::HUE,         SLIDER_TYPE::SATURATION, SLIDER_TYPE::LIGHTNESS },
@@ -311,7 +301,6 @@ KisHSVConfigWidget::KisHSVConfigWidget(QWidget *parent, Qt::WindowFlags f)
     connect(m_page->chkCompatibilityMode, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->reset, SIGNAL(clicked(bool)), this, SLOT(resetFilter()));
 
-    // connect horizontal sliders
     connect(m_page->hSlider, SIGNAL(valueChanged(int)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->sSlider, SIGNAL(valueChanged(int)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->vSlider, SIGNAL(valueChanged(int)), SIGNAL(sigConfigurationItemChanged()));
@@ -366,8 +355,6 @@ void KisHSVConfigWidget::configureSliderLimitsAndLabels()
     const std::array<SLIDER_TYPE, 3> sliderSet = SLIDER_SETS[m_page->cmbType->currentIndex()];
     const bool colorize = m_page->chkColorize->isChecked();
 
-    // Prevent the sliders from recoloring when setValue is triggered in apply()
-    // Since some values will be invalid while inside this function if colorize is changed
     KisSignalsBlocker blocker(m_page->hSlider, m_page->sSlider, m_page->vSlider);
 
     sliderSetting(sliderSet[0]).apply(m_page->hLabel, m_page->hSlider, m_page->hSpinBox, m_prevColorize, colorize);

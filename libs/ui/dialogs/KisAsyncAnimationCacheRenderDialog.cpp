@@ -27,7 +27,6 @@ QList<int> calcDirtyFramesList(KisAnimationFrameCacheSP cache, const KisTimeSpan
     if (playbackRange.isValid()) {
         KIS_ASSERT_RECOVER_RETURN_VALUE(!playbackRange.isInfinite(), result);
 
-        // TODO: optimize check for fully-cached case
         for (int frame = playbackRange.start(); frame <= playbackRange.end(); frame++) {
             const KisTimeSpan stillFrameRange =
                 KisTimeSpan::calculateIdenticalFramesRecursive(image->root(), frame);
@@ -66,7 +65,6 @@ int KisAsyncAnimationCacheRenderDialog::calcFirstDirtyFrame(KisAnimationFrameCac
     if (playbackRange.isValid()) {
         KIS_ASSERT_RECOVER_RETURN_VALUE(!playbackRange.isInfinite(), result);
 
-        // TODO: optimize check for fully-cached case
         for (int frame = playbackRange.start(); frame <= playbackRange.end(); frame++) {
             if (skipRange.contains(frame)) {
                 if (skipRange.isInfinite()) {
@@ -86,7 +84,6 @@ int KisAsyncAnimationCacheRenderDialog::calcFirstDirtyFrame(KisAnimationFrameCac
 
     return result;
 }
-
 
 struct KisAsyncAnimationCacheRenderDialog::Private
 {

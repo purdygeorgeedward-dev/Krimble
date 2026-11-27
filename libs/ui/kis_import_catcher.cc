@@ -45,8 +45,6 @@ QString KisImportCatcher::Private::prettyLayerName(QString layerName) const
 {
     QString name = QFileInfo(path).fileName();
     QString fileName = !name.isEmpty() ? name : path;
-    // The "Background" name here being matched on is dependent on the current language and so needs to be passed
-    // through i18n.
     return (layerName.isEmpty() || layerName == i18nc("Name for the bottom-most layer in the layerstack", "Background"))
         ? fileName
         : layerName;
@@ -121,14 +119,8 @@ void KisImportCatcher::slotLoadingFinished()
 
             const bool multilayerImport = importedImage->rootLayer()->childCount() > 1;
 
-            /**
-             * The layers are added on the top of the active layer, so we should
-             * reverse their order.
-             */
             KisNodeSP node = importedImage->rootLayer()->lastChild();
             while (node) {
-                // we need to pass a copied device to make sure it is not reset
-                // on image's destruction
                 KisPaintDeviceSP dev = new KisPaintDevice(*node->projection());
                 adaptClipToImageColorSpace(dev, m_d->view->image());
                 m_d->importAsPaintLayer(dev, multilayerImport ? node->name() : m_d->prettyLayerName(node->name()));
@@ -183,7 +175,6 @@ void KisImportCatcher::adaptClipToImageColorSpace(KisPaintDeviceSP dev, KisImage
 {
     KisConfig cfg(true);
     if (cfg.convertToImageColorspaceOnImport() && *dev->colorSpace() != *image->colorSpace()) {
-        /// XXX: do we need intent here?
         dev->convertTo(image->colorSpace());
     }
 }

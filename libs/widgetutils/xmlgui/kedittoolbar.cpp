@@ -52,16 +52,11 @@ static const char separatorstring[] = QT_TRANSLATE_NOOP("KEditToolBar", "--- sep
 
 #define SEPARATORSTRING i18n(separatorstring)
 
-//static const char *const s_XmlTypeToString[] = { "Shell", "Part", "Local", "Merged" };
-
 typedef QList<QDomElement> ToolBarList;
 
 namespace KDEPrivate
 {
 
-/**
- * Return a list of toolbar elements given a toplevel element
- */
 static ToolBarList findToolBars(const QDomElement &start)
 {
     ToolBarList list;
@@ -72,8 +67,8 @@ static ToolBarList findToolBars(const QDomElement &start)
                 list.append(elem);
             }
         } else {
-            if (elem.tagName() != QStringLiteral("MenuBar")) { // there are no toolbars inside the menubar :)
-                list += findToolBars(elem.firstChildElement());    // recursive
+            if (elem.tagName() != QStringLiteral("MenuBar")) {
+                list += findToolBars(elem.firstChildElement());
             }
         }
     }
@@ -105,7 +100,6 @@ public:
         foreach (const QDomElement &element, m_barList) {
             qDebug() << "    ToolBar:" << toolBarText(element);
         }
-        //KisActionRegistry::instance()->
         if (m_actionCollection) {
             qDebug() << "    " << m_actionCollection->actions().count() << "actions in the collection.";
         } else {
@@ -135,7 +129,6 @@ public:
         m_barList = findToolBars(m_document.documentElement());
     }
 
-    // Return reference, for e.g. actionPropertiesElement() to modify the document
     QDomDocument &domDocument()
     {
         return m_document;
@@ -146,9 +139,6 @@ public:
         return m_document;
     }
 
-    /**
-     * Return the text (user-visible name) of a given toolbar
-     */
     QString toolBarText(const QDomElement &it) const;
 
     bool m_isModified;
@@ -193,8 +183,6 @@ QString XmlData::toolBarText(const QDomElement &it) const
         name = i18nd(domain.constData(), txt.constData());
     }
 
-    // the name of the toolbar might depend on whether or not
-    // it is in kparts
     if ((m_type == XmlData::Shell) ||
             (m_type == XmlData::Part)) {
         QString doc_name(m_document.documentElement().attribute(attrName));
@@ -214,7 +202,6 @@ public:
           m_isSeparator(false),
           m_isTextAlongsideIconHidden(false)
     {
-        // Drop between items, not onto items
         setFlags((flags() | Qt::ItemIsDragEnabled) & ~Qt::ItemIsDropEnabled);
     }
 
@@ -301,13 +288,11 @@ static QDataStream &operator>> (QDataStream &s, ToolBarItem &item)
     return s;
 }
 
-////
-
 ToolBarListWidget::ToolBarListWidget(QWidget *parent)
     : QListWidget(parent),
       m_activeList(true)
 {
-    setDragDropMode(QAbstractItemView::DragDrop); // no internal moves
+    setDragDropMode(QAbstractItemView::DragDrop);
 }
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -324,7 +309,6 @@ QMimeData *ToolBarListWidget::mimeData(const QList<QListWidgetItem *> &items) co
     QByteArray data;
     {
         QDataStream stream(&data, QIODevice::WriteOnly);
-        // we only support single selection
         ToolBarItem *item = static_cast<ToolBarItem *>(items.first());
         stream << *item;
     }
@@ -344,7 +328,7 @@ bool ToolBarListWidget::dropMimeData(int index, const QMimeData *mimeData, Qt::D
     }
     QDataStream stream(data);
     const bool sourceIsActiveList = mimeData->data(QStringLiteral("application/x-kde-source-treewidget")) == "active";
-    ToolBarItem *item = new ToolBarItem(this); // needs parent, use this temporarily
+    ToolBarItem *item = new ToolBarItem(this);
     stream >> *item;
     Q_EMIT dropped(this, index, item, sourceIsActiveList);
     return true;
@@ -412,20 +396,12 @@ bool IconTextEditDialog::textAlongsideIconHidden() const
 
 void IconTextEditDialog::slotTextChanged(const QString &text)
 {
-    // Do not allow empty icon text
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!text.trimmed().isEmpty());
 }
 
 class KisKEditToolBarWidgetPrivate
 {
 public:
-    /**
-     *
-     * @param collection In the old-style constructor, this is the collection passed
-     * to the KisKEditToolBar constructor.
-     * In the xmlguifactory-based constructor, we let KisKXMLGUIClient create a dummy one,
-     * but it probably isn't used.
-     */
     KisKEditToolBarWidgetPrivate(KisKEditToolBarWidget *widget,
                               const QString &cName, KisKActionCollection *collection)
         : m_collection(collection),
@@ -435,8 +411,6 @@ public:
     {
         m_componentName = cName;
         m_helpArea = 0L;
-        // We want items with an icon to align with items without icon
-        // So we use an empty QPixmap for that
         const int iconSize = widget->style()->pixelMetric(QStyle::PM_SmallIconSize);
         m_emptyIcon = QPixmap(iconSize, iconSize);
         m_emptyIcon.fill(Qt::transparent);
@@ -445,7 +419,6 @@ public:
     {
     }
 
-    // private slots
     void slotToolBarSelected(int index);
 
     void slotInactiveSelectionChanged();
@@ -474,14 +447,10 @@ public:
         return xml_file.isEmpty() ? m_componentName + QStringLiteral("ui.xmlgui") : xml_file;
     }
 
-    /**
-     * Load in the specified XML file and dump the raw xml
-     */
     QString loadXMLFile(const QString &_xml_file)
     {
         QString raw_xml;
         QString xml_file = xmlFile(_xml_file);
-        //qDebug() << "loadXMLFile xml_file=" << xml_file;
 
         if (!QDir::isRelativePath(xml_file)) {
             raw_xml = KisKXMLGUIFactory::readConfigFile(xml_file);
@@ -492,12 +461,8 @@ public:
         return raw_xml;
     }
 
-    /**
-     * Look for a given item in the current toolbar
-     */
     QDomElement findElementForToolBarItem(const ToolBarItem *item) const
     {
-        //qDebug(240) << "looking for name=" << item->internalName() << "and tag=" << item->internalTag();
         for (QDomNode n = m_currentToolBarElem.firstChild(); !n.isNull(); n = n.nextSibling()) {
             QDomElement elem = n.toElement();
             if ((elem.attribute(QStringLiteral("name")) == item->internalName()) &&
@@ -505,7 +470,6 @@ public:
                 return elem;
             }
         }
-        //qDebug(240) << "no item found in the DOM with name=" << item->internalName() << "and tag=" << item->internalTag();
         return QDomElement();
     }
 
@@ -533,7 +497,6 @@ public:
 
     QToolButton *m_changeIconAction {nullptr};
 
-    //QValueList<QAction*> m_actionList;
     KisKActionCollection *m_collection {nullptr};
     KisKEditToolBarWidget *m_widget {nullptr};
     KisKXMLGUIFactory *m_factory {nullptr};
@@ -582,7 +545,6 @@ public:
 
     KisKEditToolBar *q {nullptr};
     bool m_accept {false};
-    // Save parameters for recreating widget after resetting toolbar
     bool m_global {false};
     KisKActionCollection *m_collection {nullptr};
     QString m_file;
@@ -591,7 +553,6 @@ public:
     KisKEditToolBarWidget *m_widget {nullptr};
     QVBoxLayout *m_layout {nullptr};
     QDialogButtonBox *m_buttonBox {nullptr};
-
 
 };
 
@@ -632,13 +593,12 @@ void KisKEditToolBarPrivate::init()
     KGuiItem::assign(m_buttonBox->button(QDialogButtonBox::RestoreDefaults), KStandardGuiItem::defaults());
     q->connect(m_buttonBox, SIGNAL(clicked(QAbstractButton*)), SLOT(_k_slotButtonClicked(QAbstractButton*)));
     q->connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    m_buttonBox->setProperty("krimbleKeepRows", true);
     m_layout->addWidget(m_buttonBox);
 
     q->connect(m_widget, SIGNAL(enableOk(bool)), SLOT(_k_acceptOK(bool)));
     q->connect(m_widget, SIGNAL(enableOk(bool)), SLOT(_k_enableApply(bool)));
     _k_enableApply(false);
-
-    q->setMinimumSize(q->sizeHint());
 }
 
 void KisKEditToolBar::setResourceFile(const QString &file, bool global)
@@ -690,15 +650,12 @@ void KisKEditToolBarPrivate::defaultClicked()
             if (file.isEmpty()) {
                 continue;
             }
-            //qDebug(240) << "Deleting local xml file" << file;
-            // << "for client" << client << typeid(*client).name();
             if (QFile::exists(file))
                 if (!QFile::remove(file)) {
                     qWarning() << "Could not delete" << file;
                 }
         }
 
-        // Reload the xml files in all clients, now that the local files are gone
         oldWidget->rebuildKisKXMLGUIClients();
 
         m_widget = new KisKEditToolBarWidget(q);
@@ -720,7 +677,6 @@ void KisKEditToolBarPrivate::defaultClicked()
         q->setResourceFile(m_file, m_global);
     }
 
-    // Copy the geometry to minimize UI flicker
     m_widget->setGeometry(oldWidget->geometry());
     delete oldWidget;
     m_layout->insertWidget(0, m_widget);
@@ -731,7 +687,7 @@ void KisKEditToolBarPrivate::defaultClicked()
     _k_enableApply(false);
 
     Q_EMIT q->newToolBarConfig();
-    Q_EMIT q->newToolbarConfig(); // compat
+    Q_EMIT q->newToolbarConfig();
 }
 
 void KisKEditToolBarPrivate::_k_slotButtonClicked(QAbstractButton *button)
@@ -760,12 +716,10 @@ void KisKEditToolBarPrivate::okClicked()
         return;
     }
 
-    // Do not rebuild GUI and Q_EMIT the "newToolBarConfig" signal again here if the "Apply"
-    // button was already pressed and no further changes were made.
     if (m_buttonBox->button(QDialogButtonBox::Apply)->isEnabled()) {
         m_widget->save();
         Q_EMIT q->newToolBarConfig();
-        Q_EMIT q->newToolbarConfig(); // compat
+        Q_EMIT q->newToolbarConfig();
     }
     q->accept();
 }
@@ -775,7 +729,7 @@ void KisKEditToolBarPrivate::applyClicked()
     (void)m_widget->save();
     _k_enableApply(false);
     Q_EMIT q->newToolBarConfig();
-    Q_EMIT q->newToolbarConfig(); // compat
+    Q_EMIT q->newToolbarConfig();
 }
 
 void KisKEditToolBar::setGlobalDefaultToolBar(const char *toolbarName)
@@ -793,7 +747,7 @@ KisKEditToolBarWidget::KisKEditToolBarWidget(KisKActionCollection *collection,
 
 KisKEditToolBarWidget::KisKEditToolBarWidget(QWidget *parent)
     : QWidget(parent),
-      d(new KisKEditToolBarWidgetPrivate(this, componentName(), KisKXMLGUIClient::actionCollection() /*create new one*/))
+      d(new KisKEditToolBarWidgetPrivate(this, componentName(), KisKXMLGUIClient::actionCollection() ))
 {
     d->setupLayout();
 }
@@ -818,29 +772,24 @@ void KisKEditToolBarWidgetPrivate::initOldStyle(const QString &resourceFile,
         const QString &defaultToolBar)
 {
     qDebug() << "initOldStyle";
-    //TODO: make sure we can call this multiple times?
     if (m_loadedOnce) {
         return;
     }
 
     m_loadedOnce = true;
-    //d->m_actionList = collection->actions();
 
-    // handle the merging
     if (global) {
-        m_widget->loadStandardsXmlFile();    // ui_standards.xmlgui
+        m_widget->loadStandardsXmlFile();
     }
     const QString localXML = loadXMLFile(resourceFile);
-    m_widget->setXML(localXML, global ? true /*merge*/ : false);
+    m_widget->setXML(localXML, global ? true : false);
 
-    // first, get all of the necessary info for our local xml
     XmlData local(XmlData::Local, xmlFile(resourceFile), m_collection);
     QDomDocument domDoc;
     domDoc.setContent(localXML);
     local.setDomDocument(domDoc);
     m_xmlFiles.append(local);
 
-    // then, the merged one (ui_standards + local xml)
     XmlData merge(XmlData::Merged, QString(), m_collection);
     merge.setDomDocument(m_widget->domDocument());
     m_xmlFiles.append(merge);
@@ -849,17 +798,14 @@ void KisKEditToolBarWidgetPrivate::initOldStyle(const QString &resourceFile,
     dump();
 #endif
 
-    // now load in our toolbar combo box
     loadToolBarCombo(defaultToolBar);
     m_widget->adjustSize();
-    m_widget->setMinimumSize(m_widget->sizeHint());
 }
 
 void KisKEditToolBarWidgetPrivate::initFromFactory(KisKXMLGUIFactory *factory,
         const QString &defaultToolBar)
 {
     qDebug() << "initFromFactory";
-    //TODO: make sure we can call this multiple times?
     if (m_loadedOnce) {
         return;
     }
@@ -868,7 +814,6 @@ void KisKEditToolBarWidgetPrivate::initFromFactory(KisKXMLGUIFactory *factory,
 
     m_factory = factory;
 
-    // add all of the client data
     bool first = true;
     foreach (KisKXMLGUIClient *client, factory->clients()) {
         if (client->xmlFile().isEmpty()) {
@@ -879,7 +824,7 @@ void KisKEditToolBarWidgetPrivate::initFromFactory(KisKXMLGUIFactory *factory,
         if (first) {
             type = XmlData::Shell;
             first = false;
-            Q_ASSERT(!client->localXMLFile().isEmpty()); // where would we save changes??
+            Q_ASSERT(!client->localXMLFile().isEmpty());
         }
 
         XmlData data(type, client->localXMLFile(), client->actionCollection());
@@ -887,17 +832,13 @@ void KisKEditToolBarWidgetPrivate::initFromFactory(KisKXMLGUIFactory *factory,
         data.setDomDocument(domDoc);
         m_xmlFiles.append(data);
 
-        //d->m_actionList += client->actionCollection()->actions();
     }
 
 #ifndef NDEBUG
-    //d->dump();
 #endif
 
-    // now load in our toolbar combo box
     loadToolBarCombo(defaultToolBar);
     m_widget->adjustSize();
-    m_widget->setMinimumSize(m_widget->sizeHint());
 
     m_widget->actionCollection()->addAssociatedWidget(m_widget);
     foreach (QAction *action, m_widget->actionCollection()->actions()) {
@@ -907,20 +848,16 @@ void KisKEditToolBarWidgetPrivate::initFromFactory(KisKXMLGUIFactory *factory,
 
 void KisKEditToolBarWidget::save()
 {
-    //qDebug(240) << "KisKEditToolBarWidget::save";
     QList<XmlData>::Iterator it = d->m_xmlFiles.begin();
     for (; it != d->m_xmlFiles.end(); ++it) {
-        // let's not save non-modified files
         if (!((*it).m_isModified)) {
             continue;
         }
 
-        // let's also skip (nonexistent) merged files
         if ((*it).type() == XmlData::Merged) {
             continue;
         }
 
-        // Add noMerge="1" to all the menus since we are saving the merged data
         QDomNodeList menuNodes = (*it).domDocument().elementsByTagName(QStringLiteral("Menu"));
         for (int i = 0; i < menuNodes.length(); ++i) {
             QDomNode menuNode = menuNodes.item(i);
@@ -931,10 +868,6 @@ void KisKEditToolBarWidget::save()
             menuElement.setAttribute(QStringLiteral("noMerge"), QLatin1String("1"));
         }
 
-        //qDebug() << (*it).domDocument().toString();
-
-        //qDebug(240) << "Saving " << (*it).xmlFile();
-        // if we got this far, we might as well just save it
         KisKXMLGUIFactory::saveConfigFile((*it).domDocument(), (*it).xmlFile());
     }
 
@@ -952,9 +885,7 @@ void KisKEditToolBarWidget::rebuildKisKXMLGUIClients()
     }
 
     const QList<KisKXMLGUIClient *> clients = d->m_factory->clients();
-    //qDebug(240) << "factory: " << clients.count() << " clients";
 
-    // remove the elements starting from the last going to the first
     if (!clients.count()) {
         return;
     }
@@ -963,36 +894,25 @@ void KisKEditToolBarWidget::rebuildKisKXMLGUIClients()
     clientIterator.toBack();
     while (clientIterator.hasPrevious()) {
         KisKXMLGUIClient *client = clientIterator.previous();
-        //qDebug(240) << "factory->removeClient " << client;
         d->m_factory->removeClient(client);
     }
 
     KisKXMLGUIClient *firstClient = clients.first();
 
-    // now, rebuild the gui from the first to the last
-    //qDebug(240) << "rebuilding the gui";
     foreach (KisKXMLGUIClient *client, clients) {
-        //qDebug(240) << "updating client " << client << " " << client->componentName() << "  xmlFile=" << client->xmlFile();
-        QString file(client->xmlFile());   // before setting ui_standards!
+        QString file(client->xmlFile());
         if (!file.isEmpty()) {
-            // passing an empty stream forces the clients to reread the XML
             client->setXMLGUIBuildDocument(QDomDocument());
 
-            // for the shell, merge in ui_standards.xmlgui
-            if (client == firstClient) { // same assumption as in the ctor: first==shell
+            if (client == firstClient) {
                 client->loadStandardsXmlFile();
             }
 
-            // and this forces it to use the *new* XML file
-            client->setXMLFile(file, client == firstClient /* merge if shell */);
+            client->setXMLFile(file, client == firstClient );
 
-            // [we can't use reloadXML, it doesn't load ui_standards.xmlgui]
         }
     }
 
-    // Now we can add the clients to the factory
-    // We don't do it in the loop above because adding a part automatically
-    // adds its plugins, so we must make sure the plugins were updated first.
     foreach (KisKXMLGUIClient *client, clients) {
         d->m_factory->addClient(client);
     }
@@ -1004,7 +924,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     if (QScreen *screen = QGuiApplication::primaryScreen()) {
         narrow = screen->availableGeometry().width() < screen->availableGeometry().height() || screen->availableGeometry().width() < 600;
     }
-    // the toolbar name combo
     m_comboLabel = new QLabel(i18n("&Toolbar:"), m_widget);
     m_toolbarCombo = new QComboBox(m_widget);
     m_comboLabel->setBuddy(m_toolbarCombo);
@@ -1012,20 +931,12 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     QObject::connect(m_toolbarCombo, SIGNAL(activated(int)),
                      m_widget,       SLOT(slotToolBarSelected(int)));
 
-//  QPushButton *new_toolbar = new QPushButton(i18n("&New"), this);
-//  new_toolbar->setPixmap(BarIcon("document-new", KisIconUtils::SizeSmall));
-//  new_toolbar->setEnabled(false); // disabled until implemented
-//  QPushButton *del_toolbar = new QPushButton(i18n("&Delete"), this);
-//  del_toolbar->setPixmap(BarIcon("edit-delete", KisIconUtils::SizeSmall));
-//  del_toolbar->setEnabled(false); // disabled until implemented
-
-    // our list of inactive actions
     QLabel *inactive_label = new QLabel(i18n("A&vailable actions:"), m_widget);
     m_inactiveList = new ToolBarListWidget(m_widget);
     m_inactiveList->setDragEnabled(true);
     m_inactiveList->setActiveList(false);
     m_inactiveList->setMinimumSize(narrow ? 100 : 130, narrow ? 80 : 150);
-    m_inactiveList->setDropIndicatorShown(false); // #165663
+    m_inactiveList->setDropIndicatorShown(false);
     inactive_label->setBuddy(m_inactiveList);
     QObject::connect(m_inactiveList, SIGNAL(itemSelectionChanged()),
                      m_widget,       SLOT(slotInactiveSelectionChanged()));
@@ -1046,12 +957,10 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     KListWidgetSearchLine *inactiveListSearchLine = new KListWidgetSearchLine(m_widget, m_inactiveList);
     inactiveListSearchLine->setPlaceholderText(i18nc("Filter as in showing only matching items", "Filter"));
 
-    // our list of active actions
     QLabel *active_label = new QLabel(i18n("Curr&ent actions:"), m_widget);
     m_activeList = new ToolBarListWidget(m_widget);
     m_activeList->setDragEnabled(true);
     m_activeList->setActiveList(true);
-    // With Qt-4.1 only setting MiniumWidth results in a 0-width icon column ...
     m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), narrow ? 80 : 100);
     active_label->setBuddy(m_activeList);
 
@@ -1070,7 +979,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
         }
     }
 
-    // Edit Icon Button under active actions
     m_changeIconAction = new QToolButton(m_widget);
     m_changeIconAction->setIcon(KisIconUtils::loadIcon(QStringLiteral("preferences-desktop-icons")));
     m_changeIconAction->setText(i18n("Change Icon..."));
@@ -1081,8 +989,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
 
     KListWidgetSearchLine *activeListSearchLine = new KListWidgetSearchLine(m_widget, m_activeList);
     activeListSearchLine->setPlaceholderText(i18n("Filter"));
-
-    // The buttons in the middle
 
     m_upAction     = new QToolButton(m_widget);
     m_upAction->setIcon(KisIconUtils::loadIcon(QStringLiteral("arrow-up")));
@@ -1107,7 +1013,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     QObject::connect(m_downAction, SIGNAL(clicked()), m_widget, SLOT(slotDownButton()));
 
     if (narrow) {
-        // the lists are one above the other: Add moves down, Remove moves up
         m_insertAction->setIcon(KisIconUtils::loadIcon(QStringLiteral("arrow-down")));
         m_removeAction->setIcon(KisIconUtils::loadIcon(QStringLiteral("arrow-up")));
     }
@@ -1115,7 +1020,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_helpArea = new QLabel(m_widget);
     m_helpArea->setWordWrap(true);
 
-    // now start with our layouts
     QVBoxLayout *top_layout = new QVBoxLayout(m_widget);
     top_layout->setContentsMargins(0, 0, 0, 0);
 
@@ -1129,8 +1033,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
 
     name_layout->addWidget(m_comboLabel);
     name_layout->addWidget(m_toolbarCombo);
-//  name_layout->addWidget(new_toolbar);
-//  name_layout->addWidget(del_toolbar);
 
     button_layout->setSpacing(0);
     button_layout->setRowStretch(0, 10);
@@ -1160,7 +1062,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
         move_row->addWidget(m_insertAction);
         move_row->addWidget(m_removeAction);
         move_row->addStretch(1);
-        // Up and Down sit beside the list of current actions (the arrows were in the middle grid, which is not used here)
         QVBoxLayout *reorder_column = new QVBoxLayout();
         reorder_column->addStretch(1);
         reorder_column->addWidget(m_upAction);
@@ -1169,10 +1070,9 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
         QHBoxLayout *active_row = new QHBoxLayout();
         active_row->addWidget(m_activeList, 1);
         active_row->addLayout(reorder_column);
-        // active_layout has the list in it already (added above); it is emptied and filled again in the new order
         QLayoutItem *item = nullptr;
         while ((item = active_layout->takeAt(0)) != nullptr) {
-            delete item;   // only the layout items: the widgets stay (they are added again below)
+            delete item;
         }
         active_layout->addWidget(active_label);
         active_layout->addWidget(activeListSearchLine);
@@ -1194,22 +1094,16 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
 void KisKEditToolBarWidgetPrivate::loadToolBarCombo(const QString &defaultToolBar)
 {
     const QLatin1String attrName("name");
-    // just in case, we clear our combo
     m_toolbarCombo->clear();
 
     int defaultToolBarId = -1;
     int count = 0;
-    // load in all of the toolbar names into this combo box
     QList<XmlData>::const_iterator xit = m_xmlFiles.constBegin();
     for (; xit != m_xmlFiles.constEnd(); ++xit) {
-        // skip the merged one in favor of the local one,
-        // so that we can change icons
-        // This also makes the app-defined named for "mainToolBar" appear rather than the ui_standards-defined name.
         if ((*xit).type() == XmlData::Merged) {
             continue;
         }
 
-        // each xml file may have any number of toolbars
         ToolBarList::const_iterator it = (*xit).barList().begin();
         for (; it != (*xit).barList().constEnd(); ++it) {
             const QString text = (*xit).toolBarText(*it);
@@ -1228,7 +1122,6 @@ void KisKEditToolBarWidgetPrivate::loadToolBarCombo(const QString &defaultToolBa
     if (defaultToolBarId == -1) {
         defaultToolBarId = 0;
     }
-    // we want to the specified item selected and its actions loaded
     m_toolbarCombo->setCurrentIndex(defaultToolBarId);
     slotToolBarSelected(m_toolbarCombo->currentIndex());
 }
@@ -1244,7 +1137,6 @@ void KisKEditToolBarWidgetPrivate::loadActions(const QDomElement &elem)
     int     sep_num = 0;
     QString sep_name(QStringLiteral("separator_%1"));
 
-    // clear our lists
     m_inactiveList->clear();
     m_activeList->clear();
     m_insertAction->setEnabled(false);
@@ -1252,16 +1144,12 @@ void KisKEditToolBarWidgetPrivate::loadActions(const QDomElement &elem)
     m_upAction->setEnabled(false);
     m_downAction->setEnabled(false);
 
-    // We'll use this action collection
     KisKActionCollection *actionCollection = m_currentXmlData->actionCollection();
 
-    // store the names of our active actions
     QSet<QString> active_list;
 
-    // Filtering message requested by translators (scripting).
     KLocalizedString nameFilter = ki18nc("@item:intable Action name in toolbar editor", "%1");
 
-    // see if our current action is in this toolbar
     QDomNode n = elem.firstChild();
     for (; !n.isNull(); n = n.nextSibling()) {
         QDomElement it = n.toElement();
@@ -1277,7 +1165,6 @@ void KisKEditToolBarWidgetPrivate::loadActions(const QDomElement &elem)
         }
 
         if (it.tagName() == tagMerge) {
-            // Merge can be named or not - use the name if there is one
             QString name = it.attribute(attrName);
             ToolBarItem *act = new ToolBarItem(m_activeList, tagMerge, name, i18n("This element will be replaced with all the elements of an embedded component."));
             if (name.isEmpty()) {
@@ -1294,13 +1181,8 @@ void KisKEditToolBarWidgetPrivate::loadActions(const QDomElement &elem)
             continue;
         }
 
-        // iterate through this client's actions
-        // This used to iterate through _all_ actions, but we don't support
-        // putting any action into any client...
         foreach (QAction *action, actionCollection->actions()) {
-            // do we have a match?
             if (it.attribute(attrName) == action->objectName()) {
-                // we have a match!
                 ToolBarItem *act = new ToolBarItem(m_activeList, it.tagName(), action->objectName(), action->toolTip());
                 act->setText(nameFilter.subs(KLocalizedString::removeAcceleratorMarker(action->iconText())).toString());
                 act->setIcon(!action->icon().isNull() ? action->icon() : m_emptyIcon);
@@ -1312,9 +1194,7 @@ void KisKEditToolBarWidgetPrivate::loadActions(const QDomElement &elem)
         }
     }
 
-    // go through the rest of the collection
     foreach (QAction *action, actionCollection->actions()) {
-        // skip our active ones
         if (active_list.contains(action->objectName())) {
             continue;
         }
@@ -1326,7 +1206,6 @@ void KisKEditToolBarWidgetPrivate::loadActions(const QDomElement &elem)
 
     m_inactiveList->sortItems(Qt::AscendingOrder);
 
-    // finally, add default separators to the inactive list
     ToolBarItem *act = new ToolBarItem(0L, tagSeparator, sep_name.arg(sep_num++), QString());
     act->setSeparator(true);
     act->setText(SEPARATORSTRING);
@@ -1340,37 +1219,27 @@ KisKActionCollection *KisKEditToolBarWidget::actionCollection() const
 
 void KisKEditToolBarWidgetPrivate::slotToolBarSelected(int index)
 {
-    // We need to find the XmlData and toolbar element for this index
-    // To do that, we do the same iteration as the one which filled in the combobox.
 
     int toolbarNumber = 0;
     QList<XmlData>::iterator xit = m_xmlFiles.begin();
     for (; xit != m_xmlFiles.end(); ++xit) {
 
-        // skip the merged one in favor of the local one,
-        // so that we can change icons
         if ((*xit).type() == XmlData::Merged) {
             continue;
         }
 
-        // each xml file may have any number of toolbars
         ToolBarList::Iterator it = (*xit).barList().begin();
         for (; it != (*xit).barList().end(); ++it) {
 
-            // is this our toolbar?
             if (toolbarNumber == index) {
 
-                // save our current settings
                 m_currentXmlData = & (*xit);
                 m_currentToolBarElem = *it;
 
-                //qDebug() << "found toolbar" << m_currentXmlData->toolBarText(*it) << "m_currentXmlData set to";
                 m_currentXmlData->dump();
 
-                // If this is a Merged xmldata, clicking the "change icon" button would assert...
                 Q_ASSERT(m_currentXmlData->type() != XmlData::Merged);
 
-                // load in our values
                 loadActions(m_currentToolBarElem);
 
                 if ((*xit).type() == XmlData::Part || (*xit).type() == XmlData::Shell) {
@@ -1424,7 +1293,6 @@ void KisKEditToolBarWidgetPrivate::slotInsertButton()
     QString internalName = static_cast<ToolBarItem *>(m_inactiveList->currentItem())->internalName();
 
     insertActive(m_inactiveList->currentItem(), m_activeList->currentItem(), false);
-    // we're modified, so let this change
     Q_EMIT m_widget->enableOk(true);
 
     slotToolBarSelected(m_toolbarCombo->currentIndex());
@@ -1458,7 +1326,6 @@ void KisKEditToolBarWidgetPrivate::insertActive(ToolBarItem *item, ToolBarItem *
     }
 
     QDomElement new_item;
-    // let's handle the separator specially
     if (item->isSeparator()) {
         new_item = m_widget->domDocument().createElement(QStringLiteral("Separator"));
     } else {
@@ -1470,13 +1337,10 @@ void KisKEditToolBarWidgetPrivate::insertActive(ToolBarItem *item, ToolBarItem *
     Q_ASSERT(!m_currentToolBarElem.isNull());
 
     if (before) {
-        // we have the item in the active list which is before the new
-        // item.. so let's try our best to add our new item right after it
         QDomElement elem = findElementForToolBarItem(before);
         Q_ASSERT(!elem.isNull());
         m_currentToolBarElem.insertAfter(new_item, elem);
     } else {
-        // simply put it at the beginning or the end of the list.
         if (prepend) {
             m_currentToolBarElem.insertBefore(new_item, m_currentToolBarElem.firstChild());
         } else {
@@ -1484,10 +1348,8 @@ void KisKEditToolBarWidgetPrivate::insertActive(ToolBarItem *item, ToolBarItem *
         }
     }
 
-    // and set this container as a noMerge
     m_currentToolBarElem.setAttribute(QStringLiteral("noMerge"), QLatin1String("1"));
 
-    // update the local doc
     updateLocal(m_currentToolBarElem);
 }
 
@@ -1497,19 +1359,14 @@ void KisKEditToolBarWidgetPrivate::removeActive(ToolBarItem *item)
         return;
     }
 
-    // we're modified, so let this change
     Q_EMIT m_widget->enableOk(true);
 
-    // now iterate through to find the child to nuke
     QDomElement elem = findElementForToolBarItem(item);
     if (!elem.isNull()) {
-        // nuke myself!
         m_currentToolBarElem.removeChild(elem);
 
-        // and set this container as a noMerge
         m_currentToolBarElem.setAttribute(QStringLiteral("noMerge"), QLatin1String("1"));
 
-        // update the local doc
         updateLocal(m_currentToolBarElem);
     }
 }
@@ -1520,10 +1377,8 @@ void KisKEditToolBarWidgetPrivate::slotUpButton()
     KIS_SAFE_ASSERT_RECOVER_RETURN(item);
 
     int row = item->listWidget()->row(item) - 1;
-    // make sure we're not the top item already
     KIS_SAFE_ASSERT_RECOVER_RETURN(row >= 0);
 
-    // we're modified, so let this change
     Q_EMIT m_widget->enableOk(true);
 
     moveActive(item, static_cast<ToolBarItem *>(item->listWidget()->item(row - 1)));
@@ -1537,26 +1392,20 @@ void KisKEditToolBarWidgetPrivate::moveActive(ToolBarItem *item, ToolBarItem *be
         return;
     }
 
-    // remove item
     m_activeList->takeItem(m_activeList->row(item));
 
-    // put it where it's supposed to go
     m_activeList->insertItem(m_activeList->row(before) + 1, item);
 
-    // make it selected again
     m_activeList->setCurrentItem(item);
 
-    // and do the real move in the DOM
     if (!before) {
         m_currentToolBarElem.insertBefore(e, m_currentToolBarElem.firstChild());
     } else {
         m_currentToolBarElem.insertAfter(e, findElementForToolBarItem((ToolBarItem *)before));
     }
 
-    // and set this container as a noMerge
     m_currentToolBarElem.setAttribute(QStringLiteral("noMerge"), QLatin1String("1"));
 
-    // update the local doc
     updateLocal(m_currentToolBarElem);
 }
 
@@ -1565,11 +1414,9 @@ void KisKEditToolBarWidgetPrivate::slotDownButton()
     ToolBarItem *item = m_activeList->currentItem();
     KIS_SAFE_ASSERT_RECOVER_RETURN(item);
 
-    // make sure we're not the bottom item already
     int newRow = item->listWidget()->row(item) + 1;
     KIS_SAFE_ASSERT_RECOVER_RETURN(newRow < item->listWidget()->count());
 
-    // we're modified, so let this change
     Q_EMIT m_widget->enableOk(true);
 
     moveActive(item, static_cast<ToolBarItem *>(item->listWidget()->item(newRow)));
@@ -1585,7 +1432,6 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
 
     static bool iconsLoaded {false};
 
-    // Load all icons, also the icons that only get loaded when an image is created
     if (!iconsLoaded) {
 
         QFileInfoList entryList = QDir(":/").entryInfoList(QDir::Files);
@@ -1605,21 +1451,18 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
 
     QStringList loadedIcons = KisIconUtils::allUniqueLoadedIconNames();
 
-    // Dialog UI
     QDialog dialog(m_widget);
     dialog.setWindowTitle(i18n("Choose Icon"));
     dialog.resize(480, 500);
 
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    // Filter input
     QLineEdit *filterEdit = new QLineEdit(&dialog);
     filterEdit->setPlaceholderText(i18n("Filter icons..."));
     layout->addWidget(filterEdit);
 
-    // Icon list
     QListWidget *list = new QListWidget(&dialog);
-    list->setViewMode(QListView::ListMode); // icon + text side by side
+    list->setViewMode(QListView::ListMode);
     list->setIconSize(QSize(22, 22));
     list->setResizeMode(QListWidget::Adjust);
     list->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -1630,7 +1473,6 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
         });
     }
 
-    // Fill the list
     for (const QString &iconName : loadedIcons) {
         QListWidgetItem *item = new QListWidgetItem(
             KisIconUtils::loadIcon(iconName),
@@ -1641,14 +1483,12 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
     }
     layout->addWidget(list);
 
-    // OK/Cancel buttons
     QDialogButtonBox *backButton = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addWidget(backButton);
 
     QObject::connect(backButton, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     QObject::connect(backButton, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-    // Filter logic
     QObject::connect(filterEdit, &QLineEdit::textChanged, &dialog, [&list](const QString &text) {
         for (int i = 0; i < list->count(); ++i) {
             QListWidgetItem *item = list->item(i);
@@ -1657,7 +1497,6 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
         }
     });
 
-    // Optional: preselect current icon
     QString currentIconName = elem.attribute(QStringLiteral("icon"));
     for (int i = 0; i < list->count(); ++i) {
         if (list->item(i)->data(Qt::UserRole).toString() == currentIconName) {
@@ -1666,14 +1505,11 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
         }
     }
 
-    // Execute
     if (dialog.exec() == QDialog::Accepted && list->currentItem()) {
         QString chosenIconName = list->currentItem()->data(Qt::UserRole).toString();
 
         toolitem->setIcon(KisIconUtils::loadIcon(chosenIconName));
 
-        // Update XML in the toolbar DOM
-        // Ensure (ActionIconOverrides) exist
         QDomDocument doc = m_widget->domDocument();
         QDomElement root = doc.documentElement();
         QDomElement overridesElem = root.namedItem(QStringLiteral("ActionIconOverrides")).toElement();
@@ -1682,7 +1518,6 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
             root.appendChild(overridesElem);
         }
 
-        // Find Action in overrides or create new
         QString actionName = toolitem->internalName();
         QDomElement overrideAction;
         for (QDomNode child = overridesElem.firstChild(); !child.isNull(); child = child.nextSibling()) {
@@ -1698,10 +1533,8 @@ void KisKEditToolBarWidgetPrivate::slotChangeIconButton()
             overridesElem.appendChild(overrideAction);
         }
 
-        // Set icon override
         overrideAction.setAttribute(QStringLiteral("icon"), chosenIconName);
 
-        // Mark document modified
         m_currentToolBarElem.setAttribute(QStringLiteral("noMerge"), QLatin1String("1"));
         updateLocal(m_currentToolBarElem);
         m_currentXmlData->m_isModified = true;
@@ -1744,36 +1577,27 @@ void KisKEditToolBarWidgetPrivate::updateLocal(QDomElement &elem)
             return;
         }
 
-        // just append it
         QDomElement toolbar = (*xit).domDocument().documentElement().toElement();
         Q_ASSERT(!toolbar.isNull());
         toolbar.appendChild(elem);
     }
 }
 
-
 void KisKEditToolBarWidgetPrivate::slotDropped(ToolBarListWidget *list, int index, ToolBarItem *item, bool sourceIsActiveList)
 {
-    //qDebug() << "slotDropped list=" << (list==m_activeList?"activeList":"inactiveList")
-    //         << "index=" << index << "sourceIsActiveList=" << sourceIsActiveList;
     if (list == m_activeList) {
         ToolBarItem *after = index > 0 ? static_cast<ToolBarItem *>(list->item(index - 1)) : 0;
-        //qDebug() << "after" << after->text() << after->internalTag();
         if (sourceIsActiveList) {
-            // has been dragged within the active list (moved).
             moveActive(item, after);
         } else {
-            // dragged from the inactive list to the active list
             insertActive(item, after, true);
         }
     } else if (list == m_inactiveList) {
-        // has been dragged to the inactive list -> remove from the active list.
         removeActive(item);
     }
 
-    delete item; // not needed anymore. must be deleted before slotToolBarSelected clears the lists
+    delete item;
 
-    // we're modified, so let this change
     Q_EMIT m_widget->enableOk(true);
 
     slotToolBarSelected(m_toolbarCombo->currentIndex());
@@ -1782,12 +1606,9 @@ void KisKEditToolBarWidgetPrivate::slotDropped(ToolBarListWidget *list, int inde
 void KisKEditToolBar::showEvent(QShowEvent *event)
 {
     if (!event->spontaneous()) {
-        // The dialog has been shown, enable toolbar editing
         if (d->m_factory) {
-            // call the xmlgui-factory version
             d->m_widget->load(d->m_factory, d->m_defaultToolBar);
         } else {
-            // call the action collection version
             d->m_widget->load(d->m_file, d->m_global, d->m_defaultToolBar);
         }
 
@@ -1798,7 +1619,6 @@ void KisKEditToolBar::showEvent(QShowEvent *event)
 
 void KisKEditToolBar::hideEvent(QHideEvent *event)
 {
-    // The dialog has been hidden, disable toolbar editing
     KisToolBar::setToolBarsEditable(false);
 
     QDialog::hideEvent(event);

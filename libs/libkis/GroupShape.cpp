@@ -23,7 +23,6 @@ GroupShape::~GroupShape()
 
 QString GroupShape::type() const
 {
-    //Has no default KoID
     return "groupshape";
 }
 

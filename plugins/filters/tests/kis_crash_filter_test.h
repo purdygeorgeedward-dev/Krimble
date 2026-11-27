@@ -12,12 +12,6 @@
 class KoColorSpace;
 #include <kis_types.h>
 
-/**
- * The crash filter test just loops through all filters
- * and tests every filter with all colorspaces we have.
- * We don't check the output; just whether we've got a
- * crasher somewhere.
- */
 class KisCrashFilterTest : public QObject
 {
     Q_OBJECT

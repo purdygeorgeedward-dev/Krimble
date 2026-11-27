@@ -59,11 +59,9 @@
 #include "kis_tool_utils.h"
 #include <KisOptimizedBrushOutline.h>
 
-
 struct Q_DECL_HIDDEN KisTool::Private {
-    QCursor cursor; // the cursor that should be shown on tool activation.
+    QCursor cursor;
 
-    // From the canvas resources
     KoPatternSP currentPattern;
     KoAbstractGradientSP currentGradient;
     KoColor currentFgColor;
@@ -98,7 +96,6 @@ void KisTool::activate(const QSet<KoShape*> &shapes)
 
     if (!canvas()) return;
     if (!canvas()->resourceManager()) return;
-
 
     d->currentFgColor = canvas()->resourceManager()->resource(KoCanvasResource::ForegroundColor).value<KoColor>();
     d->currentBgColor = canvas()->resourceManager()->resource(KoCanvasResource::BackgroundColor).value<KoColor>();
@@ -161,7 +158,7 @@ void KisTool::canvasResourceChanged(int key, const QVariant & v)
         resetCursorStyle();
         break;
     default:
-        break; // Do nothing
+        break;
     };
 }
 
@@ -254,7 +251,6 @@ QRectF KisTool::convertToPt(const QRectF &rect)
     if (!image())
         return rect;
     QRectF r;
-    //We add 1 in the following to the extreme coords because a pixel always has size
     r.setCoords(int(rect.left()) / image()->xRes(), int(rect.top()) / image()->yRes(),
                 int(rect.right()) / image()->xRes(), int( rect.bottom()) / image()->yRes());
     return r;
@@ -309,7 +305,6 @@ KisOptimizedBrushOutline KisTool::pixelToView(const KisOptimizedBrushOutline &pa
     return path.mapped(coordsConverter->imageToDocumentTransform() * coordsConverter->documentToFlakeTransform());
 }
 
-
 QPolygonF KisTool::pixelToView(const QPolygonF &pixelPath) const
 {
     QTransform matrix;
@@ -331,7 +326,6 @@ void KisTool::updateCanvasViewRect(const QRectF &viewRect)
 
 KisImageWSP KisTool::image() const
 {
-    // For now, krita tools only work in krita, not for a krita shape. Krita shapes are for 2.1
     KisCanvas2 * kisCanvas = dynamic_cast<KisCanvas2*>(canvas());
     if (kisCanvas) {
         return kisCanvas->currentImage();
@@ -618,8 +612,6 @@ void KisTool::resetCursorStyle()
 
 bool KisTool::overrideCursorIfNotEditable()
 {
-    // override cursor for canvas iff this tool is active
-    // and we can't paint on the active layer
     if (isActive()) {
         KisNodeSP node = currentNode();
         if (node && !node->isEditable()) {

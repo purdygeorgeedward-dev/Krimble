@@ -32,7 +32,6 @@ public:
         CircleCCW
     };
 
-
 public Q_SLOTS:
     void slotActivateAction(SPenSettings::Action gestureType);
     void slotLoadSettings();
@@ -43,4 +42,4 @@ private:
     QScopedPointer<KisAction> m_actionShowPopupPalette;
 };
 
-#endif // SPENSETTINGS_H
+#endif

@@ -85,20 +85,17 @@ public:
     void setInkAmount(float inkAmount);
     void setEnabled(bool enabled);
 
-
 private:
     void init(float x, float y, float length);
 
-    // coordinates of bristle
     float m_x{0.0f};
     float m_y{0.0f};
     float m_prevX{0.0f};
     float m_prevY{0.0f};
-    float m_length{0.0f}; // z - coordinate
+    float m_length{0.0f};
     KoColor m_color;
     float m_inkAmount{0.0f};
 
-    // new dimension in bristle
     int m_counter{0};
 
     bool m_enabled{true};

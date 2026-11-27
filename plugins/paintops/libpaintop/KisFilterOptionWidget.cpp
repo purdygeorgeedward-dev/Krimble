@@ -21,7 +21,6 @@
 
 #include "ui_wdgfilteroption.h"
 
-
 namespace {
 class FilterWidget : public QWidget, public Ui::FilterOpOptions
 {
@@ -32,7 +31,6 @@ public:
     }
 };
 }
-
 
 struct KisFilterOptionWidget::Private
 {
@@ -53,7 +51,6 @@ struct KisFilterOptionWidget::Private
     KisConfigWidget *currentFilterConfigWidget {0};
 };
 
-
 KisFilterOptionWidget::KisFilterOptionWidget(lager::cursor<KisFilterOptionData> optionData)
     : KisPaintOpOption(i18n("Filter"), KisPaintOpOption::COLOR, true)
     , m_d(new Private(optionData))
@@ -67,7 +64,6 @@ KisFilterOptionWidget::KisFilterOptionWidget(lager::cursor<KisFilterOptionData> 
 
     m_d->layout = new QGridLayout(m_d->page->grpFilterOptions);
 
-    // Check which filters support painting
     QList<QString> allFilters = KisFilterRegistry::instance()->keys();
     QList<KoID> supportedFilters;
 
@@ -161,7 +157,6 @@ void KisFilterOptionWidget::updateFilterState(const QString &filterId, const QSt
         if (m_d->currentFilterConfigWidget) {
             KisSignalsBlocker b(m_d->currentFilterConfigWidget);
 
-            // TODO: init resources in ctor
             m_d->currentFilterConfigWidget->setCanvasResourcesInterface(canvasResourcesInterface());
             m_d->currentFilterConfigWidget->setConfiguration(m_d->currentFilter->defaultConfiguration(resourcesInterface()));
             m_d->layout->addWidget(m_d->currentFilterConfigWidget);

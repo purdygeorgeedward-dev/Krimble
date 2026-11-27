@@ -12,7 +12,6 @@
 #include <KoShapeManager.h>
 #include <KoSelection.h>
 
-
 void DeselectShapesActivationPolicy::onActivate(KoCanvasBase *canvas)
 {
     canvas->shapeManager()->selection()->deselectAll();

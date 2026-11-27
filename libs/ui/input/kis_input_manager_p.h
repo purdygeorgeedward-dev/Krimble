@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include <QList>
 #include <QPointer>
 #include <QEvent>
@@ -24,7 +23,6 @@
 #include "kis_latency_tracker.h"
 
 class KisToolInvocationAction;
-
 
 class KisInputManager::Private
 {
@@ -145,24 +143,19 @@ public:
 
         bool eventFilter(QObject* target, QEvent* event);
 
-        // This should be called after we're certain a tablet stroke has started.
         void activate();
-        // This should be called after a tablet stroke has ended.
         void deactivate();
 
-        // On Windows, we sometimes receive mouse events very late, so watch & wait.
         void eatOneMousePress();
 
-        // This should be called after the tablet is pressed,
         void startBlockingTouch();
-        // This should be called after the tablet is released.
         void stopBlockingTouch();
 
-        bool hungry{false};   // Continue eating mouse strokes
-        bool peckish{false};  // Eat a single mouse press event
-        bool eatSyntheticEvents{false}; // Mask all synthetic events
-        bool activateSecondaryButtonsWorkaround{false}; // Use mouse events for right- and middle-clicks
-        bool eatTouchEvents{false}; // Eat touch interactions
+        bool hungry{false};
+        bool peckish{false};
+        bool eatSyntheticEvents{false};
+        bool activateSecondaryButtonsWorkaround{false};
+        bool eatTouchEvents{false};
     };
     EventEater eventEater;
 

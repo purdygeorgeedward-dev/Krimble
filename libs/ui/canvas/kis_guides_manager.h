@@ -17,7 +17,6 @@ class KisActionManager;
 class KisCanvasDecoration;
 class KisGuidesConfig;
 
-
 class KRITAUI_EXPORT KisGuidesManager : public QObject
 {
     Q_OBJECT
@@ -76,4 +75,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_GUIDES_MANAGER_H */
+#endif

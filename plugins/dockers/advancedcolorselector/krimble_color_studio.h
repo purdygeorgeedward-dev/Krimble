@@ -31,6 +31,7 @@
 #include <QFrame>
 #include <QPointer>
 #include <QTabWidget>
+#include <QScrollArea>
 #include <QStack>
 #include <QComboBox>
 #include <QTabletEvent>
@@ -41,11 +42,11 @@
 #include <QApplication>
 #include <QDockWidget>
 #include <QEvent>
-#include <KoToolManager.h>   // the eyedropper button switches to the color sampler tool
+#include <KoToolManager.h>
 #include "krimble_color_canvas.h"
-#include "krimble_color_palettes.h"   // the named palettes (GPL files)
-#include "krimble_color_palette_page.h"   // the Palette tab
-#include "krimble_color_history.h"   // the History tab
+#include "krimble_color_palettes.h"
+#include "krimble_color_palette_page.h"
+#include "krimble_color_history.h"
 
 #include <algorithm>
 #include "kis_canvas2.h"
@@ -88,8 +89,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override {
         m_hold.stop();
         if (m_longPressed) {
-            // Suppress clicked() after the long-press context menu without
-            // leaving the underlying QPushButton in a pressed state.
             setDown(false);
             setCheckable(false);
             event->accept();
@@ -106,8 +105,6 @@ private:
     bool m_longPressed=false;
 };
 
-// Hue/saturation/value picker. The painting is local to the widget; edits are
-// committed through the same canvas resource manager as Krita's other selectors.
 class KrimbleSvSquare : public QWidget
 {
 public:
@@ -176,19 +173,13 @@ private:
     QImage m_cachedSquare;
 };
 
-
-/**
- * Independent mixing scratchpad: its raster is never connected to the
- * document's projection or undo stack. Color picking is the only operation
- * that can explicitly send a sampled color back to Color Studio.
- */
 class KrimbleMixingPad : public QWidget
 {
 public:
     explicit KrimbleMixingPad(QWidget *parent=nullptr) : QWidget(parent) {
         setMinimumHeight(140);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        setAttribute(Qt::WA_AcceptTouchEvents, false); // Qt synthesizes mouse strokes
+        setAttribute(Qt::WA_AcceptTouchEvents, false);
         setAutoFillBackground(false);
     }
     void setColor(const QColor &color) { if (color.isValid()) m_color=color; }
@@ -228,15 +219,6 @@ public:
     }
 protected:
     void resizeEvent(QResizeEvent *event) override {
-        // if (m_paint.size()!=event->size()) {
-        //     QImage newImage(event->size(),QImage::Format_ARGB32_Premultiplied);
-        //     newImage.fill(Qt::transparent);
-        //     if (!m_paint.isNull()) {
-        //         QPainter painter(&newImage);
-        //         painter.drawImage(0,0,m_paint);
-        //     }
-        //     m_paint=newImage;
-        // }
         {
             QImage newImage=newPaintImage(event->size());
             if (m_paint.size()!=newImage.size()) {
@@ -287,7 +269,6 @@ private:
         m_redo.clear();
     }
     QColor sample(QPoint at) const {
-        // the picture has one pixel per screen pixel now: the logical point is scaled to it (before it was one to one)
         const QPoint deviceAt=QPointF(at*m_paint.devicePixelRatio()).toPoint();
         if (!m_paint.rect().contains(deviceAt)) return QColor();
         const QColor c=m_paint.pixelColor(deviceAt);
@@ -307,9 +288,6 @@ private:
             p.drawLine(from,to);
         } else {
 #if 0
-            // Default oil-bristle simulation: individual semi-transparent
-            // strands create ridges and broken coverage as colors overlap.
-            // This is local QPainter rendering, not a Krita brush preset.
             const QPointF delta=QPointF(to-from);
             const qreal length=std::hypot(delta.x(),delta.y());
             const QPointF tangent=length>0.01 ? delta/length : QPointF(1,0);
@@ -337,7 +315,7 @@ private:
             const qreal spacing=qMax(1.0,m_size*0.12);
             const int steps=qMax(1,int(length/spacing));
             QColor inner=c;
-            inner.setAlphaF(qBound(0.02,(m_opacity/100.0)*0.28,1.0));   // each stamp is light; the stamps along the line add up to the chosen opacity
+            inner.setAlphaF(qBound(0.02,(m_opacity/100.0)*0.28,1.0));
             QColor middle=inner;
             middle.setAlphaF(inner.alphaF()*0.55);
             QColor rim=inner;
@@ -385,17 +363,9 @@ protected:
         const int stops[7] = {0, 60, 120, 180, 240, 300, 359};
         for (int i = 0; i < 7; ++i) hues.setColorAt(i / 6.0, QColor::fromHsv(stops[i], 255, 255));
         p.setBrush(hues);
-        // p.setPen(QPen(QColor("#8498bd"), 1));
-        // p.drawRoundedRect(strip, 5, 5);
         p.setPen(QPen(QColor(8, 10, 28, 230), 1.4));
-        p.drawRoundedRect(strip, strip.width() / 2, strip.width() / 2);   // a pill: fully rounded ends (the mockup's)
+        p.drawRoundedRect(strip, strip.width() / 2, strip.width() / 2);
         const qreal y = strip.top() + strip.height() * value() / 359.0;
-        // p.setBrush(Qt::NoBrush);
-        // p.setPen(QPen(Qt::black, 3));
-        // p.drawRoundedRect(QRectF(1, y - 4, width() - 2, 8), 4, 4);
-        // p.setPen(QPen(Qt::white, 2));
-        // p.drawRoundedRect(QRectF(1, y - 4, width() - 2, 8), 4, 4);
-        // the handle of the mockup: a white pill outline, 28% as tall as the strip is wide, reaching 4 units beyond the strip at each side
         {
             const qreal handleHeight = strip.width() * 0.28;
             const qreal line = qMax<qreal>(2.0, strip.width() * 0.06);
@@ -433,7 +403,6 @@ public:
 protected:
     void resizeEvent(QResizeEvent *) override
     {
-        // the height follows the width, so the logo keeps its shape whatever layout it sits in
         const int h = heightForWidth(width());
         if (h > 0 && (height() != h || minimumHeight() != h)) setFixedHeight(h);
     }
@@ -517,7 +486,6 @@ public:
         m_sliders->onAlpha = [this](int a) { setAlpha(a); };
         m_values->onAlpha = [this](int a) { setAlpha(a); };
         m_tabs->onTab = [this](int i) { showTab(i); };
-        // the Palette tab and the History tab
         m_palettePage->state = &m_state;
         m_palettePage->recent = &m_recent;
         m_palettePage->onColor = [this](const QColor &c) { select(c); };
@@ -526,13 +494,12 @@ public:
         m_historyPage->state = &m_state;
         m_historyPage->onColor = [this](const QColor &c) { select(c); };
         m_historyPage->onPaletteChanged = [this]() { m_colors.clear(); loadPalette(); if (m_palettePage) m_palettePage->refresh(); };
-        // every color that becomes the foreground color is recorded in the history, with the tool and the time, when it has stayed for a moment (not while a slider is dragged)
         m_recentTimer.setSingleShot(true);
         m_recentTimer.setInterval(700);
         connect(&m_recentTimer, &QTimer::timeout, this, [this]() {
             const QColor c = m_current;
             if (!c.isValid()) return;
-            if (m_canvas) {   // it must be what the canvas has as the edited color (committed), not just what the picker shows
+            if (m_canvas) {
                 const KoColor edited = m_editBackground ? m_canvas->resourceManager()->backgroundColor() : m_canvas->resourceManager()->foregroundColor();
                 if (edited.toQColor().rgb() != c.rgb()) return;
             }
@@ -618,7 +585,7 @@ public:
             "background:qlineargradient(x1:0,y1:0,x2:1,y2:0,"
             "stop:0 red,stop:0.167 yellow,stop:0.333 lime,"
             "stop:0.5 cyan,stop:0.667 blue,stop:0.833 magenta,stop:1 red); }"
-            "QSlider::handle:horizontal { width:20px; height:20px; margin:-5px 0; border:none; background:transparent;"
+            "QSlider::handle:horizontal { width:20px; height:20px; margin:-4px 0; border:none; background:transparent;"
             " border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }"));
         hueRow->addWidget(m_hue);
         pickerLayout->addLayout(hueRow);
@@ -852,14 +819,11 @@ public:
                 const QColor shown = pal.isCmyk() ? krimbleColorOfCmyk(krimbleCmykOf(m_current)) : m_current;
                 if (!pal.colors.contains(shown)) { pal.append(m_current); takePalette(pal); }
             }
-            // 2026-11-08: no cap of 76 any more: the palette area scrolls (George: "you better be able to scroll through 256 swatches")
             savePalette(); rebuildSwatches();
         });
         showBackground(QColor("#1b1c30"));
         loadPalette();
         select(QColor("#459ad3"),false);
-        // Keep the controls in sync when another docker or the eyedropper changes
-        // the foreground color. Only poll while the Studio is visible.
         m_syncTimer.setInterval(350);
         connect(&m_syncTimer, &QTimer::timeout, this, [this]() {
             if (!m_canvas || !isVisible()) return;
@@ -878,7 +842,7 @@ public:
             showBackground((m_editBackground ? m_canvas->resourceManager()->foregroundColor() : m_canvas->resourceManager()->backgroundColor()).toQColor());
         });
         m_syncTimer.start();
-        m_ready = true;   // from here a color that changes is recorded in the history
+        m_ready = true;
         showTab(qBound(0, QSettings().value(QStringLiteral("Krimble/ColorStudioTab"), 0).toInt(), 4));
     }
     bool event(QEvent *e) override {
@@ -909,12 +873,51 @@ public:
     void setCanvas(KisCanvas2 *canvas) {
         m_canvas=canvas;
         if (m_canvas) {
-            // Read the existing document foreground color on canvas switch.
             KoColor color=m_editBackground ? m_canvas->resourceManager()->backgroundColor() : m_canvas->resourceManager()->foregroundColor();
             select(color.toQColor(), false);
         }
     }
+    int krimbleNeededViewHeight(int extraRows) const {
+        if (!m_ui) return -1;
+        const qreal s = m_ui->scale();
+        if (s <= 0) return -1;
+        const int bottomMargin = layout() ? layout()->contentsMargins().bottom() : 0;
+        return int(std::ceil(m_ui->y() + bottomMargin + (KrimbleColorCanvas::DH + extraRows * KrimbleColorCanvas::PaletteRowH) * s)) + 1;
+    }
+    QWidget *krimbleRoomView() const { return m_paletteRoomView; }
+protected:
+    void showEvent(QShowEvent *event) override {
+        QWidget::showEvent(event);
+        if (!m_paletteRoomWatched) {
+            for (QWidget *w = parentWidget(); w; w = w->parentWidget()) {
+                if (QScrollArea *scroll = qobject_cast<QScrollArea *>(w)) {
+                    scroll->viewport()->installEventFilter(this);
+                    m_paletteRoomView = scroll->viewport();
+                    m_paletteRoomWatched = true;
+                    break;
+                }
+            }
+        }
+        QTimer::singleShot(0, this, [this]() { fitPaletteRows(); });
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override {
+        if (watched == m_paletteRoomView && event->type() == QEvent::Resize) {
+            QTimer::singleShot(0, this, [this]() { fitPaletteRows(); });
+        }
+        return QWidget::eventFilter(watched, event);
+    }
 private:
+    QPointer<QWidget> m_paletteRoomView;
+    bool m_paletteRoomWatched = false;
+    void fitPaletteRows() {
+        if (!m_ui || !m_paletteRoomView || !m_ui->isVisible()) return;
+        const qreal s = m_ui->scale();
+        if (s <= 0) return;
+        const int bottomMargin = layout() ? layout()->contentsMargins().bottom() : 0;
+        const double room = m_paletteRoomView->height() - m_ui->y() - bottomMargin - KrimbleColorCanvas::DH * s;
+        const int rows = room > 0 ? int(room / (KrimbleColorCanvas::PaletteRowH * s)) : 0;
+        m_ui->setExtraPaletteRows(rows);
+    }
     void select(QColor c,bool commit=true) {
         if(!c.isValid()) return;
         c.setAlpha(255);
@@ -927,8 +930,6 @@ private:
         m_square->setColor(c);
         for (int i=0;i<3;++i) {
             QSignalBlocker b(m_hsv[i]);
-            // m_hsv[i]->setValue(i==0 ? qMax(0,c.hsvHue()) :
-            //                    qRound((i==1 ? c.hsvSaturation() : c.value())*100.0/255.0));
             if (m_hslMode)
                 m_hsv[i]->setValue(i==0 ? qMax(0,c.hslHue()) :
                                    qRound((i==1 ? c.hslSaturation() : c.lightness())*100.0/255.0));
@@ -1043,12 +1044,10 @@ private:
         for (int i=0;i<m_recent.size();++i) {
             QColor color=m_recent[i];
             auto *button=new KrimbleSquareCell(this);
-            button->setMinimumWidth(1);   // 1, not 0: a minimum of 0 means "use the button's own minimum", which is wider
-            button->setMaximumWidth(20);   // the cells grow with the panel, up to 20 px (was 26)
+            button->setMinimumWidth(1);
+            button->setMaximumWidth(20);
             button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             button->setToolTip(color.name());
-            // button->setStyleSheet(QStringLiteral(
-            //     "background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
             button->setStyleSheet(QStringLiteral(
                 "background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
@@ -1062,8 +1061,8 @@ private:
         for(int i=0;i<m_colors.size();++i) {
             QColor color=m_colors[i];
             auto *button=new KrimbleSwatchButton(this);
-            button->setMinimumWidth(1);   // 1, not 0: a minimum of 0 means "use the button's own minimum", which is wider
-            button->setMaximumWidth(20);   // the cells grow with the panel, up to 20 px (was 26)
+            button->setMinimumWidth(1);
+            button->setMaximumWidth(20);
             button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             button->setToolTip(color.name());
             button->setStyleSheet(QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0;").arg(color.name()));
@@ -1101,8 +1100,7 @@ private:
             auto *button=new QPushButton(m_ui);
             button->setFocusPolicy(Qt::NoFocus);
             button->setToolTip(color.name());
-            // button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #05060f;border-radius:5px;").arg(color.name()));
-            button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #05060f;border-radius:0px;").arg(color.name()));   // 2026-11-09: square corners
+            button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #05060f;border-radius:0px;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
             m_recentCells.append(button);
         }
@@ -1110,7 +1108,7 @@ private:
     }
     static QString swatchSheet(const QColor &color, bool selected) {
         return selected
-            ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:0px;").arg(color.name())
+            ? (qApp->property("krimbleCyberTheme").toBool() ? QStringLiteral("background:%1;border:2px solid #78ebff;border-radius:0px;").arg(color.name()) : QStringLiteral("background:%1;border:2px solid #0b87dd;border-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);border-radius:0px;").arg(color.name()))
             : QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0px;").arg(color.name());
     }
     void rebuildSwatches() {
@@ -1120,13 +1118,12 @@ private:
             QColor color=m_colors[i];
             auto *button=new KrimbleSwatchButton(m_ui);
             button->setToolTip(color.name());
-            // the selected swatch has the bright outline of a selected item; it is the one the trash button removes
             button->setStyleSheet(swatchSheet(color, i==m_selectedSwatch));
             connect(button,&QPushButton::clicked,this,[this,color,i](){
                 const int old=m_selectedSwatch;
                 m_selectedSwatch=i;
                 select(color);
-                if (old>=0 && old<m_swatchCells.size() && old<m_colors.size()) krimbleSetSheet(m_swatchCells[old], swatchSheet(m_colors[old], false));   // only the two cells that changed are restyled
+                if (old>=0 && old<m_swatchCells.size() && old<m_colors.size()) krimbleSetSheet(m_swatchCells[old], swatchSheet(m_colors[old], false));
                 if (i<m_swatchCells.size()) krimbleSetSheet(m_swatchCells[i], swatchSheet(color, true));
             });
             button->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1139,7 +1136,6 @@ private:
                 moveLeft->setEnabled(i>0);
                 moveRight->setEnabled(i+1<m_colors.size());
                 QAction *chosen=menu.exec(globalPos);
-                // 2026-11-08: through the palette, so the plates of a CMYK palette stay with their swatches
                 KrimblePalette pal = currentPalette();
                 if(chosen==replace) pal.replace(i,m_current);
                 else if(chosen==remove) pal.removeAt(i);
@@ -1191,7 +1187,7 @@ private:
     int m_selectedSwatch=-1;
     QString m_paletteName = QStringLiteral("My Palette");
     int m_paletteColumns = 19;
-    QString m_paletteModel = QStringLiteral("RGB");   // 2026-11-08: RGB or CMYK (the plates of each swatch are m_cmyk)
+    QString m_paletteModel = QStringLiteral("RGB");
     QVector<KrimbleCmyk> m_cmyk;
     KrimblePalette currentPalette() const { KrimblePalette pal; pal.name = m_paletteName; pal.columns = m_paletteColumns; pal.model = m_paletteModel; pal.colors = m_colors; pal.cmyk = m_cmyk; return pal; }
     void takePalette(const KrimblePalette &pal) { m_colors = pal.colors; m_cmyk = pal.cmyk; }

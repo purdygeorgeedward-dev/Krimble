@@ -16,7 +16,6 @@
 #include <kis_meta_data_backend_registry.h>
 #include <testui.h>
 
-
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing the importing of files in krita"
 #endif
@@ -53,7 +52,6 @@ void KisJPEGXLTest::testAnimation()
 
     KisImageSP image = doc->image();
 
-    // Check that it's a 32 FPS document with 24 frames.
     auto node1 = doc->image()->root()->firstChild();
 
     QVERIFY(node1->inherits("KisPaintLayer"));
@@ -137,7 +135,7 @@ void KisJPEGXLTest::testHDR()
 
         QVERIFY(TestUtil::comparePaintDevicesClever<float>(doc1->image()->root()->firstChild()->paintDevice(),
                                                            doc2->image()->root()->firstChild()->paintDevice(),
-                                                           0.01f /* meaningless alpha */));
+                                                           0.01f ));
 
         delete doc2;
     }

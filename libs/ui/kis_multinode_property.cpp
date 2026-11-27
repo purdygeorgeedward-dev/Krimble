@@ -6,10 +6,6 @@
 
 #include "kis_multinode_property.h"
 
-/******************************************************************/
-/*               MultinodePropertyConnectorInterface              */
-/******************************************************************/
-
 MultinodePropertyConnectorInterface::~MultinodePropertyConnectorInterface()
 {
 }
@@ -27,10 +23,6 @@ void MultinodePropertyConnectorInterface::connectAutoEnableWidget(QWidget *widge
 {
     Q_UNUSED(widget);
 }
-
-/******************************************************************/
-/*               MultinodePropertyBaseConnector                   */
-/******************************************************************/
 
 MultinodePropertyBaseConnector::MultinodePropertyBaseConnector(KisMultinodePropertyInterface *parent)
     : m_parent(parent)
@@ -104,10 +96,6 @@ void MultinodePropertyBaseConnector::notifyIgnoreChanged() {
         m_ignoreBox->setChecked(!m_parent->isIgnored());
     }
 }
-
-/******************************************************************/
-/*               KisMultinodePropertyInterface                    */
-/******************************************************************/
 
 KisMultinodePropertyInterface::KisMultinodePropertyInterface()
 {

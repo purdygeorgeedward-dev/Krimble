@@ -91,7 +91,6 @@ void KisTransactionTest::testRedo()
     QVERIFY(c1 == Qt::black);
     QVERIFY(c2 == Qt::white);
 
-
     undoAdapter.undo();
 
     dev->pixel(5, 5, &c1);
@@ -161,12 +160,10 @@ void KisTransactionTest::testDeviceMove()
 
 #include <KoColor.h>
 
-
 void KisTransactionTest::testUndoWithUnswitchedFrames()
 {
     KisSurrogateUndoAdapter undoAdapter;
     const QRect imageRect(0,0,100,100);
-
 
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
@@ -182,20 +179,15 @@ void KisTransactionTest::testUndoWithUnswitchedFrames()
 
     QCOMPARE(i->frames().size(), 1);
 
-
     dev->fill(QRect(10,10,20,20), KoColor(Qt::white, cs));
 
     KIS_DUMP_DEVICE_2(dev, imageRect, "00_f0_w20", "dd");
     QCOMPARE(dev->exactBounds(), QRect(10,10,20,20));
 
-
-    // add keyframe at position 10
     channel->addKeyframe(10);
 
-    // add keyframe at position 11
     channel->addKeyframe(11);
 
-    // add keyframe at position 12
     channel->addKeyframe(12);
 
     KIS_DUMP_DEVICE_2(dev, imageRect, "01_f0_b20", "dd");
@@ -213,7 +205,6 @@ void KisTransactionTest::testUndoWithUnswitchedFrames()
         QCOMPARE(dev->exactBounds(), QRect(40,40,21,21));
     }
 
-    // switch to frame 10
     bounds->testingSetTime(10);
 
     KIS_DUMP_DEVICE_2(dev, imageRect, "03_f10_b0_switched", "dd");
@@ -506,7 +497,6 @@ void KisTransactionTest::testInterstrokeData()
     QCOMPARE(resolveType(dev->interstrokeData())->typeId, 17);
     QCOMPARE(resolveType(dev->interstrokeData())->value, 30);
 
-
     KisTransaction transaction4(dev);
     QVERIFY(!dev->interstrokeData());
     transaction4.commit(&undoAdapter);
@@ -543,7 +533,6 @@ void KisTransactionTest::testInterstrokeDataWithUnswitchedFrames()
     KisSurrogateUndoAdapter undoAdapter;
     const QRect imageRect(0,0,100,100);
 
-
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
 
@@ -558,20 +547,15 @@ void KisTransactionTest::testInterstrokeDataWithUnswitchedFrames()
 
     QCOMPARE(i->frames().size(), 1);
 
-
     dev->fill(QRect(10,10,20,20), KoColor(Qt::white, cs));
 
     KIS_DUMP_DEVICE_2(dev, imageRect, "00_f0_w20", "dd");
     QCOMPARE(dev->exactBounds(), QRect(10,10,20,20));
 
-
-    // add keyframe at position 10
     channel->addKeyframe(10);
 
-    // add keyframe at position 11
     channel->addKeyframe(11);
 
-    // add keyframe at position 12
     channel->addKeyframe(12);
 
     QVERIFY(!dev->interstrokeData());
@@ -589,7 +573,6 @@ void KisTransactionTest::testInterstrokeDataWithUnswitchedFrames()
         transaction.commit(&undoAdapter);
     }
 
-    // switch to frame 10
     bounds->testingSetTime(10);
     QVERIFY(!dev->interstrokeData());
 
@@ -612,14 +595,12 @@ void KisTransactionTest::testInterstrokeDataWithUnswitchedFrames()
 
     QVERIFY(!dev->interstrokeData());
 
-    // switch to frame 0
     bounds->testingSetTime(0);
 
     QVERIFY(dev->interstrokeData());
     QCOMPARE(resolveType(dev->interstrokeData())->typeId, 17);
     QCOMPARE(resolveType(dev->interstrokeData())->value, 30);
 
-    // switch back to frame 10
     bounds->testingSetTime(10);
 
     QVERIFY(!dev->interstrokeData());
@@ -628,7 +609,6 @@ void KisTransactionTest::testInterstrokeDataWithUnswitchedFrames()
 
     QVERIFY(!dev->interstrokeData());
 
-    // switch to frame 0
     bounds->testingSetTime(0);
 
     QVERIFY(!dev->interstrokeData());

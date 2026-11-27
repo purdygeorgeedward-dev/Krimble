@@ -23,7 +23,6 @@ KisToolEraser::~KisToolEraser()
 {
 }
 
-// the eraser switch of the brush toolbar ("erase_action"): turning it on goes the same way as pressing the button (KisPaintopBox::slotToggleEraseMode)
 void KisToolEraser::switchEraserOn()
 {
     KisCanvas2 *canvas2 = dynamic_cast<KisCanvas2*>(canvas());
@@ -51,7 +50,6 @@ void KisToolEraser::activate(const QSet<KoShape*> &shapes)
 
 void KisToolEraser::deactivate()
 {
-    // the switch goes back to what it was before this tool started (if the tool turned it on)
     if (m_switchedByTool && !m_switchWasOn) {
         KisCanvas2 *canvas2 = dynamic_cast<KisCanvas2*>(canvas());
         if (canvas2 && canvas2->viewManager() && canvas2->viewManager()->actionManager()) {
@@ -65,8 +63,6 @@ void KisToolEraser::deactivate()
 
 void KisToolEraser::beginPrimaryAction(KoPointerEvent *event)
 {
-    // the switch can be turned off again while this tool is active (a new brush picked from the brush panel puts it back to off): a stroke of the Eraser
-    // always erases
     switchEraserOn();
     KisToolBrush::beginPrimaryAction(event);
 }

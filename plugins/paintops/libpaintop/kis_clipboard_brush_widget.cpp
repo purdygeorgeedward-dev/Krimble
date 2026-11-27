@@ -27,14 +27,13 @@
 
 #include <kstandardguiitem.h>
 
-KisClipboardBrushWidget::KisClipboardBrushWidget(QWidget *parent, const QString &caption, KisImageWSP /*image*/)
+KisClipboardBrushWidget::KisClipboardBrushWidget(QWidget *parent, const QString &caption, KisImageWSP )
     : KisWdgClipboardBrush(parent)
 {
     setWindowTitle(caption);
     preview->setScaledContents(false);
     preview->setFixedSize(preview->size());
     preview->setStyleSheet("border: 2px solid #222; border-radius: 4px; padding: 5px; font: normal 10px;");
-
 
     m_rServer = KisBrushServerProvider::instance()->brushServer();
 
@@ -63,7 +62,7 @@ void KisClipboardBrushWidget::slotClipboardContentChanged()
 {
     slotCreateBrush();
     if (m_brush) {
-        colorAsmask->setChecked(true); // initializing this has to happen here since we need a valid brush for it to work
+        colorAsmask->setChecked(true);
         preserveAlpha->setEnabled(true);
         preserveAlpha->setChecked(false);
     }
@@ -71,10 +70,9 @@ void KisClipboardBrushWidget::slotClipboardContentChanged()
 
 void KisClipboardBrushWidget::slotCreateBrush()
 {
-    // do nothing if it's hidden otherwise it can break the active brush is something is copied
     if (m_clipboard->hasClip() && !isHidden()) {
 
-        pd = m_clipboard->clip(QRect(0, 0, 0, 0), false);     //Weird! Don't know how this works!
+        pd = m_clipboard->clip(QRect(0, 0, 0, 0), false);
         if (pd) {
             QRect rc = pd->exactBounds();
 

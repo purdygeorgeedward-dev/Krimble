@@ -40,7 +40,6 @@ public:
     }
 };
 
-
 class KisMetaDataEditor : public KPageDialog
 {
     Q_OBJECT

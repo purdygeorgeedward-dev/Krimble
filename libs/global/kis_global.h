@@ -20,7 +20,6 @@
 #include <QStringConverter>
 #endif
 
-
 const quint8 quint8_MAX = std::numeric_limits<quint8>::max();
 const quint16 quint16_MAX = std::numeric_limits<quint16>::max();
 
@@ -36,17 +35,6 @@ const quint8 SELECTION_THRESHOLD = 1;
 template <typename T>
 constexpr inline const T &kisBoundFast(const T &min, const T &val, const T &max)
 {
-    /**
-     * This is a fork of an old version of qBound. It has the following properties:
-     * 1) Does **not** have asserts (we cannot have them in blendmodes)
-     * 2) Does not have automatic type deduction. The user must explicitly type the
-     *    common type in case of ambiguity.
-     *
-     * Rules of thumb:
-     *
-     * 1) If you are writing time-critical code (e.g. blendmodes), use kisBoundFast()
-     * 2) Otherwise use qBound() or std::clamp (the latter may optionally have an assert as well)
-     */
     return qMax(min, qMin(max, val));
 }
 
@@ -99,7 +87,6 @@ const double PRESSURE_MAX = 1.0;
 const double PRESSURE_DEFAULT = PRESSURE_MAX;
 const double PRESSURE_THRESHOLD = 5.0 / 255.0;
 
-// copy of lcms.h
 #define INTENT_PERCEPTUAL                 0
 #define INTENT_RELATIVE_COLORIMETRIC      1
 #define INTENT_SATURATION                 2
@@ -111,11 +98,8 @@ const double PRESSURE_THRESHOLD = 5.0 / 255.0;
 #define M_PI 3.14159265358979323846
 #endif
 
-// Name of the property in the KisApplication that contains the name
-// of the current style, even if there is a stylesheet applied
 constexpr const char *currentUnderlyingStyleNameProperty = "currentUnderlyingStyleName";
 
-// converts \p a to [0, 2 * M_PI) range
 template<typename T>
 typename std::enable_if<std::is_floating_point<T>::value, T>::type
 normalizeAngle(T a) {
@@ -126,7 +110,6 @@ normalizeAngle(T a) {
     return a >= T(2 * M_PI) ? std::fmod(a, T(2 * M_PI)) : a;
 }
 
-// converts \p a to [0, 360.0) range
 template<typename T>
 typename std::enable_if<std::is_floating_point<T>::value, T>::type
 normalizeAngleDegrees(T a) {
@@ -158,9 +141,6 @@ inline qreal bisectorAngle(qreal a, qreal b) {
     const qreal diff = shortestAngularDistance(a, b);
     return incrementInDirection(a, 0.5 * diff, b);
 }
-
-
-
 
 template<typename T>
 inline T pow2(const T& x) {
@@ -207,7 +187,6 @@ inline PointType snapToClosestAxis(PointType P) {
 
 template<typename PointType>
 inline PointType snapToClosestNiceAngle(PointType point, PointType startPoint, qreal angle = (2 * M_PI) / 24) {
-    // default angle = 15 degrees
 
     const QPointF lineVector = point - startPoint;
     qreal lineAngle = std::atan2(lineVector.y(), lineVector.x());
@@ -227,7 +206,6 @@ inline PointType snapToClosestNiceAngle(PointType point, PointType startPoint, q
 
     return result;
 }
-
 
 #include <QLineF>
 
@@ -275,7 +253,6 @@ inline qreal kisSquareDistanceToLine(const QPointF &m, const QLineF &line)
     return distance;
 
 }
-
 
 inline QPointF kisProjectOnVector(const QPointF &base, const QPointF &v)
 {
@@ -346,8 +323,6 @@ inline QRect kisTrimTop( int height, QRect& toTakeFrom)
 #include "kis_pointer_utils.h"
 #include <type_traits>
 
-// Makes compilers happy because Linux and macOS differ on how they define
-// quint64 (unsigned long long) vs. size_t (unsigned long (int)).
 template <typename T>
 inline T nextPowerOfTwo(T v)
 {
@@ -357,7 +332,5 @@ inline T nextPowerOfTwo(T v)
     return static_cast<T>(qNextPowerOfTwo(static_cast<common_type>(v)));
 }
 
-
-
-#endif // KISGLOBAL_H_
+#endif
 

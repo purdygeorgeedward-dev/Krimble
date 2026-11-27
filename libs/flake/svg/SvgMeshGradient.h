@@ -37,7 +37,6 @@ public:
         return m_gradientUnits;
     }
 
-    // returns boundingRect of the meshpatches in "user" coordinates (QPainter's)
     QRectF boundingRect() const;
 
     const QScopedPointer<SvgMeshArray>& getMeshArray() const;
@@ -48,4 +47,4 @@ private:
     QScopedPointer<SvgMeshArray> m_mesharray;
 };
 
-#endif // KISMESHGRADIENT_H
+#endif

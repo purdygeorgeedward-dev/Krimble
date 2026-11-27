@@ -20,16 +20,12 @@ public:
     bool writeTile(KisTileSP tile, KisPaintDeviceWriter &store) override;
     bool readTile(QIODevice *io, KisTiledDataManager *dm) override;
 
-
     void compressTileData(KisTileData *tileData,quint8 *buffer,
                           qint32 bufferSize, qint32 &bytesWritten) override;
     bool decompressTileData(quint8 *buffer, qint32 bufferSize, KisTileData *tileData) override;
     qint32 tileDataBufferSize(KisTileData *tileData) override;
 
 private:
-    /**
-     * Quite self describing
-     */
     qint32 maxHeaderLength();
 
     QString getHeader(KisTileSP tile, qint32 compressedSize);
@@ -49,5 +45,5 @@ private:
     static const QString m_compressionName;
 };
 
-#endif /* __KIS_TILE_COMPRESSOR_2_H */
+#endif
 

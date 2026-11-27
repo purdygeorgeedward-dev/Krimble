@@ -19,17 +19,9 @@
 class KoPathShape;
 class KoMarker;
 
-/// The undo / redo command for setting the shape marker
 class KRITAFLAKE_EXPORT KoPathShapeMarkerCommand : public KUndo2Command
 {
 public:
-    /**
-     * Command to set a new shape marker.
-     * @param shapes a set of all the shapes that should get the new marker.
-     * @param marker the new marker, the same for all given shapes
-     * @param position the position - start or end - of the marker on the shape
-     * @param parent the parent command used for macro commands
-     */
     KoPathShapeMarkerCommand(const QList<KoPathShape*> &shapes, KoMarker *marker, KoFlake::MarkerPosition position, KUndo2Command *parent = 0);
 
     ~KoPathShapeMarkerCommand() override;
@@ -45,4 +37,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KoPathShapeMarkerCommand_H
+#endif

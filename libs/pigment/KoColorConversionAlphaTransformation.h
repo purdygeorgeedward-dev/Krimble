@@ -15,11 +15,6 @@
 #include <half.h>
 #endif
 
-/**
- * Create converter from the alpha color space to any color space
- * This class is for use by the KoColorConversionSystem, no reason
- * to use it directly.
- */
 template<typename alpha_channel_type>
 class KoColorConversionFromAlphaTransformationFactoryImpl : public KoColorConversionTransformationFactory
 {
@@ -38,11 +33,6 @@ typedef KoColorConversionFromAlphaTransformationFactoryImpl<half> KoColorConvers
 #endif
 typedef KoColorConversionFromAlphaTransformationFactoryImpl<float> KoColorConversionFromAlphaF32TransformationFactory;
 
-/**
- * Create converter to the alpha color space to any color space
- * This class is for use by the KoColorConversionSystem, no reason
- * to use it directly.
- */
 template <typename alpha_channel_type>
 class KoColorConversionToAlphaTransformationFactoryImpl : public KoColorConversionTransformationFactory
 {

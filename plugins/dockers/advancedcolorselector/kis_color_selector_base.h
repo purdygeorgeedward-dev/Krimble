@@ -14,7 +14,6 @@
 #include "kis_acs_types.h"
 #include "kis_signal_compressor_with_param.h"
 
-
 class KoColor;
 class QTimer;
 class KoColorSpace;
@@ -23,8 +22,6 @@ class KisColorPreviewPopup;
 class KisDisplayColorConverter;
 class KoGamutMask;
 
-
-/// Base class for all color selectors, that should support color management and zooming.
 class KisColorSelectorBase : public QWidget
 {
 Q_OBJECT
@@ -53,9 +50,6 @@ public:
     virtual void setColor(const KoColor& color);
 
 public Q_SLOTS:
-    /**
-     * Flushes caches and redraws the selectors
-     */
     virtual void reset();
 
     virtual void updateSettings();
@@ -88,18 +82,14 @@ protected:
 private:
     void commitColor(const KoColor& koColor, Acs::ColorRole role);
 
-
 protected Q_SLOTS:
     void hidePopup();
 
-    /// if you overwrite this, keep in mind, that you should set the color only, if m_colorUpdateAllowed is true
     virtual void canvasResourceChanged(int key, const QVariant& v);
 
     void updateLastUsedColorPreview(const KoColor &color);
 
 public:
-    // This is a private interface for signal compressor, don't use it.
-    // Use requestUpdateColorAndPreview() instead
     void slotUpdateColorAndPreview(QPair<KoColor, Acs::ColorRole> color);
 
 private:
@@ -111,7 +101,6 @@ protected:
     QWidget* m_parent;
     bool m_colorUpdateAllowed;
 
-    // This boolean here is to check if the color selector is updating the resource, so it won't update itself when the resource is updated.
     bool m_colorUpdateSelf;
 
 private:
@@ -119,7 +108,7 @@ private:
     bool m_popupOnMouseOver;
     bool m_popupOnMouseClick;
     mutable const KoColorSpace* m_colorSpace;
-    bool m_isPopup; //this instance is a popup
+    bool m_isPopup;
     bool m_hideOnMouseClick;
     KisColorPreviewPopup* m_colorPreviewPopup;
 

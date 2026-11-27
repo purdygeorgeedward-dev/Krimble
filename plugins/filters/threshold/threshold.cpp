@@ -91,7 +91,6 @@ void KisFilterThreshold::processImpl(KisPaintDeviceSP device,
 
 }
 
-
 KisFilterConfigurationSP KisFilterThreshold::defaultConfiguration(KisResourcesInterfaceSP resourcesInterface) const
 {
     KisFilterConfigurationSP config = factoryConfiguration(resourcesInterface);
@@ -151,7 +150,6 @@ void KisThresholdConfigWidget::slotDrawHistogram(bool logarithmic)
     int wWidth = m_page.histview->width();
 
     if (m_histlog != logarithmic) {
-        // Update the m_histogram
         if (logarithmic)
             m_histogram->setHistogramType(LOGARITHMIC);
         else
@@ -170,7 +168,6 @@ void KisThresholdConfigWidget::slotDrawHistogram(bool logarithmic)
     double highest = (double)m_histogram->calculations().getHighest();
     qint32 bins = m_histogram->producer()->numberOfBins();
 
-    // use nearest neighbour interpolation
     if (m_histogram->getHistogramType() == LINEAR) {
         double factor = (double)(wHeight - wHeight / 5.0) / highest;
         for (int i = 0; i < wWidth; i++) {
@@ -212,6 +209,5 @@ void KisThresholdConfigWidget::setConfiguration(const KisPropertiesConfiguration
     }
     Q_EMIT sigConfigurationItemChanged();
 }
-
 
 #include "threshold.moc"

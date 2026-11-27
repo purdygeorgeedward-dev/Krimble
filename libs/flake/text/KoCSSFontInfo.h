@@ -11,20 +11,13 @@
 #include <kritaflake_export.h>
 #include <boost/operators.hpp>
 
-/**
- * @brief The KoCSSFontInfo class
- * Convenience struct to make it easier to use KoFontRegistry.
- * This struct contains default css values and can generate the axisvalues
- * for the given values.
- */
-
 struct KRITAFLAKE_EXPORT KoCSSFontInfo: public boost::equality_comparable<KoCSSFontInfo> {
 
     QStringList families;
 
-    double size = -1; /// < Size in Pt.
+    double size = -1;
     bool automaticOpticalSizing = true;
-    double fontSizeAdjust = 0.0; // 1.0 would mean that the x-height is the same as the specified font-size, allowing scaling by x-height.
+    double fontSizeAdjust = 0.0;
     double weight = 400;
     double width = 100;
 
@@ -69,4 +62,4 @@ struct KRITAFLAKE_EXPORT KoCSSFontInfo: public boost::equality_comparable<KoCSSF
     }
 };
 
-#endif // KOCSSFONTINFO_H
+#endif

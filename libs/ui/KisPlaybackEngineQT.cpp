@@ -21,12 +21,8 @@
 
 #include "KisPlaybackEngineQT.h"
 
-
 namespace {
 
-/** @brief A simple QTimer-based playback method for situations when audio is not 
- * used (and thus audio-video playback synchronization is not a concern).
- */
 class PlaybackDriver : public QObject
 {
     Q_OBJECT
@@ -114,14 +110,6 @@ void PlaybackDriver::updatePlaybackLoopInterval(const int &in_fps, const qreal &
 
 }
 
-// ======
-
-/** @brief Struct used to keep track of all frame time variance
- * and accommodate for skipped frames. Also tracks whether a frame
- * is still being loaded by the display proxy.
- *
- * Only allocated when playback begins.
- */
 struct FrameMeasure {
     static constexpr int frameStatsWindow = 50;
 
@@ -147,8 +135,6 @@ struct FrameMeasure {
 
     KisRollingSumAccumulatorWrapper droppedFramesStat;
 };
-
-// ====== KisPlaybackEngineQT ======
 
 struct KisPlaybackEngineQT::Private {
 public:
@@ -241,10 +227,7 @@ void KisPlaybackEngineQT::throttledDriverCallback()
     KisImageAnimationInterface *animInterface = activeCanvas()->image()->animationInterface();
     KIS_SAFE_ASSERT_RECOVER_RETURN(animInterface);
 
-    // If we're waiting for each frame, then we delay our callback.
     if (m_d->measure.waitingForFrame) {
-        // Without drop frames on, we need to factor out time that we're waiting
-        // for a frame from our time
         return;
     }
 
@@ -256,8 +239,6 @@ void KisPlaybackEngineQT::throttledDriverCallback()
     const int timePerFrame = qRound(1000.0 / qreal(activeFramesPerSecond().get_value_or(24)) / m_d->driver->speed());
     m_d->measure.averageTimePerFrame(timeSinceLastFrame);
 
-
-    // Drop frames logic...
     int extraFrames = 0;
     if (m_d->driver->dropFrames()) {
         const int offset = timeSinceLastFrame - timePerFrame;
@@ -266,18 +247,16 @@ void KisPlaybackEngineQT::throttledDriverCallback()
 
     m_d->measure.droppedFramesStat(extraFrames);
 
-    { // just advance the frame ourselves based on the displayProxy's active frame.
+    {
         int targetFrame = currentFrame + 1 + extraFrames;
 
         targetFrame = frameWrap(targetFrame, startFrame, endFrame);
 
         if (currentFrame != targetFrame) {
-            // We only wait when drop frames is enabled.
             m_d->measure.waitingForFrame = !m_d->driver->dropFrames();
 
             bool neededRefresh = displayProxy->displayFrame(targetFrame, false);
 
-            // If we didn't need to refresh, we just continue as usual.
             m_d->measure.waitingForFrame &= neededRefresh;
         }
     }
@@ -316,10 +295,9 @@ void KisPlaybackEngineQT::setCanvas(KoCanvasBase *p_canvas)
 
         KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->driver);
 
-        // Disconnect internal..
         m_d->driver.data()->disconnect(this);
 
-        { // Disconnect old Image Anim Interface, prepare for new one..
+        {
             auto image = activeCanvas()->image();
             KisImageAnimationInterface* aniInterface = image ? image->animationInterface() : nullptr;
             if (aniInterface) {
@@ -328,7 +306,7 @@ void KisPlaybackEngineQT::setCanvas(KoCanvasBase *p_canvas)
             }
         }
 
-        { // Disconnect old display proxy, prepare for new one.
+        {
             KisFrameDisplayProxy* displayProxy = animationState->displayProxy();
 
             if (displayProxy) {
@@ -336,7 +314,7 @@ void KisPlaybackEngineQT::setCanvas(KoCanvasBase *p_canvas)
             }
         }
 
-        { // Disconnect old animation state, prepare for new one..
+        {
             if (animationState) {
                 this->disconnect(animationState);
                 animationState->disconnect(this);
@@ -354,7 +332,7 @@ void KisPlaybackEngineQT::setCanvas(KoCanvasBase *p_canvas)
 
         KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->driver);
 
-        { // Animation State Connections
+        {
             connect(animationState, &KisCanvasAnimationState::sigPlaybackStateChanged, this, [this](PlaybackState state){
                 KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->driver);
 
@@ -372,7 +350,7 @@ void KisPlaybackEngineQT::setCanvas(KoCanvasBase *p_canvas)
             m_d->driver->setSpeed(animationState->playbackSpeed());
         }
 
-        { // Display proxy connections
+        {
             KisFrameDisplayProxy* displayProxy = animationState->displayProxy();
             KIS_ASSERT(displayProxy);
             connect(displayProxy, &KisFrameDisplayProxy::sigFrameDisplayRefreshed, this, [this](){
@@ -384,8 +362,7 @@ void KisPlaybackEngineQT::setCanvas(KoCanvasBase *p_canvas)
             });
         }
 
-
-        {   // Animation Interface Connections
+        {
             auto image = activeCanvas()->image();
             KIS_ASSERT(image);
             KisImageAnimationInterface* aniInterface = image->animationInterface();
@@ -406,7 +383,6 @@ void KisPlaybackEngineQT::setCanvas(KoCanvasBase *p_canvas)
             m_d->driver->setFramerate(aniInterface->framerate());
         }
 
-        // Internal connections
         connect(m_d->driver.data(), SIGNAL(throttledShowFrame()), this, SLOT(throttledDriverCallback()));
 
     }

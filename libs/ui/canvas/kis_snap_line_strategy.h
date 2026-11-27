@@ -11,7 +11,6 @@
 
 #include "KoSnapStrategy.h"
 
-
 class KisSnapLineStrategy : public KoSnapStrategy
 {
 public:
@@ -31,4 +30,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_SNAP_LINE_STRATEGY_H */
+#endif

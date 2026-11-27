@@ -9,7 +9,6 @@
 #include "kis_node_command.h"
 #include "commands_new/KisAsynchronouslyMergeableCommandInterface.h"
 
-/// The command for setting the node's name
 class KRITAIMAGE_EXPORT KisNodeRenameCommand : public KisNodeCommand, public KisAsynchronouslyMergeableCommandInterface
 {
 public:
@@ -30,4 +29,4 @@ private:
     QString m_newName;
 };
 
-#endif // KISNODERENAMECOMMAND_H
+#endif

@@ -10,7 +10,6 @@
 
 struct KisLightnessStrengthOptionData;
 
-
 class PAINTOP_EXPORT KisLightnessStrengthOptionWidget : public KisCurveOptionWidget
 {
     Q_OBJECT
@@ -25,4 +24,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISLIGHTNESSSTRENGTHOPTIONWIDGET_H
+#endif

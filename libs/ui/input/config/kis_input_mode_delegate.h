@@ -11,9 +11,6 @@
 #include <QStyledItemDelegate>
 
 class KisAbstractInputAction;
-/**
- * \brief A delegate providing editors for the mode property of KisShortcutConfiguration.
- */
 class KisInputModeDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -33,4 +30,4 @@ private:
     Private *const d {nullptr};
 };
 
-#endif // KISINPUTMODEDELEGATE_H
+#endif

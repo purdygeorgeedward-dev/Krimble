@@ -40,4 +40,4 @@ public:
 KIS_DECLARE_ADAPTED_LOCK(KisOpenGLContextSwitchLock, KisOpenGLContextSwitchLockAdapter)
 KIS_DECLARE_ADAPTED_LOCK(KisOpenGLContextSwitchLockSkipOnQt5, KisOpenGLContextSwitchLockAdapterSkipOnQt5)
 
-#endif // KISOPENGLCONTEXTSWITCHLOCK_H
+#endif

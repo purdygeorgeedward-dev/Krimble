@@ -28,17 +28,14 @@ struct KoCompositeOpOverCompositor {
 template<class _CSTraits>
 struct KoCompositeOpOverCompositor<_CSTraits, -1> {
     typedef typename _CSTraits::channels_type channels_type;
-    inline static void composeColorChannels(channels_type /*srcBlend*/,
-                                            const channels_type* /*srcN*/,
-                                            channels_type* /*dstN*/,
-                                            bool /*allChannelFlags*/,
-                                            const QBitArray & /*channelFlags*/) {
+    inline static void composeColorChannels(channels_type ,
+                                            const channels_type* ,
+                                            channels_type* ,
+                                            bool ,
+                                            const QBitArray & ) {
     }
 };
 
-/**
- * A template version of the over composite operation to use in colorspaces.
- */
 template<class _CSTraits>
 class KoCompositeOpOver : public KoCompositeOpAlphaBase<_CSTraits, KoCompositeOpOver<_CSTraits>, false >
 {

@@ -55,7 +55,6 @@
 #include <kis_canvas2.h>
 #include "kis_action_registry.h"
 
-
 KisControlFrame::KisControlFrame(KisViewManager *view, QWidget *parent, const char* name)
     : QObject(view)
     , m_viewManager(view)
@@ -93,12 +92,10 @@ void KisControlFrame::setup(QWidget *parent)
     connect(m_viewManager->canvasResourceProvider(), SIGNAL(sigBGColorChanged(KoColor)), m_gradientWidget, SLOT(update()));
     m_gradientChooserPopup->addAction(action);
 
-
-    // XXX: KOMVC we don't have a canvas here yet, needs a setImageView
     const KoColorDisplayRendererInterface *displayRenderer = \
         KisDisplayColorConverter::dumbConverterInstance()->displayRendererInterface();
     m_dual = new KoDualColorButton(m_viewManager->canvasResourceProvider(), displayRenderer,
-                                                     m_viewManager->mainWindowAsQWidget(), m_viewManager->mainWindowAsQWidget()); 
+                                                     m_viewManager->mainWindowAsQWidget(), m_viewManager->mainWindowAsQWidget());
     m_dual->setPopDialog(true);
     action = new QWidgetAction(this);
     action->setText(i18n("&Choose foreground and background colors"));
@@ -113,7 +110,6 @@ void KisControlFrame::setup(QWidget *parent)
     connect(m_viewManager, &KisViewManager::viewChanged, [this]() {
         slotUpdateDisplayRenderer(m_dual);
     });
-
 
     m_foreground = new KoForegroundColour(m_viewManager->canvasResourceProvider(), displayRenderer,
                                                     m_viewManager->mainWindowAsQWidget(), m_viewManager->mainWindowAsQWidget());
@@ -133,7 +129,6 @@ void KisControlFrame::setup(QWidget *parent)
         slotUpdateDisplayRenderer(m_foreground);
     });
 
-
     m_background = new KoBackgroundColour(m_viewManager->canvasResourceProvider(), displayRenderer,
                                                     m_viewManager->mainWindowAsQWidget(), m_viewManager->mainWindowAsQWidget());
     m_background->setPopDialog(true);
@@ -151,7 +146,6 @@ void KisControlFrame::setup(QWidget *parent)
     connect(m_viewManager, &KisViewManager::viewChanged, [this]() {
         slotUpdateDisplayRenderer(m_background);
     });
-
 
     m_swap = new KoSwapBgFgColours(m_viewManager->canvasResourceProvider(), displayRenderer,
                                                     m_viewManager->mainWindowAsQWidget(), m_viewManager->mainWindowAsQWidget());
@@ -171,7 +165,6 @@ void KisControlFrame::setup(QWidget *parent)
         slotUpdateDisplayRenderer(m_swap);
     });
 
-
     m_reset = new KoResetBgFgColours(m_viewManager->canvasResourceProvider(), displayRenderer,
                                                     m_viewManager->mainWindowAsQWidget(), m_viewManager->mainWindowAsQWidget());
     m_reset->setPopDialog(true);
@@ -187,7 +180,6 @@ void KisControlFrame::setup(QWidget *parent)
     connect(m_viewManager, &KisViewManager::viewChanged, [this]() {
         slotUpdateDisplayRenderer(m_reset);
     });
-    
 
     m_paintopBox = new KisPaintopBox(m_viewManager, parent, "paintopbox");
 
@@ -195,7 +187,6 @@ void KisControlFrame::setup(QWidget *parent)
     action->setText(i18n("&Painter's Tools"));
     m_viewManager->actionCollection()->addAction("paintops", action);
     action->setDefaultWidget(m_paintopBox);
-
 
     createDockerBox(m_viewManager);
 
@@ -216,7 +207,6 @@ void KisControlFrame::slotUpdateDisplayRenderer(KoDualColorButton* colourSelecto
         colourSelector->setDisplayRenderer();
     }
 }
-
 
 void KisControlFrame::slotSetPattern(KoPatternSP pattern)
 {
@@ -244,7 +234,6 @@ void KisControlFrame::updateGradientPreviewOnPopupButton(KoAbstractGradientSP gr
                                                m_viewManager->canvasResourceProvider()->
                                                resourceManager()->canvasResourcesInterface()));
     }
-
 
     m_gradientWidget->setThumbnail(icon);
 }
@@ -287,14 +276,13 @@ void KisControlFrame::createPatternsChooser(KisViewManager * view)
             &KisCanvasResourceProvider::sigPatternChanged,
             this,
             &KisControlFrame::slotSetPattern);
-    
+
     m_patternChooser->setCurrentItem(0);
     if (m_patternChooser->currentResource() && view->canvasResourceProvider()) {
         view->canvasResourceProvider()->slotPatternActivated(m_patternChooser->currentResource());
     }
 
     m_patternWidget->setPopupWidget(m_patternChooserPopup);
-
 
 }
 
@@ -330,7 +318,6 @@ void KisControlFrame::createGradientsChooser(KisViewManager * view)
     connect(m_gradientChooser, SIGNAL(gradientEdited(KoAbstractGradientSP)),
             this, SLOT(updateGradientPreviewOnPopupButton(KoAbstractGradientSP)));
 
-
     KisResourceModel resModel(ResourceType::Gradients);
     QVector<KoResourceSP> resources = resModel.resourcesForFilename("Foreground to Background.svg");
 
@@ -344,12 +331,10 @@ void KisControlFrame::createGradientsChooser(KisViewManager * view)
     m_gradientWidget->setPopupWidget(m_gradientChooserPopup);
 }
 
-
 void KisControlFrame::createDockerBox(KisViewManager * view)
 {
     KConfigGroup grp =  KSharedConfig::openConfig()->group("krita").group("Toolbar BrushesAndStuff");
     int iconsize = grp.readEntry("IconSize", 22);
-    // NOTE: buttonsize should be the same value as the one used in ktoolbar for all QToolButton
     int buttonsize = grp.readEntry("ButtonSize", 32);
 
     m_dockerPopupButton = new KisIconWidget();
@@ -361,8 +346,6 @@ void KisControlFrame::createDockerBox(KisViewManager * view)
     m_dockerPopupButton->setArrowVisible(false);
 
     m_dockerPopup = new KisDockerHud(i18n("Toolbar Panel Box"), "toolbar");
-    // Set a reasonable minimum size so that dockers capable of being tiny are not,
-    // but are not too big either
     m_dockerPopup->setMinimumHeight(300);
     m_dockerPopup->setMinimumWidth(300);
     m_dockerPopupButton->setPopupWidget(m_dockerPopup);

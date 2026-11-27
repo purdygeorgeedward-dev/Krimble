@@ -15,7 +15,6 @@
 #include <kis_meta_data_store.h>
 #include <kis_meta_data_filter_registry_model.h>
 
-
 class KisWdgOptionsJPEG : public KisConfigWidget, public Ui::WdgOptionsJPEG
 {
     Q_OBJECT
@@ -27,7 +26,6 @@ public:
 private:
     KisMetaData::FilterRegistryModel m_filterRegistryModel;
 };
-
 
 class KisJPEGExport : public KisImportExportFilter
 {

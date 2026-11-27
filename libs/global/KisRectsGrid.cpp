@@ -14,7 +14,6 @@
 
 #include "kis_debug.h"
 
-
 KisRectsGrid::KisRectsGrid(int gridSize)
     : m_gridSize(gridSize)
     , m_logGridSize(qFloor(std::log2(gridSize)))
@@ -123,9 +122,6 @@ QVector<QRect> KisRectsGrid::removeRect(const QRect &rc)
 QVector<QRect> KisRectsGrid::removeAlignedRect(const QRect &rc)
 {
     const QRect mappedRect = KisLodTransformBase::scaledRect(rc, m_logGridSize);
-
-    // NOTE: we never shrink the size of the grid, just keep it as big as
-    //       it ever was
 
     QVector<QRect> removedRects;
 

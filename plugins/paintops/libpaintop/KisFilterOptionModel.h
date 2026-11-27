@@ -30,4 +30,4 @@ public:
     KisFilterOptionData bakedOptionData() const;
 };
 
-#endif // KISFILTEROPTIONMODEL_H
+#endif

@@ -8,7 +8,6 @@
 #include <simpletest.h>
 #include "KoInputDevice.h"
 
-//Tests so the KoInputDevice created is of tablet type
 void TestInputDevice::testTabletConstructor()
 {
     KoInputDevice::InputDevice parameterTabletDevice = KoInputDevice::InputDevice::Stylus;
@@ -18,7 +17,6 @@ void TestInputDevice::testTabletConstructor()
     bool isMouse = toTest.isMouse();
     QVERIFY(!isMouse);
 }
-//Tests so the unique tablet ID of the default constructor is -1 like set.
 void TestInputDevice::testNoParameterConstructor()
 {
     KoInputDevice toTest;
@@ -28,7 +26,6 @@ void TestInputDevice::testNoParameterConstructor()
     QVERIFY(isMouse);
     QCOMPARE(theUniqueTabletId, toCompareWith);
 }
-//Tests so the single reference constructor can take both a tablet and a mouse as input device and set it correctly
 void TestInputDevice::testConstructorWithSingleReference()
 {
     KoInputDevice::InputDevice parameterTabletDevice = KoInputDevice::InputDevice::Stylus;
@@ -43,7 +40,6 @@ void TestInputDevice::testConstructorWithSingleReference()
     isMouse = toTest.isMouse();
     QVERIFY(isMouse);
 }
-//tests so the equality operator is working
 void TestInputDevice::testEqualityCheckOperator()
 {
     KoInputDevice::InputDevice parameterTabletDevice = KoInputDevice::InputDevice::Stylus;
@@ -56,7 +52,6 @@ void TestInputDevice::testEqualityCheckOperator()
     QVERIFY(toTest==copy);
     QVERIFY(toTest!=notSame);
 }
-//tests that the device is set properly in the constructor 
 void TestInputDevice::testDevice()
 {
     KoInputDevice::InputDevice parameterTabletDevice = KoInputDevice::InputDevice::Stylus;
@@ -68,7 +63,6 @@ void TestInputDevice::testDevice()
 
     QCOMPARE(aTabletDevice, KoInputDevice::InputDevice::Stylus);
 }
-//tests that the PointerType is set correctly by the constructor
 void TestInputDevice::testPointer()
 {
     KoInputDevice::InputDevice parameterTabletDevice = KoInputDevice::InputDevice::Stylus;
@@ -80,27 +74,23 @@ void TestInputDevice::testPointer()
 
     QCOMPARE(aTabletPointer, KoInputDevice::Pointer::Eraser);
 }
-//verifies that the device returned by the mouse() function is indeed a mouse device
 void TestInputDevice::testMouse()
 {
     KoInputDevice toTest = KoInputDevice::mouse();
     bool isMouse = toTest.isMouse();
     QVERIFY(isMouse);
 }
-//verifies that the device returned by the stylus() function is indeed a tablet device
 void TestInputDevice::testStylus()
 {
     KoInputDevice toTest = KoInputDevice::stylus();
     bool isMouse = toTest.isMouse();
     QVERIFY(!isMouse);
 }
-//verifies that the device returned by the eraser() function is indeed a tablet device
 void TestInputDevice::testEraser()
 {
     KoInputDevice toTest = KoInputDevice::eraser();
     bool isMouse = toTest.isMouse();
     QVERIFY(!isMouse);
 }
-
 
 SIMPLE_TEST_MAIN(TestInputDevice)

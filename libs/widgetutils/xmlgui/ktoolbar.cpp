@@ -53,32 +53,6 @@
 
 Q_GLOBAL_STATIC(KisToolBarStateModel, s_toolBarsModel)
 
-/*
- Toolbar settings (e.g. icon size or toolButtonStyle)
- =====================================================
-
- We have the following stack of settings (in order of priority) :
-   - user-specified settings (loaded/saved in KConfig)
-   - developer-specified settings in the XMLGUI file (if using xmlgui) (cannot change at runtime)
-   - KDE-global default (user-configurable; can change at runtime)
- and when switching between kparts, they are saved as xml in memory,
- which, in the unlikely case of no-kmainwindow-autosaving, could be
- different from the user-specified settings saved in KConfig and would have
- priority over it.
-
- So, in summary, without XML:
-   Global config / User settings (loaded/saved in kconfig)
- and with XML:
-   Global config / App-XML attributes / User settings (loaded/saved in kconfig)
-
- And all those settings (except the KDE-global defaults) have to be stored in memory
- since we cannot retrieve them at random points in time, not knowing the xml document
- nor config file that holds these settings. Hence the iconSizeSettings and toolButtonStyleSettings arrays.
-
- For instance, if you change the KDE-global default, whether this makes a change
- on a given toolbar depends on whether there are settings at Level_AppXML or Level_UserSettings.
- Only if there are no settings at those levels, should the change of KDEDefault make a difference.
-*/
 enum SettingLevel { Level_KDEDefault, Level_AppXML, Level_UserSettings,
                     NSettingLevels
                   };
@@ -127,7 +101,6 @@ public:
     void slotContextIconSize();
     void slotLockToolBars(bool lock);
     void slotToolButtonToggled(bool checked);
-
 
     void init(bool readConfig = true, bool isMainToolBar = false);
     QString getPositionAsString() const;
@@ -189,8 +162,6 @@ public:
             }
             return val;
         }
-        // Default value as far as the user is concerned is kde-global + app-xml.
-        // If currentValue()==defaultValue() then nothing to write into kconfig.
         int defaultValue() const
         {
             int val = Unset;
@@ -217,7 +188,7 @@ public:
         int values[NSettingLevels];
     };
     IntSetting iconSizeSettings;
-    IntSetting toolButtonStyleSettings; // either Qt::ToolButtonStyle or -1, hence "int".
+    IntSetting toolButtonStyleSettings;
 
     QList<QAction *> actionsBeingDragged;
     QAction *dropIndicatorAction;
@@ -255,14 +226,12 @@ void KisToolBar::Private::init(bool readConfig, bool _isMainToolBar)
     isMainToolBar = _isMainToolBar;
     loadKDESettings();
 
-    // also read in our configurable settings (for non-xmlgui toolbars)
     if (readConfig) {
         KConfigGroup cg(KSharedConfig::openConfig(), QString());
         q->applySettings(cg);
     }
 
     if (q->mainWindow()) {
-        // Get notified when settings change
         connect(q, SIGNAL(allowedAreasChanged(Qt::ToolBarAreas)),
                 q->mainWindow(), SLOT(setSettingsDirty()));
         connect(q, SIGNAL(iconSizeChanged(QSize)),
@@ -290,7 +259,6 @@ void KisToolBar::Private::init(bool readConfig, bool _isMainToolBar)
 
 QString KisToolBar::Private::getPositionAsString() const
 {
-    // get all of the stuff to save
     switch (q->mainWindow()->toolBarArea(const_cast<KisToolBar *>(q))) {
     case Qt::BottomToolBarArea:
         return QStringLiteral("Bottom");
@@ -352,7 +320,6 @@ QMenu *KisToolBar::Private::contextMenu(const QPoint &globalPos)
         std::sort(avSizes.begin(), avSizes.end());
 
         if (avSizes.count() < 10) {
-            // Fixed or threshold type icons
             Q_FOREACH (int it, avSizes) {
                 QString text;
                 if (it < 19) {
@@ -365,11 +332,9 @@ QMenu *KisToolBar::Private::contextMenu(const QPoint &globalPos)
                     text = i18n("Huge (%1x%2)", it, it);
                 }
 
-                // save the size in the contextIconSizes map
                 contextIconSizes.insert(contextSize->addAction(text, q, SLOT(slotContextIconSize())), it);
             }
         } else {
-            // Scalable icons.
             const int progression[] = { 16, 22, 32, 48, 64, 96, 128, 192, 256 };
 
             for (uint i = 0; i < 9; i++) {
@@ -386,7 +351,6 @@ QMenu *KisToolBar::Private::contextMenu(const QPoint &globalPos)
                             text = i18n("Huge (%1x%2)", it, it);
                         }
 
-                        // save the size in the contextIconSizes map
                         contextIconSizes.insert(contextSize->addAction(text, q, SLOT(slotContextIconSize())), it);
                         break;
                     }
@@ -409,7 +373,6 @@ QMenu *KisToolBar::Private::contextMenu(const QPoint &globalPos)
         contextLockAction->setChecked(q->toolBarsLocked());
         connect(contextLockAction, SIGNAL(toggled(bool)), q, SLOT(slotLockToolBars(bool)));
 
-        // Now add the actions to the menu
         context->addMenu(contextMode);
         context->addMenu(contextSize);
         context->addMenu(contextOrient);
@@ -426,9 +389,6 @@ QMenu *KisToolBar::Private::contextMenu(const QPoint &globalPos)
     }
 
     contextOrient->menuAction()->setVisible(!q->toolBarsLocked());
-    // Unplugging a submenu from AboutToHide leads to the popupmenu floating around
-    // So better simply call that code from after exec() returns (DF)
-    //connect(context, SIGNAL(aboutToHide()), this, SLOT(slotContextAboutToHide()));
 
     return context;
 }
@@ -512,7 +472,6 @@ Qt::ToolBarArea KisToolBar::Private::positionFromString(const QString &position)
     return newposition;
 }
 
-// Global setting was changed
 void KisToolBar::Private::slotAppearanceChanged()
 {
     loadKDESettings();
@@ -540,23 +499,18 @@ void KisToolBar::Private::loadKDESettings()
     }
 }
 
-// Call this after changing something in d->iconSizeSettings or d->toolButtonStyleSettings
 void KisToolBar::Private::applyCurrentSettings()
 {
-    //qDebug() << q->objectName() << "iconSizeSettings:" << iconSizeSettings.toString() << "->" << iconSizeSettings.currentValue();
     const int currentIconSize = iconSizeSettings.currentValue();
     q->setIconSize(QSize(currentIconSize, currentIconSize));
-    //qDebug() << q->objectName() << "toolButtonStyleSettings:" << toolButtonStyleSettings.toString() << "->" << toolButtonStyleSettings.currentValue();
     q->setToolButtonStyle(static_cast<Qt::ToolButtonStyle>(toolButtonStyleSettings.currentValue()));
 
-    // And remember to save the new look later
     KisKMainWindow *kmw = q->mainWindow();
     if (kmw) {
         kmw->setSettingsDirty();
     }
 }
 
-// Krita widget style "hack" setting button palette depending on check state
 void KisToolBar::Private::customizeButtonPalette(QToolButton *button, bool checked)
 {
     QPalette p = button->palette();
@@ -581,17 +535,9 @@ QAction *KisToolBar::Private::findAction(const QString &actionName, KisKXMLGUICl
 
 void KisToolBar::Private::slotContextAboutToShow()
 {
-    /**
-     * The idea here is to reuse the "static" part of the menu to save time.
-     * But the "Toolbars" action is dynamic (can be a single action or a submenu)
-     * and ToolBarHandler::setupActions() deletes it, so better not keep it around.
-     * So we currently plug/unplug the last two actions of the menu.
-     * Another way would be to keep around the actions and plug them all into a (new each time) popupmenu.
-     */
 
     KXmlGuiWindow *kmw = qobject_cast<KXmlGuiWindow *>(q->mainWindow());
 
-    // try to find "configure toolbars" action
     QAction *configureAction = 0;
     const char *actionName;
     actionName = KStandardAction::name(KStandardAction::ConfigureToolbars);
@@ -609,7 +555,6 @@ void KisToolBar::Private::slotContextAboutToShow()
 
     if (kmw) {
         kmw->setupToolbarMenuActions();
-        // Only allow hiding a toolbar if the action is also plugged somewhere else (e.g. menubar)
         QAction *tbAction = kmw->toolBarMenuAction();
         if (!q->toolBarsLocked() && tbAction && tbAction->associatedWidgets().count() > 0) {
             context->addAction(tbAction);
@@ -618,7 +563,6 @@ void KisToolBar::Private::slotContextAboutToShow()
 
     KisKEditToolBar::setGlobalDefaultToolBar(q->QObject::objectName().toLatin1().constData());
 
-    // Check the actions that should be checked
     switch (q->toolButtonStyle()) {
     case Qt::ToolButtonIconOnly:
     default:
@@ -672,8 +616,6 @@ void KisToolBar::Private::slotContextAboutToShow()
 
 void KisToolBar::Private::slotContextAboutToHide()
 {
-    // We have to unplug whatever slotContextAboutToShow plugged into the menu.
-    // Unplug the toolbar menu action
     KXmlGuiWindow *kmw = qobject_cast<KXmlGuiWindow *>(q->mainWindow());
     if (kmw && kmw->toolBarMenuAction()) {
         if (kmw->toolBarMenuAction()->associatedWidgets().count() > 1) {
@@ -681,7 +623,6 @@ void KisToolBar::Private::slotContextAboutToHide()
         }
     }
 
-    // Unplug the configure toolbars action too, since it's afterwards anyway
     QAction *configureAction = 0;
     const char *actionName;
     actionName = KStandardAction::name(KStandardAction::ConfigureToolbars);
@@ -715,7 +656,6 @@ void KisToolBar::Private::slotContextShowText()
                                        ? QAction::NormalPriority : QAction::LowPriority;
     contextButtonAction->setPriority(priority);
 
-    // Find to which xml file and componentData the action belongs to
     QString componentName;
     QString filename;
     KisKXMLGUIClient *client;
@@ -728,7 +668,6 @@ void KisToolBar::Private::slotContextShowText()
         filename = componentName + QStringLiteral("ui.xmlgui");
     }
 
-    // Save the priority state of the action
     const QString configFile = KisKXMLGUIFactory::readConfigFile(filename, componentName);
 
     QDomDocument document;
@@ -787,7 +726,6 @@ void KisToolBar::Private::slotLockToolBars(bool lock)
     q->setToolBarsLocked(lock);
 }
 
-// Krita widget style "hack" reacting to QToolButton toggles
 void KisToolBar::Private::slotToolButtonToggled(bool checked)
 {
     QToolButton *tb = qobject_cast<QToolButton *>(q->sender());
@@ -801,11 +739,8 @@ KisToolBar::KisToolBar(const QString &objectName, QWidget *parent, bool readConf
       d(new Private(this))
 {
     setObjectName(objectName);
-    // mainToolBar -> isMainToolBar = true  -> buttonStyle is configurable
-    // others      -> isMainToolBar = false -> ### hardcoded default for buttonStyle !!! should be configurable? -> hidden key added
     d->init(readConfig, objectName == QStringLiteral("mainToolBar"));
 
-    // KisToolBar is auto-added to the top area of the main window if parent is a QMainWindow
     if (QMainWindow *mw = qobject_cast<QMainWindow *>(parent)) {
         mw->addToolBar(this);
     }
@@ -822,7 +757,6 @@ void KisToolBar::saveSettings(KConfigGroup &cg)
     Q_ASSERT(!cg.name().isEmpty());
 
     const int currentIconSize = iconSize().width();
-    //qDebug() << objectName() << currentIconSize << d->iconSizeSettings.toString() << "defaultValue=" << d->iconSizeSettings.defaultValue();
     if (!cg.hasDefault("IconSize") && currentIconSize == d->iconSizeSettings.defaultValue()) {
         cg.revertToDefault("IconSize");
         d->iconSizeSettings[Level_UserSettings] = Unset;
@@ -840,7 +774,6 @@ void KisToolBar::saveSettings(KConfigGroup &cg)
         d->toolButtonStyleSettings[Level_UserSettings] = currentToolButtonStyle;
     }
 }
-
 
 void KisToolBar::addXMLGUIClient(KisKXMLGUIClient *client)
 {
@@ -902,21 +835,8 @@ void KisToolBar::loadState(const QDomElement &element)
         }
     }
 
-    /*
-      This method is called in order to load toolbar settings from XML.
-      However this can be used in two rather different cases:
-      - for the initial loading of the app's XML. In that case the settings
-      are only the defaults (Level_AppXML), the user's KConfig settings will override them
-
-      - for later re-loading when switching between parts in KisKXMLGUIFactory.
-      In that case the XML contains the final settings, not the defaults.
-      We do need the defaults, and the toolbar might have been completely
-      deleted and recreated meanwhile. So we store the app-default settings
-      into the XML.
-    */
     bool loadingAppDefaults = true;
     if (element.hasAttribute(QStringLiteral("tempXml"))) {
-        // this isn't the first time, so the app-xml defaults have been saved into the (in-memory) XML
         loadingAppDefaults = false;
         const QString iconSizeDefault = element.attribute(QStringLiteral("iconSizeDefault"));
         if (!iconSizeDefault.isEmpty()) {
@@ -927,7 +847,6 @@ void KisToolBar::loadState(const QDomElement &element)
             d->toolButtonStyleSettings[Level_AppXML] = d->toolButtonStyleFromString(toolButtonStyleDefault);
         }
     } else {
-        // loading app defaults
         bool newLine = false;
         QString attrNewLine = element.attribute(QStringLiteral("newline")).toLower();
         if (!attrNewLine.isEmpty()) {
@@ -980,8 +899,6 @@ void KisToolBar::loadState(const QDomElement &element)
     d->applyCurrentSettings();
 }
 
-// Called when switching between xmlgui clients, in order to find any unsaved settings
-// again when switching back to the current xmlgui client.
 void KisToolBar::saveState(QDomElement &current) const
 {
     Q_ASSERT(!current.isNull());
@@ -1005,8 +922,6 @@ void KisToolBar::saveState(QDomElement &current) const
         current.setAttribute(QStringLiteral("iconText"), d->toolButtonStyleToString(toolButtonStyle()));
     }
 
-    // Note: if this method is used by more than KisKXMLGUIBuilder, e.g. to save XML settings to *disk*,
-    // then the stuff below shouldn't always be done. This is not the case currently though.
     if (d->iconSizeSettings[Level_AppXML] != Unset) {
         current.setAttribute(QStringLiteral("iconSizeDefault"), d->iconSizeSettings[Level_AppXML]);
     }
@@ -1016,7 +931,6 @@ void KisToolBar::saveState(QDomElement &current) const
     }
 }
 
-// called by KisKMainWindow::applyMainWindowSettings to read from the user settings
 void KisToolBar::applySettings(const KConfigGroup &cg)
 {
     Q_ASSERT(!cg.name().isEmpty());
@@ -1102,7 +1016,6 @@ void KisToolBar::dragMoveEvent(QDragMoveEvent *event)
             {
                 QAction *overAction = 0L;
                 Q_FOREACH (QAction *action, actions()) {
-                    // want to make it feel that half way across an action you're dropping on the other side of it
                     QWidget *widget = widgetForAction(action);
                     if (event->pos().x() < widget->pos().x() + (widget->width() / 2)) {
                         overAction = action;
@@ -1111,7 +1024,6 @@ void KisToolBar::dragMoveEvent(QDragMoveEvent *event)
                 }
 
                 if (overAction != d->dropIndicatorAction) {
-                    // Check to see if the indicator is already in the right spot
                     int dropIndicatorIndex = actions().indexOf(d->dropIndicatorAction);
                     if (dropIndicatorIndex + 1 < actions().count()) {
                         if (actions()[ dropIndicatorIndex + 1 ] == overAction) {
@@ -1135,7 +1047,6 @@ void KisToolBar::dragMoveEvent(QDragMoveEvent *event)
 
 void KisToolBar::dragLeaveEvent(QDragLeaveEvent *event)
 {
-    // Want to clear this even if toolBarsEditable was changed mid-drag (unlikely)
     delete d->dropIndicatorAction;
     d->dropIndicatorAction = 0L;
     d->actionsBeingDragged.clear();
@@ -1159,7 +1070,6 @@ void KisToolBar::dropEvent(QDropEvent *event)
         }
     }
 
-    // Want to clear this even if toolBarsEditable was changed mid-drag (unlikely)
     delete d->dropIndicatorAction;
     d->dropIndicatorAction = 0L;
     d->actionsBeingDragged.clear();
@@ -1217,8 +1127,6 @@ void KisToolBar::mouseMoveEvent(QMouseEvent *event)
     Qt::DropAction dropAction = drag->exec(Qt::MoveAction);
 
     if (dropAction == Qt::MoveAction)
-        // Only remove from this toolbar if it was moved to another toolbar
-        // Otherwise the receiver moves it.
         if (drag->target() != this) {
             removeAction(d->dragAction);
         }
@@ -1229,7 +1137,6 @@ void KisToolBar::mouseMoveEvent(QMouseEvent *event)
 
 void KisToolBar::mouseReleaseEvent(QMouseEvent *event)
 {
-    // Want to clear this even if toolBarsEditable was changed mid-drag (unlikely)
     if (d->dragAction) {
         d->dragAction = 0L;
         event->accept();
@@ -1241,7 +1148,6 @@ void KisToolBar::mouseReleaseEvent(QMouseEvent *event)
 
 bool KisToolBar::eventFilter(QObject *watched, QEvent *event)
 {
-    // Generate context menu events for disabled buttons too...
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         if (me->buttons() & Qt::RightButton)
@@ -1251,11 +1157,8 @@ bool KisToolBar::eventFilter(QObject *watched, QEvent *event)
                 }
 
     } else if (event->type() == QEvent::ParentChange) {
-        // Make sure we're not leaving stale event filters around,
-        // when a child is reparented somewhere else
         if (QWidget *ww = qobject_cast<QWidget *>(watched)) {
             if (!this->isAncestorOf(ww)) {
-                // New parent is not a subwidget - remove event filter
                 ww->removeEventFilter(this);
                 Q_FOREACH (QWidget *child, ww->findChildren<QWidget *>()) {
                     child->removeEventFilter(this);
@@ -1268,11 +1171,9 @@ bool KisToolBar::eventFilter(QObject *watched, QEvent *event)
     if ((tb = qobject_cast<QToolButton *>(watched))) {
         const QList<QAction *> tbActions = tb->actions();
         if (!tbActions.isEmpty()) {
-            // Handle MMB on toolbar buttons
             if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
                 QMouseEvent *me = static_cast<QMouseEvent *>(event);
-                if (me->button() == Qt::MiddleButton /*&&
-                                                 act->receivers(SIGNAL(triggered(Qt::MouseButtons,Qt::KeyboardModifiers)))*/) {
+                if (me->button() == Qt::MiddleButton ) {
                     QAction *act = tbActions.first();
                     if (me->type() == QEvent::MouseButtonPress) {
                         tb->setDown(act->isEnabled());
@@ -1287,16 +1188,11 @@ bool KisToolBar::eventFilter(QObject *watched, QEvent *event)
                 }
             }
 
-            // CJK languages use more verbose accelerator marker: they add a Latin
-            // letter in parenthesis, and put accelerator on that. Hence, the default
-            // removal of ampersand only may not be enough there, instead the whole
-            // parenthesis construct should be removed. Use KLocalizedString's method to do this.
             if (event->type() == QEvent::Show || event->type() == QEvent::Paint || event->type() == QEvent::EnabledChange) {
                 QAction *act = tb->defaultAction();
                 if (act) {
                     const QString text = KLocalizedString::removeAcceleratorMarker(act->iconText().isEmpty() ? act->text() : act->iconText());
                     const QString toolTip = KLocalizedString::removeAcceleratorMarker(act->toolTip());
-                    // Filtering messages requested by translators (scripting).
                     tb->setText(i18nc("@action:intoolbar Text label of toolbar button", "%1", text));
                     tb->setToolTip(i18nc("@info:tooltip Tooltip of toolbar button", "%1", toolTip));
                 }
@@ -1304,7 +1200,6 @@ bool KisToolBar::eventFilter(QObject *watched, QEvent *event)
         }
     }
 
-    // Redirect mouse events to the toolbar when drag + drop editing is enabled
     if (toolBarsEditable()) {
         if (QWidget *ww = qobject_cast<QWidget *>(watched)) {
             switch (event->type()) {
@@ -1348,7 +1243,6 @@ void KisToolBar::actionEvent(QActionEvent *event)
             Q_FOREACH (QWidget *child, widget->findChildren<QWidget *>()) {
                 child->removeEventFilter(this);
             }
-            // Remove Krita's palette manipulation
             QToolButton *tb = qobject_cast<QToolButton *>(widget);
             if (tb) {
                 tb->disconnect(this, SLOT(slotToolButtonToggled(bool)));
@@ -1366,17 +1260,13 @@ void KisToolBar::actionEvent(QActionEvent *event)
             Q_FOREACH (QWidget *child, widget->findChildren<QWidget *>()) {
                 child->installEventFilter(this);
             }
-            // Center widgets that do not have any use for more space. See bug 165274
             if (!(widget->sizePolicy().horizontalPolicy() & QSizePolicy::GrowFlag)
-                    // ... but do not center when using text besides icon in vertical toolbar. See bug 243196
                     && !(orientation() == Qt::Vertical && toolButtonStyle() == Qt::ToolButtonTextBesideIcon)) {
                 const int index = layout()->indexOf(widget);
                 if (index != -1) {
                     layout()->itemAt(index)->setAlignment(Qt::AlignJustify);
                 }
             }
-            // NOTE: set a fixed button size, same size as the buttonsize used in kis_paintop_box
-            // and toggle highlight color on checked buttons, same as in KisHighlightedButton
             QToolButton *tb = qobject_cast<QToolButton *>(widget);
             if (tb && event->action()->icon().isNull() == false) {
                 d->customizeButtonPalette(tb, tb->isChecked());

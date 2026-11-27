@@ -21,4 +21,4 @@ extern const KoID KRITAIMAGE_EXPORT FiltersCategorySharpenId;
 extern const KoID KRITAIMAGE_EXPORT FiltersCategoryStylizeId;
 extern const KoID KRITAIMAGE_EXPORT FiltersCategoryOtherId;
 
-#endif // _KIS_FILTER_CATEGORY_IDS_H_
+#endif

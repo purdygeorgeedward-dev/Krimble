@@ -1,10 +1,6 @@
 #include "kis_abstract_resources.h"
 #include "kis_canvas_resource_provider.h"
 
-
-/*********************************************************************/
-/*                 ToolOpacityAbstractResource                       */
-/*********************************************************************/
 ToolOpacityAbstractResource::ToolOpacityAbstractResource(int key, qreal value)
     :KoAbstractCanvasResourceInterface(key, "debug")
     , m_value(value)

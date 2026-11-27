@@ -15,4 +15,4 @@ private Q_SLOTS:
     void testTimeSpanOperators();
 };
 
-#endif /* _KIS_TIME_SPAN_TEST_H */
+#endif

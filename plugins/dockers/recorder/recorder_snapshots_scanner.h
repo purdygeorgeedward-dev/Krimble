@@ -20,7 +20,6 @@ struct SnapshotDirInfo
 };
 typedef QList<SnapshotDirInfo> SnapshotDirInfoList;
 
-
 class RecorderSnapshotsScanner : public QThread
 {
     Q_OBJECT
@@ -44,4 +43,4 @@ private:
     QString snapshotDirectory;
 };
 
-#endif // RECORDERSNAPSHOTSSCANNER_H
+#endif

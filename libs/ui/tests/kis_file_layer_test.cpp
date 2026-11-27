@@ -26,10 +26,10 @@ void waitForMaskUpdates(KisNodeSP root) {
 #ifdef LIMIT_LONG_TESTS
     KisLayerUtils::forceAllDelayedNodesUpdate(root);
     QTest::qWait(100);
-#else /* LIMIT_LONG_TESTS */
+#else
     Q_UNUSED(root);
     QTest::qWait(100);
-#endif /* LIMIT_LONG_TESTS */
+#endif
 }
 
 void KisFileLayerTest::initTestCase()
@@ -63,7 +63,6 @@ void KisFileLayerTest::testFileLayerPlusTransformMaskOffImage()
     p.image->waitForDone();
     chk.checkImage(p.image, "00X_initial_layer_update");
 
-
     flayer->setX(580);
     flayer->setY(400);
 
@@ -75,18 +74,9 @@ void KisFileLayerTest::testFileLayerPlusTransformMaskOffImage()
     p.image->waitForDone();
     chk.checkImage(p.image, "01X_file_layer_moved");
 
-
     QTransform transform = QTransform::fromTranslate(-580, -400);
     mask1->setTransformParams(KisTransformMaskParamsInterfaceSP(
                                   new KisDumbTransformMaskParams(transform)));
-
-
-    /**
-     * NOTE: here we see our image cropped by 1.5 image size rect!
-     *       That is expected and controlled by
-     *       KisImageConfig::transformMaskOffBoundsReadArea()
-     *       parameter
-     */
 
     mask1->setDirty(refRect);
     p.image->waitForDone();
@@ -114,8 +104,6 @@ void KisFileLayerTest::testFileLayerPlusTransformMaskSmallFileBigOffset()
     waitForMaskUpdates(p.image->root());
     p.image->waitForDone();
 
-    // check whether the default bounds of the file layer are
-    // initialized properly
     QCOMPARE(flayer->original()->defaultBounds()->bounds(), p.image->bounds());
 
     KisTransformMaskSP mask1 = new KisTransformMask(p.image, "mask1");

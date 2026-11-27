@@ -21,9 +21,6 @@ public:
     ~KKeySequenceButton() override;
 
 protected:
-    /**
-    * Reimplemented for internal reasons.
-    */
     bool event(QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
@@ -32,4 +29,4 @@ private:
     KisKKeySequenceWidgetPrivate *const d;
 };
 
-#endif //KKEYSEQUENCEWIDGET_P_H
+#endif

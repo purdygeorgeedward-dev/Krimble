@@ -23,9 +23,6 @@ public:
 
     KisImportExportErrorCode buildImage(QIODevice *io);
     KisImportExportErrorCode buildFile(QIODevice *io, KisImageSP image, vKisNodeSP activeNodes);
-    /**
-     * Retrieve the constructed image
-     */
     KisImageSP image();
     vKisNodeSP activeNodes();
 public Q_SLOTS:

@@ -24,4 +24,4 @@ public:
     LAGER_QT_CURSOR(bool, eraserMode);
 };
 
-#endif // KISCOMPOSITEOPOPTIONMODEL_H
+#endif

@@ -8,7 +8,6 @@
 
 #include <KoID.h>
 
-
 struct Q_DECL_HIDDEN KisLayerStyleFilter::Private
 {
     KoID id;

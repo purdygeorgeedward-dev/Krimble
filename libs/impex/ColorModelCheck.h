@@ -39,7 +39,7 @@ public:
         return (image->colorSpace()->colorModelId() == m_colorModelID && image->colorSpace()->colorDepthId() == m_colorDepthID);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -73,4 +73,4 @@ public:
     const KoID m_colorDepthID;
 };
 
-#endif // COLORMODELCHECK_H
+#endif

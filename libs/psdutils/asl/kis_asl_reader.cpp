@@ -25,12 +25,6 @@
 
 namespace Private
 {
-/**
- * Numerical fetch functions
- *
- * We read numbers and convert them to strings to be able to store
- * them in XML.
- */
 
 template<psd_byte_order byteOrder = psd_byte_order::psdBigEndian>
 QString readDoubleAsString(QIODevice &device)
@@ -58,12 +52,6 @@ QString readBoolAsString(QIODevice &device)
 
     return KisDomUtils::toString(value);
 }
-
-/**
- * XML generation functions
- *
- * Add a node and fill the corresponding attributes
- */
 
 QDomElement appendXMLNodeCommon(const QString &key, const QString &value, const QString &type, QDomElement *parent, QDomDocument *doc)
 {
@@ -115,10 +103,6 @@ void appendPointXMLNode(const QString &key, const QPointF &pt, QDomElement *pare
     appendDoubleXMLNode("Vrtc", KisDomUtils::toString(pt.x()), &el, doc);
 }
 
-/**
- * ASL -> XML parsing functions
- */
-
 template<psd_byte_order byteOrder = psd_byte_order::psdBigEndian>
 void readDescriptor(QIODevice &device, const QString &key, QDomElement *parent, QDomDocument *doc);
 
@@ -134,8 +118,6 @@ void readChildObject(QIODevice &device, QDomElement *parent, QDomDocument *doc, 
     }
 
     QString OSType = readFixedString<byteOrder>(device);
-
-    // dbgKrita << "Child" << ppVar(key) << ppVar(OSType);
 
     if (OSType == "obj ") {
         throw KisAslReaderUtils::ASLParseException("OSType 'obj' not implemented");
@@ -189,8 +171,6 @@ void readChildObject(QIODevice &device, QDomElement *parent, QDomDocument *doc, 
     } else if (OSType == "tdta") {
 
         if (key == "EngineData") {
-            // This is PSD text engine data, which outputs
-            // Carousel Object Structure (PDF) data, much like the "Txt2" additional info block.
             quint32 len = 0.0;
             SAFE_READ_EX(byteOrder, device, len);
             QByteArray ba = device.read(len);
@@ -208,8 +188,6 @@ void readChildObject(QIODevice &device, QDomElement *parent, QDomDocument *doc, 
     }
 }
 
-
-
 template<psd_byte_order byteOrder>
 void readDescriptor(QIODevice &device, const QString &key, QDomElement *parent, QDomDocument *doc)
 {
@@ -224,8 +202,6 @@ void readDescriptor(QIODevice &device, const QString &key, QDomElement *parent, 
     QDomElement el = appendXMLNodeCommonNoValue(key, "Descriptor", parent, doc);
     el.setAttribute("classId", classId);
     el.setAttribute("name", name);
-
-    // dbgKrita << "Descriptor" << ppVar(key) << ppVar(classId) << ppVar(numChildren);
 
     for (quint32 i = 0; i < numChildren; i++) {
         readChildObject<byteOrder>(device, &el, doc);
@@ -316,14 +292,6 @@ QImage readVirtualArrayList(QIODevice &device, int numPlanes, const QVector<QRgb
         quint8 useCompression = 9;
         SAFE_READ_EX(byteOrder, device, useCompression);
 
-        // dbgKrita << "plane index:" << ppVar(i);
-        // dbgKrita << ppVar(arrayWritten);
-        // dbgKrita << ppVar(arrayPlaneLength);
-        // dbgKrita << ppVar(pixelDepth1);
-        // dbgKrita << ppVar(planeRect);
-        // dbgKrita << ppVar(pixelDepth2);
-        // dbgKrita << ppVar(useCompression);
-
         if (pixelDepth1 != pixelDepth2) {
             throw ASLParseException("VAList: two pixel depths of the plane are not equal (it is not documented)!");
         }
@@ -389,7 +357,7 @@ QImage readVirtualArrayList(QIODevice &device, int numPlanes, const QVector<QRgb
     }
 
     QImage::Format format{};
-    
+
     if (pixelDepth1 == 1 || !palette.isEmpty()) {
         if (palette.isEmpty()) {
             format = QImage::Format_Grayscale8;
@@ -414,7 +382,6 @@ QImage readVirtualArrayList(QIODevice &device, int numPlanes, const QVector<QRgb
     if (format == QImage::Format_ARGB32) {
         quint8 *dstPtr = image.bits();
 
-        // This copies the single channel data into all three rgb channels, creating a grayscale picture
         for (int i = 0; i < dataLength; i++) {
             for (int j = 2; j >= 0; j--) {
                 int plane;
@@ -451,11 +418,6 @@ QImage readVirtualArrayList(QIODevice &device, int numPlanes, const QVector<QRgb
         }
     }
 
-    // static int i = -1; i++;
-    // QString filename = QString("pattern_image_%1.png").arg(i);
-    // dbgKrita << "### dumping pattern image" << ppVar(filename);
-    // image.save(filename);
-
     return image.convertToFormat(QImage::Format_ARGB32, Qt::AutoColor | Qt::PreferDither);
 }
 
@@ -467,7 +429,6 @@ qint64 readPattern(QIODevice &device, QDomElement *parent, QDomDocument *doc)
     quint32 patternSize = GARBAGE_VALUE_MARK;
     SAFE_READ_EX(byteOrder, device, patternSize);
 
-    // patterns are always aligned by 4 bytes
     patternSize = KisAslWriterUtils::alignOffsetCeil(patternSize, 4);
 
     SETUP_OFFSET_VERIFIER(patternEndVerifier, device, patternSize, 0);
@@ -502,14 +463,6 @@ qint64 readPattern(QIODevice &device, QDomElement *parent, QDomDocument *doc)
     QString patternUuid = readPascalString<byteOrder>(device);
 
     dbgFile << "Pattern UUID:" << patternUuid << "(" << device.pos() << ")";
-
-    // dbgKrita << "--";
-    // dbgKrita << ppVar(patternSize);
-    // dbgKrita << ppVar(patternImageMode);
-    // dbgKrita << ppVar(patternHeight);
-    // dbgKrita << ppVar(patternWidth);
-    // dbgKrita << ppVar(patternName);
-    // dbgKrita << ppVar(patternUuid);
 
     int numPlanes = 0;
     psd_color_mode mode = static_cast<psd_color_mode>(patternImageMode);
@@ -547,13 +500,11 @@ qint64 readPattern(QIODevice &device, QDomElement *parent, QDomDocument *doc)
 
         dbgFile << "Palette: " << palette << "(" << device.pos() << ")";
 
-        // XXX: there's no way to detect this. Assume the 772 length
         quint16 validColours = GARBAGE_VALUE_MARK;
         psdread<byteOrder>(device, validColours);
         palette.resize(validColours);
         dbgFile << "Palette real size:" << validColours << "(" << device.pos() << ")";
 
-        // Set transparent colour
         quint16 transparentIdx = GARBAGE_VALUE_MARK;
         psdread<byteOrder>(device, transparentIdx);
         dbgFile << "Transparent index:" << transparentIdx << "(" << device.pos() << ")";
@@ -562,10 +513,6 @@ qint64 readPattern(QIODevice &device, QDomElement *parent, QDomDocument *doc)
                                         qGreen(palette[transparentIdx]),
                                         qBlue(palette[transparentIdx]), 0x00);
     }
-
-    /**
-     * Create XML data
-     */
 
     QDomElement pat = doc->createElement("node");
 
@@ -576,19 +523,13 @@ qint64 readPattern(QIODevice &device, QDomElement *parent, QDomDocument *doc)
     QBuffer patternBuf;
     patternBuf.open(QIODevice::WriteOnly);
 
-    { // ensure we don't keep resources for too long
-        // XXX: this QImage should tolerate 16-bit and higher
+    {
         QString fileName = QString("%1.pat").arg(patternUuid);
         QImage patternImage = readVirtualArrayList<byteOrder>(device, numPlanes, palette);
         KoPattern realPattern(patternImage, patternName, fileName);
         realPattern.savePatToDevice(&patternBuf);
     }
 
-    /**
-     * We are loading the pattern and convert it into ARGB right away,
-     * so we need not store real image mode and size of the pattern
-     * externally.
-     */
     appendTextXMLNode("Nm  ", patternName, &pat, doc);
     appendTextXMLNode("Idnt", patternUuid, &pat, doc);
 
@@ -620,7 +561,7 @@ QDomDocument readFileImpl(QIODevice &device)
 
     {
         quint32 aslSignature = GARBAGE_VALUE_MARK;
-        const quint32 refSignature = 0x3842534c; // '8BSL' in little-endian
+        const quint32 refSignature = 0x3842534c;
         SAFE_READ_SIGNATURE_EX(psd_byte_order::psdBigEndian, device, aslSignature, refSignature);
     }
 
@@ -628,8 +569,6 @@ QDomDocument readFileImpl(QIODevice &device)
         quint16 patternsVersion = GARBAGE_VALUE_MARK;
         SAFE_READ_SIGNATURE_EX(psd_byte_order::psdBigEndian, device, patternsVersion, 3);
     }
-
-    // Patterns
 
     {
         quint32 patternsSize = GARBAGE_VALUE_MARK;
@@ -654,8 +593,6 @@ QDomDocument readFileImpl(QIODevice &device)
             }
         }
     }
-
-    // Styles
 
     quint32 numStyles = GARBAGE_VALUE_MARK;
     SAFE_READ_EX(psd_byte_order::psdBigEndian, device, numStyles);
@@ -684,7 +621,7 @@ QDomDocument readFileImpl(QIODevice &device)
     return doc;
 }
 
-} // namespace Private
+}
 
 QDomDocument KisAslReader::readFile(QIODevice &device)
 {
@@ -827,7 +764,6 @@ QDomDocument readTypeToolObjectSettingsImpl(QIODevice &device, QTransform &trans
 
         }
 
-        // transform matrix.
         double xx = GARBAGE_VALUE_MARK;
         SAFE_READ_EX(byteOrder, device, xx);
         double xy = GARBAGE_VALUE_MARK;
@@ -852,10 +788,8 @@ QDomDocument readTypeToolObjectSettingsImpl(QIODevice &device, QTransform &trans
 
         QDomElement root = doc.createElement("asl");
         doc.appendChild(root);
-        // text layer data
         Private::readDescriptor<byteOrder>(device, "", &root, &doc);
 
-        // warp data
         {
             quint16 textVersion = GARBAGE_VALUE_MARK;
             SAFE_READ_SIGNATURE_EX(byteOrder, device, textVersion, 1);
@@ -864,18 +798,6 @@ QDomDocument readTypeToolObjectSettingsImpl(QIODevice &device, QTransform &trans
         }
 
         Private::readDescriptor<byteOrder>(device, "", &root, &doc);
-
-        /*// bounding box
-        quint64 left = GARBAGE_VALUE_MARK;
-        SAFE_READ_EX(byteOrder, device, left);
-        quint64 top = GARBAGE_VALUE_MARK;
-        SAFE_READ_EX(byteOrder, device, top);
-        quint64 right = GARBAGE_VALUE_MARK;
-        SAFE_READ_EX(byteOrder, device, right);
-        quint64 bottom = GARBAGE_VALUE_MARK;
-        SAFE_READ_EX(byteOrder, device, bottom);
-        */
-
 
     } catch (KisAslReaderUtils::ASLParseException &e) {
         warnKrita << "WARNING: PSD: TySh section:" << e.what();

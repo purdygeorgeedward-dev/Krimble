@@ -6,7 +6,6 @@
 
 #include "kis_psd_test.h"
 
-
 #include <simpletest.h>
 #include <QCoreApplication>
 
@@ -35,10 +34,7 @@
 #include <KoSvgTextShape.h>
 #include <KisGlobalResourcesInterface.h>
 
-
-
 const QString PSDMimetype = "image/vnd.adobe.photoshop";
-
 
 void KisPSDTest::testFiles()
 {
@@ -62,7 +58,6 @@ void KisPSDTest::testFiles()
     exclusions << "lab-vertical-point-text.psd";
     exclusions << "gray-text-on-path.psd";
     exclusions << "test_shapes.psd";
-
 
     TestUtil::testFiles(QString(FILES_DATA_DIR) + "/sources", exclusions, QString(), 2);
 }
@@ -107,7 +102,6 @@ void KisPSDTest::testTransparencyMask()
     QImage result = doc->image()->projection()->convertToQImage(0, doc->image()->bounds());
     QVERIFY(TestUtil::checkQImageExternal(result, "psd_test", "transparency_masks", "kiki_single", 1, 1));
 
-
     doc->setFileBatchMode(true);
     doc->setMimeType("image/vnd.adobe.photoshop");
 
@@ -131,7 +125,6 @@ void KisPSDTest::testTransparencyMask()
 void KisPSDTest::testOpenGrayscaleMultilayered()
 {
     QFileInfo sourceFileInfo(QString(FILES_DATA_DIR) + '/' + "sources/gray.psd");
-    //QFileInfo sourceFileInfo(QString(FILES_DATA_DIR) + '/' + "sources/100x100gray8.psd");
 
     Q_ASSERT(sourceFileInfo.exists());
 
@@ -299,10 +292,6 @@ void KisPSDTest::testLoadText()
     QVERIFY(textShape);
     QVERIFY(textShape->shapesInside().size() > 0);
 
-    //TODO: Plain text contains (, \ and ), escaped, test salt.
-
-    //------ cmyk --------//
-
     qDebug() << "test cmyk-text-in-shape.psd";
 
     QFileInfo sourceFileInfo2(QString(FILES_DATA_DIR) + '/' + "sources/cmyk-text-in-shape.psd");
@@ -316,30 +305,6 @@ void KisPSDTest::testLoadText()
     textShape = dynamic_cast<KoSvgTextShape*>(layer->shapes().first());
     QVERIFY(textShape);
     QVERIFY(textShape->shapesInside().size() > 0);
-
-    //TODO: test color, test shape, test text-transform:upper-case, test baseline-shift.
-
-    //------ lab --------//
-
-    // for some reason the lab one won't load, probably caused by 'incorrect profile?'
-    /*
-    qDebug() << "test lab-vertical-point-text.psd";
-
-    QFileInfo sourceFileInfo3(QString(FILES_DATA_DIR) + '/' + "sources/lab-vertical-point-text.psd");
-    Q_ASSERT(sourceFileInfo3.exists());
-
-    doc = openPsdDocument(sourceFileInfo3);
-    QVERIFY(doc->image());
-    layer = qobject_cast<KisShapeLayer*>(doc->image()->root()->lastChild().data());
-    QVERIFY(layer);
-    QVERIFY(layer->shapes().size() == 1);
-    textShape = dynamic_cast<KoSvgTextShape*>(layer->shapes().first());
-    QVERIFY(textShape);
-    QVERIFY(textShape->shapesInside().isEmpty());
-
-    //TODO: test vertical text, text-orientation and text-combine-upright as well as alignment baseline.
-    */
-    //----- gray -----//
 
     qDebug() << "test gray-text-on-path.psd";
 
@@ -355,7 +320,6 @@ void KisPSDTest::testLoadText()
     QVERIFY(textShape);
     QVERIFY(textShape->shapesInside().isEmpty());
 
-    //TODO: test text on path, color.
 }
 
 void KisPSDTest::testLoadVectorShapes()
@@ -366,12 +330,10 @@ void KisPSDTest::testLoadVectorShapes()
     QSharedPointer<KisDocument> doc = openPsdDocument(sourceFileInfo);
     QVERIFY(doc->image());
 
-    // Test guides, both are at 100 of 200.
     QVERIFY(doc->guidesConfig().hasGuides());
     QVERIFY(doc->guidesConfig().horizontalGuideLines().size() == 1);
     QVERIFY(doc->guidesConfig().verticalGuideLines().size() == 1);
 
-    // Triangle, no fill, pattern stroke.
     KisShapeLayerSP layer = qobject_cast<KisShapeLayer*>(doc->image()->root()->lastChild().data());
     QVERIFY(layer);
     QVERIFY(layer->shapes().size() == 1);
@@ -386,7 +348,6 @@ void KisPSDTest::testLoadVectorShapes()
     QVERIFY(shapeStroke->capStyle() == Qt::FlatCap);
     QVERIFY(shapeStroke->joinStyle() == Qt::MiterJoin);
 
-    // Polygon, pattern fill, gradient stroke
     layer = qobject_cast<KisShapeLayer*>(layer->prevSibling().data());
     QVERIFY(layer);
     QVERIFY(layer->shapes().size() == 1);
@@ -402,7 +363,6 @@ void KisPSDTest::testLoadVectorShapes()
     QVERIFY(shapeStroke->joinStyle() == Qt::BevelJoin);
     QVERIFY(shapeStroke->lineBrush().gradient());
 
-    // Ellipse, gradient fill, solid dashed stroke
     layer = qobject_cast<KisShapeLayer*>(layer->prevSibling().data());
     QVERIFY(layer);
     QVERIFY(layer->shapes().size() == 1);
@@ -418,7 +378,6 @@ void KisPSDTest::testLoadVectorShapes()
     QVERIFY(shapeStroke->joinStyle() == Qt::RoundJoin);
     QVERIFY(shapeStroke->color() == Qt::red);
 
-    // Rectangle, solid fill, no stroke
     layer = qobject_cast<KisShapeLayer*>(layer->prevSibling().data());
     QVERIFY(layer);
     QVERIFY(layer->shapes().size() == 1);
@@ -535,7 +494,6 @@ void KisPSDTest::testSaveLayerStylesWithPatternMulti()
         QVERIFY(doc->image());
 
         QImage result = doc->image()->projection()->convertToQImage(0, doc->image()->bounds());
-        //QVERIFY(TestUtil::checkQImageExternal(result, "psd_test", "transparency_masks", "kiki_single"));
 
         KisLayerSP layer = qobject_cast<KisLayer*>(doc->image()->root()->lastChild().data());
         QVERIFY(layer->layerStyle());
@@ -596,17 +554,11 @@ void KisPSDTest::testOpeningAllFormats()
         }
 
         if (sourceFileInfo.fileName() != "ml_cmyk_16b.psd") {
-            //continue;
         }
-
-        //dbgKrita << "Opening" << ppVar(sourceFileInfo.fileName());
 
         QSharedPointer<KisDocument> doc = openPsdDocument(sourceFileInfo);
 
         if (!doc->image()) {
-            /**
-             * 32bit images are expected to fail atm, their loading is not implemented
-             */
             if (!sourceFileInfo.fileName().contains("_32b")) {
                 shouldFailTheTest = true;
             }
@@ -615,7 +567,6 @@ void KisPSDTest::testOpeningAllFormats()
             continue;
         }
 
-        // just check visually if the file loads fine
         KIS_DUMP_DEVICE_2(doc->image()->projection(), QRect(0,0,100,100), sourceFileInfo.fileName(), "dd");
     }
 
@@ -640,7 +591,6 @@ void KisPSDTest::testSavingAllFormats()
         }
 
         if (sourceFileInfo.fileName() != "sl_rgb_8b.psd") {
-            //continue;
         }
 
         dbgKrita << "Opening" << ppVar(sourceFileInfo.fileName());
@@ -654,14 +604,9 @@ void KisPSDTest::testSavingAllFormats()
 
         QString baseName = sourceFileInfo.fileName();
 
-        //QString originalName = QString("%1_0orig").arg(baseName);
-        //QString resultName = QString("%1_1result").arg(baseName);
         QString tempPsdName = QString("%1_3interm.psd").arg(baseName);
 
         QImage refImage = doc->image()->projection()->convertToQImage(0, QRect(0,0,100,100));
-
-        // uncomment to do a visual check
-        // KIS_DUMP_DEVICE_2(doc->image()->projection(), QRect(0,0,100,100), originalName, "dd");
 
         doc->setFileBatchMode(true);
         doc->setMimeType("image/vnd.adobe.photoshop");
@@ -677,36 +622,26 @@ void KisPSDTest::testSavingAllFormats()
             QSharedPointer<KisDocument> doc = openPsdDocument(dstFileInfo);
             QVERIFY(doc->image());
 
-            // uncomment to do a visual check
-            //KIS_DUMP_DEVICE_2(doc->image()->projection(), QRect(0,0,100,100), resultName, "dd");
-
             QImage resultImage = doc->image()->projection()->convertToQImage(0, QRect(0,0,100,100));
             QCOMPARE(resultImage, refImage);
         }
     }
 }
 
-
-
 void KisPSDTest::testImportFromWriteonly()
 {
     TestUtil::testImportFromWriteonly(PSDMimetype);
 }
-
 
 void KisPSDTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(PSDMimetype);
 }
 
-
 void KisPSDTest::testImportIncorrectFormat()
 {
     TestUtil::testImportIncorrectFormat(PSDMimetype);
 }
-
-
-
 
 KISTEST_MAIN(KisPSDTest)
 

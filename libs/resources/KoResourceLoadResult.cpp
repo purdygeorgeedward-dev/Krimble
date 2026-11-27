@@ -12,8 +12,6 @@
 
 struct KoResourceLoadResult::Private
 {
-    // XXX: this should take a monostate for null resources
-    // AAA: no, it shouldn't, null resource must be a KoResourceSignature only
     std::variant<KoResourceSP, KoEmbeddedResource, KoResourceSignature> value;
 };
 

@@ -106,7 +106,6 @@ KisImportExportErrorCode KisHeightMapExport::convert(KisDocument *document, QIOD
 
     QDataStream s(io);
     s.setByteOrder(bo);
-    // needed for 32bit float data
     s.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
     KoID target_co_model = GrayAColorModelID;

@@ -34,7 +34,6 @@ private:
     ImagePointer m_image;
 };
 
-
 using KisImageBarrierLockAdapter = KisImageBarrierLockAdapterImpl<KisImageSP, false>;
 using KisImageReadOnlyBarrierLockAdapter = KisImageBarrierLockAdapterImpl<KisImageSP, true>;
 
@@ -47,4 +46,4 @@ KIS_DECLARE_ADAPTED_LOCK(KisImageReadOnlyBarrierLock, KisImageReadOnlyBarrierLoc
 KIS_DECLARE_ADAPTED_LOCK(KisImageBarrierLockRaw, KisImageBarrierLockAdapterRaw)
 KIS_DECLARE_ADAPTED_LOCK(KisImageReadOnlyBarrierLockRaw, KisImageReadOnlyBarrierLockAdapterRaw)
 
-#endif /* __KIS_IMAGE_BARRIER_LOCK_H */
+#endif

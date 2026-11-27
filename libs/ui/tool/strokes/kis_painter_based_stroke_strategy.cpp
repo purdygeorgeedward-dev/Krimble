@@ -37,7 +37,6 @@
 #include <KisStrokeCompatibilityInfo.h>
 #include "KisAnimAutoKey.h"
 
-
 KisPainterBasedStrokeStrategy::KisPainterBasedStrokeStrategy(const QLatin1String &id,
                                                              const KUndo2MagicString &name,
                                                              KisResourcesSnapshotSP resources,
@@ -312,7 +311,6 @@ void KisPainterBasedStrokeStrategy::initStrokeCallback()
                                                -1,
                                                wrapper.release()));
 
-        // WARNING: masked brush cannot work without indirect painting mode!
         KIS_SAFE_ASSERT_RECOVER_NOOP(!(supportsMaskingBrush() &&
                                        m_resources->needsMaskingBrushRendering()) || hasIndirectPainting);
 
@@ -338,12 +336,10 @@ void KisPainterBasedStrokeStrategy::initStrokeCallback()
         m_targetDevice = targetDevice;
         m_activeSelection = selection;
 
-        // sanity check: selection should be applied only once
         if (selection && !m_strokeInfos.isEmpty()) {
             KisIndirectPaintingSupport *indirect =
                 dynamic_cast<KisIndirectPaintingSupport*>(node.data());
             KIS_ASSERT_RECOVER_RETURN(hasIndirectPainting || m_strokeInfos.first()->painter->selection());
-            // when hasIndirectPainting is true, indirect cannot be null
             KIS_ASSERT_RECOVER_RETURN(!hasIndirectPainting || indirect);
             KIS_ASSERT_RECOVER_RETURN(!hasIndirectPainting || !indirect->temporarySelection() || !m_strokeInfos.first()->painter->selection());
         }
@@ -371,10 +367,6 @@ struct MergeableStrokeUndoCommand : KUndo2Command
                 });
 
             if (isCompatible) {
-                /// NOTE: we are merging the original (potentially) "saved"
-                ///       command, to the one we unwrapped above, because
-                ///       the unwrapped command is **owned** by the "saved"
-                ///       command
                 return KUndo2Command::timedMergeWith(_other);
             }
         }
@@ -384,7 +376,7 @@ struct MergeableStrokeUndoCommand : KUndo2Command
     KisStrokeCompatibilityInfo m_compatibilityInfo;
 };
 
-} // namespace
+}
 
 void KisPainterBasedStrokeStrategy::finishStrokeCallback()
 {
@@ -394,7 +386,6 @@ void KisPainterBasedStrokeStrategy::finishStrokeCallback()
 
     KisPostExecutionUndoAdapter *undoAdapter =
         m_resources->postExecutionUndoAdapter();
-
 
     if (!undoAdapter) {
         m_fakeUndoData.reset(new FakeUndoData());
@@ -441,10 +432,6 @@ void KisPainterBasedStrokeStrategy::finishStrokeCallback()
                     undoAdapter->addCommand(parentCommand);
                 }
             });
-
-        /// When the transaction is reset to zero, cancel job does nothing.
-        /// Therefore, we should ensure that the merging jobs are never
-        /// cancelled.
 
         Q_FOREACH (KisRunnableStrokeJobData *job, jobs) {
             job->setCancellable(false);
@@ -520,8 +507,6 @@ void KisPainterBasedStrokeStrategy::resumeStrokeCallback()
         dynamic_cast<KisIndirectPaintingSupport*>(node.data());
 
     if(indirect) {
-        // todo: don't ask about paint device
-        // todo:change to an assert
         if (node->paintDevice() != m_targetDevice) {
             indirect->setTemporaryTarget(m_targetDevice);
             indirect->setTemporaryCompositeOp(m_resources->compositeOpId());

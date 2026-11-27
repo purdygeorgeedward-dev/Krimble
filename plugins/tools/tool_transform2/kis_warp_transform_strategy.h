@@ -62,10 +62,8 @@ Q_SIGNALS:
     void requestImageRecalculation();
 
 protected:
-    // default is true
     void setClipOriginalPointsPosition(bool value);
 
-    // default is false
     void setCloseOnStartPointClick(bool value);
 
     void overrideDrawingItems(bool drawConnectionLines,
@@ -88,4 +86,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_WARP_TRANSFORM_STRATEGY_H */
+#endif

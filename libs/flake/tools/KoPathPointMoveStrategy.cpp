@@ -36,7 +36,6 @@ void KoPathPointMoveStrategy::handleMouseMove(const QPointF &mouseLocation, Qt::
     QPointF move = newPosition - m_startPointPosition;
 
     if (modifiers & Qt::ShiftModifier) {
-        // Limit change to one direction only
         move = snapToClosestAxis(move);
     }
 

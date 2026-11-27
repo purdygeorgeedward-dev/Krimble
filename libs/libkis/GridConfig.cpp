@@ -45,7 +45,6 @@ bool GridConfig::operator!=(const GridConfig &other) const
     return !(operator==(other));
 }
 
-
 bool GridConfig::visible() const
 {
     return d->gridConfig->showGrid();
@@ -322,7 +321,6 @@ void GridConfig::setLineTypeVertical(const QString &lineType)
     }
 }
 
-
 QColor GridConfig::colorMain() const
 {
     return d->gridConfig->colorMain();
@@ -373,10 +371,8 @@ QString GridConfig::toXml() const
     return doc.toString(2);
 }
 
-
 KisGridConfig GridConfig::gridConfig() const
 {
     return *d->gridConfig;
 }
-
 

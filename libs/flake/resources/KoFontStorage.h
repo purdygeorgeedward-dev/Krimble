@@ -28,4 +28,4 @@ public:
     bool loadVersionedResource(KoResourceSP resource) override;
 };
 
-#endif // KOFONTSTORAGE_H
+#endif
