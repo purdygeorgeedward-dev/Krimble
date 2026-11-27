@@ -159,7 +159,7 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     }
     Q_FOREACH (QDialogButtonBox *box, dialog->findChildren<QDialogButtonBox*>()) {
         box->setProperty("krimbleKeepRows", true);
-        if (box->sizeHint().width() <= available - 24) continue;
+        if (!dialog->inherits("KisDlgPreferences") || box->sizeHint().width() <= available - 24) continue;
         QList<QAbstractButton*> extra;
         Q_FOREACH (QAbstractButton *b, box->buttons()) {
             const QDialogButtonBox::ButtonRole role = box->buttonRole(b);
