@@ -135,7 +135,7 @@ static bool krimbleKeepsRows(QObject *layoutOrWidget)
 
 static void krimbleNarrowDialogLayouts(QDialog *dialog)
 {
-    if (!dialog || !dialog->isWindow() || dialog->property("krimbleNarrowed").toBool()) return;
+    if (!dialog || !dialog->isWindow() || dialog->property("krimbleNarrowed").toBool() || dialog->inherits("KisOpenPane")) return;
     QScreen *screen = dialog->screen() ? dialog->screen() : QGuiApplication::primaryScreen();
     if (!screen) return;
     const int available = screen->availableGeometry().width();

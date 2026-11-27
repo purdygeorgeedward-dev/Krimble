@@ -62,8 +62,6 @@ private Q_SLOTS:
     void resolutionChanged(double value);
     void predefinedClicked(int index);
     void saveAsPredefined();
-    void setLandscape();
-    void setPortrait();
     void switchWidthHeight();
     void createImage();
     void switchPortraitLandscape();
@@ -80,6 +78,8 @@ protected:
     void showEvent(QShowEvent *) override;
 
     void resizeEvent(QResizeEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
+    void krimbleUpdateStacking();
 
     KisOpenPane *m_openPane;
 private:

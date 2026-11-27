@@ -62,10 +62,16 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
 
 #ifdef Q_OS_ANDROID
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
-        const QSize screenSize = scr->availableGeometry().size();
-        const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
-        resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
-               qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
+        auto fitToScreen = [this, krimbleCustomPage, scr]() {
+            const QSize screenSize = scr->availableGeometry().size();
+            const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
+            resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
+                   qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
+            const QRect available = scr->availableGeometry();
+            move(available.center() - rect().center());
+        };
+        fitToScreen();
+        connect(scr, &QScreen::availableGeometryChanged, this, [fitToScreen]() { fitToScreen(); });
     }
 #endif
 }
