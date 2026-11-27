@@ -112,7 +112,7 @@ QString ThemeManager::currentThemeName() const
         themeName = d->currentThemeName;
     }
     if (themeName.isEmpty()) {
-        themeName = "Krimble Blue-Gray";
+        themeName = "Blue-Gray";
     }
     return themeName;
 }
@@ -198,7 +198,9 @@ static QString krimbleGraySheet(const QString &sheet)
 
 void ThemeManager::setCurrentTheme(const QString& name)
 {
-    d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue") || name.contains(QStringLiteral("Krita"), Qt::CaseInsensitive)) ? QStringLiteral("Krimble Blue-Gray") : name;
+    QString krimbleName = name;
+    if (krimbleName.startsWith(QStringLiteral("Krimble ")) && krimbleName != QStringLiteral("Krimble dark")) krimbleName = krimbleName.mid(8);
+    d->currentThemeName = (krimbleName == QStringLiteral("Krimble dark") || krimbleName == QStringLiteral("Blue") || krimbleName.contains(QStringLiteral("Krita"), Qt::CaseInsensitive)) ? QStringLiteral("Blue-Gray") : krimbleName;
 
     if (d->themeMenuAction  && d->themeMenuActionGroup) {
         QList<QAction*> list = d->themeMenuActionGroup->actions();
@@ -228,7 +230,7 @@ void ThemeManager::slotChangePalette()
     KisIconUtils::clearIconCache();
 
     QString theme(currentThemeName());
-    if (!d->themeMap.contains(theme) && theme != QStringLiteral("System")) theme = QStringLiteral("Krimble Blue-Gray");
+    if (!d->themeMap.contains(theme) && theme != QStringLiteral("System")) theme = QStringLiteral("Blue-Gray");
     QString filename        = d->themeMap.value(theme);
     KSharedConfigPtr config = KSharedConfig::openConfig(filename);
 
@@ -277,18 +279,19 @@ void ThemeManager::slotChangePalette()
     qApp->setProperty("KDE_COLOR_SCHEME_PATH", filename);
     qApp->setPalette(palette);
 #ifdef Q_OS_ANDROID
-    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));
-    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray") || !theme.startsWith(QStringLiteral("Krimble")));
-    qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Krimble Dark Gray"));
-    qApp->setProperty("krimbleSelectionGradient", theme.startsWith(QStringLiteral("Krimble")) && theme != QStringLiteral("Krimble Dark Gray"));
+    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Painted"));
+    const bool krimbleOwn = theme == QStringLiteral("Blue") || theme == QStringLiteral("Blue-Gray") || theme == QStringLiteral("Dark Gray") || theme == QStringLiteral("Painted");
+    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Dark Gray") || !krimbleOwn);
+    qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Dark Gray"));
+    qApp->setProperty("krimbleSelectionGradient", krimbleOwn && theme != QStringLiteral("Dark Gray"));
     QString krimbleSheet;
-    if (theme == QStringLiteral("Krimble Blue")) {
+    if (theme == QStringLiteral("Blue")) {
         krimbleSheet = (krimbleVisualStyleSheet());
-    } else if (theme == QStringLiteral("Krimble Blue-Gray")) {
+    } else if (theme == QStringLiteral("Blue-Gray")) {
         krimbleSheet = (krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
-    } else if (theme == QStringLiteral("Krimble Dark Gray")) {
+    } else if (theme == QStringLiteral("Dark Gray")) {
         krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
-    } else if (theme == QStringLiteral("Krimble Painted")) {
+    } else if (theme == QStringLiteral("Painted")) {
         krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
             "\nQScrollBar:vertical { background: #03050a; width: 18px; margin: 0px; border: 1px solid #000000; }\n"
             // "QScrollBar:horizontal { background: #0e1226; height: 16px; margin: 0px; border: 1px solid #05070f; }\n"
@@ -307,8 +310,8 @@ void ThemeManager::slotChangePalette()
         krimbleSheet = (krimbleSheet + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
     if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();
-    if (theme == QStringLiteral("Krimble Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
-    else if (theme == QStringLiteral("Krimble Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
+    if (theme == QStringLiteral("Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
+    else if (theme == QStringLiteral("Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
@@ -369,7 +372,7 @@ void ThemeManager::populateThemeMenu()
     QStringList actionMapKeys = actionMap.keys();
     actionMapKeys.sort();
 
-    const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Krimble Blue-Gray")
+    const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Blue-Gray")
                                                                      : d->currentThemeName;
     Q_FOREACH (const QString& name, actionMapKeys) {
         if (name == requestedThemeName) {

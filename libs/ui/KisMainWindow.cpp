@@ -504,9 +504,9 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     }
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
-    d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble Blue-Gray"), this);
+    d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Blue-Gray"), this);
 #ifndef Q_OS_HAIKU
-    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
+    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Blue-Gray"));
 #endif
 #endif
     d->windowStateConfig = KSharedConfig::openConfig()->group("MainWindow");
@@ -3833,7 +3833,7 @@ void KisMainWindow::configChanged()
 
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
-    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
+    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Blue-Gray"));
 #endif
     new KrimbleCanvasOverlay(this);
     krimbleInstallBevels(this);
