@@ -460,7 +460,7 @@ protected:
                                     const int cap = qMax(int(pageScreen->availableGeometry().width() * 0.24), keyboardColumn);
                                     if (pageList->maximumWidth() > cap) pageList->setMaximumWidth(cap);
                                     pageList->setMinimumWidth(qMax(pageList->minimumWidth(), keyboardColumn));
-                                    pageList->setIconSize(QSize(32, 32));
+                                    pageList->setIconSize(QSize(40, 40));
                                     {
                                         KrimblePageListStyle *pageListStyle = new KrimblePageListStyle();
                                         pageListStyle->setParent(pageList);

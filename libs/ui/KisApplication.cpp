@@ -304,7 +304,7 @@ public:
     KrimblePageListStyle() : QProxyStyle(QApplication::style()->objectName()) {}
     int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override
     {
-        if (metric == QStyle::PM_IconViewIconSize) return 32;
+        if (metric == QStyle::PM_IconViewIconSize) return 40;
         return QProxyStyle::pixelMetric(metric, option, widget);
     }
 };
