@@ -3,6 +3,27 @@
 Every bug list from testing a build, filed under the build it was found in, reworded as plain issue statements.
 Release notes take their Known issues from here. Newest first. The status of each fix is in KRIMBLE_CHANGES.md.
 
+## Special test build 81, 1.0.81-test-no72 (tested Nov 27, 2026, 9:21 AM MST; screenshots docs/krimble-refs/2026-11-27_0921_build81-*)
+
+Build 81 ignored the instructions and rebuilt the same bug we were trying to kill: it still carried 1.0.72 code. Its errors:
+
+1. Buttons have different shapes and styles throughout the app.
+2. The grip on the toolbox is bad.
+3. The vertical dividers in menus do not reach the bottom.
+4. Toolbar grips are black instead of white.
+5. A white frame shows around dialogs (Save options, Preferences, Configure Toolbars, New File).
+6. Aqua blue still shows: Change Icon when pressed, the selected Exposure and Gamma row, the Color Lab Picker tab.
+7. Buttons are not consistent: bevel pills, square buttons (Clear, the arrow pad, Apply) and black pills (Canvas Input rows, New File, Color Space Browser); the pills are small; some have color and some not.
+8. Preferences: Restore Defaults, Cancel and OK are stacked as full-width bars; the page list is squeezed to a sliver and its icons are tiny.
+9. Configure Toolbars upright: the top is cut off, "Toolbar:" overlaps, Available actions has blank rows. It should display upright, with at least the two bottom buttons side by side.
+10. Recent Images shows blank thumbnails.
+11. The image window's minimize, restore and close buttons sit in the menu bar over Help.
+12. The toolbox top shows a small dotted grip with a scroll arrow.
+13. Color Lab's panel color does not match the panel beside it.
+14. New File leaves a hole in the window below Cancel and Create.
+15. The Layers panel has an empty row under the layer.
+16. The Layers options menu (the side menu) shows its section titles as bare lines, with no labels.
+
 ## 1.0.80-beta (tested Nov 26, 2026, 2:36 PM MST; screenshots docs/krimble-refs/2026-11-26_1436_*)
 
 1. The New File dialog is very tall no matter what is done to it.

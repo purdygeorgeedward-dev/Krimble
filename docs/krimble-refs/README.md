@@ -190,3 +190,23 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-26_2008_preview-black-and-white-scrollbar.png — Black and White scrollbar grip: black outline, black ridges (George: "On white everything needs a black outline.")
 - 2026-11-26_2020_preview-black-and-white-outlines.png — Black and White dialog: black outlines on fields, lists, group boxes, check boxes, sliders, progress bars and scrollbars; black fills instead of Aqua (George: "Anything that otherwise just bleeds into white.")
 - 2026-11-26_2030_preview-black-and-white-spin-progress.png — Black and White: number box arrows drawn inside the box, gray progress fill so the percentage stays readable
+- 2026-11-27_0921_build81-01-save-options-white-frame.jpg — build 81 (special test build): save options: white frame
+- 2026-11-27_0921_build81-02-layers-panel-empty-row.jpg — build 81 (special test build): Layers panel: empty row under the layer
+- 2026-11-27_0921_build81-03-preferences-stacked-buttons.jpg — build 81 (special test build): Preferences General: stacked full-width buttons, squeezed page list
+- 2026-11-27_0921_build81-04-recent-images-blank.jpg — build 81 (special test build): Recent Images: blank thumbnails
+- 2026-11-27_0921_build81-05-color-lab-floating.jpg — build 81 (special test build): Color Lab floating
+- 2026-11-27_0921_build81-06-configure-toolbars-upright-cut-off.jpg — build 81 (special test build): Configure Toolbars upright: top cut off, blank rows
+- 2026-11-27_0921_build81-07-configure-toolbars-landscape.jpg — build 81 (special test build): Configure Toolbars landscape
+- 2026-11-27_0921_build81-08-configure-toolbars-change-icon-aqua.jpg — build 81 (special test build): Configure Toolbars: Change Icon pressed in Aqua
+- 2026-11-27_0921_build81-09-configure-toolbars-change-icon-aqua-2.jpg — build 81 (special test build): Configure Toolbars: Change Icon pressed in Aqua (2)
+- 2026-11-27_0921_build81-10-configure-toolbars-change-icon.jpg — build 81 (special test build): Configure Toolbars: Change Icon
+- 2026-11-27_0921_build81-11-configure-toolbars-change-icon-disabled.jpg — build 81 (special test build): Configure Toolbars: Change Icon disabled
+- 2026-11-27_0921_build81-12-layers-options-menu-no-titles.jpg — build 81 (special test build): Layers options menu: section titles as bare lines
+- 2026-11-27_0921_build81-13-layers-options-menu-no-titles-2.jpg — build 81 (special test build): Layers options menu (2)
+- 2026-11-27_0921_build81-14-preferences-canvas-input-black-pills.jpg — build 81 (special test build): Preferences Canvas Input: black pills, Aqua selected row
+- 2026-11-27_0921_build81-15-window-buttons-in-menu-bar.jpg — build 81 (special test build): Image window buttons in the menu bar (arrow)
+- 2026-11-27_0921_build81-16-toolbox-grip-one-column.jpg — build 81 (special test build): Toolbox grip in one column
+- 2026-11-27_0921_build81-17-color-lab-no-match.jpg — build 81 (special test build): Color Lab: NO MATCH
+- 2026-11-27_0921_build81-18-color-lab-docked.jpg — build 81 (special test build): Color Lab docked
+- 2026-11-27_0921_build81-19-new-file-hole.jpg — build 81 (special test build): New File: HOLE below the buttons
+- 2026-11-27_0921_build81-20-new-file.jpg — build 81 (special test build): New File

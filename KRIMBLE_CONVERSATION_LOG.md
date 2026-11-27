@@ -149,3 +149,14 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 18:58: Intel One Mono as the UI font looks like Linux (not adopted).
 - 19:00: Update all documentation.
 
+## 2026-11-27 (MST)
+
+- 07:30: Build 81 still has the same bug; something from .72 got repeated.
+- 07:31: The whole point was to exclude everything from .72. "You defeated the whole purpose of the build."
+- 07:33: Absolutely nothing from .72 in the next build, no derivative. Don't document 81 beyond: it ignored the instructions and rebuilt the same bug we were trying to kill.
+- 07:36: Drop the Cyber theme until the bug is dead; drop the Breeze themes (Krita artifacts).
+- 08:10: Start a new fork from .71; nothing from .72. Picklist of later changes wanted.
+- 09:21: Build 81 errors (16 items, 20 screenshots); "Document the errors in 81."
+- 09:27 to 09:34: Layers options menu stays, with labels; new eye-to-checkbox gap (both on hold).
+- 09:36: Buttons nice and consistent: the selected blue button he liked, regular buttons the same without color or outline, bevel edges; darker toolbox selection (demos approved).
+- 09:50 to 10:27: picklist answers; General Order 1: "If it ever looks like im about to make a big mistake, warn me."; grip with more room; Preferences icons 40; Transform icons: new Scale, Stretch A, Shear B. 10:27: "Go."
