@@ -70,6 +70,7 @@
 #include <QFile>
 #include <QLocale>
 #include <QMessageBox>
+#include <QMdiSubWindow>
 #include <KoDialog.h>
 #include <QProcessEnvironment>
 #include <QStringList>
