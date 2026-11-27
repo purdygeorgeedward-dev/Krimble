@@ -18,6 +18,8 @@
 #include <QBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
+#include <QTimer>
+#include "KoDockWidgetTitleBar.h"
 #include <QScrollArea>
 #include <QScroller>
 
@@ -30,21 +32,18 @@ public:
     }
 
     ~Private() {
-        /// Hider widget is not part of any widget hierarchy (which is intentional
-        /// due to bug 447522), so we need to delete it manually
         delete hiderWidget;
     }
 
     QList<QPointer<QWidget> > currentWidgetList;
     QSet<QWidget *> currentAuxWidgets;
     QScrollArea *scrollArea {nullptr};
-    QWidget *hiderWidget {nullptr}; // non current widgets are hidden by being children of this
+    QWidget *hiderWidget {nullptr};
     QWidget *housekeeperWidget {nullptr};
     QGridLayout *housekeeperLayout {nullptr};
     QBoxLayout *housekeeperMainLayout{nullptr};
     QLabel *toolNameLabel {nullptr};
 
-    // the name of the selected tool (the tool's own name, what its tool tip says) is shown at the top of the docker
     void updateToolName()
     {
         if (!toolNameLabel) return;
@@ -56,8 +55,19 @@ public:
             }
         }
         if (name.endsWith(QLatin1String(" Tool"))) name.chop(5);
+        if (id == QLatin1String("KisToolTransform") || id == QLatin1String("KisToolFreeRotate")) {
+            QString mode = id == QLatin1String("KisToolFreeRotate") ? QStringLiteral("rotate") : qApp->property("krimbleTransformMode").toString();
+            if (mode.isEmpty() || (mode == QLatin1String("rotate") && id != QLatin1String("KisToolFreeRotate"))) mode = QStringLiteral("scale");
+            mode[0] = mode[0].toUpper();
+            name = i18n("Transform") + QString::fromUtf8(" \u2013 ") + mode;
+        }
         toolNameLabel->setText(name);
         toolNameLabel->setVisible(!name.isEmpty());
+        if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) {
+            bar->setTitleOverride(QString());
+            bar->setTabbedTitle(name);
+            bar->update();
+        }
     }
     KoToolDocker *q {nullptr};
     Qt::DockWidgetArea dockingArea {Qt::NoDockWidgetArea};
@@ -81,7 +91,6 @@ public:
 
         currentWidgetList = optionWidgetList;
 
-        // need to unstretch row that have previously been stretched
         housekeeperLayout->setRowStretch(housekeeperLayout->rowCount()-1, 0);
 
         int cnt = 0;
@@ -99,7 +108,7 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                if (!widget->windowTitle().isEmpty()) {
+                if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
                         0,
@@ -132,7 +141,7 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                if (!widget->windowTitle().isEmpty()) {
+                if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
                         cnt++,
@@ -193,6 +202,7 @@ KoToolDocker::KoToolDocker(QWidget *parent)
     d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
     d->updateToolName();
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });
+    QTimer::singleShot(0, this, [this]() { d->updateToolName(); });
 
     d->hiderWidget = new QWidget();
     d->hiderWidget->setVisible(false);
@@ -236,7 +246,6 @@ void KoToolDocker::resetWidgets()
     d->resetWidgets();
 }
 
-
 void KoToolDocker::setCanvas(KoCanvasBase *canvas)
 {
     setEnabled(canvas != 0);
@@ -247,5 +256,4 @@ void KoToolDocker::unsetCanvas()
     setEnabled(false);
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include <moc_KoToolDocker.cpp>
