@@ -11,6 +11,8 @@ c\)_Pencil_HB.kpp
 c\)_Pencil_Blue_Non-Photo.kpp
 d\)_Ink_Technical_Pen.kpp
 d\)_Ink_Brush_Pen.kpp
+# Krimble 2026-11-22: George: "A good art marker for colorists is a good idea too." / "Design markers were special. They were a high bleed marker that made perfect uniform flat tones."
+e\)_Marker_Art.kpp
 DESTINATION  ${KDE_INSTALL_DATADIR}/krita/paintoppresets)
 
 install( FILES
