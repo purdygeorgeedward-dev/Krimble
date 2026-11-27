@@ -312,17 +312,24 @@ static QIcon krimbleGadgetIcon(bool quickMask)
         p.setRenderHint(QPainter::Antialiasing, true);
         const qreal u = size / 28.0;
         const QColor c(225, 228, 240);
-        p.setPen(QPen(c, 2.0 * u));
-        p.setBrush(Qt::NoBrush);
         if (quickMask) {
+            p.setPen(QPen(c, 1.6 * u));
+            p.setBrush(QColor(c.red(), c.green(), c.blue(), 60));
             p.drawRect(QRectF(3 * u, 6 * u, 22 * u, 16 * u));
-            p.setBrush(c);
-            p.setPen(Qt::NoPen);
-            p.drawEllipse(QPointF(14 * u, 14 * u), 4.5 * u, 4.5 * u);
-        } else {
-            p.drawRect(QRectF(9 * u, 4 * u, 16 * u, 12 * u));
+            QPen dots(c, 1.4 * u);
+            dots.setDashPattern({0.9, 0.9});
+            dots.setCapStyle(Qt::FlatCap);
+            p.setPen(dots);
             p.setBrush(QColor(56, 62, 96));
-            p.drawRect(QRectF(3 * u, 10 * u, 16 * u, 12 * u));
+            p.drawEllipse(QPointF(14 * u, 14 * u), 5.2 * u, 5.2 * u);
+        } else {
+            p.setPen(QPen(c, 1.6 * u));
+            p.setBrush(Qt::NoBrush);
+            p.drawRect(QRectF(10 * u, 4 * u, 15 * u, 11 * u));
+            p.fillRect(QRectF(10 * u, 4 * u, 15 * u, 2.6 * u), c);
+            p.setBrush(QColor(56, 62, 96));
+            p.drawRect(QRectF(3 * u, 10 * u, 15 * u, 11 * u));
+            p.fillRect(QRectF(3 * u, 10 * u, 15 * u, 2.6 * u), c);
         }
         p.end();
         icon.addPixmap(pm);
