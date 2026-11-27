@@ -28,6 +28,7 @@
 #include "../colorsfilters/kis_multichannel_utils.h"
 #include "KisLevelsFilter.h"
 #include "KisLevelsFilterConfiguration.h"
+#include "KrimbleAutoAdjust.h"
 
 KisAutoLevelsFilterBase::KisAutoLevelsFilterBase(const KoID &id,
                                                  const QString &menuEntry,
@@ -54,6 +55,12 @@ void KisAutoLevelsFilterBase::processImpl(KisPaintDeviceSP device,
     Q_UNUSED(config);
     Q_ASSERT(device != 0);
 
+    // Krimble: the curves are now worked out by KrimbleAutoAdjust (Auto Tone: each channel stretched on its own;
+    // Auto Color: dark and light colors, neutral midtones, saturation lift). The old Levels-engine code is kept below, not used.
+    KrimbleAutoAdjust::apply(device, applyRect,
+                             id() == KisAutoColorFilter::id().id() ? KrimbleAutoAdjust::Color : KrimbleAutoAdjust::Tone,
+                             progressUpdater);
+#if 0
     const KoColorSpace *cs = device->colorSpace();
 
     // Same restriction as the "auto levels for all channels" button in the
@@ -133,6 +140,7 @@ void KisAutoLevelsFilterBase::processImpl(KisPaintDeviceSP device,
         npix = it.nConseqPixels();
         adj->transform(it.oldRawData(), it.rawData(), npix);
     }
+#endif
 }
 
 KisAutoToneFilter::KisAutoToneFilter()
