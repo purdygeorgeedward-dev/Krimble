@@ -54,6 +54,14 @@ protected:
         const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
         const bool recessed = qobject_cast<QMenu*>(m_target.data()) != nullptr;
         if (krimbleToolBoxTarget && !recessed) {
+            if (qApp->property("krimbleBlackWhiteTheme").toBool()) {
+                const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
+                p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
+                p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
+                p.fillRect(QRectF(0, 0, edge, height()), Qt::black);
+                p.fillRect(QRectF(width() - edge, 0, edge, height()), Qt::black);
+                return;
+            }
             const qreal tb = qMin(7.0 / qMax<qreal>(1.0, devicePixelRatioF()), qMin<qreal>(width(), height()) / 2.0);
             const qreal w = width();
             const qreal h = height();

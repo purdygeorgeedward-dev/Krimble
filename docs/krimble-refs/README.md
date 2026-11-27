@@ -182,3 +182,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-26_1505_preview-black-and-white-buttons.png — Black and White theme buttons (real code, desktop Qt): white pills with black outlines, selected black with white text
 - 2026-11-26_1510_preview-cyber-see-through.png — Cyber with see-through menu bar, panels, status bar, dialogs and buttons, text 25% larger (real sheet, desktop Qt; the backdrop shows through)
 - 2026-11-26_1915_preview-toolbox-bluegray-and-black-and-white.png — toolbox grip and tool buttons rendered with the real paint code (Blue-Gray left, Black and White right); icons recolored white/black as in the app
+- 2026-11-26_1925_preview-black-and-white-toolbox-outline.png — Black and White toolbox with a plain black outline instead of the bevel (real paint code)
