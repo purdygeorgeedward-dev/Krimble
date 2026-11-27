@@ -231,9 +231,12 @@ bool KisWdgLensFlare::moveLightTo(const QPointF &widgetPoint)
     const int y = qBound(0, qRound((imagePoint.y() - bounds.top()) * 100.0 / bounds.height()), 100);
     if (m_x->value() != x || m_y->value() != y) {
         m_x->blockSignals(true);
+        m_y->blockSignals(true);
         m_x->setValue(x);
+        m_y->setValue(y);
         m_x->blockSignals(false);
-        m_y->setValue(y);   // one signal for both: one preview
+        m_y->blockSignals(false);
+        emit sigConfigurationItemChanged();   // one signal for both: one preview
     }
     return true;
 }
