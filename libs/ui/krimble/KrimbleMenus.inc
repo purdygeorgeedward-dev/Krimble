@@ -23,8 +23,7 @@ public:
         if (watched == m_menu && event->type() == QEvent::Show && m_bar && m_menu->isWindow()) {
             const qreal dpr = qMax<qreal>(1.0, m_menu->devicePixelRatioF());
             const QRect nameRect = m_bar->actionGeometry(m_action);
-            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), qMin(m_bar->height(), nameRect.bottom() + 1)));
-            Q_UNUSED(dpr);
+            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), qMin(m_bar->height(), nameRect.bottom() + 1) - qRound(6.0 / dpr)));
             QScreen *screen = QGuiApplication::screenAt(wanted);
             if (!screen) screen = QGuiApplication::primaryScreen();
             const QRect avail = screen->availableGeometry();
