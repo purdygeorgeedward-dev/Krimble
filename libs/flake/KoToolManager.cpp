@@ -733,6 +733,13 @@ void KoToolManager::Private::attachCanvas(KoCanvasController *controller)
         // no active tool, so we activate the highest priority main tool
         int highestPriority = INT_MAX;
         KoToolAction * helper = 0;
+        const QString krimbleLastTool = qApp->property("krimbleLastToolId").toString();
+        if (!krimbleLastTool.isEmpty()) {
+            Q_FOREACH (KoToolAction * th, toolActionList) {
+                if (th->id() == krimbleLastTool) { helper = th; break; }
+            }
+        }
+        if (!helper)
         Q_FOREACH (KoToolAction * th, toolActionList) {
             if (th->id() == QLatin1String("PanTool")) { helper = th; break; }
         }

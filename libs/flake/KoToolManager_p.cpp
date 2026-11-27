@@ -5,6 +5,7 @@
  */
 
 #include "KoToolManager_p.h"
+#include <QApplication>
 
 #include <KoShapeManager.h>
 #include <KoSelection.h>
@@ -33,6 +34,7 @@ KoToolAction::~KoToolAction()
 
 void KoToolAction::trigger()
 {
+    qApp->setProperty("krimbleLastToolId", id());
     KoToolManager::instance()->switchToolRequested(id());
 }
 

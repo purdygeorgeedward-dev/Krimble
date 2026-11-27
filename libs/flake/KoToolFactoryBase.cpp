@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
+#include <QApplication>
 #include "KoToolFactoryBase.h"
 
 #include "KoToolBase.h"
@@ -219,6 +220,7 @@ QList<QAction *> KoToolFactoryBase::createActionsImpl()
 
 void KoToolFactoryBase::activateTool()
 {
+    qApp->setProperty("krimbleLastToolId", sender()->objectName());
     KoToolManager::instance()->switchToolRequested(sender()->objectName());
 }
 
