@@ -157,6 +157,39 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     Q_FOREACH (QSplitter *splitter, dialog->findChildren<QSplitter*>()) {
         if (splitter->orientation() == Qt::Horizontal) splitter->setOrientation(Qt::Vertical);
     }
+    Q_FOREACH (QDialogButtonBox *box, dialog->findChildren<QDialogButtonBox*>()) {
+        box->setProperty("krimbleKeepRows", true);
+        if (box->sizeHint().width() <= available - 24) continue;
+        QList<QAbstractButton*> extra;
+        Q_FOREACH (QAbstractButton *b, box->buttons()) {
+            const QDialogButtonBox::ButtonRole role = box->buttonRole(b);
+            if (role != QDialogButtonBox::AcceptRole && role != QDialogButtonBox::RejectRole
+                    && role != QDialogButtonBox::YesRole && role != QDialogButtonBox::NoRole
+                    && role != QDialogButtonBox::ApplyRole) extra << b;
+        }
+        if (extra.isEmpty() || !box->parentWidget() || !box->parentWidget()->layout()) continue;
+        QBoxLayout *holder = nullptr;
+        int index = -1;
+        Q_FOREACH (QBoxLayout *l, box->parentWidget()->findChildren<QBoxLayout*>()) {
+            index = l->indexOf(box);
+            if (index >= 0) { holder = l; break; }
+        }
+        if (!holder) {
+            holder = qobject_cast<QBoxLayout*>(box->parentWidget()->layout());
+            index = holder ? holder->indexOf(box) : -1;
+        }
+        if (!holder || index < 0) continue;
+        QHBoxLayout *row = new QHBoxLayout();
+        row->setProperty("krimbleKeepRows", true);
+        Q_FOREACH (QAbstractButton *b, extra) {
+            box->removeButton(b);
+            b->setParent(box->parentWidget());
+            row->addWidget(b);
+            b->show();
+        }
+        row->addStretch(1);
+        holder->insertLayout(index, row);
+    }
     dialog->layout()->invalidate();
     if (krimbleDialogMinWidth(dialog) > available) {
         Q_FOREACH (QHBoxLayout *row, dialog->findChildren<QHBoxLayout*>()) {

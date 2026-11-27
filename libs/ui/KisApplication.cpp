@@ -60,6 +60,7 @@
 #endif
 #include <QTabWidget>
 #include <QAbstractButton>
+#include <QDialogButtonBox>
 #include <QAbstractScrollArea>
 #include <QComboBox>
 #include <QGroupBox>
