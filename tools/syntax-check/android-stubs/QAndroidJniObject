@@ -1,0 +1,22 @@
+#pragma once
+#include <QString>
+#include <QByteArray>
+typedef void* jobject; typedef void* jclass; typedef void* jstring; typedef int jint; typedef long long jlong; typedef bool jboolean; typedef float jfloat; typedef double jdouble; typedef void* jbyteArray; typedef void* jobjectArray; typedef void* jintArray; typedef signed char jbyte; typedef int jsize; typedef void* jarray;
+struct JNIEnv { bool ExceptionCheck(){return false;} void ExceptionClear(){} void ExceptionDescribe(){} template<class...A> void* NewByteArray(A...){return nullptr;} template<class...A> void SetByteArrayRegion(A...){} template<class...A> void GetByteArrayRegion(A...){} template<class...A> int GetArrayLength(A...){return 0;} template<class...A> void DeleteLocalRef(A...){} template<class...A> void* GetObjectArrayElement(A...){return nullptr;} template<class...A> signed char* GetByteArrayElements(A...){return nullptr;} template<class...A> void ReleaseByteArrayElements(A...){} template<class...A> void* NewStringUTF(A...){return nullptr;} template<class...A> void* FindClass(A...){return nullptr;} template<class...A> void* NewObjectArray(A...){return nullptr;} template<class...A> void SetObjectArrayElement(A...){} };
+class QAndroidJniObject { public:
+  template<class...A> QAndroidJniObject(A...){}
+  template<class T=void,class...A> static T callStaticMethod(A...){ return T(); }
+  template<class...A> static QAndroidJniObject callStaticObjectMethod(A...){ return QAndroidJniObject(); }
+  template<class T=void,class...A> T callMethod(A...) const { return T(); }
+  template<class...A> QAndroidJniObject callObjectMethod(A...) const { return QAndroidJniObject(); }
+  template<class...A> static QAndroidJniObject getStaticObjectField(A...){ return QAndroidJniObject(); }
+  template<class T,class...A> static T getStaticField(A...){ return T(); }
+  template<class T,class...A> T getField(A...) const { return T(); }
+  template<class...A> QAndroidJniObject getObjectField(A...) const { return QAndroidJniObject(); }
+  static QAndroidJniObject fromString(const QString&){ return QAndroidJniObject(); }
+  static QAndroidJniObject fromLocalRef(void*){ return QAndroidJniObject(); }
+  static bool isClassAvailable(const char*){ return true; }
+  QString toString() const { return QString(); } bool isValid() const { return true; }
+  template<class T=jobject> T object() const { return T(); }
+};
+struct QAndroidJniEnvironment { JNIEnv e; JNIEnv* operator->(){ return &e; } operator JNIEnv*(){ return &e; } };
