@@ -464,6 +464,8 @@ public:
     }
 };
 
+static void krimbleStackPanels(QMainWindow *win);   // defined further down
+
 KisMainWindow::KisMainWindow(QUuid uuid)
     : KXmlGuiWindow()
     , d(new Private(this, uuid))
@@ -557,6 +559,29 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 
     Q_FOREACH (QString title, dockwidgetActions.keys()) {
         d->dockWidgetMenu->addAction(dockwidgetActions[title]);
+    }
+
+    // Panels menu (in the menu bar): the list of panels, then every panel command, which used to be in the Window menu.
+    // The commands are added fresh each time it opens, so Hide/Show All Panels says what it will do.
+    {
+        QMenu *panelsMenu = d->dockWidgetMenu->menu();
+        connect(panelsMenu, &QMenu::aboutToShow, this, [this, panelsMenu]() {
+            Q_FOREACH (QAction *extra, panelsMenu->actions()) {
+                if (!extra->property("krimblePanelsExtra").toBool()) continue;
+                panelsMenu->removeAction(extra);
+                if (extra->parent() == panelsMenu) extra->deleteLater();
+            }
+            auto mark = [](QAction *a) { a->setProperty("krimblePanelsExtra", true); return a; };
+            mark(panelsMenu->addSeparator());
+            const char *names[] = {"view_toggledockers", "settings_detach_panel_menu", "settings_attach_panel_menu", "settings_toggle_right_panels"};
+            for (const char *name : names) {
+                if (QAction *action = actionCollection()->action(QLatin1String(name))) panelsMenu->addAction(mark(action));
+            }
+            QAction *hideAllPanels = mark(panelsMenu->addAction(d->toggleDockers->isChecked() ? i18n("Hide All Panels") : i18n("Show All Panels")));
+            connect(hideAllPanels, &QAction::triggered, this, [this]() { d->toggleDockers->setChecked(!d->toggleDockers->isChecked()); });
+            QAction *stackPanelsAction = mark(panelsMenu->addAction(i18n("Stack Panels")));
+            connect(stackPanelsAction, &QAction::triggered, this, [this]() { krimbleStackPanels(this); });
+        });
     }
 
     KActionMenu *detachPanelAction = new KActionMenu(i18nc("@action:inmenu", "Detach Panel"), this);
@@ -3543,16 +3568,17 @@ void KisMainWindow::updateWindowMenu()
         addActionByName("lock_toolbars");
         menu->addSeparator();
         // menu->addAction(d->dockWidgetMenu);   // Panels is its own menu in the menu bar now, before Window (krita5.xmlgui)
-        addActionByName("view_toggledockers");
-        addActionByName("settings_detach_panel_menu");
-        addActionByName("settings_attach_panel_menu");
-        addActionByName("settings_toggle_right_panels");
-        QAction *hideAllPanels = menu->addAction(d->toggleDockers->isChecked() ? i18n("Hide All Panels") : i18n("Show All Panels"));
-        connect(hideAllPanels, &QAction::triggered, this, [this]() {
-            d->toggleDockers->setChecked(!d->toggleDockers->isChecked());
-        });
-        QAction *stackPanelsAction = menu->addAction(i18n("Stack Panels"));
-        connect(stackPanelsAction, &QAction::triggered, this, [this]() { krimbleStackPanels(this); });
+        // the panel items are in the Panels menu now (see the Panels menu's aboutToShow in the constructor)
+        // addActionByName("view_toggledockers");
+        // addActionByName("settings_detach_panel_menu");
+        // addActionByName("settings_attach_panel_menu");
+        // addActionByName("settings_toggle_right_panels");
+        // QAction *hideAllPanels = menu->addAction(d->toggleDockers->isChecked() ? i18n("Hide All Panels") : i18n("Show All Panels"));
+        // connect(hideAllPanels, &QAction::triggered, this, [this]() {
+        //     d->toggleDockers->setChecked(!d->toggleDockers->isChecked());
+        // });
+        // QAction *stackPanelsAction = menu->addAction(i18n("Stack Panels"));
+        // connect(stackPanelsAction, &QAction::triggered, this, [this]() { krimbleStackPanels(this); });
 #if 0
         QMenu *presets = menu->addMenu(i18n("Layout Presets"));
         struct PresetDef { const char *label; QStringList panels; };
