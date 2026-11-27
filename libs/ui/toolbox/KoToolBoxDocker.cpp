@@ -370,13 +370,13 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
             quickMask->setAutoRaise(true);
             quickMask->setCheckable(true);
             quickMask->setIcon(krimbleGadgetIcon(true));
-            quickMask->setIconSize(QSize(28, 28));
+            quickMask->setIconSize(QSize(22, 22));
             quickMask->setToolTip(i18n("Quick Mask: paint the selection"));
             QToolButton *screenMode = new QToolButton(trailingBox);
             screenMode->setObjectName(QStringLiteral("krimbleScreenModeButton"));
             screenMode->setAutoRaise(true);
             screenMode->setIcon(krimbleGadgetIcon(false));
-            screenMode->setIconSize(QSize(28, 28));
+            screenMode->setIconSize(QSize(22, 22));
             screenMode->setToolTip(i18n("Screen Mode: the picture only (tap the X to come back)"));
             gadgets->addWidget(quickMask, 0, Qt::AlignHCenter);
             gadgets->addWidget(screenMode, 0, Qt::AlignHCenter);
