@@ -44,33 +44,10 @@ QGroupBox {
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
 QPushButton, QDialog QToolButton {
     color: #f1f4fc;
-    border: 1px solid #6071a9;
-    border-top: 1px solid #8292c4;   /* task 33: bevel */
-    border-left: 1px solid #8292c4;
-    border-bottom: 1px solid #000000;
-    border-right: 1px solid #000000;
-    border-radius: 3px;
-    padding: 5px 9px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
-}
-QPushButton:hover, QDialog QToolButton:hover {
-    border-color: #3bbcf5;
-    background: #2f3852;
-}
-QPushButton:pressed, QDialog QToolButton:pressed,
-QPushButton:checked, QDialog QToolButton:checked {
-    border: 2px solid #35d8f8;
-    background: #0b87dd;
-}
-QPushButton:default {
-    color: white;
-    border: 2px solid #35d8f8;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a89cd, stop:0.3 #085892, stop:0.6 #07497e, stop:1 #044a9c);
+    padding: 6px 18px;
 }
 QPushButton:disabled, QDialog QToolButton:disabled {
     color: #7a8199;
-    border-color: #2b334a;
-    background: #232a40;
 }
 QTabBar::tab {
     color: #e3e8f6;

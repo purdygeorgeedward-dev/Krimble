@@ -113,6 +113,7 @@
 #include "kis_config.h"
 #include "kis_config_notifier.h"
 #include "KisWideDockSeparatorStyle.h"
+#include "krimble/KrimbleButtonStyle.h"
 #include "flake/kis_shape_selection.h"
 #include <filter/kis_filter.h>
 #include <filter/kis_filter_registry.h>
@@ -395,7 +396,7 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     }
 #endif
 
-    qApp->setStyle(new KisWideDockSeparatorStyle(qApp->style()));
+    qApp->setStyle(new KrimbleButtonStyle(new KisWideDockSeparatorStyle(qApp->style())));
 #ifdef Q_OS_ANDROID
     // A single visual skin for dialogs and controls. Do not change window flags,
     // dialog movement, touch behavior, or the customizable toolbox layout.
