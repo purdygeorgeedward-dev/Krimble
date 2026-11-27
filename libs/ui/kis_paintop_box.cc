@@ -645,6 +645,10 @@ void KisPaintopBox::resourceSelected(KoResourceSP resource)
 
         dbgResources << "resourceSelected: preset" << preset << (preset ? QString("%1").arg(preset->valid()) : "");
         setCurrentPaintop(preset);
+        // the Blue Pencil (non-photo blue, for laying out pages) brings its color with it
+        if (preset->name() == QLatin1String("c)_Pencil_Blue_Non-Photo") && m_resourceProvider) {
+            m_resourceProvider->setFGColor(KoColor(QColor(0xA4, 0xDD, 0xED), m_resourceProvider->fgColor().colorSpace()));
+        }
 
         m_presetsEditor->resourceSelected(resource);
     }
