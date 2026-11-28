@@ -290,6 +290,16 @@ public:
         const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 5, side, side);   // 706th: 5 from the top, as the list's own delegate
         if (!icon.isNull()) {
             QPixmap pix = icon.pixmap(QSize(side, side), QIcon::Normal, QIcon::Off);
+            const qreal pageDpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+            const int wanted = qRound(side * pageDpr);
+            if (!pix.isNull() && qMax(pix.width(), pix.height()) < wanted) {
+                const QList<QSize> available = icon.availableSizes();
+                QSize best = pix.size();
+                Q_FOREACH (const QSize &size, available) if (size.width() > best.width()) best = size;
+                if (best != pix.size()) pix = icon.pixmap(best);
+                pix = pix.scaled(wanted, wanted, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                pix.setDevicePixelRatio(pageDpr);
+            }
             const QSizeF logical = QSizeF(pix.size()) / pix.devicePixelRatio();
             painter->drawPixmap(QPointF(iconRect.left() + (side - logical.width()) / 2.0, iconRect.top() + (side - logical.height()) / 2.0), pix);
         }

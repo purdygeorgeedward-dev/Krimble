@@ -649,20 +649,25 @@ LayerBox::LayerBox()
 
     QWidget *krimbleSettings = new QWidget(m_wdgLayerBox->listLayers->parentWidget());
     QGridLayout *krimbleGrid = new QGridLayout(krimbleSettings);
-    krimbleGrid->setContentsMargins(4, 4, 4, 4);
+    krimbleGrid->setContentsMargins(0, 6, 0, 6);
     krimbleGrid->setHorizontalSpacing(8);
-    krimbleGrid->setVerticalSpacing(4);
-    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, slider", "Thumbnail Size"), krimbleSettings), 0, 0);
+    krimbleGrid->setVerticalSpacing(6);
+    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, slider", "Thumbnails"), krimbleSettings), 0, 0);
     krimbleGrid->addWidget(thumbnailSizeSlider, 0, 1);
-    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, slider", "Tree Indentation"), krimbleSettings), 0, 2);
-    krimbleGrid->addWidget(indentationSlider, 0, 3);
-    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, combobox", "Blending Info Style"), krimbleSettings), 1, 0);
-    krimbleGrid->addWidget(infoTextCombobox, 1, 1);
-    krimbleGrid->addWidget(infoTextOpacitySlider, 1, 2, 1, 2);
-    krimbleGrid->addWidget(infoTextInlineChkbox, 2, 0, 1, 2);
-    krimbleGrid->addWidget(layerSelectionCheckBox, 2, 2, 1, 2);
+    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, slider", "Indent"), krimbleSettings), 1, 0);
+    krimbleGrid->addWidget(indentationSlider, 1, 1);
+    krimbleGrid->addWidget(new QLabel(i18nc("@label Layers Panel settings, combobox", "Info"), krimbleSettings), 2, 0);
+    krimbleGrid->addWidget(infoTextCombobox, 2, 1);
+    krimbleGrid->addWidget(infoTextOpacitySlider, 3, 1);
+    infoTextInlineChkbox->setText(i18nc("@option:check Layers Panel settings", "Inline"));
+    layerSelectionCheckBox->setText(i18nc("@option:check Layers Panel settings", "Selection boxes"));
+    QHBoxLayout *krimbleChecks = new QHBoxLayout();
+    krimbleChecks->setSpacing(12);
+    krimbleChecks->addWidget(infoTextInlineChkbox);
+    krimbleChecks->addWidget(layerSelectionCheckBox);
+    krimbleChecks->addStretch(1);
+    krimbleGrid->addLayout(krimbleChecks, 4, 0, 1, 2);
     krimbleGrid->setColumnStretch(1, 1);
-    krimbleGrid->setColumnStretch(3, 1);
     const int krimbleListIndex = m_wdgLayerBox->verticalLayout->indexOf(m_wdgLayerBox->horizontalLayout);
     m_wdgLayerBox->verticalLayout->insertWidget(krimbleListIndex + 1, krimbleSettings);
 }

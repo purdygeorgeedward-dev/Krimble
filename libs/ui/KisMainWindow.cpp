@@ -3038,8 +3038,10 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
             }
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
-        if (dockWidget->widget() && dockWidget->widget()->layout())
-            dockWidget->widget()->layout()->setContentsMargins(1, 1, 1, 1);
+        if (dockWidget->widget() && dockWidget->widget()->layout()) {
+            if (factory->id() == QLatin1String("ColorSelectorNg")) dockWidget->widget()->layout()->setContentsMargins(1, 1, 1, 1);
+            else dockWidget->widget()->layout()->setContentsMargins(8, 6, 8, 6);
+        }
 
         Qt::DockWidgetArea side = Qt::RightDockWidgetArea;
         bool visible = true;
