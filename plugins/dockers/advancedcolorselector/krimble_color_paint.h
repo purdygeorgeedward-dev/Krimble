@@ -235,12 +235,17 @@ public:
         p.save();
         p.setRenderHint(QPainter::Antialiasing, true);
         p.setPen(Qt::NoPen);
-        for (int i = 4; i >= 1; --i) {
-            QColor c(70, 175, 225);
-            c.setAlpha(30 + (4 - i) * 28);
-            p.setBrush(c);
-            p.drawRoundedRect(r.adjusted(-i * real, -i * real, i * real, i * real), pill + i * real, pill + i * real);
+        // a soft glow 9 real pixels wide, its fall-off sampled outside the Picker tab in the Color Lab mockup
+        static const qreal fall[9] = {0.90, 0.85, 0.80, 0.65, 0.50, 0.35, 0.22, 0.10, 0.03};
+        p.setBrush(Qt::NoBrush);
+        for (int i = 0; i < 9; ++i) {
+            QColor c(45, 145, 192);
+            c.setAlphaF(fall[i]);
+            p.setPen(QPen(c, real));
+            const qreal d = (2.0 + i + 0.5) * real;
+            p.drawRoundedRect(r.adjusted(-d, -d, d, d), pill + d, pill + d);
         }
+        p.setPen(Qt::NoPen);
         QLinearGradient face(r.topLeft(), r.bottomLeft());
         // sampled down the middle of the Picker tab in the Color Lab mockup (krimble-artwork/mockups/color-lab-wishlist-2026-11-16.jpg)
         face.setColorAt(0.00, QColor(14, 134, 197));
