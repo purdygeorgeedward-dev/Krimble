@@ -31,6 +31,7 @@ public:
             }
             if (!inDialog) return false;
         }
+        if (w->inherits("KisColorButton") || w->inherits("KoColorPopupButton") || w->inherits("KoDualColorButton")) return false;
         for (const QWidget *p = w; p; p = p->parentWidget()) {
             if (p->inherits("KisColorSelectorNgDock")) return false;
         }
@@ -39,61 +40,35 @@ public:
 
     static void krimblePaintPill(QPainter *p, const QRectF &rect, bool selected, bool enabled, qreal dpr)
     {
-        const qreal one = 1.0 / qMax<qreal>(1.0, dpr);
-        const qreal ring = selected ? 2.0 * one : 0.0;
-        const QRectF r = rect.adjusted(ring, ring, -ring, -ring);
-        const qreal rad = r.height() / 2.0;
-        QPainterPath path;
-        path.addRoundedRect(r, rad, rad);
-
+        const qreal real = 1.0 / qMax<qreal>(1.0, dpr);
+        const QRectF r = rect.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
+        if (r.width() < 2 || r.height() < 2) return;
+        const qreal radius = qMin(r.width(), r.height()) / 2.0;
         p->save();
         p->setRenderHint(QPainter::Antialiasing, true);
-
-        QLinearGradient body(r.topLeft(), r.bottomLeft());
+        p->setPen(Qt::NoPen);
         if (selected) {
-            body.setColorAt(0.0, QColor(40, 150, 220));
-            body.setColorAt(0.5, QColor(18, 110, 190));
-            body.setColorAt(1.0, QColor(8, 70, 140));
-        } else if (enabled) {
-            body.setColorAt(0.0, QColor(88, 91, 124));
-            body.setColorAt(0.5, QColor(66, 69, 99));
-            body.setColorAt(1.0, QColor(46, 48, 72));
+            for (int i = 4; i >= 1; --i) {
+                QColor c(70, 175, 225);
+                c.setAlpha(18 + (4 - i) * 22);
+                p->setBrush(c);
+                p->drawRoundedRect(r.adjusted(-i * real, -i * real, i * real, i * real), radius + i * real, radius + i * real);
+            }
+            QLinearGradient face(r.topLeft(), r.bottomLeft());
+            face.setColorAt(0.0, QColor(13, 135, 198));
+            face.setColorAt(0.49, QColor(9, 99, 157));
+            face.setColorAt(0.5, QColor(7, 65, 115));
+            face.setColorAt(1.0, QColor(0, 77, 129));
+            p->setBrush(face);
+            p->setPen(QPen(QColor(113, 226, 255), 2.0 * real));
+            p->drawRoundedRect(r, radius, radius);
         } else {
-            body.setColorAt(0.0, QColor(62, 64, 88));
-            body.setColorAt(1.0, QColor(44, 46, 66));
-        }
-        p->fillPath(path, body);
-
-        p->save();
-        p->setClipPath(path);
-        const QRectF shine(r.left() + rad * 0.35, r.top() + r.height() * 0.06, r.width() - rad * 0.7, r.height() * 0.46);
-        QPainterPath shinePath;
-        shinePath.addRoundedRect(shine, shine.height() / 2.0, shine.height() / 2.0);
-        QLinearGradient shineFill(shine.topLeft(), shine.bottomLeft());
-        shineFill.setColorAt(0.0, QColor(255, 255, 255, selected ? 110 : (enabled ? 60 : 30)));
-        shineFill.setColorAt(1.0, QColor(255, 255, 255, 0));
-        p->fillPath(shinePath, shineFill);
-        p->restore();
-
-        const qreal w = 2.0 * one;
-        const QRectF ri = r.adjusted(w / 2.0, w / 2.0, -w / 2.0, -w / 2.0);
-        QPainterPath bevel;
-        bevel.addRoundedRect(ri, ri.height() / 2.0, ri.height() / 2.0);
-        QLinearGradient edge(r.topLeft(), r.bottomLeft());
-        edge.setColorAt(0.0, QColor(255, 255, 255, selected ? 150 : (enabled ? 95 : 45)));
-        edge.setColorAt(0.45, QColor(255, 255, 255, 0));
-        edge.setColorAt(0.55, QColor(0, 0, 0, 0));
-        edge.setColorAt(1.0, QColor(0, 0, 0, selected ? 150 : 130));
-        p->setPen(QPen(QBrush(edge), w));
-        p->setBrush(Qt::NoBrush);
-        p->drawPath(bevel);
-
-        if (selected) {
-            QPainterPath outer;
-            const QRectF ro = rect.adjusted(one, one, -one, -one);
-            outer.addRoundedRect(ro, ro.height() / 2.0, ro.height() / 2.0);
-            p->setPen(QPen(QColor(120, 215, 255), 2.0 * one));
-            p->drawPath(outer);
+            const QColor window = qApp->palette().color(QPalette::Window);
+            QLinearGradient face(r.topLeft(), r.bottomLeft());
+            face.setColorAt(0.0, enabled ? window.lighter(118) : window);
+            face.setColorAt(1.0, enabled ? window.darker(135) : window.darker(115));
+            p->setBrush(face);
+            p->drawRoundedRect(r, radius, radius);
         }
         p->restore();
     }

@@ -36,10 +36,12 @@ public:
         setWidget(m_toolBox);
 
         m_scrollPrev->setAutoRepeat(true);
+        m_scrollPrev->setAutoRaise(true);
         m_scrollPrev->setAutoFillBackground(true);
         m_scrollPrev->setFocusPolicy(Qt::NoFocus);
         connect(m_scrollPrev, &QToolButton::clicked, this, &KoToolBoxScrollArea::doScrollPrev);
         m_scrollNext->setAutoRepeat(true);
+        m_scrollNext->setAutoRaise(true);
         m_scrollNext->setAutoFillBackground(true);
         m_scrollNext->setFocusPolicy(Qt::NoFocus);
         connect(m_scrollNext, &QToolButton::clicked, this, &KoToolBoxScrollArea::doScrollNext);
