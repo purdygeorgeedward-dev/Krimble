@@ -725,17 +725,22 @@ protected:
             if (i == current) continue;
             const QRectF rect = tabRect(i, false);
             const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
+            // sampled down an unselected tab in the Color Lab mockup (krimble-artwork/mockups/color-lab-wishlist-2026-11-16.jpg):
+            // a slow fall, then a dark band at the bottom; a solid light line just inside the top edge
             QLinearGradient g(0, b.top(), 0, b.bottom());
-            g.setColorAt(0.0, QColor("#2e354d"));
-            g.setColorAt(1.0, QColor("#1e2437"));
+            g.setColorAt(0.00, QColor(44, 51, 73));
+            g.setColorAt(0.45, QColor(38, 44, 66));
+            g.setColorAt(0.80, QColor(32, 39, 58));
+            g.setColorAt(0.90, QColor(27, 33, 50));
+            g.setColorAt(1.00, QColor(14, 22, 35));
             p.setPen(Qt::NoPen);
             p.setBrush(g);
             p.drawRoundedRect(b, 14 * s, 14 * s);
             p.setBrush(Qt::NoBrush);
-            p.setPen(QPen(QColor("#0d1223"), 1.4));
+            p.setPen(QPen(QColor(9, 17, 36), 1.4));
             p.drawRoundedRect(b, 14 * s, 14 * s);
-            p.setPen(QPen(QColor(110, 128, 182, 120), 1.2));
-            p.drawLine(QPointF(b.left() + 14 * s, b.top() + 1.4), QPointF(b.right() - 14 * s, b.top() + 1.4));
+            p.setPen(QPen(QColor(81, 87, 121), 1.2));
+            p.drawLine(QPointF(b.left() + 8 * s, b.top() + 1.9), QPointF(b.right() - 8 * s, b.top() + 1.9));
             p.setPen(QColor("#d9deee"));
             p.drawText(rect, Qt::AlignCenter, tr(names[i]));
         }
