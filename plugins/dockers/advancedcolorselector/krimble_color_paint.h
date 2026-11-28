@@ -227,18 +227,30 @@ public:
     // the look of a selected item: a deep blue fill, a bright cyan outline and a glow (measured in the mockups' selected buttons and tabs)
     static void paintSelected(QPainter &p, const QRectF &rect, qreal radius, qreal s)
     {
-        for (int i = 6; i >= 1; --i) {
-            p.setPen(QPen(QColor(40, 190, 255, 20 + (6 - i) * 9), 2.0));
-            p.setBrush(Qt::NoBrush);
-            p.drawRoundedRect(rect.adjusted(-i * 1.1 * s, -i * 1.1 * s, i * 1.1 * s, i * 1.1 * s), radius + i * s, radius + i * s);
-        }
-        const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
+        Q_UNUSED(radius);
+        Q_UNUSED(s);
+        const qreal real = 1.0 / qMax<qreal>(1.0, p.device() ? p.device()->devicePixelRatioF() : 1.0);
+        const QRectF r = rect.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
+        if (r.width() < 2 || r.height() < 2) return;
+        const qreal pill = qMin(r.width(), r.height()) / 2.0;
+        p.save();
+        p.setRenderHint(QPainter::Antialiasing, true);
         p.setPen(Qt::NoPen);
-        p.setBrush(QColor("#0b87dd"));
-        p.drawRoundedRect(b, radius, radius);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#6fe3ff"), 2.4 * qMax<qreal>(0.5, s * 2)));
-        p.drawRoundedRect(b, radius, radius);
+        for (int i = 4; i >= 1; --i) {
+            QColor c(70, 175, 225);
+            c.setAlpha(18 + (4 - i) * 22);
+            p.setBrush(c);
+            p.drawRoundedRect(r.adjusted(-i * real, -i * real, i * real, i * real), pill + i * real, pill + i * real);
+        }
+        QLinearGradient face(r.topLeft(), r.bottomLeft());
+        face.setColorAt(0.0, QColor(13, 135, 198));
+        face.setColorAt(0.49, QColor(9, 99, 157));
+        face.setColorAt(0.5, QColor(7, 65, 115));
+        face.setColorAt(1.0, QColor(0, 77, 129));
+        p.setBrush(face);
+        p.setPen(QPen(QColor(113, 226, 255), 2.0 * real));
+        p.drawRoundedRect(r, pill, pill);
+        p.restore();
     }
     // a pill that keeps the color and the glow of the item it shows (the preview boxes): a colored rounded square with the cyan outline and its glow
     static void paintColorBox(QPainter &p, const QRectF &rect, const QColor &c, qreal radius, qreal s, bool glow)

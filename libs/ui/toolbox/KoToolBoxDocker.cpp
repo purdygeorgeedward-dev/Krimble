@@ -96,7 +96,7 @@ protected:
         p.setPen(Qt::NoPen);
         p.setBrush(line);
         const qreal sep = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
-        const qreal cy = (height() - sep) / 2.0, gap = 3.0;
+        const qreal cy = (height() - sep) / 2.0, gap = 2.5;
         const qreal inset = qMin<qreal>(18.0, width() * 0.2);
         for (int i = -2; i <= 2; ++i)
             p.drawRect(QRectF(inset, cy + i * gap - 0.5, width() - 2.0 * inset, 1.0));
@@ -255,7 +255,8 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    w->setMinimumSize(titleSize, qMax(titleSize + 12, 34));
+    w->setMinimumSize(titleSize, 22);
+    w->setMaximumHeight(22);
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
@@ -475,9 +476,6 @@ void KoToolBoxDocker::slotUpdateDisplayRenderer()
 void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
 {
     QDockWidget::resizeEvent(event);
-    if (!isFloating() && !m_applying && qAbs(event->size().height() - event->oldSize().height()) > 20) {
-        QTimer::singleShot(300, this, [this]() { if (!m_applying) applyColumns(); });
-    }
     if (m_orientation == Auto && !isFloating()) {
         if (m_dockArea == Qt::TopDockWidgetArea || m_dockArea == Qt::BottomDockWidgetArea) {
             setToolBoxOrientation(Qt::Horizontal);
@@ -799,12 +797,7 @@ void KoToolBoxDocker::applyColumns()
     const bool columns = m_toolBox->layout()->hasHeightForWidth();   // true: vertical layout (columns); false: rows
 
     if (columns) {
-        int fitColumns = qMax(1, m_columns);
-        if (!isFloating() && m_scrollArea) {
-            const int room = m_scrollArea->viewport()->height();
-            while (fitColumns < 4 && room > 0 && m_toolBox->layout()->heightForWidth(fitColumns * iconWidth()) > room) ++fitColumns;
-        }
-        const int target = fitColumns * iconWidth() + chromeWidth();
+        const int target = m_columns * iconWidth() + chromeWidth();
         if (qAbs(width() - target) < 2) return;
         if (isFloating()) {
             m_applying = true;
