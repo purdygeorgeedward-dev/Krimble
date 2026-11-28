@@ -1490,6 +1490,9 @@ void KisMainWindow::customizeTabBar()
         closeButtonHoverColor = QStringLiteral("darkred");
     }
     QString tabStyleSheet = QStringLiteral(R"(
+            QTabBar::tab {
+                padding-left: 7px;
+            }
             QTabBar::close-button {
                 image: url(%1);
                 padding-top: 3px;
