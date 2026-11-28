@@ -698,8 +698,7 @@ class KrimbleColorTabBar : public KrimbleColorBase
 public:
     std::function<void(int)> onTab;
     int current = 0;
-    // 14 units above and below the tabs so the selected tab's glow shows at the top and bottom, not only the sides
-    double designHeight() const override { return 112.0; }
+    double designHeight() const override { return 84.0; }
     explicit KrimbleColorTabBar(QWidget *parent = nullptr) : KrimbleColorBase(parent)
     {
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);   // (not Fixed: a fixed height would be the size hint's, not the height the width asks for)
@@ -777,7 +776,7 @@ private:
         const double margin = 24.0, gap = 8.0;
         const double w = (DW - 2 * margin - 4 * gap) / 5.0;
         const double x = margin + i * (w + gap);
-        return selected ? r(x - 5, 14, w + 10, 82) : r(x, 17, w, 75);
+        return selected ? r(x - 5, 0, w + 10, 82) : r(x, 3, w, 75);
     }
 };
 
