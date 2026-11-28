@@ -776,7 +776,9 @@ private:
         const double margin = 24.0, gap = 8.0;
         const double w = (DW - 2 * margin - 4 * gap) / 5.0;
         const double x = margin + i * (w + gap);
-        return selected ? r(x - 5, 0, w + 10, 82) : r(x, 3, w, 75);
+        // the selected tab is the same size as the others (George, Nov 28 2026: "Same size looks more consistent.")
+        Q_UNUSED(selected);
+        return r(x, 3, w, 75);
     }
 };
 
