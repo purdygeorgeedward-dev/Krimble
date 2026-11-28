@@ -43,7 +43,8 @@ public:
         const qreal real = 1.0 / qMax<qreal>(1.0, dpr);
         const QRectF r = rect.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
         if (r.width() < 2 || r.height() < 2) return;
-        const qreal radius = qMin(r.width(), r.height()) / 2.0;
+        // rounded boxes: only the corners are rounded, not the sides (George, Nov 28 2026)
+        const qreal radius = qMin<qreal>(6.0, qMin(r.width(), r.height()) / 2.0);
         p->save();
         p->setRenderHint(QPainter::Antialiasing, true);
         p->setPen(Qt::NoPen);
