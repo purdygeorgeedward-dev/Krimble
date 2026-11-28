@@ -227,12 +227,11 @@ public:
     // the look of a selected item: a deep blue fill, a bright cyan outline and a glow (measured in the mockups' selected buttons and tabs)
     static void paintSelected(QPainter &p, const QRectF &rect, qreal radius, qreal s)
     {
-        Q_UNUSED(radius);
         Q_UNUSED(s);
         const qreal real = 1.0 / qMax<qreal>(1.0, p.device() ? p.device()->devicePixelRatioF() : 1.0);
-        const QRectF r = rect.adjusted(4.0 * real, 4.0 * real, -4.0 * real, -4.0 * real);
+        const QRectF r = rect.adjusted(real, real, -real, -real);
         if (r.width() < 2 || r.height() < 2) return;
-        const qreal pill = qMin(r.width(), r.height()) / 2.0;
+        const qreal pill = qMin(radius, qMin(r.width(), r.height()) / 2.0);
         p.save();
         p.setRenderHint(QPainter::Antialiasing, true);
         p.setPen(Qt::NoPen);
