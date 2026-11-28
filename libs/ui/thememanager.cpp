@@ -280,16 +280,16 @@ void ThemeManager::slotChangePalette()
     qApp->setPalette(palette);
 #ifdef Q_OS_ANDROID
     qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Painted"));
-    const bool krimbleOwn = theme == QStringLiteral("Blue") || theme == QStringLiteral("Blue-Gray") || theme == QStringLiteral("Dark Gray") || theme == QStringLiteral("Painted");
-    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Dark Gray") || !krimbleOwn);
-    qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Dark Gray"));
-    qApp->setProperty("krimbleSelectionGradient", krimbleOwn && theme != QStringLiteral("Dark Gray"));
+    const bool krimbleOwn = theme == QStringLiteral("Blue") || theme == QStringLiteral("Blue-Gray") || theme == QStringLiteral("Warm Gray") || theme == QStringLiteral("Painted");
+    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Warm Gray") || !krimbleOwn);
+    qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Warm Gray"));
+    qApp->setProperty("krimbleSelectionGradient", krimbleOwn && theme != QStringLiteral("Warm Gray"));
     QString krimbleSheet;
     if (theme == QStringLiteral("Blue")) {
         krimbleSheet = (krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Blue-Gray")) {
         krimbleSheet = (krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
-    } else if (theme == QStringLiteral("Dark Gray")) {
+    } else if (theme == QStringLiteral("Warm Gray")) {
         krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Painted")) {
         krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
@@ -311,7 +311,7 @@ void ThemeManager::slotChangePalette()
     }
     if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();
     if (theme == QStringLiteral("Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
-    else if (theme == QStringLiteral("Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
+    else if (theme == QStringLiteral("Warm Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
