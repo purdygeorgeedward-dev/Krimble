@@ -98,8 +98,14 @@ protected:
         const qreal sep = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
         const qreal cy = (height() - sep) / 2.0, gap = 2.5;
         const qreal inset = qMin<qreal>(18.0, width() * 0.2);
-        for (int i = -2; i <= 2; ++i)
-            p.drawRect(QRectF(inset, cy + i * gap - 0.5, width() - 2.0 * inset, 1.0));
+        // for (int i = -2; i <= 2; ++i)
+        //     p.drawRect(QRectF(inset, cy + i * gap - 0.5, width() - 2.0 * inset, 1.0));
+        // Krimble: only as many lines as fit with a margin of 7 above and below (George, Nov 28 2026).
+        const qreal margin = 7.0;
+        const int lines = qMax(1, int(((height() - sep) - 2.0 * margin - 1.0) / gap) + 1);
+        const qreal first = cy - (lines - 1) * gap / 2.0;
+        for (int i = 0; i < lines; ++i)
+            p.drawRect(QRectF(inset, first + i * gap - 0.5, width() - 2.0 * inset, 1.0));
         const qreal real = 1.0 / qMax<qreal>(1.0, devicePixelRatioF());
         p.setRenderHint(QPainter::Antialiasing, false);
         p.fillRect(QRectF(0, height() - 2.0 * real, width(), real), QColor(0, 0, 0));
