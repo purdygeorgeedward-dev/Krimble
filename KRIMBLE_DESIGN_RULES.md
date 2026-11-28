@@ -26,3 +26,4 @@
   Not yet in the code on `fork-1.0.71`: George, Nov 28: "We do theme work after bug fixes."
 - (2026-11-22) **When George circles something in a screenshot, the circle is exactly what he means.**
 - (2026-11-22) **At least one light theme.** George: "I think we should have at least one light theme since not everyone likes dark themes." The theme is "Krimble Light"; no theme has "Krita" in its name ("keep the word Krita out").
+- (2026-11-28) **A panel goes off the bottom edge before it squashes.** George: "Remember that it is better for a panel to go off the bottom edge than to turn into a hideous monster like this." (build 82 screenshot of the cramped Layers panel, docs/krimble-refs). A panel keeps its proper layout and runs off the screen edge rather than squeezing its contents.
