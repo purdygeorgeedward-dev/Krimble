@@ -734,13 +734,19 @@ protected:
             g.setColorAt(0.90, QColor(27, 33, 50));
             g.setColorAt(1.00, QColor(14, 22, 35));
             p.setPen(Qt::NoPen);
+            // a soft dark haze just outside the outline, as in the mockup
+            for (int h = 3; h >= 1; --h) {
+                p.setBrush(QColor(4, 8, 20, 70 - h * 18));
+                p.drawRoundedRect(b.adjusted(-h * 0.7, -h * 0.7, h * 0.7, h * 0.7), 14 * s + h * 0.7, 14 * s + h * 0.7);
+            }
             p.setBrush(g);
             p.drawRoundedRect(b, 14 * s, 14 * s);
             p.setBrush(Qt::NoBrush);
-            p.setPen(QPen(QColor(9, 17, 36), 1.4));
+            p.setPen(QPen(QColor(9, 17, 36), 2.0));
             p.drawRoundedRect(b, 14 * s, 14 * s);
-            p.setPen(QPen(QColor(81, 87, 121), 1.2));
-            p.drawLine(QPointF(b.left() + 8 * s, b.top() + 1.9), QPointF(b.right() - 8 * s, b.top() + 1.9));
+            // the light line stays out of the rounded corners
+            p.setPen(QPen(QColor(81, 87, 121), 1.3, Qt::SolidLine, Qt::RoundCap));
+            p.drawLine(QPointF(b.left() + 14 * s + 2.0, b.top() + 2.2), QPointF(b.right() - 14 * s - 2.0, b.top() + 2.2));
             p.setPen(QColor("#d9deee"));
             p.drawText(rect, Qt::AlignCenter, tr(names[i]));
         }

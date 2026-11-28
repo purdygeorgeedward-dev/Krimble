@@ -373,12 +373,11 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
 
     Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleStretchButton, m_krimbleRotateButton, m_krimbleShearButton, perspectiveTransformButton, warpButton,
                                                               cageButton, liquifyButton, meshButton})) {
-        // modeButton->setIconSize(QSize(20, 20));
-        // modeButton->setMinimumHeight(30);
+        // square buttons, the selection a plain blue square with no rounded corners
         modeButton->setIconSize(QSize(28, 28));
-        modeButton->setMinimumHeight(38);
+        modeButton->setFixedSize(36, 36);
         modeButton->setStyleSheet(QStringLiteral(
-            "QToolButton { padding: 4px; border-radius: 6px; }"
+            "QToolButton { padding: 4px; border-radius: 0px; }"
             "QToolButton:checked { background-color: palette(highlight); color: palette(highlighted-text); }"));
     }
 
