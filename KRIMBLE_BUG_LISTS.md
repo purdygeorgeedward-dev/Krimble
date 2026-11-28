@@ -6,6 +6,7 @@ Release notes take their Known issues from here. Newest first. The status of eac
 ## Special test build 82, 1.0.82-test-fork71 (tested Nov 27, 2026, reported 5:51 PM MST)
 
 - "No upside down blur." The blurry, upside-down image did not come back in build 82 (fork-1.0.71: 1.0.71 plus later work, nothing from 1.0.72).
+- 5:54 PM: "Fixes. Buttons look inconsistent and bad. File menu title starts under the K. No margins on panels." Screenshots docs/krimble-refs/2026-11-27_1754_build82-*: image placed far from where it should be (TOO FAR); no ridges on the horizontal scrollbar; toolbox TOO TALL, DONT SCROLL; Preferences page icons STILL TINY; Layers settings with NO MARGIN, labels cut (MESS); Save options buttons.
 
 ## 1.0.80-beta (tested Nov 26, 2026, 2:36 PM MST; screenshots docs/krimble-refs/2026-11-26_1436_*)
 
