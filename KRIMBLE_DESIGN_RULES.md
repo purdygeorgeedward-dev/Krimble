@@ -22,7 +22,7 @@
   3. Only the selected tab has bevels around it (light top and left edges, dark right edge).
   4. The selected tab is the panel's color, and its bottom merges into the panel below: no line or edge between them.
   5. The light line is the top edge of the panel, not the bottom of the unselected tabs: one unbroken line across the whole tab row (under the unselected tabs and the gaps between them), left open only where the selected tab merges into the panel. Its color is the selected tab's top edge (change 879). George, Nov 28, 2:47 AM: "It represents the top of the panel. Its not rendered where the merge happens with the selected tab, but it should not appear separated between unselected tabs. It should be a contiguous line there."
-  6. In Painted, tabs take the panel's own color (change 885).
+  6. In every theme, tabs take their colors from the panel's own color (first done in Painted, change 885; George, Nov 28 2026: "Yes.").
   Not yet in the code on `fork-1.0.71`: George, Nov 28: "We do theme work after bug fixes."
 - (2026-11-22) **When George circles something in a screenshot, the circle is exactly what he means.**
 - (2026-11-22) **At least one light theme.** George: "I think we should have at least one light theme since not everyone likes dark themes." The theme is "Krimble Light"; no theme has "Krita" in its name ("keep the word Krita out").
