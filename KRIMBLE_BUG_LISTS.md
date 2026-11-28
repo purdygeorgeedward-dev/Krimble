@@ -3,6 +3,10 @@
 Every bug list from testing a build, filed under the build it was found in, reworded as plain issue statements.
 Release notes take their Known issues from here. Newest first. The status of each fix is in KRIMBLE_CHANGES.md.
 
+## Special test build 82, 1.0.82-test-fork71 (tested Nov 27, 2026, reported 5:51 PM MST)
+
+- "No upside down blur." The blurry, upside-down image did not come back in build 82 (fork-1.0.71: 1.0.71 plus later work, nothing from 1.0.72).
+
 ## 1.0.80-beta (tested Nov 26, 2026, 2:36 PM MST; screenshots docs/krimble-refs/2026-11-26_1436_*)
 
 1. The New File dialog is very tall no matter what is done to it.
