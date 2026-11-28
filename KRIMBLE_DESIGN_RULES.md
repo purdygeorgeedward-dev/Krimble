@@ -16,5 +16,13 @@
 - (2026-11-22) **Blue Aqua only where it is really painted.** No glistening blue style-sheet look on buttons; a button the Aqua paint does not cover is a plain raised button. Aqua corners are the rounder ones (version 4 of the Nov 22 demo); no see-through Aqua (it looks gray).
 - (2026-11-22) **The selected tool's Aqua fills the whole toolbox tile.**
 - (2026-11-22) **Panel tab rows: three shades.** The whole row behind the tabs is much darker than the panel (twice as dark); the selected tab is the panel's color; an unselected tab is a little darker than the selected one. George: "The background area should be darker and the unselected tab can be lighter." (This replaced the halfway rule of a few minutes earlier.) The curved tab shapes stay off: "I meant the curved shapes."
+- (2026-11-28) **Panel tabs, the full set** (George, Nov 28, 2:42 AM: "We had the unselected ones slightly darker and only the selected one got the bevels around it and the selected bottom merged with the panel below and the background was darker than the unselected tab." / "Write the rules."):
+  1. The row behind the tabs is darker than the unselected tabs (twice as dark as the panel, change 826).
+  2. Unselected tabs are slightly darker than the selected tab (1.12 times darker than the panel, change 826), with no bevels.
+  3. Only the selected tab has bevels around it (light top and left edges, dark right edge).
+  4. The selected tab is the panel's color, and its bottom merges into the panel below: no line or edge between them.
+  5. A light line runs under the unselected tabs only, in the color of the selected tab's top edge (change 879).
+  6. In Painted, tabs take the panel's own color (change 885).
+  Not yet in the code on `fork-1.0.71`: George, Nov 28: "We do theme work after bug fixes."
 - (2026-11-22) **When George circles something in a screenshot, the circle is exactly what he means.**
 - (2026-11-22) **At least one light theme.** George: "I think we should have at least one light theme since not everyone likes dark themes." The theme is "Krimble Light"; no theme has "Krita" in its name ("keep the word Krita out").
