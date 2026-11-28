@@ -17,6 +17,8 @@ Krimble: a mobile-first Android fork of Krita, aiming at industry-standard edito
 - Before any change: say in one line what you understood. Wait for his yes.
 - Visual topics: show a picture (rendered from the real code), not words.
 - Don't guess what his screenshots mean. Ask.
+- Never make up names for his images. Keep only the name he gave (the chat app renames uploads; his name is in the message note).
+  Why: agents keep assuming wrong things about what an image is for, then leave notes that pass the error on to later sessions. Ask questions, then update the notes with his answers.
 - Don't record your own guesses as his bugs or decisions.
 - One topic at a time. Wait for his answer.
 - If he's about to make a big mistake, warn him (General Order 1).
