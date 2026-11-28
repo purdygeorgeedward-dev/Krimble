@@ -190,12 +190,12 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-26_2008_preview-black-and-white-scrollbar.png — Black and White scrollbar grip: black outline, black ridges (George: "On white everything needs a black outline.")
 - 2026-11-26_2020_preview-black-and-white-outlines.png — Black and White dialog: black outlines on fields, lists, group boxes, check boxes, sliders, progress bars and scrollbars; black fills instead of Aqua (George: "Anything that otherwise just bleeds into white.")
 - 2026-11-26_2030_preview-black-and-white-spin-progress.png — Black and White: number box arrows drawn inside the box, gray progress fill so the percentage stays readable
-- 2026-11-27_1754_build82-01-image-at-right-edge.jpg — build 82: image placed at the right edge
+- 2026-11-27_1754_build82-01-image-at-right-edge.jpg — build 82 screenshot
 - 2026-11-27_1754_build82-02-no-ridges-horizontal-scrollbar.jpg — build 82: NO RIDGES on the horizontal scrollbar
 - 2026-11-27_1754_build82-03-toolbox-too-tall-dont-scroll.jpg — build 82: toolbox TOO TALL, DONT SCROLL
-- 2026-11-27_1754_build82-04-image-at-left-edge.jpg — build 82: image at the left edge
+- 2026-11-27_1754_build82-04-image-at-left-edge.jpg — build 82 screenshot
 - 2026-11-27_1754_build82-05-too-far.jpg — build 82: TOO FAR
-- 2026-11-27_1754_build82-06-image-far-right.jpg — build 82: image far right
+- 2026-11-27_1754_build82-06-image-far-right.jpg — build 82 screenshot
 - 2026-11-27_1754_build82-07-preferences-icons-still-tiny.jpg — build 82: Preferences page icons STILL TINY
 - 2026-11-27_1754_build82-08-preferences-icons.jpg — build 82: Preferences page icons
 - 2026-11-27_1754_build82-09-color-lab-docked-upright.jpg — build 82: Color Lab docked upright
