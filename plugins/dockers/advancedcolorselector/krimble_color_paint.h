@@ -237,17 +237,24 @@ public:
         p.setPen(Qt::NoPen);
         for (int i = 4; i >= 1; --i) {
             QColor c(70, 175, 225);
-            c.setAlpha(18 + (4 - i) * 22);
+            c.setAlpha(30 + (4 - i) * 28);
             p.setBrush(c);
             p.drawRoundedRect(r.adjusted(-i * real, -i * real, i * real, i * real), pill + i * real, pill + i * real);
         }
         QLinearGradient face(r.topLeft(), r.bottomLeft());
-        face.setColorAt(0.0, QColor(13, 135, 198));
-        face.setColorAt(0.49, QColor(9, 99, 157));
-        face.setColorAt(0.5, QColor(7, 65, 115));
-        face.setColorAt(1.0, QColor(0, 77, 129));
+        // sampled down the middle of the Picker tab in the Color Lab mockup (krimble-artwork/mockups/color-lab-wishlist-2026-11-16.jpg)
+        face.setColorAt(0.00, QColor(14, 134, 197));
+        face.setColorAt(0.10, QColor(12, 117, 182));
+        face.setColorAt(0.20, QColor(9, 105, 167));
+        face.setColorAt(0.30, QColor(9, 91, 149));
+        face.setColorAt(0.40, QColor(9, 80, 131));
+        face.setColorAt(0.50, QColor(6, 66, 116));
+        face.setColorAt(0.57, QColor(7, 60, 108));
+        face.setColorAt(0.70, QColor(7, 65, 115));
+        face.setColorAt(0.85, QColor(9, 69, 123));
+        face.setColorAt(1.00, QColor(6, 72, 128));
         p.setBrush(face);
-        p.setPen(QPen(QColor(113, 226, 255), 2.0 * real));
+        p.setPen(QPen(QColor(117, 224, 255), 4.0 * real));
         p.drawRoundedRect(r, pill, pill);
         p.restore();
     }
