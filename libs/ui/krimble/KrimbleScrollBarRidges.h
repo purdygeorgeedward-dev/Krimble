@@ -92,8 +92,10 @@ public:
     }
     static void install()
     {
-        if (qApp->findChild<KrimbleScrollBarHooks*>(QString(), Qt::FindDirectChildrenOnly)) return;
-        qApp->installEventFilter(new KrimbleScrollBarHooks(qApp));
+        if (qApp->findChild<QObject*>(QStringLiteral("krimbleScrollBarHooks"), Qt::FindDirectChildrenOnly)) return;
+        KrimbleScrollBarHooks *hooks = new KrimbleScrollBarHooks(qApp);
+        hooks->setObjectName(QStringLiteral("krimbleScrollBarHooks"));
+        qApp->installEventFilter(hooks);
     }
 private:
     KrimbleScrollBarGrip *m_grip;
